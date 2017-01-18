@@ -15,6 +15,16 @@
 
 Le script va créer des liens symboliques vers les sources du module
 
+Puis se connecter à l'image Docker de Magento pour activer le module
+
+    sudo docker exec -t -i $(sudo docker inspect --format="{{.Id}}" magento2_apache_1) /bin/bash
+    php bin/magento module:enable Lengow_Connector
+    php bin/magento setup:upgrade
+    php bin/magento setup:di:compile
+    chmod 777 -R var/
+    php bin/magento cache:flush
+
+
 ## Versionning GIT ##
 
 1 - Prendre un ticket sur JIRA et cliquer sur Créer une branche dans le bloc développement à droite
@@ -50,13 +60,13 @@ Le script va créer des liens symboliques vers les sources du module
 
 12 - Lorsque la pull request est validée, elle sera mergée sur la branche de dev
 
-## Commande Magento 2 ##
+## Commandes Magento 2 ##
 
 Pour utiliser la console Magento, se rendre directement dans l'image docker
 
     sudo docker exec -t -i $(sudo docker inspect --format="{{.Id}}" magento2_apache_1) /bin/bash
 
-### principales commandes ###
+### Principales commandes ###
 
 Activer un module
 
@@ -99,7 +109,7 @@ Vider le cache storage
 
     php bin/magento cache:flush
 
-vider le cache de Magento
+Vider le cache de Magento
 
     php bin/magento cache:clean
 
