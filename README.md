@@ -58,33 +58,62 @@ Pour utiliser la console Magento, se rendre directement dans l'image docker :
 ### principales commandes ###
 
 Activer un module
+
     php bin/magento module:enable Lengow_Connector
+
 Activer un module en nettoyant les fichiers statiques de Magento
+
     php bin/magento module:enable --clear-static-content Lengow_Connector
+
 Désactiver un module
+
     php bin/magento module:disable Lengow_Connector
+
 Voir le mode en cours
+
     php bin/magento deploy:mode:show
+
 Passer en mode Developer
+
     rm -rf /var/di/* /var/generation/*
     php bin/magento deploy:mode:set developer
+
 Passer en mode Production
+
     php bin/magento deploy:mode:set production
+
 Passer en mode Production sans compilation
+
     php bin/magento deploy:mode:set production --skip-compilation
+
 Compiler Magento
+
     php bin/magento setup:di:compile
+
 Voir l'état des caches Magento
+
     php bin/magento cache:status
+
 Vider le cache storage
+
     php bin/magento cache:flush
+
 vider le cache de Magento
+
     php bin/magento cache:clean
+
 Mettre à jour la liste des modules 
+
     php bin/magento setup:upgrade
+
 Mettre à jour le schéma de base de données du module
+
     php bin/magento setup:db-schema:upgrade
+
 Mettre à jour les fichiers statiques de Magento
+
     php bin/magento setup:static-content:deploy
+
 Remettre les droits sur le dossier var
+
     chmod 777 -R var/
