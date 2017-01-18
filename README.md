@@ -52,7 +52,8 @@ Le script va créer des liens symboliques vers les sources du module
 
 ## Commande Magento 2 ##
 
-Pour utiliser la console Magento, se rendre directement dans l'image docker :
+Pour utiliser la console Magento, se rendre directement dans l'image docker
+
     sudo docker exec -t -i $(sudo docker inspect --format="{{.Id}}" magento2_apache_1) /bin/bash
 
 ### principales commandes ###
