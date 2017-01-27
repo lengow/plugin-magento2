@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="lengow" translate="label" sortOrder="210">
+            <label>module.name</label>
+        </tab>
+        <section id="lengow_global_options" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="0" showInStore="1">
+            <label>lengow_setting.global_setting</label>
+            <tab>lengow</tab>
+            <resource>Lengow_Connector::global</resource>
+            <group id="store_credential" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="1">
+                <label>lengow_setting.global_store_credential</label>
+                <field id="global_information_credential" translate="label" type="note" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>lengow_setting.global_information_credential</label>
+                </field>
+                <field id="global_store_enable" translate="label comment" type="select" sortOrder="20" showInDefault="0" showInWebsite="0" showInStore="1">
+                    <label>lengow_setting.global_store_enable_comment</label>
+                    <comment>Enable store to work with Lengow</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="global_account_id" translate="label comment" type="text" sortOrder="30" showInDefault="0" showInWebsite="0" showInStore="1">
+                    <label>lengow_setting.global_account_id_title</label>
+                    <comment>lengow_setting.global_account_id_comment</comment>
+                </field>
+                <field id="global_access_token" translate="label comment" type="text" sortOrder="40" showInDefault="0" showInWebsite="0" showInStore="1">
+                    <label>lengow_setting.global_access_token_title</label>
+                    <comment>lengow_setting.global_access_token_comment</comment>
+                </field>
+                <field id="global_secret_token" translate="label comment" type="text" sortOrder="50" showInDefault="0" showInWebsite="0" showInStore="1">
+                    <label>lengow_setting.global_secret_token_title</label>
+                    <comment>lengow_setting.global_secret_token_comment</comment>
+                </field>
+            </group>
+            <group id="advanced" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>lengow_setting.global_advanced_setting</label>
+                <field id="global_authorized_ip" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>lengow_setting.global_authorized_ip_label</label>
+                    <comment>lengow_setting.global_authorized_ip_comment</comment>
+                </field>
+                <field id="global_tracking_id" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>lengow_setting.global_tracking_id_label</label>
+                    <source_model>Lengow\Connector\Model\Config\Source\Tracking</source_model>
+                </field>
+            </group>
+        </section>
+        <section id="lengow_export_options" translate="label" type="text" sortOrder="210" showInDefault="1" showInWebsite="0" showInStore="1">
+            <label>lengow_setting.export_setting</label>
+            <tab>lengow</tab>
+            <resource>Lengow_Connector::export</resource>
+            <group id="simple" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="1">
+                <label>lengow_setting.export_simple_setting</label>
+                <field id="export_selection_enable" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>lengow_setting.export_selection_enable_label</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="export_product_type" translate="label" type="multiselect" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>lengow_setting.export_product_type_label</label>
+                    <source_model>Lengow\Connector\Model\Config\Source\Type</source_model>
+                </field>
+                <field id="export_product_status" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>lengow_setting.export_product_status_label</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+            <group id="advanced" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="1">
+                <label>lengow_setting.export_advanced_setting</label>
+                <field id="export_attribute" translate="label" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>lengow_setting.export_attribute_label</label>
+                    <source_model>Lengow\Connector\Model\Config\Source\Attribute</source_model>
+                </field>
+                <field id="export_default_shipping_country" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>lengow_setting.export_default_shipping_country_label</label>
+                    <comment>lengow_setting.export_default_shipping_country_comment</comment>
+                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                </field>
+                <field id="export_default_shipping_method" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>lengow_setting.export_default_shipping_method_label</label>
+                    <comment>lengow_setting.export_default_shipping_method_comment</comment>
+                    <source_model>\Magento\Shipping\Model\Config\Source\Allmethods</source_model>
+                </field>
+                <field id="export_default_shipping_price" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>lengow_setting.export_default_shipping_price_label</label>
+                    <comment>lengow_setting.export_default_shipping_price_comment</comment>
+                </field>
+                <field id="export_parent_image" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>lengow_setting.export_parent_image_label</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="export_file_enable" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>lengow_setting.export_file_enable_label</label>
+                    <comment>lengow_setting.export_file_enable_comment</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="export_cron_enable" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>lengow_setting.export_cron_enable_label</label>
+                    <comment>lengow_setting.export_cron_enable_comment</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+        </section>
+        <section id="lengow_import_options" translate="label" type="text" sortOrder="310" showInDefault="1" showInWebsite="0" showInStore="1">
+            <label>lengow_setting.import_setting</label>
+            <tab>lengow</tab>
+            <resource>Lengow_Connector::import</resource>
+            <group id="simple" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="1">
+                <label>lengow_setting.import_simple_setting</label>
+                <field id="import_days" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>lengow_setting.import_days_title</label>
+                    <comment>lengow_setting.import_days_comment</comment>
+                </field>
+                <field id="import_customer_group" translate="label comment" type="multiselect" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>lengow_setting.import_customer_group_title</label>
+                    <comment>lengow_setting.import_customer_group_comment</comment>
+                    <source_model>Lengow\Connector\Model\Config\Source\Group</source_model>
+                </field>
+                <field id="import_default_shipping_method" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>lengow_setting.import_default_shipping_method_title</label>
+                    <comment>lengow_setting.import_default_shipping_method_comment</comment>
+                    <source_model>\Magento\Shipping\Model\Config\Source\Allmethods</source_model>
+                </field>
+            </group>
+            <group id="advanced" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>lengow_setting.import_advanced_setting</label>
+                <field id="import_report_mail_enable" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>lengow_setting.import_report_mail_enable_title</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="import_report_mail_address" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>lengow_setting.import_report_mail_address_title</label>
+                    <comment>lengow_setting.import_report_mail_address_comment</comment>
+                    <depends>
+                        <field id="*/*/import_report_mail_enable">1</field>
+                    </depends>
+                </field>
+                <field id="import_ship_mp_enabled" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>lengow_setting.import_ship_mp_enabled_title</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="import_stock_ship_mp" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>lengow_setting.import_stock_ship_mp_title</label>
+                    <comment>lengow_setting.import_stock_ship_mp_comment</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="*/*/import_ship_mp_enabled">1</field>
+                    </depends>
+                </field>
+                <field id="import_preprod_mode_enable" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>lengow_setting.import_preprod_mode_enable_title</label>
+                    <comment>lengow_setting.import_preprod_mode_enable_comment</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="import_cron_enable" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>lengow_setting.import_cron_enable_title</label>
+                    <comment>lengow_setting.import_cron_enable_comment</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
