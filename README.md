@@ -21,9 +21,26 @@ Puis se connecter à l'image Docker de Magento pour activer le module
     php bin/magento module:enable Lengow_Connector
     php bin/magento setup:upgrade
     php bin/magento setup:di:compile
-    chmod 777 -R var/
     php bin/magento cache:flush
+    chmod 777 -R var/
 
+## Traduction ##
+
+Pour traduire le projet il faut modifier les fichiers *.yml dans le répertoire : Documents/modules_lengow/magento2/Lengow/Connector/tools/yml
+Attention, dans Magento 2, c'est le contenu anglais qui sert de clé de traduction.
+Il faut bien faire attention que la traduction anglaise soit identique dans le code et dans les fichiers yml.
+
+### Installation de Yaml Parser ###
+
+    sudo apt-get install php5-dev libyaml-dev
+    sudo pecl install yaml
+
+### Mise à jour des traductions ###
+
+Une fois les traductions terminées, il suffit de lancer le script de mise à jour de traduction pour générer les csv dans le dossier i18n :
+
+    cd ~/Documents/modules_lengow/magento/Connector/tools/
+    php translate.php
 
 ## Versionning GIT ##
 
