@@ -35,11 +35,6 @@ use Magento\Config\Model\ResourceModel\Config\Data\Collection as ConfigDataColle
 class Config extends AbstractHelper
 {
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface Magento Scope config instance
-     */
-    protected $_scopeConfig;
-
-    /**
      * @var \Magento\Framework\App\Config\Storage\WriterInterface Magento writer instance
      */
     protected $_writerInterface;
@@ -253,17 +248,14 @@ class Config extends AbstractHelper
      * Constructor
      *
      * @param \Magento\Framework\App\Helper\Context                 $context         Magento context instance
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface    $scopeConfig     Magento scope config instance
      * @param \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface Magento writer instance
      * @param \Magento\Framework\App\Cache\Manager                  $cacheManager    Magento cache manager instance
      */
     public function __construct(
         Context $context,
-        ScopeConfigInterface $scopeConfig,
         WriterInterface $writerInterface,
         CacheManager $cacheManager
     ) {
-        $this->_scopeConfig = $scopeConfig;
         $this->_writerInterface = $writerInterface;
         $this->_cacheManager = $cacheManager;
         $this->_objectManager = ObjectManager::getInstance();
@@ -292,7 +284,7 @@ class Config extends AbstractHelper
             $value = count($results) > 0 ? $results[0]['value'] : '';
         } else {
             $scope = $storeId == 0 ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES;
-            $value = $this->_scopeConfig->getValue($this->_options[$key]['path'], $scope, $storeId);
+            $value = $this->scopeConfig->getValue($this->_options[$key]['path'], $scope, $storeId);
         }
         return $value;
     }
