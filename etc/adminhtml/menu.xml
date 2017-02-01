@@ -3,5 +3,6 @@
     <menu>
         <add id="Lengow_Connector::lengow" title="Lengow" translate="title" module="Lengow_Connector" sortOrder="21" dependsOnModule="Lengow_Connector" resource="Lengow_Connector::lengow"/>
         <add id="Lengow_Connector::setting" title="Settings" translate="title" module="Lengow_Connector" action="adminhtml/system_config/edit/section/lengow_global_options" parent="Lengow_Connector::lengow" sortOrder="5" dependsOnModule="Lengow_Connector" resource="Lengow_Connector::setting"/>
+        <add id="Lengow_Connector::log" title="Logs" translate="title"  module="Lengow_Connector" action="connector/log/index" parent="Lengow_Connector::lengow" sortOrder="20" dependsOnModule="Lengow_Connector" resource="Lengow_Connector::log"/>
     </menu>
 </config>
