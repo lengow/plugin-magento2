@@ -6,7 +6,7 @@
                 <global_store_enable>0</global_store_enable>
             </store_credential>
             <advanced>
-                <global_tracking_id>id</global_tracking_id>
+                <global_tracking_id>sku</global_tracking_id>
             </advanced>
         </lengow_global_options>
         <lengow_export_options>
