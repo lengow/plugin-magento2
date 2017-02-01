@@ -35,7 +35,8 @@ class Attribute implements ArrayInterface
      *
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
-    public function __construct(Config $configHelper) {
+    public function __construct(Config $configHelper)
+    {
         $this->_configHelper = $configHelper;
     }
 

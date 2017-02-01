@@ -23,6 +23,50 @@ use Magento\Framework\App\Helper\AbstractHelper;
 
 class Data extends AbstractHelper
 {
+    /**
+     * Set message with parameters for translation
+     *
+     * @param string $key    log key
+     * @param array  $params log parameters
+     *
+     * @return string
+     */
+    public function setLogMessage($key, $params = null)
+    {
+        if (is_null($params) || (is_array($params) && count($params) == 0)) {
+            return $key;
+        }
+        $allParams = [];
+        foreach ($params as $value) {
+            $value = str_replace('|', '', $value);
+            $allParams[] = $value;
+        }
+        $message = $key.'['.join('|', $allParams).']';
+        return $message;
+    }
 
+    /**
+     * Decode message with params for translation
+     *
+     * @param string $message log message
+     * @param array  $params  log parameters
+     *
+     * @return string
+     */
+    public function decodeLogMessage($message, $params = null)
+    {
+        if (preg_match('/^([^\[\]]*)(\[(.*)\]|)$/', $message, $result)) {
+            if (isset($result[1])) {
+                $key = $result[1];
+                if (isset($result[3]) && is_null($params)) {
+                    $strParam = $result[3];
+                    $params = explode('|', $strParam);
+                }
+                $phrase = __($key, $params);
+                $message = $phrase->__toString();
+            }
+        }
+        return $message;
+    }
 }
 
