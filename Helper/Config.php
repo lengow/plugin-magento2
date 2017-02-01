@@ -26,11 +26,10 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\App\Cache\Manager as CacheManager;
 use Magento\Framework\App\Cache\Type\Config as CacheTypeConfig;
 use Magento\Framework\App\Helper\Context;
-use Magento\Framework\App\ObjectManager;
 use Magento\Eav\Model\Entity\Attribute\Set as AttibuteSet;
-use Magento\Eav\Model\ResourceModel\Entity\Attribute\Collection as AttributeCollection;
-use Magento\Customer\Model\ResourceModel\Group\Collection as CustomerGroupCollection;
-use Magento\Config\Model\ResourceModel\Config\Data\Collection as ConfigDataCollection;
+use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as AttributeCollectionFactory;
+use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as CustomerGroupCollectionFactory;
+use Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory as ConfigDataCollectionFactory;
 
 class Config extends AbstractHelper
 {
@@ -45,9 +44,19 @@ class Config extends AbstractHelper
     protected $_cacheManager;
 
     /**
-     * @var \Magento\Framework\App\ObjectManager Magento object manager instance
+     * @var \Magento\Customer\Model\ResourceModel\Group\CollectionFactory Magento customer group collection factory
      */
-    protected $_objectManager;
+    protected $_customerGroupCollectionFactory;
+
+    /**
+     * @var \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory Magento attribute collection factory
+     */
+    protected $_attributeCollectionFactory;
+
+    /**
+     * @var \Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory Magento config data collection factory
+     */
+    protected $_configDataCollectionFactory;
 
     /**
      * @var array all Lengow options path
@@ -247,18 +256,26 @@ class Config extends AbstractHelper
     /**
      * Constructor
      *
-     * @param \Magento\Framework\App\Helper\Context                 $context         Magento context instance
+     * @param \Magento\Framework\App\Helper\Context $context Magento context instance
      * @param \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface Magento writer instance
-     * @param \Magento\Framework\App\Cache\Manager                  $cacheManager    Magento cache manager instance
+     * @param \Magento\Framework\App\Cache\Manager $cacheManager Cache manager instance
+     * @param \Magento\Customer\Model\ResourceModel\Group\CollectionFactory $customerGroupCollectionFactory
+     * @param \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory $attributeCollectionFactory
+     * @param \Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory $configDataCollectionFactory
      */
     public function __construct(
         Context $context,
         WriterInterface $writerInterface,
-        CacheManager $cacheManager
+        CacheManager $cacheManager,
+        CustomerGroupCollectionFactory $customerGroupCollectionFactory,
+        AttributeCollectionFactory $attributeCollectionFactory,
+        ConfigDataCollectionFactory $configDataCollectionFactory
     ) {
         $this->_writerInterface = $writerInterface;
         $this->_cacheManager = $cacheManager;
-        $this->_objectManager = ObjectManager::getInstance();
+        $this->_customerGroupCollectionFactory = $customerGroupCollectionFactory;
+        $this->_attributeCollectionFactory = $attributeCollectionFactory;
+        $this->_configDataCollectionFactory = $configDataCollectionFactory;
         parent::__construct($context);
     }
 
@@ -276,7 +293,7 @@ class Config extends AbstractHelper
             return null;
         }
         if ($this->_options[$key]['no_cache']) {
-            $results = $this->_objectManager->create(ConfigDataCollection::class)
+            $results = $this->_configDataCollectionFactory->create()
                 ->addFieldToFilter('path', $this->_options[$key]['path'])
                 ->addFieldToFilter('scope_id', $storeId)
                 ->load()
@@ -324,7 +341,7 @@ class Config extends AbstractHelper
      */
     public function getAllCustomerGroup()
     {
-        $allCustomerGroups = $this->_objectManager->create(CustomerGroupCollection::class)
+        $allCustomerGroups = $this->_customerGroupCollectionFactory->create()
             ->toOptionArray();
         return $allCustomerGroups;
     }
@@ -337,7 +354,7 @@ class Config extends AbstractHelper
     public function getAllAttributes()
     {
         // add filter by entity type to get product attributes only
-        $attributes = $this->_objectManager->create(AttributeCollection::class)
+        $attributes = $this->_attributeCollectionFactory->create()
             ->addFieldToFilter(AttibuteSet::KEY_ENTITY_TYPE_ID, 4)
             ->load()
             ->getData();

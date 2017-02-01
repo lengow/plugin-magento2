@@ -6,13 +6,14 @@
                 <global_store_enable>0</global_store_enable>
             </store_credential>
             <advanced>
-                <global_tracking_id>sku</global_tracking_id>
+                <global_tracking_id>id</global_tracking_id>
             </advanced>
         </lengow_global_options>
         <lengow_export_options>
             <simple>
                 <export_selection_enable>0</export_selection_enable>
                 <export_product_type>configurable,simple,downloadable,grouped,virtual</export_product_type>
+                <export_product_status>0</export_product_status>
             </simple>
             <advanced>
                 <export_default_shipping_country>FR</export_default_shipping_country>

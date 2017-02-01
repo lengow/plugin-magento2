@@ -49,7 +49,7 @@ class Data extends AbstractHelper
      * Decode message with params for translation
      *
      * @param string $message log message
-     * @param mixed  $params  log parameters
+     * @param array  $params  log parameters
      *
      * @return string
      */
