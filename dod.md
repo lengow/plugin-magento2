@@ -7,6 +7,7 @@
 * Principe SOLID (au moins le S) :
 * Coding Style (PSR2) :
 * Documentation Phpdoc au niveau du code :
+* Mise en place de tests unitaires :
 * Mise en place de log :
 * Mise en place de traductions :
 * Mettre à jour le changelog :

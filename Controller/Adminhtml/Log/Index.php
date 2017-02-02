@@ -27,10 +27,11 @@ class Index extends Action
         parent::__construct($context);
     }
 
+    /**
+     * Load and render layout
+     */
     public function execute()
     {
-
-        $this->_dataHelper->log("macategory", "yes we can !");
         $this->_view->loadLayout();
         $this->_view->renderLayout();
     }

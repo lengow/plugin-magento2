@@ -31,6 +31,7 @@ use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Lengow\Connector\Helper\Config;
+use Magento\Framework\EntityManager\EntityManager;
 
 /**
  * @codeCoverageIgnore
@@ -147,10 +148,9 @@ class InstallData implements InstallDataInterface {
                 ]
             );
 
-            // TODO Save on abstractModel deprecated
             $fromLengowCustomer = $customerSetup->getEavConfig()->getAttribute('customer', 'from_lengow')
                                                 ->addData(['used_in_forms' => 'adminhtml_customer']);
-            $fromLengowCustomer->save();
+            $fromLengowCustomer->getResource()->save($fromLengowCustomer);
         }
 
         $entityTypeId = $salesSetup->getEntityTypeId(Order::ENTITY);

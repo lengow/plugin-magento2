@@ -6,8 +6,10 @@ namespace Lengow\Connector\Model;
 use Lengow\Connector\Model\ResourceModel\Log as ResourceLog;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 use Magento\Framework\Registry;
-use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+
 
 class Log extends AbstractModel
 {
@@ -22,16 +24,17 @@ class Log extends AbstractModel
     );
 
     /**
-     * @var ObjectManager
+     * @var DateTime
      */
-    protected $_objectManager;
+    protected $_dateTime;
 
     public function __construct(
         Context $context,
-        Registry $registry
+        Registry $registry,
+        DateTime $dateTime
     ) {
-        $this->_objectManager = ObjectManager::getInstance();
         parent::__construct($context, $registry);
+        $this->_dateTime = $dateTime;
     }
 
     /**
@@ -48,7 +51,7 @@ class Log extends AbstractModel
      *
      * @param array $params
      *
-     * @return Log|bool
+     * @return AbstractDb|bool
      */
     public function createLog($params = array())
     {
@@ -60,8 +63,7 @@ class Log extends AbstractModel
         foreach ($params as $key => $value) {
             $this->setData($key, $value);
         }
-        $magentoDateObject = $this->_objectManager->create('Magento\Framework\Stdlib\DateTime\DateTime');
-        $this->setData('date', $magentoDateObject->gmtDate('Y-m-d H:i:s'));
-        return $this->save();
+        $this->setData('date', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
+        return $this->getResource()->save($this);
     }
 }

@@ -21,30 +21,87 @@ namespace Lengow\Connector\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\ResourceConnection;
+use Lengow\Connector\Model\LogFactory as LogFactory;
 
 class Data extends AbstractHelper
 {
-
     /**
      * @var integer life of log files in days
      */
     const LOG_LIFE = 20;
 
     /**
-     * @var ObjectManager objectManager
+     * @var LogFactory
      */
-    protected $_objectManager;
+    protected $_logFactory;
 
+    /**
+     * @var ResourceConnection
+     */
     protected $_resource;
 
+    /**
+     * Constructor
+     *
+     * @param Context $context
+     * @param ResourceConnection $resource
+     * @param LogFactory $logFactory
+     */
     public function __construct(
         Context $context,
-        \Magento\Framework\App\ResourceConnection $resource
+        ResourceConnection $resource,
+        LogFactory $logFactory
     ){
-        $this->_objectManager = ObjectManager::getInstance();
         parent::__construct($context);
         $this->_resource = $resource;
+        $this->_logFactory = $logFactory;
+    }
+
+    /**
+     * Set message with parameters for translation
+     *
+     * @param string $key    log key
+     * @param array  $params log parameters
+     *
+     * @return string
+     */
+    public function setLogMessage($key, $params = null)
+    {
+        if (is_null($params) || (is_array($params) && count($params) == 0)) {
+            return $key;
+        }
+        $allParams = [];
+        foreach ($params as $value) {
+            $value = str_replace('|', '', $value);
+            $allParams[] = $value;
+        }
+        $message = $key.'['.join('|', $allParams).']';
+        return $message;
+    }
+
+    /**
+     * Decode message with params for translation
+     *
+     * @param string $message log message
+     * @param array  $params  log parameters
+     *
+     * @return string
+     */
+    public function decodeLogMessage($message, $params = null)
+    {
+        if (preg_match('/^([^\[\]]*)(\[(.*)\]|)$/', $message, $result)) {
+            if (isset($result[1])) {
+                $key = $result[1];
+                if (isset($result[3]) && is_null($params)) {
+                    $strParam = $result[3];
+                    $params = explode('|', $strParam);
+                }
+                $phrase = __($key, $params);
+                $message = $phrase->__toString();
+            }
+        }
+        return $message;
     }
 
     /**
@@ -68,7 +125,7 @@ class Data extends AbstractHelper
             echo $finalMessage.'<br />';
             flush();
         }
-        $log = $this->_objectManager->create('Lengow\Connector\Model\Log');
+        $log = $this->_logFactory->create();
         return $log->createLog(array('message' => $finalMessage, 'category' => $category));
     }
 
@@ -82,12 +139,10 @@ class Data extends AbstractHelper
         if ($nbDays <= 0) {
             $nbDays = self::LOG_LIFE;
         }
-        $resource = Mage::getSingleton('core/resource');
-        $writeConnection = $resource->getConnection('core_write');
         $connection = $this->_resource->getConnection(\Magento\Framework\App\ResourceConnection::DEFAULT_CONNECTION);
-        $table = $resource->getTableName('lengow/log');
+        $table = $connection->getTableName('lengow_log');
         $query = "DELETE FROM ".$table." WHERE `date` < DATE_SUB(NOW(),INTERVAL ".$nbDays." DAY)";
-        $writeConnection->query($query);
+        $connection->query($query);
     }
 
 }
