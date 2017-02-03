@@ -43,6 +43,13 @@ class Log extends AbstractModel
      */
     protected $_dateTime;
 
+    /**
+     * Constructor
+     *
+     * @param Context $context
+     * @param Registry $registry
+     * @param DateTime $dateTime
+     */
     public function __construct(
         Context $context,
         Registry $registry,
