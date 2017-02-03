@@ -48,12 +48,13 @@ class Data extends AbstractHelper
     /**
      * Decode message with params for translation
      *
-     * @param string $message log message
-     * @param array  $params  log parameters
+     * @param string  $message        log message
+     * @param boolean $useTranslation use Magento translation
+     * @param array   $params         log parameters
      *
      * @return string
      */
-    public function decodeLogMessage($message, $params = null)
+    public function decodeLogMessage($message, $useTranslation = true, $params = null)
     {
         if (preg_match('/^([^\[\]]*)(\[(.*)\]|)$/', $message, $result)) {
             if (isset($result[1])) {
@@ -62,8 +63,19 @@ class Data extends AbstractHelper
                     $strParam = $result[3];
                     $params = explode('|', $strParam);
                 }
-                $phrase = __($key, $params);
-                $message = $phrase->__toString();
+                if ($useTranslation) {
+                    $phrase = __($key, $params);
+                    $message = $phrase->__toString();
+                } else {
+                    if (count($params) > 0) {
+                        $ii = 1;
+                        foreach ($params as $param) {
+                            $key = str_replace('%'.$ii, $param, $key);
+                            $ii++;
+                        }
+                    }
+                    $message = $key;
+                }
             }
         }
         return $message;

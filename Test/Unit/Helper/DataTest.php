@@ -98,13 +98,33 @@ class DataTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             $this->_dataHelper->decodeLogMessage('Check decodeLogMessage without parameter'),
-            'Check decodeLogMessage without parameter',
+            __('Check decodeLogMessage without parameter'),
             '[Test Set Log Message] Check decodeLogMessage without parameter'
         );
         $this->assertEquals(
             $this->_dataHelper->decodeLogMessage('Check decodeLogMessage %1 many %2[with|parameters]'),
-            'Check decodeLogMessage with many parameters',
+            __('Check decodeLogMessage %1 many %2', ['with','parameters']),
             '[Test Set Log Message] Check decodeLogMessage with many parameters'
+        );
+        $this->assertEquals(
+            $this->_dataHelper->decodeLogMessage('Check decodeLogMessage %1 many %2', true, ['with', 'parameters']),
+            __('Check decodeLogMessage %1 many %2', ['with','parameters']),
+            '[Test Set Log Message] Check decodeLogMessage with force parameters'
+        );
+        $this->assertEquals(
+            $this->_dataHelper->decodeLogMessage('Check decodeLogMessage without parameter', false),
+            'Check decodeLogMessage without parameter',
+            '[Test Set Log Message] Check decodeLogMessage without parameter and no Magento translation'
+        );
+        $this->assertEquals(
+            $this->_dataHelper->decodeLogMessage('Check decodeLogMessage %1 many %2[with|parameters]', false),
+            'Check decodeLogMessage with many parameters',
+            '[Test Set Log Message] Check decodeLogMessage with parameters and no Magento translation'
+        );
+        $this->assertEquals(
+            $this->_dataHelper->decodeLogMessage('Check decodeLogMessage %1 many %2', false, ['with', 'parameters']),
+            'Check decodeLogMessage with many parameters',
+            '[Test Set Log Message] Check decodeLogMessage with force parameters and no Magento translation'
         );
     }
 }

@@ -25,6 +25,10 @@ use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as GroupCollect
 use Magento\Customer\Model\ResourceModel\Group\Collection as GroupCollection;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as AttributeCollectionFactory;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\Collection as AttributeCollection;
+use Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory as ConfigDataCollectionFactory;
+use Magento\Config\Model\ResourceModel\Config\Data\Collection as ConfigDataCollection;
+use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollectionFactory;
+use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
 
 class ConfigTest extends \PHPUnit_Framework_TestCase
 {
@@ -44,6 +48,16 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     protected $_attributeCollectionMock;
 
     /**
+     * @var \Magento\Config\Model\ResourceModel\Config\Data\Collection
+     */
+    protected $_configDataCollectionMock;
+
+    /**
+     * @var \Magento\Store\Model\ResourceModel\Store\Collection
+     */
+    protected $_storeCollectionMock;
+
+    /**
      * Sets up the fixture, for example, open a network connection.
      * This method is called before a test is executed.
      *
@@ -57,17 +71,34 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $this->_customerGroupCollectionMock = $objectManager->getCollectionMock(GroupCollection::class, []);
         $customerGroupCollectionFactoryMock->method('create')->willReturn($this->_customerGroupCollectionMock);
+
         $attributeCollectionFactoryMock = $this->getMockBuilder(AttributeCollectionFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
         $this->_attributeCollectionMock = $objectManager->getCollectionMock(AttributeCollection::class, []);
         $attributeCollectionFactoryMock->method('create')->willReturn($this->_attributeCollectionMock);
+
+        $configDataCollectionFactoryMock = $this->getMockBuilder(ConfigDataCollectionFactory::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['create'])
+            ->getMock();
+        $this->_configDataCollectionMock = $objectManager->getCollectionMock(ConfigDataCollection::class, []);
+        $configDataCollectionFactoryMock->method('create')->willReturn($this->_configDataCollectionMock);
+
+        $storeCollectionFactoryMock = $this->getMockBuilder(StoreCollectionFactory::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['create'])
+            ->getMock();
+        $this->_storeCollectionMock = $objectManager->getCollectionMock(StoreCollection::class, []);
+        $storeCollectionFactoryMock->method('create')->willReturn($this->_storeCollectionMock);
         $this->_configHelper = $objectManager->getObject(
             Config::class,
             [
                 '_customerGroupCollectionFactory' => $customerGroupCollectionFactoryMock,
                 '_attributeCollectionFactory'     => $attributeCollectionFactoryMock,
+                '_configDataCollectionFactory'    => $configDataCollectionFactoryMock,
+                '_storeCollectionFactory'         => $storeCollectionFactoryMock,
             ]
         );
     }
@@ -78,6 +109,70 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             Config::class,
             $this->_configHelper,
             '[Test Class Instantiation] Check class instantiation'
+        );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Helper\Config::getAccessId
+     */
+    public function testGetAccessId()
+    {
+        $results = [null, null, null];
+        $this->_storeCollectionMock->expects($this->once())
+            ->method('addFieldToFilter')
+            ->will($this->returnValue($this->_storeCollectionMock));
+        $accessIds = $this->_configHelper->getAccessId();
+        $this->assertInternalType(
+            'array',
+            $accessIds,
+            '[Test Get Access id] Check if return is a array without store id'
+        );
+        $this->assertEquals(
+            $accessIds,
+            $results,
+            '[Test Get All Customer Group] Check if return is valid without store id'
+        );
+        $accessStoreIds = $this->_configHelper->getAccessId(1);
+        $this->assertInternalType(
+            'array',
+            $accessStoreIds,
+            '[Test Get Access id] Check if return is a array with store id'
+        );
+        $this->assertEquals(
+            $accessStoreIds,
+            $results,
+            '[Test Get All Customer Group] Check if return is valid with store id'
+        );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Helper\Config::get
+     */
+    public function testGet()
+    {
+        $this->assertEquals(
+            $this->_configHelper->get('account_id'),
+            null,
+            '[Test Get] Check if return is valid for Lengow setting with cache'
+        );
+        $this->_configDataCollectionMock->expects($this->exactly(2))
+            ->method('addFieldToFilter')
+            ->will($this->returnValue($this->_configDataCollectionMock));
+        $this->_configDataCollectionMock->expects($this->once())
+            ->method('load')
+            ->will($this->returnValue($this->_configDataCollectionMock));
+        $this->_configDataCollectionMock->expects($this->once())
+            ->method('getData')
+            ->will($this->returnValue([['value' => 'mytoken']]));
+        $this->assertEquals(
+            $this->_configHelper->get('token'),
+            'mytoken',
+            '[Test Get] Check if return is valid for Lengow setting with cache'
+        );
+        $this->assertEquals(
+            $this->_configHelper->get('toto'),
+            null,
+            '[Test Get] Check if return is valid for fake Lengow setting with cache'
         );
     }
 
@@ -116,8 +211,10 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $mockAttributes = [
             ['attribute_code' => 'activity'],
             ['attribute_code' => 'category_gear'],
+            ['attribute_code' => 'short_description'],
             ['attribute_code' => 'category_ids'],
-            ['attribute_code' => 'climate']
+            ['attribute_code' => 'climate'],
+            ['attribute_code' => 'lengow_product'],
         ];
         $results = [
             ['value' => 'none', 'label' => ''],

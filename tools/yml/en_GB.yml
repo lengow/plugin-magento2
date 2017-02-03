@@ -56,3 +56,7 @@ en:
     import_preprod_mode_enable_comment: "Only for preproduction mode: no order synchronisation with Lengow, orders imported every time"
     import_cron_enable_title: "Enable Magento cron"
     import_cron_enable_comment: "Enable the scheduled task to import your order every 30 minutes"
+  lengow_log:
+    exception:
+      timeout_api: "API call blocked due to a timeout"
+      error_curl: "Curl error %1 - %2"
