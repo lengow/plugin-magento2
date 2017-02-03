@@ -31,7 +31,6 @@ use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Lengow\Connector\Helper\Config;
-use Magento\Framework\EntityManager\EntityManager;
 
 /**
  * @codeCoverageIgnore

@@ -139,7 +139,7 @@ class Data extends AbstractHelper
         if ($nbDays <= 0) {
             $nbDays = self::LOG_LIFE;
         }
-        $connection = $this->_resource->getConnection(\Magento\Framework\App\ResourceConnection::DEFAULT_CONNECTION);
+        $connection = $this->_resource->getConnection(ResourceConnection::DEFAULT_CONNECTION);
         $table = $connection->getTableName('lengow_log');
         $query = "DELETE FROM ".$table." WHERE `date` < DATE_SUB(NOW(),INTERVAL ".$nbDays." DAY)";
         $connection->query($query);
