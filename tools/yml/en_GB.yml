@@ -3,6 +3,15 @@ en:
     name: "Lengow"
   menu:
     settings: "Settings"
+    logs: "Logs"
+  log:
+    screen:
+      title: "Lengow logs"
+    table:
+      id: "ID"
+      date: "Date"
+      message: "Message"
+      category: "Category"
   lengow_setting:
     global_setting: "Global settings"
     global_store_credential: "Store credentials"
