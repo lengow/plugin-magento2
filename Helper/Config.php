@@ -253,17 +253,15 @@ class Config extends AbstractHelper
      * Constructor
      *
      * @param \Magento\Framework\App\Helper\Context                 $context         Magento context instance
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface    $scopeConfig     Magento scope config instance
      * @param \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface Magento writer instance
      * @param \Magento\Framework\App\Cache\Manager                  $cacheManager    Magento cache manager instance
      */
     public function __construct(
         Context $context,
-        ScopeConfigInterface $scopeConfig,
         WriterInterface $writerInterface,
         CacheManager $cacheManager
     ) {
-        $this->_scopeConfig = $scopeConfig;
+        $this->_scopeConfig = $context->getScopeConfig();
         $this->_writerInterface = $writerInterface;
         $this->_cacheManager = $cacheManager;
         $this->_objectManager = ObjectManager::getInstance();
