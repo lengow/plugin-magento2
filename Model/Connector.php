@@ -315,7 +315,6 @@ class Connector
      */
     private function _makeRequest($type, $url, $args, $token, $body = '')
     {
-        var_dump($args);
         // Define CURLE_OPERATION_TIMEDOUT for old php versions
         defined('CURLE_OPERATION_TIMEDOUT') || define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);
         $ch = curl_init();
@@ -383,7 +382,6 @@ class Connector
         // Execute url request
         curl_setopt_array($ch, $opts);
         $result = curl_exec($ch);
-        var_dump($result);
         $errorNumber = curl_errno($ch);
         $errorText = curl_error($ch);
         if (in_array($errorNumber, [CURLE_OPERATION_TIMEDOUT, CURLE_OPERATION_TIMEOUTED])) {

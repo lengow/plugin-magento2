@@ -43,12 +43,12 @@ class Fixture extends \PHPUnit_Framework_TestCase
      *
      * @param object &$object Instantiated object that we will run method on
      * @param array $methodNames Method names to call
-     * @param array $return Array of parameters to return
+     * @param array $returns Array of parameters to return
      * @param array $constructArgs Args for constructor
      *
      * @return mixed Method return
      */
-    public function mockFunctions($object, $methodNames, $return, $constructArgs = [])
+    public function mockFunctions($object, $methodNames, $returns, $constructArgs = [])
     {
         $ii = 0;
         if (count($constructArgs) > 0) {
@@ -63,7 +63,7 @@ class Fixture extends \PHPUnit_Framework_TestCase
                 ->getMock();
         }
         foreach ($methodNames as $methodName) {
-            $mockFunction->expects($this->any())->method($methodName)->will($this->returnValue($return[$ii]));
+            $mockFunction->expects($this->any())->method($methodName)->will($this->returnValue($returns[$ii]));
             $ii++;
         }
         return $mockFunction;
