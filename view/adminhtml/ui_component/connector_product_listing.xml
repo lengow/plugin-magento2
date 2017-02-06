@@ -22,8 +22,6 @@
         </argument>
     </dataSource>
     <listingToolbar name="listing_top">
-        <bookmark name="bookmarks"/>
-        <columnsControls name="connector_product_columns"/>
         <filters name="listing_filters">
             <filterSelect name="store_id">
                 <argument name="optionsProvider" xsi:type="configurableObject">
@@ -42,20 +40,6 @@
         <paging name="listing_paging"/>
     </listingToolbar>
     <columns name="connector_product_columns" class="Magento\Catalog\Ui\Component\Listing\Columns">
-        <argument name="data" xsi:type="array">
-            <item name="config" xsi:type="array">
-                <item name="childDefaults" xsi:type="array">
-                    <item name="fieldAction" xsi:type="array">
-                        <item name="provider" xsi:type="string">product_listing.product_listing.product_columns.actions</item>
-                        <item name="target" xsi:type="string">applyAction</item>
-                        <item name="params" xsi:type="array">
-                            <item name="0" xsi:type="string">edit</item>
-                            <item name="1" xsi:type="string">${ $.$data.rowIndex }</item>
-                        </item>
-                    </item>
-                </item>
-            </item>
-        </argument>
         <selectionsColumn name="ids">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -197,5 +181,13 @@
                 </item>
             </argument>
         </column>
+        <actionsColumn name="actions" class="Magento\Catalog\Ui\Component\Listing\Columns\ProductActions">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="indexField" xsi:type="string">entity_id</item>
+                    <item name="sortOrder" xsi:type="number">400</item>
+                </item>
+            </argument>
+        </actionsColumn>
     </columns>
 </listing>

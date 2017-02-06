@@ -17,8 +17,7 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-namespace Lengow\Connector\Controller\Adminhtml\Product;
-
+namespace Lengow\Connector\Controller\Adminhtml\Log;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
@@ -36,9 +35,7 @@ class Index extends Action
     }
 
     /**
-     * Index action
-     *
-     * @return void
+     * Load and render layout
      */
     public function execute()
     {
