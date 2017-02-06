@@ -100,7 +100,7 @@
                     <item name="filter" xsi:type="string">select</item>
                     <item name="component" xsi:type="string">Magento_Ui/js/grid/columns/select</item>
                     <item name="dataType" xsi:type="string">select</item>
-                    <item name="label" xsi:type="string" translate="true">Attribute Set</item>
+                    <item name="label" xsi:type="string" translate="true">Attribute set name</item>
                     <item name="sortOrder" xsi:type="number">50</item>
                 </item>
             </argument>
@@ -176,7 +176,7 @@
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">select</item>
                     <item  name="add_field" xsi:type="boolean">true</item>
-                    <item name="label" xsi:type="string" translate="true">Publish On Lengow</item>
+                    <item name="label" xsi:type="string" translate="true">Include in export?</item>
                     <item name="sortOrder" xsi:type="number">300</item>
                 </item>
             </argument>

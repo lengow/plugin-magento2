@@ -6,7 +6,7 @@
     <body>
         <referenceBlock name="root">
             <action method="setHeaderTitle">
-                <argument translate="true" name="title" xsi:type="string">Lengow Product</argument>
+                <argument translate="true" name="title" xsi:type="string">Export product</argument>
             </action>
         </referenceBlock>
         <referenceContainer name="content">
