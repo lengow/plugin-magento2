@@ -113,39 +113,6 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Helper\Config::getAccessId
-     */
-    public function testGetAccessId()
-    {
-        $results = [null, null, null];
-        $this->_storeCollectionMock->expects($this->once())
-            ->method('addFieldToFilter')
-            ->will($this->returnValue($this->_storeCollectionMock));
-        $accessIds = $this->_configHelper->getAccessId();
-        $this->assertInternalType(
-            'array',
-            $accessIds,
-            '[Test Get Access id] Check if return is a array without store id'
-        );
-        $this->assertEquals(
-            $accessIds,
-            $results,
-            '[Test Get All Customer Group] Check if return is valid without store id'
-        );
-        $accessStoreIds = $this->_configHelper->getAccessId(1);
-        $this->assertInternalType(
-            'array',
-            $accessStoreIds,
-            '[Test Get Access id] Check if return is a array with store id'
-        );
-        $this->assertEquals(
-            $accessStoreIds,
-            $results,
-            '[Test Get All Customer Group] Check if return is valid with store id'
-        );
-    }
-
-    /**
      * @covers \Lengow\Connector\Helper\Config::get
      */
     public function testGet()
@@ -155,6 +122,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             null,
             '[Test Get] Check if return is valid for Lengow setting with cache'
         );
+
         $this->_configDataCollectionMock->expects($this->exactly(2))
             ->method('addFieldToFilter')
             ->will($this->returnValue($this->_configDataCollectionMock));
@@ -169,10 +137,47 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             'mytoken',
             '[Test Get] Check if return is valid for Lengow setting with cache'
         );
+
         $this->assertEquals(
             $this->_configHelper->get('toto'),
             null,
             '[Test Get] Check if return is valid for fake Lengow setting with cache'
+        );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Helper\Config::getAccessId
+     */
+    public function testGetAccessId()
+    {
+        $results = [null, null, null];
+        $this->_storeCollectionMock->expects($this->once())
+            ->method('addFieldToFilter')
+            ->will($this->returnValue($this->_storeCollectionMock));
+        $accessIds = $this->_configHelper->getAccessId();
+        $this->assertInternalType(
+            'array',
+            $accessIds,
+            '[Test Get Access id] Check if return is a array without store id'
+        );
+
+        $this->assertEquals(
+            $accessIds,
+            $results,
+            '[Test Get All Customer Group] Check if return is valid without store id'
+        );
+
+        $accessStoreIds = $this->_configHelper->getAccessId(1);
+        $this->assertInternalType(
+            'array',
+            $accessStoreIds,
+            '[Test Get Access id] Check if return is a array with store id'
+        );
+
+        $this->assertEquals(
+            $accessStoreIds,
+            $results,
+            '[Test Get All Customer Group] Check if return is valid with store id'
         );
     }
 
@@ -196,6 +201,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             $customerGroups,
             '[Test Get All Customer Group] Check if return is a array'
         );
+
         $this->assertEquals(
             $customerGroups,
             $mockCustomerGroups,
@@ -238,6 +244,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             $attributes,
             '[Test Get All Attributes] Check if return is a array'
         );
+
         $this->assertEquals(
             $attributes,
             $results,

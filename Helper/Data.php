@@ -20,9 +20,70 @@
 namespace Lengow\Connector\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
+use Magento\Framework\App\ResourceConnection;
+use Lengow\Connector\Model\LogFactory as LogFactory;
 
 class Data extends AbstractHelper
 {
+    /**
+     * @var integer life of log files in days
+     */
+    const LOG_LIFE = 20;
+
+    /**
+     * @var LogFactory
+     */
+    protected $_logFactory;
+
+    /**
+     * @var ResourceConnection
+     */
+    protected $_resource;
+
+    /**
+     * Constructor
+     *
+     * @param Context $context
+     * @param ResourceConnection $resource
+     * @param LogFactory $logFactory
+     */
+    public function __construct(
+        Context $context,
+        ResourceConnection $resource,
+        LogFactory $logFactory
+    ){
+        parent::__construct($context);
+        $this->_resource = $resource;
+        $this->_logFactory = $logFactory;
+    }
+
+    /**
+     * Write log
+     *
+     * @param string  $category       Category
+     * @param string  $message        log message
+     * @param boolean $display        display on screen
+     * @param string  $marketplaceSku lengow order id
+     *
+     * @return boolean
+     */
+    public function log($category, $message = "", $display = false, $marketplaceSku = null)
+    {
+        if (strlen($message) == 0) {
+            return false;
+        }
+        $decodedMessage = $this->decodeLogMessage($message, false);
+        $finalMessage = ''.(empty($marketplaceSku) ? '' : 'order '.$marketplaceSku.' : ');
+        $finalMessage.= $decodedMessage;
+        if ($display) {
+            echo $finalMessage.'<br />';
+            flush();
+        }
+        $log = $this->_logFactory->create();
+        return $log->createLog(array('message' => $finalMessage, 'category' => $category));
+    }
+
     /**
      * Set message with parameters for translation
      *
@@ -80,5 +141,22 @@ class Data extends AbstractHelper
         }
         return $message;
     }
+
+    /**
+     * Delete log files when too old
+     *
+     * @param integer $nbDays
+     */
+    public function cleanLog($nbDays = 20)
+    {
+        if ($nbDays <= 0) {
+            $nbDays = self::LOG_LIFE;
+        }
+        $connection = $this->_resource->getConnection(ResourceConnection::DEFAULT_CONNECTION);
+        $table = $connection->getTableName('lengow_log');
+        $query = 'DELETE FROM '.$table.' WHERE `date` < DATE_SUB(NOW(),INTERVAL '.$nbDays.' DAY)';
+        $connection->query($query);
+    }
+
 }
 

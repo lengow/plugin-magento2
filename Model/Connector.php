@@ -19,8 +19,8 @@
 
 namespace Lengow\Connector\Model;
 
-use Lengow\Connector\Helper\Data;
-use Lengow\Connector\Helper\Config;
+use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Exception as LengowException;
 
 /**
@@ -97,8 +97,8 @@ class Connector
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
     public function __construct(
-        Data $dataHelper,
-        Config $configHelper
+        DataHelper $dataHelper,
+        ConfigHelper $configHelper
     ) {
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
@@ -125,7 +125,7 @@ class Connector
      */
     public function connect($userToken = '')
     {
-        $data = $this->_callAction(
+        $data = $this->callAction(
             '/access/get_token',
             [
                 'access_token' => $this->_accessToken,
@@ -162,7 +162,7 @@ class Connector
             if (!array_key_exists('account_id', $array)) {
                 $array['account_id'] = $this->_accountId;
             }
-            $data = $this->_callAction($method, $array, $type, $format, $body);
+            $data = $this->callAction($method, $array, $type, $format, $body);
         } catch (LengowException $e) {
             return $e->getMessage();
         }
@@ -270,7 +270,7 @@ class Connector
      *
      * @return array
      */
-    private function _callAction($api, $args, $type, $format = 'json', $body = '')
+    public function callAction($api, $args, $type, $format = 'json', $body = '')
     {
         $result = $this->_makeRequest($type, $api, $args, $this->_token, $body);
         return $this->_format($result, $format);
@@ -313,13 +313,13 @@ class Connector
      *
      * @return array
      */
-    protected function _makeRequest($type, $url, $args, $token, $body = '')
+    private function _makeRequest($type, $url, $args, $token, $body = '')
     {
+        var_dump($args);
         // Define CURLE_OPERATION_TIMEDOUT for old php versions
         defined('CURLE_OPERATION_TIMEDOUT') || define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);
         $ch = curl_init();
-        // Default
-        // curl Options
+        // Default curl Options
         $opts = [
             CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_RETURNTRANSFER => true,
@@ -383,6 +383,7 @@ class Connector
         // Execute url request
         curl_setopt_array($ch, $opts);
         $result = curl_exec($ch);
+        var_dump($result);
         $errorNumber = curl_errno($ch);
         $errorText = curl_error($ch);
         if (in_array($errorNumber, [CURLE_OPERATION_TIMEDOUT, CURLE_OPERATION_TIMEOUTED])) {
@@ -408,23 +409,6 @@ class Connector
     }
 
     /**
-     * Get Connector by store
-     *
-     * @param integer $storeId Store Id
-     *
-     * @return boolean
-     */
-    public function getConnectorByStore($storeId = null)
-    {
-        list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessId($storeId);
-        $this->init($accessToken, $secretToken);
-        if (!$this->_isValidAuth($accountId)) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * Get result for a query Api
      *
      * @param string  $type    request type (GET / POST / PUT / PATCH)
@@ -441,9 +425,7 @@ class Connector
             return false;
         }
         try {
-            list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessId($storeId);
-            $this->init($accessToken, $secretToken);
-            if (!$this->_isValidAuth($accountId)) {
+            if (!$accountId = $this->validAuthenticationByStore($storeId)) {
                 return false;
             }
             $results = $this->$type(
@@ -461,25 +443,27 @@ class Connector
     /**
      * Check API Authentication
      *
-     * @param integer $accountId Lengow account id
+     * @param integer $storeId Magento store id
      *
-     * @return boolean
+     * @return integer|boolean
      */
-    private function _isValidAuth($accountId)
+    public function validAuthenticationByStore($storeId = null)
     {
-        if (!$this->_isCurlActivated()) {
+        list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessId($storeId);
+        if (!$this->isCurlActivated()) {
             return false;
         }
         if (is_null($accountId) || $accountId == 0 || !is_numeric($accountId)) {
             return false;
         }
         try {
+            $this->init($accessToken, $secretToken);
             $result = $this->connect();
         } catch (LengowException $e) {
             return false;
         }
         if (isset($result['token'])) {
-            return true;
+            return (int)$accountId;
         } else {
             return false;
         }
@@ -490,7 +474,7 @@ class Connector
      *
      * @return boolean
      */
-    private function _isCurlActivated()
+    public function isCurlActivated()
     {
         return function_exists('curl_version');
     }
