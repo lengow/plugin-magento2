@@ -30,6 +30,7 @@ use Magento\Eav\Model\Entity\Attribute\Set as AttibuteSet;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as AttributeCollectionFactory;
 use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as CustomerGroupCollectionFactory;
 use Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory as ConfigDataCollectionFactory;
+use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollectionFactory;
 
 class Config extends AbstractHelper
 {
@@ -57,6 +58,11 @@ class Config extends AbstractHelper
      * @var \Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory Magento config data collection factory
      */
     protected $_configDataCollectionFactory;
+
+    /**
+     * @var \Magento\Store\Model\ResourceModel\Store\CollectionFactory Magento store collection factory
+     */
+    protected $_storeCollectionFactory;
 
     /**
      * @var array all Lengow options path
@@ -262,6 +268,7 @@ class Config extends AbstractHelper
      * @param \Magento\Customer\Model\ResourceModel\Group\CollectionFactory $customerGroupCollectionFactory
      * @param \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory $attributeCollectionFactory
      * @param \Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory $configDataCollectionFactory
+     * @param \Magento\Store\Model\ResourceModel\Store\CollectionFactory $storeCollectionFactory
      */
     public function __construct(
         Context $context,
@@ -269,13 +276,15 @@ class Config extends AbstractHelper
         CacheManager $cacheManager,
         CustomerGroupCollectionFactory $customerGroupCollectionFactory,
         AttributeCollectionFactory $attributeCollectionFactory,
-        ConfigDataCollectionFactory $configDataCollectionFactory
+        ConfigDataCollectionFactory $configDataCollectionFactory,
+        StoreCollectionFactory $storeCollectionFactory
     ) {
         $this->_writerInterface = $writerInterface;
         $this->_cacheManager = $cacheManager;
         $this->_customerGroupCollectionFactory = $customerGroupCollectionFactory;
         $this->_attributeCollectionFactory = $attributeCollectionFactory;
         $this->_configDataCollectionFactory = $configDataCollectionFactory;
+        $this->_storeCollectionFactory = $storeCollectionFactory;
         parent::__construct($context);
     }
 
@@ -331,6 +340,40 @@ class Config extends AbstractHelper
         }
         if ($cleanCache) {
             $this->_cacheManager->flush([CacheTypeConfig::CACHE_TAG]);
+        }
+    }
+
+    /**
+     * Get valid account id / access token / secret token by store
+     *
+     * @param integer $storeId Magento store Id
+     *
+     * @return array
+     */
+    public function getAccessId($storeId = null)
+    {
+        $accountId = '';
+        $accessToken = '';
+        $secretToken = '';
+        if ($storeId) {
+            $accountId = (int)$this->get('account_id', $storeId);
+            $accessToken = $this->get('access_token', $storeId);
+            $secretToken = $this->get('secret_token', $storeId);
+        } else {
+            $storeCollection = $this->_storeCollectionFactory->create()->addFieldToFilter('is_active', 1);
+            foreach ($storeCollection as $store) {
+                $accountId = $this->get('account_id', $store->getId());
+                $accessToken = $this->get('access_token', $store->getId());
+                $secretToken = $this->get('secret_token', $store->getId());
+                if (strlen($accountId) > 0 && strlen($accessToken) > 0 && strlen($secretToken) > 0) {
+                    break;
+                }
+            }
+        }
+        if (strlen($accountId) > 0 && strlen($accessToken) > 0 && strlen($secretToken) > 0) {
+            return [$accountId, $accessToken, $secretToken];
+        } else {
+            return [null, null, null];
         }
     }
 

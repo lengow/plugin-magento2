@@ -59,6 +59,32 @@ class Data extends AbstractHelper
     }
 
     /**
+     * Write log
+     *
+     * @param string  $category       Category
+     * @param string  $message        log message
+     * @param boolean $display        display on screen
+     * @param string  $marketplaceSku lengow order id
+     *
+     * @return boolean
+     */
+    public function log($category, $message = "", $display = false, $marketplaceSku = null)
+    {
+        if (strlen($message) == 0) {
+            return false;
+        }
+        $decodedMessage = $this->decodeLogMessage($message, false);
+        $finalMessage = ''.(empty($marketplaceSku) ? '' : 'order '.$marketplaceSku.' : ');
+        $finalMessage.= $decodedMessage;
+        if ($display) {
+            echo $finalMessage.'<br />';
+            flush();
+        }
+        $log = $this->_logFactory->create();
+        return $log->createLog(array('message' => $finalMessage, 'category' => $category));
+    }
+
+    /**
      * Set message with parameters for translation
      *
      * @param string $key    log key
@@ -83,12 +109,13 @@ class Data extends AbstractHelper
     /**
      * Decode message with params for translation
      *
-     * @param string $message log message
-     * @param array  $params  log parameters
+     * @param string  $message        log message
+     * @param boolean $useTranslation use Magento translation
+     * @param array   $params         log parameters
      *
      * @return string
      */
-    public function decodeLogMessage($message, $params = null)
+    public function decodeLogMessage($message, $useTranslation = true, $params = null)
     {
         if (preg_match('/^([^\[\]]*)(\[(.*)\]|)$/', $message, $result)) {
             if (isset($result[1])) {
@@ -97,36 +124,22 @@ class Data extends AbstractHelper
                     $strParam = $result[3];
                     $params = explode('|', $strParam);
                 }
-                $phrase = __($key, $params);
-                $message = $phrase->__toString();
+                if ($useTranslation) {
+                    $phrase = __($key, $params);
+                    $message = $phrase->__toString();
+                } else {
+                    if (count($params) > 0) {
+                        $ii = 1;
+                        foreach ($params as $param) {
+                            $key = str_replace('%'.$ii, $param, $key);
+                            $ii++;
+                        }
+                    }
+                    $message = $key;
+                }
             }
         }
         return $message;
-    }
-
-    /**
-     * Write log
-     *
-     * @param string  $category       Category
-     * @param string  $message        log message
-     * @param boolean $display        display on screen
-     * @param string  $marketplaceSku lengow order id
-     *
-     * @return boolean
-     */
-    public function log($category, $message = "", $display = false, $marketplaceSku = null)
-    {
-        if (strlen($message) == 0) {
-            return false;
-        }
-        $finalMessage = ''.(empty($marketplaceSku) ? '' : 'order '.$marketplaceSku.' : ');
-        $finalMessage.= $message;
-        if ($display) {
-            echo $finalMessage.'<br />';
-            flush();
-        }
-        $log = $this->_logFactory->create();
-        return $log->createLog(array('message' => $finalMessage, 'category' => $category));
     }
 
     /**
@@ -141,7 +154,7 @@ class Data extends AbstractHelper
         }
         $connection = $this->_resource->getConnection(ResourceConnection::DEFAULT_CONNECTION);
         $table = $connection->getTableName('lengow_log');
-        $query = "DELETE FROM ".$table." WHERE `date` < DATE_SUB(NOW(),INTERVAL ".$nbDays." DAY)";
+        $query = 'DELETE FROM '.$table.' WHERE `date` < DATE_SUB(NOW(),INTERVAL '.$nbDays.' DAY)';
         $connection->query($query);
     }
 
