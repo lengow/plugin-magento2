@@ -2,8 +2,25 @@ en:
   module:
     name: "Lengow"
   menu:
+    products: "Products"
     settings: "Settings"
     logs: "Logs"
+  product:
+    screen:
+      title: "Export product"
+    table:
+      id: "ID"
+      thumbnail: "Thumbnail"
+      name: "Name"
+      type: "Type"
+      attribut_set_name: "Attribut set name"
+      sku: "SKU"
+      price: "Price"
+      quantity: "Quantity"
+      visibility: "Visibility"
+      status: "Status"
+      websites: "Websites"
+      publish_on_lengow: "Include in export?"
   log:
     screen:
       title: "Lengow logs"
