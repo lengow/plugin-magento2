@@ -8,11 +8,11 @@
             <label>Global settings</label>
             <tab>lengow</tab>
             <resource>Lengow_Connector::global</resource>
-            <group id="store_credential" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="1">
+            <group id="global_information_credential" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <frontend_model>Lengow\Connector\Block\Adminhtml\System\Config\Check</frontend_model>
+            </group>
+            <group id="store_credential" translate="label" type="text" sortOrder="20" showInDefault="0" showInWebsite="0" showInStore="1">
                 <label>Store credentials</label>
-                <field id="global_information_credential" translate="label" type="note" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>To change store credentials, please select a store</label>
-                </field>
                 <field id="global_store_enable" translate="label comment" type="select" sortOrder="20" showInDefault="0" showInWebsite="0" showInStore="1">
                     <label>Enable store</label>
                     <comment>Enable store to work with Lengow</comment>
@@ -31,7 +31,7 @@
                     <comment>Your Lengow Secret Token</comment>
                 </field>
             </group>
-            <group id="advanced" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+            <group id="advanced" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>All advanced settings</label>
                 <field id="global_authorized_ip" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>IP authorized</label>
