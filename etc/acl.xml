@@ -4,7 +4,9 @@
         <resources>
             <resource id="Magento_Backend::admin">
                 <resource id="Lengow_Connector::lengow" title="Lengow" translate="title" sortOrder="31">
-                    <resource id="Lengow_Connector::setting" title="Settings" translate="title" sortOrder="5" />
+                    <resource id="Lengow_Connector::product" title="Products" translate="title" sortOrder="2" />
+                    <resource id="Lengow_Connector::log" title="Logs" translate="title" sortOrder="5" />
+                    <resource id="Lengow_Connector::setting" title="Settings" translate="title" sortOrder="6" />
                 </resource>
                 <resource id="Magento_Backend::stores">
                     <resource id="Magento_Backend::stores_settings">
