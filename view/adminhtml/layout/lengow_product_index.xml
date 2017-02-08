@@ -10,7 +10,7 @@
             </action>
         </referenceBlock>
         <referenceContainer name="content">
-            <uiComponent name="connector_product_listing"/>
+            <uiComponent name="lengow_product_listing"/>
         </referenceContainer>
     </body>
 </page>

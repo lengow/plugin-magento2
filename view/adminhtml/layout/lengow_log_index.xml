@@ -10,7 +10,7 @@
             </action>
         </referenceBlock>
         <referenceContainer name="content">
-            <uiComponent name="connector_log_listing"/>
+            <uiComponent name="lengow_log_listing"/>
         </referenceContainer>
     </body>
 </page>
