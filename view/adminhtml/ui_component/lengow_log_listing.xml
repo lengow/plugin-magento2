@@ -44,18 +44,6 @@
                 </item>
             </argument>
         </bookmark>
-        <filterSearch name="fulltext">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="provider" xsi:type="string">lengow_log_listing.lengow_log_listing_data_source</item>
-                    <item name="chipsProvider" xsi:type="string">lengow_log_listing.lengow_log_listing.listing_top.listing_filters_chips</item>
-                    <item name="storageConfig" xsi:type="array">
-                        <item name="provider" xsi:type="string">lengow_log_listing.lengow_log_listing.listing_top.bookmarks</item>
-                        <item name="namespace" xsi:type="string">current.search</item>
-                    </item>
-                </item>
-            </argument>
-        </filterSearch>
         <filters name="listing_filters">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
