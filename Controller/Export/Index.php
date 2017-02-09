@@ -93,14 +93,11 @@ class Index extends Action
          * boolean out_of_stock       Export out of stock product (1) Export only product in stock (0)
          * string  product_ids        List of product id separate with comma (1,2,3)
          * string  product_types      Type separate with comma (simple,configurable,downloadable,grouped,virtual)
-         * string  product_status     Status separate with comma (1,2)
-         * boolean variation          Export product Variation (1) Export parent product only (0)
          * boolean inactive           Export inactive product (1) or not (0)
          * string  code               Export a specific store with store code
          * integer store              Export a specific store with store id
          * string  currency           Convert prices with a specific currency
          * string  locale             Translate content with a specific locale
-         * boolean legacy_fields      Export feed with v2 fields (1) or v3 fields (0)
          * boolean log_output         See logs (1) or not (0)
          * boolean update_export_date Change last export date in data base (1) or not (0)
          * boolean get_params         See export parameters and authorized values in json format (1) or not (0)
