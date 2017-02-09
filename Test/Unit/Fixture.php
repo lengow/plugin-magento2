@@ -39,6 +39,37 @@ class Fixture extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Return value of a private property using ReflectionClass
+     *
+     * @param object &$instance Instantiated object that we will run method on.
+     * @param string $property Class property
+     *
+     * @return mixed
+     */
+    public function getPrivatePropertyValue(&$instance, $property = '_data')
+    {
+        $reflector = new \ReflectionClass($instance );
+        $reflectorProperty = $reflector->getProperty($property);
+        $reflectorProperty->setAccessible(true);
+        return $reflectorProperty->getValue($instance);
+    }
+
+    /**
+     * Set value of a private property using ReflectionClass
+     *
+     * @param object &$instance Instantiated object that we will run method on.
+     * @param string $property Class property
+     * @param mixed $value Class value property
+     */
+    public function setPrivatePropertyValue(&$instance, $property = '_data', $value)
+    {
+        $reflector = new \ReflectionClass($instance);
+        $reflectorProperty = $reflector->getProperty($property);
+        $reflectorProperty->setAccessible(true);
+        $reflectorProperty->setValue($instance, $value);
+    }
+
+    /**
      * Mock specific function
      *
      * @param object &$object Instantiated object that we will run method on
@@ -69,4 +100,3 @@ class Fixture extends \PHPUnit_Framework_TestCase
         return $mockFunction;
     }
 }
-

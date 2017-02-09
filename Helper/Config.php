@@ -433,4 +433,3 @@ class Config extends AbstractHelper
         }
     }
 }
-
