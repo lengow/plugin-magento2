@@ -7,7 +7,7 @@
         </item>
         <item name="spinner" xsi:type="string">connector_product_columns</item>
     </argument>
-    <dataSource name="connector_product_data_source">
+    <dataSource name="connector_product_listing_data_source">
         <argument name="dataProvider" xsi:type="configurableObject">
             <argument name="class" xsi:type="string">Magento\Catalog\Ui\DataProvider\Product\ProductDataProvider</argument>
             <argument name="name" xsi:type="string">connector_product_listing_data_source</argument>
@@ -37,6 +37,35 @@
                 </argument>
             </filterSelect>
         </filters>
+        <massaction name="listing_massaction">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="component" xsi:type="string">Magento_Ui/js/grid/tree-massactions</item>
+                </item>
+            </argument>
+            <action name="publish_in_lengow">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="type" xsi:type="string">publish</item>
+                        <item name="label" xsi:type="string" translate="true">Include in export</item>
+                        <item name="url" xsi:type="url" path="connector/product/massPublish">
+                            <param name="status">1</param>
+                        </item>
+                    </item>
+                </argument>
+            </action>
+            <action name="unpublish_in_lengow">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="type" xsi:type="string">unpublish</item>
+                        <item name="label" xsi:type="string" translate="true">Exclude in export</item>
+                        <item name="url" xsi:type="url" path="connector/product/massPublish">
+                            <param name="status">0</param>
+                        </item>
+                    </item>
+                </argument>
+            </action>
+        </massaction>
         <paging name="listing_paging"/>
     </listingToolbar>
     <columns name="connector_product_columns" class="Magento\Catalog\Ui\Component\Listing\Columns">
