@@ -1,5 +1,7 @@
 en:
   log:
+    export:
+      unauthorised_ip: "unauthorised IP: %1"
     connector:
       call_api: "call %1"
       error_api: "API call failed - %1"

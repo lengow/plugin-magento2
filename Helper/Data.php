@@ -53,9 +53,9 @@ class Data extends AbstractHelper
         ResourceConnection $resource,
         LogFactory $logFactory
     ){
-        parent::__construct($context);
         $this->_resource = $resource;
         $this->_logFactory = $logFactory;
+        parent::__construct($context);
     }
 
     /**
@@ -81,7 +81,7 @@ class Data extends AbstractHelper
             flush();
         }
         $log = $this->_logFactory->create();
-        return $log->createLog(array('message' => $finalMessage, 'category' => $category));
+        return $log->createLog(['message' => $finalMessage, 'category' => $category]);
     }
 
     /**
@@ -157,6 +157,4 @@ class Data extends AbstractHelper
         $query = 'DELETE FROM '.$table.' WHERE `date` < DATE_SUB(NOW(),INTERVAL '.$nbDays.' DAY)';
         $connection->query($query);
     }
-
 }
-

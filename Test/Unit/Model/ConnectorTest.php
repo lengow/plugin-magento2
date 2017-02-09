@@ -235,4 +235,3 @@ class ConnectorTest extends \PHPUnit_Framework_TestCase
         );
     }
 }
-
