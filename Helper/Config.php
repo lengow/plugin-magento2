@@ -390,6 +390,36 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Get all store code
+     *
+     * @return array
+     */
+    public function getAllStoreCode()
+    {
+        $storeCollection = $this->_storeCollectionFactory->create();
+        $storeCodes = [];
+        foreach ($storeCollection as $store) {
+            $storeCodes[] = $store->getCode();
+        }
+        return $storeCodes;
+    }
+
+    /**
+     * Get all store id
+     *
+     * @return array
+     */
+    public function getAllStoreId()
+    {
+        $storeCollection = $this->_storeCollectionFactory->create();
+        $storeIds = [];
+        foreach ($storeCollection as $store) {
+            $storeIds[] = $store->getId();
+        }
+        return $storeIds;
+    }
+
+    /**
      * Get all Magento attributes
      *
      * @return array
