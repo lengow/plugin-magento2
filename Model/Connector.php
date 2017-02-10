@@ -105,15 +105,16 @@ class Connector
     }
 
     /**
-     * Make a new Lengow API Connector.
+     * Make a new Lengow API Connector
      *
-     * @param string $accessToken your access token
-     * @param string $secret      your secret
+     * @param array $params optional options for init
+     * string access_token Lengow access token
+     * string secret       Lengow secret
      */
-    public function init($accessToken, $secret)
+    public function init($params)
     {
-        $this->_accessToken = $accessToken;
-        $this->_secret = $secret;
+        $this->_accessToken = $params['access_token'];
+        $this->_secret = $params['secret'];
     }
 
     /**
@@ -455,7 +456,7 @@ class Connector
             return false;
         }
         try {
-            $this->init($accessToken, $secretToken);
+            $this->init(['access_token' => $accessToken, 'secret' => $secretToken]);
             $result = $this->connect();
         } catch (LengowException $e) {
             return false;
