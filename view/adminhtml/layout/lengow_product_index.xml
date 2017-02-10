@@ -6,7 +6,7 @@
     <body>
         <referenceBlock name="menu">
             <action method="setActive">
-                <argument name="itemId" xsi:type="string">Lengow_Connector::product/argument>
+                <argument name="itemId" xsi:type="string">Lengow_Connector::product</argument>
             </action>
         </referenceBlock>
         <referenceBlock name="root">
@@ -15,7 +15,13 @@
             </action>
         </referenceBlock>
         <referenceContainer name="content">
-            <uiComponent name="connector_product_listing"/>
+            <block class="Magento\Backend\Block\Store\Switcher" name="store_switcher" template="Magento_Backend::store/switcher.phtml">
+                <arguments>
+                    <argument name="use_confirm" xsi:type="string">0</argument>
+                    <argument name="switch_url" xsi:type="url" path="*/*/*"/>
+                </arguments>
+            </block>
+            <uiComponent name="lengow_product_listing"/>
         </referenceContainer>
     </body>
 </page>

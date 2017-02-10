@@ -2,15 +2,15 @@
 <listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
     <argument name="data" xsi:type="array">
         <item name="js_config" xsi:type="array">
-            <item name="provider" xsi:type="string">connector_log_listing.connector_log_listing_data_source</item>
-            <item name="deps" xsi:type="string">connector_log_listing.connector_log_listing_data_source</item>
+            <item name="provider" xsi:type="string">lengow_log_listing.lengow_log_listing_data_source</item>
+            <item name="deps" xsi:type="string">lengow_log_listing.lengow_log_listing_data_source</item>
         </item>
-        <item name="spinner" xsi:type="string">connector_log_columns</item>
+        <item name="spinner" xsi:type="string">lengow_log_columns</item>
     </argument>
-    <dataSource name="connector_log_data_source">
+    <dataSource name="lengow_log_data_source">
         <argument name="dataProvider" xsi:type="configurableObject">
-            <argument name="class" xsi:type="string">ConnectorGridDataProvider</argument>
-            <argument name="name" xsi:type="string">connector_log_listing_data_source</argument>
+            <argument name="class" xsi:type="string">LengowGridDataProvider</argument>
+            <argument name="name" xsi:type="string">lengow_log_listing_data_source</argument>
             <argument name="primaryFieldName" xsi:type="string">id</argument>
             <argument name="requestFieldName" xsi:type="string">id</argument>
             <argument name="data" xsi:type="array">
@@ -38,35 +38,23 @@
                     <item name="storageConfig" xsi:type="array">
                         <item name="saveUrl" xsi:type="url" path="*/*/save"/>
                         <item name="deleteUrl" xsi:type="url" path="*/*/delete"/>
-                        <item name="namespace" xsi:type="string">connector_log_listing</item>
+                        <item name="namespace" xsi:type="string">lengow_log_listing</item>
                     </item>
                     <item name="componentDisabled" xsi:type="boolean">true</item>
                 </item>
             </argument>
         </bookmark>
-        <filterSearch name="fulltext">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="provider" xsi:type="string">connector_log_listing.connector_log_listing_data_source</item>
-                    <item name="chipsProvider" xsi:type="string">connector_log_listing.connector_log_listing.listing_top.listing_filters_chips</item>
-                    <item name="storageConfig" xsi:type="array">
-                        <item name="provider" xsi:type="string">connector_log_listing.connector_log_listing.listing_top.bookmarks</item>
-                        <item name="namespace" xsi:type="string">current.search</item>
-                    </item>
-                </item>
-            </argument>
-        </filterSearch>
         <filters name="listing_filters">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="storageConfig" xsi:type="array">
-                        <item name="provider" xsi:type="string">connector_log_listing.connector_log_listing.listing_top.bookmarks</item>
+                        <item name="provider" xsi:type="string">lengow_log_listing.lengow_log_listing.listing_top.bookmarks</item>
                         <item name="namespace" xsi:type="string">current.filters</item>
                     </item>
                     <item name="childDefaults" xsi:type="array">
-                        <item name="provider" xsi:type="string">connector_log_listing.connector_log_listing.listing_top.listing_filters</item>
+                        <item name="provider" xsi:type="string">lengow_log_listing.lengow_log_listing.listing_top.listing_filters</item>
                         <item name="imports" xsi:type="array">
-                            <item name="visible" xsi:type="string">connector_log_listing.connector_log_listing.listing_top.bookmarks:current.columns.${ $.index }.visible</item>
+                            <item name="visible" xsi:type="string">lengow_log_listing.lengow_log_listing.listing_top.bookmarks:current.columns.${ $.index }.visible</item>
                         </item>
                     </item>
                 </item>
@@ -76,26 +64,26 @@
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="storageConfig" xsi:type="array">
-                        <item name="provider" xsi:type="string">connector_log_listing.connector_log_listing.listing_top.bookmarks</item>
+                        <item name="provider" xsi:type="string">lengow_log_listing.lengow_log_listing.listing_top.bookmarks</item>
                         <item name="namespace" xsi:type="string">current.paging</item>
                     </item>
-                    <item name="selectProvider" xsi:type="string">connector_log_listing.connector_log_listing.connector_log_columns.id</item>
+                    <item name="selectProvider" xsi:type="string">lengow_log_listing.lengow_log_listing.lengow_log_columns.id</item>
                     <item name="displayArea" xsi:type="string">bottom</item>
                 </item>
             </argument>
         </paging>
     </listingToolbar>
-    <columns name="connector_log_columns">
+    <columns name="lengow_log_columns">
         <argument name="data" xsi:type="array">
             <item name="config" xsi:type="array">
                 <item name="storageConfig" xsi:type="array">
-                    <item name="provider" xsi:type="string">connector_log_listing.connector_log_listing.listing_top.bookmarks</item>
+                    <item name="provider" xsi:type="string">lengow_log_listing.lengow_log_listing.listing_top.bookmarks</item>
                     <item name="namespace" xsi:type="string">current</item>
                 </item>
                 <item name="childDefaults" xsi:type="array">
                     <item name="controlVisibility" xsi:type="boolean">true</item>
                     <item name="storageConfig" xsi:type="array">
-                        <item name="provider" xsi:type="string">connector_log_listing.connector_log_listing.listing_top.bookmarks</item>
+                        <item name="provider" xsi:type="string">lengow_log_listing.lengow_log_listing.listing_top.bookmarks</item>
                         <item name="root" xsi:type="string">columns.${ $.index }</item>
                         <item name="namespace" xsi:type="string">current.${ $.storageConfig.root}</item>
                     </item>

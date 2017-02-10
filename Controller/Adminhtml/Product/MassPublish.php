@@ -32,31 +32,26 @@ use Magento\Store\Model\StoreManagerInterface;
 class MassPublish extends \Magento\Catalog\Controller\Adminhtml\Product
 {
     /**
-     * @var Processor
-     */
-    protected $_productPriceIndexerProcessor;
-
-    /**
      * MassActions filter
      *
      * @var Filter
      */
-    protected $filter;
+    protected $_filter;
 
     /**
      * @var CollectionFactory
      */
-    protected $collectionFactory;
+    protected $_collectionFactory;
 
     /**
      * @var Context
      */
-    private $context;
+    protected $_context;
 
     /**
      * @var StoreManagerInterface
      */
-    public $storeManager;
+    protected $_storeManager;
 
 
     /**
@@ -75,13 +70,12 @@ class MassPublish extends \Magento\Catalog\Controller\Adminhtml\Product
         CollectionFactory $collectionFactory,
         StoreManagerInterface $storeManager
     ) {
-        $this->filter = $filter;
-        $this->collectionFactory = $collectionFactory;
-        $this->_productPriceIndexerProcessor = $productPriceIndexerProcessor;
+        $this->_filter = $filter;
+        $this->_collectionFactory = $collectionFactory;
         parent::__construct($context, $productBuilder);
-        $this->context = $context;
+        $this->_context = $context;
         $this->productBuilder = $productBuilder;
-        $this->storeManager = $storeManager;
+        $this->_storeManager = $storeManager;
     }
 
     /**
@@ -91,21 +85,32 @@ class MassPublish extends \Magento\Catalog\Controller\Adminhtml\Product
      */
     public function execute()
     {
-        $collection = $this->filter->getCollection($this->collectionFactory->create());
+        $collection = $this->_filter->getCollection($this->_collectionFactory->create());
         $productIds = $collection->getAllIds();
-        $storeId = isset($this->getRequest()->getParam('filters')['store_id']) ? $this->getRequest()->getParam('filters')['store_id'] : 0;
         $status = (int) $this->getRequest()->getParam('status');
 
-        if ($storeId == 0) {
-            $storeId = $this->storeManager->getDefaultStoreView()->getId();
+        // TODO - search store_id parameter
+        $url= $this->_redirect->getRefererUrl();
+        $path = parse_url($url, PHP_URL_PATH);
+        $store = strpos($path, 'store');
+
+        if ($store !== false) {
+            preg_match('/(?<=store\/)\d/',$path, $storeId);
+            $store = $storeId[0];
+        } else {
+            $store = $this->_storeManager->getDefaultStoreView()->getId();
         }
 
+        try {
         $this->_objectManager->get(Action::class)
-            ->updateAttributes($productIds, ['lengow_product' => $status], $storeId);
+            ->updateAttributes($productIds, ['lengow_product' => $status], $store);
+        } catch (\Exception $e) {
+            $this->_getSession()->addException($e, __('Something went wrong while updating the lengow product(s) attribute.'));
+        }
 
         /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
-        return $resultRedirect->setPath('connector/*/');
+        return $resultRedirect->setPath('lengow/*/');
     }
 
 }
