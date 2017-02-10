@@ -26,6 +26,7 @@ use Magento\Framework\Locale\Resolver;
 use Magento\Framework\TranslateInterface;
 use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Model\Export;
 
 class Index extends Action
 {
@@ -55,6 +56,11 @@ class Index extends Action
     protected $_dataHelper;
 
     /**
+     * @var \Lengow\Connector\Model\Export Lengow export instance
+     */
+    protected $_export;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\App\Action\Context $context Magento action context instance
@@ -63,6 +69,7 @@ class Index extends Action
      * @param \Magento\Framework\TranslateInterface $translate Magento translate instance
      * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param \Lengow\Connector\Model\Export $export Lengow export instance
      */
     public function __construct(
         Context $context,
@@ -70,7 +77,8 @@ class Index extends Action
         Resolver $locale,
         TranslateInterface $translate,
         SecurityHelper $securityHelper,
-        DataHelper $dataHelper
+        DataHelper $dataHelper,
+        Export $export
     ) {
         parent::__construct($context);
         $this->_storeManager = $storeManager;
@@ -78,6 +86,7 @@ class Index extends Action
         $this->_translate = $translate;
         $this->_securityHelper = $securityHelper;
         $this->_dataHelper = $dataHelper;
+        $this->_export = $export;
     }
 
     public function execute()
@@ -156,6 +165,7 @@ class Index extends Action
                     'update_export_date' => $updateExportDate,
                     'log_output'         => $logOutput,
                 ];
+                $this->_export->init($params);
             } catch (\Exception $e) {
                 $errorMessage = '[Magento error] "'.$e->getMessage().'" '.$e->getFile().' line '.$e->getLine();
                 $this->_dataHelper->log('Export', $errorMessage);
