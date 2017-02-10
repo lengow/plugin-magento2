@@ -29,26 +29,26 @@ use Magento\Framework\Stdlib\DateTime\DateTime;
 class Log extends AbstractModel
 {
     /**
-     * @var array $_fieldList field list for the table lengow_order_line
+     * @var array $_fieldList field list for the table lengow_log
      * required => Required fields when creating registration
      * update   => Fields allowed when updating registration
      */
-    protected $_fieldList = array(
-        'message' => array('required' => true, 'updated' => false),
-        'category' => array('required' => true, 'updated' => false),
-    );
+    protected $_fieldList = [
+        'message'  => ['required' => true, 'updated' => false],
+        'category' => ['required' => true, 'updated' => false],
+    ];
 
     /**
-     * @var DateTime
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
      */
     protected $_dateTime;
 
     /**
      * Constructor
      *
-     * @param Context $context
-     * @param Registry $registry
-     * @param DateTime $dateTime
+     * @param \Magento\Framework\Model\Context $context Magento context instance
+     * @param \Magento\Framework\Registry $registry Magento registry instance
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      */
     public function __construct(
         Context $context,
@@ -75,7 +75,7 @@ class Log extends AbstractModel
      *
      * @return AbstractDb|bool
      */
-    public function createLog($params = array())
+    public function createLog($params = [])
     {
         foreach ($this->_fieldList as $key => $value) {
             if (!array_key_exists($key, $params) && $value['required']) {
