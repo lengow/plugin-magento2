@@ -41,32 +41,36 @@ class Fixture extends \PHPUnit_Framework_TestCase
     /**
      * Return value of a private property using ReflectionClass
      *
-     * @param object &$instance Instantiated object that we will run method on.
-     * @param string $property Class property
+     * @param object &$object Instantiated object that we will run method on.
+     * @param string $propertyName Class property
      *
      * @return mixed
      */
-    public function getPrivatePropertyValue(&$instance, $property = '_data')
+    public function getPrivatePropertyValue(&$object, $propertyName = '_data')
     {
-        $reflector = new \ReflectionClass($instance );
-        $reflectorProperty = $reflector->getProperty($property);
-        $reflectorProperty->setAccessible(true);
-        return $reflectorProperty->getValue($instance);
+        $reflection = new \ReflectionClass(get_class($object));
+        $property = $reflection->getProperty($propertyName);
+        $property->setAccessible(true);
+        return $property->getValue($object);
     }
 
     /**
      * Set value of a private property using ReflectionClass
      *
-     * @param object &$instance Instantiated object that we will run method on.
-     * @param string $property Class property
-     * @param mixed $value Class value property
+     * @param object &$object Instantiated object that we will run method on.
+     * @param array $propertyNames Class properties
+     * @param array $propertyValues Class value properties
      */
-    public function setPrivatePropertyValue(&$instance, $property = '_data', $value)
+    public function setPrivatePropertyValue(&$object, $propertyNames, $propertyValues)
     {
-        $reflector = new \ReflectionClass($instance);
-        $reflectorProperty = $reflector->getProperty($property);
-        $reflectorProperty->setAccessible(true);
-        $reflectorProperty->setValue($instance, $value);
+        $ii = 0;
+        $reflection = new \ReflectionClass(get_class($object));
+        foreach ($propertyNames as $propertyName) {
+            $property = $reflection->getProperty($propertyName);
+            $property->setAccessible(true);
+            $property->setValue($object, $propertyValues[$ii]);
+            $ii++;
+        }
     }
 
     /**
