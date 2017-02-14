@@ -26,6 +26,8 @@ use Magento\Framework\Locale\Resolver;
 use Magento\Framework\TranslateInterface;
 use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Model\Export;
 
 class Index extends Action
 {
@@ -55,6 +57,16 @@ class Index extends Action
     protected $_dataHelper;
 
     /**
+     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     */
+    protected $_configHelper;
+
+    /**
+     * @var \Lengow\Connector\Model\Export Lengow export instance
+     */
+    protected $_export;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\App\Action\Context $context Magento action context instance
@@ -63,6 +75,8 @@ class Index extends Action
      * @param \Magento\Framework\TranslateInterface $translate Magento translate instance
      * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param \Lengow\Connector\Model\Export $export Lengow export instance
      */
     public function __construct(
         Context $context,
@@ -70,7 +84,9 @@ class Index extends Action
         Resolver $locale,
         TranslateInterface $translate,
         SecurityHelper $securityHelper,
-        DataHelper $dataHelper
+        DataHelper $dataHelper,
+        ConfigHelper $configHelper,
+        Export $export
     ) {
         parent::__construct($context);
         $this->_storeManager = $storeManager;
@@ -78,6 +94,8 @@ class Index extends Action
         $this->_translate = $translate;
         $this->_securityHelper = $securityHelper;
         $this->_dataHelper = $dataHelper;
+        $this->_configHelper = $configHelper;
+        $this->_export = $export;
     }
 
     public function execute()
@@ -121,10 +139,13 @@ class Index extends Action
         $updateExportDate = $this->getRequest()->getParam('update_export_date', null);
         // get store data
         $storeCode = $this->getRequest()->getParam('code', null);
-        if ($storeCode) {
-            $storeId = (int) $this->_storeManager->getStore($storeCode)->getId();
+        if (in_array($storeCode, $this->_configHelper->getAllStoreCode())) {
+            $storeId = (int)$this->_storeManager->getStore($storeCode)->getId();
         } else {
-            $storeId = (int) $this->getRequest()->getParam('store', $this->_storeManager->getStore()->getId());
+            $storeId = (int)$this->getRequest()->getParam('store', null);
+            if (!in_array($storeId, $this->_configHelper->getAllStoreId())) {
+                $storeId = (int)$this->_storeManager->getStore()->getId();
+            }
         }
         // get locale data
         if ($locale = $this->getRequest()->getParam('locale', null)) {
@@ -142,8 +163,6 @@ class Index extends Action
                 $params = [
                     'store_id'           => $storeId,
                     'format'             => $format,
-                    'mode'               => $mode,
-                    'get_params'         => $getParams,
                     'product_types'      => $productTypes,
                     'inactive'           => $inactive,
                     'out_of_stock'       => $outOfStock,
@@ -156,6 +175,16 @@ class Index extends Action
                     'update_export_date' => $updateExportDate,
                     'log_output'         => $logOutput,
                 ];
+                $this->_export->init($params);
+                if ($getParams) {
+
+                } elseif ($mode == 'size') {
+                    $this->getResponse()->setBody($this->_export->getTotalExportedProduct());
+                } elseif ($mode == 'total') {
+                    $this->getResponse()->setBody($this->_export->getTotalProduct());
+                } else {
+
+                }
             } catch (\Exception $e) {
                 $errorMessage = '[Magento error] "'.$e->getMessage().'" '.$e->getFile().' line '.$e->getLine();
                 $this->_dataHelper->log('Export', $errorMessage);
