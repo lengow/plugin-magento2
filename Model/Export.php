@@ -206,10 +206,8 @@ class Export
      */
     public function init($params)
     {
-        // Get store and store id
-        $storeId = isset($params['store_id']) ? (int)$params['store_id'] : false;
-        $this->_store = $this->_storeManager->getStore($storeId);
-        $this->_storeId = $this->_store->getId();
+        $this->_storeId = isset($params['store_id']) ? (int)$params['store_id'] : 0;
+        $this->_store = $this->_storeManager->getStore($this->_storeId);
         $this->_limit = isset($params['limit']) ? (int) $params['limit'] : 0;
         $this->_offset = isset($params['offset']) ? (int) $params['offset'] : 0;
         $this->_stream = isset($params['stream'])
@@ -390,7 +388,7 @@ class Export
                 $condition
             );
         }
-        // Export selected products
+        // Export specific products with id
         if (count($this->_productIds) > 0) {
             $productCollection->addAttributeToFilter('entity_id', ['in' => $this->_productIds]);
         }
