@@ -19,30 +19,141 @@
 
 namespace Lengow\Connector\Controller\Adminhtml\Product;
 
-
+use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Helper\Config as ConfigHelper;
+use Magento\Backend\Helper\Data as BackendHelper;
+use Lengow\Connector\Helper\Sync as SyncHelper;
+use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Lengow\Connector\Model\Export;
 
 class Index extends Action
 {
     /**
+     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     */
+    protected $_dataHelper;
+
+    /**
+     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     */
+    protected $_configHelper;
+
+    /**
+     * @var \Magento\Framework\Controller\Result\JsonFactory
+     */
+    protected $_resultJsonFactory;
+
+    /**
+     * @var \Magento\Framework\Json\Helper\Data
+     */
+    protected $_jsonHelper;
+
+    /**
+     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     */
+    protected $_syncHelper;
+
+    /**
+     * @var \Magento\Backend\App\Action\Context
+     */
+    protected $_context;
+
+    /**
+     * @var \Lengow\Connector\Model\Export Lengow export instance
+     */
+    protected $_export;
+
+    /**
      * Constructor
      *
      * @param Context $context
+     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param \Lengow\Connector\Helper\Data   $dataHelper   Lengow data helper instance
+     * @param \Magento\Framework\Controller\Result\JsonFactory    $resultJsonFactory
+     * @param \Magento\Framework\Json\Helper\Data $jsonHelper
+     * @param \Lengow\Connector\Helper\Sync   $syncHelper Lengow sync helper instance
+     * @param \Lengow\Connector\Model\Export $export Lengow export instance
      */
-    public function __construct(Context $context)
+    public function __construct(
+        Context $context,
+        ConfigHelper $configHelper,
+        DataHelper $dataHelper,
+        JsonFactory $resultJsonFactory,
+        SyncHelper $syncHelper,
+        \Magento\Framework\Json\Helper\Data $jsonHelper,
+        Export $export
+    )
     {
+        $this->_context = $context;
+        $this->_configHelper = $configHelper;
+        $this->_dataHelper = $dataHelper;
+        $this->_resultJsonFactory = $resultJsonFactory;
+        $this->_jsonHelper = $jsonHelper;
+        $this->_syncHelper = $syncHelper;
+        $this->_export = $export;
         parent::__construct($context);
     }
 
     /**
      * Index action
      *
-     * @return void
+     * @return void|string
      */
     public function execute()
     {
-        $this->_view->loadLayout();
-        $this->_view->renderLayout();
+        if ($this->getRequest()->getParam('isAjax')) {
+            $action = $this->getRequest()->getParam('action');
+            if ($action) {
+                switch ($action) {
+                    case 'change_option_selected':
+                        $state = $this->getRequest()->getParam('state');
+                        $storeId = $this->getRequest()->getParam('store_id');
+                        if ($state !== null) {
+                            $this->_configHelper->set('selection_enable', $state, $storeId);
+                            $params = [
+                                'store_id' => $this->getRequest()->getParam('store_id')
+                                ];
+                            $this->_export->init($params);
+                            return $this->_resultJsonFactory->create()->setData(
+                                [
+                                    'state' => $state,
+                                    'exported' => $this->_export->getTotalExportedProduct(),
+                                    'total' => $this->_export->getTotalProduct()
+                                ]
+                            );
+                        }
+                        break;
+                    case 'check_store':
+                        $storeId = $this->getRequest()->getParam('store_id');
+                        $sync = $this->_syncHelper->checkSyncStore($storeId);
+                        $datas = [];
+                        $datas['result'] = $sync;
+                        if ($sync == true) {
+                            $lastExport = $this->_configHelper->get('last_export', $storeId);
+                            if ($lastExport != null) {
+                                $datas['message'] = __('Last indexation').'<br />'.
+                                                    $this->_dataHelper->getDateInCorrectFormat($lastExport);
+                            } else {
+                                $datas['message'] = __('Not indexed yet');
+                            }
+                            $datas['link_title'] = __('Store synchronized');
+                            $datas['id'] = 'lengow_store_sync';
+                        } else {
+                            $datas['message'] = __('Store not synchronized');
+                            $datas['link_title'] = __('Synchronize my store with Lengow');
+                            $datas['link_href'] = $this->_context->getHelper()
+                                                      ->getUrl('lengow_home/').'?isSync=true';
+                            $datas['id'] = 'lengow_store_no_sync';
+                        }
+                        return $this->_resultJsonFactory->create()->setData($datas);
+                        break;
+                }
+            }
+        } else {
+            $this->_view->loadLayout();
+            $this->_view->renderLayout();
+        }
     }
 }

@@ -42,19 +42,27 @@ class Data extends AbstractHelper
     protected $_resource;
 
     /**
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime
+     */
+    protected $_date;
+
+    /**
      * Constructor
      *
      * @param Context $context
      * @param ResourceConnection $resource
      * @param LogFactory $logFactory
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime $date
      */
     public function __construct(
         Context $context,
         ResourceConnection $resource,
-        LogFactory $logFactory
+        LogFactory $logFactory,
+        \Magento\Framework\Stdlib\DateTime\DateTime $date
     ){
         $this->_resource = $resource;
         $this->_logFactory = $logFactory;
+        $this->_date = $date;
         parent::__construct($context);
     }
 
@@ -156,5 +164,44 @@ class Data extends AbstractHelper
         $table = $connection->getTableName('lengow_log');
         $query = 'DELETE FROM '.$table.' WHERE `date` < DATE_SUB(NOW(),INTERVAL '.$nbDays.' DAY)';
         $connection->query($query);
+    }
+
+    /**
+     * Get export Url
+     *
+     * @param integer $storeId          Magento store id
+     * @param array   $additionalParams additional parameters for export url
+     *
+     * @return string
+     */
+    public function getExportUrl($storeId, $additionalParams = array())
+    {
+        $defaultParams = array(
+            'store'         => $storeId,
+            '_nosid'        => true,
+            '_store_to_url' => false,
+        );
+        if (count($additionalParams) > 0) {
+            $defaultParams = array_merge($defaultParams, $additionalParams);
+        }
+        return $this->_getUrl('lengow/feed', $defaultParams);//TODO storemanager
+    }
+
+    /**
+     * Get date in local date
+     *
+     * @param integer $timestamp linux timestamp
+     * @param boolean $second    see seconds or not
+     *
+     * @return string in gmt format
+     */
+    public function getDateInCorrectFormat($timestamp, $second = false)
+    {
+        if ($second) {
+            $format = 'l d F Y @ H:i:s';
+        } else {
+            $format = 'l d F Y @ H:i';
+        }
+        return $this->_date->date($format, $timestamp);
     }
 }
