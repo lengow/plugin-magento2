@@ -27,6 +27,7 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Lengow\Connector\Model\Export;
+use Magento\Framework\Json\Helper\Data as JsonHelperData;
 
 class Index extends Action
 {
@@ -82,7 +83,7 @@ class Index extends Action
         DataHelper $dataHelper,
         JsonFactory $resultJsonFactory,
         SyncHelper $syncHelper,
-        \Magento\Framework\Json\Helper\Data $jsonHelper,
+        JsonHelperData $jsonHelper,
         Export $export
     )
     {
@@ -155,5 +156,6 @@ class Index extends Action
             $this->_view->loadLayout();
             $this->_view->renderLayout();
         }
+        return null;
     }
 }

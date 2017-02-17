@@ -1,4 +1,21 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category    Lengow
+ * @package     Lengow_Connector
+ * @subpackage  Block
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
 
 namespace Lengow\Connector\Block\Adminhtml\Product;
 
@@ -7,6 +24,7 @@ use Magento\Backend\Helper\Data as BackendHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Export as Export;
+use Magento\Backend\Block\Template\Context;
 
 class Header extends Template
 {
@@ -33,13 +51,15 @@ class Header extends Template
     /**
      * Constructor
      *
+     * @param \Magento\Backend\Block\Template\Context $context
      * @param \Lengow\Connector\Helper\Data   $dataHelper   Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Magento\Backend\Helper\Data    $backendHelper
      * @param \Lengow\Connector\Model\Export  $export
+     * @param array $data
      */
     public function __construct(
-        \Magento\Backend\Block\Template\Context $context,
+        Context $context,
         array $data = [],
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
@@ -54,7 +74,6 @@ class Header extends Template
     }
 
     /**
-     * Make this public so that templates can use it properly with template engine
      *
      * @return \Magento\Backend\Helper\Data
      */
@@ -64,7 +83,6 @@ class Header extends Template
     }
 
     /**
-     * Make this public so that templates can use it properly with template engine
      *
      * @return \Lengow\Connector\Helper\Data
      */
@@ -74,7 +92,6 @@ class Header extends Template
     }
 
     /**
-     * Make this public so that templates can use it properly with template engine
      *
      * @return \Lengow\Connector\Helper\Config
      */
@@ -84,7 +101,6 @@ class Header extends Template
     }
 
     /**
-     * Make this public so that templates can use it properly with template engine
      *
      * @return \Lengow\Connector\Model\Export
      */
@@ -96,11 +112,12 @@ class Header extends Template
 
     /**
      * Get store
+     * TODO dans Grid également
+     * @return \Magento\Store\Api\Data\StoreInterface
      */
     public function getStore()
     {
         $storeId = (int)$this->getRequest()->getParam('store', 0);
-        // set default store if storeId is global
         if ($storeId == 0) {
             $storeId = $this->_storeManager->getDefaultStoreView()->getId();
         }

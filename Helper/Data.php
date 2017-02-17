@@ -23,6 +23,8 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ResourceConnection;
 use Lengow\Connector\Model\LogFactory as LogFactory;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Store\Model\StoreManagerInterface;
 
 class Data extends AbstractHelper
 {
@@ -47,22 +49,30 @@ class Data extends AbstractHelper
     protected $_date;
 
     /**
+     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
+     */
+    protected $_storeManager;
+
+    /**
      * Constructor
      *
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
      * @param Context $context
      * @param ResourceConnection $resource
      * @param LogFactory $logFactory
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $date
      */
     public function __construct(
+        StoreManagerInterface $storeManager,
         Context $context,
         ResourceConnection $resource,
         LogFactory $logFactory,
-        \Magento\Framework\Stdlib\DateTime\DateTime $date
+        DateTime $date
     ){
         $this->_resource = $resource;
         $this->_logFactory = $logFactory;
         $this->_date = $date;
+        $this->_storeManager = $storeManager;
         parent::__construct($context);
     }
 
@@ -174,17 +184,19 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function getExportUrl($storeId, $additionalParams = array())
+    public function getExportUrl($storeId, $additionalParams = [])
     {
-        $defaultParams = array(
+        $defaultParams = [
             'store'         => $storeId,
             '_nosid'        => true,
             '_store_to_url' => false,
-        );
+        ];
         if (count($additionalParams) > 0) {
             $defaultParams = array_merge($defaultParams, $additionalParams);
         }
-        return $this->_getUrl('lengow/feed', $defaultParams);//TODO storemanager
+        return $this->_storeManager->getStore($storeId)->getUrl('lengow/feed', $defaultParams);
+        // TODO : https://github.com/magento/magento2/issues/5322
+        // return $this->_storeManager->getStore($storeId)->getBaseUrl();
     }
 
     /**

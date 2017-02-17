@@ -24,10 +24,8 @@ use Magento\Framework\App\Helper\Context;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Connector as ModelConnector;
 
-
 class Sync extends AbstractHelper
 {
-
     /**
      * @var \Lengow\Connector\Helper\Config Lengow config helper instance
      */
