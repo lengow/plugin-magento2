@@ -249,6 +249,7 @@ class Config extends AbstractHelper
      * @var array attributes excludes
      */
     protected $_excludeAttributes = [
+        'sku',
         'media_gallery',
         'tier_price',
         'short_description',
@@ -417,6 +418,26 @@ class Config extends AbstractHelper
             $storeIds[] = $store->getId();
         }
         return $storeIds;
+    }
+
+    /**
+     * Get Selected attributes
+     *
+     * @param integer $storeId Magento store id
+     *
+     * @return array
+     */
+    public function getSelectedAttributes($storeId = 0)
+    {
+        $selectedAttributes = [];
+        $attributes = $this->get('export_attribute', $storeId);
+        if (!is_null($attributes)) {
+            $attributes = explode(',', $attributes);
+            foreach ($attributes as $attribute) {
+                $selectedAttributes[] = $attribute;
+            }
+        }
+        return $selectedAttributes;
     }
 
     /**

@@ -183,7 +183,7 @@ class Index extends Action
                 } elseif ($mode == 'total') {
                     $this->getResponse()->setBody($this->_export->getTotalProduct());
                 } else {
-
+                    $this->_export->exec();
                 }
             } catch (\Exception $e) {
                 $errorMessage = '[Magento error] "'.$e->getMessage().'" '.$e->getFile().' line '.$e->getLine();
