@@ -695,7 +695,7 @@ class Export
         }
         // Export only selected products
         if ($this->_selection) {
-            $productCollection->addAttributeToFilter('lengow_product', 1);
+            $productCollection->addAttributeToFilter('lengow_product', 1, 'left');
         }
         // Export out of stock products
         if (!$this->_outOfStock) {
