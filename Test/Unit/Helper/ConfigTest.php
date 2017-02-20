@@ -20,6 +20,7 @@
 namespace Lengow\Connector\Test\Unit\Helper;
 
 use Lengow\Connector\Helper\Config;
+use Lengow\Connector\Test\Unit\Fixture;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as GroupCollectionFactory;
 use Magento\Customer\Model\ResourceModel\Group\Collection as GroupCollection;
@@ -206,6 +207,32 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             $customerGroups,
             $mockCustomerGroups,
             '[Test Get All Customer Group] Check if return is valid'
+        );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Helper\Config::getSelectedAttributes
+     */
+    public function testGetSelectedAttributes()
+    {
+        $fixture = new Fixture();
+        $selectedAttributesMock = 'meta_description,meta_keyword,meta_title,minimal_price,size';
+        $configHelperMock = $fixture->mockFunctions($this->_configHelper, ['get'], [$selectedAttributesMock]);
+        $this->assertInternalType(
+            'array',
+            $configHelperMock->getSelectedAttributes(1),
+            '[Test Get Selected Attributes] Check if return is a array'
+        );
+        $this->assertEquals(
+            ['meta_description', 'meta_keyword', 'meta_title', 'minimal_price', 'size'],
+            $configHelperMock->getSelectedAttributes(1),
+            '[Test Get Selected Attributes] Check if return is valid'
+        );
+        $configHelperMock2 = $fixture->mockFunctions($this->_configHelper, ['get'], [null]);
+        $this->assertEquals(
+            [],
+            $configHelperMock2->getSelectedAttributes(1),
+            '[Test Get Selected Attributes] Check if return is valid when is null'
         );
     }
 
