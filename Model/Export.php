@@ -373,7 +373,7 @@ class Export
             );
             $this->_dataHelper->log(
                 'Export',
-                $this->_dataHelper->setLogMessage('execution time: %1 seconds', [$timeEnd - $timeStart]),
+                $this->_dataHelper->setLogMessage('execution time: %1 seconds', [round($timeEnd - $timeStart, 4)]),
                 $this->_logOutput
             );
             $this->_dataHelper->log(
