@@ -127,4 +127,57 @@ class DataTest extends \PHPUnit_Framework_TestCase
             '[Test Set Log Message] Check decodeLogMessage with force parameters and no Magento translation'
         );
     }
+
+    /**
+     * @covers \Lengow\Connector\Helper\Data::cleanData
+     */
+    public function testCleanData()
+    {
+        $this->assertInternalType(
+            'string',
+            $this->_dataHelper->cleanData('plop'),
+            '[Test Clean Data] Check if return is a string'
+        );
+        $this->assertEquals(
+            "¢ß¥£xE0 '™©®ª×÷±²&#150'é'(³¼½¾µ¿¶·¸º°¯§…¤¦≠¬ˆ¨‰àáâãäëìíîïðñòóùúûüýÿ",
+            $this->_dataHelper->cleanData("¢ß¥£xE0|'™©®ª×÷±²&#150\"é'(³¼½¾µ¿¶·¸º°¯§…¤¦≠¬ˆ¨‰àáâãäëìíîïðñòóùúûüýÿ"),
+            '[Test Clean Data] Check is string return is valid'
+        );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Helper\Data::cleanHtml
+     */
+    public function testCleanHtml()
+    {
+        $this->assertInternalType(
+            'string',
+            $this->_dataHelper->cleanHtml('plop'),
+            '[Test Clean Html] Check if return is a string'
+        );
+        $this->assertEquals(
+            "  '`' &#39' &#150-/\/",
+            $this->_dataHelper->cleanHtml("<br /> <br> &nbsp;|\"'`&#39;&#39&#39;&#150&#150;/\/"),
+            '[Test Clean Html] Check is string return is valid'
+        );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Helper\Data::replaceAccentedChars
+     */
+    public function testReplaceAccentedChars()
+    {
+        $this->assertInternalType(
+            'string',
+            $this->_dataHelper->replaceAccentedChars('plop'),
+            '[Test Replace Accented Char] Check if return is a string'
+        );
+        $this->assertEquals(
+            'aaaaAAAECeeeEiiÎÏÐNooooÖØOESþuuUUyŸaaaaaaaeceeeeiiiiðnoooooooesÞuuuuyy',
+            $this->_dataHelper->replaceAccentedChars(
+                'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØŒŠþÙÚÛÜÝŸàáâãäåæçèéêëìíîïðñòóôõöøœšÞùúûüýÿ'
+            ),
+            '[Test Replace Accented Chars] Check is string return is valid'
+        );
+    }
 }

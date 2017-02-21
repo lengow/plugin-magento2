@@ -105,7 +105,7 @@ class Connector
     }
 
     /**
-     * Make a new Lengow API Connector
+     * Init a new connector
      *
      * @param array $params optional options for init
      * string access_token Lengow access token
