@@ -24,23 +24,18 @@ use Magento\Backend\Block\Widget\Grid\Column\Renderer\AbstractRenderer;
 use Magento\Framework\DataObject;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Magento\Backend\Block\Context;
-use Magento\Store\Model\StoreManagerInterface;
 
 class Lengow extends AbstractRenderer
 {
     protected $_backendHelper;
 
-    protected $_storeManager;
-
     public function __construct(
         Context $context,
-        StoreManagerInterface $storeManager,
         DataHelper $backendHelper,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->_backendHelper = $backendHelper;
-        $this->_storeManager = $storeManager;
     }
 
     /**
@@ -61,7 +56,7 @@ class Lengow extends AbstractRenderer
                 id="lengow_export_product"
                 data-href="'. $this->_backendHelper->getUrl('lengow/product') .'?isAjax=true"
                 data-action="lengow_export_product"
-                data-id_store="'. $this->_storeManager->getStore()->getId() .'"
+                data-id_store="'. $this->_backendHelper->getStore()->getId() .'"
                 value="1">
             </div>
         </label>
