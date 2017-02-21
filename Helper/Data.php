@@ -56,15 +56,16 @@ class Data extends AbstractHelper
     protected $_date;
 
     /**
+     * @var \Lengow\Connector\Model\LogFactory
+     */
+    protected $_logFactory;
+
+    /**
      * Constructor
      *
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
-     * @param Context $context
-     * @param ResourceConnection $resource
-     * @param LogFactory $logFactory
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $date
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
      * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList Magento directory list instance
      * @param \Magento\Framework\App\ResourceConnection $resource Magento resource connection instance
      * @param \Lengow\Connector\Model\LogFactory $logFactory Lengow log factory instance
@@ -72,7 +73,6 @@ class Data extends AbstractHelper
     public function __construct(
         StoreManagerInterface $storeManager,
         Context $context,
-        StoreManagerInterface $storeManager,
         DirectoryList $directoryList,
         ResourceConnection $resource,
         LogFactory $logFactory,
@@ -83,7 +83,6 @@ class Data extends AbstractHelper
         $this->_resource = $resource;
         $this->_logFactory = $logFactory;
         $this->_date = $date;
-        $this->_storeManager = $storeManager;
         parent::__construct($context);
     }
 
