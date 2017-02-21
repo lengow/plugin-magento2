@@ -1,0 +1,336 @@
+/*************************************************/
+/*                    GLOBAL                     */
+/*************************************************/
+
+body.lengow-connector .middle {
+  padding: 23px 27px 0 27px;
+  background: transparent;
+}
+
+.lgw-footer {
+  padding: 40px 0 60px 0; 
+}
+
+.lgw-footer a {
+  color: #464646;
+  text-decoration: underline;
+}
+
+.lgw-footer a:hover {
+  color: #00aeef;
+}
+
+.clear {
+  clear: both;
+}
+
+/* PREPROD */
+
+#lgw-preprod { 
+  color: white;
+  background: #e55a4d;
+  padding: 5px 10px;
+  margin-bottom: 15px;
+  font-size: 12px;
+  display: inline-block;
+}
+
+/* COUNTER FREE TRIAL */
+
+body:not(.adminhtml-lengow-home-index) #lgw-counter {
+  background: #cdf1ff;
+  border: 1px solid #00aeef;
+  border-radius: 3px;
+  padding: 5px 10px;
+  margin-bottom: 15px;
+  font-size: 12px;
+  display: inline-block;
+}
+
+#lgw-counter a {
+  color: #555;
+  text-decoration: underline;
+}
+
+#lgw-counter a:hover {
+  color: #00aeef;
+  text-decoration: underline;
+}
+
+/*************************************************/
+/*                     HOME                     */
+/*************************************************/
+
+/*Iframe*/
+
+#lengow-iframe {
+  width: 100%;
+  min-height: 1047px;
+  border: 0px;
+  overflow-y: hidden;
+}
+
+/*Dashboard*/
+
+.adminhtml-lengow-home-index .lengow-nav {
+  display: none;
+}
+
+/*Counter*/
+
+.adminhtml-lengow-home-index #lgw-counter {
+  color: #555;
+  margin-top: 20px;
+  font-size: 12px;
+}
+
+.adminhtml-lengow-home-index #lgw-counter a {
+  color: #00aeef;
+  text-decoration: none;
+}
+
+.adminhtml-lengow-home-index #lgw-counter a:hover {
+  text-decoration: underline;
+}
+
+
+.adminhtml-lengow-home-index .lgw-col-4 a {
+  color: #00aeef;
+  text-decoration: none;
+}
+
+
+.adminhtml-lengow-home-index .lgw-label-red {
+  padding:0 8px;
+}
+
+.lgw-home-header {
+  height: 240px;
+  color: white;
+  padding: 60px 30px 0;
+  background: url("../images/header.png") #2E3340 no-repeat center;
+}
+
+.adminhtml-lengow-home-index .lgw-home-header a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.lgw-home-header h1 {
+  margin: 15px 0 5px;
+  font-weight: 300;
+}
+
+.adminhtml-lengow-home-index .lgw-row h5 {
+  margin: 0;
+  padding: 0;
+  font-style: initial;
+  font-size: 15px;
+}
+
+.lgw-home-stats {
+  margin: 60px 0 30px;
+}
+
+.lgw-home-menu .lgw-box {
+  min-height: 280px;
+}
+
+.adminhtml-lengow-home-index .lgw-container a:hover {
+    /*text-decoration: none;*/
+}
+
+/*************************************************/
+/*                PAGE PRODUCT                   */
+/*************************************************/
+
+span.publish-lgw {
+  text-align: center;
+  display: block;
+  width: auto;
+  color: white;
+  border-radius: 10px;
+}
+
+#lengow_product_store_name {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+#parent_total_products, #parent_exported_products {
+  display: inline-block;
+}
+
+
+#parent_exported_products{
+  font-weight: bold;
+}
+
+a.lengow_check_store {
+  padding-left: 3px;
+  padding-right: 14px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  border-radius: 8px;
+}
+
+#lengow_store_sync {
+  background-color: #45bf7b;
+}
+
+#lengow_store_no_sync {
+  background-color: #d7d7d7;
+}
+
+#lengow_check_store {
+  margin-bottom: 5px;
+  margin-top: 30px;
+}
+
+#lengow_check_store a {
+  color: #2f2f2f;
+  text-decoration: underline;
+}
+
+#lengow_check_store a:hover {
+  color: #00aeef;
+}
+
+.lengow_export_feed {
+  position: absolute;
+  top: 120px;
+  right: 60px;
+}
+
+body.adminhtml-lengow-product-index .products-exported { 
+  font-size: 17px;
+  margin-bottom: -10px;
+}
+
+body.adminhtml-lengow-product-index .lengow_total { 
+  font-size: 17px;
+  margin-bottom: -10px;
+}
+
+#parent_total_products {
+  color: #828282;
+}
+
+/*************************************************/
+/*                PAGE ORDER                     */
+/*************************************************/
+
+body.adminhtml-lengow-order-index a.lengow_action {
+  cursor: pointer;
+}
+
+body.adminhtml-lengow-order-index .lgw-col-8,
+body.adminhtml-lengow-order-index .lgw-col-4{
+  padding: 0;
+}
+
+/*************************************************/
+/*                PAGE DEBUG                     */
+/*************************************************/
+
+#store-information,
+#global-information,
+#cron-information,
+#checksum-information {
+  width: 100%;
+  margin: auto;
+}
+
+#lengow_action_grid .content-header {
+  display: none;
+}
+
+.lengow-block {
+  width: 45%;
+  float: left;
+  padding: 2%;
+}
+
+.lengow-block-full {
+  width: 96%;
+  padding: 2%;
+}
+
+.lengow-block-full textarea {
+  width: 97%;
+  min-width: 400px;
+  height: 300px;
+  resize: none;
+  padding: 2%;
+  border-color: #ddd;
+}
+
+.lengow-block table,
+.lengow-block-full table {
+  border-collapse: separate;
+  border-spacing: 2px;
+  border-color: grey;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.lengow-block table td,
+.lengow-block-full table td {
+  padding: 8px;
+  line-height: 1.42857143;
+  vertical-align: top;
+  border-top: 1px solid #ddd;
+}
+
+.lengow-block table .title,
+.lengow-block-full table .title {
+  text-align: left;
+}
+
+.lengow-block table .value,
+.lengow-block-full table .value  {
+  text-align: right;
+}
+
+.lengow-green {
+  color: green;
+}
+
+.lengow-red {
+  color: red;
+}
+
+.lengow-content-header {
+  width: 100%;
+  border-top: 2px solid #ddd;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+#lengow_action_grid {
+  margin-top: 15px;
+}
+
+/*************************************************/
+/*                SALES ORDER                     */
+/*************************************************/
+
+body.adminhtml-sales-order-view #sales_order_view_tabs_TAB_NAME_content  button,
+body.adminhtml-sales-order-view #sales_order_view_tabs_TAB_NAME_content button a {
+  color: #fff;
+  text-decoration: none;
+}
+
+body.adminhtml-sales-order-view #sales_order_view_tabs_TAB_NAME_content button:hover,
+body.adminhtml-sales-order-view #sales_order_view_tabs_TAB_NAME_content button a:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
+#lgw-info-title {
+  float: left;
+}
+
+#lgw-info-btn {
+  float: right;
+}
