@@ -69,7 +69,3 @@ require(['jquery'], function( $ ) {
         });
     });
 });
-
-function reloadGrid(grid, current, transport) {
-    grid.reload();
-}

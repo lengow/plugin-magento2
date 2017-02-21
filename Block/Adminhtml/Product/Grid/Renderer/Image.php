@@ -1,8 +1,28 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category    Lengow
+ * @package     Lengow_Connector
+ * @subpackage  Block
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+
 namespace Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer;
 
 use Magento\Backend\Block\Widget\Grid\Column\Renderer\AbstractRenderer;
 use Magento\Framework\DataObject;
+use Magento\Backend\Block\Context;
+use Magento\Catalog\Helper\Image as HelperImage;
 
 class Image extends AbstractRenderer
 {
@@ -11,6 +31,7 @@ class Image extends AbstractRenderer
      *
      * @var \Magento\Catalog\Helper\Image
      */
+
     protected $imageHelper;
 
     /**
@@ -18,9 +39,10 @@ class Image extends AbstractRenderer
      * @param \Magento\Catalog\Helper\Image $imageHelper
      * @param array $data
      */
+
     public function __construct(
-        \Magento\Backend\Block\Context $context,
-        \Magento\Catalog\Helper\Image $imageHelper,
+        Context $context,
+        HelperImage $imageHelper,
         array $data = []
     )
     {
@@ -28,6 +50,7 @@ class Image extends AbstractRenderer
         parent::__construct($context, $data);
         $this->_authorization = $context->getAuthorization();
     }
+
     /**
     * Renders grid column
     *
@@ -40,16 +63,5 @@ class Image extends AbstractRenderer
         $imageUrl = $this->imageHelper->init($row, $image)->getUrl();
 
         return '<img src="'.$imageUrl.'" width="50"/>';
-
-//        $product = new \Magento\Framework\DataObject($item);
-//        $imageHelper = $this->imageHelper->init($product, 'product_listing_thumbnail');
-//        $item[$fieldName . '_src'] = $imageHelper->getUrl();
-//        $item[$fieldName . '_alt'] = $this->getAlt($item) ?: $imageHelper->getLabel();
-//        $item[$fieldName . '_link'] = $this->urlBuilder->getUrl(
-//            'catalog/product/edit',
-//            ['id' => $product->getEntityId(), 'store' => $this->context->getRequestParam('store')]
-//        );
-//        $origImageHelper = $this->imageHelper->init($product, 'product_listing_thumbnail_preview');
-//        $item[$fieldName . '_orig_src'] = $origImageHelper->getUrl();
     }
 }

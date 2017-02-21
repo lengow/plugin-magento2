@@ -204,6 +204,7 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
                 'header' => __('Image'),
                 'index' => 'image',
                 'renderer'  => '\Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Image',
+                'column_css_class' => 'data-grid-thumbnail-cell'
             )
         );
         $this->addColumn(
