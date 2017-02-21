@@ -194,9 +194,8 @@ class Data extends AbstractHelper
         if (count($additionalParams) > 0) {
             $defaultParams = array_merge($defaultParams, $additionalParams);
         }
-        return $this->_storeManager->getStore($storeId)->getUrl('lengow/feed', $defaultParams);
-        // TODO : https://github.com/magento/magento2/issues/5322
-        // return $this->_storeManager->getStore($storeId)->getBaseUrl();
+        $this->_urlBuilder->setScope($storeId);
+        return $this->_urlBuilder->getUrl('lengow/feed', $defaultParams);
     }
 
     /**
@@ -215,5 +214,18 @@ class Data extends AbstractHelper
             $format = 'l d F Y @ H:i';
         }
         return $this->_date->date($format, $timestamp);
+    }
+
+    /**
+     * Get store
+     * @return \Magento\Store\Api\Data\StoreInterface
+     */
+    public function getStore()
+    {
+        $storeId = (int)$this->_getRequest()->getParam('store', 0);
+        if ($storeId == 0) {
+            $storeId = $this->_storeManager->getDefaultStoreView()->getId();
+        }
+        return $this->_storeManager->getStore($storeId);
     }
 }

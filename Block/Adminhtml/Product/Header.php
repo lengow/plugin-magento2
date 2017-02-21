@@ -106,22 +106,8 @@ class Header extends Template
      */
     public function getExport()
     {
-        $this->_export->init(['store_id' => $this->getStore()->getId()]);
+        $this->_export->init(['store_id' => $this->_dataHelper->getStore()->getId()]);
         return $this->_export;
-    }
-
-    /**
-     * Get store
-     * TODO dans Grid également
-     * @return \Magento\Store\Api\Data\StoreInterface
-     */
-    public function getStore()
-    {
-        $storeId = (int)$this->getRequest()->getParam('store', 0);
-        if ($storeId == 0) {
-            $storeId = $this->_storeManager->getDefaultStoreView()->getId();
-        }
-        return $this->_storeManager->getStore($storeId);
     }
 
 }
