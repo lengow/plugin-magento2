@@ -56,11 +56,6 @@ class Data extends AbstractHelper
     protected $_date;
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
-     */
-    protected $_storeManager;
-
-    /**
      * Constructor
      *
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
