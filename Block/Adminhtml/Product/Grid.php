@@ -111,7 +111,6 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
         $this->setDefaultDir('asc');
         $this->setSaveParametersInSession(true);
         $this->setVarNameFilter('product_filter');
-        $this->setUseAjax(true);
     }
 
     /**
@@ -135,7 +134,7 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
                         'left'
                     )
                     ->addStoreFilter($this->_dataHelper->getStore())
-                    ->addAttributeToFilter('type_id', array('nlike' => 'bundle'));
+                    ->addAttributeToFilter('type_id', ['nlike' => 'bundle']);
         $collection->joinAttribute(
             'price',
             'catalog_product/price',
@@ -187,7 +186,7 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
             [
                 'header' => __('ID'),
                 'index'  => 'entity_id',
-                'width' => 100,
+                'width'  => 100,
                 'type'   => 'number',
             ]
         );
@@ -201,9 +200,9 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
         $this->addColumn(
             'image',
             [
-                'header' => __('Image'),
-                'index' => 'image',
-                'renderer'  => '\Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Image',
+                'header'           => __('Image'),
+                'index'            => 'image',
+                'renderer'         => '\Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Image',
                 'column_css_class' => 'data-grid-thumbnail-cell'
             ]
         );
@@ -237,7 +236,7 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
             [
                 'header' => __('SKU'),
                 'index'  => 'sku',
-                'width' => 100,
+                'width'  => 100,
             ]
         );
         $this->addColumn(
@@ -282,11 +281,11 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
             $this->addColumn(
                 'websites',
                 [
-                    'header' => __('Websites'),
+                    'header'   => __('Websites'),
                     'sortable' => false,
-                    'index' => 'websites',
-                    'type' => 'options',
-                    'options' => $this->_websiteFactory->create()->getCollection()->toOptionHash()
+                    'index'    => 'websites',
+                    'type'     => 'options',
+                    'options'  => $this->_websiteFactory->create()->getCollection()->toOptionHash()
                 ]
             );
         }

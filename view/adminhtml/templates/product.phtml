@@ -6,7 +6,7 @@
         </a>
     </div>
 <div class="lengow_export_feed">
-    <a href="<?php echo $this->getDataHelper()->getExportUrl($this->getDataHelper()->getStore()->getId(), array('stream' => 1, 'update_export_date' => 0)); ?>"
+    <a href="<?php echo $this->getDataHelper()->getExportUrl($this->getDataHelper()->getStore()->getId(), ['stream' => 1, 'update_export_date' => 0]); ?>"
        target="_blank">
         <i class="fa fa-download lengow_tooltip">
             <span ><?php echo __('Download'); ?></span>

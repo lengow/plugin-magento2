@@ -20,7 +20,6 @@ en:
       store_not_index: "Not indexed yet"
     table:
       id: "ID"
-      thumbnail: "Thumbnail"
       image: "Image"
       name: "Name"
       type: "Type"
