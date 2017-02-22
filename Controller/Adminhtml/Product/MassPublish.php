@@ -21,15 +21,12 @@ namespace Lengow\Connector\Controller\Adminhtml\Product;
 
 use Magento\Backend\App\Action\Context;
 use Magento\Catalog\Controller\Adminhtml\Product;
-use Magento\Catalog\Model\Indexer\Product\Price\Processor;
 use Magento\Catalog\Model\Product\Action;
-use Magento\Ui\Component\MassAction\Filter;
-use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Store\Model\StoreManagerInterface;
 
 
-class MassPublish extends \Magento\Catalog\Controller\Adminhtml\Product
+class MassPublish extends Product
 {
     /**
      * @var Context
@@ -68,7 +65,6 @@ class MassPublish extends \Magento\Catalog\Controller\Adminhtml\Product
         $product_ids = $this->getRequest()->getParam('product');
         $store_id = (integer)$this->getRequest()->getParam('store', $this->_storeManager->getDefaultStoreView()->getId());
         $publish = (integer)$this->getRequest()->getParam('publish');
-
         try {
         $this->_objectManager->get(Action::class)
             ->updateAttributes($product_ids, ['lengow_product' => $publish], $store_id);

@@ -25,6 +25,7 @@ use Magento\Backend\Helper\Data as BackendHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Backend\App\Action;
+use Magento\Catalog\Model\Product\Action as ProductAction;
 use Magento\Backend\App\Action\Context;
 use Lengow\Connector\Model\Export;
 use Magento\Framework\Json\Helper\Data as JsonHelperData;
@@ -149,6 +150,25 @@ class Index extends Action
                             $datas['id'] = 'lengow_store_no_sync';
                         }
                         return $this->_resultJsonFactory->create()->setData($datas);
+                        break;
+                    case 'lengow_export_product':
+                        $storeId = $this->getRequest()->getParam('store_id');
+                        $state = $this->getRequest()->getParam('state');
+                        $productId = $this->getRequest()->getParam('product_id');
+                        if ($state !== null) {
+                            $this->_objectManager->get(ProductAction::class)
+                                ->updateAttributes([$productId], ['lengow_product' => $state], $storeId);
+                            $params = [
+                                'store_id' => $storeId
+                            ];
+                            $this->_export->init($params);
+                            return $this->_resultJsonFactory->create()->setData(
+                                [
+                                    'exported' => $this->_export->getTotalExportedProduct(),
+                                    'total' => $this->_export->getTotalProduct()
+                                ]
+                            );
+                        }
                         break;
                 }
             }

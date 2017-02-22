@@ -7,6 +7,9 @@ require(['jquery'], function( $ ) {
             $('#lengow_product_grid').hide();
         }
 
+        /**
+         * Check store synchronization with Lengow
+         */
         function checkStore() {
             var href = $('.lengow_check_store').attr('data-href'),
                 storeId = $('.lengow_check_store').attr('data-id_store');
@@ -34,6 +37,9 @@ require(['jquery'], function( $ ) {
 
         checkStore();
 
+        /**
+         * Show or not the product grid
+         */
         $('.lengow-connector').on('change', '.lengow_switch_option', function () {
             var href = $(this).attr('data-href'),
                 action = $(this).attr('data-action'),
@@ -61,6 +67,33 @@ require(['jquery'], function( $ ) {
             });
         });
 
+        /**
+         * Include or not a product in lengow
+         */
+        $('.lengow-connector').on('change', '.lengow_switch_export_product', function () {
+            var href = $(this).attr('data-href'),
+                action = $(this).attr('data-action'),
+                storeId = $(this).attr('data-id_store'),
+                state = $(this).prop('checked'),
+                productId = $(this).attr('data-id_product');
+            $.ajax({
+                url: href,
+                method: 'POST',
+                data: {
+                    state: state ? 1 : 0,
+                    action: action,
+                    store_id: storeId,
+                    product_id: productId,
+                    form_key: FORM_KEY
+                },
+                dataType: 'json',
+                success: function(data){
+                    $("#total_products").html(data.total);
+                    $("#exported_products").html(data.exported);
+                }
+            });
+        });
+
         /* SWITCH TOGGLE */
         $('.lengow-connector').on('change', '.lgw-switch', function() {
             var check = $(this);
@@ -69,7 +102,3 @@ require(['jquery'], function( $ ) {
         });
     });
 });
-
-function reloadGrid(grid, current, transport) {
-    grid.reload();
-}

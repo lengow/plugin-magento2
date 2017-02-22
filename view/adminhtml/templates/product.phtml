@@ -1,12 +1,12 @@
 <div class="lgw-box">
     <div id="lengow_check_store">
         <a class="lengow_check_store lengow_tooltip"
-           data-id_store="<?php echo $this->getStore()->getId(); ?>"
+           data-id_store="<?php echo $this->getDataHelper()->getStore()->getId(); ?>"
            data-href="<?php echo $this->getBackendHelper()->getUrl('lengow/product/'); ?>?isAjax=true">
         </a>
     </div>
 <div class="lengow_export_feed">
-    <a href="<?php echo $this->getDataHelper()->getExportUrl($this->getStore()->getId(), array('stream' => 1, 'update_export_date' => 0)); ?>"
+    <a href="<?php echo $this->getDataHelper()->getExportUrl($this->getDataHelper()->getStore()->getId(), array('stream' => 1, 'update_export_date' => 0)); ?>"
        target="_blank">
         <i class="fa fa-download lengow_tooltip">
             <span ><?php echo __('Download'); ?></span>
@@ -15,10 +15,10 @@
 </div>
 <div class="text-center">
     <h3 id="lengow_product_store_name" class="lengow_product_store_name lengow_tooltip">
-        <?php echo $this->getStore()->getName(); ?>
+        <?php echo $this->getDataHelper()->getStore()->getName(); ?>
         <span>
-            <?php echo $this->getStore()->getName(); ?> (<?php echo $this->getStore()->getId(); ?>)
-            <?php echo $this->getStore()->getBaseUrl(); ?>
+            <?php echo $this->getDataHelper()->getStore()->getName(); ?> (<?php echo $this->getDataHelper()->getStore()->getId(); ?>)
+            <?php echo $this->getDataHelper()->getStore()->getBaseUrl(); ?>
         </span>
     </h3>
     <br>
@@ -41,7 +41,7 @@
     <br>
     <br>
     <hr>
-    <div class="lgw-switch <?php if ($this->getConfigHelper()->get('selection_enable', $this->getStore()->getId()) == '1'): ?> checked <?php endif; ?>">
+    <div class="lgw-switch <?php if ($this->getConfigHelper()->get('selection_enable', $this->getDataHelper()->getStore()->getId()) == '1'): ?> checked <?php endif; ?>">
         <label>
             <div><span></span>
                 <input
@@ -50,8 +50,8 @@
                     id="change_option_selected"
                     data-href="<?php echo $this->getBackendHelper()->getUrl('lengow/product/'); ?>?isAjax=true"
                     data-action="change_option_selected"
-                    data-id_store="<?php echo $this->getStore()->getId(); ?>"
-                    value="1" <?php if ($this->getConfigHelper()->get('selection_enable', $this->getStore()->getId()) == '1'): ?>
+                    data-id_store="<?php echo $this->getDataHelper()->getStore()->getId(); ?>"
+                    value="1" <?php if ($this->getConfigHelper()->get('selection_enable', $this->getDataHelper()->getStore()->getId()) == '1'): ?>
                     checked="checked" <?php endif; ?>>
             </div> <?php echo __('Include specific products'); ?>
         </label>
