@@ -68,14 +68,20 @@ class Index extends Action
     protected $_export;
 
     /**
+     * @var ProductAction
+     */
+    protected $_productAction;
+
+    /**
      * Constructor
      *
+     * @param ProductAction $productAction
      * @param Context $context
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Helper\Data   $dataHelper   Lengow data helper instance
-     * @param \Magento\Framework\Controller\Result\JsonFactory    $resultJsonFactory
+     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
+     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper
-     * @param \Lengow\Connector\Helper\Sync   $syncHelper Lengow sync helper instance
      * @param \Lengow\Connector\Model\Export $export Lengow export instance
      */
     public function __construct(
@@ -85,10 +91,12 @@ class Index extends Action
         JsonFactory $resultJsonFactory,
         SyncHelper $syncHelper,
         JsonHelperData $jsonHelper,
-        Export $export
+        Export $export,
+        ProductAction $productAction
     )
     {
         $this->_context = $context;
+        $this->_productAction = $productAction;
         $this->_configHelper = $configHelper;
         $this->_dataHelper = $dataHelper;
         $this->_resultJsonFactory = $resultJsonFactory;
@@ -157,7 +165,7 @@ class Index extends Action
                         $state = $this->getRequest()->getParam('state');
                         $productId = $this->getRequest()->getParam('product_id');
                         if ($state !== null) {
-                            $this->_objectManager->get(ProductAction::class)
+                            $this->_productAction
                                 ->updateAttributes([$productId], ['lengow_product' => $state], $storeId);
                             $params = [
                                 'store_id' => $storeId

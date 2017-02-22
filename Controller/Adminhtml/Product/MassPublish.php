@@ -21,7 +21,7 @@ namespace Lengow\Connector\Controller\Adminhtml\Product;
 
 use Magento\Backend\App\Action\Context;
 use Magento\Catalog\Controller\Adminhtml\Product;
-use Magento\Catalog\Model\Product\Action;
+use Magento\Catalog\Model\Product\Action as ProductAction;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -38,21 +38,29 @@ class MassPublish extends Product
      */
     protected $_storeManager;
 
+    /**
+     * @var ProductAction
+     */
+    protected $_productAction;
+
 
     /**
      * @param Context $context
      * @param Product\Builder $productBuilder
      * @param StoreManagerInterface $storeManager
+     * @param ProductAction $productAction
      */
     public function __construct(
         Context $context,
         Product\Builder $productBuilder,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        ProductAction $productAction
     ) {
         parent::__construct($context, $productBuilder);
         $this->_context = $context;
         $this->productBuilder = $productBuilder;
         $this->_storeManager = $storeManager;
+        $this->_productAction = $productAction;
     }
 
     /**
@@ -66,8 +74,8 @@ class MassPublish extends Product
         $store_id = (integer)$this->getRequest()->getParam('store', $this->_storeManager->getDefaultStoreView()->getId());
         $publish = (integer)$this->getRequest()->getParam('publish');
         try {
-        $this->_objectManager->get(Action::class)
-            ->updateAttributes($product_ids, ['lengow_product' => $publish], $store_id);
+            $this->_productAction
+                ->updateAttributes($product_ids, ['lengow_product' => $publish], $store_id);
         } catch (\Exception $e) {
             $this->_getSession()->addException($e, __('Something went wrong while updating the lengow product(s) attribute.'));
         }
