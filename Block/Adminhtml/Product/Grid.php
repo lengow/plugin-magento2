@@ -341,6 +341,6 @@ class Grid extends Extended
 
     public function getRowUrl($row)
     {
-        return $this->getUrl('catalog/*/edit', array('id' => $row->getId()));
+        return $this->getUrl('catalog/*/edit', ['id' => $row->getId()]);
     }
 }
