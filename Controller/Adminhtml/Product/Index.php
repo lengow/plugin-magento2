@@ -169,7 +169,7 @@ class Index extends Action
                                 ->updateAttributes([$productId], ['lengow_product' => $state], $storeId);
                             $params = [
                                 'store_id'  => $storeId,
-                                'selection' => $state
+                                'selection' => 1
                             ];
                             $this->_export->init($params);
                             return $this->_resultJsonFactory->create()->setData(
