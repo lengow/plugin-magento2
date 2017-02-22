@@ -205,7 +205,7 @@ class Grid extends Extended
                 'index'            => 'image',
                 'renderer'         => '\Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Image',
                 'column_css_class' => 'data-grid-thumbnail-cell',
-                'filter'   => false
+                'filter'           => false
             ]
         );
         $this->addColumn(
