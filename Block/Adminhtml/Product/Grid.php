@@ -171,7 +171,7 @@ class Grid extends Extended
     /**
      * Prepare columns
      *
-     * @return Extended
+     * @return \Magento\Backend\Block\Widget\Grid\Extended
      */
     protected function _prepareColumns()
     {
