@@ -48,6 +48,8 @@ require(['jquery'], function( $ ) {
                     store_id: storeId,
                     form_key: FORM_KEY
                 },
+                showLoader: true,
+                context: $('.lgw-box'),
                 dataType: 'json',
                 success: function(data){
                     if (action === 'change_option_selected' && data.state == "1") {
