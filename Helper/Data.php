@@ -26,6 +26,7 @@ use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\UrlInterface;
 use Lengow\Connector\Model\LogFactory as LogFactory;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 
 class Data extends AbstractHelper
 {
@@ -50,30 +51,38 @@ class Data extends AbstractHelper
     protected $_resource;
 
     /**
-     * @var \Lengow\Connector\Model\LogFactory Lengow log factory instance
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime
+     */
+    protected $_date;
+
+    /**
+     * @var \Lengow\Connector\Model\LogFactory
      */
     protected $_logFactory;
 
     /**
      * Constructor
      *
-     * @param \Magento\Framework\App\Helper\Context $context Magento context instance
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime $date
+     * @param \Magento\Framework\App\Helper\Context $context Magento context instance
      * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList Magento directory list instance
      * @param \Magento\Framework\App\ResourceConnection $resource Magento resource connection instance
      * @param \Lengow\Connector\Model\LogFactory $logFactory Lengow log factory instance
      */
     public function __construct(
-        Context $context,
         StoreManagerInterface $storeManager,
+        Context $context,
         DirectoryList $directoryList,
         ResourceConnection $resource,
-        LogFactory $logFactory
+        LogFactory $logFactory,
+        DateTime $date
     ){
         $this->_storeManager = $storeManager;
         $this->_directoryList = $directoryList;
         $this->_resource = $resource;
         $this->_logFactory = $logFactory;
+        $this->_date = $date;
         parent::__construct($context);
     }
 
@@ -175,6 +184,59 @@ class Data extends AbstractHelper
         $table = $connection->getTableName('lengow_log');
         $query = 'DELETE FROM '.$table.' WHERE `date` < DATE_SUB(NOW(),INTERVAL '.$nbDays.' DAY)';
         $connection->query($query);
+    }
+
+    /**
+     * Get export Url
+     *
+     * @param integer $storeId          Magento store id
+     * @param array   $additionalParams additional parameters for export url
+     *
+     * @return string
+     */
+    public function getExportUrl($storeId, $additionalParams = [])
+    {
+        $defaultParams = [
+            'store'         => $storeId,
+            '_nosid'        => true,
+            '_store_to_url' => false,
+        ];
+        if (count($additionalParams) > 0) {
+            $defaultParams = array_merge($defaultParams, $additionalParams);
+        }
+        $this->_urlBuilder->setScope($storeId);
+        return $this->_urlBuilder->getUrl('lengow/feed', $defaultParams);
+    }
+
+    /**
+     * Get date in local date
+     *
+     * @param integer $timestamp linux timestamp
+     * @param boolean $second    see seconds or not
+     *
+     * @return string in gmt format
+     */
+    public function getDateInCorrectFormat($timestamp, $second = false)
+    {
+        if ($second) {
+            $format = 'l d F Y @ H:i:s';
+        } else {
+            $format = 'l d F Y @ H:i';
+        }
+        return $this->_date->date($format, $timestamp);
+    }
+
+    /**
+     * Get store
+     * @return \Magento\Store\Api\Data\StoreInterface
+     */
+    public function getStore()
+    {
+        $storeId = (int)$this->_getRequest()->getParam('store', 0);
+        if ($storeId == 0) {
+            $storeId = $this->_storeManager->getDefaultStoreView()->getId();
+        }
+        return $this->_storeManager->getStore($storeId);
     }
 
     /**
