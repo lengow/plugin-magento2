@@ -8,9 +8,19 @@ en:
   product:
     screen:
       title: "Export product"
+      nb_exported: "products exported"
+      nb_available: "products available"
+      include_specific_product: "Include specific products"
+      include_specific_product_support: "Use this option to select products one by one"
+      lengow_store_sync: "Store synchronized"
+      lengow_store_no_sync: "Store not synchronized"
+      sync_your_store: "Synchronize my store with Lengow"
+      button_download: "Download"
+      store_last_indexation: "Last indexation"
+      store_not_index: "Not indexed yet"
     table:
       id: "ID"
-      thumbnail: "Thumbnail"
+      image: "Image"
       name: "Name"
       type: "Type"
       attribut_set_name: "Attribut set name"

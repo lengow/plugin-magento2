@@ -115,8 +115,9 @@ class Index extends Action
                         if ($state !== null) {
                             $this->_configHelper->set('selection_enable', $state, $storeId);
                             $params = [
-                                'store_id' => $this->getRequest()->getParam('store_id')
-                                ];
+                                'store_id'  => $storeId,
+                                'selection' => $state
+                            ];
                             $this->_export->init($params);
                             return $this->_resultJsonFactory->create()->setData(
                                 [

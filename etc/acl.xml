@@ -3,17 +3,17 @@
     <acl>
         <resources>
             <resource id="Magento_Backend::admin">
-                <resource id="Lengow_Connector::lengow" title="Lengow" translate="title" sortOrder="31">
-                    <resource id="Lengow_Connector::product" title="Products" translate="title" sortOrder="2" />
-                    <resource id="Lengow_Connector::log" title="Logs" translate="title" sortOrder="5" />
-                    <resource id="Lengow_Connector::setting" title="Settings" translate="title" sortOrder="6" />
+                <resource id="Lengow_Connector::lengow" title="Lengow" sortOrder="31">
+                    <resource id="Lengow_Connector::product" title="Products" sortOrder="2" />
+                    <resource id="Lengow_Connector::log" title="Logs" sortOrder="5" />
+                    <resource id="Lengow_Connector::setting" title="Settings" sortOrder="6" />
                 </resource>
                 <resource id="Magento_Backend::stores">
                     <resource id="Magento_Backend::stores_settings">
                         <resource id="Magento_Config::config">
-                            <resource id="Lengow_Connector::global" title="Lengow Global settings" translate="title" sortOrder="1250" />
-                            <resource id="Lengow_Connector::export" title="Lengow Export settings" translate="title" sortOrder="1251" />
-                            <resource id="Lengow_Connector::import" title="Lengow Import settings" translate="title" sortOrder="1252" />
+                            <resource id="Lengow_Connector::global" title="Lengow Global settings" sortOrder="1250" />
+                            <resource id="Lengow_Connector::export" title="Lengow Export settings" sortOrder="1251" />
+                            <resource id="Lengow_Connector::import" title="Lengow Import settings" sortOrder="1252" />
                         </resource>
                     </resource>
                 </resource>

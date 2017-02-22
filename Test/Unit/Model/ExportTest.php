@@ -65,6 +65,37 @@ class ExportTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Lengow\Connector\Model\Export::_getFields
+     */
+    public function testGetFields()
+    {
+        $fixture = New Fixture();
+        $selectedAttributes = ['meta_description', 'meta_keyword', 'meta_title', 'minimal_price', 'size'];
+        $defaultFields = $fixture->getPrivatePropertyValue($this->_export, '_defaultFields');
+        $fieldsMock = [];
+        foreach ($defaultFields as $key => $field) {
+            $fieldsMock[] = $key;
+        }
+        $fieldsMock = array_merge($fieldsMock, $selectedAttributes);
+        $configHelperMock = $fixture->mockFunctions(
+            $this->_configHelper,
+            ['getSelectedAttributes'],
+            [$selectedAttributes]
+        );
+        $fixture->setPrivatePropertyValue($this->_export, ['_configHelper'], [$configHelperMock]);
+        $this->assertInternalType(
+            'array',
+            $fixture->invokeMethod($this->_export, '_getFields'),
+            '[Test Get Fields] Check if return is a array'
+        );
+        $this->assertEquals(
+            $fieldsMock,
+            $fixture->invokeMethod($this->_export, '_getFields'),
+            '[Test Get Fields] Check if return is valid'
+        );
+    }
+
+    /**
      * @covers \Lengow\Connector\Model\Export::_setFormat
      */
     public function testSetFormat()
@@ -236,6 +267,61 @@ class ExportTest extends \PHPUnit_Framework_TestCase
             'cron',
             $fixture->invokeMethod($this->_export, '_setType', [false]),
             '[Test Set Log Output] if type is not set but update export date is set (cron export)'
+        );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Model\Export::_getProductModulo
+     */
+    public function testGetProductModulo()
+    {
+        $fixture = New Fixture();
+        $this->assertInternalType(
+            'integer',
+            $fixture->invokeMethod($this->_export, '_getProductModulo', [1000]),
+            '[Test Get Product Modulo] Check if return is a integer value'
+        );
+        $this->assertEquals(
+            100,
+            $fixture->invokeMethod($this->_export, '_getProductModulo', [1000]),
+            '[Test Get Product Modulo] Check if return is valid'
+        );
+        $this->assertEquals(
+            50,
+            $fixture->invokeMethod($this->_export, '_getProductModulo', [400]),
+            '[Test Get Product Modulo] Check if return is valid when modulo 50'
+        );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Model\Export::_getMaxCharacterSize
+     */
+    public function testGetMaxCharacterSize()
+    {
+        $fixture = New Fixture();
+        $fields = ['id', 'name', 'child_name', 'active', 'price_before_discount_excl_tax', 'shipping_method', 'type'];
+        $this->assertInternalType(
+            'integer',
+            $fixture->invokeMethod($this->_export, '_getMaxCharacterSize', [$fields]),
+            '[Test Get Max Character Size] Check if return is a integer value'
+        );
+        $this->assertEquals(
+            30,
+            $fixture->invokeMethod($this->_export, '_getMaxCharacterSize', [$fields]),
+            '[Test Get Max Character Size] Check if return is valid'
+        );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Model\Export::_microtimeFloat
+     */
+    public function testMicrotimeFloat()
+    {
+        $fixture = New Fixture();
+        $this->assertInternalType(
+            'float',
+            $fixture->invokeMethod($this->_export, '_microtimeFloat'),
+            '[Test Microtime Float] Check if return is a float value'
         );
     }
 }

@@ -18,7 +18,7 @@ require(['jquery'], function( $ ) {
                 method: 'POST',
                 data: {action: 'check_store', store_id: storeId, form_key: FORM_KEY},
                 dataType: 'json',
-                beforeSend: function () {
+                before: function () {
                     $('.lengow_check_store').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
                 },
                 success: function (data) {
