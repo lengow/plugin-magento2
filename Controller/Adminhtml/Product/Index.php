@@ -129,9 +129,9 @@ class Index extends Action
                             $this->_export->init($params);
                             return $this->_resultJsonFactory->create()->setData(
                                 [
-                                    'state' => $state,
+                                    'state'    => $state,
                                     'exported' => $this->_export->getTotalExportedProduct(),
-                                    'total' => $this->_export->getTotalProduct()
+                                    'total'    => $this->_export->getTotalProduct()
                                 ]
                             );
                         }
@@ -168,13 +168,14 @@ class Index extends Action
                             $this->_productAction
                                 ->updateAttributes([$productId], ['lengow_product' => $state], $storeId);
                             $params = [
-                                'store_id' => $storeId
+                                'store_id'  => $storeId,
+                                'selection' => $state
                             ];
                             $this->_export->init($params);
                             return $this->_resultJsonFactory->create()->setData(
                                 [
                                     'exported' => $this->_export->getTotalExportedProduct(),
-                                    'total' => $this->_export->getTotalProduct()
+                                    'total'    => $this->_export->getTotalProduct()
                                 ]
                             );
                         }

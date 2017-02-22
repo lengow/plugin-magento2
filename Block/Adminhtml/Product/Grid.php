@@ -339,6 +339,10 @@ class Grid extends Extended
         return $this;
     }
 
+    /**
+     * Inline editing action
+     * @return string
+     */
     public function getRowUrl($row)
     {
         return $this->getUrl('catalog/*/edit', ['id' => $row->getId()]);
