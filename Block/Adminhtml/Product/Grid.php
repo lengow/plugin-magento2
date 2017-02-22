@@ -204,7 +204,8 @@ class Grid extends Extended
                 'header'           => __('Image'),
                 'index'            => 'image',
                 'renderer'         => '\Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Image',
-                'column_css_class' => 'data-grid-thumbnail-cell'
+                'column_css_class' => 'data-grid-thumbnail-cell',
+                'filter'   => false
             ]
         );
         $this->addColumn(
@@ -286,7 +287,8 @@ class Grid extends Extended
                     'sortable' => false,
                     'index'    => 'websites',
                     'type'     => 'options',
-                    'options'  => $this->_websiteFactory->create()->getCollection()->toOptionHash()
+                    'options'  => $this->_websiteFactory->create()->getCollection()->toOptionHash(),
+                    'filter'   => false
                 ]
             );
         }

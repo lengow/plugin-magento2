@@ -5,6 +5,9 @@ en:
     products: "Products"
     settings: "Settings"
     logs: "Logs"
+  global:
+    just_yes: "Yes"
+    just_no: "No"
   product:
     screen:
       title: "Export product"
@@ -30,7 +33,9 @@ en:
       visibility: "Visibility"
       status: "Status"
       websites: "Websites"
-      publish_on_lengow: "Include in export?"
+      include_in_lengow: "Include in export?"
+      publish_in_lengow: "Publish in Lengow"
+      unpublish_in_lengow: "Unpublish in Lengow"
   log:
     screen:
       title: "Lengow logs"
