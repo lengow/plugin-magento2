@@ -205,7 +205,7 @@ class Data extends AbstractHelper
             $defaultParams = array_merge($defaultParams, $additionalParams);
         }
         $this->_urlBuilder->setScope($storeId);
-        return $this->_urlBuilder->getUrl('lengow/feed', $defaultParams);
+        return $this->_urlBuilder->getUrl('lengow/export', $defaultParams);
     }
 
     /**
