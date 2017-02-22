@@ -25,6 +25,7 @@ use Magento\Backend\Helper\Data as BackendHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Backend\App\Action;
+use Magento\Catalog\Model\Product\Action as ProductAction;
 use Magento\Backend\App\Action\Context;
 use Lengow\Connector\Model\Export;
 use Magento\Framework\Json\Helper\Data as JsonHelperData;
@@ -67,14 +68,20 @@ class Index extends Action
     protected $_export;
 
     /**
+     * @var ProductAction
+     */
+    protected $_productAction;
+
+    /**
      * Constructor
      *
+     * @param ProductAction $productAction
      * @param Context $context
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Helper\Data   $dataHelper   Lengow data helper instance
-     * @param \Magento\Framework\Controller\Result\JsonFactory    $resultJsonFactory
+     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
+     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper
-     * @param \Lengow\Connector\Helper\Sync   $syncHelper Lengow sync helper instance
      * @param \Lengow\Connector\Model\Export $export Lengow export instance
      */
     public function __construct(
@@ -84,10 +91,12 @@ class Index extends Action
         JsonFactory $resultJsonFactory,
         SyncHelper $syncHelper,
         JsonHelperData $jsonHelper,
-        Export $export
+        Export $export,
+        ProductAction $productAction
     )
     {
         $this->_context = $context;
+        $this->_productAction = $productAction;
         $this->_configHelper = $configHelper;
         $this->_dataHelper = $dataHelper;
         $this->_resultJsonFactory = $resultJsonFactory;
@@ -120,9 +129,9 @@ class Index extends Action
                             $this->_export->init($params);
                             return $this->_resultJsonFactory->create()->setData(
                                 [
-                                    'state' => $state,
+                                    'state'    => $state,
                                     'exported' => $this->_export->getTotalExportedProduct(),
-                                    'total' => $this->_export->getTotalProduct()
+                                    'total'    => $this->_export->getTotalProduct()
                                 ]
                             );
                         }
@@ -150,6 +159,26 @@ class Index extends Action
                             $datas['id'] = 'lengow_store_no_sync';
                         }
                         return $this->_resultJsonFactory->create()->setData($datas);
+                        break;
+                    case 'lengow_export_product':
+                        $storeId = $this->getRequest()->getParam('store_id');
+                        $state = $this->getRequest()->getParam('state');
+                        $productId = $this->getRequest()->getParam('product_id');
+                        if ($state !== null) {
+                            $this->_productAction
+                                ->updateAttributes([$productId], ['lengow_product' => $state], $storeId);
+                            $params = [
+                                'store_id'  => $storeId,
+                                'selection' => $state
+                            ];
+                            $this->_export->init($params);
+                            return $this->_resultJsonFactory->create()->setData(
+                                [
+                                    'exported' => $this->_export->getTotalExportedProduct(),
+                                    'total'    => $this->_export->getTotalProduct()
+                                ]
+                            );
+                        }
                         break;
                 }
             }

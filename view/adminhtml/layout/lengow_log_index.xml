@@ -4,6 +4,11 @@
         <title>Lengow logs</title>
     </head>
     <body>
+        <referenceBlock name="menu">
+            <action method="setActive">
+                <argument name="itemId" xsi:type="string">Lengow_Connector::log</argument>
+            </action>
+        </referenceBlock>
         <referenceBlock name="root">
             <action method="setHeaderTitle">
                 <argument translate="true" name="title" xsi:type="string">Lengow logs</argument>

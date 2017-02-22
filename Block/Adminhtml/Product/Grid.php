@@ -20,6 +20,7 @@
 namespace Lengow\Connector\Block\Adminhtml\Product;
 
 use Lengow\Connector\Model\Config\Source\Type as SourceType;
+use Magento\Backend\Block\Widget\Grid\Extended;
 use Magento\Catalog\Model\Product\AttributeSet\Options as AttributeSetOptions;
 use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
 use Magento\Backend\Block\Template\Context;
@@ -29,7 +30,7 @@ use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductColl
 use Magento\Store\Model\WebsiteFactory;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 
-class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
+class Grid extends Extended
 {
     /**
      * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory
@@ -203,7 +204,8 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
                 'header'           => __('Image'),
                 'index'            => 'image',
                 'renderer'         => '\Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Image',
-                'column_css_class' => 'data-grid-thumbnail-cell'
+                'column_css_class' => 'data-grid-thumbnail-cell',
+                'filter'           => false
             ]
         );
         $this->addColumn(
@@ -285,7 +287,8 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
                     'sortable' => false,
                     'index'    => 'websites',
                     'type'     => 'options',
-                    'options'  => $this->_websiteFactory->create()->getCollection()->toOptionHash()
+                    'options'  => $this->_websiteFactory->create()->getCollection()->toOptionHash(),
+                    'filter'   => false
                 ]
             );
         }
@@ -296,6 +299,7 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
                 'index'    => 'lengow_product',
                 'width'    => '70px',
                 'type'     => 'options',
+                'renderer' => 'Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Lengow',
                 'options'  => [
                     0 => __('No'),
                     1 => __('Yes')
@@ -306,4 +310,41 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
         return parent::_prepareColumns();
     }
 
+    /**
+     * Prepare mass action buttons
+     * @return $this
+     */
+    protected function _prepareMassaction()
+    {
+        $this->setMassactionIdField('entity_id');
+        $this->getMassactionBlock()->setTemplate('Magento_Catalog::product/grid/massaction_extended.phtml');
+        $this->getMassactionBlock()->setFormFieldName('product');
+
+        $this->getMassactionBlock()->addItem(
+            'publish',
+            [
+                'label'      => __('Publish in Lengow'),
+                'url'        => $this->getUrl('*/*/massPublish', ['_current' => true, 'publish' => true]),
+                'complete'   => 'reloadGrid'
+            ]
+        );
+        $this->getMassactionBlock()->addItem(
+            'unpublish',
+            [
+                'label'      => __('Unpublish in Lengow'),
+                'url'        => $this->getUrl('*/*/massPublish', ['_current' => true, 'publish' => false]),
+                'complete'   => 'reloadGrid'
+            ]
+        );
+        return $this;
+    }
+
+    /**
+     * Inline editing action
+     * @return string
+     */
+    public function getRowUrl($row)
+    {
+        return $this->getUrl('catalog/*/edit', ['id' => $row->getId()]);
+    }
 }

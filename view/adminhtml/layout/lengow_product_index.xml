@@ -9,6 +9,11 @@
         <css src="Lengow_Connector::css/font-awesome.css"/>
     </head>
     <body>
+        <referenceBlock name="menu">
+            <action method="setActive">
+                <argument name="itemId" xsi:type="string">Lengow_Connector::product</argument>
+            </action>
+        </referenceBlock>
         <attribute name="class" value="lengow_connector"/>
         <referenceBlock name="root">
             <action method="setHeaderTitle">
