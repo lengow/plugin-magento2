@@ -24,7 +24,7 @@ use Magento\Backend\Block\Widget\Grid\Extended;
 use Magento\Catalog\Model\Product\AttributeSet\Options as AttributeSetOptions;
 use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
 use Magento\Backend\Block\Template\Context;
-use Magento\Backend\Helper\Data as HelperData;
+use Magento\Backend\Helper\Data as BackendHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 use Magento\Store\Model\WebsiteFactory;
@@ -33,32 +33,32 @@ use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 class Grid extends Extended
 {
     /**
-     * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory
+     * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory Magento product collection factory instance
      */
     protected $_collectionFactory;
 
     /**
-     * @var SourceType
+     * @var \Lengow\Connector\Model\Config\Source\Type Lengow config source type instance
      */
     protected $_sourceType;
 
     /**
-     * @var AttributeSetOptions
+     * @var \Magento\Catalog\Model\Product\AttributeSet\Options Magento attribute set options instance
      */
     protected $_attributeSetOptions;
 
     /**
-     * @var ProductVisibility
+     * @var \Magento\Catalog\Model\Product\Visibility Magento product visibility instance
      */
     protected $_productVisibility;
 
     /**
-     * @var \Magento\Store\Model\WebsiteFactory
+     * @var \Magento\Store\Model\WebsiteFactory Magento website factory instance
      */
     protected $_websiteFactory;
 
     /**
-     * @var \Magento\Catalog\Model\Product\Attribute\Source\Status
+     * @var \Magento\Catalog\Model\Product\Attribute\Source\Status Magento product attribute status instance
      */
     protected $_status;
 
@@ -68,26 +68,28 @@ class Grid extends Extended
     protected $_dataHelper;
 
     /**
+     * Constructor
+     *
      * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magento\Backend\Helper\Data $backendHelper
      * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $collectionFactory
      * @param \Magento\Catalog\Model\Product\AttributeSet\Options $attributeSetOptions
      * @param \Magento\Store\Model\WebsiteFactory $websiteFactory
      * @param \Magento\Catalog\Model\Product\Attribute\Source\Status $status
-     * @param SourceType $sourceType
-     * @param ProductVisibility $productVisibility
-     * @param \Lengow\Connector\Helper\Data   $dataHelper   Lengow data helper instance
+     * @param \Magento\Catalog\Model\Product\Visibility $productVisibility
+     * @param \Lengow\Connector\Model\Config\Source\Type $sourceType
+     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param array $data
      */
     public function __construct(
         Context $context,
-        HelperData $backendHelper,
+        BackendHelper $backendHelper,
         ProductCollectionFactory $collectionFactory,
         AttributeSetOptions $attributeSetOptions,
         WebsiteFactory $websiteFactory,
         ProductStatus $status,
-        SourceType $sourceType,
         ProductVisibility $productVisibility,
+        SourceType $sourceType,
         DataHelper $dataHelper,
         array $data = []
     ) {
@@ -123,19 +125,26 @@ class Grid extends Extended
     {
         $collection = $this->_collectionFactory->create();
         $collection->addAttributeToSelect('sku')
-                    ->addAttributeToSelect('name')
-                    ->addAttributeToSelect('lengow_product')
-                    ->addAttributeToSelect('thumbnail')
-                    ->joinField(
-                        'qty',
-                        'cataloginventory_stock_item',
-                        'qty',
-                        'product_id=entity_id',
-                        '{{table}}.stock_id=1',
-                        'left'
-                    )
-                    ->addStoreFilter($this->_dataHelper->getStore())
-                    ->addAttributeToFilter('type_id', ['nlike' => 'bundle']);
+            ->addAttributeToSelect('name')
+            ->addAttributeToSelect('thumbnail')
+            ->joinField(
+                'qty',
+                'cataloginventory_stock_item',
+                'qty',
+                'product_id=entity_id',
+                '{{table}}.stock_id=1',
+                'left'
+            )
+            ->addStoreFilter($this->_dataHelper->getStore())
+            ->addAttributeToFilter('type_id', ['nlike' => 'bundle']);
+        $collection->joinAttribute(
+            'lengow_product',
+            'catalog_product/lengow_product',
+            'entity_id',
+            null,
+            'left',
+            $this->_dataHelper->getStore()->getId()
+        );
         $collection->joinAttribute(
             'price',
             'catalog_product/price',
@@ -163,7 +172,6 @@ class Grid extends Extended
         $this->setCollection($collection);
 
         $this->getCollection()->addWebsiteNamesToResult();
-
         parent::_prepareCollection();
         return $this;
     }
@@ -301,7 +309,6 @@ class Grid extends Extended
                 'type'     => 'options',
                 'renderer' => 'Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Lengow',
                 'options'  => [
-                    0 => __('No'),
                     1 => __('Yes')
                 ],
             ]
@@ -312,6 +319,7 @@ class Grid extends Extended
 
     /**
      * Prepare mass action buttons
+     *
      * @return $this
      */
     protected function _prepareMassaction()
@@ -323,28 +331,42 @@ class Grid extends Extended
         $this->getMassactionBlock()->addItem(
             'publish',
             [
-                'label'      => __('Publish in Lengow'),
-                'url'        => $this->getUrl('*/*/massPublish', ['_current' => true, 'publish' => true]),
-                'complete'   => 'reloadGrid'
+                'label'    => __('Publish in Lengow'),
+                'url'      => $this->getUrl('*/*/massPublish', ['_current' => true, 'publish' => true]),
+                'complete' => 'reloadGrid'
             ]
         );
         $this->getMassactionBlock()->addItem(
             'unpublish',
             [
-                'label'      => __('Unpublish in Lengow'),
-                'url'        => $this->getUrl('*/*/massPublish', ['_current' => true, 'publish' => false]),
-                'complete'   => 'reloadGrid'
+                'label'    => __('Unpublish in Lengow'),
+                'url'      => $this->getUrl('*/*/massPublish', ['_current' => true, 'publish' => false]),
+                'complete' => 'reloadGrid'
             ]
         );
         return $this;
     }
 
     /**
+     * Get grid url
+     *
+     * @return string
+     */
+    public function getGridUrl()
+    {
+        return $this->getUrl('lengow/product/index', ['_current' => true]);
+    }
+
+    /**
      * Inline editing action
+     *
      * @return string
      */
     public function getRowUrl($row)
     {
-        return $this->getUrl('catalog/*/edit', ['id' => $row->getId()]);
+        return $this->getUrl(
+            'catalog/*/edit',
+            ['store' => $this->getRequest()->getParam('store'), 'id' => $row->getId()]
+        );
     }
 }
