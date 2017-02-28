@@ -31,6 +31,7 @@ use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Lengow\Connector\Helper\Config;
+use Magento\Framework\ObjectManagerInterface;
 
 /**
  * @codeCoverageIgnore
@@ -65,22 +66,32 @@ class InstallData implements InstallDataInterface {
     protected $_configHelper;
 
     /**
+     * object manager
+     *
+     * @var ObjectManagerInterface
+     */
+    protected $_objectManager;
+
+    /**
      * Init
      *
      * @param EavSetupFactory $eavSetupFactory
      * @param CustomerSetupFactory $customerSetupFactory
      * @param SalesSetupFactory $salesSetupFactory
+     * @param ObjectManagerInterface $objectManager
      * @param Config $configHelper
      */
     public function __construct(
         EavSetupFactory $eavSetupFactory,
         CustomerSetupFactory $customerSetupFactory,
         SalesSetupFactory $salesSetupFactory,
+        ObjectManagerInterface $objectManager,
         Config $configHelper
     ) {
         $this->_eavSetupFactory = $eavSetupFactory;
         $this->_customerSetupFactory = $customerSetupFactory;
         $this->_salesSetupFactory = $salesSetupFactory;
+        $this->_objectManager = $objectManager;
         $this->_configHelper =  $configHelper;
     }
 
@@ -175,6 +186,44 @@ class InstallData implements InstallDataInterface {
 
         // Set default attributes
         $this->_configHelper->setDefaultAttributes();
+
+        //check if order state and status 'Lengow technical error' exists
+        $collections = $this->_objectManager->create('Magento\Sales\Model\Order\Status')->getCollection()->toOptionArray();
+        $lengowTechnicalExists = false;
+        foreach ($collections as $value) {
+            if ($value['value'] == 'lengow_technical_error') {
+                $lengowTechnicalExists = true;
+            }
+        }
+        // if not exists create new order state and status 'Lengow technical error'
+        $statusTable = $setup->getTable('sales_order_status');
+        $statusStateTable = $setup->getTable('sales_order_status_state');
+
+        if (!$lengowTechnicalExists) {
+            // Insert statuses
+            $setup->getConnection()->insertArray(
+                $statusTable,
+                array('status', 'label'),
+                array(
+                    array(
+                        'status' => 'lengow_technical_error',
+                        'label'  => 'Lengow Technical Error'
+                    )
+                )
+            );
+            // Insert states and mapping of statuses to states
+            $setup->getConnection()->insertArray(
+                $statusStateTable,
+                array('status', 'state', 'is_default'),
+                array(
+                    array(
+                        'status'     => 'lengow_technical_error',
+                        'state'      => 'lengow_technical_error',
+                        'is_default' => 1
+                    )
+                )
+            );
+        }
 
         $setup->endSetup();
     }
