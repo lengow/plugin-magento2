@@ -34,7 +34,6 @@
             <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
             <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\Info</argument>
             <argument name="valueHandlerPool" xsi:type="object">LengowConnectorValueHandlerPool</argument>
-            <!--<argument name="validatorPool" xsi:type="object">LengowConnectorValidatorPool</argument>-->
             <argument name="commandPool" xsi:type="object">LengowConnectorCommandPool</argument>
         </arguments>
     </virtualType>
@@ -45,21 +44,12 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="LengowConnectorCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
-        <!--<arguments>-->
-            <!--<argument name="commands" xsi:type="array">-->
-                <!--<item name="authorize" xsi:type="string">ClipClapGatewayAuthorizeCommand</item>-->
-                <!--<item name="capture" xsi:type="string">ClipClapGatewayCaptureCommand</item>-->
-                <!--<item name="void" xsi:type="string">ClipClapGatewayVoidCommand</item>-->
-            <!--</argument>-->
-        <!--</arguments>-->
-    </virtualType>
+    <virtualType name="LengowConnectorCommandPool" type="Magento\Payment\Gateway\Command\CommandPool" />
     <virtualType name="LengowConnectorConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
         <arguments>
             <argument name="configInterface" xsi:type="object">LengowConnectorConfig</argument>
         </arguments>
     </virtualType>
-    <!-- Configuration reader -->
     <virtualType name="LengowConnectorConfig" type="Magento\Payment\Gateway\Config\Config">
         <arguments>
             <argument name="methodCode" xsi:type="const">Lengow\Connector\Model\Payment\Lengow::CODE</argument>
