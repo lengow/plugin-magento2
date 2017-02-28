@@ -203,25 +203,25 @@ class InstallData implements InstallDataInterface {
             // Insert statuses
             $setup->getConnection()->insertArray(
                 $statusTable,
-                array('status', 'label'),
-                array(
-                    array(
+                ['status', 'label'],
+                [
+                    [
                         'status' => 'lengow_technical_error',
                         'label'  => 'Lengow Technical Error'
-                    )
-                )
+                    ]
+                ]
             );
             // Insert states and mapping of statuses to states
             $setup->getConnection()->insertArray(
                 $statusStateTable,
-                array('status', 'state', 'is_default'),
-                array(
-                    array(
+                ['status', 'state', 'is_default'],
+                [
+                    [
                         'status'     => 'lengow_technical_error',
                         'state'      => 'lengow_technical_error',
                         'is_default' => 1
-                    )
-                )
+                    ]
+                ]
             );
         }
 
