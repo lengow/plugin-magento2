@@ -37,5 +37,14 @@
                 <import_cron_enable>0</import_cron_enable>
             </advanced>
         </lengow_import_options>
+        <carriers>
+            <lengow>
+                <active>1</active>
+                <sallowspecific>0</sallowspecific>
+                <model>Lengow\Connector\Model\Carrier\Lengow</model>
+                <name>Shipping from marketplace</name>
+                <title>Lengow</title>
+            </lengow>
+        </carriers>
     </default>
 </config>
