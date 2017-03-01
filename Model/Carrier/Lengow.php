@@ -62,7 +62,6 @@ class Lengow extends AbstractCarrier implements CarrierInterface {
      */
     protected $_rateMethodFactory;
 
-
     /**
      * @param \Magento\Customer\Model\Session $customerSession
      * @param \Magento\Checkout\Model\Session $checkoutSession
@@ -87,7 +86,7 @@ class Lengow extends AbstractCarrier implements CarrierInterface {
         $this->_checkoutSession = $checkoutSession;
         $this->_rateResultFactory = $rateResultFactory;
         $this->_rateMethodFactory = $rateMethodFactory;
-        parent::__construct( $scopeConfig, $rateErrorFactory, $logger, $data );
+        parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
     }
 
     /**
@@ -95,8 +94,9 @@ class Lengow extends AbstractCarrier implements CarrierInterface {
      *
      * @return array
      */
-    public function getAllowedMethods() {
-        return [ 'lengow' => $this->getConfigData( 'name' ) ];
+    public function getAllowedMethods()
+    {
+        return ['lengow' => $this->getConfigData('name')];
     }
 
     /**
@@ -124,19 +124,21 @@ class Lengow extends AbstractCarrier implements CarrierInterface {
      *
      * @return bool|Result
      */
-    public function collectRates( RateRequest $request ) {
-        if ( ! $this->isActive() ) {
+    public function collectRates(RateRequest $request)
+    {
+        if (!$this->isActive())
+        {
             return false;
         }
         $result = $this->_rateResultFactory->create();
         $method = $this->_rateMethodFactory->create();
-        $method->setCarrier( 'lengow' );
-        $method->setCarrierTitle( $this->getConfigData( 'title' ) );
-        $method->setMethod( 'lengow' );
-        $method->setMethodTitle( $this->getConfigData( 'name' ) );
-        $method->setPrice( $this->getSession()->getShippingPrice() );
-        $method->setCost( $this->getSession()->getShippingPrice() );
-        $result->append( $method );
+        $method->setCarrier('lengow');
+        $method->setCarrierTitle($this->getConfigData( 'title' ));
+        $method->setMethod('lengow');
+        $method->setMethodTitle( $this->getConfigData('name'));
+        $method->setPrice($this->getSession()->getShippingPrice());
+        $method->setCost($this->getSession()->getShippingPrice());
+        $result->append($method);
         return $result;
     }
 
@@ -146,7 +148,8 @@ class Lengow extends AbstractCarrier implements CarrierInterface {
      * @return boolean
      * @api
      */
-    public function isTrackingAvailable() {
+    public function isTrackingAvailable()
+    {
         return false;
     }
 }
