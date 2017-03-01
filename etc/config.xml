@@ -65,5 +65,14 @@
                 <can_capture>1</can_capture>
             </lengow_purchaseorder>
         </payment>
+        <carriers>
+            <lengow>
+                <active>1</active>
+                <sallowspecific>0</sallowspecific>
+                <model>Lengow\Connector\Model\Carrier\Lengow</model>
+                <name>Shipping from marketplace</name>
+                <title>Lengow</title>
+            </lengow>
+        </carriers>
     </default>
 </config>
