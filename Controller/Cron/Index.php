@@ -127,9 +127,7 @@ class Index extends Action
                 // sync option is not valid
                 if ($sync && ($sync !== 'order' && $sync !== 'action' && $sync !== 'option')) {
                     $this->getResponse()->setStatusHeader('400', '1.1', 'Bad Request');
-                    $this->getResponse()->setBody(
-                        __('Action: %action is not a valid action', ['action' => $sync])
-                    );
+                    $this->getResponse()->setBody(__('Action: %action is not a valid action', ['action' => $sync]));
                 }
             }
         } else {
