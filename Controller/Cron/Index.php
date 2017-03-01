@@ -21,16 +21,8 @@ namespace Lengow\Connector\Controller\Cron;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\Locale\Resolver;
-use Magento\Framework\TranslateInterface;
 use Lengow\Connector\Helper\Security as SecurityHelper;
-use Lengow\Connector\Helper\Sync as SyncHelper;
-use Lengow\Connector\Helper\Data as DataHelper;
-use Lengow\Connector\Helper\Config as ConfigHelper;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
-use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
-use Lengow\Connector\Model\Export;
 
 /**
  * CronController
@@ -39,39 +31,9 @@ class Index extends Action
 {
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
-     */
-    protected $_storeManager;
-
-    /**
-     * @var \Magento\Framework\Locale\Resolver Magento locale resolver instance
-     */
-    protected $_locale;
-
-    /**
-     * @var \Magento\Framework\TranslateInterface Magento translate instance
-     */
-    protected $_translate;
-
-    /**
      * @var \Lengow\Connector\Helper\Security Lengow security helper instance
      */
     protected $_securityHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
-     */
-    protected $_syncHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
-     */
-    protected $_dataHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
-     */
-    protected $_configHelper;
 
     /**
      * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
@@ -79,54 +41,20 @@ class Index extends Action
     protected $_jsonHelper;
 
     /**
-     * @var \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress RemoteAddress instance
-     */
-    protected $_remoteAddress;
-
-    /**
-     * @var \Lengow\Connector\Model\Export Lengow export instance
-     */
-    protected $_export;
-
-    /**
      * Constructor
      *
      * @param \Magento\Framework\App\Action\Context $context Magento action context instance
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
-     * @param \Magento\Framework\Locale\Resolver $locale Magento locale resolver instance
-     * @param \Magento\Framework\TranslateInterface $translate Magento translate instance
      * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
-     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
-     * @param \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress RemoteAddress instance
-     * @param \Lengow\Connector\Model\Export $export Lengow export instance
      */
     public function __construct(
         Context $context,
-        StoreManagerInterface $storeManager,
-        Resolver $locale,
-        TranslateInterface $translate,
         SecurityHelper $securityHelper,
-        SyncHelper $syncHelper,
-        DataHelper $dataHelper,
-        ConfigHelper $configHelper,
-        JsonHelper $jsonHelper,
-        RemoteAddress $remoteAddress,
-        Export $export
+        JsonHelper $jsonHelper
     ) {
         parent::__construct($context);
-        $this->_storeManager = $storeManager;
-        $this->_locale = $locale;
-        $this->_translate = $translate;
         $this->_securityHelper = $securityHelper;
-        $this->_syncHelper = $syncHelper;
-        $this->_dataHelper = $dataHelper;
-        $this->_configHelper = $configHelper;
         $this->_jsonHelper = $jsonHelper;
-        $this->_export = $export;
-        $this->_remoteAddress = $remoteAddress;
 
     }
     /**
