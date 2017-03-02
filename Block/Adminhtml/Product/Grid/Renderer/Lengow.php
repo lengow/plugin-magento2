@@ -68,6 +68,21 @@ class Lengow extends AbstractRenderer
         $value = (integer)$row->getData($this->getColumn()->getIndex());
         return '<div class="lgw-switch '. ($value === 1 ? 'checked' : '').'">
         <label>
+            <div>
+                <a href="javascript:void(0)" width="100%" height="100%" style="display:block"
+                name="lengow_export_product" class="lengow_switch_export_product"
+                id="lengow_export_product_'.$row->getData('entity_id').'"
+                data-href="'. $this->_backendHelper->getUrl('lengow/product'). '"
+                data-action="lengow_export_product"
+                data-id_store="'. $this->_dataHelper->getStore()->getId() .'"
+                data-id_product="'. $row->getData('entity_id') .'"
+                data-checked="'.$value.'">
+                <span></span>
+            </a>
+        </label>
+    </div>';
+        return '<div class="lgw-switch '. ($value === 1 ? 'checked' : '').'">
+        <label>
             <div><span></span>
                 <input type="checkbox"
                 name="lengow_export_product" class="lengow_switch_export_product"
