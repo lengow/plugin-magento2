@@ -51,9 +51,9 @@ class ProductTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Product::getAllCounter
+     * @covers \Lengow\Connector\Model\Product::getCounters
      */
-    public function testGetAllCounter()
+    public function testGetCounters()
     {
         $fixture = New Fixture();
         $fixture->setPrivatePropertyValue(
@@ -70,7 +70,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertInternalType(
             'array',
-            $this->_product->getAllCounter(),
+            $this->_product->getCounters(),
             '[Test Get All Counter] Check if return is a array'
         );
         $this->assertEquals(
@@ -84,7 +84,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                 'virtual'         => 10,
                 'downloadable'    => 5
             ],
-            $this->_product->getAllCounter(),
+            $this->_product->getCounters(),
             '[Test Get All Counter] Check if return is valid'
         );
     }

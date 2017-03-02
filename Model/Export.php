@@ -412,6 +412,13 @@ class Export
         $productModulo = $this->_getProductModulo(count($products));
         // Get the maximum of character for yaml format
         $maxCharacter = $this->_getMaxCharacterSize($fields);
+        // Set global attributes
+        $this->_product->init(
+            [
+                'store'    => $this->_store,
+                'currency' => $this->_currency
+            ]
+        );
         // Get feed to export
         $this->_feed->init(
             [
@@ -423,12 +430,16 @@ class Export
         $this->_feed->write('header', $fields);
         foreach ($products as $product) {
             $productDatas = [];
-            $this->_product->init(
+            $this->_product->load(
                 [
-                    'product_id' => $product['entity_id'],
-                    'currency'   => $this->_currency
+                    'product_id'   => (int)$product['entity_id'],
+                    'product_type' => $product['type_id']
                 ]
             );
+            if (!$this->_inactive && !$this->_product->isEnableForExport()) {
+                $this->_product->clean();
+                continue;
+            }
             foreach ($fields as $field) {
                 if (isset($this->_defaultFields[$field])) {
                     $productDatas[$field] = $this->_product->getData($this->_defaultFields[$field]);
@@ -452,30 +463,30 @@ class Export
             );
         }
         // Product counter
-        $allCounter = $this->_product->getAllCounter();
+        $counters = $this->_product->getCounters();
         $this->_dataHelper->log(
             'Export',
             $this->_dataHelper->setLogMessage(
                 '%1 product(s) exported, (%2 simple product(s), %3 configurable product(s),
                 %4 grouped product(s), %5 virtual product(s), %6 downloadable product(s))',
                 [
-                    $allCounter['total'],
-                    $allCounter['simple_enable'],
-                    $allCounter['configurable'],
-                    $allCounter['grouped'],
-                    $allCounter['virtual'],
-                    $allCounter['downloadable'],
+                    $counters['total'],
+                    $counters['simple_enable'],
+                    $counters['configurable'],
+                    $counters['grouped'],
+                    $counters['virtual'],
+                    $counters['downloadable'],
                 ]
             ),
             $this->_logOutput
         );
         // Warning for simple product associated with configurable products disabled
-        if ($allCounter['simple_disabled'] > 0) {
+        if ($counters['simple_disabled'] > 0) {
             $this->_dataHelper->log(
                 'Export',
                 $this->_dataHelper->setLogMessage(
                     'WARNING! %1 simple product(s) associated with configurable products are disabled',
-                    [$allCounter['simple_disabled']]
+                    [$counters['simple_disabled']]
                 ),
                 $this->_logOutput
             );
