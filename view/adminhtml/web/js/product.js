@@ -100,7 +100,6 @@ require(['jquery'], function( $ ) {
                 },
                 dataType: 'json',
                 success: function(data){
-
                     $("#total_products").html(data.total);
                     $("#exported_products").html(data.exported);
                 }
