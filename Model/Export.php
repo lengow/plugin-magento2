@@ -25,6 +25,8 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 use Magento\CatalogInventory\Model\Configuration as CatalogInventoryConfiguration;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
+use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Store\Model\WebsiteFactory;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Export\Feed;
@@ -62,6 +64,11 @@ class Export
     protected $_productCollectionFactory;
 
     /**
+     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
+     */
+    protected $_jsonHelper;
+
+    /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
      */
     protected $_dataHelper;
@@ -80,6 +87,30 @@ class Export
      * @var \Lengow\Connector\Model\Export\Product Lengow product instance
      */
     protected $_product;
+
+    /**
+     * @var array all available params for export
+     */
+    protected $_exportParams = [
+        'mode',
+        'format',
+        'stream',
+        'offset',
+        'limit',
+        'selection',
+        'out_of_stock',
+        'product_ids',
+        'product_types',
+        'product_status',
+        'store',
+        'code',
+        'currency',
+        'locale',
+        'legacy_fields',
+        'log_output',
+        'update_export_date',
+        'get_params'
+    ];
 
     /**
      * @var array available formats for export
@@ -222,6 +253,16 @@ class Export
     protected $_exportType;
 
     /**
+     * @var boolean get params available.
+     */
+    protected $_getParams;
+
+    /**
+     * @var \Magento\Store\Model\WebsiteFactory Magento website factory instance
+     */
+    protected $_websiteFactory;
+
+    /**
      * Constructor
      *
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
@@ -229,6 +270,8 @@ class Export
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
      * @param \Magento\Catalog\Model\Product\Attribute\Source\Status $productStatus Magento product status instance
      * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory
+     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
+     * @param \Magento\Store\Model\WebsiteFactory $websiteFactory
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Model\Export\Feed $feed Lengow feed instance
@@ -240,6 +283,8 @@ class Export
         ScopeConfigInterface $scopeConfig,
         ProductStatus $productStatus,
         ProductCollectionFactory $productCollectionFactory,
+        JsonHelper $jsonHelper,
+        WebsiteFactory $websiteFactory,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         Feed $feed,
@@ -251,6 +296,8 @@ class Export
         $this->_configHelper = $configHelper;
         $this->_feed = $feed;
         $this->_product = $product;
+        $this->_jsonHelper = $jsonHelper;
+        $this->_websiteFactory = $websiteFactory;
         $this->_dateTime = $dateTime;
         $this->_scopeConfig = $scopeConfig;
         $this->_productStatus = $productStatus;
@@ -301,6 +348,7 @@ class Export
         $this->_logOutput = $this->_setLogOutput(isset($params['log_output']) ? $params['log_output'] : true);
         $this->_currency = $this->_setCurrency(isset($params['currency']) ? $params['currency'] : false);
         $this->_exportType = $this->_setType(isset($params['type']) ? $params['type'] : false);
+        $this->_getParams = isset($params['get_params']) ? (bool)$params['get_params'] : false;
     }
 
     /**
@@ -494,6 +542,99 @@ class Export
                 );
             }
         }
+    }
+
+    /**
+     * Get all export available parameters
+     *
+     * @return string
+     */
+    public function getExportParams()
+    {
+        $params = [];
+        $availableStores = [];
+        $availableCodes = [];
+        $availableCurrencies = [];
+        $availableLanguages = [];
+        foreach ($this->_websiteFactory->create()->getCollection() as $website) {
+            foreach ($website->getGroups() as $group) {
+                $stores = $group->getStores();
+                foreach ($stores as $store) {
+                    $availableStores[] = $store->getId();
+                    $availableCodes[] = $store->getCode();
+                    $currencyCodes = $store->getAvailableCurrencyCodes();
+                    foreach ($currencyCodes as $currencyCode) {
+                        if (!in_array($currencyCode, $availableCurrencies)) {
+                            $availableCurrencies[] = $currencyCode;
+                        }
+                    }
+                    $storeLanguage = $this->_scopeConfig->getValue(
+                        'general/locale/code',
+                        \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                        $store->getId()
+                    );
+                    if (!in_array($storeLanguage, $availableLanguages)) {
+                        $availableLanguages[] = $storeLanguage;
+                    }
+                }
+            }
+        }
+        foreach ($this->_exportParams as $param) {
+            switch ($param) {
+                case 'mode':
+                    $authorizedValue = ['size', 'total'];
+                    $type = 'string';
+                    $example = 'size';
+                    break;
+                case 'format':
+                    $authorizedValue = $this->_availableFormats;
+                    $type = 'string';
+                    $example = 'csv';
+                    break;
+                case 'store':
+                    $authorizedValue = $availableStores;
+                    $type = 'integer';
+                    $example = 1;
+                    break;
+                case 'code':
+                    $authorizedValue = $availableCodes;
+                    $type = 'string';
+                    $example = 'french';
+                    break;
+                case 'currency':
+                    $authorizedValue = $availableCurrencies;
+                    $type = 'string';
+                    $example = 'EUR';
+                    break;
+                case 'locale':
+                    $authorizedValue = $availableLanguages;
+                    $type = 'string';
+                    $example = 'fr_FR';
+                    break;
+                case 'offset':
+                case 'limit':
+                    $authorizedValue = 'all integers';
+                    $type = 'integer';
+                    $example = 100;
+                    break;
+                case 'product_ids':
+                    $authorizedValue = 'all integers';
+                    $type = 'string';
+                    $example = '101,108,215';
+                    break;
+                default:
+                    $authorizedValue = [0, 1];
+                    $type = 'integer';
+                    $example = 1;
+                    break;
+            }
+            $params[$param] = [
+                'authorized_values' => $authorizedValue,
+                'type'              => $type,
+                'example'           => $example
+            ];
+        }
+        return $this->_jsonHelper->jsonEncode($params);
     }
 
     /**
