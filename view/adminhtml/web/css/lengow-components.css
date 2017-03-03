@@ -356,6 +356,12 @@ span.last_indexation {
     transition: all 100ms ease;
 }
 
+.lgw-switch .lengow_switch_export_product {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
 .lgw-switch:hover div,
 .lgw-switch:focus div {
     background-color: #c0c0c0;

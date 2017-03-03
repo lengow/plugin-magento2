@@ -72,17 +72,27 @@ require(['jquery'], function( $ ) {
         /**
          * Include or not a product in lengow
          */
-        $('.lengow-connector').on('change', '.lengow_switch_export_product', function () {
+        $('.lengow-connector').on('click', '.lengow_switch_export_product', function () {
             var href = $(this).attr('data-href'),
                 action = $(this).attr('data-action'),
                 storeId = $(this).attr('data-id_store'),
-                state = $(this).prop('checked'),
-                productId = $(this).attr('data-id_product');
+                state = $(this).attr('data-checked'),
+                productId = $(this).attr('data-id_product'),
+                myid = "#lengow_export_product_" + productId ;
+            if(state == 0) {
+                $(myid).addClass('checked');
+                $(myid).parents('.lgw-switch').addClass('checked');
+                $(myid).attr('data-checked','1');
+            } else {
+                $(myid).removeClass('checked');
+                $(myid).parents('.lgw-switch').removeClass('checked');
+                $(myid).attr('data-checked','0');
+            }
             $.ajax({
                 url: href,
                 method: 'POST',
                 data: {
-                    state: state ? 1 : 0,
+                    state: (state == 1) ? 0 : 1,
                     action: action,
                     store_id: storeId,
                     product_id: productId,
