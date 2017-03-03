@@ -69,8 +69,7 @@ class Lengow extends AbstractRenderer
         return '<div class="lgw-switch '. ($value === 1 ? 'checked' : '').'">
         <label>
             <div>
-                <a href="javascript:void(0)" width="100%" height="100%" style="display:block"
-                name="lengow_export_product" class="lengow_switch_export_product"
+                <a href="javascript:void(0)" name="lengow_export_product" class="lengow_switch_export_product"
                 id="lengow_export_product_'.$row->getData('entity_id').'"
                 data-href="'. $this->_backendHelper->getUrl('lengow/product'). '"
                 data-action="lengow_export_product"
