@@ -288,7 +288,7 @@ class Export
         $this->_selection = isset( $params['selection'] )
             ? (bool)$params['selection']
             : (bool)$this->_configHelper->get('selection_enable', $this->_storeId);
-        $this->_inactive = isset( $params['inactive'] )
+        $this->_inactive = isset($params['inactive'])
             ? (bool)$params['inactive']
             : (bool)$this->_configHelper->get('product_status', $this->_storeId);
         $this->_outOfStock = isset( $params['out_of_stock'] ) ? $params['out_of_stock'] : true;
@@ -412,14 +412,9 @@ class Export
         $productModulo = $this->_getProductModulo(count($products));
         // Get the maximum of character for yaml format
         $maxCharacter = $this->_getMaxCharacterSize($fields);
-        // Set global attributes
-        $this->_product->init(
-            [
-                'store'    => $this->_store,
-                'currency' => $this->_currency
-            ]
-        );
-        // Get feed to export
+        // init product to export
+        $this->_product->init(['store' => $this->_store, 'currency' => $this->_currency]);
+        // init feed to export
         $this->_feed->init(
             [
                 'stream'     => $this->_stream,

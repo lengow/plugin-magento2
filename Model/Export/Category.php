@@ -42,7 +42,12 @@ class Category
     protected $_store;
 
     /**
-     * @var array cache categories
+     * @var array cache category names
+     */
+    protected $_cacheCategoryNames = [];
+
+    /**
+     * @var array cache category breadcrumb
      */
     protected $_cacheCategoryBreadcrumbs = [];
 
@@ -137,8 +142,14 @@ class Category
         foreach ($categoryIds as $categoryId) {
             // No root category in breadcrumb
             if ((int)$categoryId != 1) {
-                $category = $this->_categoryRepository->get((int)$categoryId, $this->_store->getId());
-                $categoryNames[] = $category->getName();
+                if (isset($this->_cacheCategoryNames[$categoryId])) {
+                    $categoryNames[] = $this->_cacheCategoryNames[$categoryId];
+                } else {
+                    $category = $this->_categoryRepository->get((int)$categoryId, $this->_store->getId());
+                    $name = $category->getName();
+                    $categoryNames[] = $name;
+                    $this->_cacheCategoryNames[$categoryId] = $name;
+                }
             }
         }
         $categoryBreadcrumb = implode(' > ', $categoryNames);

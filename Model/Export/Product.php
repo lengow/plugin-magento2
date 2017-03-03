@@ -100,6 +100,11 @@ class Product
     protected $_store;
 
     /**
+     * @var string locale iso code
+     */
+    protected $_localeIsoCode;
+
+    /**
      * @var string currency code for conversion
      */
     protected $_currency;
@@ -128,6 +133,11 @@ class Product
      * @var array all product images
      */
     protected $_images;
+
+    /**
+     * @var string base image url
+     */
+    protected $_baseImageUrl;
 
     /**
      * @var string product variation list
@@ -237,6 +247,8 @@ class Product
     {
         $this->_store = $params['store'];
         $this->_currency = $params['currency'];
+        $this->_localeIsoCode = $this->_locale->getLocale();
+        $this->_baseImageUrl = $this->_dataHelper->getMediaUrl().'catalog/product';
         $this->_price->init(['store' => $this->_store, 'currency' => $this->_currency]);
         $this->_category->init(['store' => $this->_store]);
         $this->_shipping->init(['store' => $this->_store, 'currency'=> $this->_currency]);
@@ -302,21 +314,15 @@ class Product
                     : $this->_product->getUrlInStore($routeParams);
                 return $url;
             case 'price_excl_tax':
-                return $this->_prices['price_excl_tax'];
             case 'price_incl_tax':
-                return $this->_prices['price_incl_tax'];
             case 'price_before_discount_excl_tax':
-                return $this->_prices['price_before_discount_excl_tax'];
             case 'price_before_discount_incl_tax':
-                return $this->_prices['price_before_discount_incl_tax'];
+                return $this->_prices[$field];
             case 'discount_amount':
-                return $this->_discounts['discount_amount'];
             case 'discount_percent':
-                return $this->_discounts['discount_percent'];
             case 'discount_start_date':
-                return $this->_discounts['discount_start_date'];
             case 'discount_end_date':
-                return $this->_discounts['discount_end_date'];
+                return $this->_discounts[$field];
             case 'shipping_method':
                 return $this->_shipping->getShippingMethod();
             case 'shipping_cost':
@@ -324,15 +330,17 @@ class Product
             case 'currency':
                 return $this->_currency;
             case 'image_default':
-                return $this->_dataHelper->getMediaUrl().'catalog/product'.$this->_product->getImage();
-            case (preg_match('`image_url_([0-9]+)`', $field) ? true : false):
-                $url = '';
-                $index = explode('_', $field);
-                $imageId = $index[2];
-                if (isset($this->_images[$imageId])) {
-                    $url = $this->_images[$imageId]['url'];
-                }
-                return $url;
+            case 'image_url_1':
+            case 'image_url_2':
+            case 'image_url_3':
+            case 'image_url_4':
+            case 'image_url_5':
+            case 'image_url_6':
+            case 'image_url_7':
+            case 'image_url_8':
+            case 'image_url_9':
+            case 'image_url_10':
+                return $this->_images[$field];
             case 'type':
                 $type = $this->_type;
                 if ($type === 'simple' && $this->_parentProduct) {
@@ -346,7 +354,7 @@ class Product
             case 'variation':
                 return $this->_variationList;
             case 'language':
-                return $this->_locale->getLocale();
+                return $this->_localeIsoCode;
             case 'description':
                 $description = $this->_getParentData
                     ? $this->_parentProduct->getDescription()
@@ -368,18 +376,7 @@ class Product
                     : $this->_product->getShortDescription();
                 return $this->_dataHelper->cleanData($descriptionShort);
             default:
-                if ($this->_product->getData($field) === null) {
-                    return '';
-                }
-                if (is_array($this->_product->getData($field))) {
-                    $data = implode(',', $this->_product->getData($field));
-                } else {
-                    $data = $this->_product->getResource()
-                        ->getAttribute($field)
-                        ->getFrontend()
-                        ->getValue($this->_product);
-                }
-                return $this->_dataHelper->cleanData($data);
+                return $this->_dataHelper->cleanData($this->_getAttributeValue($field));
         }
     }
 
@@ -421,9 +418,6 @@ class Product
         $this->_price->clean();
         $this->_shipping->clean();
         $this->_category->clean();
-        if (function_exists('gc_collect_cycles')) {
-            gc_collect_cycles();
-        }
     }
 
     /**
@@ -540,12 +534,28 @@ class Product
      */
     protected function _getImages()
     {
+        $imageUrls = [];
         $parentImages = false;
         if ((bool)$this->_configHelper->get('parent_image', $this->_store->getId()) && $this->_parentProduct) {
             $parentImages = $this->_parentProduct->getMediaGalleryImages()->toArray();
         }
         $images = $this->_product->getMediaGalleryImages()->toArray();
-        return $parentImages ? array_merge($parentImages['items'], $images['items']) : $images['items'];
+        $images = $parentImages ? array_merge($parentImages['items'], $images['items']) : $images['items'];
+        for ($i = 1; $i < 11; $i++) {
+            $imageUrls['image_url_'.$i] = '';
+        }
+        $counter = 1;
+        foreach ($images as $image) {
+            $imageUrls['image_url_'.$counter] = $image['url'];
+            if ($counter === 10) {
+                break;
+            }
+            $counter++;
+        }
+        $imageUrls['image_default'] =  !is_null($this->_product->getImage())
+            ? $this->_baseImageUrl.$this->_product->getImage()
+            : '';
+        return $imageUrls;
     }
 
     /**
@@ -611,6 +621,30 @@ class Product
                 ->getQty();
         }
         return $quantity;
+    }
+
+    /**
+     * Get product attribute value
+     *
+     * @param string $field name a of specific attribute
+     *
+     * @return string|null
+     */
+    protected function _getAttributeValue($field)
+    {
+        $attributeValue = '';
+        $attribute = $this->_product->getData($field);
+        if ($attribute !== null) {
+            if (is_array($attribute)) {
+                $attributeValue = implode(',', $attribute);
+            } else {
+                $attributeValue = $this->_product->getResource()
+                    ->getAttribute($field)
+                    ->getFrontend()
+                    ->getValue($this->_product);
+            }
+        }
+        return $attributeValue;
     }
 
     /**
