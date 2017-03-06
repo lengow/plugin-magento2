@@ -103,7 +103,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
         $fixture = New Fixture();
         $classMock = $fixture->getFakeClass();
         $pathFilterMock = $fixture->mockFunctions($classMock, ['exportToArray'], [[]]);
-        $categoryCollectionMock = $fixture->mockFunctions($classMock, ['exportToArray'], [$pathFilterMock]);
+        $categoryCollectionMock = $fixture->mockFunctions($classMock, ['addPathsFilter'], [$pathFilterMock]);
         $productMock = $fixture->mockFunctions($classMock, ['getCategoryCollection'], [$categoryCollectionMock]);
         $storeMock = $fixture->mockFunctions($classMock, ['getRootCategoryId'], [0]);
         $fixture->setPrivatePropertyValue($this->_category, ['_store', '_product'], [$storeMock, $productMock]);
@@ -129,7 +129,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         );
-        $categoryCollectionMock2 = $fixture->mockFunctions($classMock, ['exportToArray'], [$pathFilterMock2]);
+        $categoryCollectionMock2 = $fixture->mockFunctions($classMock, ['addPathsFilter'], [$pathFilterMock2]);
         $productMock2 = $fixture->mockFunctions($classMock, ['getCategoryCollection'], [$categoryCollectionMock2]);
         $fixture->setPrivatePropertyValue($this->_category, ['_product'], [$productMock2]);
         $this->assertEquals(
