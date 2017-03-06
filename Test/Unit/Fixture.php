@@ -74,6 +74,14 @@ class Fixture extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Get a fake class for mock function
+     */
+    public function getFakeClass()
+    {
+        return $this->getMockBuilder('FakeClass')->getMock();
+    }
+
+    /**
      * Mock specific function
      *
      * @param object &$object Instantiated object that we will run method on

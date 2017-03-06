@@ -70,6 +70,7 @@ class Category
      * init a new category
      *
      * @param array $params optional options for load a specific product
+     * \Magento\Store\Model\Store\Interceptor store Magento store instance
      */
     public function init($params)
     {
@@ -80,11 +81,15 @@ class Category
      * Load a new category with a specific params
      *
      * @param array $params optional options for load a specific category
+     * \Magento\Catalog\Model\Product\Interceptor product Magento product instance
      */
     public function load($params)
     {
         $this->_product = $params['product'];
-        $this->_categoryBreadcrumb = $this->_getCategoryBreadcrumb();
+        $defaultCategory = $this->_getDefaultCategory();
+        $this->_categoryBreadcrumb = $defaultCategory['id'] > 0
+            ? $this->_getBreadcrumb($defaultCategory['id'], $defaultCategory['path'])
+            : '';
     }
 
     /**
@@ -103,58 +108,89 @@ class Category
     public function clean()
     {
         $this->_product = null;
+        $this->_categoryBreadcrumb = null;
+    }
+
+    /**
+     * Get default category id and path
+     *
+     * @return array
+     */
+    protected function _getDefaultCategory()
+    {
+        $currentLevel = 0;
+        $defaultCategory = [];
+        // Get category collection for one product
+        $categoryCollection = $this->_product->getCategoryCollection()
+            ->addPathsFilter('1/'.$this->_store->getRootCategoryId().'/')
+            ->exportToArray();
+        if (count($categoryCollection) > 0) {
+            // Select category with max level by default
+            foreach ($categoryCollection as $categoryArray) {
+                if ($categoryArray['level'] > $currentLevel) {
+                    $currentLevel = $categoryArray['level'];
+                    $defaultCategory = $categoryArray;
+                }
+            }
+        }
+        $category = [
+            'id'   => isset($defaultCategory['entity_id']) ? (int)$defaultCategory['entity_id'] : 0,
+            'path' => isset($defaultCategory['path']) ? $defaultCategory['path'] : ''
+        ];
+        return $category;
     }
 
     /**
      * Get category breadcrumb
      *
+     * @param integer $categoryId   Magento category id
+     * @param string  $categoryPath Magento category path
+     *
      * @return string
      */
-    protected function _getCategoryBreadcrumb()
+    protected function _getBreadcrumb($categoryId, $categoryPath)
     {
-        $defaultCategory = false;
-        $categoryIds = [];
-        $categoryNames = [];
-        $currentLevel = 0;
-        // Get category collection for one product
-        $categoryCollection = $this->_product->getCategoryCollection()
-            ->addPathsFilter('1/'.$this->_store->getRootCategoryId().'/')
-            ->exportToArray();
-        if (count($categoryCollection) == 0) {
+        if ($categoryId == 0 || $categoryPath == '') {
             return '';
         }
-        // Select category with max level by default
-        foreach ($categoryCollection as $categoryArray) {
-            if ($categoryArray['level'] > $currentLevel) {
-                $currentLevel = $categoryArray['level'];
-                $defaultCategory = $categoryArray;
-            }
-        }
-        // Get category breadcrumb directly if exist
-        $defaultCategoryId = (int)$defaultCategory['entity_id'];
-        if (isset($this->_cacheCategoryBreadcrumbs[$defaultCategoryId])) {
-            return $this->_cacheCategoryBreadcrumbs[$defaultCategoryId];
+        $categoryNames = [];
+        if (isset($this->_cacheCategoryBreadcrumbs[$categoryId])) {
+            return $this->_cacheCategoryBreadcrumbs[$categoryId];
         }
         // Create breadcrumb with categories
-        if (isset($defaultCategory['path']) && $defaultCategory['path'] != '') {
-            $categoryIds = explode('/', $defaultCategory['path']);
-        }
-        foreach ($categoryIds as $categoryId) {
+        $categoryIds = explode('/', $categoryPath);
+        foreach ($categoryIds as $id) {
             // No root category in breadcrumb
-            if ((int)$categoryId != 1) {
-                if (isset($this->_cacheCategoryNames[$categoryId])) {
-                    $categoryNames[] = $this->_cacheCategoryNames[$categoryId];
-                } else {
-                    $category = $this->_categoryRepository->get((int)$categoryId, $this->_store->getId());
-                    $name = $category->getName();
-                    $categoryNames[] = $name;
-                    $this->_cacheCategoryNames[$categoryId] = $name;
-                }
+            if ((int)$id != 1) {
+                $categoryNames[] = $this->_getName((int)$id);
             }
         }
         $categoryBreadcrumb = implode(' > ', $categoryNames);
         // Set breadcrumb in category cache
-        $this->_cacheCategoryBreadcrumbs[$defaultCategoryId] = $categoryBreadcrumb;
+        $this->_cacheCategoryBreadcrumbs[$categoryId] = $categoryBreadcrumb;
         return $categoryBreadcrumb;
+    }
+
+    /**
+     * Get category name
+     *
+     * @param integer $categoryId Magento category id
+     *
+     * @return string
+     */
+    protected function _getName($categoryId)
+    {
+        if ($categoryId == 0) {
+            return '';
+        }
+        if (isset($this->_cacheCategoryNames[$categoryId])) {
+            $categoryName = $this->_cacheCategoryNames[$categoryId];
+        } else {
+            $category = $this->_categoryRepository->get($categoryId, $this->_store->getId());
+            $name = $category->getName();
+            $categoryName = $name;
+            $this->_cacheCategoryNames[$categoryId] = $name;
+        }
+        return $categoryName;
     }
 }

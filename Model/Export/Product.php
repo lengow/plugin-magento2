@@ -242,6 +242,8 @@ class Product
      * init a new product
      *
      * @param array $params optional options for load a specific product
+     * \Magento\Store\Model\Store\Interceptor store    Magento store instance
+     * string                                 currency Currency iso code for conversion
      */
     public function init($params)
     {
@@ -258,6 +260,8 @@ class Product
      * Load a new product with a specific params
      *
      * @param array $params optional options for load a specific product
+     * string  product_type Magento product type
+     * integer product_id   Magento product id
      */
     public function load($params)
     {
@@ -472,16 +476,17 @@ class Product
     /**
      * Get product
      *
-     * @param integer $productId Magento product is
+     * @param integer $productId   Magento product is
+     * @param boolean $forceReload force reload for product repository
      *
      * @return \Magento\Catalog\Model\Product\Interceptor
      */
-    protected function _getProduct($productId)
+    protected function _getProduct($productId, $forceReload = false)
     {
         if ($this->_type === 'configurable') {
             $product = $this->_getConfigurableProduct($productId);
         } else {
-            $product = $this->_productRepository->getById($productId, false, $this->_store->getId());
+            $product = $this->_productRepository->getById($productId, false, $this->_store->getId(), $forceReload);
         }
         return $product;
     }
@@ -666,7 +671,7 @@ class Product
         ];
         if (count($this->_childrenIds) > 0) {
             foreach ($this->_childrenIds as $childrenId) {
-                $children = $this->_productRepository->getById($childrenId, false, $this->_store->getId());
+                $children = $this->_getProduct($childrenId, true);
                 $this->_price->load(['product' => $children]);
                 $childrenPrices = $this->_price->getPrices();
                 foreach ($childrenPrices as $key => $value) {
@@ -686,7 +691,7 @@ class Product
         $discountAmount = $prices['price_before_discount_incl_tax'] - $prices['price_incl_tax'];
         $discountAmount = $discountAmount > 0 ? $discountAmount : 0;
         $discountPercent = $discountAmount > 0
-            ? ($discountAmount * 100) / $prices['price_before_discount_incl_tax']
+            ? round((($discountAmount * 100) / $prices['price_before_discount_incl_tax']), 2)
             : 0;
         // Get discount end and start date
         if (count($endTimestamps) > 0) {

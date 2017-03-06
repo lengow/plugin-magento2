@@ -38,7 +38,7 @@ class FeedTest extends \PHPUnit_Framework_TestCase
     protected $_dataHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Data
+     * @var \Magento\Framework\Json\Helper\Data
      */
     protected $_jsonHelper;
 

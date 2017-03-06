@@ -138,6 +138,8 @@ class Price
      * init a new product
      *
      * @param array $params optional options for load a specific product
+     * \Magento\Store\Model\Store\Interceptor store    Magento store instance
+     * string                                 currency Currency iso code for conversion
      */
     public function init($params)
     {
@@ -151,6 +153,7 @@ class Price
      * Load a new price with a specific params
      *
      * @param array $params optional options for load a specific price
+     * \Magento\Catalog\Model\Product\Interceptor product Magento product instance
      */
     public function load($params)
     {

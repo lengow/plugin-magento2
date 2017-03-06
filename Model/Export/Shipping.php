@@ -146,6 +146,8 @@ class Shipping
      * init a new shipping
      *
      * @param array $params optional options for load a specific product
+     * \Magento\Store\Model\Store\Interceptor store    Magento store instance
+     * string                                 currency Currency iso code for conversion
      */
     public function init($params)
     {
@@ -172,6 +174,7 @@ class Shipping
      * Load a new shipping with specific params
      *
      * @param array $params optional options for load a specific shipping
+     * \Magento\Catalog\Model\Product\Interceptor product Magento product instance
      */
     public function load($params)
     {
@@ -188,7 +191,7 @@ class Shipping
     /**
      * Get shipping method
      *
-     * @return float
+     * @return string
      */
     public function getShippingMethod()
     {
@@ -254,15 +257,15 @@ class Shipping
                 $shippingCost = $rate->getPrice();
                 break;
             }
-        }
-        if ($conversion) {
-            $shippingCost = $this->_priceCurrency->convertAndRound(
-                $shippingCost,
-                $this->_storeCurrency,
-                $this->_currency
-            );
-        } else {
-            $shippingCost = $this->_priceCurrency->round($shippingCost);
+            if ($conversion) {
+                $shippingCost = $this->_priceCurrency->convertAndRound(
+                    $shippingCost,
+                    $this->_storeCurrency,
+                    $this->_currency
+                );
+            } else {
+                $shippingCost = $this->_priceCurrency->round($shippingCost);
+            }
         }
         if ($this->_shippingIsFixed) {
             $this->_shippingCostFixed = $shippingCost;
