@@ -174,8 +174,8 @@ class Index extends Action
                             $this->_export->init($params);
                             return $this->_resultJsonFactory->create()->setData(
                                 [
-                                    'exported' => $this->_export->getTotalExportedProduct(),
-                                    'total'    => $this->_export->getTotalProduct()
+                                    'exported'   => $this->_export->getTotalExportedProduct(),
+                                    'total'      => $this->_export->getTotalProduct()
                                 ]
                             );
                         }

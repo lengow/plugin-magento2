@@ -229,6 +229,11 @@ body.adminhtml-lengow-order-index .lgw-col-4{
   padding: 0;
 }
 
+.lengow_order_country {
+  width: 22px !important;
+  height: 15px;
+}
+
 /*************************************************/
 /*                PAGE DEBUG                     */
 /*************************************************/

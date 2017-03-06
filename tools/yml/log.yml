@@ -16,6 +16,8 @@ en:
       error_configurable_product_disabled: "WARNING! %1 simple product(s) associated with configurable products are disabled"
       error_folder_not_created: "unable to create folder %1"
       error_folder_not_writable: "unable to access the folder %1"
+    import:
+      not_valid_action: "Action: %{action} is not a valid action"
     connector:
       call_api: "call %1"
       error_api: "API call failed - %1"

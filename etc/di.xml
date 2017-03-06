@@ -1,13 +1,11 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-
     <virtualType name="LengowGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
         <arguments>
             <argument name="collection" xsi:type="object" shared="false">Lengow\Connector\Model\ResourceModel\Log\Collection</argument>
             <argument name="filterPool" xsi:type="object" shared="false">LengowGridFilterPool</argument>
         </arguments>
     </virtualType>
-
     <virtualType name="LengowGridFilterPool" type="Magento\Framework\View\Element\UiComponent\DataProvider\FilterPool">
         <arguments>
             <argument name="appliers" xsi:type="array">
@@ -16,15 +14,14 @@
             </argument>
         </arguments>
     </virtualType>
-
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
                 <item name="lengow_log_listing_data_source" xsi:type="string">Lengow\Connector\Model\ResourceModel\Log\Collection</item>
+                <item name="lengow_order_listing_data_source" xsi:type="string">Lengow\Connector\Model\ResourceModel\Order\Collection</item>
             </argument>
         </arguments>
     </type>
-
     <virtualType name="Lengow\Connector\Model\ResourceModel\Log\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
         <arguments>
             <argument name="mainTable" xsi:type="string">lengow_log</argument>
@@ -32,4 +29,38 @@
         </arguments>
     </virtualType>
 
+    <virtualType name="Lengow\Connector\Model\ResourceModel\Order\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">lengow_order</argument>
+            <argument name="resourceModel" xsi:type="string">Lengow\Connector\Model\ResourceModel\Order</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="LengowConnectorFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Lengow\Connector\Model\Payment\Lengow::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">LengowConnectorValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">LengowConnectorCommandPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="LengowConnectorValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">LengowConnectorConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="LengowConnectorCommandPool" type="Magento\Payment\Gateway\Command\CommandPool" />
+    <virtualType name="LengowConnectorConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">LengowConnectorConfig</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="LengowConnectorConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">Lengow\Connector\Model\Payment\Lengow::CODE</argument>
+        </arguments>
+    </virtualType>
 </config>
