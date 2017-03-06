@@ -37,5 +37,42 @@
                 <import_cron_enable>0</import_cron_enable>
             </advanced>
         </lengow_import_options>
+        <payment>
+            <lengow>
+                <active>1</active>
+                <model>LengowConnectorFacade</model>
+                <order_status>pending</order_status>
+                <title>Lengow Payment</title>
+                <allowspecific>0</allowspecific>
+                <is_gateway>1</is_gateway>
+                <group>offline</group>
+                <can_use_checkout>0</can_use_checkout>
+                <can_use_internal>1</can_use_internal>
+                <can_order>1</can_order>
+                <can_capture>1</can_capture>
+            </lengow>
+            <lengow_purchaseorder>
+                <active>1</active>
+                <model>LengowConnectorFacade</model>
+                <order_status>new</order_status>
+                <title>Lengow Payment (version 1.x)</title>
+                <allowspecific>0</allowspecific>
+                <is_gateway>1</is_gateway>
+                <group>offline</group>
+                <can_use_checkout>0</can_use_checkout>
+                <can_use_internal>1</can_use_internal>
+                <can_order>1</can_order>
+                <can_capture>1</can_capture>
+            </lengow_purchaseorder>
+        </payment>
+        <carriers>
+            <lengow>
+                <active>1</active>
+                <sallowspecific>0</sallowspecific>
+                <model>Lengow\Connector\Model\Carrier\Lengow</model>
+                <name>Shipping from marketplace</name>
+                <title>Lengow</title>
+            </lengow>
+        </carriers>
     </default>
 </config>

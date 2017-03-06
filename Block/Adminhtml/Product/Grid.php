@@ -195,7 +195,6 @@ class Grid extends Extended
             [
                 'header' => __('ID'),
                 'index'  => 'entity_id',
-                'width'  => 100,
                 'type'   => 'number',
             ]
         );
@@ -221,7 +220,7 @@ class Grid extends Extended
             [
                 'header'  => __('Type'),
                 'index'   => 'type_id',
-                'width'   => '60px',
+                'column_css_class'  => 'a-center',
                 'type'    => 'options',
                 'options' => $type,
             ]
@@ -236,7 +235,7 @@ class Grid extends Extended
             [
                 'header'  => __('Attribut set name'),
                 'index'   => 'attribute_set_id',
-                'width'   => '100px',
+                'column_css_class'  => 'a-center',
                 'type'    => 'options',
                 'options' => $set,
             ]
@@ -246,7 +245,7 @@ class Grid extends Extended
             [
                 'header' => __('SKU'),
                 'index'  => 'sku',
-                'width'  => 100,
+                'column_css_class'  => 'a-center',
             ]
         );
         $this->addColumn(
@@ -263,15 +262,14 @@ class Grid extends Extended
             [
                 'header' => __('Quantity'),
                 'index'  => 'qty',
-                'width'  => '100px',
                 'type'   => 'number',
+                'column_css_class'  => 'a-center',
             ]
         );
         $this->addColumn(
             'visibility',
             [
                 'header'  => __('Visibility'),
-                'width'   => '70px',
                 'index'   => 'visibility',
                 'type'    => 'options',
                 'options' => $this->_productVisibility->getOptionArray(),
@@ -281,7 +279,7 @@ class Grid extends Extended
             'status',
             [
                 'header'  => __('Status'),
-                'width'   => '70px',
+                'column_css_class'  => 'a-center',
                 'index'   => 'status',
                 'type'    => 'options',
                 'options' => $this->_status->getOptionArray()
@@ -303,14 +301,14 @@ class Grid extends Extended
         $this->addColumn(
             'lengow_product',
             [
-                'header'   => __('Include in export ?'),
-                'index'    => 'lengow_product',
-                'width'    => '70px',
-                'type'     => 'options',
-                'renderer' => 'Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Lengow',
-                'options'  => [
-                    1 => __('Yes')
-                ],
+                'header'            => __('Include in export ?'),
+                'index'             => 'lengow_product',
+                'type'              => 'options',
+                'renderer'          => 'Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Lengow',
+                'column_css_class'  => 'a-center',
+                'options'           => [
+                                        1 => __('Yes')
+                                    ],
             ]
         );
 
