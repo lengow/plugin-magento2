@@ -60,7 +60,7 @@ class OrderStatus extends Column
     {
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
-            foreach ($dataSource['data']['items'] as & $item) {
+            foreach ($dataSource['data']['items'] as &$item) {
                 if (!is_null($item['order_id'])) {
                     $order = $this->_orderRepository->get($item['order_id'])->getStatus();
                     $item['order_status'] = $order;

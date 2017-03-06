@@ -69,7 +69,7 @@ class OrderSku extends Column
     {
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
-            foreach ($dataSource['data']['items'] as & $item) {
+            foreach ($dataSource['data']['items'] as &$item) {
                 if (!is_null($item['order_sku'])) {
                     $item['order_sku'] = '<a href="'.
                         $this->urlBuilder->getUrl('sales/order/view',['order_id' => $item['order_id']]). '">

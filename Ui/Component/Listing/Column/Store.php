@@ -61,7 +61,7 @@ class Store extends Column
     {
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
-            foreach ($dataSource['data']['items'] as & $item) {
+            foreach ($dataSource['data']['items'] as &$item) {
                 $item['store_id'] = $this->_storeManager->getStore($item['store_id'])->getName();
             }
         }

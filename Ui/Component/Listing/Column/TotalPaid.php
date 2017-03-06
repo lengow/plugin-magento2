@@ -67,12 +67,11 @@ class TotalPaid extends Column
     public function prepareDataSource(array $dataSource)
     {
         $dataSource = parent::prepareDataSource($dataSource);
-        $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
-        $currencyFactory = $this->_currencyFactory->create()->load($currency);
-        $currencySymbol = $currencyFactory->getCurrencySymbol();
         if (isset($dataSource['data']['items'])) {
-            foreach ($dataSource['data']['items'] as & $item) {
+            foreach ($dataSource['data']['items'] as &$item) {
                 if (!is_null($item['total_paid'])) {
+                    $currencyFactory = $this->_currencyFactory->create()->load($item['currency']);
+                    $currencySymbol = $currencyFactory->getCurrencySymbol();
                     $item['total_paid'] = $currencySymbol . $item['total_paid'];
                 }
             }
