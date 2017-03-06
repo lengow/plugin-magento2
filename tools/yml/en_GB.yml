@@ -37,6 +37,29 @@ en:
       publish_in_lengow: "Publish in Lengow"
       unpublish_in_lengow: "Unpublish in Lengow"
       error_lengow_publication: "Something went wrong while updating the lengow product(s) attribute."
+  order:
+    screen:
+      title: "Orders"
+    table:
+      lengow_action: "Actions"
+      action_success: "Success"
+      action_error: "Error"
+      lengow_state: "Lengow status"
+      status_accepted: "Accepted"
+      status_waiting_shipment: "Awaiting shipment"
+      status_shipped: "Shipped"
+      status_closed: "Closed"
+      status_canceled: "Canceled"
+      marketplace_name: "Marketplace"
+      store: "Store"
+      marketplace_sku: "Marketplace SKU"
+      magento_sku: "Magento SKU"
+      magento_status: "Magento status"
+      order_date: "Order Date"
+      customer_name: "Customer name"
+      country: "Country"
+      items: "Items"
+      total_paid: "Total Paid"
   log:
     screen:
       title: "Lengow logs"

@@ -21,6 +21,7 @@
         <arguments>
             <argument name="collections" xsi:type="array">
                 <item name="lengow_log_listing_data_source" xsi:type="string">Lengow\Connector\Model\ResourceModel\Log\Collection</item>
+                <item name="lengow_order_listing_data_source" xsi:type="string">Lengow\Connector\Model\ResourceModel\Order\Collection</item>
             </argument>
         </arguments>
     </type>
@@ -29,6 +30,13 @@
         <arguments>
             <argument name="mainTable" xsi:type="string">lengow_log</argument>
             <argument name="resourceModel" xsi:type="string">Lengow\Connector\Model\ResourceModel\Log</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Lengow\Connector\Model\ResourceModel\Order\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">lengow_order</argument>
+            <argument name="resourceModel" xsi:type="string">Lengow\Connector\Model\ResourceModel\Order</argument>
         </arguments>
     </virtualType>
 
