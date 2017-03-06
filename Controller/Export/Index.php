@@ -177,7 +177,7 @@ class Index extends Action
                 ];
                 $this->_export->init($params);
                 if ($getParams) {
-
+                    $this->getResponse()->setBody($this->_export->getExportParams());
                 } elseif ($mode == 'size') {
                     $this->getResponse()->setBody($this->_export->getTotalExportedProduct());
                 } elseif ($mode == 'total') {
