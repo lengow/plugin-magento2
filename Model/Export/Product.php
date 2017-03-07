@@ -540,11 +540,16 @@ class Product
     protected function _getImages()
     {
         $imageUrls = [];
+        $images = [];
         $parentImages = false;
         if ((bool)$this->_configHelper->get('parent_image', $this->_store->getId()) && $this->_parentProduct) {
-            $parentImages = $this->_parentProduct->getMediaGalleryImages()->toArray();
+            if (!is_null($this->_parentProduct->getMediaGalleryImages())) {
+                $parentImages = $this->_parentProduct->getMediaGalleryImages()->toArray();
+            }
         }
-        $images = $this->_product->getMediaGalleryImages()->toArray();
+        if (!is_null($this->_product->getMediaGalleryImages())) {
+            $images = $this->_product->getMediaGalleryImages()->toArray();
+        }
         $images = $parentImages ? array_merge($parentImages['items'], $images['items']) : $images['items'];
         for ($i = 1; $i < 11; $i++) {
             $imageUrls['image_url_'.$i] = '';
