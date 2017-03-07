@@ -289,7 +289,7 @@ class Price
         $discountEndDate = $this->_product->getSpecialToDate();
         // Get discount date from a catalogue rule if exist
         $catalogueRules = $this->_catalogueRule->getResource()->getRulesFromProduct(
-            $this->_dateTime->gmtTimestamp(),
+            (int)$this->_dateTime->gmtTimestamp(),
             $this->_store->getWebsiteId(),
             1,
             $this->_product->getId()
