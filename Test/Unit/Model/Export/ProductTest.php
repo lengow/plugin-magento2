@@ -597,6 +597,34 @@ class ProductTest extends \PHPUnit_Framework_TestCase
             $fixture->invokeMethod($this->_product, '_getImages'),
             '[Test Get Images] Check if a valid return without parent images'
         );
+        $productMock3 = $fixture->mockFunctions(
+            $this->_magentoProduct,
+            ['getMediaGalleryImages', 'getImage'],
+            [null, null]
+        );
+        $parentProductMock3 = $fixture->mockFunctions($this->_magentoProduct, ['getMediaGalleryImages'], [null]);
+        $fixture->setPrivatePropertyValue(
+            $this->_product,
+            ['_product', '_parentProduct'],
+            [$productMock3, $parentProductMock3]
+        );
+        $this->assertEquals(
+            [
+                'image_url_1'   => '',
+                'image_url_2'   => '',
+                'image_url_3'   => '',
+                'image_url_4'   => '',
+                'image_url_5'   => '',
+                'image_url_6'   => '',
+                'image_url_7'   => '',
+                'image_url_8'   => '',
+                'image_url_9'   => '',
+                'image_url_10'  => '',
+                'image_default' => '',
+            ],
+            $fixture->invokeMethod($this->_product, '_getImages'),
+            '[Test Get Images] Check return when media gallery images is null'
+        );
     }
 
     /**
