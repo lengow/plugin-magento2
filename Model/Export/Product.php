@@ -549,8 +549,9 @@ class Product
         }
         if (!is_null($this->_product->getMediaGalleryImages())) {
             $images = $this->_product->getMediaGalleryImages()->toArray();
+            $images = isset($images['items']) ? $images['items'] : [];
         }
-        $images = $parentImages ? array_merge($parentImages['items'], $images['items']) : $images['items'];
+        $images = $parentImages ? array_merge($parentImages['items'], $images) : $images;
         for ($i = 1; $i < 11; $i++) {
             $imageUrls['image_url_'.$i] = '';
         }
