@@ -121,7 +121,7 @@ class Price
     }
 
     /**
-     * init a new product
+     * init a new price
      *
      * @param array $params optional options for load a specific product
      * \Magento\Store\Model\Store\Interceptor store    Magento store instance
