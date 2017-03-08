@@ -19,7 +19,15 @@
 
 namespace Lengow\Connector\Model\Export;
 
+use Magento\Catalog\Model\ProductRepository;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
+use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
+use Magento\CatalogInventory\Api\StockRegistryInterface;
+use Magento\Framework\Locale\Resolver;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Helper\Config as ConfigHelper;
 
 /**
  * Lengow export product
@@ -27,9 +35,139 @@ use Lengow\Connector\Helper\Data as DataHelper;
 class Product
 {
     /**
+     * @var \Magento\Catalog\Model\ProductRepository Magento product repository instance
+     */
+    protected $_productRepository;
+
+    /**
+     * @var \Magento\ConfigurableProduct\Model\Product\Type\Configurable Magento product configurable instance
+     */
+    protected $_configurableProduct;
+
+    /**
+     * @var \Magento\CatalogInventory\Api\StockRegistryInterface Magento stock registry instance
+     */
+    protected $_stockRegistry;
+
+    /**
+     * @var \Magento\Framework\Locale\Resolver Magento locale resolver instance
+     */
+    protected $_locale;
+
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     */
+    protected $_dateTime;
+
+    /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
      */
     protected $_dataHelper;
+
+    /**
+     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     */
+    protected $_configHelper;
+
+    /**
+     * @var \Lengow\Connector\Model\Export\Price Lengow export price instance
+     */
+    protected $_price;
+
+    /**
+     * @var \Lengow\Connector\Model\Export\Shipping Lengow export shipping instance
+     */
+    protected $_shipping;
+
+    /**
+     * @var \Lengow\Connector\Model\Export\Category Lengow export category instance
+     */
+    protected $_category;
+
+    /**
+     * @var \Magento\Catalog\Model\Product\Interceptor Magento product instance
+     */
+    protected $_product;
+
+    /**
+     * @var \Magento\Catalog\Model\Product\Interceptor Magento product instance
+     */
+    protected $_parentProduct;
+
+    /**
+     * @var \Magento\Store\Model\Store\Interceptor Magento store instance
+     */
+    protected $_store;
+
+    /**
+     * @var string locale iso code
+     */
+    protected $_localeIsoCode;
+
+    /**
+     * @var string currency code for conversion
+     */
+    protected $_currency;
+
+    /**
+     * @var string product type
+     */
+    protected $_type;
+
+    /**
+     * @var array all children ids for grouped product
+     */
+    protected $_childrenIds;
+
+    /**
+     * @var array all product prices data
+     */
+    protected $_prices;
+
+    /**
+     * @var array all product discount data
+     */
+    protected $_discounts;
+
+    /**
+     * @var array all product images
+     */
+    protected $_images;
+
+    /**
+     * @var string base image url
+     */
+    protected $_baseImageUrl;
+
+    /**
+     * @var string product variation list
+     */
+    protected $_variationList;
+
+    /**
+     * @var integer product quantity
+     */
+    protected $_quantity;
+
+    /**
+     * @var boolean get parent data for simple product not visible individually
+     */
+    protected $_getParentData;
+
+    /**
+     * @var array cache configurable products
+     */
+    protected $_cacheConfigurableProducts = [];
+
+    /**
+     * @var integer clear configurable product cache counter
+     */
+    protected $_clearCacheConfigurable = 0;
+
+    /**
+     * @var array cache categories
+     */
+    protected $_cacheCategories = [];
 
     /**
      * @var integer counter for simple product
@@ -61,24 +199,91 @@ class Product
      */
     protected $_downloadableCounter = 0;
 
+
     /**
      * Constructor
      *
+     * @param \Magento\Catalog\Model\ProductRepository $productRepository Magento product repository instance
+     * @param \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableProduct
+     * @param \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry Magento stock registry instance
+     * @param \Magento\Framework\Locale\Resolver $locale Magento locale resolver instance
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param \Lengow\Connector\Model\Export\Price $price Lengow product price instance
+     * @param \Lengow\Connector\Model\Export\Shipping $shipping Lengow product shipping instance
+     * @param \Lengow\Connector\Model\Export\Category $category Lengow product category instance
      */
     public function __construct(
-        DataHelper $dataHelper
+        ProductRepository $productRepository,
+        Configurable  $configurableProduct,
+        StockRegistryInterface $stockRegistry,
+        Resolver $locale,
+        DateTime $dateTime,
+        DataHelper $dataHelper,
+        ConfigHelper $configHelper,
+        Price $price,
+        Shipping $shipping,
+        Category $category
     ) {
+        $this->_productRepository = $productRepository;
+        $this->_configurableProduct = $configurableProduct;
+        $this->_stockRegistry = $stockRegistry;
+        $this->_locale = $locale;
+        $this->_dateTime = $dateTime;
         $this->_dataHelper = $dataHelper;
+        $this->_configHelper = $configHelper;
+        $this->_price = $price;
+        $this->_shipping = $shipping;
+        $this->_category = $category;
     }
 
     /**
-     * Init a new product
+     * init a new product
      *
-     * @param array $params optional options for init
+     * @param array $params optional options for load a specific product
+     * \Magento\Store\Model\Store\Interceptor store    Magento store instance
+     * string                                 currency Currency iso code for conversion
      */
     public function init($params)
     {
+        $this->_store = $params['store'];
+        $this->_currency = $params['currency'];
+        $this->_localeIsoCode = $this->_locale->getLocale();
+        $this->_baseImageUrl = $this->_dataHelper->getMediaUrl().'catalog/product';
+        $this->_price->init(['store' => $this->_store, 'currency' => $this->_currency]);
+        $this->_category->init(['store' => $this->_store]);
+        $this->_shipping->init(['store' => $this->_store, 'currency'=> $this->_currency]);
+    }
+
+    /**
+     * Load a new product with a specific params
+     *
+     * @param array $params optional options for load a specific product
+     * string  product_type Magento product type
+     * integer product_id   Magento product id
+     */
+    public function load($params)
+    {
+        $this->_type = $params['product_type'];
+        $this->_product = $this->_getProduct($params['product_id']);
+        $this->_parentProduct = $this->_getParentProduct();
+        $this->_childrenIds = $this->_getChildrenIds();
+        $this->_images = $this->_getImages();
+        $this->_variationList = $this->_getVariationList();
+        $this->_quantity = $this->_getQuantity();
+        if ($this->_type === 'grouped') {
+            $groupedPrices = $this->_getGroupedPricesAndDiscounts();
+            $this->_prices = $groupedPrices['prices'];
+            $this->_discounts = $groupedPrices['discounts'];
+        } else {
+            $this->_price->load(['product' => $this->_product]);
+            $this->_prices = $this->_price->getPrices();
+            $this->_discounts = $this->_price->getDiscounts();
+        }
+        $this->_category->load(['product' => $this->_product]);
+        $this->_shipping->load(['product' => $this->_product]);
+        $this->_setCounter();
     }
 
     /**
@@ -86,14 +291,114 @@ class Product
      *
      * @param string $field field to export
      *
-     * @return string
+     * @return float|integer|string
      */
     public function getData($field)
     {
         switch ($field) {
+            case 'id':
+                return $this->_product->getId();
+            case 'sku':
+                return $this->_product->getSku();
+            case 'name':
+                $name = $this->_getParentData ? $this->_parentProduct->getName() : $this->_product->getName();
+                return $this->_dataHelper->cleanData($name);
+            case 'child_name':
+                return $this->_dataHelper->cleanData($this->_product->getName());
+            case 'quantity':
+                return $this->_quantity;
+            case 'status':
+                return $this->_product->getStatus() == ProductStatus::STATUS_DISABLED ? 'Disabled' : 'Enabled';
+            case 'category':
+                return $this->_category->getCategoryBreadcrumb();
+            case 'url':
+                $routeParams = ['_nosid' => true, '_query' => ['___store' => $this->_store->getCode()]];
+                $url = $this->_getParentData
+                    ? $this->_parentProduct->getUrlInStore($routeParams)
+                    : $this->_product->getUrlInStore($routeParams);
+                return $url;
+            case 'price_excl_tax':
+            case 'price_incl_tax':
+            case 'price_before_discount_excl_tax':
+            case 'price_before_discount_incl_tax':
+                return $this->_prices[$field];
+            case 'discount_amount':
+            case 'discount_percent':
+            case 'discount_start_date':
+            case 'discount_end_date':
+                return $this->_discounts[$field];
+            case 'shipping_method':
+                return $this->_shipping->getShippingMethod();
+            case 'shipping_cost':
+                return $this->_shipping->getShippingCost();
+            case 'currency':
+                return $this->_currency;
+            case 'image_default':
+            case 'image_url_1':
+            case 'image_url_2':
+            case 'image_url_3':
+            case 'image_url_4':
+            case 'image_url_5':
+            case 'image_url_6':
+            case 'image_url_7':
+            case 'image_url_8':
+            case 'image_url_9':
+            case 'image_url_10':
+                return $this->_images[$field];
+            case 'type':
+                $type = $this->_type;
+                if ($type === 'simple' && $this->_parentProduct) {
+                    $type = 'child';
+                } elseif ($type === 'configurable') {
+                    $type = 'parent';
+                }
+                return $type;
+            case 'parent_id':
+                return $this->_parentProduct ? $this->_parentProduct->getId() : '';
+            case 'variation':
+                return $this->_variationList;
+            case 'language':
+                return $this->_localeIsoCode;
+            case 'description':
+                $description = $this->_getParentData
+                    ? $this->_parentProduct->getDescription()
+                    : $this->_product->getDescription();
+                return $this->_dataHelper->cleanHtml($this->_dataHelper->cleanData($description));
+            case 'description_html':
+                $description = $this->_getParentData
+                    ? $this->_parentProduct->getDescription()
+                    : $this->_product->getDescription();
+                return $this->_dataHelper->cleanData($description);
+            case 'description_short':
+                $descriptionShort = $this->_getParentData
+                    ? $this->_parentProduct->getShortDescription()
+                    : $this->_product->getShortDescription();
+                return $this->_dataHelper->cleanHtml($this->_dataHelper->cleanData($descriptionShort));
+            case 'description_short_html':
+                $descriptionShort = $this->_getParentData
+                    ? $this->_parentProduct->getShortDescription()
+                    : $this->_product->getShortDescription();
+                return $this->_dataHelper->cleanData($descriptionShort);
             default:
-                return '';
+                return $this->_dataHelper->cleanData($this->_getAttributeValue($field));
         }
+    }
+
+    /**
+     * Check if a simple product is enable
+     *
+     * @return boolean
+     */
+    public function isEnableForExport()
+    {
+        if ($this->_type === 'simple'
+            && $this->_parentProduct
+            && $this->_parentProduct->getStatus() == ProductStatus::STATUS_DISABLED
+        ) {
+            $this->_simpleDisabledCounter++;
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -101,7 +406,22 @@ class Product
      */
     public function clean()
     {
-
+        if ($this->_type !== 'configurable') {
+            $this->_product->clearInstance();
+        }
+        $this->_product = null;
+        $this->_parentProduct = null;
+        $this->_type = null;
+        $this->_childrenIds = null;
+        $this->_prices = null;
+        $this->_discounts = null;
+        $this->_images = null;
+        $this->_variationList = null;
+        $this->_quantity = null;
+        $this->_getParentData = false;
+        $this->_price->clean();
+        $this->_shipping->clean();
+        $this->_category->clean();
     }
 
     /**
@@ -109,7 +429,7 @@ class Product
      *
      * @return array
      */
-    public function getAllCounter()
+    public function getCounters()
     {
         $simpleTotal = $this->_simpleCounter - $this->_simpleDisabledCounter;
         $total = $simpleTotal + $this->_configurableCounter + $this->_groupedCounter
@@ -125,5 +445,279 @@ class Product
             'downloadable'    => $this->_downloadableCounter
         ];
         return $counters;
+    }
+
+    /**
+     * Set product counter for different product types
+     */
+    protected function _setCounter()
+    {
+        switch ($this->_type) {
+            case 'simple':
+                $this->_simpleCounter++;
+                break;
+            case 'configurable':
+                $this->_configurableCounter++;
+                break;
+            case 'virtual':
+                $this->_virtualCounter++;
+                break;
+            case 'downloadable':
+                $this->_downloadableCounter++;
+                break;
+            case 'grouped':
+                $this->_groupedCounter++;
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Get product
+     *
+     * @param integer $productId   Magento product is
+     * @param boolean $forceReload force reload for product repository
+     *
+     * @return \Magento\Catalog\Model\Product\Interceptor
+     */
+    protected function _getProduct($productId, $forceReload = false)
+    {
+        if ($this->_type === 'configurable') {
+            $product = $this->_getConfigurableProduct($productId);
+        } else {
+            $product = $this->_productRepository->getById($productId, false, $this->_store->getId(), $forceReload);
+        }
+        return $product;
+    }
+
+    /**
+     * Get parent product for simple product
+     *
+     * @return \Magento\Catalog\Model\Product\Interceptor|null
+     */
+    protected function _getParentProduct()
+    {
+        $parentProduct = null;
+        if ($this->_type === 'simple') {
+            $parentIds = $this->_configurableProduct->getParentIdsByChild($this->_product->getId());
+            if (count($parentIds) > 0) {
+                $parentProduct = $this->_getConfigurableProduct((int)$parentIds[0]);
+                if ($this->_product->getVisibility() == ProductVisibility::VISIBILITY_NOT_VISIBLE) {
+                    $this->_getParentData = true;
+                }
+            }
+        }
+        return $parentProduct;
+    }
+
+    /**
+     * Get parent product with temporary cache
+     *
+     * @param integer $parentId Magento parent entity id
+     *
+     * @return \Magento\Catalog\Model\Product\Interceptor
+     */
+    protected function _getConfigurableProduct($parentId)
+    {
+        if (!isset($this->_cacheConfigurableProducts[$parentId])) {
+            if ($this->_clearCacheConfigurable > 300) {
+                $this->_clearCacheConfigurable = 0;
+                $this->_cacheConfigurableProducts = [];
+            }
+            $parentProduct = $this->_productRepository->getById($parentId, false, $this->_store->getId());
+            $this->_cacheConfigurableProducts[$parentId] = $parentProduct;
+            $this->_clearCacheConfigurable++;
+        }
+        return $this->_cacheConfigurableProducts[$parentId];
+    }
+
+    /**
+     * Get product images
+     *
+     * @return array
+     */
+    protected function _getImages()
+    {
+        $imageUrls = [];
+        $images = [];
+        $parentImages = false;
+        if ((bool)$this->_configHelper->get('parent_image', $this->_store->getId()) && $this->_parentProduct) {
+            if (!is_null($this->_parentProduct->getMediaGalleryImages())) {
+                $parentImages = $this->_parentProduct->getMediaGalleryImages()->toArray();
+            }
+        }
+        if (!is_null($this->_product->getMediaGalleryImages())) {
+            $images = $this->_product->getMediaGalleryImages()->toArray();
+            $images = isset($images['items']) ? $images['items'] : [];
+        }
+        $images = $parentImages ? array_merge($parentImages['items'], $images) : $images;
+        for ($i = 1; $i < 11; $i++) {
+            $imageUrls['image_url_'.$i] = '';
+        }
+        $counter = 1;
+        foreach ($images as $image) {
+            $imageUrls['image_url_'.$counter] = $image['url'];
+            if ($counter === 10) {
+                break;
+            }
+            $counter++;
+        }
+        $imageUrls['image_default'] =  !is_null($this->_product->getImage())
+            ? $this->_baseImageUrl.$this->_product->getImage()
+            : '';
+        return $imageUrls;
+    }
+
+    /**
+     * Get product variation list for a configurable product
+     *
+     * @return string
+     */
+    protected function _getVariationList()
+    {
+        $variationList = '';
+        $variations = false;
+        // Get variation only for configurable product and child
+        if ($this->_type === 'configurable') {
+            $variations = $this->_product->getTypeInstance()->getConfigurableAttributesAsArray($this->_product);
+        } elseif ($this->_type === 'simple' && $this->_parentProduct) {
+            $variations = $this->_parentProduct->getTypeInstance()
+                ->getConfigurableAttributesAsArray($this->_parentProduct);
+        }
+        if ($variations) {
+            foreach ($variations as $variation) {
+                $variationList.= strtolower($variation['frontend_label']).', ';
+            }
+            $variationList = rtrim($variationList, ', ');
+        }
+        return $variationList;
+    }
+
+    /**
+     * Get children ids for a grouped product
+     *
+     * @return string
+     */
+    protected function _getChildrenIds()
+    {
+        $childrenIds = [];
+        if ($this->_type === 'grouped') {
+            $childrenIds = array_reduce(
+                $this->_product->getTypeInstance()->getChildrenIds($this->_product->getId()),
+                function (array $reduce, $value) {
+                    return array_merge($reduce, $value);
+                },
+                []
+            );
+        }
+        return $childrenIds;
+    }
+
+    /**
+     * Get quantity for grouped products
+     *
+     * @return integer
+     */
+    protected function _getQuantity()
+    {
+        if ($this->_type === 'grouped' && count($this->_childrenIds) > 0) {
+            $quantities = [];
+            foreach ($this->_childrenIds as $childrenId) {
+                $quantities[] = $this->_stockRegistry->getStockItem($childrenId, $this->_store->getId())->getQty();
+            }
+            $quantity = min($quantities) > 0 ? (int)min($quantities) : 0;
+        } else {
+            $quantity = (int)$this->_stockRegistry->getStockItem($this->_product->getId(), $this->_store->getId())
+                ->getQty();
+        }
+        return $quantity;
+    }
+
+    /**
+     * Get product attribute value
+     *
+     * @param string $field name a of specific attribute
+     *
+     * @return string|null
+     */
+    protected function _getAttributeValue($field)
+    {
+        $attributeValue = '';
+        $attribute = $this->_product->getData($field);
+        if ($attribute !== null) {
+            if (is_array($attribute)) {
+                $attributeValue = implode(',', $attribute);
+            } else {
+                $attributeValue = $this->_product->getResource()
+                    ->getAttribute($field)
+                    ->getFrontend()
+                    ->getValue($this->_product);
+            }
+        }
+        return $attributeValue;
+    }
+
+    /**
+     * Get prices and discounts for grouped products
+     *
+     * @return array
+     */
+    protected function _getGroupedPricesAndDiscounts()
+    {
+        $startTimestamps = [];
+        $endTimestamps = [];
+        $startTimestamp = 0;
+        $endTimestamp = 0;
+        $prices = [
+            'price_excl_tax'                 => 0,
+            'price_incl_tax'                 => 0,
+            'price_before_discount_excl_tax' => 0,
+            'price_before_discount_incl_tax' => 0,
+        ];
+        if (count($this->_childrenIds) > 0) {
+            foreach ($this->_childrenIds as $childrenId) {
+                $children = $this->_getProduct($childrenId, true);
+                $this->_price->load(['product' => $children]);
+                $childrenPrices = $this->_price->getPrices();
+                foreach ($childrenPrices as $key => $value) {
+                    $prices[$key] = $prices[$key] + $value;
+                }
+                $childrenDiscount = $this->_price->getDiscounts();
+                if (strlen($childrenDiscount['discount_start_date']) > 0) {
+                    $startTimestamps[] = $this->_dateTime->gmtTimestamp($childrenDiscount['discount_start_date']);
+                }
+                if (strlen($childrenDiscount['discount_end_date']) > 0) {
+                    $endTimestamps[] = $this->_dateTime->gmtTimestamp($childrenDiscount['discount_end_date']);
+                }
+                $this->_price->clean();
+            }
+        }
+        // Get discount amount and percent
+        $discountAmount = $prices['price_before_discount_incl_tax'] - $prices['price_incl_tax'];
+        $discountAmount = $discountAmount > 0 ? $discountAmount : 0;
+        $discountPercent = $discountAmount > 0
+            ? round((($discountAmount * 100) / $prices['price_before_discount_incl_tax']), 2)
+            : 0;
+        // Get discount end and start date
+        if (count($endTimestamps) > 0) {
+            $endTimestamp = min($endTimestamps);
+        }
+        if (count($startTimestamps) > 0) {
+            $startTimestamp = max($startTimestamps);
+            // Reset start timestamp if end date is before start date
+            if ($endTimestamp > 0 && $startTimestamp > $endTimestamp) {
+                $startTimestamp = 0;
+            }
+        }
+        $discountStartDate = $startTimestamp != 0 ? $this->_dateTime->date('Y-m-d H:i:s', $startTimestamp) : '';
+        $discountEndDate = $endTimestamp != 0 ? $this->_dateTime->date('Y-m-d H:i:s', $endTimestamp) : '';
+        $discounts = [
+            'discount_amount'     => $discountAmount,
+            'discount_percent'    => $discountPercent,
+            'discount_start_date' => $discountStartDate,
+            'discount_end_date'   => $discountEndDate
+        ];
+        return ['prices' => $prices, 'discounts' => $discounts];
     }
 }
