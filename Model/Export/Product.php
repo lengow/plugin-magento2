@@ -286,12 +286,12 @@ class Product
         $this->_setCounter();
     }
 
-    /**z
+    /**
      * Get data of current product
      *
      * @param string $field field to export
      *
-     * @return string
+     * @return float|integer|string
      */
     public function getData($field)
     {

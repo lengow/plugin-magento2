@@ -220,7 +220,7 @@ class Shipping
     /**
      * Get shipping carrier and method
      *
-     * @return string
+     * @return array
      */
     protected function _getShippingData()
     {

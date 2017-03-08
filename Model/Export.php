@@ -332,13 +332,13 @@ class Export
         $this->_stream = isset($params['stream'])
             ? (bool)$params['stream']
             : !(bool)$this->_configHelper->get('file_enable', $this->_storeId);
-        $this->_selection = isset( $params['selection'] )
+        $this->_selection = isset($params['selection'])
             ? (bool)$params['selection']
             : (bool)$this->_configHelper->get('selection_enable', $this->_storeId);
         $this->_inactive = isset($params['inactive'])
             ? (bool)$params['inactive']
             : (bool)$this->_configHelper->get('product_status', $this->_storeId);
-        $this->_outOfStock = isset( $params['out_of_stock'] ) ? $params['out_of_stock'] : true;
+        $this->_outOfStock = isset($params['out_of_stock']) ? $params['out_of_stock'] : true;
         $this->_updateExportDate = isset($params['update_export_date']) ? (bool)$params['update_export_date'] : true;
         $this->_format = $this->_setFormat(isset($params['format']) ? $params['format'] : 'csv');
         $this->_productIds = $this->_setProductIds(isset($params['product_ids']) ? $params['product_ids'] : false);

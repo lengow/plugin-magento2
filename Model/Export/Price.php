@@ -19,7 +19,6 @@
 
 namespace Lengow\Connector\Model\Export;
 
-use Magento\Tax\Helper\Data as TaxHelper;
 use Magento\Framework\Pricing\PriceCurrencyInterface as PriceCurrency;
 use Magento\CatalogRule\Model\Rule as CatalogueRule;
 use Magento\Framework\Stdlib\DateTime\DateTime;
@@ -29,11 +28,6 @@ use Magento\Framework\Stdlib\DateTime\DateTime;
  */
 class Price
 {
-    /**
-     * @var \Magento\Tax\Helper\Data Magento tax helper instance
-     */
-    protected $_taxHelper;
-
     /**
      * @var \Magento\Framework\Pricing\PriceCurrencyInterface Magento price currency instance
      */
@@ -68,11 +62,6 @@ class Price
      * @var string original store currency
      */
     protected $_storeCurrency;
-
-    /**
-     * @var boolean store include tax
-     */
-    protected $_storeIncludeTax;
 
     /**
      * @var float Product price exclude tax
@@ -117,18 +106,15 @@ class Price
     /**
      * Constructor
      *
-     * @param \Magento\Tax\Helper\Data $taxHelper Magento tax helper instance
      * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency Magento price currency instance
      * @param \Magento\CatalogRule\Model\Rule $catalogueRule Magento catalogue rule instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      */
     public function __construct(
-        TaxHelper $taxHelper,
         PriceCurrency $priceCurrency,
         CatalogueRule $catalogueRule,
         DateTime $dateTime
     ) {
-        $this->_taxHelper = $taxHelper;
         $this->_priceCurrency = $priceCurrency;
         $this->_catalogueRule = $catalogueRule;
         $this->_dateTime = $dateTime;
@@ -146,7 +132,6 @@ class Price
         $this->_currency = $params['currency'];
         $this->_store = $params['store'];
         $this->_storeCurrency = $this->_store->getCurrentCurrencyCode();
-        $this->_storeIncludeTax = $this->_taxHelper->priceIncludesTax($this->_store->getId());
     }
 
     /**
