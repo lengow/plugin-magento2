@@ -539,9 +539,15 @@ class Product
      */
     protected function _getImages()
     {
-        $imageUrls = [];
+        $urls = [];
         $images = [];
+        $imageUrls = [];
         $parentImages = false;
+        // create image urls array
+        for ($i = 1; $i < 11; $i++) {
+            $imageUrls['image_url_'.$i] = '';
+        }
+        // Get product and parent images
         if ((bool)$this->_configHelper->get('parent_image', $this->_store->getId()) && $this->_parentProduct) {
             if (!is_null($this->_parentProduct->getMediaGalleryImages())) {
                 $parentImages = $this->_parentProduct->getMediaGalleryImages()->toArray();
@@ -552,17 +558,22 @@ class Product
             $images = isset($images['items']) ? $images['items'] : [];
         }
         $images = $parentImages ? array_merge($parentImages['items'], $images) : $images;
-        for ($i = 1; $i < 11; $i++) {
-            $imageUrls['image_url_'.$i] = '';
-        }
-        $counter = 1;
+        // Cleans the array of images to avoid duplicates
         foreach ($images as $image) {
-            $imageUrls['image_url_'.$counter] = $image['url'];
+            if (!in_array($image['url'], $urls)) {
+                $urls[] = $image['url'];
+            }
+        }
+        // Retrieves up to 10 images per product
+        $counter = 1;
+        foreach ($urls as $url) {
+            $imageUrls['image_url_'.$counter] = $url;
             if ($counter === 10) {
                 break;
             }
             $counter++;
         }
+        // Get default image if exist
         $imageUrls['image_default'] =  !is_null($this->_product->getImage())
             ? $this->_baseImageUrl.$this->_product->getImage()
             : '';

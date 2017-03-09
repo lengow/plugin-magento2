@@ -556,20 +556,20 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                 ['items' =>
                     [
                         ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt1.jpg'],
-                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_main.jpg'],
-                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_back.jpg'],
-                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt1.jpg'],
-                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_main.jpg'],
-                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_back.jpg'],
-                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt1.jpg'],
-                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_main.jpg'],
-                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_back.jpg'],
-                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt1.jpg'],
-                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_main.jpg'],
-                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_back.jpg'],
-                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt1.jpg'],
-                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_main.jpg'],
-                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_back.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt2.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt3.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt4.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt5.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt6.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt7.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt8.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt9.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt10.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt11.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt12.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt13.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt14.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt15.jpg'],
                     ]
                 ]
             ]
@@ -583,15 +583,15 @@ class ProductTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             [
                 'image_url_1'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt1.jpg',
-                'image_url_2'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_main.jpg',
-                'image_url_3'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_back.jpg',
-                'image_url_4'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt1.jpg',
-                'image_url_5'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_main.jpg',
-                'image_url_6'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_back.jpg',
-                'image_url_7'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt1.jpg',
-                'image_url_8'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_main.jpg',
-                'image_url_9'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_back.jpg',
-                'image_url_10'  => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt1.jpg',
+                'image_url_2'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt2.jpg',
+                'image_url_3'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt3.jpg',
+                'image_url_4'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt4.jpg',
+                'image_url_5'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt5.jpg',
+                'image_url_6'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt6.jpg',
+                'image_url_7'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt7.jpg',
+                'image_url_8'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt8.jpg',
+                'image_url_9'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt9.jpg',
+                'image_url_10'  => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt10.jpg',
                 'image_default' => '',
             ],
             $fixture->invokeMethod($this->_product, '_getImages'),
@@ -624,6 +624,63 @@ class ProductTest extends \PHPUnit_Framework_TestCase
             ],
             $fixture->invokeMethod($this->_product, '_getImages'),
             '[Test Get Images] Check return when media gallery images is null'
+        );
+        $collectionMock2 = $fixture->mockFunctions(
+            $this->_collection,
+            ['toArray'],
+            [
+                ['items' =>
+                    [
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt1.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt2.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt3.jpg'],
+                    ]
+                ]
+            ]
+        );
+        $productMock3 = $fixture->mockFunctions(
+            $this->_magentoProduct,
+            ['getMediaGalleryImages', 'getImage'],
+            [$collectionMock2, '/m/h/mh01-black_main.jpg']
+        );
+        $parentCollectionMock4 = $fixture->mockFunctions(
+            $this->_collection,
+            ['toArray'],
+            [
+                ['items' =>
+                    [
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt2.jpg'],
+                        ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt1.jpg'],
+                    ]
+                ]
+            ]
+        );
+        $parentProductMock4 = $fixture->mockFunctions(
+            $this->_magentoProduct,
+            ['getMediaGalleryImages'],
+            [$parentCollectionMock4]
+        );
+        $fixture->setPrivatePropertyValue(
+            $this->_product,
+            ['_product', '_parentProduct'],
+            [$productMock3, $parentProductMock4]
+        );
+        $this->assertEquals(
+            [
+                'image_url_1'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt2.jpg',
+                'image_url_2'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt1.jpg',
+                'image_url_3'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt3.jpg',
+                'image_url_4'   => '',
+                'image_url_5'   => '',
+                'image_url_6'   => '',
+                'image_url_7'   => '',
+                'image_url_8'   => '',
+                'image_url_9'   => '',
+                'image_url_10'  => '',
+                'image_default' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-black_main.jpg',
+            ],
+            $fixture->invokeMethod($this->_product, '_getImages'),
+            '[Test Get Images] Check if a valid return without parent images'
         );
     }
 
