@@ -16,6 +16,7 @@ fr:
     global_secret_token_title: "Secret Token"
     global_secret_token_comment: "Votre secret Token Lengow"
     global_advanced_setting: "Paramètres principaux avancés"
+    global_authorized_ip_enable: "Activer l'autorisation par IP"
     global_authorized_ip_label: "IP autorisée(s)"
     global_authorized_ip_comment: "IP autorisée(s) séparée(s) par ;"
     global_tracking_id_label: "Tracker ID produit"

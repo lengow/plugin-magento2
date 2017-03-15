@@ -98,6 +98,11 @@ class Config extends AbstractHelper
             'global'   => true,
             'no_cache' => false,
         ],
+        'ip_enable' => [
+            'path'     => 'lengow_global_options/advanced/global_authorized_ip_enable',
+            'global'   => true,
+            'no_cache' => false,
+        ],
         'authorized_ip' => [
             'path'     => 'lengow_global_options/advanced/global_authorized_ip',
             'global'   => true,
@@ -464,6 +469,25 @@ class Config extends AbstractHelper
             }
         }
         return $allAttributes;
+    }
+
+    /**
+     * Get and generate token
+     *
+     * @param integer $storeId Magento store id
+     *
+     * @return string
+     */
+    public function getToken($storeId = 0)
+    {
+        $token = $this->get('token', $storeId);
+        if ($token && strlen($token) > 0) {
+            return $token;
+        } else {
+            $token = bin2hex(openssl_random_pseudo_bytes(16));
+            $this->set('token', $token, $storeId);
+        }
+        return $token;
     }
 
     /**

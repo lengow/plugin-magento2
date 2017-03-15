@@ -124,6 +124,7 @@ class Index extends Action
         ini_set('memory_limit', '1G');
         // get params data
         $mode = $this->getRequest()->getParam('mode');
+        $token = $this->getRequest()->getParam('token');
         $getParams = $this->getRequest()->getParam('get_params');
         $format = $this->getRequest()->getParam('format', null);
         $stream = $this->getRequest()->getParam('stream', null);
@@ -156,7 +157,7 @@ class Index extends Action
             // translation now works
             $this->_translate->loadData('frontend', true);
         }
-        if ($this->_securityHelper->checkIp()) {
+        if ($this->_securityHelper->checkWebserviceAccess($token, $storeId)) {
             try {
                 // config store
                 $this->_storeManager->setCurrentStore($storeId);
@@ -193,8 +194,15 @@ class Index extends Action
                 $this->getResponse()->setBody($errorMessage);
             }
         } else {
+            if ((bool)$this->_configHelper->get('ip_enable')) {
+                $errorMessage = __('unauthorised IP: %1', [$this->_securityHelper->getRemoteIp()]);
+            } else {
+                $errorMessage = strlen($token) > 0
+                    ? __('unauthorised access for this token: %1', [$token])
+                    : __('unauthorised access: token parameter is empty');
+            }
             $this->getResponse()->setStatusHeader(403, '1.1', 'Forbidden');
-            $this->getResponse()->setBody(__('unauthorised IP: %1', [$this->_securityHelper->getRemoteIp()]));
+            $this->getResponse()->setBody($errorMessage);
         }
     }
 }

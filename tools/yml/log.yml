@@ -13,6 +13,8 @@ en:
       execution_time: "execution time: %1 seconds"
       generate_feed_available_here: "the export for the store %1 (%2) generated the following file: %3"
       unauthorised_ip: "unauthorised IP: %1"
+      unauthorised_token: "unauthorised access for this token: %1"
+      empty_token: "unauthorised access: token parameter is empty"
       error_configurable_product_disabled: "WARNING! %1 simple product(s) associated with configurable products are disabled"
       error_folder_not_created: "unable to create folder %1"
       error_folder_not_writable: "unable to access the folder %1"

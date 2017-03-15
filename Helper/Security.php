@@ -81,6 +81,42 @@ class Security extends AbstractHelper
     }
 
     /**
+     * Check Webservice access (export and cron)
+     *
+     * @param string  $token   store token
+     * @param integer $storeId Magento store id
+     *
+     * @return boolean
+     */
+    public function checkWebserviceAccess($token, $storeId = 0)
+    {
+        if (!(bool)$this->_configHelper->get('ip_enable') && $this->checkToken($token, $storeId)) {
+            return true;
+        }
+        if ($this->checkIp()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if token is correct
+     *
+     * @param string  $token   store token
+     * @param integer $storeId Magento store id
+     *
+     * @return boolean
+     */
+    public function checkToken($token, $storeId = 0)
+    {
+        $storeToken = $this->_configHelper->getToken($storeId);
+        if ($token === $storeToken) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Check if current IP is authorized
      *
      * @return boolean
@@ -103,7 +139,7 @@ class Security extends AbstractHelper
     public function getAuthorizedIps()
     {
         $ips = $this->_configHelper->get('authorized_ip');
-        if (!is_null($ips)) {
+        if (!is_null($ips) && (bool)$this->_configHelper->get('ip_enable')) {
             $ips = trim(str_replace(["\r\n", ',', '-', '|', ' '], ';', $ips), ';');
             $ips = explode(';', $ips);
             $authorizedIps = array_merge($ips, $this->_ipsLengow);

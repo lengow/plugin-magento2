@@ -33,11 +33,18 @@
             </group>
             <group id="advanced" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>All advanced settings</label>
-                <field id="global_authorized_ip" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>IP authorized</label>
-                    <comment>Authorized access by IP, separated by ;</comment>
+                <field id="global_authorized_ip_enable" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable IP authorisation</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="global_tracking_id" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="global_authorized_ip" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>IP authorised</label>
+                    <comment>Authorised access by IP, separated by ;</comment>
+                    <depends>
+                        <field id="*/*/global_authorized_ip_enable">1</field>
+                    </depends>
+                </field>
+                <field id="global_tracking_id" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Tracker Product ID</label>
                     <source_model>Lengow\Connector\Model\Config\Source\Tracking</source_model>
                 </field>

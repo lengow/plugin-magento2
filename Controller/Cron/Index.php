@@ -21,14 +21,19 @@ namespace Lengow\Connector\Controller\Cron;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Lengow\Connector\Helper\Security as SecurityHelper;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Lengow\Connector\Helper\Security as SecurityHelper;
+use Lengow\Connector\Helper\Config as ConfigHelper;
 
 /**
  * CronController
  */
 class Index extends Action
 {
+    /**
+     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
+     */
+    protected $_jsonHelper;
 
     /**
      * @var \Lengow\Connector\Helper\Security Lengow security helper instance
@@ -36,27 +41,30 @@ class Index extends Action
     protected $_securityHelper;
 
     /**
-     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
+     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
      */
-    protected $_jsonHelper;
+    protected $_configHelper;
 
     /**
      * Constructor
      *
      * @param \Magento\Framework\App\Action\Context $context Magento action context instance
-     * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
+     * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
+     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
     public function __construct(
         Context $context,
+        JsonHelper $jsonHelper,
         SecurityHelper $securityHelper,
-        JsonHelper $jsonHelper
+        ConfigHelper $configHelper
     ) {
         parent::__construct($context);
-        $this->_securityHelper = $securityHelper;
         $this->_jsonHelper = $jsonHelper;
-
+        $this->_securityHelper = $securityHelper;
+        $this->_configHelper = $configHelper;
     }
+
     /**
      * Cron Process (Import orders, check actions and send stats)
      */
@@ -75,7 +83,8 @@ class Index extends Action
          * boolean log_output          See logs (1) or not (0)
          * boolean get_sync            See synchronisation parameters in json format (1) or not (0)
          */
-        if ($this->_securityHelper->checkIp()) {
+        $token = $this->getRequest()->getParam('token');
+        if ($this->_securityHelper->checkWebserviceAccess($token)) {
             // get all store datas for synchronisation with Lengow
             if ($this->getRequest()->getParam('get_sync') == 1) {
                 //TODO
@@ -131,8 +140,15 @@ class Index extends Action
                 }
             }
         } else {
+            if ((bool)$this->_configHelper->get('ip_enable')) {
+                $errorMessage = __('unauthorised IP: %1', [$this->_securityHelper->getRemoteIp()]);
+            } else {
+                $errorMessage = strlen($token) > 0
+                    ? __('unauthorised access for this token: %1', [$token])
+                    : __('unauthorised access: token parameter is empty');
+            }
             $this->getResponse()->setStatusHeader('403', '1.1', 'Forbidden');
-            $this->getResponse()->setBody(__('unauthorised IP: %1', [$this->_securityHelper->getRemoteIp()]));
+            $this->getResponse()->setBody($errorMessage);
         }
     }
 }

@@ -25,8 +25,9 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\UrlInterface;
-use Lengow\Connector\Model\LogFactory as LogFactory;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Lengow\Connector\Model\LogFactory as LogFactory;
+use Lengow\Connector\Helper\Config as ConfigHelper;
 
 class Data extends AbstractHelper
 {
@@ -61,28 +62,37 @@ class Data extends AbstractHelper
     protected $_logFactory;
 
     /**
+     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     */
+    protected $_configHelper;
+
+
+    /**
      * Constructor
      *
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $date
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
      * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList Magento directory list instance
      * @param \Magento\Framework\App\ResourceConnection $resource Magento resource connection instance
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime $date
      * @param \Lengow\Connector\Model\LogFactory $logFactory Lengow log factory instance
+     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
     public function __construct(
         StoreManagerInterface $storeManager,
         Context $context,
         DirectoryList $directoryList,
         ResourceConnection $resource,
+        DateTime $date,
         LogFactory $logFactory,
-        DateTime $date
+        ConfigHelper $configHelper
     ){
         $this->_storeManager = $storeManager;
         $this->_directoryList = $directoryList;
         $this->_resource = $resource;
-        $this->_logFactory = $logFactory;
         $this->_date = $date;
+        $this->_logFactory = $logFactory;
+        $this->_configHelper = $configHelper;
         parent::__construct($context);
     }
 
@@ -198,6 +208,7 @@ class Data extends AbstractHelper
     {
         $defaultParams = [
             'store'         => $storeId,
+            'token'         => $this->_configHelper->getToken($storeId),
             '_nosid'        => true,
             '_store_to_url' => false,
         ];
@@ -206,6 +217,26 @@ class Data extends AbstractHelper
         }
         $this->_urlBuilder->setScope($storeId);
         return $this->_urlBuilder->getUrl('lengow/export', $defaultParams);
+    }
+
+    /**
+     * Get cron Url
+     *
+     * @param array $additionalParams additional parameters for cron url
+     *
+     * @return string
+     */
+    public function getCronUrl($additionalParams = [])
+    {
+        $defaultParams = [
+            'token'         => $this->_configHelper->getToken(),
+            '_nosid'        => true,
+            '_store_to_url' => false,
+        ];
+        if (count($additionalParams) > 0) {
+            $defaultParams = array_merge($defaultParams, $additionalParams);
+        }
+        return $this->_urlBuilder->getUrl('lengow/cron', $defaultParams);
     }
 
     /**
