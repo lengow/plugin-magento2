@@ -23,7 +23,6 @@ use Magento\Framework\Option\ArrayInterface;
 
 class Action implements ArrayInterface
 {
-
     /**
      * Return array of lengow status
      *

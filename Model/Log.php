@@ -34,7 +34,7 @@ class Log extends AbstractModel
      * update   => Fields allowed when updating registration
      */
     protected $_fieldList = [
-        'message'  => ['required' => true, 'updated' => false],
+        'message' => ['required' => true, 'updated' => false],
         'category' => ['required' => true, 'updated' => false],
     ];
 
@@ -64,7 +64,8 @@ class Log extends AbstractModel
      **
      * @return void
      */
-    protected function _construct() {
+    protected function _construct()
+    {
         $this->_init(ResourceLog::class);
     }
 
@@ -73,7 +74,7 @@ class Log extends AbstractModel
      *
      * @param array $params
      *
-     * @return AbstractDb|bool
+     * @return AbstractDb|boolean
      */
     public function createLog($params = [])
     {

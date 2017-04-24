@@ -70,16 +70,16 @@ class Grid extends Extended
     /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Template\Context $context
-     * @param \Magento\Backend\Helper\Data $backendHelper
+     * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
+     * @param \Magento\Backend\Helper\Data $backendHelper Magento backend helper instance
      * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $collectionFactory
-     * @param \Magento\Catalog\Model\Product\AttributeSet\Options $attributeSetOptions
-     * @param \Magento\Store\Model\WebsiteFactory $websiteFactory
-     * @param \Magento\Catalog\Model\Product\Attribute\Source\Status $status
-     * @param \Magento\Catalog\Model\Product\Visibility $productVisibility
-     * @param \Lengow\Connector\Model\Config\Source\Type $sourceType
+     * @param \Magento\Catalog\Model\Product\AttributeSet\Options $attributeSetOptions Magento attribute option instance
+     * @param \Magento\Store\Model\WebsiteFactory $websiteFactory Magento website factory instance
+     * @param \Magento\Catalog\Model\Product\Attribute\Source\Status $status Magento attribute status instance
+     * @param \Magento\Catalog\Model\Product\Visibility $productVisibility Magento product visibility instance
+     * @param \Lengow\Connector\Model\Config\Source\Type $sourceType Magento source type instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param array $data
+     * @param array $data additional params
      */
     public function __construct(
         Context $context,
@@ -194,34 +194,34 @@ class Grid extends Extended
             'entity_id',
             [
                 'header' => __('ID'),
-                'index'  => 'entity_id',
-                'type'   => 'number',
+                'index' => 'entity_id',
+                'type' => 'number',
             ]
         );
         $this->addColumn(
             'name',
             [
                 'header' => __('Name'),
-                'index'  => 'name',
+                'index' => 'name',
             ]
         );
         $this->addColumn(
             'image',
             [
-                'header'           => __('Image'),
-                'index'            => 'image',
-                'renderer'         => '\Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Image',
+                'header' => __('Image'),
+                'index' => 'image',
+                'renderer' => '\Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Image',
                 'column_css_class' => 'data-grid-thumbnail-cell',
-                'filter'           => false
+                'filter' => false
             ]
         );
         $this->addColumn(
             'type',
             [
-                'header'  => __('Type'),
-                'index'   => 'type_id',
-                'column_css_class'  => 'a-center',
-                'type'    => 'options',
+                'header' => __('Type'),
+                'index' => 'type_id',
+                'column_css_class' => 'a-center',
+                'type' => 'options',
                 'options' => $type,
             ]
         );
@@ -233,10 +233,10 @@ class Grid extends Extended
         $this->addColumn(
             'set_name',
             [
-                'header'  => __('Attribut set name'),
-                'index'   => 'attribute_set_id',
-                'column_css_class'  => 'a-center',
-                'type'    => 'options',
+                'header' => __('Attribut set name'),
+                'index' => 'attribute_set_id',
+                'column_css_class' => 'a-center',
+                'type' => 'options',
                 'options' => $set,
             ]
         );
@@ -244,16 +244,16 @@ class Grid extends Extended
             'sku',
             [
                 'header' => __('SKU'),
-                'index'  => 'sku',
-                'column_css_class'  => 'a-center',
+                'index' => 'sku',
+                'column_css_class' => 'a-center',
             ]
         );
         $this->addColumn(
             'price',
             [
-                'header'        => __('Price'),
-                'index'         => 'price',
-                'type'          => 'price',
+                'header' => __('Price'),
+                'index' => 'price',
+                'type' => 'price',
                 'currency_code' => $store->getCurrentCurrency()->getCode(),
             ]
         );
@@ -261,27 +261,27 @@ class Grid extends Extended
             'quantity_and_stock_status',
             [
                 'header' => __('Quantity'),
-                'index'  => 'qty',
-                'type'   => 'number',
-                'column_css_class'  => 'a-center',
+                'index' => 'qty',
+                'type' => 'number',
+                'column_css_class' => 'a-center',
             ]
         );
         $this->addColumn(
             'visibility',
             [
-                'header'  => __('Visibility'),
-                'index'   => 'visibility',
-                'type'    => 'options',
+                'header' => __('Visibility'),
+                'index' => 'visibility',
+                'type' => 'options',
                 'options' => $this->_productVisibility->getOptionArray(),
             ]
         );
         $this->addColumn(
             'status',
             [
-                'header'  => __('Status'),
-                'column_css_class'  => 'a-center',
-                'index'   => 'status',
-                'type'    => 'options',
+                'header' => __('Status'),
+                'column_css_class' => 'a-center',
+                'index' => 'status',
+                'type' => 'options',
                 'options' => $this->_status->getOptionArray()
             ]
         );
@@ -289,26 +289,26 @@ class Grid extends Extended
             $this->addColumn(
                 'websites',
                 [
-                    'header'   => __('Websites'),
+                    'header' => __('Websites'),
                     'sortable' => false,
-                    'index'    => 'websites',
-                    'type'     => 'options',
-                    'options'  => $this->_websiteFactory->create()->getCollection()->toOptionHash(),
-                    'filter'   => false
+                    'index' => 'websites',
+                    'type' => 'options',
+                    'options' => $this->_websiteFactory->create()->getCollection()->toOptionHash(),
+                    'filter' => false
                 ]
             );
         }
         $this->addColumn(
             'lengow_product',
             [
-                'header'            => __('Include in export ?'),
-                'index'             => 'lengow_product',
-                'type'              => 'options',
-                'renderer'          => 'Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Lengow',
-                'column_css_class'  => 'a-center',
-                'options'           => [
-                                        1 => __('Yes')
-                                    ],
+                'header' => __('Include in export ?'),
+                'index' => 'lengow_product',
+                'type' => 'options',
+                'renderer' => 'Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Lengow',
+                'column_css_class' => 'a-center',
+                'options' => [
+                    1 => __('Yes')
+                ],
             ]
         );
 
@@ -329,16 +329,16 @@ class Grid extends Extended
         $this->getMassactionBlock()->addItem(
             'publish',
             [
-                'label'    => __('Publish in Lengow'),
-                'url'      => $this->getUrl('*/*/massPublish', ['_current' => true, 'publish' => true]),
+                'label' => __('Publish in Lengow'),
+                'url' => $this->getUrl('*/*/massPublish', ['_current' => true, 'publish' => true]),
                 'complete' => 'reloadGrid'
             ]
         );
         $this->getMassactionBlock()->addItem(
             'unpublish',
             [
-                'label'    => __('Unpublish in Lengow'),
-                'url'      => $this->getUrl('*/*/massPublish', ['_current' => true, 'publish' => false]),
+                'label' => __('Unpublish in Lengow'),
+                'url' => $this->getUrl('*/*/massPublish', ['_current' => true, 'publish' => false]),
                 'complete' => 'reloadGrid'
             ]
         );

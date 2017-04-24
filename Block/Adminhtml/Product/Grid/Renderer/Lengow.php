@@ -34,16 +34,17 @@ class Lengow extends AbstractRenderer
     protected $_dataHelper;
 
     /**
-     * @var Data
+     * @var \Magento\Backend\Helper\Data backend helper instance
      */
     protected $_backendHelper;
 
     /**
-     * Lengow constructor.
-     * @param Context $context
-     * @param DataHelper $dataHelper
-     * @param Data $backendHelper
-     * @param array $data
+     * Constructor
+     *
+     * @param \Magento\Backend\Block\Context $context Magento block context instance
+     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param \Magento\Backend\Helper\Data $backendHelper Magento backend helper instance
+     * @param array $data additional params
      */
     public function __construct(
         Context $context,
@@ -59,23 +60,23 @@ class Lengow extends AbstractRenderer
     /**
      * Decorate lengow publication values
      *
-     * @param \Magento\Framework\DataObject $row
+     * @param \Magento\Framework\DataObject $row Magento data object instance
      *
      * @return string
      */
     public function render(DataObject $row)
     {
         $value = (integer)$row->getData($this->getColumn()->getIndex());
-        return '<div class="lgw-switch '. ($value === 1 ? 'checked' : '').'">
+        return '<div class="lgw-switch ' . ($value === 1 ? 'checked' : '') . '">
         <label>
             <div>
                 <a href="javascript:void(0)" name="lengow_export_product" class="lengow_switch_export_product"
-                id="lengow_export_product_'.$row->getData('entity_id').'"
-                data-href="'. $this->_backendHelper->getUrl('lengow/product'). '"
+                id="lengow_export_product_' . $row->getData('entity_id') . '"
+                data-href="' . $this->_backendHelper->getUrl('lengow/product') . '"
                 data-action="lengow_export_product"
-                data-id_store="'. $this->_dataHelper->getStore()->getId() .'"
-                data-id_product="'. $row->getData('entity_id') .'"
-                data-checked="'.$value.'">
+                data-id_store="' . $this->_dataHelper->getStore()->getId() . '"
+                data-id_product="' . $row->getData('entity_id') . '"
+                data-checked="' . $value . '">
                 <span></span>
             </a>
         </label>

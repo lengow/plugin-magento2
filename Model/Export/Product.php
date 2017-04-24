@@ -216,7 +216,7 @@ class Product
      */
     public function __construct(
         ProductRepository $productRepository,
-        Configurable  $configurableProduct,
+        Configurable $configurableProduct,
         StockRegistryInterface $stockRegistry,
         Resolver $locale,
         DateTime $dateTime,
@@ -250,10 +250,10 @@ class Product
         $this->_store = $params['store'];
         $this->_currency = $params['currency'];
         $this->_localeIsoCode = $this->_locale->getLocale();
-        $this->_baseImageUrl = $this->_dataHelper->getMediaUrl().'catalog/product';
+        $this->_baseImageUrl = $this->_dataHelper->getMediaUrl() . 'catalog/product';
         $this->_price->init(['store' => $this->_store, 'currency' => $this->_currency]);
         $this->_category->init(['store' => $this->_store]);
-        $this->_shipping->init(['store' => $this->_store, 'currency'=> $this->_currency]);
+        $this->_shipping->init(['store' => $this->_store, 'currency' => $this->_currency]);
     }
 
     /**
@@ -435,14 +435,14 @@ class Product
         $total = $simpleTotal + $this->_configurableCounter + $this->_groupedCounter
             + $this->_virtualCounter + $this->_downloadableCounter;
         $counters = [
-            'total'           => $total,
-            'simple'          => $this->_simpleCounter,
-            'simple_enable'   => $simpleTotal,
+            'total' => $total,
+            'simple' => $this->_simpleCounter,
+            'simple_enable' => $simpleTotal,
             'simple_disabled' => $this->_simpleDisabledCounter,
-            'configurable'    => $this->_configurableCounter,
-            'grouped'         => $this->_groupedCounter,
-            'virtual'         => $this->_virtualCounter,
-            'downloadable'    => $this->_downloadableCounter
+            'configurable' => $this->_configurableCounter,
+            'grouped' => $this->_groupedCounter,
+            'virtual' => $this->_virtualCounter,
+            'downloadable' => $this->_downloadableCounter
         ];
         return $counters;
     }
@@ -476,7 +476,7 @@ class Product
     /**
      * Get product
      *
-     * @param integer $productId   Magento product is
+     * @param integer $productId Magento product is
      * @param boolean $forceReload force reload for product repository
      *
      * @return \Magento\Catalog\Model\Product\Interceptor
@@ -545,7 +545,7 @@ class Product
         $parentImages = false;
         // create image urls array
         for ($i = 1; $i < 11; $i++) {
-            $imageUrls['image_url_'.$i] = '';
+            $imageUrls['image_url_' . $i] = '';
         }
         // Get product and parent images
         if ((bool)$this->_configHelper->get('parent_image', $this->_store->getId()) && $this->_parentProduct) {
@@ -567,15 +567,15 @@ class Product
         // Retrieves up to 10 images per product
         $counter = 1;
         foreach ($urls as $url) {
-            $imageUrls['image_url_'.$counter] = $url;
+            $imageUrls['image_url_' . $counter] = $url;
             if ($counter === 10) {
                 break;
             }
             $counter++;
         }
         // Get default image if exist
-        $imageUrls['image_default'] =  !is_null($this->_product->getImage())
-            ? $this->_baseImageUrl.$this->_product->getImage()
+        $imageUrls['image_default'] = !is_null($this->_product->getImage())
+            ? $this->_baseImageUrl . $this->_product->getImage()
             : '';
         return $imageUrls;
     }
@@ -598,7 +598,7 @@ class Product
         }
         if ($variations) {
             foreach ($variations as $variation) {
-                $variationList.= strtolower($variation['frontend_label']).', ';
+                $variationList .= strtolower($variation['frontend_label']) . ', ';
             }
             $variationList = rtrim($variationList, ', ');
         }
@@ -681,8 +681,8 @@ class Product
         $startTimestamp = 0;
         $endTimestamp = 0;
         $prices = [
-            'price_excl_tax'                 => 0,
-            'price_incl_tax'                 => 0,
+            'price_excl_tax' => 0,
+            'price_incl_tax' => 0,
             'price_before_discount_excl_tax' => 0,
             'price_before_discount_incl_tax' => 0,
         ];
@@ -724,10 +724,10 @@ class Product
         $discountStartDate = $startTimestamp != 0 ? $this->_dateTime->date('Y-m-d H:i:s', $startTimestamp) : '';
         $discountEndDate = $endTimestamp != 0 ? $this->_dateTime->date('Y-m-d H:i:s', $endTimestamp) : '';
         $discounts = [
-            'discount_amount'     => $discountAmount,
-            'discount_percent'    => $discountPercent,
+            'discount_amount' => $discountAmount,
+            'discount_percent' => $discountPercent,
             'discount_start_date' => $discountStartDate,
-            'discount_end_date'   => $discountEndDate
+            'discount_end_date' => $discountEndDate
         ];
         return ['prices' => $prices, 'discounts' => $discounts];
     }

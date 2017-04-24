@@ -29,26 +29,26 @@ use Magento\Store\Model\StoreManagerInterface;
 class MassPublish extends Product
 {
     /**
-     * @var Context
+     * @var \Magento\Backend\App\Action\Context Magento action context instance
      */
     protected $_context;
 
     /**
-     * @var StoreManagerInterface
+     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
      */
     protected $_storeManager;
 
     /**
-     * @var ProductAction
+     * @var \Magento\Catalog\Model\Product\Action Magento product action instance
      */
     protected $_productAction;
 
 
     /**
-     * @param Context $context
-     * @param Product\Builder $productBuilder
-     * @param StoreManagerInterface $storeManager
-     * @param ProductAction $productAction
+     * @param \Magento\Backend\App\Action\Context $context Magento action context instance
+     * @param Product\Builder $productBuilder Magento product builder instance
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
+     * @param \Magento\Catalog\Model\Product\Action $productAction Magento product action instance
      */
     public function __construct(
         Context $context,
@@ -71,18 +71,24 @@ class MassPublish extends Product
     public function execute()
     {
         $product_ids = $this->getRequest()->getParam('product');
-        $store_id = (integer)$this->getRequest()->getParam('store', $this->_storeManager->getDefaultStoreView()->getId());
+        $store_id = (integer)$this->getRequest()
+            ->getParam('store', $this->_storeManager->getDefaultStoreView()->getId());
         $publish = (integer)$this->getRequest()->getParam('publish');
         try {
-            $this->_productAction
-                ->updateAttributes($product_ids, ['lengow_product' => $publish], $store_id);
+            $this->_productAction->updateAttributes(
+                $product_ids,
+                ['lengow_product' => $publish],
+                $store_id
+            );
         } catch (\Exception $e) {
-            $this->_getSession()->addException($e, __('Something went wrong while updating the lengow product(s) attribute.'));
+            $this->_getSession()->addException(
+                $e,
+                __('Something went wrong while updating the lengow product(s) attribute.')
+            );
         }
 
         /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         return $resultRedirect->setPath('lengow/*/', ['store' => $store_id]);
     }
-
 }

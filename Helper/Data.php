@@ -52,12 +52,12 @@ class Data extends AbstractHelper
     protected $_resource;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
      */
     protected $_date;
 
     /**
-     * @var \Lengow\Connector\Model\LogFactory
+     * @var \Lengow\Connector\Model\LogFactory Lengow log factory instance
      */
     protected $_logFactory;
 
@@ -66,7 +66,6 @@ class Data extends AbstractHelper
      */
     protected $_configHelper;
 
-
     /**
      * Constructor
      *
@@ -74,7 +73,7 @@ class Data extends AbstractHelper
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
      * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList Magento directory list instance
      * @param \Magento\Framework\App\ResourceConnection $resource Magento resource connection instance
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $date
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime $date Magento datetime instance
      * @param \Lengow\Connector\Model\LogFactory $logFactory Lengow log factory instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
@@ -86,7 +85,7 @@ class Data extends AbstractHelper
         DateTime $date,
         LogFactory $logFactory,
         ConfigHelper $configHelper
-    ){
+    ) {
         $this->_storeManager = $storeManager;
         $this->_directoryList = $directoryList;
         $this->_resource = $resource;
@@ -99,10 +98,10 @@ class Data extends AbstractHelper
     /**
      * Write log
      *
-     * @param string  $category       Category
-     * @param string  $message        log message
-     * @param boolean $display        display on screen
-     * @param string  $marketplaceSku lengow order id
+     * @param string $category Category
+     * @param string $message log message
+     * @param boolean $display display on screen
+     * @param string $marketplaceSku lengow order id
      *
      * @return boolean
      */
@@ -112,10 +111,10 @@ class Data extends AbstractHelper
             return false;
         }
         $decodedMessage = $this->decodeLogMessage($message, false);
-        $finalMessage = ''.(empty($marketplaceSku) ? '' : 'order '.$marketplaceSku.' : ');
-        $finalMessage.= $decodedMessage;
+        $finalMessage = '' . (empty($marketplaceSku) ? '' : 'order ' . $marketplaceSku . ' : ');
+        $finalMessage .= $decodedMessage;
         if ($display) {
-            echo '['.$category.'] '.$finalMessage.'<br />';
+            echo '[' . $category . '] ' . $finalMessage . '<br />';
             flush();
         }
         $log = $this->_logFactory->create();
@@ -125,8 +124,8 @@ class Data extends AbstractHelper
     /**
      * Set message with parameters for translation
      *
-     * @param string $key    log key
-     * @param array  $params log parameters
+     * @param string $key log key
+     * @param array $params log parameters
      *
      * @return string
      */
@@ -140,16 +139,16 @@ class Data extends AbstractHelper
             $value = str_replace('|', '', $value);
             $allParams[] = $value;
         }
-        $message = $key.'['.join('|', $allParams).']';
+        $message = $key . '[' . join('|', $allParams) . ']';
         return $message;
     }
 
     /**
      * Decode message with params for translation
      *
-     * @param string  $message        log message
+     * @param string $message log message
      * @param boolean $useTranslation use Magento translation
-     * @param array   $params         log parameters
+     * @param array $params log parameters
      *
      * @return string
      */
@@ -169,7 +168,7 @@ class Data extends AbstractHelper
                     if (count($params) > 0) {
                         $ii = 1;
                         foreach ($params as $param) {
-                            $key = str_replace('%'.$ii, $param, $key);
+                            $key = str_replace('%' . $ii, $param, $key);
                             $ii++;
                         }
                     }
@@ -192,24 +191,24 @@ class Data extends AbstractHelper
         }
         $connection = $this->_resource->getConnection(ResourceConnection::DEFAULT_CONNECTION);
         $table = $connection->getTableName('lengow_log');
-        $query = 'DELETE FROM '.$table.' WHERE `date` < DATE_SUB(NOW(),INTERVAL '.$nbDays.' DAY)';
+        $query = 'DELETE FROM ' . $table . ' WHERE `date` < DATE_SUB(NOW(),INTERVAL ' . $nbDays . ' DAY)';
         $connection->query($query);
     }
 
     /**
      * Get export Url
      *
-     * @param integer $storeId          Magento store id
-     * @param array   $additionalParams additional parameters for export url
+     * @param integer $storeId Magento store id
+     * @param array $additionalParams additional parameters for export url
      *
      * @return string
      */
     public function getExportUrl($storeId, $additionalParams = [])
     {
         $defaultParams = [
-            'store'         => $storeId,
-            'token'         => $this->_configHelper->getToken($storeId),
-            '_nosid'        => true,
+            'store' => $storeId,
+            'token' => $this->_configHelper->getToken($storeId),
+            '_nosid' => true,
             '_store_to_url' => false,
         ];
         if (count($additionalParams) > 0) {
@@ -229,8 +228,8 @@ class Data extends AbstractHelper
     public function getCronUrl($additionalParams = [])
     {
         $defaultParams = [
-            'token'         => $this->_configHelper->getToken(),
-            '_nosid'        => true,
+            'token' => $this->_configHelper->getToken(),
+            '_nosid' => true,
             '_store_to_url' => false,
         ];
         if (count($additionalParams) > 0) {
@@ -243,7 +242,7 @@ class Data extends AbstractHelper
      * Get date in local date
      *
      * @param integer $timestamp linux timestamp
-     * @param boolean $second    see seconds or not
+     * @param boolean $second see seconds or not
      *
      * @return string in gmt format
      */
@@ -259,6 +258,7 @@ class Data extends AbstractHelper
 
     /**
      * Get store
+     *
      * @return \Magento\Store\Api\Data\StoreInterface
      */
     public function getStore()
@@ -273,7 +273,7 @@ class Data extends AbstractHelper
     /**
      * Get media url for export file
      *
-     *  @return string
+     * @return string
      */
     public function getMediaUrl()
     {
@@ -283,7 +283,7 @@ class Data extends AbstractHelper
     /**
      * Get media path for export file
      *
-     *  @return string
+     * @return string
      */
     public function getMediaPath()
     {

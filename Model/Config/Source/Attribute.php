@@ -22,7 +22,6 @@ namespace Lengow\Connector\Model\Config\Source;
 use Magento\Framework\Option\ArrayInterface;
 use Lengow\Connector\Helper\Config;
 
-
 class Attribute implements ArrayInterface
 {
     /**
@@ -50,4 +49,3 @@ class Attribute implements ArrayInterface
         return $this->_configHelper->getAllAttributes();
     }
 }
-

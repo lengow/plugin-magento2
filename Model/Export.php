@@ -22,6 +22,7 @@ namespace Lengow\Connector\Model;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 use Magento\CatalogInventory\Model\Configuration as CatalogInventoryConfiguration;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
@@ -67,6 +68,11 @@ class Export
      * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
      */
     protected $_jsonHelper;
+
+    /**
+     * @var \Magento\Store\Model\WebsiteFactory Magento website factory instance
+     */
+    protected $_websiteFactory;
 
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
@@ -137,44 +143,44 @@ class Export
      * @var array default fields for export
      */
     protected $_defaultFields = [
-        'id'                             => 'id',
-        'sku'                            => 'sku',
-        'name'                           => 'name',
-        'child_name'                     => 'child_name',
-        'quantity'                       => 'quantity',
-        'status'                         => 'status',
-        'category'                       => 'category',
-        'url'                            => 'url',
-        'price_excl_tax'                 => 'price_excl_tax',
-        'price_incl_tax'                 => 'price_incl_tax',
+        'id' => 'id',
+        'sku' => 'sku',
+        'name' => 'name',
+        'child_name' => 'child_name',
+        'quantity' => 'quantity',
+        'status' => 'status',
+        'category' => 'category',
+        'url' => 'url',
+        'price_excl_tax' => 'price_excl_tax',
+        'price_incl_tax' => 'price_incl_tax',
         'price_before_discount_excl_tax' => 'price_before_discount_excl_tax',
         'price_before_discount_incl_tax' => 'price_before_discount_incl_tax',
-        'discount_amount'                => 'discount_amount',
-        'discount_percent'               => 'discount_percent',
-        'discount_start_date'            => 'discount_start_date',
-        'discount_end_date'              => 'discount_end_date',
-        'shipping_method'                => 'shipping_method',
-        'shipping_cost'                  => 'shipping_cost',
-        'currency'                       => 'currency',
-        'image_default'                  => 'image_default',
-        'image_url_1'                    => 'image_url_1',
-        'image_url_2'                    => 'image_url_2',
-        'image_url_3'                    => 'image_url_3',
-        'image_url_4'                    => 'image_url_4',
-        'image_url_5'                    => 'image_url_5',
-        'image_url_6'                    => 'image_url_6',
-        'image_url_7'                    => 'image_url_7',
-        'image_url_8'                    => 'image_url_8',
-        'image_url_9'                    => 'image_url_9',
-        'image_url_10'                   => 'image_url_10',
-        'type'                           => 'type',
-        'parent_id'                      => 'parent_id',
-        'variation'                      => 'variation',
-        'language'                       => 'language',
-        'description'                    => 'description',
-        'description_html'               => 'description_html',
-        'description_short'              => 'description_short',
-        'description_short_html'         => 'description_short_html',
+        'discount_amount' => 'discount_amount',
+        'discount_percent' => 'discount_percent',
+        'discount_start_date' => 'discount_start_date',
+        'discount_end_date' => 'discount_end_date',
+        'shipping_method' => 'shipping_method',
+        'shipping_cost' => 'shipping_cost',
+        'currency' => 'currency',
+        'image_default' => 'image_default',
+        'image_url_1' => 'image_url_1',
+        'image_url_2' => 'image_url_2',
+        'image_url_3' => 'image_url_3',
+        'image_url_4' => 'image_url_4',
+        'image_url_5' => 'image_url_5',
+        'image_url_6' => 'image_url_6',
+        'image_url_7' => 'image_url_7',
+        'image_url_8' => 'image_url_8',
+        'image_url_9' => 'image_url_9',
+        'image_url_10' => 'image_url_10',
+        'type' => 'type',
+        'parent_id' => 'parent_id',
+        'variation' => 'variation',
+        'language' => 'language',
+        'description' => 'description',
+        'description_html' => 'description_html',
+        'description_short' => 'description_short',
+        'description_short_html' => 'description_short_html',
     ];
 
     /**
@@ -258,11 +264,6 @@ class Export
     protected $_getParams;
 
     /**
-     * @var \Magento\Store\Model\WebsiteFactory Magento website factory instance
-     */
-    protected $_websiteFactory;
-
-    /**
      * Constructor
      *
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
@@ -271,7 +272,7 @@ class Export
      * @param \Magento\Catalog\Model\Product\Attribute\Source\Status $productStatus Magento product status instance
      * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
-     * @param \Magento\Store\Model\WebsiteFactory $websiteFactory
+     * @param \Magento\Store\Model\WebsiteFactory $websiteFactory Magento website factory instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Model\Export\Feed $feed Lengow feed instance
@@ -289,8 +290,7 @@ class Export
         ConfigHelper $configHelper,
         Feed $feed,
         Product $product
-    )
-    {
+    ) {
         $this->_storeManager = $storeManager;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
@@ -327,8 +327,8 @@ class Export
     {
         $this->_storeId = isset($params['store_id']) ? (int)$params['store_id'] : 0;
         $this->_store = $this->_storeManager->getStore($this->_storeId);
-        $this->_limit = isset($params['limit']) ? (int) $params['limit'] : 0;
-        $this->_offset = isset($params['offset']) ? (int) $params['offset'] : 0;
+        $this->_limit = isset($params['limit']) ? (int)$params['limit'] : 0;
+        $this->_offset = isset($params['offset']) ? (int)$params['offset'] : 0;
         $this->_stream = isset($params['stream'])
             ? (bool)$params['stream']
             : !(bool)$this->_configHelper->get('file_enable', $this->_storeId);
@@ -432,7 +432,7 @@ class Export
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (\Exception $e) {
-            $errorMessage = '[Magento error] "'.$e->getMessage().'" '.$e->getFile().' | '.$e->getLine();
+            $errorMessage = '[Magento error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
         }
         if (isset($errorMessage)) {
             $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
@@ -465,8 +465,8 @@ class Export
         // init feed to export
         $this->_feed->init(
             [
-                'stream'     => $this->_stream,
-                'format'     => $this->_format,
+                'stream' => $this->_stream,
+                'format' => $this->_format,
                 'store_code' => $this->_store->getCode()
             ]
         );
@@ -475,7 +475,7 @@ class Export
             $productDatas = [];
             $this->_product->load(
                 [
-                    'product_id'   => (int)$product['entity_id'],
+                    'product_id' => (int)$product['entity_id'],
                     'product_type' => $product['type_id']
                 ]
             );
@@ -576,7 +576,7 @@ class Export
                     }
                     $storeLanguage = $this->_scopeConfig->getValue(
                         'general/locale/code',
-                        \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                        ScopeInterface::SCOPE_STORE,
                         $store->getId()
                     );
                     if (!in_array($storeLanguage, $availableLanguages)) {
@@ -636,8 +636,8 @@ class Export
             }
             $params[$param] = [
                 'authorized_values' => $authorizedValue,
-                'type'              => $type,
-                'example'           => $example
+                'type' => $type,
+                'example' => $example
             ];
         }
         return $this->_jsonHelper->jsonEncode($params);
@@ -778,7 +778,7 @@ class Export
         if (!$this->_stream && $this->_logOutput) {
             if ($productCount % 50 == 0) {
                 $countMessage = $this->_dataHelper->decodeLogMessage($logMessage, false);
-                echo '[Export] '.$countMessage.'<br />';
+                echo '[Export] ' . $countMessage . '<br />';
             }
             flush();
         }
@@ -793,7 +793,7 @@ class Export
      */
     protected function _getProductModulo($productTotal)
     {
-        $productModulo = (int) ($productTotal / 10);
+        $productModulo = (int)($productTotal / 10);
         return $productModulo < 50 ? 50 : $productModulo;
     }
 
@@ -848,7 +848,7 @@ class Export
         if (!$this->_outOfStock) {
             $config = (int)$this->_scopeConfig->isSetFlag(CatalogInventoryConfiguration::XML_PATH_MANAGE_STOCK);
             $condition = '({{table}}.`is_in_stock` = 1) '
-                .' OR IF({{table}}.`use_config_manage_stock` = 1, '.$config.', {{table}}.`manage_stock`) = 0';
+                . ' OR IF({{table}}.`use_config_manage_stock` = 1, ' . $config . ', {{table}}.`manage_stock`) = 0';
             $productCollection->joinTable(
                 'cataloginventory_stock_item',
                 'product_id=entity_id',

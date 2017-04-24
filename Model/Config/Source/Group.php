@@ -49,4 +49,3 @@ class Group implements ArrayInterface
         return $this->_configHelper->getAllCustomerGroup();
     }
 }
-

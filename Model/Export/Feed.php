@@ -147,8 +147,8 @@ class Feed
         $this->_format = $params['format'];
         if (!$this->_stream) {
             $sep = DIRECTORY_SEPARATOR;
-            $this->_folderName = $this->_lengowExportFolder.$sep.$params['store_code'];
-            $this->_folderPath = $this->_dataHelper->getMediaPath().$sep.$this->_folderName;
+            $this->_folderName = $this->_lengowExportFolder . $sep . $params['store_code'];
+            $this->_folderPath = $this->_dataHelper->getMediaPath() . $sep . $this->_folderName;
             $this->_initExportFile();
         }
     }
@@ -156,8 +156,8 @@ class Feed
     /**
      * Write feed
      *
-     * @param string  $type (header, body or footer)
-     * @param array   $data export data
+     * @param string $type (header, body or footer)
+     * @param array $data export data
      * @param boolean $isFirst is first product to export
      * @param boolean $maxCharacter Max characters for yaml format
      */
@@ -195,7 +195,7 @@ class Feed
         $this->write('footer');
         if (!$this->_stream) {
             $this->_file->close();
-            $newFileName = 'lengow_feed.'.$this->_format;
+            $newFileName = 'lengow_feed.' . $this->_format;
             return $this->_file->rename($newFileName);
         }
         return true;
@@ -255,15 +255,15 @@ class Feed
             case 'csv':
                 $header = '';
                 foreach ($data as $field) {
-                    $header.= self::PROTECTION.$this->_formatFields($field).self::PROTECTION.self::CSV_SEPARATOR;
+                    $header .= self::PROTECTION . $this->_formatFields($field) . self::PROTECTION . self::CSV_SEPARATOR;
                 }
-                return rtrim($header, self::CSV_SEPARATOR).self::EOL;
+                return rtrim($header, self::CSV_SEPARATOR) . self::EOL;
             case 'xml':
-                return '<?xml version="1.0" encoding="UTF-8"?>'.self::EOL.'<catalog>'.self::EOL;
+                return '<?xml version="1.0" encoding="UTF-8"?>' . self::EOL . '<catalog>' . self::EOL;
             case 'json':
                 return '{"catalog":[';
             case 'yaml':
-                return '"catalog":'.self::EOL;
+                return '"catalog":' . self::EOL;
             default:
                 return '';
         }
@@ -272,8 +272,8 @@ class Feed
     /**
      * Get feed body
      *
-     * @param array   $data          feed data
-     * @param boolean $isFirst       is first product to export
+     * @param array $data feed data
+     * @param boolean $isFirst is first product to export
      * @param integer $maxCharacter max characters for yaml format
      *
      * @return string
@@ -284,18 +284,18 @@ class Feed
             case 'csv':
                 $content = '';
                 foreach ($data as $value) {
-                    $content .= self::PROTECTION.$value.self::PROTECTION.self::CSV_SEPARATOR;
+                    $content .= self::PROTECTION . $value . self::PROTECTION . self::CSV_SEPARATOR;
                 }
-                return rtrim($content, self::CSV_SEPARATOR).self::EOL;
+                return rtrim($content, self::CSV_SEPARATOR) . self::EOL;
             case 'xml':
                 $content = '<product>';
                 foreach ($data as $field => $value) {
                     $field = isset($this->_formattedFields[$field])
                         ? $this->_formattedFields[$field]
                         : $this->_formatFields($field);
-                    $content .= '<'.$field.'><![CDATA['.$value.']]></'.$field.'>'.self::EOL;
+                    $content .= '<' . $field . '><![CDATA[' . $value . ']]></' . $field . '>' . self::EOL;
                 }
-                $content .= '</product>'.self::EOL;
+                $content .= '</product>' . self::EOL;
                 return $content;
             case 'json':
                 $content = $isFirst ? '' : ',';
@@ -309,21 +309,21 @@ class Feed
                 $content .= $this->_jsonHelper->jsonEncode($jsonArray);
                 return $content;
             case 'yaml':
-                if ( $maxCharacter % 2 == 1 ) {
+                if ($maxCharacter % 2 == 1) {
                     $maxCharacter = $maxCharacter + 1;
                 } else {
                     $maxCharacter = $maxCharacter + 2;
                 }
-                $content = '  '.self::PROTECTION.'product'.self::PROTECTION.':'.self::EOL;
+                $content = '  ' . self::PROTECTION . 'product' . self::PROTECTION . ':' . self::EOL;
                 foreach ($data as $field => $value) {
                     $field = isset($this->_formattedFields[$field])
                         ? $this->_formattedFields[$field]
                         : $this->_formatFields($field);
-                    $content .= '    '.self::PROTECTION.$field.self::PROTECTION.':';
+                    $content .= '    ' . self::PROTECTION . $field . self::PROTECTION . ':';
                     $yamlSpace = isset($this->_yamlSpaces[$field])
                         ? $this->_yamlSpaces[$field]
                         : $this->_indentYaml($field, $maxCharacter);
-                    $content .= $yamlSpace.(string)$value.self::EOL;
+                    $content .= $yamlSpace . (string)$value . self::EOL;
                 }
                 return $content;
             default:
@@ -365,7 +365,7 @@ class Feed
         if ($this->_isAlreadyLaunch()) {
             throw new LengowException($this->_dataHelper->setLogMessage('feed already launched'));
         }
-        $fileName = $this->_fileName.'.'.time().'.'.$this->_format;
+        $fileName = $this->_fileName . '.' . time() . '.' . $this->_format;
         $this->_file->init(['folder_name' => $this->_folderName, 'file_name' => $fileName]);
     }
 
@@ -379,8 +379,8 @@ class Feed
         $listFiles = $this->_driverFile->readDirectory($this->_folderPath);
         if (count($listFiles) > 0) {
             foreach ($listFiles as $filePath) {
-                $fileName = str_replace($this->_folderPath.'/', '', $filePath);
-                if (preg_match('/^'.$this->_fileName.'\.[\d]{10}/', $fileName)) {
+                $fileName = str_replace($this->_folderPath . '/', '', $filePath);
+                if (preg_match('/^' . $this->_fileName . '\.[\d]{10}/', $fileName)) {
                     $fileModified = $this->_dateTime->date('Y-m-d H:i:s', filemtime($filePath));
                     $fileModifiedDatetime = new \DateTime($fileModified);
                     $fileModifiedDatetime->add(new \DateInterval('P5D'));
@@ -437,7 +437,7 @@ class Feed
                 );
                 break;
             default:
-                $formatField  = strtolower(
+                $formatField = strtolower(
                     preg_replace(
                         '/[^a-zA-Z0-9_]+/',
                         '',
@@ -454,7 +454,7 @@ class Feed
     /**
      * For YAML, add spaces to have good indentation
      *
-     * @param string $field   the field name
+     * @param string $field the field name
      * @param string $maxSize space limit
      *
      * @return string
@@ -463,7 +463,7 @@ class Feed
     {
         $strlen = strlen($field);
         $spaces = '';
-        for ($i = $strlen; $i < $maxSize; $i ++) {
+        for ($i = $strlen; $i < $maxSize; $i++) {
             $spaces .= ' ';
         }
         if (!isset($this->_yamlSpaces[$field])) {

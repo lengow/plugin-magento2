@@ -29,39 +29,38 @@ class Image extends AbstractRenderer
     /**
      * Image Helper
      *
-     * @var \Magento\Catalog\Helper\Image
+     * @var \Magento\Catalog\Helper\Image Magento image helper instance
      */
-
     protected $imageHelper;
 
     /**
-     * @param \Magento\Backend\Block\Context $context
-     * @param \Magento\Catalog\Helper\Image $imageHelper
-     * @param array $data
+     * Constructor
+     *
+     * @param \Magento\Backend\Block\Context $context Magento block context instance
+     * @param \Magento\Catalog\Helper\Image $imageHelper Magento image helper instance
+     * @param array $data additional params
      */
-
     public function __construct(
         Context $context,
         HelperImage $imageHelper,
         array $data = []
-    )
-    {
+    ) {
         $this->imageHelper = $imageHelper;
         parent::__construct($context, $data);
         $this->_authorization = $context->getAuthorization();
     }
 
     /**
-    * Renders grid column
-    *
-    * @param DataObject $row
-    * @return  string
-    */
+     * Renders grid column
+     *
+     * @param \Magento\Framework\DataObject $row Magento data object instance
+     * @return  string
+     */
     public function render(DataObject $row)
     {
         $image = 'product_listing_thumbnail';
         $imageUrl = $this->imageHelper->init($row, $image)->getUrl();
 
-        return '<img src="'.$imageUrl.'" width="50"/>';
+        return '<img src="' . $imageUrl . '" width="50"/>';
     }
 }

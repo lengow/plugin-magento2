@@ -69,183 +69,183 @@ class Config extends AbstractHelper
      */
     protected $_options = [
         'token' => [
-            'path'     => 'lengow_global_options/store_credential/token',
-            'store'    => true,
+            'path' => 'lengow_global_options/store_credential/token',
+            'store' => true,
             'no_cache' => true,
         ],
         'store_enable' => [
-            'path'     => 'lengow_global_options/store_credential/global_store_enable',
-            'store'    => true,
+            'path' => 'lengow_global_options/store_credential/global_store_enable',
+            'store' => true,
             'no_cache' => false,
         ],
-        'account_id' =>[
-            'path'     => 'lengow_global_options/store_credential/global_account_id',
-            'store'    => true,
+        'account_id' => [
+            'path' => 'lengow_global_options/store_credential/global_account_id',
+            'store' => true,
             'no_cache' => false,
         ],
         'access_token' => [
-            'path'     => 'lengow_global_options/store_credential/global_access_token',
-            'store'    => true,
+            'path' => 'lengow_global_options/store_credential/global_access_token',
+            'store' => true,
             'no_cache' => false,
         ],
         'secret_token' => [
-            'path'     => 'lengow_global_options/store_credential/global_secret_token',
-            'store'    => true,
+            'path' => 'lengow_global_options/store_credential/global_secret_token',
+            'store' => true,
             'no_cache' => false,
         ],
         'tracking_id' => [
-            'path'     => 'lengow_global_options/advanced/global_tracking_id',
-            'global'   => true,
+            'path' => 'lengow_global_options/advanced/global_tracking_id',
+            'global' => true,
             'no_cache' => false,
         ],
         'ip_enable' => [
-            'path'     => 'lengow_global_options/advanced/global_authorized_ip_enable',
-            'global'   => true,
+            'path' => 'lengow_global_options/advanced/global_authorized_ip_enable',
+            'global' => true,
             'no_cache' => false,
         ],
         'authorized_ip' => [
-            'path'     => 'lengow_global_options/advanced/global_authorized_ip',
-            'global'   => true,
+            'path' => 'lengow_global_options/advanced/global_authorized_ip',
+            'global' => true,
             'no_cache' => false,
         ],
         'last_statistic_update' => [
-            'path'     => 'lengow_global_options/advanced/last_statistic_update',
-            'export'   => false,
+            'path' => 'lengow_global_options/advanced/last_statistic_update',
+            'export' => false,
             'no_cache' => false,
         ],
         'order_statistic' => [
-            'path'     => 'lengow_global_options/advanced/order_statistic',
-            'export'   => false,
+            'path' => 'lengow_global_options/advanced/order_statistic',
+            'export' => false,
             'no_cache' => false,
         ],
         'last_status_update' => [
-            'path'     => 'lengow_global_options/advanced/last_status_update',
-            'export'   => false,
+            'path' => 'lengow_global_options/advanced/last_status_update',
+            'export' => false,
             'no_cache' => false,
         ],
         'account_status' => [
-            'path'     => 'lengow_global_options/advanced/account_status',
-            'export'   => false,
+            'path' => 'lengow_global_options/advanced/account_status',
+            'export' => false,
             'no_cache' => false,
         ],
         'last_option_cms_update' => [
-            'path'     => 'lengow_global_options/advanced/last_option_cms_update',
-            'export'   => false,
+            'path' => 'lengow_global_options/advanced/last_option_cms_update',
+            'export' => false,
             'no_cache' => false,
         ],
         'selection_enable' => [
-            'path'     => 'lengow_export_options/simple/export_selection_enable',
-            'store'    => true,
+            'path' => 'lengow_export_options/simple/export_selection_enable',
+            'store' => true,
             'no_cache' => false,
         ],
         'product_type' => [
-            'path'     => 'lengow_export_options/simple/export_product_type',
-            'store'    => true,
+            'path' => 'lengow_export_options/simple/export_product_type',
+            'store' => true,
             'no_cache' => false,
         ],
         'product_status' => [
-            'path'     => 'lengow_export_options/simple/export_product_status',
-            'store'    => true,
+            'path' => 'lengow_export_options/simple/export_product_status',
+            'store' => true,
             'no_cache' => false,
         ],
         'export_attribute' => [
-            'path'     => 'lengow_export_options/advanced/export_attribute',
-            'export'   => false,
+            'path' => 'lengow_export_options/advanced/export_attribute',
+            'export' => false,
             'no_cache' => false,
         ],
         'shipping_country' => [
-            'path'     => 'lengow_export_options/advanced/export_default_shipping_country',
-            'store'    => true,
+            'path' => 'lengow_export_options/advanced/export_default_shipping_country',
+            'store' => true,
             'no_cache' => false,
         ],
         'shipping_method' => [
-            'path'     => 'lengow_export_options/advanced/export_default_shipping_method',
-            'store'    => true,
+            'path' => 'lengow_export_options/advanced/export_default_shipping_method',
+            'store' => true,
             'no_cache' => false,
         ],
         'shipping_price' => [
-            'path'     => 'lengow_export_options/advanced/export_default_shipping_price',
-            'store'    => true,
+            'path' => 'lengow_export_options/advanced/export_default_shipping_price',
+            'store' => true,
             'no_cache' => false,
         ],
         'parent_image' => [
-            'path'     => 'lengow_export_options/advanced/export_parent_image',
-            'store'    => true,
+            'path' => 'lengow_export_options/advanced/export_parent_image',
+            'store' => true,
             'no_cache' => false,
         ],
         'file_enable' => [
-            'path'     => 'lengow_export_options/advanced/export_file_enable',
-            'global'   => true,
+            'path' => 'lengow_export_options/advanced/export_file_enable',
+            'global' => true,
             'no_cache' => false,
         ],
         'export_cron_enable' => [
-            'path'     => 'lengow_export_options/advanced/export_cron_enable',
-            'global'   => true,
+            'path' => 'lengow_export_options/advanced/export_cron_enable',
+            'global' => true,
             'no_cache' => false,
         ],
         'last_export' => [
-            'path'     => 'lengow_export_options/advanced/export_last_export',
-            'store'    => true,
+            'path' => 'lengow_export_options/advanced/export_last_export',
+            'store' => true,
             'no_cache' => false,
         ],
         'days' => [
-            'path'     => 'lengow_import_options/simple/import_days',
-            'store'    => true,
+            'path' => 'lengow_import_options/simple/import_days',
+            'store' => true,
             'no_cache' => false,
         ],
         'customer_group' => [
-            'path'     => 'lengow_import_options/simple/import_customer_group',
-            'store'    => true,
+            'path' => 'lengow_import_options/simple/import_customer_group',
+            'store' => true,
             'no_cache' => false,
         ],
         'import_shipping_method' => [
-            'path'     => 'lengow_import_options/simple/import_default_shipping_method',
-            'store'    => true,
+            'path' => 'lengow_import_options/simple/import_default_shipping_method',
+            'store' => true,
             'no_cache' => false,
         ],
-        'report_mail_enable' =>[
-            'path'     => 'lengow_import_options/advanced/import_report_mail_enable',
-            'global'   => true,
+        'report_mail_enable' => [
+            'path' => 'lengow_import_options/advanced/import_report_mail_enable',
+            'global' => true,
             'no_cache' => false,
         ],
         'report_mail_address' => [
-            'path'     => 'lengow_import_options/advanced/import_report_mail_address',
-            'global'   => true,
+            'path' => 'lengow_import_options/advanced/import_report_mail_address',
+            'global' => true,
             'no_cache' => false,
         ],
         'import_ship_mp_enabled' => [
-            'path'     =>  'lengow_import_options/advanced/import_ship_mp_enabled',
-            'global'   => true,
+            'path' => 'lengow_import_options/advanced/import_ship_mp_enabled',
+            'global' => true,
             'no_cache' => false,
         ],
         'import_stock_ship_mp' => [
-            'path'     =>  'lengow_import_options/advanced/import_stock_ship_mp',
-            'global'   => true,
+            'path' => 'lengow_import_options/advanced/import_stock_ship_mp',
+            'global' => true,
             'no_cache' => false,
         ],
         'preprod_mode_enable' => [
-            'path'     => 'lengow_import_options/advanced/import_preprod_mode_enable',
-            'global'   => true,
+            'path' => 'lengow_import_options/advanced/import_preprod_mode_enable',
+            'global' => true,
             'no_cache' => false,
         ],
         'import_cron_enable' => [
-            'path'     => 'lengow_import_options/advanced/import_cron_enable',
-            'global'   => true,
+            'path' => 'lengow_import_options/advanced/import_cron_enable',
+            'global' => true,
             'no_cache' => false,
         ],
         'import_in_progress' => [
-            'path'     => 'lengow_import_options/advanced/import_in_progress',
-            'global'   => true,
+            'path' => 'lengow_import_options/advanced/import_in_progress',
+            'global' => true,
             'no_cache' => false,
         ],
         'last_import_manual' => [
-            'path'     => 'lengow_import_options/advanced/last_import_manual',
-            'global'   => true,
+            'path' => 'lengow_import_options/advanced/last_import_manual',
+            'global' => true,
             'no_cache' => false,
         ],
         'last_import_cron' => [
-            'path'     => 'lengow_import_options/advanced/last_import_cron',
-            'global'   => true,
+            'path' => 'lengow_import_options/advanced/last_import_cron',
+            'global' => true,
             'no_cache' => false,
         ],
     ];
@@ -270,7 +270,7 @@ class Config extends AbstractHelper
      *
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
      * @param \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface Magento writer instance
-     * @param \Magento\Framework\App\Cache\Manager $cacheManager Cache manager instance
+     * @param \Magento\Framework\App\Cache\Manager $cacheManager Magento Cache manager instance
      * @param \Magento\Customer\Model\ResourceModel\Group\CollectionFactory $customerGroupCollectionFactory
      * @param \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory $attributeCollectionFactory
      * @param \Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory $configDataCollectionFactory
@@ -297,7 +297,7 @@ class Config extends AbstractHelper
     /**
      * Get Value
      *
-     * @param string  $key     Lengow setting key
+     * @param string $key Lengow setting key
      * @param integer $storeId Magento store id
      *
      * @return mixed
@@ -324,9 +324,9 @@ class Config extends AbstractHelper
     /**
      * Set Value
      *
-     * @param string  $key        Lengow setting key
-     * @param mixed   $value      Lengow setting value
-     * @param integer $storeId    Magento store id
+     * @param string $key Lengow setting key
+     * @param mixed $value Lengow setting value
+     * @param integer $storeId Magento store id
      * @param boolean $cleanCache clean config cache to valid configuration
      */
     public function set($key, $value, $storeId = 0, $cleanCache = true)
@@ -500,7 +500,7 @@ class Config extends AbstractHelper
             $attributes = $this->getAllAttributes();
             foreach ($attributes as $attribute) {
                 if ($attribute['value'] != 'none') {
-                    $attributeList.= $attribute['value'].',';
+                    $attributeList .= $attribute['value'] . ',';
                 }
             }
             $attributeList = rtrim($attributeList, ',');

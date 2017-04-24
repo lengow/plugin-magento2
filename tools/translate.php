@@ -19,7 +19,7 @@
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-$directory = dirname(dirname(__FILE__)).'/tools/yml/';
+$directory = dirname(dirname(__FILE__)) . '/tools/yml/';
 $listFiles = array_diff(scandir($directory), array('..', '.', 'index.php'));
 $listFiles = array_diff($listFiles, array('en_GB.yml'));
 array_unshift($listFiles, "en_GB.yml");
@@ -28,7 +28,7 @@ array_unshift($listFiles, "en_GB.yml");
 $defaultFiles = ['en_GB.yml', 'log.yml'];
 $defaultValues = [];
 foreach ($defaultFiles as $defaultFile) {
-    foreach (yaml_parse_file($directory.$defaultFile) as $categories) {
+    foreach (yaml_parse_file($directory . $defaultFile) as $categories) {
         $result = writeCsv($categories, null, true);
         $defaultValues = array_merge($defaultValues, $result);
     }
@@ -36,12 +36,12 @@ foreach ($defaultFiles as $defaultFile) {
 
 // Write csv file
 foreach ($listFiles as $list) {
-    $ymlFile = yaml_parse_file($directory.$list);
-    $locale =  basename($directory.$list, '.yml');
+    $ymlFile = yaml_parse_file($directory . $list);
+    $locale = basename($directory . $list, '.yml');
     if ($list == 'log.yml') {
-        $fp = fopen(dirname(dirname(__FILE__)).'/i18n/en_GB.csv', 'a+');
+        $fp = fopen(dirname(dirname(__FILE__)) . '/i18n/en_GB.csv', 'a+');
     } else {
-        $fp = fopen(dirname(dirname(__FILE__)).'/i18n/'.$locale.'.csv', 'w+');
+        $fp = fopen(dirname(dirname(__FILE__)) . '/i18n/' . $locale . '.csv', 'w+');
     }
     // Write translation files
     foreach ($ymlFile as $language => $categories) {
@@ -55,7 +55,7 @@ function writeCsv($text, $fp = null, $getArray = false, $defaultValues = [], &$f
     $values = [];
     if (is_array($text)) {
         foreach ($text as $k => $v) {
-            $frontKey[]= $k;
+            $frontKey[] = $k;
             $result = writeCsv($v, $fp, $getArray, $defaultValues, $frontKey);
             if ($getArray) {
                 $values = array_merge($values, $result);
@@ -66,7 +66,7 @@ function writeCsv($text, $fp = null, $getArray = false, $defaultValues = [], &$f
         if ($getArray) {
             $values[join('.', $frontKey)] = $text;
         } else {
-            $line = '"'.$defaultValues[join('.', $frontKey)].'","'.$text.'"'.PHP_EOL;
+            $line = '"' . $defaultValues[join('.', $frontKey)] . '","' . $text . '"' . PHP_EOL;
             fwrite($fp, $line);
         }
     }

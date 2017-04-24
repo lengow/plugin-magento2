@@ -19,7 +19,6 @@
 
 namespace Lengow\Connector\Ui\Component\Listing\Column;
 
-
 use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
@@ -29,22 +28,24 @@ use Magento\Framework\UrlInterface;
 class OrderSku extends Column
 {
     /**
-     * @var UrlInterface
+     * @var \Magento\Framework\UrlInterface Magento framework url instance
      */
-    protected $urlBuilder;
+    protected $_urlBuilder;
 
     /**
-     * @var OrderRepositoryInterface
+     * @var \Magento\Sales\Api\OrderRepositoryInterface Magento order repository instance
      */
     protected $_orderRepository;
 
     /**
-     * @param OrderRepositoryInterface $orderRepository
-     * @param UrlInterface $urlBuilder
-     * @param ContextInterface $context
-     * @param UiComponentFactory $uiComponentFactory
-     * @param array $components
-     * @param array $data
+     * Constructor
+     *
+     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository Magento order repository instance
+     * @param \Magento\Framework\UrlInterface $urlBuilder Magento framework url instance
+     * @param \Magento\Framework\View\Element\UiComponent\ContextInterface $context Magento ui context instance
+     * @param \Magento\Framework\View\Element\UiComponentFactory $uiComponentFactory Magento ui factory instance
+     * @param array $components component data
+     * @param array $data additional params
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
@@ -55,14 +56,15 @@ class OrderSku extends Column
         array $data = []
     ) {
         parent::__construct($context, $uiComponentFactory, $components, $data);
-        $this->urlBuilder = $urlBuilder;
+        $this->_urlBuilder = $urlBuilder;
         $this->_orderRepository = $orderRepository;
     }
 
     /**
      * Prepare Data Source
      *
-     * @param array $dataSource
+     * @param array $dataSource row data source
+     *
      * @return array
      */
     public function prepareDataSource(array $dataSource)
@@ -72,7 +74,7 @@ class OrderSku extends Column
             foreach ($dataSource['data']['items'] as &$item) {
                 if (!is_null($item['order_sku'])) {
                     $item['order_sku'] = '<a href="'.
-                        $this->urlBuilder->getUrl('sales/order/view',['order_id' => $item['order_id']]). '">
+                        $this->_urlBuilder->getUrl('sales/order/view',['order_id' => $item['order_id']]). '">
                         '. $item['order_sku'] .'</a>';
                 }
             }

@@ -25,4 +25,3 @@ namespace Lengow\Connector\Model;
 class Exception extends \Exception
 {
 }
-

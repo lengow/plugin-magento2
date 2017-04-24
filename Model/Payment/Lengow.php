@@ -20,12 +20,12 @@
 namespace Lengow\Connector\Model\Payment;
 
 /**
-* Model payment method lengow
-*/
+ * Model payment method lengow
+ */
 class Lengow
 {
     /**
-    * @const string Lengow payment code
-    */
+     * @const string Lengow payment code
+     */
     const CODE = 'lengow';
 }

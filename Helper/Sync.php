@@ -22,7 +22,7 @@ namespace Lengow\Connector\Helper;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Lengow\Connector\Helper\Config as ConfigHelper;
-use Lengow\Connector\Model\Connector as ModelConnector;
+use Lengow\Connector\Model\Connector as Connector;
 
 class Sync extends AbstractHelper
 {
@@ -32,24 +32,24 @@ class Sync extends AbstractHelper
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var \Lengow\Connector\Model\Connector Lengow connector instance
      */
-    protected $_modelConnector;
+    protected $_connector;
 
     /**
      * Constructor
      *
-     * @param Context $context
+     * @param \Magento\Framework\App\Helper\Context $context Magento context instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Model\Connector $modelConnector
+     * @param \Lengow\Connector\Model\Connector $modelConnector Lengow connector instance
      */
     public function __construct(
         Context $context,
         ConfigHelper $configHelper,
-        ModelConnector $modelConnector
-    ){
+        Connector $modelConnector
+    ) {
         $this->_configHelper = $configHelper;
-        $this->_modelConnector = $modelConnector;
+        $this->_connector = $modelConnector;
         parent::__construct($context);
     }
 
@@ -63,6 +63,6 @@ class Sync extends AbstractHelper
     public function checkSyncStore($storeId)
     {
         return $this->_configHelper->get('store_enable', $storeId)
-               && $this->_modelConnector->validAuthenticationByStore($storeId);
+        && $this->_connector->validAuthenticationByStore($storeId);
     }
 }

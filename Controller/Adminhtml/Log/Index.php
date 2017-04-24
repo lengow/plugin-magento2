@@ -27,7 +27,7 @@ class Index extends Action
     /**
      * Constructor
      *
-     * @param Context $context
+     * @param \Magento\Backend\App\Action\Context $context Magento action context instance
      */
     public function __construct(Context $context)
     {

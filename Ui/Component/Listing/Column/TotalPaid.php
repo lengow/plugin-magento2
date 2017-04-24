@@ -19,7 +19,6 @@
 
 namespace Lengow\Connector\Ui\Component\Listing\Column;
 
-
 use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
@@ -29,21 +28,24 @@ use Magento\Directory\Model\CurrencyFactory;
 class TotalPaid extends Column
 {
     /**
-     * @var StoreManagerInterface
+     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
      */
     protected $_storeManager;
 
     /**
-     * @var CurrencyFactory
+     * @var \Magento\Directory\Model\CurrencyFactory Magento currency factory instance
      */
     protected $_currencyFactory;
 
     /**
-     * @param StoreManagerInterface $storeManager
-     * @param ContextInterface $context
-     * @param UiComponentFactory $uiComponentFactory
-     * @param array $components
-     * @param array $data
+     * Constructor
+     *
+     * @param \Magento\Directory\Model\CurrencyFactory $currencyFactory Magento currency factory instance
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
+     * @param \Magento\Framework\View\Element\UiComponent\ContextInterface $context Magento ui context instance
+     * @param \Magento\Framework\View\Element\UiComponentFactory $uiComponentFactory Magento ui factory instance
+     * @param array $components component data
+     * @param array $data additional params
      */
     public function __construct(
         CurrencyFactory $currencyFactory,
@@ -61,7 +63,8 @@ class TotalPaid extends Column
     /**
      * Prepare Data Source
      *
-     * @param array $dataSource
+     * @param array $dataSource row data source
+     *
      * @return array
      */
     public function prepareDataSource(array $dataSource)

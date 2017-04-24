@@ -24,7 +24,6 @@ use Magento\Framework\App\ResponseInterface;
 
 class Index extends Action
 {
-
     /**
      * Index action
      *

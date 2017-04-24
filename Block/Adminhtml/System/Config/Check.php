@@ -40,7 +40,7 @@ class Check extends Field
 		<div class="notices-wrapper">
 		    <div class="messages">
 		        <div class="message">
-		            <strong>'.__('To change store credentials, please select a store').'</strong>
+		            <strong>' . __('To change store credentials, please select a store') . '</strong>
 		        </div>
 		    </div>
 		</div>';

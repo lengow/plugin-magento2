@@ -43,12 +43,12 @@ class Index extends Action
     protected $_configHelper;
 
     /**
-     * @var \Magento\Framework\Controller\Result\JsonFactory
+     * @var \Magento\Framework\Controller\Result\JsonFactory Magento json factory instance
      */
     protected $_resultJsonFactory;
 
     /**
-     * @var \Magento\Framework\Json\Helper\Data
+     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
      */
     protected $_jsonHelper;
 
@@ -58,7 +58,7 @@ class Index extends Action
     protected $_syncHelper;
 
     /**
-     * @var \Magento\Backend\App\Action\Context
+     * @var \Magento\Backend\App\Action\Context Magento action context instance
      */
     protected $_context;
 
@@ -68,20 +68,20 @@ class Index extends Action
     protected $_export;
 
     /**
-     * @var ProductAction
+     * @var \Magento\Catalog\Model\Product\Action Magento product action instance
      */
     protected $_productAction;
 
     /**
      * Constructor
      *
-     * @param ProductAction $productAction
-     * @param Context $context
+     * @param \Magento\Catalog\Model\Product\Action $productAction Magento product action instance
+     * @param \Magento\Backend\App\Action\Context $context Magento action context instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
+     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory Magento json factory instance
      * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper
+     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Lengow\Connector\Model\Export $export Lengow export instance
      */
     public function __construct(
@@ -93,8 +93,7 @@ class Index extends Action
         JsonHelperData $jsonHelper,
         Export $export,
         ProductAction $productAction
-    )
-    {
+    ) {
         $this->_context = $context;
         $this->_productAction = $productAction;
         $this->_configHelper = $configHelper;
@@ -123,15 +122,15 @@ class Index extends Action
                         if ($state !== null) {
                             $this->_configHelper->set('selection_enable', $state, $storeId);
                             $params = [
-                                'store_id'  => $storeId,
+                                'store_id' => $storeId,
                                 'selection' => $state
                             ];
                             $this->_export->init($params);
                             return $this->_resultJsonFactory->create()->setData(
                                 [
-                                    'state'    => $state,
+                                    'state' => $state,
                                     'exported' => $this->_export->getTotalExportedProduct(),
-                                    'total'    => $this->_export->getTotalProduct()
+                                    'total' => $this->_export->getTotalProduct()
                                 ]
                             );
                         }
@@ -144,8 +143,8 @@ class Index extends Action
                         if ($sync == true) {
                             $lastExport = $this->_configHelper->get('last_export', $storeId);
                             if ($lastExport != null) {
-                                $datas['message'] = __('Last indexation').'<br />'.
-                                                    $this->_dataHelper->getDateInCorrectFormat($lastExport);
+                                $datas['message'] = __('Last indexation') . '<br />' .
+                                    $this->_dataHelper->getDateInCorrectFormat($lastExport);
                             } else {
                                 $datas['message'] = __('Not indexed yet');
                             }
@@ -155,7 +154,7 @@ class Index extends Action
                             $datas['message'] = __('Store not synchronized');
                             $datas['link_title'] = __('Synchronize my store with Lengow');
                             $datas['link_href'] = $this->_context->getHelper()
-                                                      ->getUrl('lengow_home/').'?isSync=true';
+                                    ->getUrl('lengow_home/') . '?isSync=true';
                             $datas['id'] = 'lengow_store_no_sync';
                         }
                         return $this->_resultJsonFactory->create()->setData($datas);
@@ -165,17 +164,20 @@ class Index extends Action
                         $state = $this->getRequest()->getParam('state');
                         $productId = $this->getRequest()->getParam('product_id');
                         if ($state !== null) {
-                            $this->_productAction
-                                ->updateAttributes([$productId], ['lengow_product' => $state], $storeId);
+                            $this->_productAction->updateAttributes(
+                                [$productId],
+                                ['lengow_product' => $state],
+                                $storeId
+                            );
                             $params = [
-                                'store_id'  => $storeId,
+                                'store_id' => $storeId,
                                 'selection' => 1
                             ];
                             $this->_export->init($params);
                             return $this->_resultJsonFactory->create()->setData(
                                 [
-                                    'exported'   => $this->_export->getTotalExportedProduct(),
-                                    'total'      => $this->_export->getTotalProduct()
+                                    'exported' => $this->_export->getTotalExportedProduct(),
+                                    'total' => $this->_export->getTotalProduct()
                                 ]
                             );
                         }

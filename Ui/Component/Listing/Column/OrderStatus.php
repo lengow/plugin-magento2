@@ -19,7 +19,6 @@
 
 namespace Lengow\Connector\Ui\Component\Listing\Column;
 
-
 use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
@@ -28,16 +27,18 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 class OrderStatus extends Column
 {
     /**
-     * @var OrderRepositoryInterface
+     * @var \Magento\Sales\Api\OrderRepositoryInterface Magento order repository instance
      */
     protected $_orderRepository;
 
     /**
-     * @param OrderRepositoryInterface $orderRepository
-     * @param ContextInterface $context
-     * @param UiComponentFactory $uiComponentFactory
-     * @param array $components
-     * @param array $data
+     * Constructor
+     *
+     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository Magento order repository instance
+     * @param \Magento\Framework\View\Element\UiComponent\ContextInterface $context Magento ui context instance
+     * @param \Magento\Framework\View\Element\UiComponentFactory $uiComponentFactory Magento ui factory instance
+     * @param array $components component data
+     * @param array $data additional params
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
@@ -53,7 +54,8 @@ class OrderStatus extends Column
     /**
      * Prepare Data Source
      *
-     * @param array $dataSource
+     * @param array $dataSource row data source
+     *
      * @return array
      */
     public function prepareDataSource(array $dataSource)

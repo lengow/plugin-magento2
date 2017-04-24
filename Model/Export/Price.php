@@ -167,8 +167,8 @@ class Price
     public function getPrices()
     {
         return [
-            'price_excl_tax'                 => $this->_priceExclTax,
-            'price_incl_tax'                 => $this->_priceInclTax,
+            'price_excl_tax' => $this->_priceExclTax,
+            'price_incl_tax' => $this->_priceInclTax,
             'price_before_discount_excl_tax' => $this->_priceBeforeDiscountExclTax,
             'price_before_discount_incl_tax' => $this->_priceBeforeDiscountInclTax,
         ];
@@ -182,10 +182,10 @@ class Price
     public function getDiscounts()
     {
         return [
-            'discount_amount'     => $this->_discountAmount,
-            'discount_percent'    => $this->_discountPercent,
+            'discount_amount' => $this->_discountAmount,
+            'discount_percent' => $this->_discountPercent,
             'discount_start_date' => $this->_discountStartDate,
-            'discount_end_date'   => $this->_discountEndDate
+            'discount_end_date' => $this->_discountEndDate
         ];
     }
 
@@ -214,8 +214,8 @@ class Price
     {
         $conversion = $this->_currency != $this->_storeCurrency ? true : false;
         $prices = [
-            'price_excl_tax'                 => $this->_getSpecificPrice('final_price', $conversion),
-            'price_incl_tax'                 => $this->_getSpecificPrice('final_price', $conversion, true),
+            'price_excl_tax' => $this->_getSpecificPrice('final_price', $conversion),
+            'price_incl_tax' => $this->_getSpecificPrice('final_price', $conversion, true),
             'price_before_discount_excl_tax' => $this->_getSpecificPrice('regular_price', $conversion),
             'price_before_discount_incl_tax' => $this->_getSpecificPrice('regular_price', $conversion, true)
         ];
@@ -225,7 +225,7 @@ class Price
     /**
      * Get specific price for a product
      *
-     * @param string  $code       price code to get specific value
+     * @param string $code price code to get specific value
      * @param boolean $conversion currency iso code for conversion
      * @param boolean $includeTax get price with tax or not
      *
@@ -257,7 +257,7 @@ class Price
             ? $this->_priceCurrency->round(($discountAmount * 100) / $this->_priceBeforeDiscountInclTax)
             : 0;
         return [
-            'discount_amount'  => $discountAmount,
+            'discount_amount' => $discountAmount,
             'discount_percent' => $discountPercent
         ];
     }
@@ -287,7 +287,7 @@ class Price
         }
         return [
             'discount_start_date' => $discountStartDate,
-            'discount_end_date'   => $discountEndDate
+            'discount_end_date' => $discountEndDate
         ];
     }
 }

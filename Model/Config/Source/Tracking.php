@@ -36,4 +36,3 @@ class Tracking implements ArrayInterface
         ];
     }
 }
-

@@ -30,6 +30,9 @@ class Collection extends AbstractCollection
      */
     public function _construct()
     {
-        $this->_init('Lengow\Connector\Model\Log', 'Lengow\Connector\Model\ResourceModel\Log');
+        $this->_init(
+            'Lengow\Connector\Model\Log',
+            'Lengow\Connector\Model\ResourceModel\Log'
+        );
     }
 }

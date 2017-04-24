@@ -123,7 +123,7 @@ class File
     {
         $sep = DIRECTORY_SEPARATOR;
         $oldPath = $this->getPath();
-        $newPath = $this->_dataHelper->getMediaPath().$sep.$this->_folderName.$sep.$newFileName;
+        $newPath = $this->_dataHelper->getMediaPath() . $sep . $this->_folderName . $sep . $newFileName;
         if ($this->_fileExists($newPath)) {
             $this->_driverFile->deleteFile($newPath);
         }
@@ -144,7 +144,7 @@ class File
     {
         if (empty($this->_link) && $this->_fileExists()) {
             $sep = DIRECTORY_SEPARATOR;
-            $this->_link = $this->_dataHelper->getMediaUrl().$this->_folderName.$sep.$this->_fileName;
+            $this->_link = $this->_dataHelper->getMediaUrl() . $this->_folderName . $sep . $this->_fileName;
         }
         return $this->_link;
     }
@@ -157,7 +157,7 @@ class File
     public function getPath()
     {
         $sep = DIRECTORY_SEPARATOR;
-        return $this->_dataHelper->getMediaPath().$sep.$this->_folderName.$sep.$this->_fileName;
+        return $this->_dataHelper->getMediaPath() . $sep . $this->_folderName . $sep . $this->_fileName;
     }
 
     /**

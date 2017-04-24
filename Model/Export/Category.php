@@ -122,7 +122,7 @@ class Category
         $defaultCategory = [];
         // Get category collection for one product
         $categoryCollection = $this->_product->getCategoryCollection()
-            ->addPathsFilter('1/'.$this->_store->getRootCategoryId().'/')
+            ->addPathsFilter('1/' . $this->_store->getRootCategoryId() . '/')
             ->exportToArray();
         if (count($categoryCollection) > 0) {
             // Select category with max level by default
@@ -134,7 +134,7 @@ class Category
             }
         }
         $category = [
-            'id'   => isset($defaultCategory['entity_id']) ? (int)$defaultCategory['entity_id'] : 0,
+            'id' => isset($defaultCategory['entity_id']) ? (int)$defaultCategory['entity_id'] : 0,
             'path' => isset($defaultCategory['path']) ? $defaultCategory['path'] : ''
         ];
         return $category;
@@ -143,8 +143,8 @@ class Category
     /**
      * Get category breadcrumb
      *
-     * @param integer $categoryId   Magento category id
-     * @param string  $categoryPath Magento category path
+     * @param integer $categoryId Magento category id
+     * @param string $categoryPath Magento category path
      *
      * @return string
      */

@@ -39,4 +39,3 @@ class Type implements ArrayInterface
         ];
     }
 }
-

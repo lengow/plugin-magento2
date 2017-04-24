@@ -22,6 +22,7 @@ namespace Lengow\Connector\Block\Adminhtml;
 class Product extends \Magento\Backend\Block\Widget\Grid\Container
 {
     /**
+     * Constructor
      *
      * @return void
      */

@@ -162,19 +162,19 @@ class Index extends Action
                 // config store
                 $this->_storeManager->setCurrentStore($storeId);
                 $params = [
-                    'store_id'           => $storeId,
-                    'format'             => $format,
-                    'product_types'      => $productTypes,
-                    'inactive'           => $inactive,
-                    'out_of_stock'       => $outOfStock,
-                    'selection'          => $selection,
-                    'stream'             => $stream,
-                    'limit'              => $limit,
-                    'offset'             => $offset,
-                    'product_ids'        => $productIds,
-                    'currency'           => $currency,
+                    'store_id' => $storeId,
+                    'format' => $format,
+                    'product_types' => $productTypes,
+                    'inactive' => $inactive,
+                    'out_of_stock' => $outOfStock,
+                    'selection' => $selection,
+                    'stream' => $stream,
+                    'limit' => $limit,
+                    'offset' => $offset,
+                    'product_ids' => $productIds,
+                    'currency' => $currency,
                     'update_export_date' => $updateExportDate,
-                    'log_output'         => $logOutput,
+                    'log_output' => $logOutput,
                 ];
                 $this->_export->init($params);
                 if ($getParams) {
@@ -188,7 +188,8 @@ class Index extends Action
                     exit(0);
                 }
             } catch (\Exception $e) {
-                $errorMessage = '[Magento error] "'.$e->getMessage().'" '.$e->getFile().' line '.$e->getLine();
+                $errorMessage = '[Magento error] "' . $e->getMessage()
+                    . '" ' . $e->getFile() . ' line ' . $e->getLine();
                 $this->_dataHelper->log('Export', $errorMessage);
                 $this->getResponse()->setStatusHeader(500, '1.1', 'Internal Server Error');
                 $this->getResponse()->setBody($errorMessage);

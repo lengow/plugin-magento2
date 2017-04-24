@@ -83,7 +83,7 @@ class Security extends AbstractHelper
     /**
      * Check Webservice access (export and cron)
      *
-     * @param string  $token   store token
+     * @param string $token store token
      * @param integer $storeId Magento store id
      *
      * @return boolean
@@ -102,7 +102,7 @@ class Security extends AbstractHelper
     /**
      * Check if token is correct
      *
-     * @param string  $token   store token
+     * @param string $token store token
      * @param integer $storeId Magento store id
      *
      * @return boolean

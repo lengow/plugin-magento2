@@ -29,7 +29,7 @@ use Magento\Backend\Block\Template\Context;
 class Header extends Template
 {
     /**
-     * @var \Magento\Backend\Helper\Data
+     * @var \Magento\Backend\Helper\Data Magento backend helper instance
      */
     protected $_backendHelper;
 
@@ -44,19 +44,19 @@ class Header extends Template
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Export
+     * @var \Lengow\Connector\Model\Export Lengow export instance
      */
     protected $_export;
 
     /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Template\Context $context
-     * @param \Lengow\Connector\Helper\Data   $dataHelper   Lengow data helper instance
+     * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
+     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Magento\Backend\Helper\Data    $backendHelper
-     * @param \Lengow\Connector\Model\Export  $export
-     * @param array $data
+     * @param \Magento\Backend\Helper\Data $backendHelper Magento backend helper instance
+     * @param \Lengow\Connector\Model\Export $export Lengow export instance
+     * @param array $data additional params
      */
     public function __construct(
         Context $context,
@@ -109,5 +109,4 @@ class Header extends Template
         $this->_export->init(['store_id' => $this->_dataHelper->getStore()->getId()]);
         return $this->_export;
     }
-
 }

@@ -32,11 +32,17 @@ use Magento\Framework\DB\Ddl\Table;
 class InstallSchema implements InstallSchemaInterface
 {
     /**
-     * {@inheritdoc}
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * Installs DB schema for a module
+     *
+     * @param \Magento\Framework\Setup\SchemaSetupInterface $setup Magento schema setup instance
+     * @param \Magento\Framework\Setup\ModuleContextInterface $context Magento module context instance
+     *
+     * @return void
      */
-    public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
-    {
+    public function install(
+        SchemaSetupInterface $setup,
+        ModuleContextInterface $context
+    ) {
         $installer = $setup;
         $installer->startSetup();
 
@@ -52,7 +58,7 @@ class InstallSchema implements InstallSchemaInterface
                         'identity' => true,
                         'unsigned' => true,
                         'nullable' => false,
-                        'primary'  => true,
+                        'primary' => true,
                     ],
                     'Id'
                 )->addColumn(
@@ -62,7 +68,7 @@ class InstallSchema implements InstallSchemaInterface
                     [
                         'nullable' => true,
                         'unsigned' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Order Id'
                 )->addColumn(
@@ -71,7 +77,7 @@ class InstallSchema implements InstallSchemaInterface
                     40,
                     [
                         'nullable' => true,
-                        'default'  => null,
+                        'default' => null,
                     ],
                     'Order sku'
                 )->addColumn(
@@ -90,7 +96,7 @@ class InstallSchema implements InstallSchemaInterface
                     [
                         'nullable' => true,
                         'unsigned' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Delivery Address Id'
                 )->addColumn(
@@ -99,7 +105,7 @@ class InstallSchema implements InstallSchemaInterface
                     3,
                     [
                         'nullable' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Delivery Country Iso'
                 )->addColumn(
@@ -124,7 +130,7 @@ class InstallSchema implements InstallSchemaInterface
                     100,
                     [
                         'nullable' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Marketplace Label'
                 )->addColumn(
@@ -159,7 +165,7 @@ class InstallSchema implements InstallSchemaInterface
                     [
                         'nullable' => true,
                         'unsigned' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Order Item'
                 )->addColumn(
@@ -168,7 +174,7 @@ class InstallSchema implements InstallSchemaInterface
                     3,
                     [
                         'nullable' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Currency'
                 )->addColumn(
@@ -176,11 +182,11 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_DECIMAL,
                     null,
                     [
-                        'nullable'  => true,
-                        'unsigned'  => true,
+                        'nullable' => true,
+                        'unsigned' => true,
                         'precision' => 17,
-                        'scale'     => 2,
-                        'default'   => null
+                        'scale' => 2,
+                        'default' => null
                     ],
                     'Total Paid'
                 )->addColumn(
@@ -188,11 +194,11 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_DECIMAL,
                     null,
                     [
-                        'nullable'  => true,
-                        'unsigned'  => true,
+                        'nullable' => true,
+                        'unsigned' => true,
                         'precision' => 17,
-                        'scale'     => 2,
-                        'default'   => null
+                        'scale' => 2,
+                        'default' => null
                     ],
                     'Commission'
                 )->addColumn(
@@ -201,7 +207,7 @@ class InstallSchema implements InstallSchemaInterface
                     255,
                     [
                         'nullable' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Customer Name'
                 )->addColumn(
@@ -210,7 +216,7 @@ class InstallSchema implements InstallSchemaInterface
                     255,
                     [
                         'nullable' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Customer Email'
                 )->addColumn(
@@ -219,7 +225,7 @@ class InstallSchema implements InstallSchemaInterface
                     100,
                     [
                         'nullable' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Carrier'
                 )->addColumn(
@@ -228,7 +234,7 @@ class InstallSchema implements InstallSchemaInterface
                     100,
                     [
                         'nullable' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Carrier Method'
                 )->addColumn(
@@ -237,7 +243,7 @@ class InstallSchema implements InstallSchemaInterface
                     100,
                     [
                         'nullable' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Carrier Tracking'
                 )->addColumn(
@@ -246,7 +252,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Carrier Id Relay'
                 )->addColumn(
@@ -255,7 +261,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'default'  => 0
+                        'default' => 0
                     ],
                     'Sent Marketplace'
                 )->addColumn(
@@ -264,7 +270,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'default'  => 0
+                        'default' => 0
                     ],
                     'Is In Error'
                 )->addColumn(
@@ -272,8 +278,8 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_BOOLEAN,
                     null,
                     [
-                        'unsigned'  => true,
-                        'default'  => 0
+                        'unsigned' => true,
+                        'default' => 0
                     ],
                     'Is importable again'
                 )->addColumn(
@@ -282,7 +288,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Message'
                 )->addColumn(
@@ -299,7 +305,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Updated At'
                 )->addColumn(
@@ -308,7 +314,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Extra'
                 )->addIndex(
@@ -371,7 +377,7 @@ class InstallSchema implements InstallSchemaInterface
                         'identity' => true,
                         'unsigned' => true,
                         'nullable' => false,
-                        'primary'  => true,
+                        'primary' => true,
                     ],
                     'Id'
                 )->addColumn(
@@ -417,7 +423,7 @@ class InstallSchema implements InstallSchemaInterface
                         'identity' => true,
                         'unsigned' => true,
                         'nullable' => false,
-                        'primary'  => true,
+                        'primary' => true,
                     ],
                     'Id'
                 )->addColumn(
@@ -435,7 +441,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Message'
                 )->addColumn(
@@ -453,7 +459,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'default'  => 0
+                        'default' => 0
                     ],
                     'Is Finished'
                 )->addColumn(
@@ -462,7 +468,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'default'  => 0
+                        'default' => 0
                     ],
                     'Mail'
                 )->addColumn(
@@ -479,7 +485,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Updated At'
                 );
@@ -499,7 +505,7 @@ class InstallSchema implements InstallSchemaInterface
                         'identity' => true,
                         'unsigned' => true,
                         'nullable' => false,
-                        'primary'  => true,
+                        'primary' => true,
                     ],
                     'Id'
                 )->addColumn(
@@ -526,7 +532,7 @@ class InstallSchema implements InstallSchemaInterface
                     100,
                     [
                         'nullable' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Order Line Sku'
                 )->addColumn(
@@ -544,7 +550,7 @@ class InstallSchema implements InstallSchemaInterface
                     [
                         'nullable' => false,
                         'unsigned' => true,
-                        'default'  => 0
+                        'default' => 0
                     ],
                     'Retry'
                 )->addColumn(
@@ -578,7 +584,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => true,
-                        'default'  => null
+                        'default' => null
                     ],
                     'Updated At'
                 )->addIndex(
@@ -612,7 +618,7 @@ class InstallSchema implements InstallSchemaInterface
                         'identity' => true,
                         'unsigned' => true,
                         'nullable' => false,
-                        'primary'  => true
+                        'primary' => true
                     ],
                     'Id'
                 )->addColumn(

@@ -31,7 +31,8 @@ use Psr\Log\LoggerInterface;
 use Magento\Shipping\Model\Carrier\AbstractCarrier;
 use Magento\Shipping\Model\Carrier\CarrierInterface;
 
-class Lengow extends AbstractCarrier implements CarrierInterface {
+class Lengow extends AbstractCarrier implements CarrierInterface
+{
     /**
      * @var string Lengow carrier code
      */
@@ -43,32 +44,32 @@ class Lengow extends AbstractCarrier implements CarrierInterface {
     protected $_isFixed = true;
 
     /**
-     * @var CustomerSession
+     * @var \Magento\Customer\Model\Session Magento customer session instance
      */
     protected $_customerSession;
 
     /**
-     * @var CheckoutSession
+     * @var \Magento\Checkout\Model\Session Magento checkout session instance
      */
     protected $_checkoutSession;
 
     /**
-     * @var ResultFactory
+     * @var \Magento\Shipping\Model\Rate\ResultFactory Magento result factory instance
      */
     protected $_rateResultFactory;
 
     /**
-     * @var MethodFactory
+     * @var \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory Magento method factory instance
      */
     protected $_rateMethodFactory;
 
     /**
-     * @param \Magento\Customer\Model\Session $customerSession
-     * @param \Magento\Checkout\Model\Session $checkoutSession
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     * @param \Magento\Customer\Model\Session $customerSession Magento customer session instance
+     * @param \Magento\Checkout\Model\Session $checkoutSession Magento checkout session instance
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
      * @param \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory
-     * @param \Psr\Log\LoggerInterface $logger
-     * @param \Magento\Shipping\Model\Rate\ResultFactory $rateResultFactory
+     * @param \Psr\Log\LoggerInterface $logger Psr Logger interface instance
+     * @param \Magento\Shipping\Model\Rate\ResultFactory $rateResultFactory Magento result factory instance
      * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
      * @param array $data
      */
@@ -126,16 +127,15 @@ class Lengow extends AbstractCarrier implements CarrierInterface {
      */
     public function collectRates(RateRequest $request)
     {
-        if (!$this->isActive())
-        {
+        if (!$this->isActive()) {
             return false;
         }
         $result = $this->_rateResultFactory->create();
         $method = $this->_rateMethodFactory->create();
         $method->setCarrier('lengow');
-        $method->setCarrierTitle($this->getConfigData( 'title' ));
+        $method->setCarrierTitle($this->getConfigData('title'));
         $method->setMethod('lengow');
-        $method->setMethodTitle( $this->getConfigData('name'));
+        $method->setMethodTitle($this->getConfigData('name'));
         $method->setPrice($this->getSession()->getShippingPrice());
         $method->setCost($this->getSession()->getShippingPrice());
         $result->append($method);
