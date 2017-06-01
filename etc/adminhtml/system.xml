@@ -34,7 +34,8 @@
             <group id="advanced" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>All advanced settings</label>
                 <field id="global_authorized_ip_enable" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Enable IP authorisation</label>
+                    <label>Enable authorisation by IP</label>
+                    <comment>Enable this option if you want your export to be secured by IP. By default, your export is secured by a unique key.</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="global_authorized_ip" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
