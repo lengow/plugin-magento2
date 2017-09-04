@@ -73,23 +73,28 @@ class Config extends AbstractHelper
             'store' => true,
             'no_cache' => true,
         ],
+        'account_id' => [
+            'path' => 'lengow_global_options/store_credential/global_account_id',
+            'global' => true,
+            'no_cache' => false,
+        ],
+        'access_token' => [
+            'path' => 'lengow_global_options/store_credential/global_access_token',
+            'global' => true,
+            'no_cache' => false,
+        ],
+        'secret_token' => [
+            'path' => 'lengow_global_options/store_credential/global_secret_token',
+            'global' => true,
+            'no_cache' => false,
+        ],
         'store_enable' => [
             'path' => 'lengow_global_options/store_credential/global_store_enable',
             'store' => true,
             'no_cache' => false,
         ],
-        'account_id' => [
-            'path' => 'lengow_global_options/store_credential/global_account_id',
-            'store' => true,
-            'no_cache' => false,
-        ],
-        'access_token' => [
-            'path' => 'lengow_global_options/store_credential/global_access_token',
-            'store' => true,
-            'no_cache' => false,
-        ],
-        'secret_token' => [
-            'path' => 'lengow_global_options/store_credential/global_secret_token',
+        'catalog_id' => [
+            'path' => 'lengow_global_options/store_credential/global_catalog_id',
             'store' => true,
             'no_cache' => false,
         ],
@@ -352,30 +357,13 @@ class Config extends AbstractHelper
     /**
      * Get valid account id / access token / secret token by store
      *
-     * @param integer $storeId Magento store Id
-     *
      * @return array
      */
-    public function getAccessId($storeId = null)
+    public function getAccessIds()
     {
-        $accountId = '';
-        $accessToken = '';
-        $secretToken = '';
-        if ($storeId) {
-            $accountId = (int)$this->get('account_id', $storeId);
-            $accessToken = $this->get('access_token', $storeId);
-            $secretToken = $this->get('secret_token', $storeId);
-        } else {
-            $storeCollection = $this->_storeCollectionFactory->create()->addFieldToFilter('is_active', 1);
-            foreach ($storeCollection as $store) {
-                $accountId = $this->get('account_id', $store->getId());
-                $accessToken = $this->get('access_token', $store->getId());
-                $secretToken = $this->get('secret_token', $store->getId());
-                if (strlen($accountId) > 0 && strlen($accessToken) > 0 && strlen($secretToken) > 0) {
-                    break;
-                }
-            }
-        }
+        $accountId = (int)$this->get('account_id');
+        $accessToken = $this->get('access_token');
+        $secretToken = $this->get('secret_token');
         if (strlen($accountId) > 0 && strlen($accessToken) > 0 && strlen($secretToken) > 0) {
             return [$accountId, $accessToken, $secretToken];
         } else {

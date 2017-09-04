@@ -74,9 +74,9 @@ class Connector
         '/v3.0/orders/moi/' => 5,
         '/v3.0/orders/actions/' => 10,
         '/v3.0/marketplaces' => 10,
-        '/v3.0/subscriptions' => 3,
+        '/v3.0/plans' => 3,
         '/v3.0/stats' => 3,
-        '/v3.0/cms' => 3,
+        '/v3.1/cms' => 3,
     ];
 
     /**
@@ -412,21 +412,19 @@ class Connector
      *
      * @param string $type request type (GET / POST / PUT / PATCH)
      * @param string $url request url
-     * @param integer $storeId Magento store id
      * @param array $params request params
      * @param string $body body datas for request
      *
      * @return mixed
      */
-    public function queryApi($type, $url, $storeId = null, $params = [], $body = '')
+    public function queryApi($type, $url, $params = [], $body = '')
     {
         if (!in_array($type, ['get', 'post', 'put', 'patch'])) {
             return false;
         }
         try {
-            if (!$accountId = $this->validAuthenticationByStore($storeId)) {
-                return false;
-            }
+            list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessIds();
+            $this->init(['access_token' => $accessToken, 'secret' => $secretToken]);
             $results = $this->$type(
                 $url,
                 array_merge(['account_id' => $accountId], $params),
@@ -442,16 +440,14 @@ class Connector
     /**
      * Check API Authentication
      *
-     * @param integer $storeId Magento store id
-     *
-     * @return integer|boolean
+     * @return boolean
      */
-    public function validAuthenticationByStore($storeId = null)
+    public function isValidAuth()
     {
-        list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessId($storeId);
         if (!$this->isCurlActivated()) {
             return false;
         }
+        list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessIds();
         if (is_null($accountId) || $accountId == 0 || !is_numeric($accountId)) {
             return false;
         }
@@ -462,7 +458,7 @@ class Connector
             return false;
         }
         if (isset($result['token'])) {
-            return (int)$accountId;
+            return true;
         } else {
             return false;
         }

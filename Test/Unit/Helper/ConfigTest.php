@@ -147,38 +147,22 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Helper\Config::getAccessId
+     * @covers \Lengow\Connector\Helper\Config::getAccessIds
      */
-    public function testGetAccessId()
+    public function testGetAccessIds()
     {
         $results = [null, null, null];
-        $this->_storeCollectionMock->expects($this->once())
-            ->method('addFieldToFilter')
-            ->will($this->returnValue($this->_storeCollectionMock));
-        $accessIds = $this->_configHelper->getAccessId();
+        $accessIds = $this->_configHelper->getAccessIds();
         $this->assertInternalType(
             'array',
             $accessIds,
-            '[Test Get Access id] Check if return is a array without store id'
+            '[Test Get Access ids] Check if return is a array without store id'
         );
 
         $this->assertEquals(
             $accessIds,
             $results,
-            '[Test Get All Customer Group] Check if return is valid without store id'
-        );
-
-        $accessStoreIds = $this->_configHelper->getAccessId(1);
-        $this->assertInternalType(
-            'array',
-            $accessStoreIds,
-            '[Test Get Access id] Check if return is a array with store id'
-        );
-
-        $this->assertEquals(
-            $accessStoreIds,
-            $results,
-            '[Test Get All Customer Group] Check if return is valid with store id'
+            '[Test Get Access ids] Check if return is valid without store id'
         );
     }
 

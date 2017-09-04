@@ -8,36 +8,6 @@ require(['jquery'], function( $ ) {
         }
 
         /**
-         * Check store synchronization with Lengow
-         */
-        function checkStore() {
-            var href = $('.lengow_check_store').attr('data-href'),
-                storeId = $('.lengow_check_store').attr('data-id_store');
-            $.ajax({
-                url: href,
-                method: 'POST',
-                data: {action: 'check_store', store_id: storeId, form_key: FORM_KEY},
-                dataType: 'json',
-                before: function () {
-                    $('.lengow_check_store').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
-                },
-                success: function (data) {
-                    if (data.result == false) {
-                        $('.lengow_check_store').html('<span class="no_indexation">'+data.message+'</span>');
-                        $('.lengow_check_store').attr('id', data.id);
-                        $('.lengow_check_store').after('<a href="'+data.link_href+'"><span>'+data.link_title+'</span></a>');
-                    } else {
-                        $('.lengow_check_store').html('<span class="last_indexation">'+data.message+'</span>');
-                        $('.lengow_check_store').attr('id', data.id);
-                        $('.lengow_check_store').after(data.link_title);
-                    }
-                }
-            });
-        }
-
-        checkStore();
-
-        /**
          * Show or not the product grid
          */
         $('.lengow-connector').on('change', '.lengow_switch_option', function () {

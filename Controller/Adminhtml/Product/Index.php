@@ -135,30 +135,6 @@ class Index extends Action
                             );
                         }
                         break;
-                    case 'check_store':
-                        $storeId = $this->getRequest()->getParam('store_id');
-                        $sync = $this->_syncHelper->checkSyncStore($storeId);
-                        $datas = [];
-                        $datas['result'] = $sync;
-                        if ($sync == true) {
-                            $lastExport = $this->_configHelper->get('last_export', $storeId);
-                            if ($lastExport != null) {
-                                $datas['message'] = __('Last indexation') . '<br />' .
-                                    $this->_dataHelper->getDateInCorrectFormat($lastExport);
-                            } else {
-                                $datas['message'] = __('Not indexed yet');
-                            }
-                            $datas['link_title'] = __('Store synchronized');
-                            $datas['id'] = 'lengow_store_sync';
-                        } else {
-                            $datas['message'] = __('Store not synchronized');
-                            $datas['link_title'] = __('Synchronize my store with Lengow');
-                            $datas['link_href'] = $this->_context->getHelper()
-                                    ->getUrl('lengow_home/') . '?isSync=true';
-                            $datas['id'] = 'lengow_store_no_sync';
-                        }
-                        return $this->_resultJsonFactory->create()->setData($datas);
-                        break;
                     case 'lengow_export_product':
                         $storeId = $this->getRequest()->getParam('store_id');
                         $state = $this->getRequest()->getParam('state');

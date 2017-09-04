@@ -11,24 +11,28 @@
             <group id="global_information_credential" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                 <frontend_model>Lengow\Connector\Block\Adminhtml\System\Config\Check</frontend_model>
             </group>
-            <group id="store_credential" translate="label" type="text" sortOrder="20" showInDefault="0" showInWebsite="0" showInStore="1">
-                <label>Store credentials</label>
-                <field id="global_store_enable" translate="label comment" type="select" sortOrder="20" showInDefault="0" showInWebsite="0" showInStore="1">
+            <group id="store_credential" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="1">
+                <label>Identification settings</label>
+                <field id="global_account_id" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Account ID</label>
+                    <comment>Your Lengow Account ID</comment>
+                </field>
+                <field id="global_access_token" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Access token</label>
+                    <comment>Your Lengow Access Token</comment>
+                </field>
+                <field id="global_secret_token" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Secret token</label>
+                    <comment>Your Lengow Secret Token</comment>
+                </field>
+                <field id="global_store_enable" translate="label comment" type="select" sortOrder="40" showInDefault="0" showInWebsite="0" showInStore="1">
                     <label>Enable store</label>
                     <comment>Enable store to work with Lengow</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="global_account_id" translate="label comment" type="text" sortOrder="30" showInDefault="0" showInWebsite="0" showInStore="1">
-                    <label>Account ID</label>
-                    <comment>Your Lengow Account ID</comment>
-                </field>
-                <field id="global_access_token" translate="label comment" type="text" sortOrder="40" showInDefault="0" showInWebsite="0" showInStore="1">
-                    <label>Access token</label>
-                    <comment>Your Lengow Access Token</comment>
-                </field>
-                <field id="global_secret_token" translate="label comment" type="text" sortOrder="50" showInDefault="0" showInWebsite="0" showInStore="1">
-                    <label>Secret token</label>
-                    <comment>Your Lengow Secret Token</comment>
+                <field id="global_catalog_id" translate="label comment" type="select" sortOrder="50" showInDefault="0" showInWebsite="0" showInStore="1">
+                    <label>Catalogues ID</label>
+                    <comment>Your catalogues ID to import orders. Separate them by ' ; '</comment>
                 </field>
             </group>
             <group id="advanced" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">

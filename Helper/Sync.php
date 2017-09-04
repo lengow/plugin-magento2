@@ -52,17 +52,4 @@ class Sync extends AbstractHelper
         $this->_connector = $modelConnector;
         parent::__construct($context);
     }
-
-    /**
-     * Check that a store is activated and has account id and tokens non-empty
-     *
-     * @param integer $storeId Magento store id
-     *
-     * @return boolean
-     */
-    public function checkSyncStore($storeId)
-    {
-        return $this->_configHelper->get('store_enable', $storeId)
-        && $this->_connector->validAuthenticationByStore($storeId);
-    }
 }
