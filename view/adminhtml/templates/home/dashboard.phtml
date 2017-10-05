@@ -1,0 +1,86 @@
+<?php
+/**
+ * Copyright 2017 Lengow SAS
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+/** @var Lengow\Connector\Block\Adminhtml\Home\Dashboard $block */
+?>
+<div class="lgw-container">
+    <div class="lgw-box lgw-home-header text-center">
+        <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/lengow-white-big.png') ?>" alt="lengow">
+        <h1><?= $block->escapeHtml(__('Hi! Welcome back!')) ?></h1>
+        <a href="http://my.lengow.io/" class="lgw-btn" target="_blank" title="<?= $block->escapeHtml(__('Go to Lengow')) ?>">
+            <?= $block->escapeHtml(__('Go to Lengow')) ?>
+        </a>
+    </div>
+    <div class="lgw-row lgw-home-menu text-center">
+        <div class="lgw-col-4">
+            <a href="<?= $block->getUrl('lengow/product/index') ?>" class="lgw-box-link" title="<?= $block->escapeHtml(__('Products')) ?>">
+                <div class="lgw-box">
+                    <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/home-products.png') ?>" class="img-responsive">
+                    <h2><?= $block->escapeHtml(__('Products')) ?></h2>
+                    <p><?= $block->escapeHtml(__('Take a look at all available products so that you can prepare your catalogue')) ?></p>
+                </div>
+            </a>
+        </div>
+        <div class="lgw-col-4">
+            <a href="<?= $block->getUrl('lengow/order/index') ?>" class="lgw-box-link" title="<?= $block->escapeHtml(__('Orders')) ?>">
+                <div class="lgw-box">
+                    <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/home-orders.png') ?>" class="img-responsive">
+                    <h2>
+                        <?= $block->escapeHtml(__('Orders')) ?>
+                        <?php if($block->getNumberOrderToBeSent()): ?>
+                            <span class="lgw-label lgw-label-red"><?= $block->getNumberOrderToBeSent() ?></span>
+                        <?php endif; ?>
+                    </h2>
+                    <p><?= $block->escapeHtml(__('Manage your orders directly on your Magento dashboard')) ?></p>
+                </div>
+            </a>
+        </div>
+        <div class="lgw-col-4">
+            <a href="<?= $block->getUrl('adminhtml/system_config/edit/section/lengow_global_options') ?>" class="lgw-box-link" title="<?= $block->escapeHtml(__('Settings')) ?>">
+                <div class="lgw-box">
+                    <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/home-settings.png') ?>" class="img-responsive">
+                    <h2><?= $block->escapeHtml(__('Settings')) ?></h2>
+                    <p><?= $block->escapeHtml(__('Configure your Magento plugin main settings')) ?></p>
+                </div>
+            </a>
+        </div>
+    </div>
+    <?php if($block->statIsAvailable()): ?>
+        <div class="lgw-box text-center">
+            <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/picto-stats.png') ?>" class="img-responsive">
+            <h2><?= $block->escapeHtml(__('Lengow, your business partner')) ?></h2>
+            <div class="lgw-row lgw-home-stats">
+                <div class="lgw-col-4 lgw-col-offset-2">
+                    <h5><?= $block->escapeHtml(__('Turnover')) ?></h5>
+                    <span class="stats-big-value"><?= $block->getTurnover() ?></span>
+                </div>
+                <div class="lgw-col-4">
+                    <h5><?= $block->escapeHtml(__('Orders')) ?></h5>
+                    <span class="stats-big-value"><?= $block->getNumberOrder() ?></span>
+                </div>
+            </div>
+            <p>
+                <a href="http://my.lengow.io/" target="_blank" title="<?= $block->escapeHtml(__('Want more stats?')) ?>" class="lgw-btn lgw-btn-white">
+                    <?= $block->escapeHtml(__('Need some help?')) ?>
+                </a>
+            </p>
+        </div>
+    <?php endif; ?>
+    <div class="lgw-box">
+        <h2><?= $block->escapeHtml(__('Need some help?')) ?></h2>
+        <p>
+            <a href="" title="<?= $block->escapeHtml(__('Get in touch with Lengow.')) ?>">
+                <?= $block->escapeHtml(__('Get in touch with Lengow.')) ?>
+            </a>
+        </p>
+        <p>
+            <a href="<?= $block->escapeHtml(__('help.screen.knowledge_link_url')) ?>" target="_blank"
+               title="<?= $block->escapeHtml(__('Visit our Help Center')) ?>"><?= $block->escapeHtml(__('Visit our Help Center')) ?></a>
+            <?= $block->escapeHtml(__('for detailed information on how to configure your Magento plugin properly')) ?>
+        </p>
+    </div>
+</div>

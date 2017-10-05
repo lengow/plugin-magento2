@@ -4,7 +4,9 @@
         <resources>
             <resource id="Magento_Backend::admin">
                 <resource id="Lengow_Connector::lengow" title="Lengow" sortOrder="31">
+                    <resource id="Lengow_Connector::home" title="Dashboard" sortOrder="1" />
                     <resource id="Lengow_Connector::product" title="Products" sortOrder="2" />
+                    <resource id="Lengow_Connector::order" title="Orders" sortOrder="3" />
                     <resource id="Lengow_Connector::log" title="Logs" sortOrder="5" />
                     <resource id="Lengow_Connector::setting" title="Settings" sortOrder="6" />
                 </resource>

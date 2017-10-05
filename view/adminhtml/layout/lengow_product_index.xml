@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <title>Export product</title>
+        <title>Products</title>
         <link src="Lengow_Connector::js/product.js"/>
         <css src="Lengow_Connector::css/lengow-components.css"/>
-        <css src="Lengow_Connector::css/lengow-pages.css"/>
         <css src="Lengow_Connector::css/lengow-layout.css"/>
+        <css src="Lengow_Connector::css/lengow-pages.css"/>
         <css src="Lengow_Connector::css/font-awesome.css"/>
     </head>
     <body>
@@ -17,7 +17,7 @@
         <attribute name="class" value="lengow_connector"/>
         <referenceBlock name="root">
             <action method="setHeaderTitle">
-                <argument translate="true" name="title" xsi:type="string">Export product</argument>
+                <argument translate="true" name="title" xsi:type="string">Products</argument>
             </action>
         </referenceBlock>
         <referenceContainer name="content">
@@ -32,7 +32,7 @@
                     <argument name="default_selection_name" xsi:type="string" translate="true">Default Store</argument>
                 </arguments>
             </block>
-            <block class="Lengow\Connector\Block\Adminhtml\Product\Header" name="lengow_product_header" as="lengow_product_header" template="Lengow_Connector::product.phtml"/>
+            <block class="Lengow\Connector\Block\Adminhtml\Product\Header" name="lengow_product_header" as="lengow_product_header" template="Lengow_Connector::product/header.phtml"/>
             <block class="Lengow\Connector\Block\Adminhtml\Product" name="lengow.product.grid"/>
         </referenceContainer>
     </body>

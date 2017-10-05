@@ -2,6 +2,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
     <menu>
         <add id="Lengow_Connector::lengow" title="Lengow" module="Lengow_Connector" sortOrder="21" dependsOnModule="Lengow_Connector" resource="Lengow_Connector::lengow"/>
+        <add id="Lengow_Connector::home" title="Dashboard" module="Lengow_Connector" action="lengow/home/index" parent="Lengow_Connector::lengow" sortOrder="1" dependsOnModule="Lengow_Connector" resource="Lengow_Connector::home"/>
         <add id="Lengow_Connector::product" title="Products" module="Lengow_Connector" action="lengow/product/index" parent="Lengow_Connector::lengow" sortOrder="2" dependsOnModule="Lengow_Connector" resource="Lengow_Connector::product"/>
         <add id="Lengow_Connector::order" title="Orders" module="Lengow_Connector" action="lengow/order/index" parent="Lengow_Connector::lengow" sortOrder="3" dependsOnModule="Lengow_Connector" resource="Lengow_Connector::order"/>
         <add id="Lengow_Connector::log" title="Logs" module="Lengow_Connector" action="lengow/log/index" parent="Lengow_Connector::lengow" sortOrder="5" dependsOnModule="Lengow_Connector" resource="Lengow_Connector::log"/>
