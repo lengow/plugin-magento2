@@ -45,13 +45,13 @@ class Ordererror extends AbstractModel
      * required => Required fields when creating registration
      * update   => Fields allowed when updating registration
      */
-    protected $_fieldList = array(
-        'order_lengow_id' => array('required' => true, 'updated' => false),
-        'message'         => array('required' => true, 'updated' => false),
-        'type'            => array('required' => true, 'updated' => false),
-        'is_finished'     => array('required' => false, 'updated' => true),
-        'mail'            => array('required' => false, 'updated' => true)
-    );
+    protected $_fieldList = [
+        'order_lengow_id' => ['required' => true, 'updated' => false],
+        'message'         => ['required' => true, 'updated' => false],
+        'type'            => ['required' => true, 'updated' => false],
+        'is_finished'     => ['required' => false, 'updated' => true],
+        'mail'            => ['required' => false, 'updated' => true]
+    ];
 
     /**
      * Constructor
@@ -86,7 +86,7 @@ class Ordererror extends AbstractModel
      *
      * @return Ordererror|false
      */
-    public function createOrderError($params = array())
+    public function createOrderError($params = [])
     {
         foreach ($this->_fieldList as $key => $value) {
             if (!array_key_exists($key, $params) && $value['required']) {
@@ -110,7 +110,7 @@ class Ordererror extends AbstractModel
      *
      * @return Ordererror|false
      */
-    public function updateOrderError($params = array())
+    public function updateOrderError($params = [])
     {
         if (!$this->id) {
             return false;
@@ -132,7 +132,7 @@ class Ordererror extends AbstractModel
      */
     public function getUpdatedFields()
     {
-        $updatedFields = array();
+        $updatedFields = [];
         foreach ($this->_fieldList as $key => $value) {
             if ($value['updated']) {
                 $updatedFields[] = $key;
@@ -213,7 +213,7 @@ class Ordererror extends AbstractModel
 //        if (count($results) > 0) {
 //            foreach ($results as $result) {
 //                $orderError = $this->load($result['id']);
-//                $orderError->updateOrderError(array('is_finished' => 1));
+//                $orderError->updateOrderError(['is_finished' => 1]);
 //                unset($orderError);
 //            }
 //            return true;
@@ -230,12 +230,12 @@ class Ordererror extends AbstractModel
     {
 //         $results = $this->getCollection()
 //            ->join(
-//                array('lengow_order' => 'lengow_order'),
+//                ['lengow_order' => 'lengow_order'],
 //                'lengow_order.id=main_table.order_lengow_id',
-//                array('marketplace_sku' => 'marketplace_sku')
+//                ['marketplace_sku' => 'marketplace_sku']
 //            )
-//            ->addFieldToFilter('mail', array('eq' => 0))
-//            ->addFieldToFilter('is_finished', array('eq' => 0))
+//            ->addFieldToFilter('mail', ['eq' => 0])
+//            ->addFieldToFilter('is_finished', ['eq' => 0])
 //            ->addFieldToSelect('message')
 //            ->addFieldToSelect('id')
 //            ->getData();

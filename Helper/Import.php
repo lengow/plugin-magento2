@@ -36,7 +36,7 @@ class Import extends AbstractHelper
     /**
      * @var array marketplaces collection
      */
-    public static $marketplaces = array();
+    public static $marketplaces = [];
 
     /**
      * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
@@ -56,12 +56,12 @@ class Import extends AbstractHelper
     /**
      * @var array valid states lengow to create a Lengow order
      */
-    protected $_lengowStates = array(
+    protected $_lengowStates = [
         'accepted',
         'waiting_shipment',
         'shipped',
         'closed'
-    );
+    ];
 
     /**
      * Constructor
@@ -99,10 +99,10 @@ class Import extends AbstractHelper
 //        if (!array_key_exists($name, self::$marketplaces)) {
 //            self::$marketplaces[$name] = Mage::getModel(
 //                'lengow/import_marketplace',
-//                array(
+//                [
 //                    'name'     => $name,
 //                    'store_id' => $storeId
-//                )
+//                ]
 //            );
 //        }
 //        return self::$marketplaces[$name];
@@ -208,17 +208,17 @@ class Import extends AbstractHelper
 //
 //        if ($timestampCron && $timestampManual) {
 //            if ((int)$timestampCron > (int) $timestampManual) {
-//                return array('type' => 'cron', 'timestamp' => (int)$timestampCron);
+//                return ['type' => 'cron', 'timestamp' => (int)$timestampCron];
 //            } else {
-//                return array('type' => 'manual', 'timestamp' => (int)$timestampManual);
+//                return ['type' => 'manual', 'timestamp' => (int)$timestampManual];
 //            }
 //        } elseif ($timestampCron && !$timestampManual) {
-//            return array('type' => 'cron', 'timestamp' => (int)$timestampCron);
+//            return ['type' => 'cron', 'timestamp' => (int)$timestampCron];
 //        } elseif ($timestampManual && !$timestampCron) {
-//            return array('type' => 'manual', 'timestamp' => (int)$timestampManual);
+//            return ['type' => 'manual', 'timestamp' => (int)$timestampManual];
 //        }
 //
-//        return array('type' => 'none', 'timestamp' => 'none');
+//        return ['type' => 'none', 'timestamp' => 'none'];
 //    }
 
     /**
@@ -236,9 +236,9 @@ class Import extends AbstractHelper
                 $mailBody.= '<li>'.$this->_dataHelper->decodeLogMessage(
                         'lengow_log.mail_report.order',
                         null,
-                        array(
+                        [
                             'marketplace_sku' => $error['marketplace_sku']
-                        )
+                        ]
                     );
                 if ($error['message'] != '') {
                     $mailBody.= ' - '.$this->_dataHelper->decodeLogMessage($error['message']);
@@ -247,7 +247,7 @@ class Import extends AbstractHelper
                 }
                 $mailBody.= '</li>';
                 $orderError = $this->_orderError->load($error['id']);
-                $orderError->updateOrderError(array('mail' => 1));
+                $orderError->updateOrderError(['mail' => 1]);
                 unset($orderError);
             }
             $mailBody .=  '</ul></p>';
@@ -265,13 +265,13 @@ class Import extends AbstractHelper
                         $mail->send();
                         $this->_dataHelper->log(
                             'MailReport',
-                            $this->_dataHelper->setLogMessage('log.mail_report.send_mail_to', array('email' => $email)),
+                            $this->_dataHelper->setLogMessage('log.mail_report.send_mail_to', ['email' => $email]),
                             $logOutput
                         );
                     } catch (Exception $e) {
                         $this->_dataHelper->log(
                             'MailReport',
-                            $this->_dataHelper->setLogMessage('log.mail_report.unable_send_mail_to', array('email' => $email)),
+                            $this->_dataHelper->setLogMessage('log.mail_report.unable_send_mail_to', ['email' => $email]),
                             $logOutput
                         );
                     }

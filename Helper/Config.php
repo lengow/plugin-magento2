@@ -505,9 +505,9 @@ class Config extends AbstractHelper
      */
     public function getReportEmailAddress()
     {
-        $reportEmailAddress = array();
+        $reportEmailAddress = [];
         $emails = $this->get('report_mail_address');
-        $emails = trim(str_replace(array("\r\n", ',', ' '), ';', $emails), ';');
+        $emails = trim(str_replace(["\r\n", ',', ' '], ';', $emails), ';');
         $emails = explode(';', $emails);
         foreach ($emails as $email) {
             if (strlen($email) > 0 && Zend_Validate::is($email, 'EmailAddress')) {

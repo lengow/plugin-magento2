@@ -46,7 +46,7 @@ class Sync extends AbstractHelper
     public function getSyncData()
     {
         //TODO
-//        $data = array();
+//        $data = [];
 //        $data['domain_name']    = $_SERVER["SERVER_NAME"];
 //        $data['token']          = $this->_configHelper->getToken();
 //        $data['type']           = 'magento';
@@ -58,7 +58,7 @@ class Sync extends AbstractHelper
 //            foreach ($website->getGroups() as $group) {
 //                $stores = $group->getStores();
 //                foreach ($stores as $store) {
-//                    $export = Mage::getModel('lengow/export', array("store_id" => $store->getId()));
+//                    $export = Mage::getModel('lengow/export', ["store_id" => $store->getId()]);
 //                    $data['shops'][$store->getId()]['token']                   = $this->_configHelper->getToken($store->getId());
 //                    $data['shops'][$store->getId()]['name']                    = $store->getName();
 //                    $data['shops'][$store->getId()]['domain']                  = $store->getBaseUrl();
