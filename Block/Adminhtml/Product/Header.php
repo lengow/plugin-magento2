@@ -20,7 +20,6 @@
 namespace Lengow\Connector\Block\Adminhtml\Product;
 
 use Magento\Backend\Block\Template;
-use Magento\Backend\Helper\Data as BackendHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Export as Export;
@@ -28,11 +27,6 @@ use Magento\Backend\Block\Template\Context;
 
 class Header extends Template
 {
-    /**
-     * @var \Magento\Backend\Helper\Data Magento backend helper instance
-     */
-    protected $_backendHelper;
-
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
      */
@@ -49,64 +43,77 @@ class Header extends Template
     protected $_export;
 
     /**
+     * @var \Magento\Store\Api\Data\StoreInterface Magento store instance
+     */
+    protected $_store;
+
+    /**
      * Constructor
      *
      * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
+     * @param array $data additional params
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Magento\Backend\Helper\Data $backendHelper Magento backend helper instance
      * @param \Lengow\Connector\Model\Export $export Lengow export instance
-     * @param array $data additional params
      */
     public function __construct(
         Context $context,
         array $data = [],
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
-        BackendHelper $backendHelper,
         Export $export
     ) {
         parent::__construct($context, $data);
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
-        $this->_backendHelper = $backendHelper;
         $this->_export = $export;
+        $this->_store = $this->_dataHelper->getStore();
     }
 
     /**
+     * Selection is enabled
      *
-     * @return \Magento\Backend\Helper\Data
+     * @return boolean
      */
-    public function getBackendHelper()
+    public function selectionIsEnabled()
     {
-        return $this->_backendHelper;
+        return (bool)$this->_configHelper->get(
+            'selection_enable',
+            $this->_store->getId()
+        );
     }
 
     /**
+     * Get Magento store instance
      *
-     * @return \Lengow\Connector\Helper\Data
+     * @return \Magento\Store\Api\Data\StoreInterface
      */
-    public function getDataHelper()
+    public function getStore()
     {
-        return $this->_dataHelper;
+        return $this->_store;
     }
 
     /**
-     *
-     * @return \Lengow\Connector\Helper\Config
-     */
-    public function getConfigHelper()
-    {
-        return $this->_configHelper;
-    }
-
-    /**
+     * Get Lengow export instance
      *
      * @return \Lengow\Connector\Model\Export
      */
     public function getExport()
     {
-        $this->_export->init(['store_id' => $this->_dataHelper->getStore()->getId()]);
+        $this->_export->init(['store_id' => $this->_store->getId()]);
         return $this->_export;
+    }
+
+    /**
+     * Get export url
+     *
+     * @return string
+     */
+    public function getExportUrl()
+    {
+        return $this->_dataHelper->getExportUrl(
+            $this->_store->getId(),
+            ['stream' => 1, 'update_export_date' => 0]
+        );
     }
 }

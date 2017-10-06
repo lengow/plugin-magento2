@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <title>Orders</title>
+        <title>Dashboard</title>
         <css src="Lengow_Connector::css/lengow-components.css"/>
         <css src="Lengow_Connector::css/lengow-layout.css"/>
         <css src="Lengow_Connector::css/lengow-pages.css"/>
@@ -10,17 +10,17 @@
     <body>
         <referenceBlock name="menu">
             <action method="setActive">
-                <argument name="itemId" xsi:type="string">Lengow_Connector::order</argument>
+                <argument name="itemId" xsi:type="string">Lengow_Connector::dashboard</argument>
             </action>
         </referenceBlock>
         <attribute name="class" value="lengow_connector"/>
         <referenceBlock name="root">
             <action method="setHeaderTitle">
-                <argument translate="true" name="title" xsi:type="string">Orders</argument>
+                <argument translate="true" name="title" xsi:type="string">Dashboard</argument>
             </action>
         </referenceBlock>
         <referenceContainer name="content">
-            <uiComponent name="lengow_order_listing"/>
+            <block class="Lengow\Connector\Block\Adminhtml\Home\Dashboard" name="lengow_home_dashboard" as="lengow_home_dashboard" template="Lengow_Connector::home/dashboard.phtml"/>
         </referenceContainer>
     </body>
 </page>
