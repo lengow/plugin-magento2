@@ -21,9 +21,15 @@ namespace Lengow\Connector\Block\Adminhtml\Home;
 
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
+use Lengow\Connector\Helper\Sync as SyncHelper;
 
 class Dashboard extends Template
 {
+    /**
+     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     */
+    protected $_syncHelper;
+
     /**
      * @var array Lengow statistics
      */
@@ -39,13 +45,16 @@ class Dashboard extends Template
      *
      * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
      * @param array $data additional params
+     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
      */
     public function __construct(
         Context $context,
-        array $data = []
+        array $data = [],
+        SyncHelper $syncHelper
     ) {
         parent::__construct($context, $data);
-        // TODO get Lengow statistics
+        $this->_syncHelper = $syncHelper;
+        $this->_stats = $this->_syncHelper->getStatistic();
         // TODO get number of order to be sent
     }
 
