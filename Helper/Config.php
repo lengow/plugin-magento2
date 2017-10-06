@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Helper;
 
+use Lengow\Connector\Model\Exception;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
@@ -31,6 +32,7 @@ use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as Attrib
 use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as CustomerGroupCollectionFactory;
 use Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory as ConfigDataCollectionFactory;
 use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollectionFactory;
+use Lengow\Connector\Model\Connector;
 
 class Config extends AbstractHelper
 {
@@ -495,4 +497,27 @@ class Config extends AbstractHelper
             $this->set('export_attribute', $attributeList, 0, true);
         }
     }
+
+    /**
+     * Get all report mails
+     *
+     * @return array
+     */
+    public function getReportEmailAddress()
+    {
+        $reportEmailAddress = array();
+        $emails = $this->get('report_mail_address');
+        $emails = trim(str_replace(array("\r\n", ',', ' '), ';', $emails), ';');
+        $emails = explode(';', $emails);
+        foreach ($emails as $email) {
+            if (strlen($email) > 0 && Zend_Validate::is($email, 'EmailAddress')) {
+                $reportEmailAddress[] = $email;
+            }
+        }
+        if (count($reportEmailAddress) == 0) {
+            $reportEmailAddress[] = Mage::getStoreConfig('trans_email/ident_general/email');
+        }
+        return $reportEmailAddress;
+    }
+
 }

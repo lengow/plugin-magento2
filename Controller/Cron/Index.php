@@ -24,6 +24,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Model\Import as ImportModel;
 
 /**
  * CronController
@@ -46,23 +47,31 @@ class Index extends Action
     protected $_configHelper;
 
     /**
+     * @var \Lengow\Connector\Model\Import Lengow import model instance
+     */
+    protected $_importModel;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\App\Action\Context $context Magento action context instance
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param \Lengow\Connector\Model\Import $importModel Lengow import model instance
      */
     public function __construct(
         Context $context,
         JsonHelper $jsonHelper,
         SecurityHelper $securityHelper,
-        ConfigHelper $configHelper
+        ConfigHelper $configHelper,
+        ImportModel $importModel
     ) {
         parent::__construct($context);
         $this->_jsonHelper = $jsonHelper;
         $this->_securityHelper = $securityHelper;
         $this->_configHelper = $configHelper;
+        $this->_importModel = $importModel;
     }
 
     /**
@@ -88,6 +97,7 @@ class Index extends Action
             // get all store datas for synchronisation with Lengow
             if ($this->getRequest()->getParam('get_sync') == 1) {
                 //TODO
+                //$storeDatas = Mage::helper('lengow_connector/sync')->getSyncData();
                 $storeDatas = ['plop' => 'coucou'];
                 $this->getResponse()->setBody($this->_jsonHelper->jsonEncode($storeDatas));
             } else {
@@ -124,6 +134,8 @@ class Index extends Action
                     }
                     $params['type'] = 'cron';
                     //TODO exec
+                    // Import orders
+                    $this->_importModel->exec();
                 }
                 // sync action between Lengow and Magento
                 if (is_null($sync) || $sync === 'action') {

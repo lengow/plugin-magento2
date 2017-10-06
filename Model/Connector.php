@@ -22,6 +22,7 @@ namespace Lengow\Connector\Model;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Exception as LengowException;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Lengow connector
@@ -84,7 +85,6 @@ class Connector
      */
     protected $_dataHelper;
 
-
     /**
      * @var \Lengow\Connector\Helper\Config Lengow config helper instance
      */
@@ -104,17 +104,17 @@ class Connector
         $this->_configHelper = $configHelper;
     }
 
+
     /**
-     * Init a new connector
+     * Make a new Lengow API Connector.
      *
-     * @param array $params optional options for init
-     * string access_token Lengow access token
-     * string secret       Lengow secret
+     * @param string $accessToken your access token
+     * @param string $secret your secret
      */
-    public function init($params)
+    public function init($accessToken, $secret)
     {
-        $this->_accessToken = $params['access_token'];
-        $this->_secret = $params['secret'];
+        $this->_accessToken = $accessToken;
+        $this->_secret = $secret;
     }
 
     /**
@@ -424,7 +424,7 @@ class Connector
         }
         try {
             list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessIds();
-            $this->init(['access_token' => $accessToken, 'secret' => $secretToken]);
+            $this->init($accessToken, $secretToken);
             $results = $this->$type(
                 $url,
                 array_merge(['account_id' => $accountId], $params),
@@ -444,17 +444,18 @@ class Connector
      */
     public function isValidAuth()
     {
-        if (!$this->isCurlActivated()) {
-            return false;
-        }
+        //TODO
+//        if (!Mage::helper('lengow_connector/toolbox')->isCurlActivated()) {
+//            return false;
+//        }
         list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessIds();
         if (is_null($accountId) || $accountId == 0 || !is_numeric($accountId)) {
             return false;
         }
         try {
-            $this->init(['access_token' => $accessToken, 'secret' => $secretToken]);
+            $this->init($accessToken, $secretToken);
             $result = $this->connect();
-        } catch (LengowException $e) {
+        } catch (Exception $e) {
             return false;
         }
         if (isset($result['token'])) {
@@ -462,15 +463,5 @@ class Connector
         } else {
             return false;
         }
-    }
-
-    /**
-     * Check if PHP Curl is activated
-     *
-     * @return boolean
-     */
-    public function isCurlActivated()
-    {
-        return function_exists('curl_version');
     }
 }
