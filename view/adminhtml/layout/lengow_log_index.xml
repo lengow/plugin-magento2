@@ -2,6 +2,10 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
         <title>Logs</title>
+        <css src="Lengow_Connector::css/lengow-components.css"/>
+        <css src="Lengow_Connector::css/lengow-layout.css"/>
+        <css src="Lengow_Connector::css/lengow-pages.css"/>
+        <css src="Lengow_Connector::css/font-awesome.css"/>
     </head>
     <body>
         <referenceBlock name="menu">
@@ -15,7 +19,10 @@
             </action>
         </referenceBlock>
         <referenceContainer name="content">
-            <uiComponent name="lengow_log_listing"/>
+            <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_log_main" template="Lengow_Connector::log/main.phtml" >
+                <block class="Lengow\Connector\Block\Adminhtml\Header" name="lengow_header" as="lengow_header" template="Lengow_Connector::header.phtml"/>
+                <uiComponent name="lengow_log_listing"/>
+            </block>
         </referenceContainer>
     </body>
 </page>

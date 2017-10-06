@@ -21,19 +21,23 @@
             </action>
         </referenceBlock>
         <referenceContainer name="content">
-            <block class="Magento\Backend\Block\Store\Switcher" name="store_switcher" as="store_switcher" template="Magento_Backend::store/switcher.phtml">
-                <action method="setUseConfirm">
-                    <argument name="params" xsi:type="string">0</argument>
-                </action>
-                <action method="setStoreVarName">
-                    <argument name="var_name" xsi:type="string">store</argument>
-                </action>
-                <arguments>
-                    <argument name="default_selection_name" xsi:type="string" translate="true">Default Store</argument>
-                </arguments>
+            <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_product_main" template="Lengow_Connector::product/main.phtml" >
+                <block class="Lengow\Connector\Block\Adminhtml\Header" name="lengow_header" as="lengow_header" template="Lengow_Connector::header.phtml"/>
+                <block class="Lengow\Connector\Block\Adminhtml\Product\Header" name="lengow_product_header" as="lengow_product_header" template="Lengow_Connector::product/header.phtml">
+                    <block class="Magento\Backend\Block\Store\Switcher" name="store_switcher" as="store_switcher" template="Magento_Backend::store/switcher.phtml">
+                        <action method="setUseConfirm">
+                            <argument name="params" xsi:type="string">0</argument>
+                        </action>
+                        <action method="setStoreVarName">
+                            <argument name="var_name" xsi:type="string">store</argument>
+                        </action>
+                        <arguments>
+                            <argument name="default_selection_name" xsi:type="string" translate="true">Default Store</argument>
+                        </arguments>
+                    </block>
+                </block>
+                <block class="Lengow\Connector\Block\Adminhtml\Product" name="lengow_product_listing"/>
             </block>
-            <block class="Lengow\Connector\Block\Adminhtml\Product\Header" name="lengow_product_header" as="lengow_product_header" template="Lengow_Connector::product/header.phtml"/>
-            <block class="Lengow\Connector\Block\Adminhtml\Product" name="lengow.product.grid"/>
         </referenceContainer>
     </body>
 </page>

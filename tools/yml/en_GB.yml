@@ -4,11 +4,14 @@ en:
   menu:
     dashboard: "Dashboard"
     products: "Products"
-    settings: "Settings"
+    orders: "Orders"
     logs: "Logs"
+    settings: "Settings"
   global:
     just_yes: "Yes"
     just_no: "No"
+  header:
+    preprod_active: "Pre-production mode"
   dashboard:
     screen:
       title: "Dashboard"
