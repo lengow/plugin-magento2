@@ -46,6 +46,8 @@
 "Unpublish in Lengow","Unpublish in Lengow"
 "Something went wrong while updating the lengow product(s) attribute.","Something went wrong while updating the lengow product(s) attribute."
 "Orders","Orders"
+"You are in pre-production mode. You can import orders, but no interaction with Lengow is possible.","You are in pre-production mode. You can import orders, but no interaction with Lengow is possible."
+"Change this","Change this"
 "Actions","Actions"
 "Success","Success"
 "Error","Error"

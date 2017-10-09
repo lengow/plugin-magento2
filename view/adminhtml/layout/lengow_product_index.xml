@@ -21,7 +21,7 @@
             </action>
         </referenceBlock>
         <referenceContainer name="content">
-            <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_product_main" template="Lengow_Connector::product/main.phtml" >
+            <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_product_main" template="Lengow_Connector::product/main.phtml">
                 <block class="Lengow\Connector\Block\Adminhtml\Header" name="lengow_header" as="lengow_header" template="Lengow_Connector::header.phtml"/>
                 <block class="Lengow\Connector\Block\Adminhtml\Product\Header" name="lengow_product_header" as="lengow_product_header" template="Lengow_Connector::product/header.phtml">
                     <block class="Magento\Backend\Block\Store\Switcher" name="store_switcher" as="store_switcher" template="Magento_Backend::store/switcher.phtml">

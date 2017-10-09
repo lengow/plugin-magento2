@@ -20,7 +20,7 @@
             </action>
         </referenceBlock>
         <referenceContainer name="content">
-            <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_home_main" template="Lengow_Connector::home/main.phtml" >
+            <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_home_main" template="Lengow_Connector::home/main.phtml">
                 <block class="Lengow\Connector\Block\Adminhtml\Header" name="lengow_header" as="lengow_header" template="Lengow_Connector::header.phtml"/>
                 <block class="Lengow\Connector\Block\Adminhtml\Home\Dashboard" name="lengow_home_dashboard" as="lengow_home_dashboard" template="Lengow_Connector::home/dashboard.phtml"/>
             </block>

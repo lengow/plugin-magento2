@@ -19,7 +19,7 @@
             </action>
         </referenceBlock>
         <referenceContainer name="content">
-            <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_log_main" template="Lengow_Connector::log/main.phtml" >
+            <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_log_main" template="Lengow_Connector::log/main.phtml">
                 <block class="Lengow\Connector\Block\Adminhtml\Header" name="lengow_header" as="lengow_header" template="Lengow_Connector::header.phtml"/>
                 <uiComponent name="lengow_log_listing"/>
             </block>

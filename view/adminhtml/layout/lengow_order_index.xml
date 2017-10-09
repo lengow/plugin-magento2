@@ -20,8 +20,9 @@
             </action>
         </referenceBlock>
         <referenceContainer name="content">
-            <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_order_main" template="Lengow_Connector::order/main.phtml" >
+            <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_order_main" template="Lengow_Connector::order/main.phtml">
                 <block class="Lengow\Connector\Block\Adminhtml\Header" name="lengow_header" as="lengow_header" template="Lengow_Connector::header.phtml"/>
+                <block class="Lengow\Connector\Block\Adminhtml\Order\Header" name="lengow_order_header" as="lengow_order_header" template="Lengow_Connector::order/header.phtml"/>
                 <uiComponent name="lengow_order_listing"/>
             </block>
         </referenceContainer>
