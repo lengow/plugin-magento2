@@ -8,6 +8,9 @@
 /** @var Lengow\Connector\Block\Adminhtml\Product\Header $block */
 ?>
 <div class="lgw-box">
+    <div class="lengow-export-switcher">
+        <?= $block->getChildHtml('store_switcher') ?>
+    </div>
     <div class="lengow_export_feed">
         <a href="<?= $block->getExportUrl() ?>" target="_blank">
             <i class="fa fa-download lengow_tooltip">

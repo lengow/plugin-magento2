@@ -4,11 +4,14 @@ en:
   menu:
     dashboard: "Dashboard"
     products: "Products"
-    settings: "Settings"
+    orders: "Orders"
     logs: "Logs"
+    settings: "Settings"
   global:
     just_yes: "Yes"
     just_no: "No"
+  header:
+    preprod_active: "Pre-production mode"
   dashboard:
     screen:
       title: "Dashboard"
@@ -55,6 +58,8 @@ en:
   order:
     screen:
       title: "Orders"
+      preprod_warning_message: "You are in pre-production mode. You can import orders, but no interaction with Lengow is possible."
+      preprod_warning_link: "Change this"
     table:
       lengow_action: "Actions"
       action_success: "Success"

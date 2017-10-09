@@ -152,51 +152,25 @@ span.publish-lgw {
 
 #lengow_product_store_name {
   display: inline-block;
-  margin-right: 10px;
+  padding-top: 15px;
 }
 
 #parent_total_products, #parent_exported_products {
   display: inline-block;
 }
 
-
 #parent_exported_products{
   font-weight: bold;
 }
 
-a.lengow_check_store {
-  padding-left: 3px;
-  padding-right: 14px;
-  margin-right: 5px;
-  margin-bottom: 5px;
-  border-radius: 8px;
-}
-
-#lengow_store_sync {
-  background-color: #45bf7b;
-}
-
-#lengow_store_no_sync {
-  background-color: #d7d7d7;
-}
-
-#lengow_check_store {
-  margin-bottom: 5px;
-  margin-top: 30px;
-}
-
-#lengow_check_store a {
-  color: #2f2f2f;
-  text-decoration: underline;
-}
-
-#lengow_check_store a:hover {
-  color: #00aeef;
+.lengow-export-switcher {
+  position: absolute;
 }
 
 .lengow_export_feed {
   position: absolute;
   right: 60px;
+  padding-top: 10px;
 }
 
 body.adminhtml-lengow-product-index .products-exported { 
