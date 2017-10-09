@@ -19,7 +19,6 @@
 
 namespace Lengow\Connector\Helper;
 
-use Lengow\Connector\Model\Exception;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
@@ -32,10 +31,14 @@ use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as Attrib
 use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as CustomerGroupCollectionFactory;
 use Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory as ConfigDataCollectionFactory;
 use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollectionFactory;
-use Lengow\Connector\Model\Connector;
 
 class Config extends AbstractHelper
 {
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface Magento scopeConfig instance
+     */
+    protected $_scopeConfigInterface;
+
     /**
      * @var \Magento\Framework\App\Config\Storage\WriterInterface Magento writer instance
      */
@@ -282,6 +285,7 @@ class Config extends AbstractHelper
      * @param \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory $attributeCollectionFactory
      * @param \Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory $configDataCollectionFactory
      * @param \Magento\Store\Model\ResourceModel\Store\CollectionFactory $storeCollectionFactory
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         Context $context,
@@ -290,7 +294,8 @@ class Config extends AbstractHelper
         CustomerGroupCollectionFactory $customerGroupCollectionFactory,
         AttributeCollectionFactory $attributeCollectionFactory,
         ConfigDataCollectionFactory $configDataCollectionFactory,
-        StoreCollectionFactory $storeCollectionFactory
+        StoreCollectionFactory $storeCollectionFactory,
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->_writerInterface = $writerInterface;
         $this->_cacheManager = $cacheManager;
@@ -298,6 +303,7 @@ class Config extends AbstractHelper
         $this->_attributeCollectionFactory = $attributeCollectionFactory;
         $this->_configDataCollectionFactory = $configDataCollectionFactory;
         $this->_storeCollectionFactory = $storeCollectionFactory;
+        $this->_scopeConfigInterface = $scopeConfig;
         parent::__construct($context);
     }
 
@@ -323,7 +329,7 @@ class Config extends AbstractHelper
             $value = count($results) > 0 ? $results[0]['value'] : '';
         } else {
             $scope = $storeId == 0 ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES;
-            $value = $this->scopeConfig->getValue($this->_options[$key]['path'], $scope, $storeId);
+            $value = $this->_scopeConfigInterface->getValue($this->_options[$key]['path'], $scope, $storeId);
         }
         return $value;
     }
@@ -518,6 +524,29 @@ class Config extends AbstractHelper
             $reportEmailAddress[] = Mage::getStoreConfig('trans_email/ident_general/email');
         }
         return $reportEmailAddress;
+    }
+
+    /**
+     * Get catalog ids for a specific store
+     *
+     * @param integer $storeId Magento store id
+     *
+     * @return array
+     */
+    public function getCatalogIds($storeId)
+    {
+        $catalogIds = array();
+        $storeCatalogIds = $this->get('catalog_id', $storeId);
+        if (strlen($storeCatalogIds) > 0 && $storeCatalogIds != 0) {
+            $ids = trim(str_replace(array("\r\n", ',', '-', '|', ' ', '/'), ';', $storeCatalogIds), ';');
+            $ids = array_filter(explode(';', $ids));
+            foreach ($ids as $id) {
+                if (is_numeric($id) && $id > 0) {
+                    $catalogIds[] = (int)$id;
+                }
+            }
+        }
+        return $catalogIds;
     }
 
 }

@@ -36,7 +36,6 @@ use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Export\Feed;
 use Lengow\Connector\Model\Export\Product;
 use Lengow\Connector\Model\Import\Ordererror;
-use Lengow\Connector\Model\Connector;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Lengow\Connector\Model\Exception as LengowException;
 
@@ -270,6 +269,16 @@ class Import {
     protected $_accountIds = [];
 
     /**
+     * @var array store catalog ids for import
+     */
+    protected $_storeCatalogIds = [];
+
+    /**
+     * @var array catalog ids already imported
+     */
+    protected $_catalogIds = [];
+
+    /**
      * Constructor
      *
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
@@ -379,13 +388,12 @@ class Import {
     /**
      * Execute import: fetch orders and import them
      *
-     * @throws Lengow_Connector_Model_Exception order not found
+     * @throws Exception order not found
      *
      * @return array
      */
     public function exec() {
 
-        echo 'plop0';
         $orderNew    = 0;
         $orderUpdate = 0;
         $orderError  = 0;
@@ -394,7 +402,7 @@ class Import {
         // clean logs > 20 days
         $this->_dataHelper->cleanLog();
         if ( $this->_importHelper->importIsInProcess() && ! $this->_preprodMode && ! $this->_importOneOrder ) {
-            //TODO logs
+            //TODO logs with english
             $globalError = $this->_dataHelper->setLogMessage(
                 'lengow_log.error.rest_time_to_import',
                 ['rest_time' => $this->_importHelper->restTimeToImport()]
@@ -433,7 +441,6 @@ class Import {
                 if ( ( ! is_null( $this->_storeId ) && (int) $store->getId() != $this->_storeId ) || ! $store->isActive() ) {
                     continue;
                 }
-                echo "<br />" . $store->getFrontendName();
                 if ( $this->_configHelper->get( 'store_enable', (int) $store->getId() ) ) {
                     echo "<br />" . $store->getFrontendName() . $store->getId();
                     $this->_dataHelper->log(
@@ -449,21 +456,20 @@ class Import {
                     );
                     try {
                         // check store catalog ids
-//                        if (!$this->_checkCatalogIds($store)) {//TODO
-//                            $errorCatalogIds = $this->_dataHelper->setLogMessage(
-//                                'lengow_log.error.no_catalog_for_store',
-//                                [
-//                                    'store_name' => $store->getName(),
-//                                    'store_id' => (int)$store->getId(),
-//                                ]
-//                            );
-//                            $this->_dataHelper->log('Import', $errorCatalogIds, $this->_logOutput);
-//                            $errors[(int)$store->getId()] = $errorCatalogIds;
-//                            continue;
-//                        }
+                        if (!$this->_checkCatalogIds($store)) {
+                            $errorCatalogIds = $this->_dataHelper->setLogMessage(
+                                'lengow_log.error.no_catalog_for_store',
+                                [
+                                    'store_name' => $store->getName(),
+                                    'store_id' => (int)$store->getId(),
+                                ]
+                            );
+                            $this->_dataHelper->log('Import', $errorCatalogIds, $this->_logOutput);
+                            $errors[(int)$store->getId()] = $errorCatalogIds;
+                            continue;
+                        }
                         // get orders from Lengow API
                         $orders = $this->_getOrdersFromApi( $store );
-                        var_dump( $orders );
                         $totalOrders = count( $orders );
                         if ( $this->_importOneOrder ) {
                             $this->_dataHelper->log(
@@ -492,25 +498,25 @@ class Import {
                                 $this->_logOutput
                             );
                         }
-//                        if ( $totalOrders <= 0 && $this->_importOneOrder ) {
-//                            throw new Lengow_Connector_Model_Exception( 'lengow_log.error.order_not_found' );
-//                        } elseif ( $totalOrders <= 0 ) {
-//                            continue;
-//                        }
-//                        if ( ! is_null( $this->_orderLengowId ) ) {
-//                            $lengowOrderError = Mage::getModel( 'lengow/import_ordererror' );
-//                            $lengowOrderError->finishOrderErrors( $this->_orderLengowId );
-//                        }
-//                        // import orders in Magento
+                        if ( $totalOrders <= 0 && $this->_importOneOrder ) {
+                            throw new Exception( 'lengow_log.error.order_not_found' );
+                        } elseif ( $totalOrders <= 0 ) {
+                            continue;
+                        }
+                        if ( ! is_null( $this->_orderLengowId ) ) {
+                            $this->_orderError->finishOrderErrors( $this->_orderLengowId );
+                        }
+                        // import orders in Magento
+                        //TODO
 //                        $result = $this->_importOrders( $orders, (int) $store->getId() );
 //                        if ( ! $this->_importOneOrder ) {
 //                            $orderNew += $result['order_new'];
 //                            $orderUpdate += $result['order_update'];
 //                            $orderError += $result['order_error'];
 //                        }
-//                    } catch ( Lengow_Connector_Model_Exception $e ) {
-//                        $errorMessage = $e->getMessage();
                     } catch ( Exception $e ) {
+                        $errorMessage = $e->getMessage();
+                    } catch ( \Exception $e ) {
                         $errorMessage = '[Magento error] "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
                     }
                     if ( isset( $errorMessage ) ) {
@@ -578,6 +584,7 @@ class Import {
             if ( $this->_configHelper->get( 'report_mail_enable' ) && ! $this->_preprodMode && ! $this->_importOneOrder ) {
                 $this->_importHelper->sendMailAlert( $this->_logOutput );
             }
+            //TODO
 //            if ( ! $this->_preprodMode && ! $this->_importOneOrder && $this->_typeImport == 'manual' ) {
 //                $action = Mage::getModel( 'lengow/import_action' );
 //                $action->checkFinishAction();
@@ -728,5 +735,45 @@ class Import {
         } while ($finish != true);
 
         return $orders;
+    }
+
+    /**
+     * Check catalog ids for a store
+     *
+     * @param \Magento\Store\Model\Store $store Magento store instance
+     *
+     * @return boolean
+     */
+    protected function _checkCatalogIds($store)
+    {
+        if ($this->_importOneOrder) {
+            return true;
+        }
+        $storeCatalogIds = array();
+        $catalogIds = $this->_configHelper->getCatalogIds((int)$store->getId());
+        foreach ($catalogIds as $catalogId) {
+            if (array_key_exists($catalogId, $this->_catalogIds)) {
+                $this->_dataHelper->log(
+                    'Import',
+                    $this->_dataHelper->setLogMessage(
+                        'log.import.catalog_id_already_used',
+                        array(
+                            'catalog_id' => $catalogId,
+                            'store_name' => $this->_catalogIds[$catalogId]['name'],
+                            'store_id' => $this->_catalogIds[$catalogId]['store_id'],
+                        )
+                    ),
+                    $this->_logOutput
+                );
+            } else {
+                $this->_catalogIds[$catalogId] = array('store_id' => (int)$store->getId(), 'name' => $store->getName());
+                $storeCatalogIds[] = $catalogId;
+            }
+        }
+        if (count($storeCatalogIds) > 0) {
+            $this->_storeCatalogIds = $storeCatalogIds;
+            return true;
+        }
+        return false;
     }
 }
