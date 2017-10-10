@@ -402,14 +402,13 @@ class Import {
         // clean logs > 20 days
         $this->_dataHelper->cleanLog();
         if ( $this->_importHelper->importIsInProcess() && ! $this->_preprodMode && ! $this->_importOneOrder ) {
-            //TODO logs with english
             $globalError = $this->_dataHelper->setLogMessage(
-                'lengow_log.error.rest_time_to_import',
-                ['rest_time' => $this->_importHelper->restTimeToImport()]
+                'Import has already started. Please wait %1 seconds before re-importing orders',
+                [$this->_importHelper->restTimeToImport()]
             );
             $this->_dataHelper->log( 'Import', $globalError, $this->_logOutput );
         } elseif (!$this->_checkCredentials()) {
-            $globalError = $this->_dataHelper->setLogMessage('lengow_log.error.credentials_not_valid');
+            $globalError = $this->_dataHelper->setLogMessage('Account ID, token access or secret token are not valid');
             $this->_dataHelper->log('Import', $globalError, $this->_logOutput);
         } else {
             // to activate lengow shipping method
@@ -420,13 +419,13 @@ class Import {
             }
             $this->_dataHelper->log(
                 'Import',
-                $this->_dataHelper->setLogMessage( 'log.import.start', ['type' => $this->_typeImport] ),
+                $this->_dataHelper->setLogMessage( '## start %1 import ##', [$this->_typeImport] ),
                 $this->_logOutput
             );
             if ( $this->_preprodMode ) {
                 $this->_dataHelper->log(
                     'Import',
-                    $this->_dataHelper->setLogMessage( 'log.import.preprod_mode_active' ),
+                    $this->_dataHelper->setLogMessage( 'WARNING! Pre-production mode is activated' ),
                     $this->_logOutput
                 );
             }
@@ -446,10 +445,10 @@ class Import {
                     $this->_dataHelper->log(
                         'Import',
                         $this->_dataHelper->setLogMessage(
-                            'log.import.start_for_store',
+                            'start import in store %1 (%2)',
                             [
-                                'store_name' => $store->getName(),
-                                'store_id'   => (int) $store->getId()
+                                $store->getName(),
+                                (int)$store->getId()
                             ]
                         ),
                         $this->_logOutput
@@ -458,10 +457,10 @@ class Import {
                         // check store catalog ids
                         if (!$this->_checkCatalogIds($store)) {
                             $errorCatalogIds = $this->_dataHelper->setLogMessage(
-                                'lengow_log.error.no_catalog_for_store',
+                                'No catalog ID valid for the store %1 (%2)e',
                                 [
-                                    'store_name' => $store->getName(),
-                                    'store_id' => (int)$store->getId(),
+                                    $store->getName(),
+                                    (int)$store->getId(),
                                 ]
                             );
                             $this->_dataHelper->log('Import', $errorCatalogIds, $this->_logOutput);
@@ -475,12 +474,12 @@ class Import {
                             $this->_dataHelper->log(
                                 'Import',
                                 $this->_dataHelper->setLogMessage(
-                                    'log.import.find_one_order',
+                                    '%1 order found for order ID: %2 and markeplace: %3 with account ID: %4',
                                     [
-                                        'nb_order'         => $totalOrders,
-                                        'marketplace_sku'  => $this->_marketplaceSku,
-                                        'marketplace_name' => $this->_marketplaceName,
-                                        'account_id'       => $this->_accountId
+                                        $totalOrders,
+                                        $this->_marketplaceSku,
+                                        $this->_marketplaceName,
+                                        $this->_accountId
                                     ]
                                 ),
                                 $this->_logOutput
@@ -489,17 +488,17 @@ class Import {
                             $this->_dataHelper->log(
                                 'Import',
                                 $this->_dataHelper->setLogMessage(
-                                    'log.import.find_all_orders',
+                                    '%1 order(s) found with account ID: %2',
                                     [
-                                        'nb_order'   => $totalOrders,
-                                        'account_id' => $this->_accountId
+                                        $totalOrders,
+                                        $this->_accountId
                                     ]
                                 ),
                                 $this->_logOutput
                             );
                         }
                         if ( $totalOrders <= 0 && $this->_importOneOrder ) {
-                            throw new Exception( 'lengow_log.error.order_not_found' );
+                            throw new Exception( 'Lengow error: order cannot be found in Lengow feed' );
                         } elseif ( $totalOrders <= 0 ) {
                             continue;
                         }
@@ -507,6 +506,7 @@ class Import {
                             $this->_orderError->finishOrderErrors( $this->_orderLengowId );
                         }
                         // import orders in Magento
+                        var_dump($orders);
                         //TODO
 //                        $result = $this->_importOrders( $orders, (int) $store->getId() );
 //                        if ( ! $this->_importOneOrder ) {
@@ -535,8 +535,8 @@ class Import {
                         $this->_dataHelper->log(
                             'Import',
                             $this->_dataHelper->setLogMessage(
-                                'log.import.import_failed',
-                                ['decoded_message' => $decodedMessage]
+                                'import failed - %1',
+                                [$decodedMessage]
                             ),
                             $this->_logOutput
                         );
@@ -551,24 +551,24 @@ class Import {
                 $this->_dataHelper->log(
                     'Import',
                     $this->_dataHelper->setLogMessage(
-                        'lengow_log.error.nb_order_imported',
-                        ['nb_order' => $orderNew]
+                        '%1 order(s) imported',
+                        [$orderNew]
                     ),
                     $this->_logOutput
                 );
                 $this->_dataHelper->log(
                     'Import',
                     $this->_dataHelper->setLogMessage(
-                        'lengow_log.error.nb_order_updated',
-                        ['nb_order' => $orderUpdate]
+                        '%1 order(s) updated',
+                        [$orderUpdate]
                     ),
                     $this->_logOutput
                 );
                 $this->_dataHelper->log(
                     'Import',
                     $this->_dataHelper->setLogMessage(
-                        'lengow_log.error.nb_order_with_error',
-                        ['nb_order' => $orderError]
+                        '%1 order(s) with errors',
+                        [$orderError]
                     ),
                     $this->_logOutput
                 );
@@ -577,7 +577,7 @@ class Import {
             $this->_importHelper->setImportEnd();
             $this->_dataHelper->log(
                 'Import',
-                $this->_dataHelper->setLogMessage( 'log.import.end', ['type' => $this->_typeImport] ),
+                $this->_dataHelper->setLogMessage( '## end %1 import ##', [$this->_typeImport] ),
                 $this->_logOutput
             );
             // sending email in error for orders
@@ -644,10 +644,10 @@ class Import {
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
-                    'log.import.connector_get_order',
+                    'get order with order ID: %1 and marketplace: %2',
                     [
-                        'marketplace_sku'  => $this->_marketplaceSku,
-                        'marketplace_name' => $this->_marketplaceName
+                        $this->_marketplaceSku,
+                        $this->_marketplaceName
                     ]
                 ),
                 $this->_logOutput
@@ -656,11 +656,11 @@ class Import {
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
-                    'log.import.connector_get_all_order',
+                    'get orders between %1 and %2 for catalogs ID: %3',
                     [
-                        'date_from'  => date( 'Y-m-d', strtotime( (string) $dateFrom ) ),
-                        'date_to'    => date( 'Y-m-d', strtotime( (string) $dateTo ) ),
-                        'account_id' => $this->_accountId
+                        date( 'Y-m-d', strtotime( (string) $dateFrom ) ),
+                        date( 'Y-m-d', strtotime( (string) $dateTo ) ),
+                        $this->_accountId
                     ]
                 ),
                 $this->_logOutput
@@ -693,10 +693,10 @@ class Import {
             if ( is_null( $results ) ) {
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage(
-                        'lengow_log.exception.no_connection_webservice',
+                        'connection didn\'t work with Lengow\'s webservice in store %1 (%2)',
                         [
-                            'store_name' => $store->getName(),
-                            'store_id'   => $store->getId()
+                            $store->getName(),
+                            $store->getId()
                         ]
                     )
                 );
@@ -705,10 +705,10 @@ class Import {
             if ( ! is_object( $results ) ) {
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage(
-                        'lengow_log.exception.no_connection_webservice',
+                        'connection didn\'t work with Lengow\'s webservice in store %1 (%2)',
                         [
-                            'store_name' => $store->getName(),
-                            'store_id'   => $store->getId()
+                            $store->getName(),
+                            $store->getId()
                         ]
                     )
                 );
@@ -716,12 +716,12 @@ class Import {
             if ( isset( $results->error ) ) {
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage(
-                        'lengow_log.exception.error_lengow_webservice',
+                        'Lengow webservice : %1 - %2 in store %3 (%4)',
                         [
-                            'error_code'    => $results->error->code,
-                            'error_message' => $results->error->message,
-                            'store_name'    => $store->getName(),
-                            'store_id'      => $store->getId()
+                            $results->error->code,
+                            $results->error->message,
+                            $store->getName(),
+                            $store->getId()
                         ]
                     )
                 );
@@ -756,11 +756,11 @@ class Import {
                 $this->_dataHelper->log(
                     'Import',
                     $this->_dataHelper->setLogMessage(
-                        'log.import.catalog_id_already_used',
+                        'catalog ID %1 is already used by shop %2 (%3)',
                         array(
-                            'catalog_id' => $catalogId,
-                            'store_name' => $this->_catalogIds[$catalogId]['name'],
-                            'store_id' => $this->_catalogIds[$catalogId]['store_id'],
+                            $catalogId,
+                            $this->_catalogIds[$catalogId]['name'],
+                            $this->_catalogIds[$catalogId]['store_id'],
                         )
                     ),
                     $this->_logOutput

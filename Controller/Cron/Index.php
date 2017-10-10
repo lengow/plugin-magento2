@@ -135,6 +135,7 @@ class Index extends Action
                     $params['type'] = 'cron';
                     //TODO exec
                     // Import orders
+                    $this->_importModel->init($params);
                     $this->_importModel->exec();
                 }
                 // sync action between Lengow and Magento
