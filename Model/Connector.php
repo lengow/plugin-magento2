@@ -22,7 +22,6 @@ namespace Lengow\Connector\Model;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Exception as LengowException;
-use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Lengow connector

@@ -24,7 +24,6 @@ use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Pricing\PriceCurrencyInterface as PriceCurrency;
 use Lengow\Connector\Helper\Config as ConfigHelper;
-use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Connector as Connector;
 
 class Sync extends AbstractHelper

@@ -19,7 +19,6 @@
             <argument name="collections" xsi:type="array">
                 <item name="lengow_log_listing_data_source" xsi:type="string">Lengow\Connector\Model\ResourceModel\Log\Collection</item>
                 <item name="lengow_order_listing_data_source" xsi:type="string">Lengow\Connector\Model\ResourceModel\Order\Collection</item>
-                <!--<item name="lengow_ordererror_listing_data_source" xsi:type="string">Lengow\Connector\Model\ResourceModel\Ordererror\Collection</item>-->
             </argument>
         </arguments>
     </type>
@@ -36,13 +35,6 @@
             <argument name="resourceModel" xsi:type="string">Lengow\Connector\Model\ResourceModel\Order</argument>
         </arguments>
     </virtualType>
-
-    <!--<virtualType name="Lengow\Connector\Model\ResourceModel\Ordererror\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">-->
-        <!--<arguments>-->
-            <!--<argument name="mainTable" xsi:type="string">lengow_order_error</argument>-->
-            <!--<argument name="resourceModel" xsi:type="string">Lengow\Connector\Model\ResourceModel\Ordererror</argument>-->
-        <!--</arguments>-->
-    <!--</virtualType>-->
 
     <virtualType name="LengowConnectorFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>

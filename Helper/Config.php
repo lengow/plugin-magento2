@@ -539,12 +539,13 @@ class Config extends AbstractHelper
         $emails = trim(str_replace(["\r\n", ',', ' '], ';', $emails), ';');
         $emails = explode(';', $emails);
         foreach ($emails as $email) {
-            if (strlen($email) > 0 && Zend_Validate::is($email, 'EmailAddress')) {
+            if (strlen($email) > 0 && \Zend_Validate::is($email, 'EmailAddress')) {
                 $reportEmailAddress[] = $email;
             }
         }
         if (count($reportEmailAddress) == 0) {
-            $reportEmailAddress[] = Mage::getStoreConfig('trans_email/ident_general/email');
+            $reportEmailAddress[] = $this->_scopeConfigInterface->getValue('trans_email/ident_general/email',
+                ScopeInterface::SCOPE_STORE);
         }
         return $reportEmailAddress;
     }

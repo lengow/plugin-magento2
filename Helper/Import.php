@@ -22,6 +22,7 @@ namespace Lengow\Connector\Helper;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\App\ObjectManager;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Import\Ordererror;
@@ -42,6 +43,11 @@ class Import extends AbstractHelper
      * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
      */
     protected $_dateTime;
+
+    /**
+     * @var \Magento\Framework\App\ObjectManager Magento object manager instance
+     */
+    protected $_objectManager;
 
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
@@ -71,18 +77,21 @@ class Import extends AbstractHelper
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
+     * @param \Magento\Framework\App\ObjectManager $objectManager Magento object manager
      */
     public function __construct(
         Context $context,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         Ordererror $orderError,
-        DateTime $dateTime
+        DateTime $dateTime,
+        ObjectManager $objectManager
     ) {
         $this->_configHelper = $configHelper;
         $this->_dataHelper = $dataHelper;
         $this->_dateTime = $dateTime;
         $this->_orderError = $orderError;
+        $this->_objectManager = $objectManager;
         parent::__construct($context);
     }
 
@@ -194,32 +203,33 @@ class Import extends AbstractHelper
         } else {
             $this->_configHelper->set('last_import_manual', $this->_dateTime->gmtTimestamp());
         }
+        return true;
     }
-//
-//    /**
-//     * Get last import (type and timestamp)
-//     *
-//     * @return array
-//     */
-//    public function getLastImport()
-//    {
-//        $timestampCron = $this->_config->get('last_import_cron');
-//        $timestampManual = $this->_config->get('last_import_manual');
-//
-//        if ($timestampCron && $timestampManual) {
-//            if ((int)$timestampCron > (int) $timestampManual) {
-//                return ['type' => 'cron', 'timestamp' => (int)$timestampCron];
-//            } else {
-//                return ['type' => 'manual', 'timestamp' => (int)$timestampManual];
-//            }
-//        } elseif ($timestampCron && !$timestampManual) {
-//            return ['type' => 'cron', 'timestamp' => (int)$timestampCron];
-//        } elseif ($timestampManual && !$timestampCron) {
-//            return ['type' => 'manual', 'timestamp' => (int)$timestampManual];
-//        }
-//
-//        return ['type' => 'none', 'timestamp' => 'none'];
-//    }
+
+    /**
+     * Get last import (type and timestamp)
+     *
+     * @return array
+     */
+    public function getLastImport()
+    {
+        $timestampCron = $this->_configHelper->get('last_import_cron');
+        $timestampManual = $this->_configHelper->get('last_import_manual');
+
+        if ($timestampCron && $timestampManual) {
+            if ((int)$timestampCron > (int) $timestampManual) {
+                return ['type' => 'cron', 'timestamp' => (int)$timestampCron];
+            } else {
+                return ['type' => 'manual', 'timestamp' => (int)$timestampManual];
+            }
+        } elseif ($timestampCron && !$timestampManual) {
+            return ['type' => 'cron', 'timestamp' => (int)$timestampCron];
+        } elseif ($timestampManual && !$timestampCron) {
+            return ['type' => 'manual', 'timestamp' => (int)$timestampManual];
+        }
+
+        return ['type' => 'none', 'timestamp' => 'none'];
+    }
 
     /**
      * Check logs table and send mail for order not imported correctly
@@ -254,11 +264,11 @@ class Import extends AbstractHelper
             $emails = $this->_configHelper->getReportEmailAddress();
             foreach ($emails as $email) {
                 if (strlen($email) > 0) {
-                    $mail = Mage::getModel('core/email');
+                    $mail = $this->_objectManager->create('core/email');
                     $mail->setToEmail($email);
                     $mail->setBody($mailBody);
                     $mail->setSubject($subject);
-                    $mail->setFromEmail(Mage::getStoreConfig('trans_email/ident_general/email'));
+                    $mail->setFromEmail($this->scopeConfig->getValue('trans_email/ident_general/email'));
                     $mail->setFromName("Lengow");
                     $mail->setType('html');
                     try {
@@ -268,7 +278,7 @@ class Import extends AbstractHelper
                             $this->_dataHelper->setLogMessage('log.mail_report.send_mail_to', ['email' => $email]),
                             $logOutput
                         );
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         $this->_dataHelper->log(
                             'MailReport',
                             $this->_dataHelper->setLogMessage('log.mail_report.unable_send_mail_to', ['email' => $email]),
