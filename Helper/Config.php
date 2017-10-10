@@ -422,6 +422,29 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Get all available currency codes
+     *
+     * @return array
+     */
+    public function getAllAvailableCurrencyCodes()
+    {
+        $storeCollection = $this->_storeCollectionFactory->create();
+        $allCurrencies = [];
+        foreach ($storeCollection as $store) {
+            // Get store currencies
+            $storeCurrencies = $store->getAvailableCurrencyCodes();
+            if (is_array($storeCurrencies)) {
+                foreach ($storeCurrencies as $currency) {
+                    if (!in_array($currency, $allCurrencies)) {
+                        $allCurrencies[] = $currency;
+                    }
+                }
+            }
+        }
+        return $allCurrencies;
+    }
+
+    /**
      * Get Selected attributes
      *
      * @param integer $storeId Magento store id

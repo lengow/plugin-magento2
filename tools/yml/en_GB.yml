@@ -2,15 +2,38 @@ en:
   module:
     name: "Lengow"
   menu:
+    dashboard: "Dashboard"
     products: "Products"
-    settings: "Settings"
+    orders: "Orders"
     logs: "Logs"
+    settings: "Settings"
   global:
     just_yes: "Yes"
     just_no: "No"
+  header:
+    preprod_active: "Pre-production mode"
+  dashboard:
+    screen:
+      title: "Dashboard"
+      welcome_back: "Hi! Welcome back!"
+      go_to_lengow: "Go to Lengow"
+      products_title: "Products"
+      products_text: "Take a look at all available products so that you can prepare your catalogue"
+      orders_title: "Orders"
+      orders_text: "Manage your orders directly on your Magento dashboard"
+      settings_title: "Settings"
+      settings_text: "Configure your Magento plugin main settings"
+      partner_business: "Lengow, your business partner"
+      stat_turnover: "Turnover"
+      stat_nb_orders: "Orders"
+      stat_more_stats: "Want more stats?"
+      some_help_title: "Need some help?"
+      get_in_touch: "Get in touch with Lengow."
+      visit_help_center: "Visit our Help Center"
+      configure_plugin: "for detailed information on how to configure your Magento plugin properly"
   product:
     screen:
-      title: "Export product"
+      title: "Products"
       nb_exported: "products exported"
       nb_available: "products available"
       include_specific_product: "Include specific products"
@@ -35,6 +58,8 @@ en:
   order:
     screen:
       title: "Orders"
+      preprod_warning_message: "You are in pre-production mode. You can import orders, but no interaction with Lengow is possible."
+      preprod_warning_link: "Change this"
     table:
       lengow_action: "Actions"
       action_success: "Success"
@@ -57,7 +82,7 @@ en:
       total_paid: "Total Paid"
   log:
     screen:
-      title: "Lengow logs"
+      title: "Logs"
     table:
       id: "ID"
       date: "Date"

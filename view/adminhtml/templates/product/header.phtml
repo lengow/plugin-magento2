@@ -1,0 +1,71 @@
+<?php
+/**
+ * Copyright 2017 Lengow SAS
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+/** @var Lengow\Connector\Block\Adminhtml\Product\Header $block */
+?>
+<div class="lgw-box">
+    <div class="lengow-export-switcher">
+        <?= $block->getChildHtml('store_switcher') ?>
+    </div>
+    <div class="lengow_export_feed">
+        <a href="<?= $block->getExportUrl() ?>" target="_blank">
+            <i class="fa fa-download lengow_tooltip">
+                <span ><?= $block->escapeHtml(__('Download')) ?></span>
+            </i>
+        </a>
+    </div>
+    <div class="text-center">
+        <h3 id="lengow_product_store_name" class="lengow_product_store_name lengow_tooltip">
+            <?= $block->getStore()->getName() ?>
+            <span>
+                <?= $block->getStore()->getName() ?> (<?= $block->getStore()->getId() ?>)
+                <?= $block->getStore()->getBaseUrl() ?>
+            </span>
+        </h3>
+        <br>
+        <br>
+        <div class="products-exported">
+            <div id="parent_exported_products">
+                    <span id="exported_products" class="lengow_exported stats-big-value">
+                        <?= $block->getExport()->getTotalExportedProduct() ?>
+                    </span>
+                <span><?= $block->escapeHtml(__('products exported')) ?></span>
+            </div>
+        </div>
+        <br>
+        <div id="parent_total_products">
+                <span id="total_products"  class="lengow_total stats-big-value">
+                    <?= $block->getExport()->getTotalProduct() ?>
+                </span>
+            <span><?= $block->escapeHtml(__('products available')) ?></span>
+        </div>
+        <br>
+        <br>
+        <hr>
+        <div class="lgw-switch <?php if ($block->selectionIsEnabled()): ?>checked<?php endif; ?>">
+            <label>
+                <div>
+                    <span></span>
+                    <input
+                        type="checkbox"
+                        name="lengow_export_selection" class="lengow_switch_option"
+                        id="change_option_selected"
+                        data-href="<?= $block->getUrl('lengow/product/index') ?>?isAjax=true"
+                        data-action="change_option_selected"
+                        data-id_store="<?= $block->getStore()->getId() ?>"
+                        value="1"
+                        <?php if ($block->selectionIsEnabled()): ?>checked="checked"<?php endif; ?>>
+                </div><?= $block->escapeHtml(__('Include specific products')) ?>
+            </label>
+        </div>
+        <i class="fa fa-info-circle lengow_tooltip">
+            <span class ="lengow_specific_product_support">
+                <?= $block->escapeHtml(__('Use this option to select products one by one')) ?>
+            </span>
+        </i>
+    </div>
+</div>

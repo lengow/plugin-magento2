@@ -72,46 +72,46 @@ body:not(.adminhtml-lengow-home-index) #lgw-counter {
 
 /*Dashboard*/
 
-.adminhtml-lengow-home-index .lengow-nav {
+.lengow-home-index .lengow-nav {
   display: none;
 }
 
 /*Counter*/
 
-.adminhtml-lengow-home-index #lgw-counter {
+.lengow-home-index #lgw-counter {
   color: #555;
   margin-top: 20px;
   font-size: 12px;
 }
 
-.adminhtml-lengow-home-index #lgw-counter a {
+.lengow-home-index #lgw-counter a {
   color: #00aeef;
   text-decoration: none;
 }
 
-.adminhtml-lengow-home-index #lgw-counter a:hover {
+.lengow-home-index #lgw-counter a:hover {
   text-decoration: underline;
 }
 
 
-.adminhtml-lengow-home-index .lgw-col-4 a {
+.lengow-home-index .lgw-col-4 a {
   color: #00aeef;
   text-decoration: none;
 }
 
 
-.adminhtml-lengow-home-index .lgw-label-red {
+.lengow-home-index .lgw-label-red {
   padding:0 8px;
 }
 
 .lgw-home-header {
-  height: 240px;
+  height: 290px;
   color: white;
   padding: 60px 30px 0;
-  background: url("../images/header.png") #2E3340 no-repeat center;
+  background: #2E3340;
 }
 
-.adminhtml-lengow-home-index .lgw-home-header a {
+.lengow-home-index .lgw-home-header a {
   color: inherit;
   text-decoration: none;
 }
@@ -119,9 +119,10 @@ body:not(.adminhtml-lengow-home-index) #lgw-counter {
 .lgw-home-header h1 {
   margin: 15px 0 5px;
   font-weight: 300;
+  color: white;
 }
 
-.adminhtml-lengow-home-index .lgw-row h5 {
+.lengow-home-index .lgw-row h5 {
   margin: 0;
   padding: 0;
   font-style: initial;
@@ -134,10 +135,7 @@ body:not(.adminhtml-lengow-home-index) #lgw-counter {
 
 .lgw-home-menu .lgw-box {
   min-height: 280px;
-}
-
-.adminhtml-lengow-home-index .lgw-container a:hover {
-    /*text-decoration: none;*/
+  height: 340px;
 }
 
 /*************************************************/
@@ -154,52 +152,25 @@ span.publish-lgw {
 
 #lengow_product_store_name {
   display: inline-block;
-  margin-right: 10px;
+  padding-top: 15px;
 }
 
 #parent_total_products, #parent_exported_products {
   display: inline-block;
 }
 
-
 #parent_exported_products{
   font-weight: bold;
 }
 
-a.lengow_check_store {
-  padding-left: 3px;
-  padding-right: 14px;
-  margin-right: 5px;
-  margin-bottom: 5px;
-  border-radius: 8px;
-}
-
-#lengow_store_sync {
-  background-color: #45bf7b;
-}
-
-#lengow_store_no_sync {
-  background-color: #d7d7d7;
-}
-
-#lengow_check_store {
-  margin-bottom: 5px;
-  margin-top: 30px;
-}
-
-#lengow_check_store a {
-  color: #2f2f2f;
-  text-decoration: underline;
-}
-
-#lengow_check_store a:hover {
-  color: #00aeef;
+.lengow-export-switcher {
+  position: absolute;
 }
 
 .lengow_export_feed {
   position: absolute;
-  top: 120px;
   right: 60px;
+  padding-top: 10px;
 }
 
 body.adminhtml-lengow-product-index .products-exported { 

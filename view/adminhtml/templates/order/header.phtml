@@ -1,0 +1,20 @@
+<?php
+/**
+ * Copyright 2017 Lengow SAS
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+/** @var Lengow\Connector\Block\Adminhtml\Order\Header $block */
+?>
+
+<div class="lgw-box">
+    <?php if ($block->preprodModeIsEnable()): ?>
+        <p class="blue_frame" style="line-height: 20px;">
+            <?php echo $block->escapeHtml(__('You are in pre-production mode. You can import orders, but no interaction with Lengow is possible.')) ?>
+            <a href="<?= $block->getUrl('adminhtml/system_config/edit/section/lengow_import_options') ?>" title="<?= $block->escapeHtml(__('Change this')) ?>">
+                <?= $block->escapeHtml(__('Change this')) ?>
+            </a>
+        </p>
+    <?php endif; ?>
+</div>
