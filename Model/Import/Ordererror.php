@@ -41,6 +41,11 @@ class Ordererror extends AbstractModel
     const TYPE_ERROR_SEND = 2;
 
     /**
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime $_dateTime Magento datetime instance
+     */
+    protected $_dateTime;
+
+    /**
      * @var array $_fieldList field list for the table lengow_order_line
      * required => Required fields when creating registration
      * update   => Fields allowed when updating registration

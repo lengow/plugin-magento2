@@ -19,12 +19,11 @@
 
 namespace Lengow\Connector\Model;
 
+use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
-use Magento\CatalogInventory\Model\Configuration as CatalogInventoryConfiguration;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Store\Model\WebsiteFactory;
@@ -239,7 +238,7 @@ class Import {
     protected $_orderError;
 
     /**
-     * @var Magento\Backend\Model\Session $_backendSession Backend session instance
+     * @var \Magento\Backend\Model\Session $_backendSession Backend session instance
      */
     protected $_backendSession;
 
@@ -436,6 +435,7 @@ class Import {
             }
             // get all store for import
             $storeCollection = $this->_storeManager->getStores();
+            /** @var Store $store */
             foreach ( $storeCollection as $store ) {
                 if ( ( ! is_null( $this->_storeId ) && (int) $store->getId() != $this->_storeId ) || ! $store->isActive() ) {
                     continue;
@@ -627,7 +627,7 @@ class Import {
     /**
      * Call Lengow order API
      *
-     * @param StoreManagerInterface\ $store Magento store instance
+     * @param Store $store Magento store instance
      *
      * @throws LengowException no connection with webservices / credentials not valid
      *
@@ -740,7 +740,7 @@ class Import {
     /**
      * Check catalog ids for a store
      *
-     * @param \Magento\Store\Model\Store $store Magento store instance
+     * @param Store $store Magento store instance
      *
      * @return boolean
      */
