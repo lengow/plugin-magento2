@@ -21,8 +21,6 @@ namespace Lengow\Connector\Block\Adminhtml\Order;
 
 use Magento\Backend\Block\Template;
 use Lengow\Connector\Helper\Config as ConfigHelper;
-use Lengow\Connector\Helper\Data as DataHelper;
-use Lengow\Connector\Model\Export as Export;
 use Magento\Backend\Block\Template\Context;
 
 class Header extends Template
@@ -54,7 +52,7 @@ class Header extends Template
      *
      * @return boolean
      */
-    public function preprodModeIsEnable()
+    public function preprodModeIsEnabled()
     {
         return (bool)$this->_configHelper->get('preprod_mode_enable');
     }

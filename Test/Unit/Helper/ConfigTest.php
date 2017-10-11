@@ -195,6 +195,33 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Lengow\Connector\Helper\Config::isNewMerchant
+     */
+    public function testIsNewMerchant()
+    {
+        $fixture = New Fixture();
+        $configHelperMock = $fixture->mockFunctions($this->_configHelper, ['getAccessIds'], [[null, null, null]]);
+        $this->assertInternalType(
+            'boolean',
+            $configHelperMock->isNewMerchant(),
+            '[Test Is New Merchant] Check if return is a boolean'
+        );
+        $this->assertTrue(
+            $configHelperMock->isNewMerchant(),
+            '[Test Is New Merchant] Check if return is valid when access ids are empty'
+        );
+        $configHelperMock2 = $fixture->mockFunctions(
+            $this->_configHelper,
+            ['getAccessIds'],
+            [['123', 'blablabla', 'blablabla']]
+        );
+        $this->assertFalse(
+            $configHelperMock2->isNewMerchant(),
+            '[Test Is New Merchant] Check if return is valid when access ids are presents'
+        );
+    }
+
+    /**
      * @covers \Lengow\Connector\Helper\Config::getSelectedAttributes
      */
     public function testGetSelectedAttributes()

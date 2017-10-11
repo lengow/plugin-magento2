@@ -437,6 +437,20 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Check if is a new merchant
+     *
+     * @return boolean
+     */
+    public function isNewMerchant()
+    {
+        list($accountId, $accessToken, $secretToken) = $this->getAccessIds();
+        if (!is_null($accountId) && !is_null($accessToken) && !is_null($secretToken)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Get Selected attributes
      *
      * @param integer $storeId Magento store id
