@@ -22,6 +22,7 @@
             <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_log_main" template="Lengow_Connector::log/main.phtml">
                 <block class="Lengow\Connector\Block\Adminhtml\Header" name="lengow_header" as="lengow_header" template="Lengow_Connector::header.phtml"/>
                 <uiComponent name="lengow_log_listing"/>
+                <block class="Lengow\Connector\Block\Adminhtml\Footer" name="lengow_footer" as="lengow_footer" template="Lengow_Connector::footer.phtml"/>
             </block>
         </referenceContainer>
     </body>
