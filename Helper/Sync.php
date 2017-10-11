@@ -179,40 +179,4 @@ class Sync extends AbstractHelper
         $this->_configHelper->set('last_statistic_update', date('Y-m-d H:i:s'));
         return $return;
     }
-
-
-    /**
-     * Get Sync Data (Inscription / Update)
-     *
-     * @return array
-     */
-    public function getSyncData()
-    {
-        //TODO
-//        $data = [];
-//        $data['domain_name']    = $_SERVER["SERVER_NAME"];
-//        $data['token']          = $this->_configHelper->getToken();
-//        $data['type']           = 'magento';
-//        $data['version']        = Mage::getVersion();
-//        $data['plugin_version'] = (string)Mage::getConfig()->getNode()->modules->Lengow_Connector->version;
-//        $data['email']          = Mage::getStoreConfig('trans_email/ident_general/email');
-//        $data['return_url']     = 'http://'.$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
-//        foreach (Mage::app()->getWebsites() as $website) {
-//            foreach ($website->getGroups() as $group) {
-//                $stores = $group->getStores();
-//                foreach ($stores as $store) {
-//                    $export = Mage::getModel('lengow/export', ["store_id" => $store->getId()]);
-//                    $data['shops'][$store->getId()]['token']                   = $this->_configHelper->getToken($store->getId());
-//                    $data['shops'][$store->getId()]['name']                    = $store->getName();
-//                    $data['shops'][$store->getId()]['domain']                  = $store->getBaseUrl();
-//                    $data['shops'][$store->getId()]['feed_url']                = $this->_dataHelper->getExportUrl($store->getId());
-//                    $data['shops'][$store->getId()]['cron_url']                = $this->_dataHelper->getCronUrl();
-//                    $data['shops'][$store->getId()]['total_product_number']    = $export->getTotalProduct();
-//                    $data['shops'][$store->getId()]['exported_product_number'] = $export->getTotalExportedProduct();
-//                    $data['shops'][$store->getId()]['configured']              = $this->checkSyncStore($store->getId());
-//                }
-//            }
-//        }
-//        return $data;
-    }
 }
