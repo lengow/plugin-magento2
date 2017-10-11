@@ -17,42 +17,23 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-namespace Lengow\Connector\Block\Adminhtml\Order;
+namespace Lengow\Connector\Block\Adminhtml\Help;
 
 use Magento\Backend\Block\Template;
-use Lengow\Connector\Helper\Config as ConfigHelper;
 use Magento\Backend\Block\Template\Context;
 
-class Header extends Template
+class Content extends Template
 {
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
-     */
-    protected $_configHelper;
-
     /**
      * Constructor
      *
      * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
      * @param array $data additional params
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
     public function __construct(
         Context $context,
-        array $data = [],
-        ConfigHelper $configHelper
+        array $data = []
     ) {
         parent::__construct($context, $data);
-        $this->_configHelper = $configHelper;
-    }
-
-    /**
-     * Preprod mode is enable
-     *
-     * @return boolean
-     */
-    public function preprodModeIsEnabled()
-    {
-        return (bool)$this->_configHelper->get('preprod_mode_enable');
     }
 }
