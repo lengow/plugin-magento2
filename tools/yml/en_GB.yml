@@ -106,6 +106,16 @@ en:
       date: "Date"
       message: "Message"
       category: "Category"
+  legals:
+    screen:
+      simplified_company: "Simplified limited liability company"
+      social_capital: "Social capital:"
+      cnil_declaration: "CNIL declaration:"
+      company_registration_number: "Company Registration Number (Nantes):"
+      vat_identification_number: "VAT identification number:"
+      address: "Address"
+      contact: "Contact"
+      hosting: "Hosting"
   lengow_setting:
     global_setting: "Global settings"
     global_store_credential: "Identification settings"

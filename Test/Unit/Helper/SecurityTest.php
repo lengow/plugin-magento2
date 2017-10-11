@@ -21,8 +21,6 @@ namespace Lengow\Connector\Test\Unit\Helper;
 
 use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
-use Magento\Framework\App\Helper\Context;
-use Magento\Framework\HTTP\PhpEnvironment\ServerAddress;
 use Lengow\Connector\Test\Unit\Fixture;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 
@@ -39,16 +37,6 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
     protected $_configHelper;
 
     /**
-     * @var \Magento\Framework\App\Helper\Context
-     */
-    protected $_context;
-
-    /**
-     * @var \Magento\Framework\HTTP\PhpEnvironment\ServerAddress
-     */
-    protected $_serverAddress;
-
-    /**
      * Sets up the fixture, for example, open a network connection.
      * This method is called before a test is executed.
      *
@@ -58,8 +46,6 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
         $objectManager = new ObjectManager($this);
         $this->_securityHelper = $objectManager->getObject(SecurityHelper::class);
         $this->_configHelper = $objectManager->getObject(ConfigHelper::class);
-        $this->_context = $objectManager->getObject(Context::class);
-        $this->_serverAddress = $objectManager->getObject(ServerAddress::class);
     }
 
     public function testClassInstance()
@@ -199,12 +185,8 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $configHelperMock->expects($this->any())->method('get')->willReturnOnConsecutiveCalls('127.0.0.4', 1);
-        $securityHelperMock = $fixture->mockFunctions(
-            $this->_securityHelper,
-            ['getServerIp'],
-            ['127.0.0.1'],
-            [$this->_context, $configHelperMock, $this->_serverAddress]
-        );
+        $securityHelperMock = $fixture->mockFunctions($this->_securityHelper, ['getServerIp'], ['127.0.0.1']);
+        $fixture->setPrivatePropertyValue($securityHelperMock, ['_configHelper'], [$configHelperMock]);
         $this->assertInternalType(
             'array',
             $securityHelperMock->getAuthorizedIps(),
@@ -216,12 +198,8 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $configHelperMock->expects($this->any())->method('get')->willReturnOnConsecutiveCalls('127.0.0.4', 1);
-        $securityHelperMock = $fixture->mockFunctions(
-            $this->_securityHelper,
-            ['getServerIp'],
-            ['127.0.0.1'],
-            [$this->_context, $configHelperMock, $this->_serverAddress]
-        );
+        $securityHelperMock = $fixture->mockFunctions($this->_securityHelper, ['getServerIp'], ['127.0.0.1']);
+        $fixture->setPrivatePropertyValue($securityHelperMock, ['_configHelper'], [$configHelperMock]);
         $this->assertEquals(
             array_merge(['127.0.0.4'], $ipsLengow, ['127.0.0.1']),
             $securityHelperMock->getAuthorizedIps(),
@@ -229,16 +207,12 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
         );
 
         $configHelperMock2 = $fixture->mockFunctions($this->_configHelper, ['get'], [null]);
-        $securityHelperMock2 = $fixture->mockFunctions(
-            $this->_securityHelper,
-            ['getServerIp'],
-            ['127.0.0.1'],
-            [$this->_context, $configHelperMock2, $this->_serverAddress]
-        );
+        $securityHelperMock2 = $fixture->mockFunctions($this->_securityHelper, ['getServerIp'], ['127.0.0.1']);
+        $fixture->setPrivatePropertyValue($securityHelperMock2, ['_configHelper'], [$configHelperMock2]);
         $this->assertEquals(
             array_merge($ipsLengow, ['127.0.0.1']),
             $securityHelperMock2->getAuthorizedIps(),
-            '[Test Get Authorized Ips] Check if return is valid when autorized ips is null'
+            '[Test Get Authorized Ips] Check if return is valid when authorized ips is null'
         );
 
         $configHelperMock3 = $fixture->mockFunctions(
@@ -246,17 +220,13 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
             ['get'],
             ['127.0.0.2;127.0.0.3,127.0.0.4 127.0.0.5-127.0.0.6|127.0.0.7']
         );
-        $securityHelperMock3 = $fixture->mockFunctions(
-            $this->_securityHelper,
-            ['getServerIp'],
-            ['127.0.0.8'],
-            [$this->_context, $configHelperMock3, $this->_serverAddress]
-        );
+        $securityHelperMock3 = $fixture->mockFunctions($this->_securityHelper, ['getServerIp'], ['127.0.0.8']);
+        $fixture->setPrivatePropertyValue($securityHelperMock3, ['_configHelper'], [$configHelperMock3]);
         $ips = ['127.0.0.2', '127.0.0.3', '127.0.0.4', '127.0.0.5', '127.0.0.6', '127.0.0.7'];
         $this->assertEquals(
             array_merge($ips, $ipsLengow, ['127.0.0.8']),
             $securityHelperMock3->getAuthorizedIps(),
-            '[Test Get Authorized Ips] Check if return is valid when autorized ips containts specials characters'
+            '[Test Get Authorized Ips] Check if return is valid when authorized ips contains specials characters'
         );
 
         $configHelperMock4 = $this->getMockBuilder(get_class($this->_configHelper))
@@ -264,12 +234,8 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $configHelperMock4->expects($this->any())->method('get')->willReturnOnConsecutiveCalls('127.0.0.4', 0);
-        $securityHelperMock4 = $fixture->mockFunctions(
-            $this->_securityHelper,
-            ['getServerIp'],
-            ['127.0.0.1'],
-            [$this->_context, $configHelperMock4, $this->_serverAddress]
-        );
+        $securityHelperMock4 = $fixture->mockFunctions($this->_securityHelper, ['getServerIp'], ['127.0.0.1']);
+        $fixture->setPrivatePropertyValue($securityHelperMock4, ['_configHelper'], [$configHelperMock4]);
         $this->assertEquals(
             array_merge($ipsLengow, ['127.0.0.1']),
             $securityHelperMock4->getAuthorizedIps(),
