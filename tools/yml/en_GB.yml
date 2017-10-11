@@ -14,6 +14,11 @@ en:
     preprod_active: "Pre-production mode"
     counter: "Trial period: %1 day(s) left."
     upgrade_account: "Subscribe"
+  footer:
+      toolbox: "Toolbox"
+      legals: "Legal notices"
+      plugin_lengow: "Lengow Magento Plugin"
+      lengow_link_url: "http://www.lengow.com/"
   dashboard:
     screen:
       title: "Dashboard"
