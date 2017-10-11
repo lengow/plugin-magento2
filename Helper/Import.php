@@ -95,28 +95,6 @@ class Import extends AbstractHelper
         parent::__construct($context);
     }
 
-//    /**
-//     * Get Marketplace singleton
-//     *
-//     * @param string  $name    markeplace name
-//     * @param integer $storeId Magento store Id
-//     *
-//     * @return array Lengow marketplace
-//     */
-//    public static function getMarketplaceSingleton($name, $storeId = null)
-//    {
-//        if (!array_key_exists($name, self::$marketplaces)) {
-//            self::$marketplaces[$name] = Mage::getModel(
-//                'lengow/import_marketplace',
-//                [
-//                    'name'     => $name,
-//                    'store_id' => $storeId
-//                ]
-//            );
-//        }
-//        return self::$marketplaces[$name];
-//    }
-
     /**
      * Check if import is already in process
      *
@@ -169,25 +147,6 @@ class Import extends AbstractHelper
     {
         return $this->_configHelper->set('import_in_progress', -1);
     }
-//
-//    /**
-//     * Check if order status is valid for import
-//     *
-//     * @param string                                    $orderStateMarketplace order state
-//     * @param Lengow_Connector_Model_Import_Marketplace $marketplace           order marketplace
-//     *
-//     * @return boolean
-//     */
-//    public function checkState($orderStateMarketplace, $marketplace)
-//    {
-//        if (empty($orderStateMarketplace)) {
-//            return false;
-//        }
-//        if (!in_array($marketplace->getStateLengow($orderStateMarketplace), $this->_lengowStates)) {
-//            return false;
-//        }
-//        return true;
-//    }
 
     /**
      * Record the date of the last import
