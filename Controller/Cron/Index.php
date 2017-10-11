@@ -133,7 +133,6 @@ class Index extends Action
                         $params['store_id'] = (int)$this->getRequest()->getParam('store_id');
                     }
                     $params['type'] = 'cron';
-                    //TODO exec
                     // Import orders
                     $this->_importModel->init($params);
                     $this->_importModel->exec();

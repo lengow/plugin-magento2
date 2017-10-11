@@ -441,7 +441,6 @@ class Import {
                     continue;
                 }
                 if ( $this->_configHelper->get( 'store_enable', (int) $store->getId() ) ) {
-                    echo "<br />" . $store->getFrontendName() . $store->getId();
                     $this->_dataHelper->log(
                         'Import',
                         $this->_dataHelper->setLogMessage(
@@ -506,7 +505,8 @@ class Import {
                             $this->_orderError->finishOrderErrors( $this->_orderLengowId );
                         }
                         // import orders in Magento
-                        var_dump($orders);
+                        //To see results
+//                        var_dump($orders);
                         //TODO
 //                        $result = $this->_importOrders( $orders, (int) $store->getId() );
 //                        if ( ! $this->_importOneOrder ) {
@@ -582,7 +582,8 @@ class Import {
             );
             // sending email in error for orders
             if ( $this->_configHelper->get( 'report_mail_enable' ) && ! $this->_preprodMode && ! $this->_importOneOrder ) {
-                $this->_importHelper->sendMailAlert( $this->_logOutput );
+                //TODO
+//                $this->_importHelper->sendMailAlert( $this->_logOutput );
             }
             //TODO
 //            if ( ! $this->_preprodMode && ! $this->_importOneOrder && $this->_typeImport == 'manual' ) {
