@@ -12,6 +12,8 @@ en:
     just_no: "No"
   header:
     preprod_active: "Pre-production mode"
+    counter: "Trial period: %1 day(s) left."
+    upgrade_account: "Subscribe"
   dashboard:
     screen:
       title: "Dashboard"

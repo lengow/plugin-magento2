@@ -65,6 +65,110 @@ class SyncTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Lengow\Connector\Helper\Sync::getStatusAccount
+     */
+    public function testGetStatusAccount()
+    {
+        $fixture = New Fixture();
+        $classMock = $fixture->getFakeClass();
+        $configHelperMock = $fixture->mockFunctions($classMock, ['isNewMerchant'], [true]);
+        $fixture->setPrivatePropertyValue($this->_syncHelper, ['_configHelper'], [$configHelperMock]);
+        $this->assertFalse(
+            $this->_syncHelper->getStatusAccount(),
+            '[Test Get Status Account] Check if return is false for new merchant'
+        );
+        $updatedAt = date('Y-m-d H:i:s', time() - 1000);
+        $statusAccount = '{"type":"free_trial","day":12,"expired":false}';
+        $configHelperMock2 = $this->getMockBuilder(get_class($classMock))
+            ->setMethods(['get'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $configHelperMock2->expects($this->any())->method('get')->willReturnOnConsecutiveCalls(
+            $updatedAt,
+            $statusAccount,
+            $updatedAt,
+            $statusAccount
+        );
+        $configHelperMock2->expects($this->any())->method('isNewMerchant')->will($this->returnValue(false));
+        $fixture->setPrivatePropertyValue($this->_syncHelper, ['_configHelper'], [$configHelperMock2]);
+        $this->assertInternalType(
+            'array',
+            $this->_syncHelper->getStatistic(),
+            '[Test Get Status Account] Check if return is a array'
+        );
+        $this->assertEquals(
+            json_decode($statusAccount, true),
+            $this->_syncHelper->getStatistic(),
+            '[Test Get Status Account] Check if return is valid with cache'
+        );
+
+        $configHelperMock3 = $this->getMockBuilder(get_class($classMock))
+            ->setMethods(['get', 'isNewMerchant'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $configHelperMock3->expects($this->any())->method('get')->willReturnOnConsecutiveCalls(
+            $updatedAt,
+            $statusAccount,
+            null
+        );
+        $configHelperMock3->expects($this->any())->method('isNewMerchant')->will($this->returnValue(false));
+        $connectorMock = $fixture->mockFunctions($classMock, ['queryApi'], [null]);
+        $fixture->setPrivatePropertyValue(
+            $this->_syncHelper,
+            ['_configHelper', '_connector'],
+            [$configHelperMock3, $connectorMock]
+        );
+        $this->assertEquals(
+            json_decode($statusAccount, true),
+            $this->_syncHelper->getStatusAccount(true),
+            '[Test Get Status Account] Check if return is valid without cache, no API response but status in database'
+        );
+        $this->assertFalse(
+            $this->_syncHelper->getStatusAccount(true),
+            '[Test Get Status Account] Check if return is valid with no cache, no API and no status in database'
+        );
+
+        $apiStatusAccount = '{"isFreeTrial":true,"leftDaysBeforeExpired":12,"isExpired":false}';
+        $apiStatusAccount2 = '{"isFreeTrial":true,"leftDaysBeforeExpired":null,"isExpired":true}';
+        $apiStatusAccount3 = '{"isFreeTrial":false,"leftDaysBeforeExpired":null,"isExpired":false}';
+
+        $configHelperMock4 = $fixture->mockFunctions($classMock, ['isNewMerchant', 'set'], [false, null]);
+        $connectorMock2 = $fixture->mockFunctions($classMock, ['queryApi'], [json_decode($apiStatusAccount)]);
+        $fixture->setPrivatePropertyValue(
+            $this->_syncHelper,
+            ['_configHelper', '_connector'],
+            [$configHelperMock4, $connectorMock2]
+        );
+        $this->assertEquals(
+            ['type' => 'free_trial', 'day' => 12, 'expired' => false],
+            $this->_syncHelper->getStatusAccount(true),
+            '[Test Get Status Account] Check if return is valid with API response and free trial not expired'
+        );
+        $connectorMock3 = $fixture->mockFunctions($classMock, ['queryApi'], [json_decode($apiStatusAccount2)]);
+        $fixture->setPrivatePropertyValue(
+            $this->_syncHelper,
+            ['_configHelper', '_connector'],
+            [$configHelperMock4, $connectorMock3]
+        );
+        $this->assertEquals(
+            ['type' => 'free_trial', 'day' => 0, 'expired' => true],
+            $this->_syncHelper->getStatusAccount(true),
+            '[Test Get Status Account] Check if return is valid with API response and free trial expired'
+        );
+        $connectorMock4 = $fixture->mockFunctions($classMock, ['queryApi'], [json_decode($apiStatusAccount3)]);
+        $fixture->setPrivatePropertyValue(
+            $this->_syncHelper,
+            ['_configHelper', '_connector'],
+            [$configHelperMock4, $connectorMock4]
+        );
+        $this->assertEquals(
+            ['type' => '', 'day' => 0, 'expired' => false],
+            $this->_syncHelper->getStatusAccount(true),
+            '[Test Get Status Account] Check if return is valid with API response when account is not a free trial'
+        );
+    }
+
+    /**
      * @covers \Lengow\Connector\Helper\Sync::getStatistic
      */
     public function testGetStatistic()

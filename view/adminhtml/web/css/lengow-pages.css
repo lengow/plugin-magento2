@@ -37,7 +37,7 @@ body.lengow-connector .middle {
 
 /* COUNTER FREE TRIAL */
 
-body:not(.adminhtml-lengow-home-index) #lgw-counter {
+body:not(.lengow-home-index) #lgw-counter {
   background: #cdf1ff;
   border: 1px solid #00aeef;
   border-radius: 3px;
@@ -173,12 +173,12 @@ span.publish-lgw {
   padding-top: 10px;
 }
 
-body.adminhtml-lengow-product-index .products-exported { 
+body.lengow-product-index .products-exported {
   font-size: 17px;
   margin-bottom: -10px;
 }
 
-body.adminhtml-lengow-product-index .lengow_total { 
+body.lengow-product-index .lengow_total {
   font-size: 17px;
   margin-bottom: -10px;
 }
@@ -191,12 +191,12 @@ body.adminhtml-lengow-product-index .lengow_total {
 /*                PAGE ORDER                     */
 /*************************************************/
 
-body.adminhtml-lengow-order-index a.lengow_action {
+body.lengow-order-index a.lengow_action {
   cursor: pointer;
 }
 
-body.adminhtml-lengow-order-index .lgw-col-8,
-body.adminhtml-lengow-order-index .lgw-col-4{
+body.lengow-order-index .lgw-col-8,
+body.lengow-order-index .lgw-col-4{
   padding: 0;
 }
 
@@ -291,14 +291,14 @@ body.adminhtml-lengow-order-index .lgw-col-4{
 /*                SALES ORDER                     */
 /*************************************************/
 
-body.adminhtml-sales-order-view #sales_order_view_tabs_TAB_NAME_content  button,
-body.adminhtml-sales-order-view #sales_order_view_tabs_TAB_NAME_content button a {
+body.sales-order-view #sales_order_view_tabs_TAB_NAME_content  button,
+body.sales-order-view #sales_order_view_tabs_TAB_NAME_content button a {
   color: #fff;
   text-decoration: none;
 }
 
-body.adminhtml-sales-order-view #sales_order_view_tabs_TAB_NAME_content button:hover,
-body.adminhtml-sales-order-view #sales_order_view_tabs_TAB_NAME_content button a:hover {
+body.sales-order-view #sales_order_view_tabs_TAB_NAME_content button:hover,
+body.sales-order-view #sales_order_view_tabs_TAB_NAME_content button a:hover {
   color: #fff;
   text-decoration: none;
 }
