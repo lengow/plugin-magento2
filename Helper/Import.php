@@ -22,7 +22,6 @@ namespace Lengow\Connector\Helper;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Stdlib\DateTime\DateTime;
-use Magento\Framework\App\ObjectManager;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Import\Ordererror;
@@ -43,11 +42,6 @@ class Import extends AbstractHelper
      * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
      */
     protected $_dateTime;
-
-    /**
-     * @var \Magento\Framework\App\ObjectManager Magento object manager instance
-     */
-    protected $_objectManager;
 
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
@@ -77,21 +71,18 @@ class Import extends AbstractHelper
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
-     * @param \Magento\Framework\App\ObjectManager $objectManager Magento object manager
      */
     public function __construct(
         Context $context,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         Ordererror $orderError,
-        DateTime $dateTime,
-        ObjectManager $objectManager
+        DateTime $dateTime
     ) {
         $this->_configHelper = $configHelper;
         $this->_dataHelper = $dataHelper;
         $this->_dateTime = $dateTime;
         $this->_orderError = $orderError;
-        $this->_objectManager = $objectManager;
         parent::__construct($context);
     }
 
@@ -197,56 +188,56 @@ class Import extends AbstractHelper
      */
     public function sendMailAlert($logOutput = false)
     {
-        $subject = '<h2>'.$this->_dataHelper->decodeLogMessage('lengow_log.mail_report.subject_report_mail').'</h2>';
-        $mailBody = '<p><ul>';
-        $errors = $this->_orderError->getImportErrors();
-        if ($errors) {
-            foreach ($errors as $error) {
-                $mailBody.= '<li>'.$this->_dataHelper->decodeLogMessage(
-                        'lengow_log.mail_report.order',
-                        null,
-                        [
-                            'marketplace_sku' => $error['marketplace_sku']
-                        ]
-                    );
-                if ($error['message'] != '') {
-                    $mailBody.= ' - '.$this->_dataHelper->decodeLogMessage($error['message']);
-                } else {
-                    $mailBody.= ' - '.$this->_dataHelper->decodeLogMessage('lengow_log.mail_report.no_error_in_report_mail');
-                }
-                $mailBody.= '</li>';
-                $orderError = $this->_orderError->load($error['id']);
-                $orderError->updateOrderError(['mail' => 1]);
-                unset($orderError);
-            }
-            $mailBody .=  '</ul></p>';
-            $emails = $this->_configHelper->getReportEmailAddress();
-            foreach ($emails as $email) {
-                if (strlen($email) > 0) {
-                    $mail = $this->_objectManager->create('core/email');
-                    $mail->setToEmail($email);
-                    $mail->setBody($mailBody);
-                    $mail->setSubject($subject);
-                    $mail->setFromEmail($this->scopeConfig->getValue('trans_email/ident_general/email'));
-                    $mail->setFromName("Lengow");
-                    $mail->setType('html');
-                    try {
-                        $mail->send();
-                        $this->_dataHelper->log(
-                            'MailReport',
-                            $this->_dataHelper->setLogMessage('log.mail_report.send_mail_to', ['email' => $email]),
-                            $logOutput
-                        );
-                    } catch (\Exception $e) {
-                        $this->_dataHelper->log(
-                            'MailReport',
-                            $this->_dataHelper->setLogMessage('log.mail_report.unable_send_mail_to', ['email' => $email]),
-                            $logOutput
-                        );
-                    }
-                    unset($mail);
-                }
-            }
-        }
+//        $subject = '<h2>'.$this->_dataHelper->decodeLogMessage('lengow_log.mail_report.subject_report_mail').'</h2>';
+//        $mailBody = '<p><ul>';
+//        $errors = $this->_orderError->getImportErrors();
+//        if ($errors) {
+//            foreach ($errors as $error) {
+//                $mailBody.= '<li>'.$this->_dataHelper->decodeLogMessage(
+//                        'lengow_log.mail_report.order',
+//                        null,
+//                        [
+//                            'marketplace_sku' => $error['marketplace_sku']
+//                        ]
+//                    );
+//                if ($error['message'] != '') {
+//                    $mailBody.= ' - '.$this->_dataHelper->decodeLogMessage($error['message']);
+//                } else {
+//                    $mailBody.= ' - '.$this->_dataHelper->decodeLogMessage('lengow_log.mail_report.no_error_in_report_mail');
+//                }
+//                $mailBody.= '</li>';
+//                $orderError = $this->_orderError->load($error['id']);
+//                $orderError->updateOrderError(['mail' => 1]);
+//                unset($orderError);
+//            }
+//            $mailBody .=  '</ul></p>';
+//            $emails = $this->_configHelper->getReportEmailAddress();
+//            foreach ($emails as $email) {
+//                if (strlen($email) > 0) {
+//                    $mail = $this->_objectManager->create('core/email');
+//                    $mail->setToEmail($email);
+//                    $mail->setBody($mailBody);
+//                    $mail->setSubject($subject);
+//                    $mail->setFromEmail($this->scopeConfig->getValue('trans_email/ident_general/email'));
+//                    $mail->setFromName("Lengow");
+//                    $mail->setType('html');
+//                    try {
+//                        $mail->send();
+//                        $this->_dataHelper->log(
+//                            'MailReport',
+//                            $this->_dataHelper->setLogMessage('log.mail_report.send_mail_to', ['email' => $email]),
+//                            $logOutput
+//                        );
+//                    } catch (\Exception $e) {
+//                        $this->_dataHelper->log(
+//                            'MailReport',
+//                            $this->_dataHelper->setLogMessage('log.mail_report.unable_send_mail_to', ['email' => $email]),
+//                            $logOutput
+//                        );
+//                    }
+//                    unset($mail);
+//                }
+//            }
+//        }
     }
 }

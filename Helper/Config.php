@@ -322,10 +322,10 @@ class Config extends AbstractHelper
         }
         if ($this->_options[$key]['no_cache']) {
             $results = $this->_configDataCollectionFactory->create()
-                ->addFieldToFilter('path', $this->_options[$key]['path'])
-                ->addFieldToFilter('scope_id', $storeId)
-                ->load()
-                ->getData();
+                                                          ->addFieldToFilter('path', $this->_options[$key]['path'])
+                                                          ->addFieldToFilter('scope_id', $storeId)
+                                                          ->load()
+                                                          ->getData();
             $value = count($results) > 0 ? $results[0]['value'] : '';
         } else {
             $scope = $storeId == 0 ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES;
@@ -387,7 +387,7 @@ class Config extends AbstractHelper
     public function getAllCustomerGroup()
     {
         $allCustomerGroups = $this->_customerGroupCollectionFactory->create()
-            ->toOptionArray();
+                                                                   ->toOptionArray();
         return $allCustomerGroups;
     }
 
@@ -473,9 +473,9 @@ class Config extends AbstractHelper
     {
         // add filter by entity type to get product attributes only
         $attributes = $this->_attributeCollectionFactory->create()
-            ->addFieldToFilter(AttibuteSet::KEY_ENTITY_TYPE_ID, 4)
-            ->load()
-            ->getData();
+                                                        ->addFieldToFilter(AttibuteSet::KEY_ENTITY_TYPE_ID, 4)
+                                                        ->load()
+                                                        ->getData();
         $allAttributes = [
             ['value' => 'none', 'label' => '']
         ];
