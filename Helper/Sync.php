@@ -77,6 +77,46 @@ class Sync extends AbstractHelper
     }
 
     /**
+     * Get Status Account
+     *
+     * @param boolean $force force cache update
+     *
+     * @return array|false
+     */
+    public function getStatusAccount($force = false)
+    {
+        if ($this->_configHelper->isNewMerchant()) {
+            return false;
+        }
+        if (!$force) {
+            $updatedAt = $this->_configHelper->get('last_status_update');
+            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTime) {
+                return json_decode($this->_configHelper->get('account_status'), true);
+            }
+        }
+        $result = $this->_connector->queryApi('get', '/v3.0/plans');
+        if (isset($result->isFreeTrial)) {
+            $status = array();
+            $status['type'] = $result->isFreeTrial ? 'free_trial' : '';
+            $status['day'] = (int)$result->leftDaysBeforeExpired;
+            $status['expired'] = (bool)$result->isExpired;
+            if ($status['day'] < 0) {
+                $status['day'] = 0;
+            }
+            if ($status) {
+                $this->_configHelper->set('account_status', $this->_jsonHelper->jsonEncode($status));
+                $this->_configHelper->set('last_status_update', date('Y-m-d H:i:s'));
+                return $status;
+            }
+        } else {
+            if ($this->_configHelper->get('last_status_update')) {
+                return json_decode($this->_configHelper->get('account_status'), true);
+            }
+        }
+        return false;
+    }
+
+    /**
      * Get Statistic for all stores
      *
      * @param boolean $force force cache update
