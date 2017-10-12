@@ -72,6 +72,16 @@ class Sync extends AbstractHelper
     protected $_cacheTime = 18000;
 
     /**
+     * @var array valid sync actions
+     */
+    protected $_syncActions = array(
+        'order',
+        'action',
+        'catalog',
+        'option'
+    );
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
@@ -101,6 +111,18 @@ class Sync extends AbstractHelper
         $this->_connector = $connector;
         $this->_export = $export;
         parent::__construct($context);
+    }
+
+    /**
+     * Is sync action
+     *
+     * @param string $action sync action
+     *
+     * @return boolean
+     */
+    public function isSyncAction($action)
+    {
+        return in_array($action, $this->_syncActions);
     }
 
     /**

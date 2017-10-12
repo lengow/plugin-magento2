@@ -401,6 +401,29 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Get catalog ids for a specific store
+     *
+     * @param integer $storeId Magento store id
+     *
+     * @return array
+     */
+    public function getCatalogIds($storeId)
+    {
+        $catalogIds = [];
+        $storeCatalogIds = $this->get('catalog_id', $storeId);
+        if (strlen($storeCatalogIds) > 0 && $storeCatalogIds != 0) {
+            $ids = trim(str_replace(["\r\n", ',', '-', '|', ' ', '/'], ';', $storeCatalogIds), ';');
+            $ids = array_filter(explode(';', $ids));
+            foreach ($ids as $id) {
+                if (is_numeric($id) && $id > 0) {
+                    $catalogIds[] = (int)$id;
+                }
+            }
+        }
+        return $catalogIds;
+    }
+
+    /**
      * Set catalog ids for a specific shop
      *
      * @param array $catalogIds Lengow catalog ids
@@ -409,8 +432,7 @@ class Config extends AbstractHelper
      */
     public function setCatalogIds($catalogIds, $storeId, $cleanCache = true)
     {
-        // TODO getCatalogIds
-        $storeCatalogIds = [];
+        $storeCatalogIds = self::getCatalogIds($storeId);
         foreach ($catalogIds as $catalogId) {
             if (!in_array($catalogId, $storeCatalogIds) && is_numeric($catalogId) && $catalogId > 0) {
                 $storeCatalogIds[] = (int)$catalogId;
@@ -440,8 +462,7 @@ class Config extends AbstractHelper
     public function setActiveStore($storeId, $cleanCache = true)
     {
         $active = true;
-        // TODO getCatalogIds
-        $storeCatalogIds = [];
+        $storeCatalogIds = self::getCatalogIds($storeId);;
         if (count($storeCatalogIds) === 0) {
             $active = false;
         }
@@ -665,28 +686,4 @@ class Config extends AbstractHelper
         }
         return $reportEmailAddress;
     }
-
-    /**
-     * Get catalog ids for a specific store
-     *
-     * @param integer $storeId Magento store id
-     *
-     * @return array
-     */
-    public function getCatalogIds($storeId)
-    {
-        $catalogIds = [];
-        $storeCatalogIds = $this->get('catalog_id', $storeId);
-        if (strlen($storeCatalogIds) > 0 && $storeCatalogIds != 0) {
-            $ids = trim(str_replace(["\r\n", ',', '-', '|', ' ', '/'], ';', $storeCatalogIds), ';');
-            $ids = array_filter(explode(';', $ids));
-            foreach ($ids as $id) {
-                if (is_numeric($id) && $id > 0) {
-                    $catalogIds[] = (int)$id;
-                }
-            }
-        }
-        return $catalogIds;
-    }
-
 }
