@@ -22,10 +22,16 @@ namespace Lengow\Connector\Helper;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\HTTP\PhpEnvironment\ServerAddress;
+use Magento\Framework\Module\ModuleListInterface as ModuleList;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
 class Security extends AbstractHelper
 {
+    /**
+     * @var string Lengow module name
+     */
+    const MODULE_NAME = 'Lengow_Connector';
+
     /**
      * @var array lengow authorized ips
      */
@@ -71,19 +77,27 @@ class Security extends AbstractHelper
     protected $_serverAddress;
 
     /**
+     * @var \Magento\Framework\Module\ModuleListInterface Magento module list instance
+     */
+    protected $_moduleList;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Magento\Framework\HTTP\PhpEnvironment\ServerAddress $serverAddress Magento server address instance
+     * @param \Magento\Framework\Module\ModuleListInterface $moduleList Magento module list instance
      */
     public function __construct(
         Context $context,
         ConfigHelper $configHelper,
-        ServerAddress $serverAddress
+        ServerAddress $serverAddress,
+        ModuleList $moduleList
     ) {
         $this->_configHelper = $configHelper;
         $this->_serverAddress = $serverAddress;
+        $this->_moduleList = $moduleList;
         parent::__construct($context);
     }
 
@@ -175,5 +189,15 @@ class Security extends AbstractHelper
     public function getRemoteIp()
     {
         return $this->_remoteAddress->getRemoteAddress();
+    }
+
+    /**
+     * Get plugin version
+     *
+     * @return string
+     */
+    public function getPluginVersion()
+    {
+        return $this->_moduleList->getOne(self::MODULE_NAME)['setup_version'];
     }
 }

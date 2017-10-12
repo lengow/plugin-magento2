@@ -37,6 +37,7 @@
                     </block>
                 </block>
                 <block class="Lengow\Connector\Block\Adminhtml\Product" name="lengow_product_listing"/>
+                <block class="Lengow\Connector\Block\Adminhtml\Footer" name="lengow_footer" as="lengow_footer" template="Lengow_Connector::footer.phtml"/>
             </block>
         </referenceContainer>
     </body>
