@@ -84,7 +84,6 @@ class Connector
      */
     protected $_dataHelper;
 
-
     /**
      * @var \Lengow\Connector\Helper\Config Lengow config helper instance
      */

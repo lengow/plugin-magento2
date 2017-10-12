@@ -23,8 +23,11 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Pricing\PriceCurrencyInterface as PriceCurrency;
+use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Model\Connector as Connector;
+use Lengow\Connector\Model\Export as Export;
 
 class Sync extends AbstractHelper
 {
@@ -39,14 +42,29 @@ class Sync extends AbstractHelper
     protected $_priceCurrency;
 
     /**
+     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     */
+    protected $_dataHelper;
+
+    /**
      * @var \Lengow\Connector\Helper\Config Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
+     * @var \Lengow\Connector\Helper\Security Lengow security helper instance
+     */
+    protected $_securityHelper;
+
+    /**
      * @var \Lengow\Connector\Model\Connector Lengow connector instance
      */
     protected $_connector;
+
+    /**
+     * @var \Lengow\Connector\Model\Export Lengow export instance
+     */
+    protected $_export;
 
     /**
      * @var integer cache time for statistic, account status and cms options
@@ -59,21 +77,119 @@ class Sync extends AbstractHelper
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency Magento price currency instance
+     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Model\Connector $modelConnector Lengow connector instance
+     * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
+     * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
+     * @param \Lengow\Connector\Model\Export $export Lengow export instance
      */
     public function __construct(
         Context $context,
         JsonHelper $jsonHelper,
         PriceCurrency $priceCurrency,
+        DataHelper $dataHelper,
         ConfigHelper $configHelper,
-        Connector $modelConnector
+        SecurityHelper $securityHelper,
+        Connector $connector,
+        Export $export
     ) {
         $this->_jsonHelper = $jsonHelper;
         $this->_priceCurrency = $priceCurrency;
+        $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
-        $this->_connector = $modelConnector;
+        $this->_securityHelper = $securityHelper;
+        $this->_connector = $connector;
+        $this->_export = $export;
         parent::__construct($context);
+    }
+
+    /**
+     * Get Sync Data (Inscription / Update)
+     *
+     * @return array
+     */
+    public function getSyncData()
+    {
+        $data = [
+            'domain_name' => $_SERVER["SERVER_NAME"],
+            'token' => $this->_configHelper->getToken(),
+            'type' => 'magento',
+            'version' => $this->_securityHelper->getMagentoVersion(),
+            'plugin_version' =>  $this->_securityHelper->getPluginVersion(),
+            'email' => $this->scopeConfig->getValue('trans_email/ident_general/email'),
+            'cron_url' => $this->_dataHelper->getCronUrl(),
+            'return_url' => 'http://' . $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"],
+            'shops' => []
+        ];
+        $stores = $this->_configHelper->getAllStore();
+        foreach ($stores as $store) {
+            $storeId = (int)$store->getId();
+            $this->_export->init(['store_id' => $storeId]);
+            $data['shops'][$storeId] = [
+                'token' =>  $this->_configHelper->getToken($storeId),
+                'shop_name' =>  $store->getName(),
+                'domain_url' => $store->getBaseUrl(),
+                'feed_url' =>  $this->_dataHelper->getExportUrl($storeId),
+                'total_product_number' => $this->_export->getTotalProduct(),
+                'exported_product_number' => $this->_export->getTotalExportedProduct(),
+                'enabled' => $this->_configHelper->storeIsActive($storeId)
+            ];
+        }
+        return $data;
+    }
+
+    /**
+     * Set store configuration key from Lengow
+     *
+     * @param array $params Lengow API credentials
+     */
+    public function sync($params)
+    {
+        $this->_configHelper->setAccessIds(
+            [
+                'account_id' => $params['account_id'],
+                'access_token' => $params['access_token'],
+                'secret_token' => $params['secret_token']
+            ],
+            false
+        );
+        foreach ($params['shops'] as $storeToken => $storeCatalogIds) {
+            $store = $this->_configHelper->getStoreByToken($storeToken);
+            if ($store) {
+                $this->_configHelper->setCatalogIds($storeCatalogIds['catalog_ids'], (int)$store->getId(), false);
+                $this->_configHelper->setActiveStore((int)$store->getId(), false);
+            }
+        }
+        // Clean config cache to valid configuration
+        $this->_configHelper->cleanConfigCache();
+    }
+
+    /**
+     * Sync Lengow catalogs for order synchronisation
+     */
+    public function syncCatalog()
+    {
+        if ($this->_configHelper->isNewMerchant()) {
+            return false;
+        }
+        $result = $this->_connector->queryApi('get', '/v3.1/cms');
+        if (isset($result->cms)) {
+            $cmsToken = $this->_configHelper->getToken();
+            foreach ($result->cms as $cms) {
+                if ($cms->token === $cmsToken) {
+                    foreach ($cms->shops as $cmsShop) {
+                        $store = $this->_configHelper->getStoreByToken($cmsShop->token);
+                        if ($store) {
+                            $this->_configHelper->setCatalogIds($cmsShop->catalog_ids, (int)$store->getId(), false);
+                            $this->_configHelper->setActiveStore((int)$store->getId(), false);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        // Clean config cache to valid configuration
+        $this->_configHelper->cleanConfigCache();
     }
 
     /**

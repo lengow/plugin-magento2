@@ -97,7 +97,7 @@ class Index extends Action
                 if (is_null($sync) || $sync === 'order') {
                     // array of params for import order
                     $params = [];
-                    // check if the GET parameters are availables
+                    // check if the GET parameters are available
                     if (!is_null($this->getRequest()->getParam('preprod_mode'))) {
                         $params['preprod_mode'] = (bool)$this->getRequest()->getParam('preprod_mode');
                     }

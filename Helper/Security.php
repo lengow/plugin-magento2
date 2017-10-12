@@ -23,6 +23,7 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\HTTP\PhpEnvironment\ServerAddress;
 use Magento\Framework\Module\ModuleListInterface as ModuleList;
+use Magento\Framework\App\ProductMetadataInterface as ProductMetadata;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
 class Security extends AbstractHelper
@@ -67,11 +68,6 @@ class Security extends AbstractHelper
     ];
 
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
-     */
-    protected $_configHelper;
-
-    /**
      * @var \Magento\Framework\HTTP\PhpEnvironment\ServerAddress Magento server address instance
      */
     protected $_serverAddress;
@@ -82,22 +78,35 @@ class Security extends AbstractHelper
     protected $_moduleList;
 
     /**
+     * @var \Magento\Framework\App\ProductMetadataInterface Magento product metadata instance
+     */
+    protected $_productMetadata;
+
+    /**
+     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     */
+    protected $_configHelper;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Magento\Framework\HTTP\PhpEnvironment\ServerAddress $serverAddress Magento server address instance
      * @param \Magento\Framework\Module\ModuleListInterface $moduleList Magento module list instance
+     * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata Magento product metadata instance
+     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
     public function __construct(
         Context $context,
-        ConfigHelper $configHelper,
         ServerAddress $serverAddress,
-        ModuleList $moduleList
+        ModuleList $moduleList,
+        ProductMetadata $productMetadata,
+        ConfigHelper $configHelper
     ) {
-        $this->_configHelper = $configHelper;
         $this->_serverAddress = $serverAddress;
         $this->_moduleList = $moduleList;
+        $this->_productMetadata = $productMetadata;
+        $this->_configHelper = $configHelper;
         parent::__construct($context);
     }
 
@@ -199,5 +208,15 @@ class Security extends AbstractHelper
     public function getPluginVersion()
     {
         return $this->_moduleList->getOne(self::MODULE_NAME)['setup_version'];
+    }
+
+    /**
+     * Get Magento version
+     *
+     * @return string
+     */
+    public function getMagentoVersion()
+    {
+        return $this->_productMetadata->getVersion();
     }
 }
