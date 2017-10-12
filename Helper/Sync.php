@@ -212,7 +212,7 @@ class Sync extends AbstractHelper
         }
         $result = $this->_connector->queryApi('get', '/v3.0/plans');
         if (isset($result->isFreeTrial)) {
-            $status = array();
+            $status = [];
             $status['type'] = $result->isFreeTrial ? 'free_trial' : '';
             $status['day'] = (int)$result->leftDaysBeforeExpired;
             $status['expired'] = (bool)$result->isExpired;

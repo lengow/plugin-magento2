@@ -177,3 +177,15 @@ en:
     exception:
       timeout_api: "API call blocked due to a timeout"
       error_curl: "Curl error %1 - %2"
+      no_connection_webservice: "connection didn't work with Lengow's webservice in store %1 (%2)"
+      error_lengow_webservice: "Lengow webservice : %1 - %2 in store %3 (%4)"
+    error:
+      nb_order_imported: "%1 order(s) imported"
+      nb_order_updated: "%1 order(s) updated"
+      nb_order_with_error: "%1 order(s) with errors"
+      credentials_not_valid: "Account ID, token access or secret token are not valid"
+      no_catalog_for_store: "No catalog ID valid for the store %1 (%2)"
+      rest_time_to_import: "Import has already started. Please wait %1 seconds before re-importing orders"
+      account_id_empty: "ID account, access token or secret is empty in store %1 (%2)"
+      account_id_already_used: "account ID %1 is already used by store %2 (%3)"
+      order_not_found: "Lengow error: order cannot be found in Lengow feed"

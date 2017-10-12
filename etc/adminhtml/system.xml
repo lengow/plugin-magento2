@@ -30,7 +30,7 @@
                     <comment>Enable store to work with Lengow</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="global_catalog_id" translate="label comment" type="select" sortOrder="50" showInDefault="0" showInWebsite="0" showInStore="1">
+                <field id="global_catalog_id" translate="label comment" type="text" sortOrder="50" showInDefault="0" showInWebsite="0" showInStore="1">
                     <label>Catalogues ID</label>
                     <comment>Your catalogues ID to import orders. Separate them by ' ; '</comment>
                 </field>
