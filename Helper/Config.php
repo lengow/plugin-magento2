@@ -573,10 +573,10 @@ class Config extends AbstractHelper
      */
     public function getCatalogIds($storeId)
     {
-        $catalogIds = array();
+        $catalogIds = [];
         $storeCatalogIds = $this->get('catalog_id', $storeId);
         if (strlen($storeCatalogIds) > 0 && $storeCatalogIds != 0) {
-            $ids = trim(str_replace(array("\r\n", ',', '-', '|', ' ', '/'), ';', $storeCatalogIds), ';');
+            $ids = trim(str_replace(["\r\n", ',', '-', '|', ' ', '/'], ';', $storeCatalogIds), ';');
             $ids = array_filter(explode(';', $ids));
             foreach ($ids as $id) {
                 if (is_numeric($id) && $id > 0) {

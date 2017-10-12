@@ -617,7 +617,7 @@ class Import {
     protected function _checkCredentials() {
         if ( $this->_connector->isValidAuth() ) {
             list( $this->_accountId, $this->_accessToken, $this->_secretToken ) = $this->_configHelper->getAccessIds();
-            $this->_connector->init( $this->_accessToken, $this->_secretToken );
+            $this->_connector->init(['access_token' => $this->_accessToken, 'secret' => $this->_secretToken]);
 
             return true;
         }
@@ -694,7 +694,7 @@ class Import {
             if ( is_null( $results ) ) {
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage(
-                        'connection didn\'t work with Lengow\'s webservice in store %1 (%2)',
+                        "connection didn't work with Lengow's webservice in store %1 (%2)",
                         [
                             $store->getName(),
                             $store->getId()
@@ -706,7 +706,7 @@ class Import {
             if ( ! is_object( $results ) ) {
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage(
-                        'connection didn\'t work with Lengow\'s webservice in store %1 (%2)',
+                        "connection didn't work with Lengow's webservice in store %1 (%2)",
                         [
                             $store->getName(),
                             $store->getId()
@@ -750,7 +750,7 @@ class Import {
         if ($this->_importOneOrder) {
             return true;
         }
-        $storeCatalogIds = array();
+        $storeCatalogIds = [];
         $catalogIds = $this->_configHelper->getCatalogIds((int)$store->getId());
         foreach ($catalogIds as $catalogId) {
             if (array_key_exists($catalogId, $this->_catalogIds)) {
@@ -758,16 +758,16 @@ class Import {
                     'Import',
                     $this->_dataHelper->setLogMessage(
                         'catalog ID %1 is already used by shop %2 (%3)',
-                        array(
+                        [
                             $catalogId,
                             $this->_catalogIds[$catalogId]['name'],
                             $this->_catalogIds[$catalogId]['store_id'],
-                        )
+                        ]
                     ),
                     $this->_logOutput
                 );
             } else {
-                $this->_catalogIds[$catalogId] = array('store_id' => (int)$store->getId(), 'name' => $store->getName());
+                $this->_catalogIds[$catalogId] = ['store_id' => (int)$store->getId(), 'name' => $store->getName()];
                 $storeCatalogIds[] = $catalogId;
             }
         }
