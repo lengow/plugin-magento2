@@ -275,7 +275,6 @@ class Import
         Connector $connector,
         BackendSession $backendSession,
         StoreRepositoryInterface $storeRepository
-
     )
     {
         $this->_storeManager = $storeManager;
@@ -350,7 +349,6 @@ class Import
      */
     public function exec()
     {
-
         $orderNew = 0;
         $orderUpdate = 0;
         $orderError = 0;
@@ -412,10 +410,7 @@ class Import
                         if (!$this->_checkCatalogIds($store)) {
                             $errorCatalogIds = $this->_dataHelper->setLogMessage(
                                 'No catalog ID valid for the store %1 (%2)e',
-                                [
-                                    $store->getName(),
-                                    (int)$store->getId(),
-                                ]
+                                [$store->getName(), (int)$store->getId()]
                             );
                             $this->_dataHelper->log('Import', $errorCatalogIds, $this->_logOutput);
                             $errors[(int)$store->getId()] = $errorCatalogIds;
@@ -624,10 +619,7 @@ class Import
                 'Import',
                 $this->_dataHelper->setLogMessage(
                     'get order with order ID: %1 and marketplace: %2',
-                    [
-                        $this->_marketplaceSku,
-                        $this->_marketplaceName
-                    ]
+                    [$this->_marketplaceSku, $this->_marketplaceName]
                 ),
                 $this->_logOutput
             );
@@ -673,10 +665,7 @@ class Import
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage(
                         "connection didn't work with Lengow's webservice in store %1 (%2)",
-                        [
-                            $store->getName(),
-                            $store->getId()
-                        ]
+                        [$store->getName(), $store->getId()]
                     )
                 );
             }
@@ -685,10 +674,7 @@ class Import
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage(
                         "connection didn't work with Lengow's webservice in store %1 (%2)",
-                        [
-                            $store->getName(),
-                            $store->getId()
-                        ]
+                        [$store->getName(), $store->getId()]
                     )
                 );
             }

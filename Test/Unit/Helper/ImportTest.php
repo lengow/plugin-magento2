@@ -26,7 +26,8 @@ use Magento\Framework\App\Helper\Context;
 use Lengow\Connector\Test\Unit\Fixture;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 
-class ImportTest extends \PHPUnit_Framework_TestCase {
+class ImportTest extends \PHPUnit_Framework_TestCase
+{
     /**
      * @var \Lengow\Connector\Helper\Import
      */
@@ -52,15 +53,17 @@ class ImportTest extends \PHPUnit_Framework_TestCase {
      * This method is called before a test is executed.
      *
      */
-    public function setUp() {
-        $objectManager       = new ObjectManager( $this );
-        $this->_importHelper = $objectManager->getObject( ImportHelper::class );
-        $this->_syncHelper   = $objectManager->getObject( SyncHelper::class );
-        $this->_configHelper = $objectManager->getObject( ConfigHelper::class );
-        $this->_context      = $objectManager->getObject( Context::class );
+    public function setUp()
+    {
+        $objectManager = new ObjectManager($this);
+        $this->_importHelper = $objectManager->getObject(ImportHelper::class);
+        $this->_syncHelper = $objectManager->getObject(SyncHelper::class);
+        $this->_configHelper = $objectManager->getObject(ConfigHelper::class);
+        $this->_context = $objectManager->getObject(Context::class);
     }
 
-    public function testClassInstance() {
+    public function testClassInstance()
+    {
         $this->assertInstanceOf(
             ImportHelper::class,
             $this->_importHelper,
@@ -71,45 +74,46 @@ class ImportTest extends \PHPUnit_Framework_TestCase {
     /**
      * @covers \Lengow\Connector\Helper\Import::getLastImport()
      */
-    public function testGetLastImport() {
-        $fixture   = New Fixture();
+    public function testGetLastImport()
+    {
+        $fixture = New Fixture();
         $classMock = $fixture->getFakeClass();
 
-        $configHelperMock = $this->getMockBuilder( get_class( $classMock ) )
-                                 ->setMethods( [ 'get' ] )
-                                 ->disableOriginalConstructor()
-                                 ->getMock();
-        $configHelperMock->expects( $this->any() )->method( 'get' )->willReturnOnConsecutiveCalls(
+        $configHelperMock = $this->getMockBuilder(get_class($classMock))
+            ->setMethods(['get'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $configHelperMock->expects($this->any())->method('get')->willReturnOnConsecutiveCalls(
             '1507715696', '',
             '', '1507715696',
             '', '',
             '1507715696', '1507715697',
             '1507715697', '1507715696'
         );
-        $fixture->setPrivatePropertyValue( $this->_importHelper, [ '_configHelper' ], [ $configHelperMock ] );
+        $fixture->setPrivatePropertyValue($this->_importHelper, ['_configHelper'], [$configHelperMock]);
 
         $this->assertEquals(
-            [ 'type' => 'cron', 'timestamp' => '1507715696' ],
+            ['type' => 'cron', 'timestamp' => '1507715696'],
             $this->_importHelper->getLastImport(),
             '[Test Get Last Import] Check if return last import date 1'
         );
         $this->assertEquals(
-            [ 'type' => 'manual', 'timestamp' => '1507715696' ],
+            ['type' => 'manual', 'timestamp' => '1507715696'],
             $this->_importHelper->getLastImport(),
             '[Test Get Last Import] Check if return last import date 2'
         );
         $this->assertEquals(
-            [ 'type' => 'none', 'timestamp' => 'none' ],
+            ['type' => 'none', 'timestamp' => 'none'],
             $this->_importHelper->getLastImport(),
             '[Test Get Last Import] Check if return last import date 3'
         );
         $this->assertEquals(
-            [ 'type' => 'manual', 'timestamp' => '1507715697' ],
+            ['type' => 'manual', 'timestamp' => '1507715697'],
             $this->_importHelper->getLastImport(),
             '[Test Get Last Import] Check if return last import date 4'
         );
         $this->assertEquals(
-            [ 'type' => 'cron', 'timestamp' => '1507715697' ],
+            ['type' => 'cron', 'timestamp' => '1507715697'],
             $this->_importHelper->getLastImport(),
             '[Test Get Last Import] Check if return last import date 5'
         );
@@ -118,22 +122,23 @@ class ImportTest extends \PHPUnit_Framework_TestCase {
     /**
      * @covers \Lengow\Connector\Helper\Import::importIsInProcess()
      */
-    public function testImportIsInProcess() {
-        $fixture   = New Fixture();
+    public function testImportIsInProcess()
+    {
+        $fixture = New Fixture();
         $classMock = $fixture->getFakeClass();
 
-        $configHelperMock = $this->getMockBuilder( get_class( $classMock ) )
-                                 ->setMethods( [ 'get' ] )
-                                 ->disableOriginalConstructor()
-                                 ->getMock();
+        $configHelperMock = $this->getMockBuilder(get_class($classMock))
+            ->setMethods(['get'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $importHelperMock = $fixture->mockFunctions($this->_importHelper, ['setImportEnd'], [true]);
-        $configHelperMock->expects( $this->any() )->method( 'get' )->willReturnOnConsecutiveCalls(
+        $configHelperMock->expects($this->any())->method('get')->willReturnOnConsecutiveCalls(
             '1507715696',
             '',
             0,
             time() - 10
         );
-        $fixture->setPrivatePropertyValue( $importHelperMock, [ '_configHelper' ], [ $configHelperMock ] );
+        $fixture->setPrivatePropertyValue($importHelperMock, ['_configHelper'], [$configHelperMock]);
 
         $this->assertEquals(
             false,

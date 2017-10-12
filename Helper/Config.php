@@ -552,7 +552,7 @@ class Config extends AbstractHelper
             }
         }
         if (count($reportEmailAddress) == 0) {
-            $reportEmailAddress[] = $this->_scopeConfigInterface->getValue(
+            $reportEmailAddress[] = $this->scopeConfig->getValue(
                 'trans_email/ident_general/email',
                 ScopeInterface::SCOPE_STORE
             );
