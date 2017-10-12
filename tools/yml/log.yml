@@ -31,6 +31,9 @@ en:
       find_all_orders: "%1 order(s) found with account ID: %2"
       external_id_exist: "already imported in Magento with the order ID %1"
       import_failed: "import failed - %1"
+      error_no_package: "import order failed - Lengow error: no package in the order"
+      error_no_delivery_address: "import order failed - Lengow error: no delivery address in the order"
+      error_wrong_package_number: "import order failed - wrong package number"
     connector:
       call_api: "call %1"
       error_api: "API call failed - %1"
