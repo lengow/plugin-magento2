@@ -23,8 +23,6 @@ use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
-use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Store\Model\WebsiteFactory;
 use Magento\Backend\Model\Session as BackendSession;
@@ -32,8 +30,6 @@ use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
-use Lengow\Connector\Model\Export\Feed;
-use Lengow\Connector\Model\Export\Product;
 use Lengow\Connector\Model\Import\Ordererror;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Lengow\Connector\Model\Exception as LengowException;
@@ -56,16 +52,6 @@ class Import {
      * @var \Magento\Framework\App\Config\ScopeConfigInterface Magento scope config instance
      */
     protected $_scopeConfig;
-
-    /**
-     * @var \Magento\Catalog\Model\Product\Attribute\Source\Status Magento product status instance
-     */
-    protected $_productStatus;
-
-    /**
-     * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory Magento product collection factory
-     */
-    protected $_productCollectionFactory;
 
     /**
      * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
@@ -98,19 +84,9 @@ class Import {
     protected $_syncHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Export\Feed Lengow feed instance
-     */
-    protected $_feed;
-
-    /**
      * @var \Lengow\Connector\Model\Connector Lengow connector instance
      */
     protected $_connector;
-
-    /**
-     * @var \Lengow\Connector\Model\Export\Product Lengow product instance
-     */
-    protected $_product;
 
     /**
      * @var \Magento\Store\Model\Store\Interceptor Magento store instance
@@ -166,16 +142,6 @@ class Import {
      * @var boolean see log or not
      */
     protected $_logOutput;
-
-    /**
-     * @var array export product types
-     */
-    protected $_productTypes;
-
-    /**
-     * @var array product ids to be exported
-     */
-    protected $_productIds;
 
     /**
      * @var boolean update export date.
@@ -302,16 +268,12 @@ class Import {
         StoreManagerInterface $storeManager,
         DateTime $dateTime,
         ScopeConfigInterface $scopeConfig,
-        ProductStatus $productStatus,
-        ProductCollectionFactory $productCollectionFactory,
         JsonHelper $jsonHelper,
         WebsiteFactory $websiteFactory,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         ImportHelper $importHelper,
         SyncHelper $syncHelper,
-        Feed $feed,
-        Product $product,
         Ordererror $orderError,
         Connector $connector,
         BackendSession $backendSession,
@@ -323,14 +285,10 @@ class Import {
         $this->_configHelper             = $configHelper;
         $this->_importHelper             = $importHelper;
         $this->_syncHelper               = $syncHelper;
-        $this->_feed                     = $feed;
-        $this->_product                  = $product;
         $this->_jsonHelper               = $jsonHelper;
         $this->_websiteFactory           = $websiteFactory;
         $this->_dateTime                 = $dateTime;
         $this->_scopeConfig              = $scopeConfig;
-        $this->_productStatus            = $productStatus;
-        $this->_productCollectionFactory = $productCollectionFactory;
         $this->_orderError               = $orderError;
         $this->_connector                = $connector;
         $this->_backendSession           = $backendSession;
