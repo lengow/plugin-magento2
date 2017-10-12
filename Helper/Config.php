@@ -34,10 +34,6 @@ use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollection
 
 class Config extends AbstractHelper
 {
-    /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface Magento scopeConfig instance
-     */
-    protected $_scopeConfigInterface;
 
     /**
      * @var \Magento\Framework\App\Config\Storage\WriterInterface Magento writer instance
@@ -285,7 +281,6 @@ class Config extends AbstractHelper
      * @param \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory $attributeCollectionFactory
      * @param \Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory $configDataCollectionFactory
      * @param \Magento\Store\Model\ResourceModel\Store\CollectionFactory $storeCollectionFactory
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         Context $context,
@@ -294,16 +289,15 @@ class Config extends AbstractHelper
         CustomerGroupCollectionFactory $customerGroupCollectionFactory,
         AttributeCollectionFactory $attributeCollectionFactory,
         ConfigDataCollectionFactory $configDataCollectionFactory,
-        StoreCollectionFactory $storeCollectionFactory,
-        ScopeConfigInterface $scopeConfig
-    ) {
+        StoreCollectionFactory $storeCollectionFactory
+    )
+    {
         $this->_writerInterface = $writerInterface;
         $this->_cacheManager = $cacheManager;
         $this->_customerGroupCollectionFactory = $customerGroupCollectionFactory;
         $this->_attributeCollectionFactory = $attributeCollectionFactory;
         $this->_configDataCollectionFactory = $configDataCollectionFactory;
         $this->_storeCollectionFactory = $storeCollectionFactory;
-        $this->_scopeConfigInterface = $scopeConfig;
         parent::__construct($context);
     }
 
@@ -329,7 +323,7 @@ class Config extends AbstractHelper
             $value = count($results) > 0 ? $results[0]['value'] : '';
         } else {
             $scope = $storeId == 0 ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES;
-            $value = $this->_scopeConfigInterface->getValue($this->_options[$key]['path'], $scope, $storeId);
+            $value = $this->scopeConfig->getValue($this->_options[$key]['path'], $scope, $storeId);
         }
         return $value;
     }
@@ -558,8 +552,10 @@ class Config extends AbstractHelper
             }
         }
         if (count($reportEmailAddress) == 0) {
-            $reportEmailAddress[] = $this->_scopeConfigInterface->getValue('trans_email/ident_general/email',
-                ScopeInterface::SCOPE_STORE);
+            $reportEmailAddress[] = $this->_scopeConfigInterface->getValue(
+                'trans_email/ident_general/email',
+                ScopeInterface::SCOPE_STORE
+            );
         }
         return $reportEmailAddress;
     }

@@ -66,7 +66,8 @@ class Index extends Action
         SecurityHelper $securityHelper,
         ConfigHelper $configHelper,
         ImportModel $importModel
-    ) {
+    )
+    {
         parent::__construct($context);
         $this->_jsonHelper = $jsonHelper;
         $this->_securityHelper = $securityHelper;

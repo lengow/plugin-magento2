@@ -57,7 +57,6 @@ class Import extends AbstractHelper
      * @var array valid states lengow to create a Lengow order
      */
     protected $_lengowStates = [
-        'accepted',
         'waiting_shipment',
         'shipped',
         'closed'
@@ -78,7 +77,8 @@ class Import extends AbstractHelper
         ConfigHelper $configHelper,
         Ordererror $orderError,
         DateTime $dateTime
-    ) {
+    )
+    {
         $this->_configHelper = $configHelper;
         $this->_dataHelper = $dataHelper;
         $this->_dateTime = $dateTime;
@@ -167,7 +167,7 @@ class Import extends AbstractHelper
         $timestampManual = $this->_configHelper->get('last_import_manual');
 
         if ($timestampCron && $timestampManual) {
-            if ((int)$timestampCron > (int) $timestampManual) {
+            if ((int)$timestampCron > (int)$timestampManual) {
                 return ['type' => 'cron', 'timestamp' => (int)$timestampCron];
             } else {
                 return ['type' => 'manual', 'timestamp' => (int)$timestampManual];

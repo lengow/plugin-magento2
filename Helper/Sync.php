@@ -68,7 +68,8 @@ class Sync extends AbstractHelper
         PriceCurrency $priceCurrency,
         ConfigHelper $configHelper,
         Connector $modelConnector
-    ) {
+    )
+    {
         $this->_jsonHelper = $jsonHelper;
         $this->_priceCurrency = $priceCurrency;
         $this->_configHelper = $configHelper;

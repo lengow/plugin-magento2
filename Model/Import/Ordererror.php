@@ -24,6 +24,7 @@ use Lengow\Connector\Model\ResourceModel\Ordererror as OrderResourceerror;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory;
 
 /**
  * Model import ordererror
@@ -46,16 +47,26 @@ class Ordererror extends AbstractModel
     protected $_dateTime;
 
     /**
+     * @var \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory Lengow Ordererror $_ordererrorCollection
+     */
+    protected $_ordererrorCollection;
+
+    /**
+     * @var \Lengow\Connector\Model\OrdererrorFactory Lengow Ordererror $_ordererrorFactory
+     */
+    protected $_ordererrorFactory;
+
+    /**
      * @var array $_fieldList field list for the table lengow_order_line
      * required => Required fields when creating registration
      * update   => Fields allowed when updating registration
      */
     protected $_fieldList = [
         'order_lengow_id' => ['required' => true, 'updated' => false],
-        'message'         => ['required' => true, 'updated' => false],
-        'type'            => ['required' => true, 'updated' => false],
-        'is_finished'     => ['required' => false, 'updated' => true],
-        'mail'            => ['required' => false, 'updated' => true]
+        'message' => ['required' => true, 'updated' => false],
+        'type' => ['required' => true, 'updated' => false],
+        'is_finished' => ['required' => false, 'updated' => true],
+        'mail' => ['required' => false, 'updated' => true]
     ];
 
     /**
@@ -64,14 +75,21 @@ class Ordererror extends AbstractModel
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
+     * @param \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory Lengow Ordererror $ordererrorCollection
+     * @param \Lengow\Connector\Model\OrdererrorFactory Lengow Ordererror $ordererrorFactory
      */
     public function __construct(
         Context $context,
         Registry $registry,
-        DateTime $dateTime
-    ) {
+        DateTime $dateTime,
+        CollectionFactory $ordererrorCollection,
+        OrdererrorFactory $ordererrorFactory
+    )
+    {
         parent::__construct($context, $registry);
         $this->_dateTime = $dateTime;
+        $this->_ordererrorCollection = $ordererrorCollection;
+        $this->_ordererrorFactory = $ordererrorFactory;
     }
 
     /**
@@ -169,84 +187,31 @@ class Ordererror extends AbstractModel
     }
 
     /**
-     * Get all order errors
-     *
-     * @param integer $orderLengowId Lengow order id
-     * @param string  $type          order error type (import or send)
-     * @param boolean $finished      log finished
-     *
-     * @return array|false
-     *
-     */
-    public function getOrderErrors($orderLengowId, $type = null, $finished = null)
-    {
-//        $errorType = $this->getOrderErrorType($type);
-//        $collection = $this->getCollection()->addFieldToFilter('order_lengow_id', $orderLengowId);
-//        if (!is_null($type)) {
-//            $errorType = $this->getOrderErrorType($type);
-//            $collection->addFieldToFilter('type', $errorType);
-//        }
-//        if (!is_null($finished)) {
-//            $errorFinished = $finished ? 1 : 0;
-//            $collection->addFieldToFilter('is_finished', $errorFinished);
-//        }
-//        $results = $collection->getData();
-//        if (count($results) > 0) {
-//            return $results;
-//        }
-//        return false;
-    }
-
-    /**
      * Removes all order error for one order lengow
      *
      * @param integer $orderLengowId Lengow order id
-     * @param string  $type          order error type (import or send)
+     * @param string $type order error type (import or send)
      *
      * @return boolean
      */
     public function finishOrderErrors($orderLengowId, $type = 'import')
     {
-//        $errorType = $this->getOrderErrorType($type);
-//        // get all order errors
-//        $results = $this->getCollection()
-//            ->addFieldToFilter('order_lengow_id', $orderLengowId)
-//            ->addFieldToFilter('is_finished', 0)
-//            ->addFieldToFilter('type', $errorType)
-//            ->addFieldToSelect('id')
-//            ->getData();
-//        if (count($results) > 0) {
-//            foreach ($results as $result) {
-//                $orderError = $this->load($result['id']);
-//                $orderError->updateOrderError(['is_finished' => 1]);
-//                unset($orderError);
-//            }
-//            return true;
-//        }
-//        return false;
-    }
-
-    /**
-     * Get error import logs never send by mail
-     *
-     * @return array|false
-     */
-    public function getImportErrors()
-    {
-//         $results = $this->getCollection()
-//            ->join(
-//                ['lengow_order' => 'lengow_order'],
-//                'lengow_order.id=main_table.order_lengow_id',
-//                ['marketplace_sku' => 'marketplace_sku']
-//            )
-//            ->addFieldToFilter('mail', ['eq' => 0])
-//            ->addFieldToFilter('is_finished', ['eq' => 0])
-//            ->addFieldToSelect('message')
-//            ->addFieldToSelect('id')
-//            ->getData();
-//        if (count($results) == 0) {
-//            return false;
-//        }
-//        return $results;
+        $errorType = $this->getOrderErrorType($type);
+        // get all order errors
+        $results = $this->_ordererrorCollection->create()->load()
+            ->addFieldToFilter('order_lengow_id', $orderLengowId)
+            ->addFieldToFilter('is_finished', 0)
+            ->addFieldToFilter('type', $errorType)
+            ->addFieldToSelect('id')
+            ->getData();
+        if (count($results) > 0) {
+            foreach ($results as $result) {
+                $orderError = $this->_ordererrorFactory->create(['id' => $result['id']]);
+                $orderError->updateOrderError(['is_finished' => 1]);
+                unset($orderError);
+            }
+            return true;
+        }
+        return false;
     }
 }

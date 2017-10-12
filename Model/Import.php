@@ -37,7 +37,8 @@ use Lengow\Connector\Model\Exception as LengowException;
 /**
  * Lengow import
  */
-class Import {
+class Import
+{
     /**
      * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
      */
@@ -249,16 +250,12 @@ class Import {
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
-     * @param \Magento\Catalog\Model\Product\Attribute\Source\Status $productStatus Magento product status instance
-     * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Magento\Store\Model\WebsiteFactory $websiteFactory Magento website factory instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Helper\Import $importHelper Lengow config helper instance
      * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
-     * @param \Lengow\Connector\Model\Export\Feed $feed Lengow feed instance
-     * @param \Lengow\Connector\Model\Export\Product $product Lengow product instance
      * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
      * @param \Magento\Backend\Model\Session $backendSession Backend session instance
@@ -279,20 +276,21 @@ class Import {
         BackendSession $backendSession,
         StoreRepositoryInterface $storeRepository
 
-    ) {
-        $this->_storeManager             = $storeManager;
-        $this->_dataHelper               = $dataHelper;
-        $this->_configHelper             = $configHelper;
-        $this->_importHelper             = $importHelper;
-        $this->_syncHelper               = $syncHelper;
-        $this->_jsonHelper               = $jsonHelper;
-        $this->_websiteFactory           = $websiteFactory;
-        $this->_dateTime                 = $dateTime;
-        $this->_scopeConfig              = $scopeConfig;
-        $this->_orderError               = $orderError;
-        $this->_connector                = $connector;
-        $this->_backendSession           = $backendSession;
-        $this->_storeRepository          = $storeRepository;
+    )
+    {
+        $this->_storeManager = $storeManager;
+        $this->_dataHelper = $dataHelper;
+        $this->_configHelper = $configHelper;
+        $this->_importHelper = $importHelper;
+        $this->_syncHelper = $syncHelper;
+        $this->_jsonHelper = $jsonHelper;
+        $this->_websiteFactory = $websiteFactory;
+        $this->_dateTime = $dateTime;
+        $this->_scopeConfig = $scopeConfig;
+        $this->_orderError = $orderError;
+        $this->_connector = $connector;
+        $this->_backendSession = $backendSession;
+        $this->_storeRepository = $storeRepository;
     }
 
     /**
@@ -310,103 +308,102 @@ class Import {
      * boolean log_output          display log messages
      * boolean preprod_mode        preprod mode
      */
-    public function init( $params ) {
+    public function init($params)
+    {
         // params for re-import order
-        if ( array_key_exists( 'marketplace_sku', $params )
-             && array_key_exists( 'marketplace_name', $params )
-             && array_key_exists( 'store_id', $params )
+        if (array_key_exists('marketplace_sku', $params)
+            && array_key_exists('marketplace_name', $params)
+            && array_key_exists('store_id', $params)
         ) {
-            if ( isset( $params['order_lengow_id'] ) ) {
-                $this->_orderLengowId = (int) $params['order_lengow_id'];
+            if (isset($params['order_lengow_id'])) {
+                $this->_orderLengowId = (int)$params['order_lengow_id'];
             }
-            $this->_importOneOrder  = true;
-            $this->_limit           = 1;
-            $this->_marketplaceSku  = (string) $params['marketplace_sku'];
-            $this->_marketplaceName = (string) $params['marketplace_name'];
-            if ( array_key_exists( 'delivery_address_id', $params ) && $params['delivery_address_id'] != '' ) {
+            $this->_importOneOrder = true;
+            $this->_limit = 1;
+            $this->_marketplaceSku = (string)$params['marketplace_sku'];
+            $this->_marketplaceName = (string)$params['marketplace_name'];
+            if (array_key_exists('delivery_address_id', $params) && $params['delivery_address_id'] != '') {
                 $this->_deliveryAddressId = $params['delivery_address_id'];
             }
         } else {
             // recovering the time interval
-            $this->_days  = ( isset( $params['days'] ) ? (int) $params['days'] : null );
-            $this->_limit = ( isset( $params['limit'] ) ? (int) $params['limit'] : 0 );
+            $this->_days = (isset($params['days']) ? (int)$params['days'] : null);
+            $this->_limit = (isset($params['limit']) ? (int)$params['limit'] : 0);
         }
         // get other params
         $this->_preprodMode = (
-        isset( $params['preprod_mode'] )
-            ? (bool) $params['preprod_mode']
-            : (bool) $this->_configHelper->get( 'preprod_mode_enable' )
+        isset($params['preprod_mode'])
+            ? (bool)$params['preprod_mode']
+            : (bool)$this->_configHelper->get('preprod_mode_enable')
         );
-        $this->_typeImport  = ( isset( $params['type'] ) ? $params['type'] : 'manual' );
-        $this->_logOutput   = ( isset( $params['log_output'] ) ? (bool) $params['log_output'] : false );
-        $this->_storeId     = ( isset( $params['store_id'] ) ? (int) $params['store_id'] : null );
+        $this->_typeImport = (isset($params['type']) ? $params['type'] : 'manual');
+        $this->_logOutput = (isset($params['log_output']) ? (bool)$params['log_output'] : false);
+        $this->_storeId = (isset($params['store_id']) ? (int)$params['store_id'] : null);
     }
 
     /**
      * Execute import: fetch orders and import them
      *
-     * @throws Exception order not found
+     * @throws LengowException order not found
      *
      * @return array
      */
-    public function exec() {
+    public function exec()
+    {
 
-        $orderNew    = 0;
+        $orderNew = 0;
         $orderUpdate = 0;
-        $orderError  = 0;
-        $errors      = [];
+        $orderError = 0;
+        $errors = [];
         $globalError = false;
         // clean logs > 20 days
         $this->_dataHelper->cleanLog();
-        if ( $this->_importHelper->importIsInProcess() && ! $this->_preprodMode && ! $this->_importOneOrder ) {
+        if ($this->_importHelper->importIsInProcess() && !$this->_preprodMode && !$this->_importOneOrder) {
             $globalError = $this->_dataHelper->setLogMessage(
                 'Import has already started. Please wait %1 seconds before re-importing orders',
                 [$this->_importHelper->restTimeToImport()]
             );
-            $this->_dataHelper->log( 'Import', $globalError, $this->_logOutput );
+            $this->_dataHelper->log('Import', $globalError, $this->_logOutput);
         } elseif (!$this->_checkCredentials()) {
             $globalError = $this->_dataHelper->setLogMessage('Account ID, token access or secret token are not valid');
             $this->_dataHelper->log('Import', $globalError, $this->_logOutput);
         } else {
             // to activate lengow shipping method
-            $this->_backendSession->setIsFromlengow( 1 );
+            $this->_backendSession->setIsFromlengow(1);
             // check Lengow catalogs for order synchronisation
             if (!$this->_preprodMode && !$this->_importOneOrder && $this->_typeImport === 'manual') {
                 //$this->_syncHelper->syncCatalog();TODO
             }
             $this->_dataHelper->log(
                 'Import',
-                $this->_dataHelper->setLogMessage( '## start %1 import ##', [$this->_typeImport] ),
+                $this->_dataHelper->setLogMessage('## start %1 import ##', [$this->_typeImport]),
                 $this->_logOutput
             );
-            if ( $this->_preprodMode ) {
+            if ($this->_preprodMode) {
                 $this->_dataHelper->log(
                     'Import',
-                    $this->_dataHelper->setLogMessage( 'WARNING! Pre-production mode is activated' ),
+                    $this->_dataHelper->setLogMessage('WARNING! Pre-production mode is activated'),
                     $this->_logOutput
                 );
             }
-            if ( ! $this->_importOneOrder ) {
+            if (!$this->_importOneOrder) {
                 $this->_importHelper->setImportInProcess();
                 // udpate last import date
-                $this->_importHelper->updateDateImport( $this->_typeImport );
+                $this->_importHelper->updateDateImport($this->_typeImport);
             }
             // get all store for import
             $storeCollection = $this->_storeManager->getStores();
             /** @var Store $store */
-            foreach ( $storeCollection as $store ) {
-                if ( ( ! is_null( $this->_storeId ) && (int) $store->getId() != $this->_storeId ) || ! $store->isActive() ) {
+            foreach ($storeCollection as $store) {
+                if ((!is_null($this->_storeId) && (int)$store->getId() != $this->_storeId) || !$store->isActive()) {
                     continue;
                 }
-                if ( $this->_configHelper->get( 'store_enable', (int) $store->getId() ) ) {
+                if ($this->_configHelper->get('store_enable', (int)$store->getId())) {
                     $this->_dataHelper->log(
                         'Import',
                         $this->_dataHelper->setLogMessage(
                             'start import in store %1 (%2)',
-                            [
-                                $store->getName(),
-                                (int)$store->getId()
-                            ]
+                            [$store->getName(), (int)$store->getId()]
                         ),
                         $this->_logOutput
                     );
@@ -425,9 +422,9 @@ class Import {
                             continue;
                         }
                         // get orders from Lengow API
-                        $orders = $this->_getOrdersFromApi( $store );
-                        $totalOrders = count( $orders );
-                        if ( $this->_importOneOrder ) {
+                        $orders = $this->_getOrdersFromApi($store);
+                        $totalOrders = count($orders);
+                        if ($this->_importOneOrder) {
                             $this->_dataHelper->log(
                                 'Import',
                                 $this->_dataHelper->setLogMessage(
@@ -446,21 +443,18 @@ class Import {
                                 'Import',
                                 $this->_dataHelper->setLogMessage(
                                     '%1 order(s) found with account ID: %2',
-                                    [
-                                        $totalOrders,
-                                        $this->_accountId
-                                    ]
+                                    [$totalOrders, $this->_accountId]
                                 ),
                                 $this->_logOutput
                             );
                         }
-                        if ( $totalOrders <= 0 && $this->_importOneOrder ) {
-                            throw new Exception( 'Lengow error: order cannot be found in Lengow feed' );
-                        } elseif ( $totalOrders <= 0 ) {
+                        if ($totalOrders <= 0 && $this->_importOneOrder) {
+                            throw new Exception('Lengow error: order cannot be found in Lengow feed');
+                        } elseif ($totalOrders <= 0) {
                             continue;
                         }
-                        if ( ! is_null( $this->_orderLengowId ) ) {
-                            $this->_orderError->finishOrderErrors( $this->_orderLengowId );
+                        if (!is_null($this->_orderLengowId)) {
+                            $this->_orderError->finishOrderErrors($this->_orderLengowId);
                         }
                         // import orders in Magento
                         //To see results
@@ -472,62 +466,49 @@ class Import {
 //                            $orderUpdate += $result['order_update'];
 //                            $orderError += $result['order_error'];
 //                        }
-                    } catch ( Exception $e ) {
+                    } catch (LengowException $e) {
                         $errorMessage = $e->getMessage();
-                    } catch ( \Exception $e ) {
+                    } catch (\Exception $e) {
                         $errorMessage = '[Magento error] "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
                     }
-                    if ( isset( $errorMessage ) ) {
-                        if ( ! is_null( $this->_orderLengowId ) ) {
-                            $this->_orderError->finishOrderErrors( $this->_orderLengowId );
+                    if (isset($errorMessage)) {
+                        if (!is_null($this->_orderLengowId)) {
+                            $this->_orderError->finishOrderErrors($this->_orderLengowId);
                             $this->_orderError->createOrderError(
                                 [
                                     'order_lengow_id' => $this->_orderLengowId,
-                                    'message'         => $errorMessage,
-                                    'type'            => 'import'
+                                    'message' => $errorMessage,
+                                    'type' => 'import'
                                 ]
                             );
-                            unset( $lengowOrderError );
+                            unset($lengowOrderError);
                         }
-                        $decodedMessage = $this->_dataHelper->decodeLogMessage( $errorMessage, 'en_GB' );
+                        $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
                         $this->_dataHelper->log(
                             'Import',
-                            $this->_dataHelper->setLogMessage(
-                                'import failed - %1',
-                                [$decodedMessage]
-                            ),
+                            $this->_dataHelper->setLogMessage('import failed - %1', [$decodedMessage]),
                             $this->_logOutput
                         );
-                        $errors[ (int) $store->getId() ] = $errorMessage;
-                        unset( $errorMessage );
+                        $errors[(int)$store->getId()] = $errorMessage;
+                        unset($errorMessage);
                         continue;
                     }
                 }
-                unset( $store );
+                unset($store);
             }
-            if ( ! $this->_importOneOrder ) {
-                $this->_dataHelper->log(
-                    'Import',
-                    $this->_dataHelper->setLogMessage(
-                        '%1 order(s) imported',
-                        [$orderNew]
-                    ),
+            if (!$this->_importOneOrder) {
+                $this->_dataHelper->log('Import',
+                    $this->_dataHelper->setLogMessage('%1 order(s) imported', [$orderNew]),
                     $this->_logOutput
                 );
                 $this->_dataHelper->log(
                     'Import',
-                    $this->_dataHelper->setLogMessage(
-                        '%1 order(s) updated',
-                        [$orderUpdate]
-                    ),
+                    $this->_dataHelper->setLogMessage('%1 order(s) updated', [$orderUpdate]),
                     $this->_logOutput
                 );
                 $this->_dataHelper->log(
                     'Import',
-                    $this->_dataHelper->setLogMessage(
-                        '%1 order(s) with errors',
-                        [$orderError]
-                    ),
+                    $this->_dataHelper->setLogMessage('%1 order(s) with errors', [$orderError]),
                     $this->_logOutput
                 );
             }
@@ -535,11 +516,11 @@ class Import {
             $this->_importHelper->setImportEnd();
             $this->_dataHelper->log(
                 'Import',
-                $this->_dataHelper->setLogMessage( '## end %1 import ##', [$this->_typeImport] ),
+                $this->_dataHelper->setLogMessage('## end %1 import ##', [$this->_typeImport]),
                 $this->_logOutput
             );
             // sending email in error for orders
-            if ( $this->_configHelper->get( 'report_mail_enable' ) && ! $this->_preprodMode && ! $this->_importOneOrder ) {
+            if ($this->_configHelper->get('report_mail_enable') && !$this->_preprodMode && !$this->_importOneOrder) {
                 //TODO
 //                $this->_importHelper->sendMailAlert( $this->_logOutput );
             }
@@ -552,17 +533,16 @@ class Import {
 //            }
         }
         // Clear session
-        $this->_backendSession->setIsFromlengow( 0 );
-        if ( $this->_importOneOrder ) {
+        $this->_backendSession->setIsFromlengow(0);
+        if ($this->_importOneOrder) {
             $result['error'] = $errors;
-
             return $result;
         } else {
             return [
-                'order_new'    => $orderNew,
+                'order_new' => $orderNew,
                 'order_update' => $orderUpdate,
-                'order_error'  => $orderError,
-                'error'        => $errors
+                'order_error' => $orderError,
+                'error' => $errors
             ];
         }
     }
@@ -572,128 +552,14 @@ class Import {
      *
      * @return boolean
      */
-    protected function _checkCredentials() {
-        if ( $this->_connector->isValidAuth() ) {
-            list( $this->_accountId, $this->_accessToken, $this->_secretToken ) = $this->_configHelper->getAccessIds();
+    protected function _checkCredentials()
+    {
+        if ($this->_connector->isValidAuth()) {
+            list($this->_accountId, $this->_accessToken, $this->_secretToken) = $this->_configHelper->getAccessIds();
             $this->_connector->init(['access_token' => $this->_accessToken, 'secret' => $this->_secretToken]);
-
             return true;
         }
-
         return false;
-    }
-
-    /**
-     * Call Lengow order API
-     *
-     * @param Store $store Magento store instance
-     *
-     * @throws LengowException no connection with webservices / credentials not valid
-     *
-     * @return array
-     */
-    protected function _getOrdersFromApi( $store ) {
-        $page   = 1;
-        $orders = [];
-        // get import period
-        $days = (!is_null($this->_days) ? $this->_days : $this->_configHelper->get('days', $store->getId()));
-        $dateFrom = date('c', strtotime(date('Y-m-d') . ' -' . $days . 'days'));
-        $dateTo = date('c');
-        if ( $this->_importOneOrder ) {
-            $this->_dataHelper->log(
-                'Import',
-                $this->_dataHelper->setLogMessage(
-                    'get order with order ID: %1 and marketplace: %2',
-                    [
-                        $this->_marketplaceSku,
-                        $this->_marketplaceName
-                    ]
-                ),
-                $this->_logOutput
-            );
-        } else {
-            $this->_dataHelper->log(
-                'Import',
-                $this->_dataHelper->setLogMessage(
-                    'get orders between %1 and %2 for catalogs ID: %3',
-                    [
-                        date( 'Y-m-d', strtotime( (string) $dateFrom ) ),
-                        date( 'Y-m-d', strtotime( (string) $dateTo ) ),
-                        $this->_accountId
-                    ]
-                ),
-                $this->_logOutput
-            );
-        }
-        do {
-            if ( $this->_importOneOrder ) {
-                $results = $this->_connector->get(
-                    '/v3.0/orders',
-                    [
-                        'marketplace_order_id' => $this->_marketplaceSku,
-                        'marketplace'          => $this->_marketplaceName,
-                        'account_id'           => $this->_accountId,
-                        'page'                 => $page
-                    ],
-                    'stream'
-                );
-            } else {
-                $results = $this->_connector->get(
-                    '/v3.0/orders',
-                    [
-                        'updated_from' => $dateFrom,
-                        'updated_to'   => $dateTo,
-                        'account_id'   => $this->_accountId,
-                        'page'         => $page
-                    ],
-                    'stream'
-                );
-            }
-            if ( is_null( $results ) ) {
-                throw new LengowException(
-                    $this->_dataHelper->setLogMessage(
-                        "connection didn't work with Lengow's webservice in store %1 (%2)",
-                        [
-                            $store->getName(),
-                            $store->getId()
-                        ]
-                    )
-                );
-            }
-            $results = json_decode( $results );
-            if ( ! is_object( $results ) ) {
-                throw new LengowException(
-                    $this->_dataHelper->setLogMessage(
-                        "connection didn't work with Lengow's webservice in store %1 (%2)",
-                        [
-                            $store->getName(),
-                            $store->getId()
-                        ]
-                    )
-                );
-            }
-            if ( isset( $results->error ) ) {
-                throw new LengowException(
-                    $this->_dataHelper->setLogMessage(
-                        'Lengow webservice : %1 - %2 in store %3 (%4)',
-                        [
-                            $results->error->code,
-                            $results->error->message,
-                            $store->getName(),
-                            $store->getId()
-                        ]
-                    )
-                );
-            }
-            // Construct array orders
-            foreach ( $results->results as $order ) {
-                $orders[] = $order;
-            }
-            $page ++;
-            $finish = (is_null($results->next) || $this->_importOneOrder) ? true : false;
-        } while ($finish != true);
-
-        return $orders;
     }
 
     /**
@@ -734,5 +600,118 @@ class Import {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Call Lengow order API
+     *
+     * @param Store $store Magento store instance
+     *
+     * @throws LengowException no connection with webservices / credentials not valid
+     *
+     * @return array
+     */
+    protected function _getOrdersFromApi($store)
+    {
+        $page = 1;
+        $orders = [];
+        // get import period
+        $days = (!is_null($this->_days) ? $this->_days : $this->_configHelper->get('days', $store->getId()));
+        $dateFrom = date('c', strtotime(date('Y-m-d') . ' -' . $days . 'days'));
+        $dateTo = date('c');
+        if ($this->_importOneOrder) {
+            $this->_dataHelper->log(
+                'Import',
+                $this->_dataHelper->setLogMessage(
+                    'get order with order ID: %1 and marketplace: %2',
+                    [
+                        $this->_marketplaceSku,
+                        $this->_marketplaceName
+                    ]
+                ),
+                $this->_logOutput
+            );
+        } else {
+            $this->_dataHelper->log(
+                'Import',
+                $this->_dataHelper->setLogMessage(
+                    'get orders between %1 and %2 for catalogs ID: %3',
+                    [
+                        date('Y-m-d', strtotime((string)$dateFrom)),
+                        date('Y-m-d', strtotime((string)$dateTo)),
+                        $this->_accountId
+                    ]
+                ),
+                $this->_logOutput
+            );
+        }
+        do {
+            if ($this->_importOneOrder) {
+                $results = $this->_connector->get(
+                    '/v3.0/orders',
+                    [
+                        'marketplace_order_id' => $this->_marketplaceSku,
+                        'marketplace' => $this->_marketplaceName,
+                        'account_id' => $this->_accountId,
+                        'page' => $page
+                    ],
+                    'stream'
+                );
+            } else {
+                $results = $this->_connector->get(
+                    '/v3.0/orders',
+                    [
+                        'updated_from' => $dateFrom,
+                        'updated_to' => $dateTo,
+                        'account_id' => $this->_accountId,
+                        'page' => $page
+                    ],
+                    'stream'
+                );
+            }
+            if (is_null($results)) {
+                throw new LengowException(
+                    $this->_dataHelper->setLogMessage(
+                        "connection didn't work with Lengow's webservice in store %1 (%2)",
+                        [
+                            $store->getName(),
+                            $store->getId()
+                        ]
+                    )
+                );
+            }
+            $results = json_decode($results);
+            if (!is_object($results)) {
+                throw new LengowException(
+                    $this->_dataHelper->setLogMessage(
+                        "connection didn't work with Lengow's webservice in store %1 (%2)",
+                        [
+                            $store->getName(),
+                            $store->getId()
+                        ]
+                    )
+                );
+            }
+            if (isset($results->error)) {
+                throw new LengowException(
+                    $this->_dataHelper->setLogMessage(
+                        'Lengow webservice : %1 - %2 in store %3 (%4)',
+                        [
+                            $results->error->code,
+                            $results->error->message,
+                            $store->getName(),
+                            $store->getId()
+                        ]
+                    )
+                );
+            }
+            // Construct array orders
+            foreach ($results->results as $order) {
+                $orders[] = $order;
+            }
+            $page++;
+            $finish = (is_null($results->next) || $this->_importOneOrder) ? true : false;
+        } while ($finish != true);
+        return $orders;
     }
 }
