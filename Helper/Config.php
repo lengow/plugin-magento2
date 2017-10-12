@@ -34,6 +34,7 @@ use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollection
 
 class Config extends AbstractHelper
 {
+
     /**
      * @var \Magento\Framework\App\Config\Storage\WriterInterface Magento writer instance
      */
@@ -289,7 +290,8 @@ class Config extends AbstractHelper
         AttributeCollectionFactory $attributeCollectionFactory,
         ConfigDataCollectionFactory $configDataCollectionFactory,
         StoreCollectionFactory $storeCollectionFactory
-    ) {
+    )
+    {
         $this->_writerInterface = $writerInterface;
         $this->_cacheManager = $cacheManager;
         $this->_customerGroupCollectionFactory = $customerGroupCollectionFactory;
@@ -532,4 +534,53 @@ class Config extends AbstractHelper
             $this->set('export_attribute', $attributeList, 0, true);
         }
     }
+
+    /**
+     * Get all report mails
+     *
+     * @return array
+     */
+    public function getReportEmailAddress()
+    {
+        $reportEmailAddress = [];
+        $emails = $this->get('report_mail_address');
+        $emails = trim(str_replace(["\r\n", ',', ' '], ';', $emails), ';');
+        $emails = explode(';', $emails);
+        foreach ($emails as $email) {
+            if (strlen($email) > 0 && \Zend_Validate::is($email, 'EmailAddress')) {
+                $reportEmailAddress[] = $email;
+            }
+        }
+        if (count($reportEmailAddress) == 0) {
+            $reportEmailAddress[] = $this->scopeConfig->getValue(
+                'trans_email/ident_general/email',
+                ScopeInterface::SCOPE_STORE
+            );
+        }
+        return $reportEmailAddress;
+    }
+
+    /**
+     * Get catalog ids for a specific store
+     *
+     * @param integer $storeId Magento store id
+     *
+     * @return array
+     */
+    public function getCatalogIds($storeId)
+    {
+        $catalogIds = [];
+        $storeCatalogIds = $this->get('catalog_id', $storeId);
+        if (strlen($storeCatalogIds) > 0 && $storeCatalogIds != 0) {
+            $ids = trim(str_replace(["\r\n", ',', '-', '|', ' ', '/'], ';', $storeCatalogIds), ';');
+            $ids = array_filter(explode(';', $ids));
+            foreach ($ids as $id) {
+                if (is_numeric($id) && $id > 0) {
+                    $catalogIds[] = (int)$id;
+                }
+            }
+        }
+        return $catalogIds;
+    }
+
 }
