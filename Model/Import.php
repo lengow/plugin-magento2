@@ -33,6 +33,7 @@ use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Import\Ordererror;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Lengow\Connector\Model\Exception as LengowException;
+use Lengow\Connector\Model\Import\Importorder as Importorder;
 
 /**
  * Lengow import
@@ -205,6 +206,11 @@ class Import
     protected $_orderError;
 
     /**
+     * @var \Lengow\Connector\Model\Import\Importorder Lengow importorder instance
+     */
+    protected $_importorder;
+
+    /**
      * @var \Magento\Backend\Model\Session $_backendSession Backend session instance
      */
     protected $_backendSession;
@@ -260,6 +266,7 @@ class Import
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
      * @param \Magento\Backend\Model\Session $backendSession Backend session instance
      * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
+     * @param \Lengow\Connector\Model\Import\Importorder $importorder Lengow importorder instance
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -274,7 +281,8 @@ class Import
         Ordererror $orderError,
         Connector $connector,
         BackendSession $backendSession,
-        StoreRepositoryInterface $storeRepository
+        StoreRepositoryInterface $storeRepository,
+        Importorder $importorder
     )
     {
         $this->_storeManager = $storeManager;
@@ -290,6 +298,7 @@ class Import
         $this->_connector = $connector;
         $this->_backendSession = $backendSession;
         $this->_storeRepository = $storeRepository;
+        $this->_importorder = $importorder;
     }
 
     /**
@@ -455,8 +464,8 @@ class Import
                         //To see results
 //                        var_dump($orders);
                         //TODO
-                        $result = $this->_importOrders( $orders, (int) $store->getId() );
-                        if ( ! $this->_importOneOrder ) {
+                        $result = $this->_importOrders($orders, (int)$store->getId());
+                        if (!$this->_importOneOrder) {
                             $orderNew += $result['order_new'];
                             $orderUpdate += $result['order_update'];
                             $orderError += $result['order_error'];
@@ -607,23 +616,22 @@ class Import
                     }
                 }
                 try {
-//                    // try to import or update order
-//                    $importOrder = Mage::getModel(
-//                        'lengow/import_importorder',
-//                        array(
-//                            'store_id' => $storeId,
-//                            'preprod_mode' => $this->_preprodMode,
-//                            'log_output' => $this->_logOutput,
-//                            'marketplace_sku' => $marketplaceSku,
-//                            'delivery_address_id' => $packageDeliveryAddressId,
-//                            'order_data' => $orderData,
-//                            'package_data' => $packageData,
-//                            'first_package' => $firstPackage,
-//                            'import_helper' => $this->_importHelper
-//                        )
-//                    );
-//                    $order = $importOrder->importOrder();
-                    $order = null;
+                    // try to import or update order
+                    echo "<br />try to import or update order";
+//                    var_dump($orderData);
+                    $this->_importorder->init(
+                        [
+                            'store_id' => $storeId,
+                            'preprod_mode' => $this->_preprodMode,
+                            'log_output' => $this->_logOutput,
+                            'marketplace_sku' => $marketplaceSku,
+                            'delivery_address_id' => $packageDeliveryAddressId,
+                            'order_data' => $orderData,
+                            'package_data' => $packageData,
+                            'first_package' => $firstPackage
+                        ]
+                    );
+                    $order = $this->_importorder->importOrder();
                 } catch (LengowException $e) {
                     $errorMessage = $e->getMessage();
                 } catch (\Exception $e) {
