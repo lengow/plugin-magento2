@@ -33,7 +33,7 @@ class Dashboard extends Template
     /**
      * @var array Lengow statistics
      */
-    protected $_stats = array();
+    protected $_stats = [];
 
     /**
      * @var integer number of Lengow order to be sent

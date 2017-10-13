@@ -39,7 +39,7 @@ class Header extends Template
     /**
      * @var array Lengow status account
      */
-    protected $_statusAccount = array();
+    protected $_statusAccount = [];
 
     /**
      * Constructor
