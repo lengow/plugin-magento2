@@ -65,6 +65,80 @@ class SyncTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Lengow\Connector\Helper\Sync::isSyncAction
+     */
+    public function testIsSyncAction()
+    {
+        $fixture = New Fixture();
+        $fixture->setPrivatePropertyValue(
+            $this->_syncHelper,
+            ['_syncActions'],
+            [['order', 'action', 'catalog', 'option']]
+        );
+        $this->assertInternalType(
+            'boolean',
+            $this->_syncHelper->isSyncAction('catalog'),
+            '[Test Is Sync Action] Check if return is a boolean'
+        );
+        $this->assertTrue(
+            $this->_syncHelper->isSyncAction('order'),
+            '[Test Is Sync Action] Check if return is valid with valid action'
+        );
+        $this->assertFalse(
+            $this->_syncHelper->isSyncAction('plop'),
+            '[Test Is Sync Action] Check if return is valid with fake action'
+        );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Helper\Sync::pluginIsBlocked
+     */
+    public function testPluginIsBlocked()
+    {
+        $fixture = New Fixture();
+        $classMock = $fixture->getFakeClass();
+        $configHelperMock = $fixture->mockFunctions($classMock, ['isNewMerchant'], [true]);
+        $fixture->setPrivatePropertyValue($this->_syncHelper, ['_configHelper'], [$configHelperMock]);
+        $this->assertInternalType(
+            'boolean',
+            $this->_syncHelper->pluginIsBlocked(),
+            '[Test Plugin Is Blocked] Check if return is a boolean'
+        );
+        $this->assertTrue(
+            $this->_syncHelper->pluginIsBlocked(),
+            '[Test Plugin Is Blocked] Check if return is valid when merchant is new'
+        );
+        $configHelperMock2 = $fixture->mockFunctions($classMock, ['isNewMerchant'], [false]);
+        $syncHelperMock = $this->getMockBuilder(get_class($this->_syncHelper))
+            ->setMethods(['getStatusAccount'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $syncHelperMock->expects($this->any())->method('getStatusAccount')->willReturnOnConsecutiveCalls(
+            ['type' => 'free_trial', 'day' => 12, 'expired' => false],
+            ['type' => 'free_trial', 'day' => 0, 'expired' => true],
+            ['type' => 'bad_payer', 'day' => 0, 'expired' => false],
+            ['type' => '', 'day' => 0, 'expired' => false]
+        );
+        $fixture->setPrivatePropertyValue($syncHelperMock, ['_configHelper'], [$configHelperMock2]);
+        $this->assertFalse(
+            $syncHelperMock->pluginIsBlocked(),
+            '[Test Plugin Is Blocked] Check if return is valid when free trial is not expired'
+        );
+        $this->assertTrue(
+            $syncHelperMock->pluginIsBlocked(),
+            '[Test Plugin Is Blocked] Check if return is valid when free trial is expired'
+        );
+        $this->assertTrue(
+            $syncHelperMock->pluginIsBlocked(),
+            '[Test Plugin Is Blocked] Check if return is valid when merchant is a bad payer'
+        );
+        $this->assertFalse(
+            $syncHelperMock->pluginIsBlocked(),
+            '[Test Plugin Is Blocked] Check if return is valid when merchant is not in free trial'
+        );
+    }
+
+    /**
      * @covers \Lengow\Connector\Helper\Sync::getStatusAccount
      */
     public function testGetStatusAccount()
