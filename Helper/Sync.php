@@ -74,12 +74,12 @@ class Sync extends AbstractHelper
     /**
      * @var array valid sync actions
      */
-    protected $_syncActions = array(
+    protected $_syncActions = [
         'order',
         'action',
         'catalog',
         'option'
-    );
+    ];
 
     /**
      * Constructor
