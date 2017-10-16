@@ -22,11 +22,12 @@ namespace Lengow\Connector\Model\Import;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
+use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 use Lengow\Connector\Model\Exception as LengowException;
-use Lengow\Connector\Model\Import\Order as ModelOrder;
 use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
-use Lengow\Connector\Model\Import\Marketplace;
 
 /**
  * Model import importorder
@@ -35,9 +36,24 @@ class Importorder extends AbstractModel
 {
 
     /**
+     * @var \Lengow\Connector\Model\Import\Ordererror Lengow ordererror instance
+     */
+    protected $_orderError;
+
+    /**
      * @var \Lengow\Connector\Model\Import\Order Lengow order instance
      */
-    protected $_modelOrder;
+    protected $_lengowOrder;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order instance
+     */
+    protected $_lengowOrderFactory;
+
+    /**
+     * @var \Magento\Sales\Api\OrderRepositoryInterface Magento order repository instance
+     */
+    protected $_orderRepository;
 
     /**
      * @var \Lengow\Connector\Helper\Import Lengow import helper instance
@@ -95,27 +111,55 @@ class Importorder extends AbstractModel
     protected $_marketplace;
 
     /**
+     * @var boolean re-import order
+     */
+    protected $_isReimported = false;
+
+    /**
+     * @var string Lengow order state
+     */
+    protected $_orderStateLengow;
+
+    /**
+     * @var string marketplace order state
+     */
+    protected $_orderStateMarketplace;
+
+    /**
+     * @var integer id of the record Lengow order table
+     */
+    protected $_orderLengowId;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
-     * @param \Lengow\Connector\Model\Import\Order $modelOrder Lengow order instance
+     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository Lengow order instance
+     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
+     * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
      * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      */
     public function __construct(
         Context $context,
         Registry $registry,
-        ModelOrder $modelOrder,
+        OrderRepositoryInterface $orderRepository,
+        LengowOrder $lengowOrder,
+        LengowOrderFactory $lengowOrderFactory,
+        Ordererror $orderError,
         ImportHelper $importHelper,
         DataHelper $dataHelper
     )
     {
-        $this->_modelOrder = $modelOrder;
+        $this->_orderRepository = $orderRepository;
+        $this->_lengowOrder = $lengowOrder;
+        $this->_lengowOrderFactory = $lengowOrderFactory;
+        $this->_orderError = $orderError;
         $this->_importHelper = $importHelper;
         $this->_dataHelper = $dataHelper;
         parent::__construct($context, $registry);
-
     }
 
     /**
@@ -146,13 +190,12 @@ class Importorder extends AbstractModel
     public function importOrder()
     {
         // if log import exist and not finished
-        echo "<br />if log import exist and not finished";
-        $importLog = $this->_modelOrder->orderIsInError(
+        $importLog = $this->_lengowOrder->orderIsInError(
             $this->_marketplaceSku,
             $this->_deliveryAddressId,
             'import'
         );
-        if (false/*$importLog*/) {
+        if ($importLog) {
             $decodedMessage = $this->_dataHelper->decodeLogMessage($importLog['message'], 'en_GB');
             $this->_dataHelper->log(
                 'Import',
@@ -166,59 +209,59 @@ class Importorder extends AbstractModel
             return false;
         }
         // recovery id if the command has already been imported
-        $orderId = $this->_modelOrder->getOrderIdIfExist(
+        $orderId = $this->_lengowOrder->getOrderIdIfExist(
             $this->_marketplaceSku,
             $this->_marketplace->name,
             $this->_deliveryAddressId
         );
-        echo "plop";
-        var_dump($orderId);
         // update order state if already imported
-//        if ($orderId) {
+        if ($orderId) {
+            //TODO
 //            $orderUpdated = $this->_checkAndUpdateOrder($orderId);
 //            if ($orderUpdated && isset($orderUpdated['update'])) {
 //                return $this->_returnResult('update', $orderUpdated['order_lengow_id'], $orderId);
 //            }
-//            if (!$this->_isReimported) {
-//                return false;
-//            }
-//        }
-//        // // checks if an external id already exists
-//        $orderMagentoId = $this->_checkExternalIds($this->_orderData->merchant_order_id);
-//        if ($orderMagentoId && !$this->_preprodMode && !$this->_isReimported) {
-//            $this->_helper->log(
-//                'Import',
-//                $this->_helper->setLogMessage(
-//                    'log.import.external_id_exist',
-//                    array('order_id' => $orderMagentoId)
-//                ),
-//                $this->_logOutput,
-//                $this->_marketplaceSku
-//            );
-//            return false;
-//        }
-//        // if order is cancelled or new -> skip
-//        if (!$this->_importHelper->checkState($this->_orderStateMarketplace, $this->_marketplace)) {
-//            $this->_helper->log(
-//                'Import',
-//                $this->_helper->setLogMessage(
-//                    'log.import.current_order_state_unavailable',
-//                    array(
-//                        'order_state_marketplace' => $this->_orderStateMarketplace,
-//                        'marketplace_name' => $this->_marketplace->name
-//                    )
-//                ),
-//                $this->_logOutput,
-//                $this->_marketplaceSku
-//            );
-//            return false;
-//        }
-//        // get a record in the lengow order table
-//        $this->_orderLengowId = $this->_modelOrder->getLengowOrderId(
-//            $this->_marketplaceSku,
-//            $this->_deliveryAddressId
-//        );
-//        if (!$this->_orderLengowId) {
+            if (!$this->_isReimported) {
+                return false;
+            }
+        }
+        // checks if an external id already exists
+        $orderMagentoId = $this->_checkExternalIds($this->_orderData->merchant_order_id);
+        if ($orderMagentoId && !$this->_preprodMode && !$this->_isReimported) {
+            $this->_dataHelper->log(
+                'Import',
+                $this->_dataHelper->setLogMessage(
+                    'already imported in Magento with the order ID %1',
+                    [$orderMagentoId]
+                ),
+                $this->_logOutput,
+                $this->_marketplaceSku
+            );
+            return false;
+        }
+        // if order is cancelled or new -> skip
+        if (!$this->_importHelper->checkState($this->_orderStateMarketplace, $this->_marketplace)) {
+            $this->_dataHelper->log(
+                'Import',
+                $this->_dataHelper->setLogMessage(
+                    'current order status [%1] means it is not possible to import the order to the marketplace %2',
+                    [
+                        $this->_orderStateMarketplace,
+                        $this->_marketplace->name
+                    ]
+                ),
+                $this->_logOutput,
+                $this->_marketplaceSku
+            );
+            return false;
+        }
+        // get a record in the lengow order table
+        $this->_orderLengowId = $this->_lengowOrder->getLengowOrderId(
+            $this->_marketplaceSku,
+            $this->_deliveryAddressId
+        );
+        if (!$this->_orderLengowId) {
+            //TODO
 //            // created a record in the lengow order table
 //            if (!$this->_createLengowOrder()) {
 //                $this->_helper->log(
@@ -236,40 +279,13 @@ class Importorder extends AbstractModel
 //                    $this->_marketplaceSku
 //                );
 //            }
-//        }
-//        // load lengow order
-//        $orderLengow = $this->_modelOrder->load((int)$this->_orderLengowId);
-//        // checks if the required order data is present
-//        if (!$this->_checkOrderData()) {
-//            return $this->_returnResult('error', $this->_orderLengowId);
-//        }
-//        // get order amount and load processing fees and shipping cost
-//        $this->_orderAmount = $this->_getOrderAmount();
-//        // load tracking data
-//        $this->_loadTrackingData();
-//        // get customer name and email
-//        $customerName = $this->_getCustomerName();
-//        $customerEmail = (!is_null($this->_orderData->billing_address->email)
-//            ? (string)$this->_orderData->billing_address->email
-//            : (string)$this->_packageData->delivery->email
-//        );
-//        // update Lengow order with new informations
-//        $orderLengow->updateOrder(
-//            array(
-//                'currency' => $this->_orderData->currency->iso_a3,
-//                'total_paid' => $this->_orderAmount,
-//                'order_item' => $this->_orderItems,
-//                'customer_name' => $customerName,
-//                'customer_email' => $customerEmail,
-//                'commission' => (float)$this->_orderData->commission,
-//                'carrier' => $this->_carrierName,
-//                'method' => $this->_carrierMethod,
-//                'tracking' => $this->_trackingNumber,
-//                'sent_marketplace' => $this->_shippedByMp,
-//                'delivery_country_iso' => $this->_packageData->delivery->common_country_iso_a2,
-//                'order_lengow_state' => $this->_orderStateLengow
-//            )
-//        );
+        }
+        // load lengow order
+        $orderLengow = $this->_lengowOrderFactory->create()->load((int)$this->_orderLengowId);
+        // checks if the required order data is present
+        if (!$this->_checkOrderData()) {
+            return $this->_returnResult('error', $this->_orderLengowId);
+        }
         // try to import order
         try {
             //TODO
@@ -278,33 +294,120 @@ class Importorder extends AbstractModel
         } catch (\Exception $e) {
             $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
         }
-//        if (isset($errorMessage)) {
-//            $orderError = Mage::getModel('lengow/import_ordererror');
-//            $orderError->createOrderError(
-//                array(
-//                    'order_lengow_id' => $this->_orderLengowId,
-//                    'message' => $errorMessage,
-//                    'type' => 'import'
-//                )
-//            );
-//            $decodedMessage = $this->_helper->decodeLogMessage($errorMessage, 'en_GB');
-//            $this->_helper->log(
-//                'Import',
-//                $this->_helper->setLogMessage(
-//                    'log.import.order_import_failed',
-//                    array('decoded_message' => $decodedMessage)
-//                ),
-//                $this->_logOutput,
-//                $this->_marketplaceSku
-//            );
-//            $orderLengow->updateOrder(
-//                array(
-//                    'extra' => Mage::helper('core')->jsonEncode($this->_orderData),
-//                    'order_lengow_state' => $this->_orderStateLengow,
-//                )
-//            );
-//            return $this->_returnResult('error', $this->_orderLengowId);
-//        }
-//        return $this->_returnResult('new', $this->_orderLengowId, $order->getId());
     }
+
+    /**
+     * Check the command and updates data if necessary
+     *
+     * @param integer $orderId Magento order id
+     *
+     * @return array|false
+     */
+    protected function _checkAndUpdateOrder($orderId)
+    {
+        //TODO
+        return false;
+    }
+
+
+    /**
+     * Checks if an external id already exists
+     *
+     * @param array $externalIds API external ids
+     *
+     * @return integer|false
+     */
+    protected function _checkExternalIds($externalIds)
+    {
+        $orderMagentoId = false;
+        if (!is_null($externalIds) && count($externalIds) > 0) {
+            foreach ($externalIds as $externalId) {
+                $lineId = $this->_lengowOrder->getOrderIdWithDeliveryAddress(
+                    (int)$externalId,
+                    (int)$this->_deliveryAddressId
+                );
+                if ($lineId) {
+                    $orderMagentoId = $externalId;
+                    break;
+                }
+            }
+        }
+        return $orderMagentoId;
+    }
+
+
+    /**
+     * Checks if order data are present
+     *
+     * @return boolean
+     */
+    protected function _checkOrderData()
+    {
+        $errorMessages = array();
+        if (count($this->_packageData->cart) == 0) {
+            $errorMessages[] = $this->_dataHelper->setLogMessage('Lengow error: no products in the order');
+        }
+        if (!isset($this->_orderData->currency->iso_a3)) {
+            $errorMessages[] = $this->_dataHelper->setLogMessage('Lengow error: no currency in the order');
+        }
+        if ($this->_orderData->total_order == -1) {
+            $errorMessages[] = $this->_dataHelper->setLogMessage('Lengow error: no exchange rates available for order prices');
+        }
+        if (is_null($this->_orderData->billing_address)) {
+            $errorMessages[] = $this->_dataHelper->setLogMessage('Lengow error: no billing address in the order');
+        } elseif (is_null($this->_orderData->billing_address->common_country_iso_a2)) {
+            $errorMessages[] = $this->_dataHelper->setLogMessage("Lengow error: billing address doesn't contain the country");
+        }
+        if (is_null($this->_packageData->delivery->common_country_iso_a2)) {
+            $errorMessages[] = $this->_dataHelper->setLogMessage("Lengow error: delivery address doesn't contain the country");
+        }
+        if (count($errorMessages) > 0) {
+            foreach ($errorMessages as $errorMessage) {
+                $this->_orderError->createOrderError(
+                    [
+                        'order_lengow_id' => $this->_orderLengowId,
+                        'message' => $errorMessage,
+                        'type' => 'import'
+                    ]
+                );
+                $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
+                $this->_dataHelper->log(
+                    'Import',
+                    $this->_dataHelper->setLogMessage(
+                        'import order failed - %1',
+                        [$decodedMessage]
+                    ),
+                    $this->_logOutput,
+                    $this->_marketplaceSku
+                );
+            };
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Return an array of result for each order
+     *
+     * @param string $typeResult Type of result (new, update, error)
+     * @param integer $orderLengowId Lengow order id
+     * @param integer $orderId Magento order id
+     *
+     * @return array
+     */
+    protected function _returnResult($typeResult, $orderLengowId, $orderId = null)
+    {
+        $result = array(
+            'order_id' => $orderId,
+            'order_lengow_id' => $orderLengowId,
+            'marketplace_sku' => $this->_marketplaceSku,
+            'marketplace_name' => (string)$this->_marketplace->name,
+            'lengow_state' => $this->_orderStateLengow,
+            'order_new' => ($typeResult == 'new' ? true : false),
+            'order_update' => ($typeResult == 'update' ? true : false),
+            'order_error' => ($typeResult == 'error' ? true : false)
+        );
+        return $result;
+    }
+
 }

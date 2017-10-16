@@ -190,7 +190,6 @@ class Import extends AbstractHelper
         return ['type' => 'none', 'timestamp' => 'none'];
     }
 
-
     /**
      * Get Marketplace singleton
      *
@@ -205,6 +204,25 @@ class Import extends AbstractHelper
             self::$marketplaces[$name] = $this->_marketplace;
         }
         return self::$marketplaces[$name];
+    }
+
+    /**
+     * Check if order status is valid for import
+     *
+     * @param string $orderStateMarketplace order state
+     * @param Marketplace $marketplace order marketplace
+     *
+     * @return boolean
+     */
+    public function checkState($orderStateMarketplace, $marketplace)
+    {
+        if (empty($orderStateMarketplace)) {
+            return false;
+        }
+        if (!in_array($marketplace->getStateLengow($orderStateMarketplace), $this->_lengowStates)) {
+            return false;
+        }
+        return true;
     }
 
 }

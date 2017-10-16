@@ -207,4 +207,19 @@ class Marketplace extends AbstractModel
         }
     }
 
+    /**
+     * Get the real lengow's state
+     *
+     * @param string $name The marketplace state
+     *
+     * @return string The lengow state
+     */
+    public function getStateLengow($name)
+    {
+        if (array_key_exists($name, $this->statesLengow)) {
+            return $this->statesLengow[$name];
+        }
+        return '';
+    }
+
 }

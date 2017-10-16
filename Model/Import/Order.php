@@ -22,6 +22,7 @@ namespace Lengow\Connector\Model\Import;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
+use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionMagento;
 use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory as OrdererrorCollectionFactory;
 use Lengow\Connector\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
 
@@ -47,6 +48,11 @@ class Order extends AbstractModel
     protected $_orderCollection;
 
     /**
+     * @var \Magento\Sales\Model\ResourceModel\Order\CollectionFactory Magento order collection factory
+     */
+    protected $_orderCollectionMagento;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\Model\Context $context Magento context instance
@@ -54,19 +60,22 @@ class Order extends AbstractModel
      * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
      * @param \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory $ordererrorCollection Lengow ordererror collection factory
      * @param \Lengow\Connector\Model\ResourceModel\Order\CollectionFactory $orderCollection Lengow order collection factory
+     * @param \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionMagento Magento order collection factory
      */
     public function __construct(
         Context $context,
         Registry $registry,
         Ordererror $orderError,
         OrdererrorCollectionFactory $ordererrorCollection,
-        OrderCollectionFactory $orderCollection
+        OrderCollectionFactory $orderCollection,
+        OrderCollectionMagento $orderCollectionMagento
     )
     {
         parent::__construct($context, $registry);
         $this->_orderError = $orderError;
         $this->_ordererrorCollection = $ordererrorCollection;
         $this->_orderCollection = $orderCollection;
+        $this->_orderCollectionMagento = $orderCollectionMagento;
     }
 
     /**
@@ -114,18 +123,60 @@ class Order extends AbstractModel
      */
     public function getOrderIdIfExist($marketplaceSku, $marketplaceName, $deliveryAddressId)
     {
-        echo "<br />getOrderIdIfExist";
         // get order id Magento from our table
         $results = $this->_orderCollection->create()
             ->addFieldToFilter('order_sku', $marketplaceSku)
             ->addFieldToFilter('marketplace_name', ['in' => $marketplaceName])
             ->addFieldToFilter('delivery_address_id', $deliveryAddressId)
-            ->addFieldToSelect('id')
+            ->addFieldToSelect('order_id')
             ->load()
             ->getData();
 
         if (count($results) > 0) {
+            return $results[0]['order_id'];
+        }
+        return false;
+    }
+
+    /**
+     * Get Lengow ID with order ID Magento and delivery address ID
+     *
+     * @param integer $orderId Magento order id
+     * @param string $deliveryAddressId delivery address id
+     *
+     * @return string|false
+     */
+    public function getOrderIdWithDeliveryAddress($orderId, $deliveryAddressId)
+    {
+        // get marketplace_sku from Magento flat order table
+        $results = $this->_orderCollection->create()
+            ->addFieldToFilter('order_id', $orderId)
+            ->addFieldToFilter('delivery_address_id', $deliveryAddressId)
+            ->addFieldToSelect('id')
+            ->getData();
+        if (count($results) > 0) {
             return $results[0]['id'];
+        }
+        return false;
+    }
+
+    /**
+     * Get ID record from lengow orders table
+     *
+     * @param string $marketplaceSku marketplace sku
+     * @param integer $deliveryAddressId delivery address id
+     *
+     * @return integer|false
+     */
+    public function getLengowOrderId($marketplaceSku, $deliveryAddressId)
+    {
+        $results = $this->_orderCollection->create()
+            ->addFieldToFilter('marketplace_sku', $marketplaceSku)
+            ->addFieldToFilter('delivery_address_id', $deliveryAddressId)
+            ->addFieldToSelect('id')
+            ->getData();
+        if (count($results) > 0) {
+            return (int)$results[0]['id'];
         }
         return false;
     }

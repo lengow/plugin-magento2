@@ -649,6 +649,7 @@ class Import
                     unset($errorMessage);
                     continue;
                 }
+                //TODO
                 // Sync to lengow if no preprod_mode
 //                if (!$this->_preprodMode && isset($order['order_new']) && $order['order_new'] == true) {
 //                    $magentoOrder = Mage::getModel('sales/order')->load($order['order_id']);
