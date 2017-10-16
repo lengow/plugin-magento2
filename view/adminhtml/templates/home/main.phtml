@@ -7,10 +7,14 @@
 // @codingStandardsIgnoreFile
 /** @var Lengow\Connector\Block\Adminhtml\Main $block */
 ?>
-<?php if($block->isNewMerchant() || $block->isSync()): ?>
+<?php if ($block->isNewMerchant() || $block->isSync()): ?>
     <?= $block->getChildHtml('lengow_home_new') ?>
     <input type="hidden" id="lengow_sync_link" value="<?= $block->isSync() ?>">
     <input type="hidden" id="lengow_lang_iso" value="<?= $block->getIsoCode() ?>">
+<?php elseif ($block->freeTrialIsExpired()): ?>
+    <?= $block->getChildHtml('lengow_home_free_trial') ?>
+<?php elseif ($block->isBadPayer()): ?>
+    <?= $block->getChildHtml('lengow_home_bad_payer') ?>
 <?php else: ?>
     <div class="lgw-container"><?= $block->getChildHtml('lengow_header') ?></div>
     <?= $block->getChildHtml('lengow_home_dashboard') ?>

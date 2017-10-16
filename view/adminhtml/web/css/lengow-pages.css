@@ -84,6 +84,11 @@ body:not(.lengow-home-index) #lgw-counter {
   text-decoration: underline;
 }
 
+.lengow-home-index #lgw-free-trial a:hover,
+.lengow-home-index #lgw-bad-payer a:hover
+{
+  text-decoration: none;
+}
 
 .lengow-home-index .lgw-col-4 a {
   color: #00aeef;
