@@ -23,6 +23,7 @@ use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\Locale\Resolver as Locale;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Sync as SyncHelper;
 
 class Main extends Template
 {
@@ -37,22 +38,36 @@ class Main extends Template
     protected $_configHelper;
 
     /**
+     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     */
+    protected $_syncHelper;
+
+    /**
+     * @var array Lengow status account
+     */
+    protected $_statusAccount = [];
+
+    /**
      * Constructor
      *
      * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
      * @param array $data additional params
      * @param \Magento\Framework\Locale\Resolver $locale Magento locale resolver instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
      */
     public function __construct(
         Context $context,
         array $data = [],
         Locale $locale,
-        ConfigHelper $configHelper
+        ConfigHelper $configHelper,
+        SyncHelper $syncHelper
     ) {
         parent::__construct($context, $data);
         $this->_locale = $locale;
         $this->_configHelper = $configHelper;
+        $this->_syncHelper = $syncHelper;
+        $this->_statusAccount = $this->_syncHelper->getStatusAccount();
     }
 
     /**
@@ -73,6 +88,34 @@ class Main extends Template
     public function isSync()
     {
         return $this->getRequest()->getParam('isSync');
+    }
+
+    /**
+     * Free trial is expired
+     *
+     * @return boolean
+     */
+    public function freeTrialIsExpired()
+    {
+        if ((isset($this->_statusAccount['type']) && $this->_statusAccount['type'] === 'free_trial')
+            && (isset($this->_statusAccount['expired']) && $this->_statusAccount['expired'])
+        ) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check is customer is a bad payer
+     *
+     * @return boolean
+     */
+    public function isBadPayer()
+    {
+        if ((isset($this->_statusAccount['type']) && $this->_statusAccount['type'] === 'bad_payer')) {
+            return true;
+        }
+        return false;
     }
 
     /**
