@@ -31,9 +31,9 @@ class Connector
     /**
      * @var string url of the API Lengow
      */
-     const LENGOW_API_URL = 'http://api.lengow.io:80';
+    // const LENGOW_API_URL = 'http://api.lengow.io:80';
     // const LENGOW_API_URL = 'http://api.lengow.net:80';
-//    const LENGOW_API_URL = 'http://api.lengow.rec:80';
+    const LENGOW_API_URL = 'http://api.lengow.rec:80';
     // const LENGOW_API_URL = 'http://10.100.1.82:8081';
 
     /**
@@ -83,7 +83,6 @@ class Connector
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
      */
     protected $_dataHelper;
-
 
     /**
      * @var \Lengow\Connector\Helper\Config Lengow config helper instance

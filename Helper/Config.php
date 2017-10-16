@@ -352,8 +352,16 @@ class Config extends AbstractHelper
             );
         }
         if ($cleanCache) {
-            $this->_cacheManager->flush([CacheTypeConfig::CACHE_TAG]);
+            $this->cleanConfigCache();
         }
+    }
+
+    /**
+     * Clean configuration cache
+     */
+    public function cleanConfigCache()
+    {
+        $this->_cacheManager->flush([CacheTypeConfig::CACHE_TAG]);
     }
 
     /**
@@ -374,6 +382,94 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Set Valid Account id / Access token / Secret token
+     *
+     * @param array $accessIds Account id / Access token / Secret token
+     * @param boolean $cleanCache clean config cache to valid configuration
+     */
+    public function setAccessIds($accessIds, $cleanCache = true)
+    {
+        $listKey = ['account_id', 'access_token', 'secret_token'];
+        foreach ($accessIds as $key => $value) {
+            if (!in_array($key, array_keys($listKey))) {
+                continue;
+            }
+            if (strlen($value) > 0) {
+                $this->set($key, $value, 0, $cleanCache);
+            }
+        }
+    }
+
+    /**
+     * Get catalog ids for a specific store
+     *
+     * @param integer $storeId Magento store id
+     *
+     * @return array
+     */
+    public function getCatalogIds($storeId)
+    {
+        $catalogIds = [];
+        $storeCatalogIds = $this->get('catalog_id', $storeId);
+        if (strlen($storeCatalogIds) > 0 && $storeCatalogIds != 0) {
+            $ids = trim(str_replace(["\r\n", ',', '-', '|', ' ', '/'], ';', $storeCatalogIds), ';');
+            $ids = array_filter(explode(';', $ids));
+            foreach ($ids as $id) {
+                if (is_numeric($id) && $id > 0) {
+                    $catalogIds[] = (int)$id;
+                }
+            }
+        }
+        return $catalogIds;
+    }
+
+    /**
+     * Set catalog ids for a specific shop
+     *
+     * @param array $catalogIds Lengow catalog ids
+     * @param integer $storeId Magento store id
+     * @param boolean $cleanCache clean config cache to valid configuration
+     */
+    public function setCatalogIds($catalogIds, $storeId, $cleanCache = true)
+    {
+        $storeCatalogIds = self::getCatalogIds($storeId);
+        foreach ($catalogIds as $catalogId) {
+            if (!in_array($catalogId, $storeCatalogIds) && is_numeric($catalogId) && $catalogId > 0) {
+                $storeCatalogIds[] = (int)$catalogId;
+            }
+        }
+        $this->set('catalog_id', implode(';', $storeCatalogIds), $storeId, $cleanCache);
+    }
+
+    /**
+     * Recovers if a store is active or not
+     *
+     * @param integer $storeId Magento store id
+     *
+     * @return boolean
+     */
+    public function storeIsActive($storeId)
+    {
+        return (bool)$this->get('store_enable', $storeId);
+    }
+
+    /**
+     * Set active store or not
+     *
+     * @param integer $storeId Magento store id
+     * @param boolean $cleanCache clean config cache to valid configuration
+     */
+    public function setActiveStore($storeId, $cleanCache = true)
+    {
+        $active = true;
+        $storeCatalogIds = self::getCatalogIds($storeId);;
+        if (count($storeCatalogIds) === 0) {
+            $active = false;
+        }
+        $this->set('store_enable', $active, $storeId, $cleanCache);
+    }
+
+    /**
      * Get all Magento customer group
      *
      * @return array
@@ -383,6 +479,16 @@ class Config extends AbstractHelper
         $allCustomerGroups = $this->_customerGroupCollectionFactory->create()
             ->toOptionArray();
         return $allCustomerGroups;
+    }
+
+    /**
+     * Get all stores
+     *
+     * @return \Magento\Store\Model\ResourceModel\Store\Collection
+     */
+    public function getAllStore()
+    {
+        return $this->_storeCollectionFactory->create();
     }
 
     /**
@@ -518,6 +624,27 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Get Store by token
+     *
+     * @param string $token Lengow store token
+     *
+     * @return \Magento\Store\Api\Data\StoreInterface|false
+     */
+    public function getStoreByToken($token)
+    {
+        if (strlen($token) <= 0) {
+            return false;
+        }
+        $storeCollection = $this->_storeCollectionFactory->create();
+        foreach ($storeCollection as $store) {
+            if ($token == $this->get('token', $store->getId())) {
+                return $store;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Set default attributes
      */
     public function setDefaultAttributes()
@@ -559,28 +686,4 @@ class Config extends AbstractHelper
         }
         return $reportEmailAddress;
     }
-
-    /**
-     * Get catalog ids for a specific store
-     *
-     * @param integer $storeId Magento store id
-     *
-     * @return array
-     */
-    public function getCatalogIds($storeId)
-    {
-        $catalogIds = [];
-        $storeCatalogIds = $this->get('catalog_id', $storeId);
-        if (strlen($storeCatalogIds) > 0 && $storeCatalogIds != 0) {
-            $ids = trim(str_replace(["\r\n", ',', '-', '|', ' ', '/'], ';', $storeCatalogIds), ';');
-            $ids = array_filter(explode(';', $ids));
-            foreach ($ids as $id) {
-                if (is_numeric($id) && $id > 0) {
-                    $catalogIds[] = (int)$id;
-                }
-            }
-        }
-        return $catalogIds;
-    }
-
 }

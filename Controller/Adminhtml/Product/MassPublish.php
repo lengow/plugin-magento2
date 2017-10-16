@@ -25,7 +25,6 @@ use Magento\Catalog\Model\Product\Action as ProductAction;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Store\Model\StoreManagerInterface;
 
-
 class MassPublish extends Product
 {
     /**

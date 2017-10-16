@@ -86,8 +86,9 @@ body.lengow-connector .grey_frame input[type="text"] {
 
 #lengow-iframe {
   width: 100%;
-  min-height: 632px;
+  min-height: 830px;
   border: 0px;
+  overflow-y: hidden;
 }
 
 /*************************************************/

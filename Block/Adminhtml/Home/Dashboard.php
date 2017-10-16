@@ -33,7 +33,7 @@ class Dashboard extends Template
     /**
      * @var array Lengow statistics
      */
-    protected $_stats = array();
+    protected $_stats = [];
 
     /**
      * @var integer number of Lengow order to be sent
@@ -54,7 +54,9 @@ class Dashboard extends Template
     ) {
         parent::__construct($context, $data);
         $this->_syncHelper = $syncHelper;
-        $this->_stats = $this->_syncHelper->getStatistic();
+        if (!$this->_syncHelper->pluginIsBlocked()) {
+            $this->_stats = $this->_syncHelper->getStatistic();
+        }
         // TODO get number of order to be sent
     }
 

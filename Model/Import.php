@@ -379,7 +379,7 @@ class Import
             $this->_backendSession->setIsFromlengow(1);
             // check Lengow catalogs for order synchronisation
             if (!$this->_preprodMode && !$this->_importOneOrder && $this->_typeImport === 'manual') {
-                //$this->_syncHelper->syncCatalog();TODO
+                $this->_syncHelper->syncCatalog();
             }
             $this->_dataHelper->log(
                 'Import',
@@ -395,7 +395,7 @@ class Import
             }
             if (!$this->_importOneOrder) {
                 $this->_importHelper->setImportInProcess();
-                // udpate last import date
+                // update last import date
                 $this->_importHelper->updateDateImport($this->_typeImport);
             }
             // get all store for import
@@ -432,7 +432,7 @@ class Import
                             $this->_dataHelper->log(
                                 'Import',
                                 $this->_dataHelper->setLogMessage(
-                                    '%1 order found for order ID: %2 and markeplace: %3 with account ID: %4',
+                                    '%1 order found for order ID: %2 and marketplace: %3 with account ID: %4',
                                     [
                                         $totalOrders,
                                         $this->_marketplaceSku,
@@ -485,7 +485,6 @@ class Import
                                     'type' => 'import'
                                 ]
                             );
-                            unset($lengowOrderError);
                         }
                         $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
                         $this->_dataHelper->log(
@@ -538,6 +537,20 @@ class Import
         }
         // Clear session
         $this->_backendSession->setIsFromlengow(0);
+        // save global error
+        if ($globalError) {
+            $errors[0] = $globalError;
+            if (isset($this->_orderLengowId) && $this->_orderLengowId) {
+                $this->_orderError->finishOrderErrors($this->_orderLengowId);
+                $this->_orderError->createOrderError(
+                    [
+                        'order_lengow_id' => $this->_orderLengowId,
+                        'message' => $globalError,
+                        'type' => 'import'
+                    ]
+                );
+            }
+        }
         if ($this->_importOneOrder) {
             $result['error'] = $errors;
             return $result;

@@ -17,13 +17,14 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-namespace Lengow\Connector\Controller\Adminhtml\Log;
+namespace Lengow\Connector\Controller\Adminhtml\Home;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\ResultFactory;
 use Lengow\Connector\Helper\Sync as SyncHelper;
 
-class Index extends Action
+class Refresh extends Action
 {
     /**
      * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
@@ -43,16 +44,15 @@ class Index extends Action
         $this->_syncHelper = $syncHelper;
         parent::__construct($context);
     }
+
     /**
-     * Load and render layout
+     * Refresh account status
      */
     public function execute()
     {
-        if ($this->_syncHelper->pluginIsBlocked()) {
-            $this->_redirect('lengow/home/index');
-        } else {
-            $this->_view->loadLayout();
-            $this->_view->renderLayout();
-        }
+        $this->_syncHelper->getStatusAccount(true);
+        /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
+        $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
+        return $resultRedirect->setPath('lengow/*/');
     }
 }

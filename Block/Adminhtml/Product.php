@@ -34,5 +34,4 @@ class Product extends \Magento\Backend\Block\Widget\Grid\Container
         parent::_construct();
         $this->buttonList->remove('add');
     }
-
 }

@@ -24,6 +24,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Import as ImportModel;
 
 /**
@@ -47,6 +48,11 @@ class Index extends Action
     protected $_configHelper;
 
     /**
+     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     */
+    protected $_syncHelper;
+
+    /**
      * @var \Lengow\Connector\Model\Import Lengow import model instance
      */
     protected $_importModel;
@@ -58,6 +64,7 @@ class Index extends Action
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
      * @param \Lengow\Connector\Model\Import $importModel Lengow import model instance
      */
     public function __construct(
@@ -65,6 +72,7 @@ class Index extends Action
         JsonHelper $jsonHelper,
         SecurityHelper $securityHelper,
         ConfigHelper $configHelper,
+        SyncHelper $syncHelper,
         ImportModel $importModel
     )
     {
@@ -72,6 +80,7 @@ class Index extends Action
         $this->_jsonHelper = $jsonHelper;
         $this->_securityHelper = $securityHelper;
         $this->_configHelper = $configHelper;
+        $this->_syncHelper = $syncHelper;
         $this->_importModel = $importModel;
     }
 
@@ -97,18 +106,20 @@ class Index extends Action
         if ($this->_securityHelper->checkWebserviceAccess($token)) {
             // get all store datas for synchronisation with Lengow
             if ($this->getRequest()->getParam('get_sync') == 1) {
-                //TODO
-                //$storeDatas = Mage::helper('lengow_connector/sync')->getSyncData();
-                $storeDatas = ['plop' => 'coucou'];
+                $storeDatas = $this->_syncHelper->getSyncData();
                 $this->getResponse()->setBody($this->_jsonHelper->jsonEncode($storeDatas));
             } else {
                 // get sync action if exists
                 $sync = $this->getRequest()->getParam('sync');
+                // sync catalogs id between Lengow and Magento
+                if (!$sync || $sync === 'catalog') {
+                    $this->_syncHelper->syncCatalog();
+                }
                 // sync orders between Lengow and Magento
                 if (is_null($sync) || $sync === 'order') {
                     // array of params for import order
                     $params = [];
-                    // check if the GET parameters are availables
+                    // check if the GET parameters are available
                     if (!is_null($this->getRequest()->getParam('preprod_mode'))) {
                         $params['preprod_mode'] = (bool)$this->getRequest()->getParam('preprod_mode');
                     }
@@ -147,7 +158,7 @@ class Index extends Action
                     //TODO options
                 }
                 // sync option is not valid
-                if ($sync && ($sync !== 'order' && $sync !== 'action' && $sync !== 'option')) {
+                if ($sync && !$this->_syncHelper->isSyncAction($sync)) {
                     $this->getResponse()->setStatusHeader('400', '1.1', 'Bad Request');
                     $this->getResponse()->setBody(__('Action: %1 is not a valid action', [$sync]));
                 }
