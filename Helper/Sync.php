@@ -126,6 +126,25 @@ class Sync extends AbstractHelper
     }
 
     /**
+     * Plugin is blocked or not
+     *
+     * @return boolean
+     */
+    public function pluginIsBlocked()
+    {
+        if ($this->_configHelper->isNewMerchant()) {
+            return true;
+        }
+        $statusAccount = $this->getStatusAccount();
+        if (($statusAccount['type'] === 'free_trial' && $statusAccount['expired'])
+            || $statusAccount['type'] === 'bad_payer'
+        ) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Get Sync Data (Inscription / Update)
      *
      * @return array
@@ -175,11 +194,13 @@ class Sync extends AbstractHelper
             ],
             false
         );
-        foreach ($params['shops'] as $storeToken => $storeCatalogIds) {
-            $store = $this->_configHelper->getStoreByToken($storeToken);
-            if ($store) {
-                $this->_configHelper->setCatalogIds($storeCatalogIds['catalog_ids'], (int)$store->getId(), false);
-                $this->_configHelper->setActiveStore((int)$store->getId(), false);
+        if (isset($params['shops'])) {
+            foreach ($params['shops'] as $storeToken => $storeCatalogIds) {
+                $store = $this->_configHelper->getStoreByToken($storeToken);
+                if ($store) {
+                    $this->_configHelper->setCatalogIds($storeCatalogIds['catalog_ids'], (int)$store->getId(), false);
+                    $this->_configHelper->setActiveStore((int)$store->getId(), false);
+                }
             }
         }
         // Clean config cache to valid configuration

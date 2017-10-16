@@ -21,10 +21,16 @@ namespace Lengow\Connector\Block\Adminhtml;
 
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
+use Magento\Framework\Locale\Resolver as Locale;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
 class Main extends Template
 {
+    /**
+     * @var \Magento\Framework\Locale\Resolver Magento locale resolver instance
+     */
+    protected $_locale;
+
     /**
      * @var \Lengow\Connector\Helper\Config Lengow config helper instance
      */
@@ -35,14 +41,47 @@ class Main extends Template
      *
      * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
      * @param array $data additional params
+     * @param \Magento\Framework\Locale\Resolver $locale Magento locale resolver instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
     public function __construct(
         Context $context,
         array $data = [],
+        Locale $locale,
         ConfigHelper $configHelper
     ) {
         parent::__construct($context, $data);
+        $this->_locale = $locale;
         $this->_configHelper = $configHelper;
+    }
+
+    /**
+     * Check if is a new merchant
+     *
+     * @return boolean
+     */
+    public function isNewMerchant()
+    {
+        return $this->_configHelper->isNewMerchant();
+    }
+
+    /**
+     * Check if isSync parameter is present
+     *
+     * @return string|null
+     */
+    public function isSync()
+    {
+        return $this->getRequest()->getParam('isSync');
+    }
+
+    /**
+     * Get current locale
+     *
+     * @return string
+     */
+    public function getIsoCode()
+    {
+        return strtolower(substr($this->_locale->getLocale(), 0, 2));
     }
 }

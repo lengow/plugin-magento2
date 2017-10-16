@@ -20,10 +20,30 @@
 namespace Lengow\Connector\Controller\Adminhtml\Order;
 
 use Magento\Backend\App\Action;
-use Magento\Framework\App\ResponseInterface;
+use Magento\Backend\App\Action\Context;
+use Lengow\Connector\Helper\Sync as SyncHelper;
 
 class Index extends Action
 {
+    /**
+     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     */
+    protected $_syncHelper;
+
+    /**
+     * Constructor
+     *
+     * @param \Magento\Backend\App\Action\Context $context Magento action context instance
+     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
+     */
+    public function __construct(
+        Context $context,
+        SyncHelper $syncHelper
+    ) {
+        $this->_syncHelper = $syncHelper;
+        parent::__construct($context);
+    }
+
     /**
      * Index action
      *
@@ -31,7 +51,11 @@ class Index extends Action
      */
     public function execute()
     {
-        $this->_view->loadLayout();
-        $this->_view->renderLayout();
+        if ($this->_syncHelper->pluginIsBlocked()) {
+            $this->_redirect('lengow/home/index');
+        } else {
+            $this->_view->loadLayout();
+            $this->_view->renderLayout();
+        }
     }
 }
