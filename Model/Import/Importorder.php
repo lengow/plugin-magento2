@@ -343,7 +343,7 @@ class Importorder extends AbstractModel
      */
     protected function _checkOrderData()
     {
-        $errorMessages = array();
+        $errorMessages = [];
         if (count($this->_packageData->cart) == 0) {
             $errorMessages[] = $this->_dataHelper->setLogMessage('Lengow error: no products in the order');
         }
@@ -397,7 +397,7 @@ class Importorder extends AbstractModel
      */
     protected function _returnResult($typeResult, $orderLengowId, $orderId = null)
     {
-        $result = array(
+        $result = [
             'order_id' => $orderId,
             'order_lengow_id' => $orderLengowId,
             'marketplace_sku' => $this->_marketplaceSku,
@@ -406,7 +406,7 @@ class Importorder extends AbstractModel
             'order_new' => ($typeResult == 'new' ? true : false),
             'order_update' => ($typeResult == 'update' ? true : false),
             'order_error' => ($typeResult == 'error' ? true : false)
-        );
+        ];
         return $result;
     }
 
