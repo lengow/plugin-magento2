@@ -148,7 +148,6 @@ class Order extends AbstractModel
      */
     public function getOrderIdWithDeliveryAddress($orderId, $deliveryAddressId)
     {
-        // get marketplace_sku from Magento flat order table
         $results = $this->_orderCollection->create()
             ->addFieldToFilter('order_id', $orderId)
             ->addFieldToFilter('delivery_address_id', $deliveryAddressId)

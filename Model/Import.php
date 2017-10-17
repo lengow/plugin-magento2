@@ -38,7 +38,8 @@ use Lengow\Connector\Model\Import\Importorder as Importorder;
 /**
  * Lengow import
  */
-class Import {
+class Import
+{
     /**
      * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
      */
@@ -282,7 +283,8 @@ class Import {
         BackendSession $backendSession,
         StoreRepositoryInterface $storeRepository,
         Importorder $importorder
-    ) {
+    )
+    {
         $this->_storeManager = $storeManager;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
@@ -314,7 +316,8 @@ class Import {
      * boolean log_output          display log messages
      * boolean preprod_mode        preprod mode
      */
-    public function init($params) {
+    public function init($params)
+    {
         // params for re-import order
         if (array_key_exists('marketplace_sku', $params)
             && array_key_exists('marketplace_name', $params)
@@ -353,7 +356,8 @@ class Import {
      *
      * @return array
      */
-    public function exec() {
+    public function exec()
+    {
         $orderNew = 0;
         $orderUpdate = 0;
         $orderError = 0;
@@ -568,7 +572,8 @@ class Import {
      *
      * @return array|false
      */
-    protected function _importOrders($orders, $storeId) {
+    protected function _importOrders($orders, $storeId)
+    {
         $orderNew = 0;
         $orderUpdate = 0;
         $orderError = 0;
@@ -692,8 +697,6 @@ class Import {
                         $orderError++;
                     }
                 }
-                // clean process
-                unset($importOrder, $order);
                 // if limit is set
                 if ($this->_limit > 0 && $orderNew == $this->_limit) {
                     $importFinished = true;
@@ -716,7 +719,8 @@ class Import {
      *
      * @return boolean
      */
-    protected function _checkCredentials() {
+    protected function _checkCredentials()
+    {
         if ($this->_connector->isValidAuth()) {
             list($this->_accountId, $this->_accessToken, $this->_secretToken) = $this->_configHelper->getAccessIds();
             $this->_connector->init(['access_token' => $this->_accessToken, 'secret' => $this->_secretToken]);
@@ -732,7 +736,8 @@ class Import {
      *
      * @return boolean
      */
-    protected function _checkCatalogIds($store) {
+    protected function _checkCatalogIds($store)
+    {
         if ($this->_importOneOrder) {
             return true;
         }
@@ -773,7 +778,8 @@ class Import {
      *
      * @return array
      */
-    protected function _getOrdersFromApi($store) {
+    protected function _getOrdersFromApi($store)
+    {
         $page = 1;
         $orders = [];
         // get import period
