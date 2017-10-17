@@ -25,6 +25,7 @@ use Magento\Framework\Stdlib\DateTime\DateTime;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Import\Ordererror;
+use Lengow\Connector\Model\Import\Marketplace;
 
 class Import extends AbstractHelper
 {
@@ -54,6 +55,11 @@ class Import extends AbstractHelper
     protected $_orderError;
 
     /**
+     * @var \Lengow\Connector\Model\Import\Marketplace Lengow marketplace instance
+     */
+    protected $_marketplace;
+
+    /**
      * @var array valid states lengow to create a Lengow order
      */
     protected $_lengowStates = [
@@ -70,19 +76,22 @@ class Import extends AbstractHelper
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
+     * @param \Lengow\Connector\Model\Import\Marketplace $marketplace Lengow marketplace instance
      */
     public function __construct(
         Context $context,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         Ordererror $orderError,
-        DateTime $dateTime
+        DateTime $dateTime,
+        Marketplace $marketplace
     )
     {
         $this->_configHelper = $configHelper;
         $this->_dataHelper = $dataHelper;
         $this->_dateTime = $dateTime;
         $this->_orderError = $orderError;
+        $this->_marketplace = $marketplace;
         parent::__construct($context);
     }
 
@@ -179,6 +188,41 @@ class Import extends AbstractHelper
         }
 
         return ['type' => 'none', 'timestamp' => 'none'];
+    }
+
+    /**
+     * Get Marketplace singleton
+     *
+     * @param string $name marketplace name
+     *
+     * @return array Lengow marketplace
+     */
+    public function getMarketplaceSingleton($name)
+    {
+        if (!array_key_exists($name, self::$marketplaces)) {
+            $this->_marketplace->init(['name' => $name]);
+            self::$marketplaces[$name] = $this->_marketplace;
+        }
+        return self::$marketplaces[$name];
+    }
+
+    /**
+     * Check if order status is valid for import
+     *
+     * @param string $orderStateMarketplace order state
+     * @param Marketplace $marketplace order marketplace
+     *
+     * @return boolean
+     */
+    public function checkState($orderStateMarketplace, $marketplace)
+    {
+        if (empty($orderStateMarketplace)) {
+            return false;
+        }
+        if (!in_array($marketplace->getStateLengow($orderStateMarketplace), $this->_lengowStates)) {
+            return false;
+        }
+        return true;
     }
 
 }

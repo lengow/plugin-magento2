@@ -33,6 +33,7 @@ use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Import\Ordererror;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Lengow\Connector\Model\Exception as LengowException;
+use Lengow\Connector\Model\Import\Importorder as Importorder;
 
 /**
  * Lengow import
@@ -205,6 +206,11 @@ class Import
     protected $_orderError;
 
     /**
+     * @var \Lengow\Connector\Model\Import\Importorder Lengow importorder instance
+     */
+    protected $_importorder;
+
+    /**
      * @var \Magento\Backend\Model\Session $_backendSession Backend session instance
      */
     protected $_backendSession;
@@ -260,6 +266,7 @@ class Import
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
      * @param \Magento\Backend\Model\Session $backendSession Backend session instance
      * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
+     * @param \Lengow\Connector\Model\Import\Importorder $importorder Lengow importorder instance
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -274,7 +281,8 @@ class Import
         Ordererror $orderError,
         Connector $connector,
         BackendSession $backendSession,
-        StoreRepositoryInterface $storeRepository
+        StoreRepositoryInterface $storeRepository,
+        Importorder $importorder
     )
     {
         $this->_storeManager = $storeManager;
@@ -290,6 +298,7 @@ class Import
         $this->_connector = $connector;
         $this->_backendSession = $backendSession;
         $this->_storeRepository = $storeRepository;
+        $this->_importorder = $importorder;
     }
 
     /**
@@ -455,12 +464,12 @@ class Import
                         //To see results
 //                        var_dump($orders);
                         //TODO
-//                        $result = $this->_importOrders( $orders, (int) $store->getId() );
-//                        if ( ! $this->_importOneOrder ) {
-//                            $orderNew += $result['order_new'];
-//                            $orderUpdate += $result['order_update'];
-//                            $orderError += $result['order_error'];
-//                        }
+                        $result = $this->_importOrders($orders, (int)$store->getId());
+                        if (!$this->_importOneOrder) {
+                            $orderNew += $result['order_new'];
+                            $orderUpdate += $result['order_update'];
+                            $orderError += $result['order_error'];
+                        }
                     } catch (LengowException $e) {
                         $errorMessage = $e->getMessage();
                     } catch (\Exception $e) {
@@ -553,6 +562,156 @@ class Import
                 'error' => $errors
             ];
         }
+    }
+
+    /**
+     * Create or update order in Magento
+     *
+     * @param mixed $orders API orders
+     * @param integer $storeId Magento store Id
+     *
+     * @return array|false
+     */
+    protected function _importOrders($orders, $storeId)
+    {
+        $orderNew = 0;
+        $orderUpdate = 0;
+        $orderError = 0;
+        $importFinished = false;
+        foreach ($orders as $orderData) {
+            if (!$this->_importOneOrder) {
+                $this->_importHelper->setImportInProcess();
+            }
+            $nbPackage = 0;
+            $marketplaceSku = (string)$orderData->marketplace_order_id;
+            if ($this->_preprodMode) {
+                $marketplaceSku .= '--' . time();
+            }
+            // set current order to cancel hook updateOrderStatus
+            $this->_backendSession->setCurrentOrderLengow($marketplaceSku);
+            // if order contains no package
+            if (count($orderData->packages) == 0) {
+                $this->_dataHelper->log(
+                    'Import',
+                    $this->_dataHelper->setLogMessage('import order failed - Lengow error: no package in the order'),
+                    $this->_logOutput,
+                    $marketplaceSku
+                );
+                continue;
+            }
+            // start import
+            foreach ($orderData->packages as $packageData) {
+                $nbPackage++;
+                // check whether the package contains a shipping address
+                if (!isset($packageData->delivery->id)) {
+                    $this->_dataHelper->log(
+                        'Import',
+                        $this->_dataHelper->setLogMessage('import order failed - Lengow error: no delivery address in the order'),
+                        $this->_logOutput,
+                        $marketplaceSku
+                    );
+                    continue;
+                }
+                $packageDeliveryAddressId = (int)$packageData->delivery->id;
+                $firstPackage = ($nbPackage > 1 ? false : true);
+                // check the package for re-import order
+                if ($this->_importOneOrder) {
+                    if (!is_null($this->_deliveryAddressId)
+                        && $this->_deliveryAddressId != $packageDeliveryAddressId
+                    ) {
+                        $this->_dataHelper->log(
+                            'Import',
+                            $this->_dataHelper->setLogMessage('import order failed - wrong package number'),
+                            $this->_logOutput,
+                            $marketplaceSku
+                        );
+                        continue;
+                    }
+                }
+                try {
+                    // try to import or update order
+                    $this->_importorder->init(
+                        [
+                            'store_id' => $storeId,
+                            'preprod_mode' => $this->_preprodMode,
+                            'log_output' => $this->_logOutput,
+                            'marketplace_sku' => $marketplaceSku,
+                            'delivery_address_id' => $packageDeliveryAddressId,
+                            'order_data' => $orderData,
+                            'package_data' => $packageData,
+                            'first_package' => $firstPackage
+                        ]
+                    );
+                    $order = $this->_importorder->importOrder();
+                } catch (LengowException $e) {
+                    $errorMessage = $e->getMessage();
+                } catch (\Exception $e) {
+                    $errorMessage = '[Magento error]: "' . $e->getMessage()
+                        . '" ' . $e->getFile() . ' line ' . $e->getLine();
+                }
+                if (isset($errorMessage)) {
+                    $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
+                    $this->_dataHelper->log(
+                        'Import',
+                        $this->_dataHelper->setLogMessage('import order failed - %1', [$decodedMessage]),
+                        $this->_logOutput,
+                        $marketplaceSku
+                    );
+                    unset($errorMessage);
+                    continue;
+                }
+                //TODO
+                // Sync to lengow if no preprod_mode
+//                if (!$this->_preprodMode && isset($order['order_new']) && $order['order_new'] == true) {
+//                    $magentoOrder = Mage::getModel('sales/order')->load($order['order_id']);
+//                    $synchro = Mage::getModel('lengow/import_order')->synchronizeOrder(
+//                        $magentoOrder,
+//                        $this->_connector
+//                    );
+//                    if ($synchro) {
+//                        $synchroMessage = $this->_helper->setLogMessage(
+//                            'log.import.order_synchronized_with_lengow',
+//                            array('order_id' => $magentoOrder->getIncrementId())
+//                        );
+//                    } else {
+//                        $synchroMessage = $this->_helper->setLogMessage(
+//                            'log.import.order_not_synchronized_with_lengow',
+//                            array('order_id' => $magentoOrder->getIncrementId())
+//                        );
+//                    }
+//                    $this->_helper->log('Import', $synchroMessage, $this->_logOutput, $marketplaceSku);
+//                    unset($magentoOrder);
+//                }
+                // Clean current order in session
+                $this->_backendSession->setCurrentOrderLengow(false);
+                // if re-import order -> return order informations
+                if ($this->_importOneOrder) {
+                    return $order;
+                }
+                if ($order) {
+                    if (isset($order['order_new']) && $order['order_new'] == true) {
+                        $orderNew++;
+                    } elseif (isset($order['order_update']) && $order['order_update'] == true) {
+                        $orderUpdate++;
+                    } elseif (isset($order['order_error']) && $order['order_error'] == true) {
+                        $orderError++;
+                    }
+                }
+                // if limit is set
+                if ($this->_limit > 0 && $orderNew == $this->_limit) {
+                    $importFinished = true;
+                    break;
+                }
+            }
+            if ($importFinished) {
+                break;
+            }
+        }
+        return [
+            'order_new' => $orderNew,
+            'order_update' => $orderUpdate,
+            'order_error' => $orderError
+        ];
     }
 
     /**

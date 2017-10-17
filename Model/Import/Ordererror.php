@@ -93,7 +93,7 @@ class Ordererror extends AbstractModel
     }
 
     /**
-     * Initialize logs model
+     * Initialize ordererror model
      **
      * @return void
      */
