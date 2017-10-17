@@ -686,4 +686,31 @@ class Config extends AbstractHelper
         }
         return $reportEmailAddress;
     }
+
+    /**
+     * Get Values by store or global
+     *
+     * @param integer $storeId Magento store id
+     *
+     * @return array
+     */
+    public function getAllValues($storeId = null)
+    {
+        $rows = [];
+        foreach ($this->_options as $key => $value) {
+            if (isset($value['export']) && !$value['export']) {
+                continue;
+            }
+            if ($storeId) {
+                if (isset($value['store']) && $value['store']) {
+                    $rows[$key] = $this->get($key, $storeId);
+                }
+            } else {
+                if (isset($value['global']) && $value['global']) {
+                    $rows[$key] = $this->get($key);
+                }
+            }
+        }
+        return $rows;
+    }
 }
