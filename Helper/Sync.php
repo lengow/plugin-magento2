@@ -82,6 +82,11 @@ class Sync extends AbstractHelper
     ];
 
     /**
+     * @var mixed status account
+     */
+    public static $statusAccount;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
@@ -253,6 +258,11 @@ class Sync extends AbstractHelper
                 return json_decode($this->_configHelper->get('account_status'), true);
             }
         }
+        // use static cache for multiple call in same time (specific Magento 2)
+        if (!is_null(self::$statusAccount)) {
+            return self::$statusAccount;
+        }
+        $status = false;
         $result = $this->_connector->queryApi('get', '/v3.0/plans');
         if (isset($result->isFreeTrial)) {
             $status = [];
@@ -265,14 +275,14 @@ class Sync extends AbstractHelper
             if ($status) {
                 $this->_configHelper->set('account_status', $this->_jsonHelper->jsonEncode($status));
                 $this->_configHelper->set('last_status_update', date('Y-m-d H:i:s'));
-                return $status;
             }
         } else {
             if ($this->_configHelper->get('last_status_update')) {
-                return json_decode($this->_configHelper->get('account_status'), true);
+                $status = json_decode($this->_configHelper->get('account_status'), true);
             }
         }
-        return false;
+        self::$statusAccount = $status;
+        return $status;
     }
 
     /**
