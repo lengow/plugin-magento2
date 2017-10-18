@@ -307,7 +307,6 @@ class Importorder extends AbstractModel
         // try to import order
         try {
             //TODO
-            echo '<br /> create customer';
             // Create or Update customer with addresses
             $this->_lengowCustomer->createCustomer(
                 $this->_orderData,

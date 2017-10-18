@@ -217,9 +217,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         $array['billing_address']['last_name'] = $billingNames['lastname'];
         $billingAddress = $this->_convertAddress($array['billing_address']);
 
-        echo '<br /> first get by email 2';
         if (is_null($customer)) {
-            echo '<br /> customer not found';
             $customer->setImportMode(true);# create new subscriber without send an confirmation email
             $customer->setEmail($array['billing_address']['email']);
             $customer->setFirstName($array['billing_address']['first_name']);
