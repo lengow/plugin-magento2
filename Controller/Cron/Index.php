@@ -155,7 +155,7 @@ class Index extends Action
                 }
                 // sync options between Lengow and Magento
                 if (is_null($sync) || $sync === 'option') {
-                    //TODO options
+                    $this->_syncHelper->setCmsOption();
                 }
                 // sync option is not valid
                 if ($sync && !$this->_syncHelper->isSyncAction($sync)) {
