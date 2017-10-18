@@ -82,6 +82,11 @@ class Sync extends AbstractHelper
     ];
 
     /**
+     * @var mixed status account
+     */
+    public static $statusAccount;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
@@ -156,7 +161,7 @@ class Sync extends AbstractHelper
             'token' => $this->_configHelper->getToken(),
             'type' => 'magento',
             'version' => $this->_securityHelper->getMagentoVersion(),
-            'plugin_version' =>  $this->_securityHelper->getPluginVersion(),
+            'plugin_version' => $this->_securityHelper->getPluginVersion(),
             'email' => $this->scopeConfig->getValue('trans_email/ident_general/email'),
             'cron_url' => $this->_dataHelper->getCronUrl(),
             'return_url' => 'http://' . $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"],
@@ -167,10 +172,10 @@ class Sync extends AbstractHelper
             $storeId = (int)$store->getId();
             $this->_export->init(['store_id' => $storeId]);
             $data['shops'][$storeId] = [
-                'token' =>  $this->_configHelper->getToken($storeId),
-                'shop_name' =>  $store->getName(),
+                'token' => $this->_configHelper->getToken($storeId),
+                'shop_name' => $store->getName(),
                 'domain_url' => $store->getBaseUrl(),
-                'feed_url' =>  $this->_dataHelper->getExportUrl($storeId),
+                'feed_url' => $this->_dataHelper->getExportUrl($storeId),
                 'total_product_number' => $this->_export->getTotalProduct(),
                 'exported_product_number' => $this->_export->getTotalExportedProduct(),
                 'enabled' => $this->_configHelper->storeIsActive($storeId)
@@ -236,6 +241,59 @@ class Sync extends AbstractHelper
     }
 
     /**
+     * Get options for all store
+     *
+     * @return array
+     */
+    public function getOptionData()
+    {
+        $data = [
+            'token' => $this->_configHelper->getToken(),
+            'version' => $this->_securityHelper->getMagentoVersion(),
+            'plugin_version' => $this->_securityHelper->getPluginVersion(),
+            'options' => $this->_configHelper->getAllValues(),
+            'shops' => []
+        ];
+        $stores = $this->_configHelper->getAllStore();
+        foreach ($stores as $store) {
+            $storeId = (int)$store->getId();
+            $this->_export->init(['store_id' => $storeId]);
+            $data['shops'][] = [
+                'token' => $this->_configHelper->getToken($storeId),
+                'enabled' => $this->_configHelper->storeIsActive($storeId),
+                'total_product_number' => $this->_export->getTotalProduct(),
+                'exported_product_number' => $this->_export->getTotalExportedProduct(),
+                'options' => $this->_configHelper->getAllValues($storeId)
+            ];
+        }
+        return $data;
+    }
+
+    /**
+     * Set CMS options
+     *
+     * @param boolean $force force cache update
+     *
+     * @return boolean
+     */
+    public function setCmsOption($force = false)
+    {
+        if ($this->_configHelper->isNewMerchant() || (bool)$this->_configHelper->get('preprod_mode_enable')) {
+            return false;
+        }
+        if (!$force) {
+            $updatedAt = $this->_configHelper->get('last_option_cms_update');
+            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTime) {
+                return false;
+            }
+        }
+        $options = $this->_jsonHelper->jsonEncode($this->getOptionData());
+        $this->_connector->queryApi('put', '/v3.1/cms', [], $options);
+        $this->_configHelper->set('last_option_cms_update', date('Y-m-d H:i:s'));
+        return true;
+    }
+
+    /**
      * Get Status Account
      *
      * @param boolean $force force cache update
@@ -253,6 +311,11 @@ class Sync extends AbstractHelper
                 return json_decode($this->_configHelper->get('account_status'), true);
             }
         }
+        // use static cache for multiple call in same time (specific Magento 2)
+        if (!is_null(self::$statusAccount)) {
+            return self::$statusAccount;
+        }
+        $status = false;
         $result = $this->_connector->queryApi('get', '/v3.0/plans');
         if (isset($result->isFreeTrial)) {
             $status = [];
@@ -265,14 +328,14 @@ class Sync extends AbstractHelper
             if ($status) {
                 $this->_configHelper->set('account_status', $this->_jsonHelper->jsonEncode($status));
                 $this->_configHelper->set('last_status_update', date('Y-m-d H:i:s'));
-                return $status;
             }
         } else {
             if ($this->_configHelper->get('last_status_update')) {
-                return json_decode($this->_configHelper->get('account_status'), true);
+                $status = json_decode($this->_configHelper->get('account_status'), true);
             }
         }
-        return false;
+        self::$statusAccount = $status;
+        return $status;
     }
 
     /**
