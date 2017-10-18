@@ -71,11 +71,11 @@ class Order extends AbstractModel
         OrderCollectionMagento $orderCollectionMagento
     )
     {
-        parent::__construct($context, $registry);
         $this->_orderError = $orderError;
         $this->_ordererrorCollection = $ordererrorCollection;
         $this->_orderCollection = $orderCollection;
         $this->_orderCollectionMagento = $orderCollectionMagento;
+        parent::__construct($context, $registry);
     }
 
     /**
