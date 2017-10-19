@@ -19,10 +19,13 @@
 
 namespace Lengow\Connector\Test\Unit\Model\Import;
 
+use Magento\Directory\Model\ResourceModel\Region;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Lengow\Connector\Test\Unit\Fixture;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Import\Customer;
+use Magento\Directory\Model\ResourceModel\Region\Collection as RegionCollection;
+use Magento\Customer\Model\Address;
 
 class CustomerTest extends \PHPUnit_Framework_TestCase
 {
@@ -38,15 +41,25 @@ class CustomerTest extends \PHPUnit_Framework_TestCase
     protected $_customer;
 
     /**
+     * @var \Magento\Customer\Model\AddressFactory
+     */
+    protected $_addressFactoryMock;
+
+    /**
+     * @var ObjectManager
+     */
+    protected $_objectManager;
+
+    /**
      * Sets up the fixture, for example, open a network connection.
      * This method is called before a test is executed.
      *
      */
     public function setUp()
     {
-        $objectManager = new ObjectManager($this);
-        $this->_configHelper = $objectManager->getObject(ConfigHelper::class);
-        $this->_customer = $objectManager->getObject(Customer::class);
+        $this->_objectManager = new ObjectManager($this);
+        $this->_configHelper = $this->_objectManager->getObject(ConfigHelper::class);
+        $this->_customer = $this->_objectManager->getObject(Customer::class);
     }
 
     public function testClassInstantiation()
@@ -132,6 +145,62 @@ class CustomerTest extends \PHPUnit_Framework_TestCase
             $fixture->invokeMethod($this->_customer, '_splitNames', ['plop machin bidule']),
             '[Test _splitNames] set three words'
         );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Model\Import\Customer::_convertAddress()
+     */
+    public function testConvertAddress()
+    {
+        $fixture = New Fixture();
+
+        $address = $this->_objectManager->getObject(Address::class);
+        $region = $this->_objectManager->getObject(Region::class);
+        $regionMock = $fixture->mockFunctions(
+            $region,
+            ['getId'],
+            [1]
+        );
+
+        $addressFactoryMock = $fixture->mockFunctions($this->_addressFactoryMock, ['create'], [$address]);
+        $regionCollectionMock = $this->_objectManager->getCollectionMock(RegionCollection::class, []);
+        $regionCollectionMock->expects($this->once())
+            ->method('addRegionCodeFilter')
+            ->will($this->returnValue($regionCollectionMock));
+        $regionCollectionMock->expects($this->once())
+            ->method('addCountryFilter')
+            ->will($this->returnValue($regionCollectionMock));
+        $regionCollectionMock->expects($this->once())
+            ->method('getFirstItem')
+            ->will($this->returnValue($regionMock));
+        $fixture->setPrivatePropertyValue(
+            $this->_customer, ['_addressFactory', '_regionCollection'], [$addressFactoryMock, $regionCollectionMock]
+        );
+
+        $address1 = [
+            'company' => 'company',
+            'civility' => 'Madame',
+            'email' => '123456-ABCCC--1508407265-natdec@magento22.docker',
+            'last_name' => 'Doe',
+            'first_name' => 'Jane',
+            'first_line' => '22 rue des olivettes',
+            'full_name' => 'machin bidule',
+            'second_line' => 'apt 666 porte 5',
+            'complement' => 'code 12345678',
+            'zipcode' => '44000',
+            'city' => 'NANTES',
+            'common_country_iso_a2' => 'FR',
+            'phone_home' => '0812345678',
+            'phone_office' => '0866666666',
+            'phone_mobile' => '0611224455'
+        ];
+
+        $this->assertEquals(
+            $address,
+            $fixture->invokeMethod($this->_customer, '_convertAddress', [$address1]),
+            '[Test _convertAddress] @return \Magento\Customer\Model\Address'
+        );
+
     }
 
 }

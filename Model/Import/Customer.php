@@ -218,7 +218,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         $billingAddress = $this->_convertAddress($array['billing_address']);
 
         if (is_null($customer)) {
-            $customer->setImportMode(true);# create new subscriber without send an confirmation email
+            $customer->setImportMode(true);# create new subscriber without send a confirmation email
             $customer->setEmail($array['billing_address']['email']);
             $customer->setFirstName($array['billing_address']['first_name']);
             $customer->setLastName($array['billing_address']['last_name']);
