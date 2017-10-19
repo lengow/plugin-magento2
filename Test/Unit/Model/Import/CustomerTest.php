@@ -59,32 +59,79 @@ class CustomerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Import\Customer::_getNames
+     * @covers \Lengow\Connector\Model\Import\Customer::_getNames()
      */
-    public function testConnect()
+    public function testGetNames()
     {
         $fixture = New Fixture();
 
         $values = ['firstname' => 'first_name', 'lastname' => 'last_name', 'fullname' => 'full_name'];
-
         $this->assertEquals(
             $values,
             $fixture->invokeMethod($this->_customer, '_getNames', [$values]),
             '[Test _getNames] set complete address'
         );
 
-//        $classMock = $fixture->getFakeClass();
-//        $fixture->setPrivatePropertyValue($this->_price, ['_priceBeforeDiscountInclTax', '_priceInclTax'], [120, 120]);
-//        $this->assertInternalType(
-//            'array',
-//            $fixture->invokeMethod($this->_price, '_getAllDiscounts'),
-//            '[Test Get All Discounts] Check if return is a array'
-//        );
-//        $this->assertEquals(
-//            ['discount_amount'  => 0, 'discount_percent' => 0],
-//            $fixture->invokeMethod($this->_price, '_getAllDiscounts'),
-//            '[Test Get All Discounts] Check if return is valid without product discount'
-//        );
+        $values = ['firstname' => '', 'lastname' => 'last_name', 'fullname' => 'full_name'];
+        $this->assertEquals(
+            ['firstname' => 'last_name', 'lastname' => '__'],
+            $fixture->invokeMethod($this->_customer, '_getNames', [$values]),
+            '[Test _getNames] set empty firstname address'
+        );
+
+        $values = ['firstname' => 'first_name', 'lastname' => '', 'fullname' => 'full_name'];
+        $this->assertEquals(
+            ['firstname' => 'first_name', 'lastname' => '__'],
+            $fixture->invokeMethod($this->_customer, '_getNames', [$values]),
+            '[Test _getNames] set empty lastname address'
+        );
+
+        $values = ['firstname' => 'first_name', 'lastname' => 'last_name', 'fullname' => ''];
+        $this->assertEquals(
+            $values,
+            $fixture->invokeMethod($this->_customer, '_getNames', [$values]),
+            '[Test _getNames] set empty fullname address'
+        );
+
+        $values = ['firstname' => '', 'lastname' => '', 'fullname' => 'full_name'];
+        $this->assertEquals(
+            ['firstname' => 'full_name', 'lastname' => '__'],
+            $fixture->invokeMethod($this->_customer, '_getNames', [$values]),
+            '[Test _getNames] set empty firstname and lastname address'
+        );
+
+        $values = ['firstname' => '', 'lastname' => '', 'fullname' => ''];
+        $this->assertEquals(
+            ['firstname' => '__', 'lastname' => '__'],
+            $fixture->invokeMethod($this->_customer, '_getNames', [$values]),
+            '[Test _getNames] set empty address'
+        );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Model\Import\Customer::_splitNames()
+     */
+    public function testSplitNames()
+    {
+        $fixture = New Fixture();
+
+        $this->assertEquals(
+            ['firstname' => 'hihi', 'lastname' => ''],
+            $fixture->invokeMethod($this->_customer, '_splitNames', ['hihi']),
+            '[Test _splitNames] set one word'
+        );
+
+        $this->assertEquals(
+            ['firstname' => 'plop', 'lastname' => 'machin'],
+            $fixture->invokeMethod($this->_customer, '_splitNames', ['plop machin']),
+            '[Test _splitNames] set two words'
+        );
+
+        $this->assertEquals(
+            ['firstname' => 'plop', 'lastname' => 'machin bidule'],
+            $fixture->invokeMethod($this->_customer, '_splitNames', ['plop machin bidule']),
+            '[Test _splitNames] set three words'
+        );
     }
 
 }
