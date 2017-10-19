@@ -204,7 +204,7 @@ class Importorder extends AbstractModel
             $this->_deliveryAddressId,
             'import'
         );
-        if (false/*$importLog*/) {
+        if ($importLog) {
             $decodedMessage = $this->_dataHelper->decodeLogMessage($importLog['message'], 'en_GB');
             $this->_dataHelper->log(
                 'Import',
@@ -224,7 +224,7 @@ class Importorder extends AbstractModel
             $this->_deliveryAddressId
         );
         // update order state if already imported
-        if (false/*$orderId*/) {
+        if ($orderId) {
             //TODO
 //            $orderUpdated = $this->_checkAndUpdateOrder($orderId);
 //            if ($orderUpdated && isset($orderUpdated['update'])) {
@@ -236,7 +236,7 @@ class Importorder extends AbstractModel
         }
         // checks if an external id already exists
         $orderMagentoId = $this->_checkExternalIds($this->_orderData->merchant_order_id);
-        if (false/*$orderMagentoId && !$this->_preprodMode && !$this->_isReimported*/) {
+        if ($orderMagentoId && !$this->_preprodMode && !$this->_isReimported) {
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
@@ -249,7 +249,7 @@ class Importorder extends AbstractModel
             return false;
         }
         // if order is cancelled or new -> skip
-        if (false/*!$this->_importHelper->checkState($this->_orderStateMarketplace, $this->_marketplace)*/) {
+        if (!$this->_importHelper->checkState($this->_orderStateMarketplace, $this->_marketplace)) {
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
@@ -289,11 +289,9 @@ class Importorder extends AbstractModel
 //                );
 //            }
         }
-//        echo '<br /> load lengow order begin';
         // load lengow order
 //        $orderFactory = $this->_lengowOrderFactory->create();
 //        $orderLengow = $orderFactory->load((int)$this->_orderLengowId);
-//        echo '<br /> load lengow order end';
         // checks if the required order data is present
         if (!$this->_checkOrderData()) {
             return $this->_returnResult('error', $this->_orderLengowId);
@@ -306,7 +304,6 @@ class Importorder extends AbstractModel
         );
         // try to import order
         try {
-            //TODO
             // Create or Update customer with addresses
             $this->_lengowCustomer->createCustomer(
                 $this->_orderData,

@@ -642,7 +642,6 @@ class Import
                             'first_package' => $firstPackage
                         ]
                     );
-//                    echo '<br /> import order';
                     $order = $this->_importorder->importOrder();
                 } catch (LengowException $e) {
                     $errorMessage = $e->getMessage();
