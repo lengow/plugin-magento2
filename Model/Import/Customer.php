@@ -160,8 +160,15 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         $this->_mathRandom = $mathRandom;
         $this->_encryptor = $encryptor;
         $this->_copy = $copyService;
-        parent::__construct($context, $entitySnapshot, $entityRelationComposite,
-            $scopeConfig, $validatorFactory, $dateTime, $storeManager);
+        parent::__construct(
+            $context,
+            $entitySnapshot,
+            $entityRelationComposite,
+            $scopeConfig,
+            $validatorFactory,
+            $dateTime,
+            $storeManager
+        );
     }
 
     /**
@@ -228,42 +235,33 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
             $customer->setPasswordHash($this->_encryptor->getHash($this->generatePassword(), true));
             $customer->addData(['FromLengow' => 1]);
         }
-        try {
-            $billingAddress->setCustomer($customer);
-            $customer->addAddress($billingAddress);
-            // Shipping address
-            $tempShippingNames = [
-                'firstname' => $array['delivery_address']['first_name'],
-                'lastname' => $array['delivery_address']['last_name'],
-                'fullname' => $array['delivery_address']['full_name']
-            ];
-            $shippingNames = $this->_getNames($tempShippingNames);
-            $array['delivery_address']['first_name'] = $shippingNames['firstname'];
-            $array['delivery_address']['last_name'] = $shippingNames['lastname'];
-            // Get relay id if exist
-            if (count($shippingAddress->trackings) > 0
-                && isset($shippingAddress->trackings[0]->relay)
-                && !is_null($shippingAddress->trackings[0]->relay->id)
-            ) {
-                $array['delivery_address']['tracking_relay'] = $shippingAddress->trackings[0]->relay->id;
-            }
-            $shippingAddress = $this->_convertAddress($array['delivery_address'], 'shipping');
-            $shippingAddress->setCustomer($customer);
-            $customer->addAddress($shippingAddress);
-            $this->_copy->copyFieldsetToTarget('lengow_convert_address', 'to_customer', $array['billing_address'], $customer);
-            // set group
-            $customer->setGroupId($this->_configHelper->get('customer_group', $storeId));
-
-            $customer->save();
-        } catch (\Exception $e) {
-            $errorMessage = '[Magento error]: "' . $e->getMessage()
-                . '" ' . $e->getFile() . ' line ' . $e->getLine();
-            $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
-            $this->_dataHelper->log(
-                'Import',
-                $this->_dataHelper->setLogMessage('create customer failed - %1', [$decodedMessage])
-            );
+        $billingAddress->setCustomer($customer);
+        $customer->addAddress($billingAddress);
+        // Shipping address
+        $tempShippingNames = [
+            'firstname' => $array['delivery_address']['first_name'],
+            'lastname' => $array['delivery_address']['last_name'],
+            'fullname' => $array['delivery_address']['full_name']
+        ];
+        $shippingNames = $this->_getNames($tempShippingNames);
+        $array['delivery_address']['first_name'] = $shippingNames['firstname'];
+        $array['delivery_address']['last_name'] = $shippingNames['lastname'];
+        // Get relay id if exist
+        if (count($shippingAddress->trackings) > 0
+            && isset($shippingAddress->trackings[0]->relay)
+            && !is_null($shippingAddress->trackings[0]->relay->id)
+        ) {
+            $array['delivery_address']['tracking_relay'] = $shippingAddress->trackings[0]->relay->id;
         }
+        $shippingAddress = $this->_convertAddress($array['delivery_address'], 'shipping');
+        $shippingAddress->setCustomer($customer);
+        $customer->addAddress($shippingAddress);
+        $this->_copy->copyFieldsetToTarget('lengow_convert_address', 'to_customer', $array['billing_address'], $customer);
+        // set group
+        $customer->setGroupId($this->_configHelper->get('customer_group', $storeId));
+
+        $customer->save();
+
         return $customer;
     }
 
