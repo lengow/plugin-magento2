@@ -25,6 +25,7 @@ use Magento\Framework\Registry;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
+use Lengow\Connector\Model\Import\Customer as LengowCustomer;
 use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
@@ -44,6 +45,11 @@ class Importorder extends AbstractModel
      * @var \Lengow\Connector\Model\Import\Order Lengow order instance
      */
     protected $_lengowOrder;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\Customer $lengowCustomer Lengow customer instance
+     */
+    protected $_lengowCustomer;
 
     /**
      * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order instance
@@ -139,6 +145,7 @@ class Importorder extends AbstractModel
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
      * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
      * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
+     * @param \Lengow\Connector\Model\Import\Customer $lengowCustomer Lengow customer instance
      * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      */
@@ -149,6 +156,7 @@ class Importorder extends AbstractModel
         LengowOrder $lengowOrder,
         LengowOrderFactory $lengowOrderFactory,
         Ordererror $orderError,
+        LengowCustomer $lengowCustomer,
         ImportHelper $importHelper,
         DataHelper $dataHelper
     )
@@ -157,6 +165,7 @@ class Importorder extends AbstractModel
         $this->_lengowOrder = $lengowOrder;
         $this->_lengowOrderFactory = $lengowOrderFactory;
         $this->_orderError = $orderError;
+        $this->_lengowCustomer = $lengowCustomer;
         $this->_importHelper = $importHelper;
         $this->_dataHelper = $dataHelper;
         parent::__construct($context, $registry);
@@ -281,14 +290,28 @@ class Importorder extends AbstractModel
 //            }
         }
         // load lengow order
-        $orderLengow = $this->_lengowOrderFactory->create()->load((int)$this->_orderLengowId);
+//        $orderFactory = $this->_lengowOrderFactory->create();
+//        $orderLengow = $orderFactory->load((int)$this->_orderLengowId);
         // checks if the required order data is present
         if (!$this->_checkOrderData()) {
             return $this->_returnResult('error', $this->_orderLengowId);
         }
+        // get customer name and email
+        $customerName = $this->_getCustomerName();
+        $customerEmail = (!is_null($this->_orderData->billing_address->email)
+            ? (string)$this->_orderData->billing_address->email
+            : (string)$this->_packageData->delivery->email
+        );
         // try to import order
         try {
-            //TODO
+            // Create or Update customer with addresses
+            $this->_lengowCustomer->createCustomer(
+                $this->_orderData,
+                $this->_packageData->delivery,
+                $this->_storeId,
+                $this->_marketplaceSku,
+                $this->_logOutput
+            );
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (\Exception $e) {
@@ -408,6 +431,24 @@ class Importorder extends AbstractModel
             'order_error' => ($typeResult == 'error' ? true : false)
         ];
         return $result;
+    }
+
+    /**
+     * Get customer name
+     *
+     * @return string
+     */
+    protected function _getCustomerName()
+    {
+        $firstname = (string)$this->_orderData->billing_address->first_name;
+        $lastname = (string)$this->_orderData->billing_address->last_name;
+        $firstname = ucfirst(strtolower($firstname));
+        $lastname = ucfirst(strtolower($lastname));
+        if (empty($firstname) && empty($lastname)) {
+            return (string)$this->_orderData->billing_address->full_name;
+        } else {
+            return $firstname . ' ' . $lastname;
+        }
     }
 
 }

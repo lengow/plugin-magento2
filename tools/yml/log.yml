@@ -41,6 +41,8 @@ en:
       external_id_exist: "already imported in Magento with the order ID %1"
       current_order_state_unavailable: "current order status [%1] means it is not possible to import the order to the marketplace %2"
       order_import_failed: "import order failed - %1"
+      generate_unique_email: "generate a unique email %1"
+      create_customer_failed: "create customer failed - %1"
     connector:
       call_api: "call %1"
       error_api: "API call failed - %1"

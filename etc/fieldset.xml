@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:DataObject/etc/fieldset.xsd">
+    <scope id="global">
+        <fieldset id="lengow_convert_address">
+            <field name="company">
+                <aspect name="to_customer"/>
+                <aspect name="to_billing_address"/>
+                <aspect name="to_shipping_address"/>
+            </field>
+            <field name="company">
+                <aspect name="to_customer"/>
+                <aspect name="to_billing_address"/>
+                <aspect name="to_shipping_address"/>
+            </field>
+            <field name="last_name">
+                <aspect name="to_customer" targetField="lastname"/>
+                <aspect name="to_billing_address" targetField="lastname"/>
+                <aspect name="to_shipping_address" targetField="lastname"/>
+            </field>
+            <field name="first_name">
+                <aspect name="to_customer" targetField="firstname"/>
+                <aspect name="to_billing_address" targetField="firstname"/>
+                <aspect name="to_shipping_address" targetField="firstname"/>
+            </field>
+            <field name="email">
+                <aspect name="to_customer"/>
+                <aspect name="to_billing_address"/>
+                <aspect name="to_shipping_address"/>
+            </field>
+            <field name="phone_home">
+                <aspect name="to_billing_address" targetField="telephone"/>
+                <aspect name="to_shipping_address" targetField="telephone"/>
+            </field>
+            <field name="address">
+                <aspect name="to_billing_address" targetField="street_full"/>
+                <aspect name="to_shipping_address" targetField="street_full"/>
+            </field>
+            <field name="zipcode">
+                <aspect name="to_billing_address" targetField="postcode"/>
+                <aspect name="to_shipping_address" targetField="postcode"/>
+            </field>
+            <field name="city">
+                <aspect name="to_billing_address"/>
+                <aspect name="to_shipping_address"/>
+            </field>
+            <field name="common_country_iso_a2">
+                <aspect name="to_billing_address" targetField="country_id"/>
+                <aspect name="to_shipping_address" targetField="country_id"/>
+            </field>
+        </fieldset>
+    </scope>
+</config>
