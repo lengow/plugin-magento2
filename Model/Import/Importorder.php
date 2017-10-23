@@ -23,18 +23,51 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Customer\Api\AddressRepositoryInterface;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Quote\Model\Quote\Address as QuoteAddress;
+use Magento\Tax\Model\Config as TaxConfig;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 use Lengow\Connector\Model\Import\Customer as LengowCustomer;
+use Lengow\Connector\Model\Import\Quote as LengowQuote;
+use Lengow\Connector\Model\Payment\Lengow as LengowPayment;
 use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Helper\Config as ConfigHelper;
 
 /**
  * Model import importorder
  */
 class Importorder extends AbstractModel
 {
+
+    /**
+     * @var \Magento\Tax\Model\Config Tax configuration object
+     */
+    protected $_taxConfig;
+
+    /**
+     * @var \Magento\Quote\Model\Quote\Address
+     */
+    protected $_quoteAddress;
+
+    /**
+     * @var \Magento\Customer\Api\AddressRepositoryInterface
+     */
+    protected $_addressRepository;
+
+    /**
+     * @var \Magento\Customer\Api\CustomerRepositoryInterface
+     */
+    protected $_customerRepository;
+
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager
+     */
+    protected $_storeManager;
 
     /**
      * @var \Lengow\Connector\Model\Import\Ordererror Lengow ordererror instance
@@ -47,9 +80,19 @@ class Importorder extends AbstractModel
     protected $_lengowOrder;
 
     /**
+     * @var \Lengow\Connector\Model\Payment\Lengow Lengow payment instance
+     */
+    protected $_lengowPayment;
+
+    /**
      * @var \Lengow\Connector\Model\Import\Customer $lengowCustomer Lengow customer instance
      */
     protected $_lengowCustomer;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\Quote $lengowQuote Lengow quote instance
+     */
+    protected $_lengowQuote;
 
     /**
      * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order instance
@@ -70,6 +113,11 @@ class Importorder extends AbstractModel
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
      */
     protected $_dataHelper;
+
+    /**
+     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     */
+    protected $_configHelper;
 
     /**
      * @var string id lengow of current order
@@ -137,37 +185,76 @@ class Importorder extends AbstractModel
     protected $_orderLengowId;
 
     /**
+     * @var float order processing fees
+     */
+    protected $_processingFee;
+
+    /**
+     * @var float order shipping costs
+     */
+    protected $_shippingCost;
+
+    /**
+     * @var float order amount
+     */
+    protected $_orderAmount;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository Lengow order instance
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager
+     * @param \Magento\Quote\Model\Quote\Address $quoteAddress Magento quote address
+     * @param \Magento\Customer\Api\AddressRepositoryInterface $addressRepository
+     * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
+     * @param \Magento\Tax\Model\Config $taxConfig Tax configuration object
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     * @param \Lengow\Connector\Model\Payment\Lengow $lengowPayment Lengow payment instance
      * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
      * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
      * @param \Lengow\Connector\Model\Import\Customer $lengowCustomer Lengow customer instance
+     * @param \Lengow\Connector\Model\Import\Quote $lengowQuote Lengow quote instance
      * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
     public function __construct(
         Context $context,
         Registry $registry,
         OrderRepositoryInterface $orderRepository,
+        AddressRepositoryInterface $addressRepository,
+        CustomerRepositoryInterface $customerRepository,
+        TaxConfig $taxConfig,
+        StoreManagerInterface $storeManager,
+        QuoteAddress $quoteAddress,
+        LengowPayment $lengowPayment,
         LengowOrder $lengowOrder,
         LengowOrderFactory $lengowOrderFactory,
         Ordererror $orderError,
         LengowCustomer $lengowCustomer,
+        LengowQuote $lengowQuote,
         ImportHelper $importHelper,
-        DataHelper $dataHelper
+        DataHelper $dataHelper,
+        ConfigHelper $configHelper
     )
     {
         $this->_orderRepository = $orderRepository;
+        $this->_addressRepository = $addressRepository;
+        $this->_customerRepository = $customerRepository;
+        $this->_taxConfig = $taxConfig;
+        $this->_storeManager = $storeManager;
+        $this->_quoteAddress = $quoteAddress;
         $this->_lengowOrder = $lengowOrder;
+        $this->_lengowPayment = $lengowPayment;
         $this->_lengowOrderFactory = $lengowOrderFactory;
         $this->_orderError = $orderError;
         $this->_lengowCustomer = $lengowCustomer;
+        $this->_lengowQuote = $lengowQuote;
         $this->_importHelper = $importHelper;
         $this->_dataHelper = $dataHelper;
+        $this->_configHelper = $configHelper;
         parent::__construct($context, $registry);
     }
 
@@ -205,6 +292,7 @@ class Importorder extends AbstractModel
             'import'
         );
         if ($importLog) {
+            echo "<br />import log";
             $decodedMessage = $this->_dataHelper->decodeLogMessage($importLog['message'], 'en_GB');
             $this->_dataHelper->log(
                 'Import',
@@ -225,6 +313,7 @@ class Importorder extends AbstractModel
         );
         // update order state if already imported
         if ($orderId) {
+            echo "<br />orderid";
             //TODO
 //            $orderUpdated = $this->_checkAndUpdateOrder($orderId);
 //            if ($orderUpdated && isset($orderUpdated['update'])) {
@@ -237,6 +326,7 @@ class Importorder extends AbstractModel
         // checks if an external id already exists
         $orderMagentoId = $this->_checkExternalIds($this->_orderData->merchant_order_id);
         if ($orderMagentoId && !$this->_preprodMode && !$this->_isReimported) {
+            echo "<br />orderMagentoId";
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
@@ -249,7 +339,8 @@ class Importorder extends AbstractModel
             return false;
         }
         // if order is cancelled or new -> skip
-        if (!$this->_importHelper->checkState($this->_orderStateMarketplace, $this->_marketplace)) {
+        if (false/*!$this->_importHelper->checkState($this->_orderStateMarketplace, $this->_marketplace)*/) {
+            echo "<br />checkState";
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
@@ -294,6 +385,7 @@ class Importorder extends AbstractModel
 //        $orderLengow = $orderFactory->load((int)$this->_orderLengowId);
         // checks if the required order data is present
         if (!$this->_checkOrderData()) {
+            echo "<br />_checkOrderData";
             return $this->_returnResult('error', $this->_orderLengowId);
         }
         // get customer name and email
@@ -305,18 +397,25 @@ class Importorder extends AbstractModel
         // try to import order
         try {
             // Create or Update customer with addresses
-            $this->_lengowCustomer->createCustomer(
+            $customer = $this->_lengowCustomer->createCustomer(
                 $this->_orderData,
                 $this->_packageData->delivery,
                 $this->_storeId,
                 $this->_marketplaceSku,
                 $this->_logOutput
             );
+            // Create Magento Quote
+            echo "<br />before quote";
+            $quote = $this->_createQuote($customer);
+//            var_dump($quote); die();
+            // Create Magento order
+//            $order = $this->_makeOrder($quote);
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (\Exception $e) {
             $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
         }
+        return 'plop';
     }
 
     /**
@@ -450,5 +549,192 @@ class Importorder extends AbstractModel
             return $firstname . ' ' . $lastname;
         }
     }
+
+    /**
+     * Create quote
+     *
+     * @param \Magento\Customer\Model\Customer $customer
+     *
+     * @return LengowQuote
+     */
+    protected function _createQuote(\Magento\Customer\Model\Customer $customer)
+    {
+        $customerRepo = $this->_customerRepository->getById($customer->getId());
+        var_dump($customerRepo->getEmail());
+        $quote = $this->_lengowQuote
+            ->setIsMultiShipping(false)
+            ->setStore($this->_storeManager->getStore($this->_storeId))
+            ->setIsSuperMode(true); // set quote to supermode to don't care about stock
+        // import customer addresses into quote
+        // Set billing Address
+        echo "<br /> plop1";
+        try {
+            $customerBillingAddress = $this->_addressRepository->getById($customerRepo->getDefaultBilling());
+
+            $billingAddress = $this->_quoteAddress
+                ->setShouldIgnoreValidation(true)
+                ->importCustomerAddressData($customerBillingAddress)
+                ->setSaveInAddressBook(0);
+
+            $customerShippingAddress = $this->_addressRepository->getById($customerRepo->getDefaultShipping());
+
+            $shippingAddress = $this->_quoteAddress
+                ->setShouldIgnoreValidation(true)
+                ->importCustomerAddressData($customerShippingAddress)
+                ->setSaveInAddressBook(0)
+                ->setSameAsBilling(0);
+            $quote->assignCustomerWithAddressChange($customerRepo, $billingAddress, $shippingAddress);
+
+        } catch (\Exception $e) {
+            var_dump($e->getMessage());
+        }
+        // check if store include tax (Product and shipping cost)
+        $priceIncludeTax = $this->_taxConfig->priceIncludesTax($quote->getStore());
+        $shippingIncludeTax = $this->_taxConfig->shippingPriceIncludesTax($quote->getStore());
+        // add product in quote
+        $quote->addLengowProducts(
+            $this->_packageData->cart,
+            $this->_marketplace,
+            $this->_marketplaceSku,
+            $this->_logOutput,
+            $priceIncludeTax
+        );
+        // Get shipping cost with tax
+        $shippingCost = $this->_processingFee + $this->_shippingCost;
+        // if shipping cost not include tax -> get shipping cost without tax
+//        if (!$shippingIncludeTax) {
+//            $basedOn = Mage::getStoreConfig(
+//                Mage_Tax_Model_Config::CONFIG_XML_PATH_BASED_ON,
+//                $quote->getStore()
+//            );
+//            $countryId = ($basedOn == 'shipping')
+//                ? $shippingAddress->getCountryId()
+//                : $billingAddress->getCountryId();
+//            $shippingTaxClass = Mage::getStoreConfig(
+//                Mage_Tax_Model_Config::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
+//                $quote->getStore()
+//            );
+//            $taxCalculator = Mage::getModel('tax/calculation');
+//            $taxRequest = new Varien_Object();
+//            $taxRequest->setCountryId($countryId)
+//                ->setCustomerClassId($customer->getTaxClassId())
+//                ->setProductClassId($shippingTaxClass);
+//            $taxRate = (float)$taxCalculator->getRate($taxRequest);
+//            $taxShippingCost = (float)$taxCalculator->calcTaxAmount($shippingCost, $taxRate, true);
+//            $shippingCost = $shippingCost - $taxShippingCost;
+//        }
+        try {
+            // update shipping rates for current order
+            $rates = $quote->getShippingAddress()
+                ->setCollectShippingRates(true)
+                ->collectShippingRates()
+                ->getShippingRatesCollection();
+            $shippingMethod = $this->_updateRates($rates, $shippingCost);
+            // set shipping price and shipping method for current order
+            $quote->getShippingAddress()
+                ->setShippingPrice($shippingCost)
+                ->setShippingMethod($shippingMethod);
+            // collect totals
+            $quote->collectTotals();
+        } catch (\Exception $e) {
+            var_dump($e->getMessage());
+        }
+        echo "<br /> plop2";
+
+        // Re-ajuste cents for item quote
+        // Conversion Tax Include > Tax Exclude > Tax Include maybe make 0.01 amount error
+//        if (!$priceIncludeTax) {
+//            if ($quote->getGrandTotal() != $this->_orderAmount) {
+//                $quoteItems = $quote->getAllItems();
+//                foreach ($quoteItems as $item) {
+//                    $lengowProduct = $quote->getLengowProducts((string)$item->getProduct()->getId());
+//                    if ($lengowProduct['amount'] != $item->getRowTotalInclTax()) {
+//                        $diff = $lengowProduct['amount'] - $item->getRowTotalInclTax();
+//                        $item->setPriceInclTax($item->getPriceInclTax() + ($diff / $item->getQty()));
+//                        $item->setBasePriceInclTax($item->getPriceInclTax());
+//                        $item->setPrice($item->getPrice() + ($diff / $item->getQty()));
+//                        $item->setOriginalPrice($item->getPrice());
+//                        $item->setRowTotal($item->getRowTotal() + $diff);
+//                        $item->setBaseRowTotal($item->getRowTotal());
+//                        $item->setRowTotalInclTax($lengowProduct['amount']);
+//                        $item->setBaseRowTotalInclTax($item->getRowTotalInclTax());
+//                    }
+//                }
+//            }
+//        }
+        // get payment informations
+        $paymentInfo = '';
+        if (count($this->_orderData->payments) > 0) {
+            $payment = $this->_orderData->payments[0];
+            $paymentInfo .= ' - ' . (string)$payment->type;
+            if (isset($payment->payment_terms->external_transaction_id)) {
+                $paymentInfo .= ' - ' . (string)$payment->payment_terms->external_transaction_id;
+            }
+        }
+        echo "<br /> plop3";
+        // set payment method lengow
+        /** @var \Magento\Quote\Model\Quote $quote */
+//        var_dump($quote->getPayment());
+        $quote->setPaymentMethod([
+            'method' => 'lengow',
+            'marketplace' => (string)$this->_orderData->marketplace . $paymentInfo,
+        ]);
+        echo "<br /> plop3";
+//        $quote->getPayment()->importData(
+//            [
+//                'method' => 'lengow',
+//                'marketplace' => (string)$this->_orderData->marketplace . $paymentInfo,
+//            ]
+//        );
+        echo "<br /> plop4";
+
+        $quote->save();
+        var_dump($quote);
+        die();
+        return $quote;
+    }
+
+    /**
+     * Update Rates with shipping cost
+     *
+     * @param \Magento\Quote\Model\Quote\Address\Rate $rates Magento rates
+     * @param float $shippingCost shipping cost
+     * @param string $shippingMethod Magento shipping method
+     * @param boolean $first stop recursive effect
+     *
+     * @return boolean
+     */
+    protected function _updateRates($rates, $shippingCost, $shippingMethod = null, $first = true)
+    {
+        if (!$shippingMethod) {
+            $shippingMethod = $this->_configHelper->get('import_shipping_method', $this->_storeId);
+        }
+        if (empty($shippingMethod)) {
+            $shippingMethod = 'lengow_lengow';
+        }
+        foreach ($rates as &$rate) {
+            // make sure the chosen shipping method is correct
+            if ($rate->getCode() == $shippingMethod) {
+                if ($rate->getPrice() != $shippingCost) {
+                    $rate->setPrice($shippingCost);
+                    $rate->setCost($shippingCost);
+                }
+                return $rate->getCode();
+            }
+        }
+        // stop recursive effect
+        if (!$first) {
+            return 'lengow_lengow';
+        }
+        // get lengow shipping method if selected shipping method is unavailable
+        $this->_dataHelper->log(
+            'Import',
+            $this->_dataHelper->setLogMessage('the chosen shipping method is not available for this order. Lengow has assigned a shipping method'),
+            $this->_logOutput,
+            $this->_marketplaceSku
+        );
+        return $this->_updateRates($rates, $shippingCost, 'lengow_lengow', false);
+    }
+
 
 }

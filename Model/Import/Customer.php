@@ -173,7 +173,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
      * @param string $marketplaceSku marketplace sku
      * @param boolean $logOutput see log or not
      *
-     * @return \Lengow\Connector\Model\Import\Customer
+     * @return \Magento\Customer\Model\Customer
      */
     public function createCustomer($orderData, $shippingAddress, $storeId, $marketplaceSku, $logOutput)
     {
@@ -264,7 +264,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
                 $this->_dataHelper->setLogMessage('create customer failed - %1', [$decodedMessage])
             );
         }
-        return $this;
+        return $customer;
     }
 
     /**
