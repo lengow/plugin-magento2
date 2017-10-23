@@ -185,7 +185,6 @@ class Index extends Action
                     $this->getResponse()->setBody($this->_export->getTotalProduct());
                 } else {
                     $this->_export->exec();
-                    exit(0);
                 }
             } catch (\Exception $e) {
                 $errorMessage = '[Magento error] "' . $e->getMessage()
