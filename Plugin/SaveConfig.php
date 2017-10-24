@@ -32,11 +32,11 @@ class SaveConfig
     /**
      * @var array path for Lengow options
      */
-    protected $_lengowOptions = array(
+    protected $_lengowOptions = [
         'lengow_global_options',
         'lengow_export_options',
         'lengow_import_options'
-    );
+    ];
 
     /**
      * Constructor
