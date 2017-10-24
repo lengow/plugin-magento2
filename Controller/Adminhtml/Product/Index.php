@@ -107,9 +107,21 @@ class Index extends Action
                             $state = $this->getRequest()->getParam('state');
                             $storeId = $this->getRequest()->getParam('store_id');
                             if ($state !== null) {
+                                $oldValue = $this->_configHelper->get('selection_enable', $storeId);
                                 $this->_configHelper->set('selection_enable', $state, $storeId);
-                                $params = ['store_id' => $storeId, 'selection' => $state];
-                                $this->_export->init($params);
+                                $this->_dataHelper->log(
+                                    'Config',
+                                    $this->_dataHelper->setLogMessage(
+                                        '%1 - old value %2 replaced with %3 for store %4',
+                                        [
+                                            'lengow_export_options/simple/export_selection_enable',
+                                            $oldValue,
+                                            $state,
+                                            $storeId
+                                        ]
+                                    )
+                                );
+                                $this->_export->init(['store_id' => $storeId, 'selection' => $state]);
                                 return $this->_resultJsonFactory->create()->setData(
                                     [
                                         'state' => $state,
@@ -129,8 +141,7 @@ class Index extends Action
                                     ['lengow_product' => $state],
                                     $storeId
                                 );
-                                $params = ['store_id' => $storeId, 'selection' => 1];
-                                $this->_export->init($params);
+                                $this->_export->init(['store_id' => $storeId, 'selection' => 1]);
                                 return $this->_resultJsonFactory->create()->setData(
                                     [
                                         'exported' => $this->_export->getTotalExportedProduct(),
