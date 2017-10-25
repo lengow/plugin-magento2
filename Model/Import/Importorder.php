@@ -23,11 +23,20 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Quote\Model\Quote\Address as QuoteAddress;
 use Magento\Tax\Model\Config as TaxConfig;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Tax\Model\TaxCalculation;
+use Magento\Tax\Model\Calculation;
+use Magento\Quote\Model\QuoteManagement;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Catalog\Model\ProductFactory;
+use Magento\Sales\Model\Service\InvoiceService;
+use Magento\Framework\DB\Transaction;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 use Lengow\Connector\Model\Import\Customer as LengowCustomer;
@@ -43,6 +52,50 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
  */
 class Importorder extends AbstractModel
 {
+    /**
+     * @var \Magento\Framework\DB\Transaction Magento transaction
+     */
+    protected $_transaction;
+
+    /**
+     * @var \Magento\Sales\Model\Service\InvoiceService Magento invoice service
+     */
+    protected $_invoiceService;
+
+    /**
+     * @var \Magento\Catalog\Model\ProductFactory Magento product factory
+     */
+    protected $_productFactory;
+
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     */
+    protected $_dateTime;
+
+    /**
+     * @var \Magento\Quote\Model\QuoteManagement
+     */
+    protected $_quoteManagement;
+
+    /**
+     * @var \Magento\Sales\Model\Order order magento instance
+     */
+    protected $_order;
+
+    /**
+     * @var \Magento\Tax\Model\Calculation calculation
+     */
+    protected $_calculation;
+
+    /**
+     * @var \Magento\Tax\Model\TaxCalculation tax calculation interface
+     */
+    protected $_taxCalculation;
+
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface Scope config interface
+     */
+    protected $_scopeConfig;
 
     /**
      * @var \Magento\Tax\Model\Config Tax configuration object
@@ -200,6 +253,16 @@ class Importorder extends AbstractModel
     protected $_orderAmount;
 
     /**
+     * @var string carrier name
+     */
+    protected $_carrierName = null;
+
+    /**
+     * @var string carrier method
+     */
+    protected $_carrierMethod = null;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\Model\Context $context Magento context instance
@@ -210,6 +273,15 @@ class Importorder extends AbstractModel
      * @param \Magento\Customer\Api\AddressRepositoryInterface $addressRepository
      * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
      * @param \Magento\Tax\Model\Config $taxConfig Tax configuration object
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Scope config interface
+     * @param \Magento\Tax\Model\TaxCalculation $taxCalculation tax calculation interface
+     * @param \Magento\Tax\Model\Calculation $calculation calculation
+     * @param \Magento\Sales\Model\Order $order order magento instance
+     * @param \Magento\Quote\Model\QuoteManagement $quoteManagement
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
+     * @param \Magento\Catalog\Model\ProductFactory $productFactory Magento product factory
+     * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService Magento invoice service
+     * @param \Magento\Framework\DB\Transaction $transaction Magento transaction
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
      * @param \Lengow\Connector\Model\Payment\Lengow $lengowPayment Lengow payment instance
      * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
@@ -227,8 +299,17 @@ class Importorder extends AbstractModel
         AddressRepositoryInterface $addressRepository,
         CustomerRepositoryInterface $customerRepository,
         TaxConfig $taxConfig,
+        ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
         QuoteAddress $quoteAddress,
+        TaxCalculation $taxCalculation,
+        Calculation $calculation,
+        MagentoOrder $order,
+        QuoteManagement $quoteManagement,
+        DateTime $dateTime,
+        ProductFactory $productFactory,
+        InvoiceService $invoiceService,
+        Transaction $transaction,
         LengowPayment $lengowPayment,
         LengowOrder $lengowOrder,
         LengowOrderFactory $lengowOrderFactory,
@@ -244,8 +325,17 @@ class Importorder extends AbstractModel
         $this->_addressRepository = $addressRepository;
         $this->_customerRepository = $customerRepository;
         $this->_taxConfig = $taxConfig;
+        $this->_scopeConfig = $scopeConfig;
         $this->_storeManager = $storeManager;
         $this->_quoteAddress = $quoteAddress;
+        $this->_taxCalculation = $taxCalculation;
+        $this->_calculation = $calculation;
+        $this->_order = $order;
+        $this->_quoteManagement = $quoteManagement;
+        $this->_dateTime = $dateTime;
+        $this->_productFactory = $productFactory;
+        $this->_invoiceService = $invoiceService;
+        $this->_transaction = $transaction;
         $this->_lengowOrder = $lengowOrder;
         $this->_lengowPayment = $lengowPayment;
         $this->_lengowOrderFactory = $lengowOrderFactory;
@@ -407,9 +497,8 @@ class Importorder extends AbstractModel
             // Create Magento Quote
             echo "<br />before quote";
             $quote = $this->_createQuote($customer);
-//            var_dump($quote); die();
             // Create Magento order
-//            $order = $this->_makeOrder($quote);
+            $order = $this->_makeOrder($quote);
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (\Exception $e) {
@@ -559,16 +648,17 @@ class Importorder extends AbstractModel
      */
     protected function _createQuote(\Magento\Customer\Model\Customer $customer)
     {
-        $customerRepo = $this->_customerRepository->getById($customer->getId());
-        var_dump($customerRepo->getEmail());
-        $quote = $this->_lengowQuote
-            ->setIsMultiShipping(false)
-            ->setStore($this->_storeManager->getStore($this->_storeId))
-            ->setIsSuperMode(true); // set quote to supermode to don't care about stock
-        // import customer addresses into quote
-        // Set billing Address
-        echo "<br /> plop1";
         try {
+            $customerRepo = $this->_customerRepository->getById($customer->getId());
+            var_dump($customerRepo->getEmail());
+            $quote = $this->_lengowQuote
+                ->setIsMultiShipping(false)
+                ->setStore($this->_storeManager->getStore($this->_storeId))
+                ->setIsSuperMode(true); // set quote to supermode to don't care about stock
+            // import customer addresses into quote
+            // Set billing Address
+            echo "<br /> plop1";
+
             $customerBillingAddress = $this->_addressRepository->getById($customerRepo->getDefaultBilling());
 
             $billingAddress = $this->_quoteAddress
@@ -588,56 +678,63 @@ class Importorder extends AbstractModel
         } catch (\Exception $e) {
             var_dump($e->getMessage());
         }
-        // check if store include tax (Product and shipping cost)
-        $priceIncludeTax = $this->_taxConfig->priceIncludesTax($quote->getStore());
-        $shippingIncludeTax = $this->_taxConfig->shippingPriceIncludesTax($quote->getStore());
-        // add product in quote
-        $quote->addLengowProducts(
-            $this->_packageData->cart,
-            $this->_marketplace,
-            $this->_marketplaceSku,
-            $this->_logOutput,
-            $priceIncludeTax
-        );
-        // Get shipping cost with tax
-        $shippingCost = $this->_processingFee + $this->_shippingCost;
-        // if shipping cost not include tax -> get shipping cost without tax
-//        if (!$shippingIncludeTax) {
-//            $basedOn = Mage::getStoreConfig(
-//                Mage_Tax_Model_Config::CONFIG_XML_PATH_BASED_ON,
-//                $quote->getStore()
-//            );
-//            $countryId = ($basedOn == 'shipping')
-//                ? $shippingAddress->getCountryId()
-//                : $billingAddress->getCountryId();
-//            $shippingTaxClass = Mage::getStoreConfig(
-//                Mage_Tax_Model_Config::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
-//                $quote->getStore()
-//            );
-//            $taxCalculator = Mage::getModel('tax/calculation');
-//            $taxRequest = new Varien_Object();
-//            $taxRequest->setCountryId($countryId)
-//                ->setCustomerClassId($customer->getTaxClassId())
-//                ->setProductClassId($shippingTaxClass);
-//            $taxRate = (float)$taxCalculator->getRate($taxRequest);
-//            $taxShippingCost = (float)$taxCalculator->calcTaxAmount($shippingCost, $taxRate, true);
-//            $shippingCost = $shippingCost - $taxShippingCost;
-//        }
         try {
+            // check if store include tax (Product and shipping cost)
+            $priceIncludeTax = $this->_taxConfig->priceIncludesTax($quote->getStore());
+            $shippingIncludeTax = $this->_taxConfig->shippingPriceIncludesTax($quote->getStore());
+            // add product in quote
+            //        $quote->addLengowProducts(
+            //            $this->_packageData->cart,
+            //            $this->_marketplace,
+            //            $this->_marketplaceSku,
+            //            $this->_logOutput,
+            //            $priceIncludeTax
+            //        );
+            $product1 = $this->_productFactory->create()->load(1);
+            $quote->addProduct($product1, intval(5));
+            $product2 = $this->_productFactory->create()->load(2);
+            $quote->addProduct($product2, intval(10));
+
+            // Get shipping cost with tax
+            $shippingCost = $this->_processingFee + $this->_shippingCost;
+            // if shipping cost not include tax -> get shipping cost without tax
+            if (!$shippingIncludeTax) {
+//                $basedOn = $this->_scopeConfig->getValue(TaxConfig::CONFIG_XML_PATH_BASED_ON, $quote->getStore());
+//                $countryId = ($basedOn == 'shipping')
+//                    ? $shippingAddress->getCountryId()
+//                    : $billingAddress->getCountryId();
+                $shippingTaxClass = $this->_scopeConfig->getValue(
+                    TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
+                    'store',
+                    $quote->getStore()
+                );
+//                $taxRequest = new Varien_Object();
+//                $addressRequestObject = $this->_taxCalculation->getRateRequest(null, null, null, $storeId, $customerId);
+//                $taxRequest->setCountryId($countryId)
+//                    ->setCustomerClassId($customer->getTaxClassId())
+//                    ->setProductClassId($shippingTaxClass);
+                $taxRate = (float)$this->_taxCalculation->getCalculatedRate($shippingTaxClass, $customer->getId(), $quote->getStore());
+                $taxShippingCost = (float)$this->_calculation->calcTaxAmount($shippingCost, $taxRate, true);
+                $shippingCost = $shippingCost - $taxShippingCost;
+            }
+
+            $quoteShippingAddress = $quote->getShippingAddress();
             // update shipping rates for current order
-            $rates = $quote->getShippingAddress()
-                ->setCollectShippingRates(true)
-                ->collectShippingRates()
+            $quoteShippingAddress->setCollectShippingRates(true);
+            $quoteShippingAddress->setTotalsCollectedFlag(false)->collectShippingRates();
+            $rates = $quoteShippingAddress
                 ->getShippingRatesCollection();
-            $shippingMethod = $this->_updateRates($rates, $shippingCost);
+            //TODO not work with 'lengow_lengow'
+            $shippingMethod = $this->_updateRates($rates, $shippingCost, 'flatrate_flatrate');
             // set shipping price and shipping method for current order
-            $quote->getShippingAddress()
+            $quoteShippingAddress
                 ->setShippingPrice($shippingCost)
                 ->setShippingMethod($shippingMethod);
-            // collect totals
-            $quote->collectTotals();
+            var_dump($quoteShippingAddress->debug());
         } catch (\Exception $e) {
             var_dump($e->getMessage());
+            var_dump($e->getTrace());
+            die();
         }
         echo "<br /> plop2";
 
@@ -662,36 +759,148 @@ class Importorder extends AbstractModel
 //                }
 //            }
 //        }
-        // get payment informations
-        $paymentInfo = '';
-        if (count($this->_orderData->payments) > 0) {
-            $payment = $this->_orderData->payments[0];
-            $paymentInfo .= ' - ' . (string)$payment->type;
-            if (isset($payment->payment_terms->external_transaction_id)) {
-                $paymentInfo .= ' - ' . (string)$payment->payment_terms->external_transaction_id;
+        try {
+            // get payment informations
+            $paymentInfo = '';
+            if (count($this->_orderData->payments) > 0) {
+                $payment = $this->_orderData->payments[0];
+                $paymentInfo .= ' - ' . (string)$payment->type;
+                if (isset($payment->payment_terms->external_transaction_id)) {
+                    $paymentInfo .= ' - ' . (string)$payment->payment_terms->external_transaction_id;
+                }
             }
+            echo "<br /> plop3";
+            // set payment method lengow
+            $quote->getPayment()->setMethod('lengow')->setAdditionalData(
+                (string)$this->_orderData->marketplace . $paymentInfo
+            );//TODO setAdditionnalInformation ?
+            var_dump($quote->getPayment()->debug());
+//            $quote->getPayment()->importData(
+//                [
+//                    'method' => 'lengow',
+//                    'marketplace' => (string)$this->_orderData->marketplace . $paymentInfo,
+//                ]
+//            );
+            echo "<br /> plop4";
+            $quote->collectTotals()->save();
+            $quote->save();
+        } catch (\Exception $e) {
+            var_dump($e->getMessage());
+            var_dump($e->getTrace());
         }
-        echo "<br /> plop3";
-        // set payment method lengow
-        /** @var \Magento\Quote\Model\Quote $quote */
-//        var_dump($quote->getPayment());
-        $quote->setPaymentMethod([
-            'method' => 'lengow',
-            'marketplace' => (string)$this->_orderData->marketplace . $paymentInfo,
-        ]);
-        echo "<br /> plop3";
-//        $quote->getPayment()->importData(
-//            [
-//                'method' => 'lengow',
-//                'marketplace' => (string)$this->_orderData->marketplace . $paymentInfo,
-//            ]
-//        );
-        echo "<br /> plop4";
-
-        $quote->save();
-        var_dump($quote);
-        die();
+//        var_dump($quote);
         return $quote;
+    }
+
+    /**
+     * Create order
+     *
+     * @param Quote $quote Lengow quote instance
+     *
+     * @throws LengowException order failed with quote
+     *
+     * @return \Magento\Sales\Model\Order
+     */
+    protected function _makeOrder(Quote $quote)
+    {
+        try {
+            $additionalDatas = [
+                'from_lengow' => true,
+                'follow_by_lengow' => true,
+                'marketplace_lengow' => (string)$this->_orderData->marketplace,
+                'order_id_lengow' => (string)$this->_marketplaceSku,
+                'delivery_address_id_lengow' => (int)$this->_deliveryAddressId,
+                'is_reimported_lengow' => false,
+                'global_currency_code' => (string)$this->_orderData->currency->iso_a3,
+                'base_currency_code' => (string)$this->_orderData->currency->iso_a3,
+                'store_currency_code' => (string)$this->_orderData->currency->iso_a3,
+                'order_currency_code' => (string)$this->_orderData->currency->iso_a3
+            ];
+//        $service = Mage::getModel('sales/service_quote', $quote);
+//        $service->setOrderData($additionalDatas);
+//        if (method_exists($service, 'submitAll')) {
+//            $service->submitAll();
+//            $order = $service->getOrder();
+//        } else {
+//            $order = $service->submit();
+//        }
+            $order = $this->_quoteManagement->submit($quote, $additionalDatas);
+            if (!$order) {
+                throw new LengowException(
+                    $this->_dataHelper->setLogMessage('unable to create order based on given quote')
+                );
+            }
+            // modify order dates to use actual dates
+            // Get all params to create order
+            if (!is_null($this->_orderData->marketplace_order_date)) {
+                $orderDate = (string)$this->_orderData->marketplace_order_date;
+            } else {
+                $orderDate = (string)$this->_orderData->imported_at;
+            }
+            $order->setCreatedAt($this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)));
+            $order->setUpdatedAt($this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)));
+            $order->save();
+            // Re-ajuste cents for total and shipping cost
+            // Conversion Tax Include > Tax Exclude > Tax Include maybe make 0.01 amount error
+//        $priceIncludeTax = Mage::helper('tax')->priceIncludesTax($quote->getStore());
+//        $shippingIncludeTax = Mage::helper('tax')->shippingPriceIncludesTax($quote->getStore());
+//        if (!$priceIncludeTax || !$shippingIncludeTax) {
+//            if ($order->getGrandTotal() != $this->_orderAmount) {
+//                // check Grand Total
+//                $diff = $this->_orderAmount - $order->getGrandTotal();
+//                $order->setGrandTotal($this->_orderAmount);
+//                $order->setBaseGrandTotal($order->getGrandTotal());
+//                // if the difference is only on the grand total, removing the difference of shipping cost
+//                if (($order->getSubtotalInclTax() + $order->getShippingInclTax()) == $this->_orderAmount) {
+//                    $order->setShippingAmount($order->getShippingAmount() + $diff);
+//                    $order->setBaseShippingAmount($order->getShippingAmount());
+//                } else {
+//                    // check Shipping Cost
+//                    $diffShipping = 0;
+//                    $shippingCost = $this->_processingFee + $this->_shippingCost;
+//                    if ($order->getShippingInclTax() != $shippingCost) {
+//                        $diffShipping = ($shippingCost - $order->getShippingInclTax());
+//                        $order->setShippingAmount($order->getShippingAmount() + $diffShipping);
+//                        $order->setBaseShippingAmount($order->getShippingAmount());
+//                        $order->setShippingInclTax($shippingCost);
+//                        $order->setBaseShippingInclTax($order->getShippingInclTax());
+//                    }
+//                    // update Subtotal without shipping cost
+//                    $order->setSubtotalInclTax($order->getSubtotalInclTax() + ($diff - $diffShipping));
+//                    $order->setBaseSubtotalInclTax($order->getSubtotalInclTax());
+//                    $order->setSubtotal($order->getSubtotal() + ($diff - $diffShipping));
+//                    $order->setBaseSubtotal($order->getSubtotal());
+//                }
+//            }
+//            $order->save();
+//        }
+            // generate invoice for order
+            if ($order->canInvoice()) {
+//            $this->_order->toInvoice($order);
+                $invoice = $this->_invoiceService->prepareInvoice($order);
+                $invoice->register();
+                $invoice->save();
+                $transactionSave = $this->_transaction->addObject(
+                    $invoice
+                )->addObject(
+                    $invoice->getOrder()
+                );
+                $transactionSave->save();
+            }
+            $carrierName = $this->_carrierName;
+            if (is_null($carrierName) || $carrierName == 'None') {
+                $carrierName = $this->_carrierMethod;
+            }
+            $order->setShippingDescription(
+                $order->getShippingDescription() . ' [marketplace shipping method : ' . $carrierName . ']'
+            );
+            $order->save();
+        } catch (\Exception $e) {
+            var_dump($e->getMessage());
+            var_dump($e->getTrace());
+            die();
+        }
+        return $order;
     }
 
     /**
