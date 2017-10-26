@@ -261,6 +261,7 @@ class Config extends AbstractHelper
      */
     protected $_excludeAttributes = [
         'sku',
+        'name',
         'media_gallery',
         'tier_price',
         'short_description',
