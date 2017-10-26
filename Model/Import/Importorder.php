@@ -270,6 +270,11 @@ class Importorder extends AbstractModel
     protected $_carrierMethod = null;
 
     /**
+     * @var boolean order shipped by marketplace
+     */
+    protected $_shippedByMp = false;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\Model\Context $context Magento context instance
@@ -481,7 +486,6 @@ class Importorder extends AbstractModel
 //        $orderLengow = $orderFactory->load((int)$this->_orderLengowId);
         // checks if the required order data is present
         if (!$this->_checkOrderData()) {
-            echo "<br />_checkOrderData";
             return $this->_returnResult('error', $this->_orderLengowId);
         }
         // get customer name and email
@@ -490,8 +494,32 @@ class Importorder extends AbstractModel
             ? (string)$this->_orderData->billing_address->email
             : (string)$this->_packageData->delivery->email
         );
+
         // try to import order
         try {
+            // check if the order is shipped by marketplace
+            if ($this->_shippedByMp) {
+                $this->_dataHelper->log(
+                    'Import',
+                    $this->_dataHelper->setLogMessage(
+                        'order shipped by %1',
+                        ['marketplace_name' => $this->_marketplace->name]
+                    ),
+                    $this->_logOutput,
+                    $this->_marketplaceSku
+                );
+                //TODO
+//                if (!$this->_configHelper->get('import_ship_mp_enabled', $this->_storeId)) {
+//                    $orderLengow->updateOrder(
+//                        array(
+//                            'order_process_state' => 2,
+//                            'extra' => Mage::helper('core')->jsonEncode($this->_orderData)
+//                        )
+//                    );
+//                    return false;
+//                }
+            }
+            //TODO
             // Create or Update customer with addresses
             $customer = $this->_lengowCustomer->createCustomer(
                 $this->_orderData,
@@ -501,16 +529,44 @@ class Importorder extends AbstractModel
                 $this->_logOutput
             );
             // Create Magento Quote
-            echo "<br />before quote";
             $quote = $this->_createQuote($customer);
             // Create Magento order
             $order = $this->_makeOrder($quote);
+
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (\Exception $e) {
             $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
         }
-        return 'plop';
+
+        if (isset($errorMessage)) {
+            $this->_orderError->createOrderError(
+                [
+                    'order_lengow_id' => $this->_orderLengowId,
+                    'message' => $errorMessage,
+                    'type' => 'import'
+                ]
+            );
+            $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
+            $this->_dataHelper->log(
+                'Import',
+                $this->_dataHelper->setLogMessage(
+                    'log.import.order_import_failed',
+                    ['decoded_message' => $decodedMessage]
+                ),
+                $this->_logOutput,
+                $this->_marketplaceSku
+            );
+//            $orderLengow->updateOrder(
+//                array(
+//                    'extra' => Mage::helper('core')->jsonEncode($this->_orderData),
+//                    'order_lengow_state' => $this->_orderStateLengow,
+//                )
+//            );
+            return $this->_returnResult('error', $this->_orderLengowId);
+        }
+        return $this->_returnResult('new', $this->_orderLengowId, $order->getId());
+//        return true;
     }
 
     /**
@@ -771,37 +827,37 @@ class Importorder extends AbstractModel
      */
     protected function _makeOrder(Quote $quote)
     {
-            $additionalDatas = [
-                'from_lengow' => true,
-                'follow_by_lengow' => true,
-                'marketplace_lengow' => (string)$this->_orderData->marketplace,
-                'order_id_lengow' => (string)$this->_marketplaceSku,
-                'delivery_address_id_lengow' => (int)$this->_deliveryAddressId,
-                'is_reimported_lengow' => false,
-                'global_currency_code' => (string)$this->_orderData->currency->iso_a3,
-                'base_currency_code' => (string)$this->_orderData->currency->iso_a3,
-                'store_currency_code' => (string)$this->_orderData->currency->iso_a3,
-                'order_currency_code' => (string)$this->_orderData->currency->iso_a3
-            ];
+        $additionalDatas = [
+            'from_lengow' => true,
+            'follow_by_lengow' => true,
+            'marketplace_lengow' => (string)$this->_orderData->marketplace,
+            'order_id_lengow' => (string)$this->_marketplaceSku,
+            'delivery_address_id_lengow' => (int)$this->_deliveryAddressId,
+            'is_reimported_lengow' => false,
+            'global_currency_code' => (string)$this->_orderData->currency->iso_a3,
+            'base_currency_code' => (string)$this->_orderData->currency->iso_a3,
+            'store_currency_code' => (string)$this->_orderData->currency->iso_a3,
+            'order_currency_code' => (string)$this->_orderData->currency->iso_a3
+        ];
 
         $order = $this->_quoteManagement->submit($quote, $additionalDatas);
-            if (!$order) {
-                throw new LengowException(
-                    $this->_dataHelper->setLogMessage('unable to create order based on given quote')
-                );
-            }
-            // modify order dates to use actual dates
-            // Get all params to create order
-            if (!is_null($this->_orderData->marketplace_order_date)) {
-                $orderDate = (string)$this->_orderData->marketplace_order_date;
-            } else {
-                $orderDate = (string)$this->_orderData->imported_at;
-            }
-            $order->setCreatedAt($this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)));
-            $order->setUpdatedAt($this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)));
-            $order->save();
-            // Re-ajuste cents for total and shipping cost
-            // Conversion Tax Include > Tax Exclude > Tax Include maybe make 0.01 amount error
+        if (!$order) {
+            throw new LengowException(
+                $this->_dataHelper->setLogMessage('unable to create order based on given quote')
+            );
+        }
+        // modify order dates to use actual dates
+        // Get all params to create order
+        if (!is_null($this->_orderData->marketplace_order_date)) {
+            $orderDate = (string)$this->_orderData->marketplace_order_date;
+        } else {
+            $orderDate = (string)$this->_orderData->imported_at;
+        }
+        $order->setCreatedAt($this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)));
+        $order->setUpdatedAt($this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)));
+        $order->save();
+        // Re-ajuste cents for total and shipping cost
+        // Conversion Tax Include > Tax Exclude > Tax Include maybe make 0.01 amount error
 //        $priceIncludeTax = Mage::helper('tax')->priceIncludesTax($quote->getStore());
 //        $shippingIncludeTax = Mage::helper('tax')->shippingPriceIncludesTax($quote->getStore());
 //        if (!$priceIncludeTax || !$shippingIncludeTax) {
@@ -834,26 +890,26 @@ class Importorder extends AbstractModel
 //            }
 //            $order->save();
 //        }
-            // generate invoice for order
-            if ($order->canInvoice()) {
-                $invoice = $this->_invoiceService->prepareInvoice($order);
-                $invoice->register();
-                $invoice->save();
-                $transactionSave = $this->_transaction->addObject(
-                    $invoice
-                )->addObject(
-                    $invoice->getOrder()
-                );
-                $transactionSave->save();
-            }
-            $carrierName = $this->_carrierName;
-            if (is_null($carrierName) || $carrierName == 'None') {
-                $carrierName = $this->_carrierMethod;
-            }
-            $order->setShippingDescription(
-                $order->getShippingDescription() . ' [marketplace shipping method : ' . $carrierName . ']'
+        // generate invoice for order
+        if ($order->canInvoice()) {
+            $invoice = $this->_invoiceService->prepareInvoice($order);
+            $invoice->register();
+            $invoice->save();
+            $transactionSave = $this->_transaction->addObject(
+                $invoice
+            )->addObject(
+                $invoice->getOrder()
             );
-            $order->save();
+            $transactionSave->save();
+        }
+        $carrierName = $this->_carrierName;
+        if (is_null($carrierName) || $carrierName == 'None') {
+            $carrierName = $this->_carrierMethod;
+        }
+        $order->setShippingDescription(
+            $order->getShippingDescription() . ' [marketplace shipping method : ' . $carrierName . ']'
+        );
+        $order->save();
 
         return $order;
     }
