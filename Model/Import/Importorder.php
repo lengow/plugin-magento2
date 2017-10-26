@@ -519,7 +519,6 @@ class Importorder extends AbstractModel
 //                    return false;
 //                }
             }
-            //TODO
             // Create or Update customer with addresses
             $customer = $this->_lengowCustomer->createCustomer(
                 $this->_orderData,
@@ -551,7 +550,7 @@ class Importorder extends AbstractModel
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
-                    'log.import.order_import_failed',
+                    'import order failed - %1',
                     ['decoded_message' => $decodedMessage]
                 ),
                 $this->_logOutput,
@@ -566,7 +565,6 @@ class Importorder extends AbstractModel
             return $this->_returnResult('error', $this->_orderLengowId);
         }
         return $this->_returnResult('new', $this->_orderLengowId, $order->getId());
-//        return true;
     }
 
     /**
