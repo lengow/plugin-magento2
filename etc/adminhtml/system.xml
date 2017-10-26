@@ -120,7 +120,7 @@
                     <label>Import orders from x days</label>
                     <comment>Choose a number of days</comment>
                 </field>
-                <field id="import_customer_group" translate="label comment" type="multiselect" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="1">
+                <field id="import_customer_group" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="1">
                     <label>Customer group</label>
                     <comment>Choose a customer group for Lengow customer</comment>
                     <source_model>Lengow\Connector\Model\Config\Source\Group</source_model>
