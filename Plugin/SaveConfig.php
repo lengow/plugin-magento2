@@ -71,6 +71,10 @@ class SaveConfig
                     $value = is_array($value['value']) ? join(',', $value['value']) : $value['value'];
                     $oldValue = array_key_exists($path, $oldConfig) ? (string)$oldConfig[$path] : '';
                     if ($value != $oldValue) {
+                        if ($fieldId == 'global_access_token' || $fieldId == 'global_secret_token') {
+                            $value = preg_replace("/[a-zA-Z0-9]/", '*', $value);
+                            $oldValue = preg_replace("/[a-zA-Z0-9]/", '*', $oldValue);
+                        }
                         if ($storeId) {
                             $message = '%1 - old value %2 replaced with %3 for store %4';
                             $params = [$path, $oldValue, $value, $storeId];

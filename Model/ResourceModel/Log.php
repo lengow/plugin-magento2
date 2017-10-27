@@ -24,7 +24,7 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 class Log extends AbstractDb
 {
     /**
-     * Initialize orders resource model
+     * Initialize log resource model
      *
      * @return void
      */

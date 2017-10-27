@@ -20,10 +20,10 @@
 namespace Lengow\Connector\Model\Import;
 
 use Magento\Framework\Model\AbstractModel;
-use Lengow\Connector\Model\ResourceModel\Ordererror as OrderResourceerror;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Lengow\Connector\Model\ResourceModel\Ordererror as OrderResourceerror;
 use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory;
 
 /**
@@ -52,7 +52,7 @@ class Ordererror extends AbstractModel
     protected $_ordererrorCollection;
 
     /**
-     * @var \Lengow\Connector\Model\OrdererrorFactory Lengow Ordererror $_ordererrorFactory
+     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow Ordererror $_ordererrorFactory
      */
     protected $_ordererrorFactory;
 
@@ -75,8 +75,8 @@ class Ordererror extends AbstractModel
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
-     * @param \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory Lengow Ordererror $ordererrorCollection
-     * @param \Lengow\Connector\Model\OrdererrorFactory Lengow Ordererror $ordererrorFactory
+     * @param \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory $ordererrorCollection
+     * @param \Lengow\Connector\Model\Import\OrdererrorFactory $ordererrorFactory
      */
     public function __construct(
         Context $context,
@@ -84,8 +84,7 @@ class Ordererror extends AbstractModel
         DateTime $dateTime,
         CollectionFactory $ordererrorCollection,
         OrdererrorFactory $ordererrorFactory
-    )
-    {
+    ) {
         parent::__construct($context, $registry);
         $this->_dateTime = $dateTime;
         $this->_ordererrorCollection = $ordererrorCollection;
@@ -135,7 +134,7 @@ class Ordererror extends AbstractModel
      */
     public function updateOrderError($params = [])
     {
-        if (!$this->id) {
+        if (!$this->getId()) {
             return false;
         }
         $updatedFields = $this->getUpdatedFields();
@@ -206,7 +205,7 @@ class Ordererror extends AbstractModel
             ->getData();
         if (count($results) > 0) {
             foreach ($results as $result) {
-                $orderError = $this->_ordererrorFactory->create(['id' => $result['id']]);
+                $orderError = $this->_ordererrorFactory->create()->load((int)$result['id']);
                 $orderError->updateOrderError(['is_finished' => 1]);
                 unset($orderError);
             }
