@@ -903,15 +903,7 @@ class Importorder extends AbstractModel
 //        }
         // generate invoice for order
         if ($order->canInvoice()) {
-            $invoice = $this->_invoiceService->prepareInvoice($order);
-            $invoice->register();
-            $invoice->save();
-            $transactionSave = $this->_transaction->addObject(
-                $invoice
-            )->addObject(
-                $invoice->getOrder()
-            );
-            $transactionSave->save();
+            $this->_lengowOrder->toInvoice($order);
         }
         $carrierName = $this->_carrierName;
         if (is_null($carrierName) || $carrierName == 'None') {

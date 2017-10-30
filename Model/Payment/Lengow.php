@@ -27,5 +27,5 @@ class Lengow
     /**
      * @const string Lengow payment code
      */
-    const CODE = 'lengow';
+    const CODE = 'lengow_payment';
 }
