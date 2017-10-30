@@ -22,6 +22,8 @@ namespace Lengow\Connector\Model\Import;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
+use Magento\Sales\Model\Service\InvoiceService;
+use Magento\Framework\DB\Transaction;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionMagento;
 use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory as OrdererrorCollectionFactory;
 use Lengow\Connector\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
@@ -49,6 +51,15 @@ class Order extends AbstractModel
      * @var integer order process state for order finished
      */
     const PROCESS_STATE_FINISH = 2;
+    /**
+     * @var \Magento\Framework\DB\Transaction Magento transaction
+     */
+    protected $_transaction;
+
+    /**
+     * @var \Magento\Sales\Model\Service\InvoiceService Magento invoice service
+     */
+    protected $_invoiceService;
 
     /**
      * @var \Lengow\Connector\Model\Import\Ordererror Lengow ordererror instance
@@ -90,6 +101,8 @@ class Order extends AbstractModel
      *
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
+     * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService Magento invoice service
+     * @param \Magento\Framework\DB\Transaction $transaction Magento transaction
      * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
      * @param \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory $ordererrorCollection
      * @param \Lengow\Connector\Model\ResourceModel\Order\CollectionFactory $orderCollection
@@ -101,6 +114,8 @@ class Order extends AbstractModel
     public function __construct(
         Context $context,
         Registry $registry,
+        InvoiceService $invoiceService,
+        Transaction $transaction,
         Ordererror $orderError,
         OrdererrorCollectionFactory $ordererrorCollection,
         OrderCollectionFactory $orderCollection,
@@ -108,8 +123,9 @@ class Order extends AbstractModel
         DataHelper $dataHelper,
         ImportHelper $importHelper,
         Connector $connector
-    )
-    {
+    ) {
+        $this->_invoiceService = $invoiceService;
+        $this->_transaction = $transaction;
         $this->_orderError = $orderError;
         $this->_ordererrorCollection = $ordererrorCollection;
         $this->_orderCollection = $orderCollection;
@@ -220,6 +236,27 @@ class Order extends AbstractModel
             return (int)$results[0]['id'];
         }
         return false;
+    }
+
+    /**
+     * Create invoice
+     *
+     * @param \Magento\Sales\Model\Order $order Magento order instance
+     */
+    public function toInvoice($order)
+    {
+        $invoice = $this->_invoiceService->prepareInvoice($order);
+        if ($invoice) {
+            $invoice->register();
+            $invoice->getOrder()->setIsInProcess(true);
+            $invoice->setState(\Magento\Sales\Model\Order\Invoice::STATE_PAID);
+            $transactionSave = $this->_transaction->addObject(
+                $invoice
+            )->addObject(
+                $invoice->getOrder()
+            );
+            $transactionSave->save();
+        }
     }
 
     /**

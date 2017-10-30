@@ -101,8 +101,8 @@ class InstallData implements InstallDataInterface
         $setup->startSetup();
 
         $eavSetup = $this->_eavSetupFactory->create(['setup' => $setup]);
-        $customerSetup = $this->_customerSetupFactory->create(['setup' => $setup]);
-        $salesSetup = $this->_salesSetupFactory->create(['setup' => $setup]);
+        $customerSetup = $this->_customerSetupFactory->create(['resourceName' => 'customer_setup', 'setup' => $setup]);
+        $salesSetup = $this->_salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
 
         // create attribute lengow_product for product
         $entityTypeId = $customerSetup->getEntityTypeId(Product::ENTITY);

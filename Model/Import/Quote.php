@@ -17,15 +17,17 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-namespace Lengow\Connector\Model\Payment;
+namespace Lengow\Connector\Model\Import;
 
-/**
- * Model payment method lengow
- */
-class Lengow
+use Lengow\Connector\Model\ResourceModel\Log as ResourceLog;
+
+class Quote extends \Magento\Quote\Model\Quote
 {
+
     /**
-     * @const string Lengow payment code
+     * @var array row total Lengow
      */
-    const CODE = 'lengow_payment';
+    protected $_lengowProducts = [];
+
+
 }

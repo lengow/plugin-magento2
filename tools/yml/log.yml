@@ -49,6 +49,8 @@ en:
       action_not_send: "WARNING! action %1 could not be sent (ORDER ID %2)"
       call_tracking: "call tracking with parameters: %1"
       call_action_failed: "order action failed - %1"
+      shipping_method_unavailable: "the chosen shipping method is not available for this order. Lengow has assigned a shipping method"
+      order_shipped_by_marketplace: "order shipped by %1"
     connector:
       call_api: "call %1"
       error_api: "API call failed - %1"

@@ -195,6 +195,7 @@ en:
       no_connection_webservice: "connection didn't work with Lengow's webservice in store %1 (%2)"
       error_lengow_webservice: "Lengow webservice : %1 - %2 in store %3 (%4)"
       marketplace_not_present: "Lengow error: %1 does not feature in the marketplace list"
+      order_failed_with_quote: "unable to create order based on given quote"
       order_line_required: "order line is required but not found in the order"
       action_not_valid: "action %1 is not valid"
       marketplace_action_not_present: "the marketplace action %1 is not present"
