@@ -19,7 +19,7 @@
 
 namespace Lengow\Connector\Model\Carrier;
 
-use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Backend\Model\Session as BackendSession;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Magento\Shipping\Model\Rate\Result;
@@ -44,9 +44,9 @@ class Lengow extends AbstractCarrier implements CarrierInterface
     protected $_isFixed = true;
 
     /**
-     * @var \Magento\Customer\Model\Session Magento customer session instance
+     * @var \Magento\Backend\Model\Session Magento customer session instance
      */
-    protected $_customerSession;
+    protected $_backendSession;
 
     /**
      * @var \Magento\Checkout\Model\Session Magento checkout session instance
@@ -64,7 +64,7 @@ class Lengow extends AbstractCarrier implements CarrierInterface
     protected $_rateMethodFactory;
 
     /**
-     * @param \Magento\Customer\Model\Session $customerSession Magento customer session instance
+     * @param \Magento\Backend\Model\Session $backendSession Magento customer session instance
      * @param \Magento\Checkout\Model\Session $checkoutSession Magento checkout session instance
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
      * @param \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory
@@ -74,7 +74,7 @@ class Lengow extends AbstractCarrier implements CarrierInterface
      * @param array $data
      */
     public function __construct(
-        CustomerSession $customerSession,
+        BackendSession $backendSession,
         CheckoutSession $checkoutSession,
         ScopeConfigInterface $scopeConfig,
         ErrorFactory $rateErrorFactory,
@@ -83,7 +83,7 @@ class Lengow extends AbstractCarrier implements CarrierInterface
         MethodFactory $rateMethodFactory,
         array $data = []
     ) {
-        $this->_customerSession = $customerSession;
+        $this->_backendSession = $backendSession;
         $this->_checkoutSession = $checkoutSession;
         $this->_rateResultFactory = $rateResultFactory;
         $this->_rateMethodFactory = $rateMethodFactory;
@@ -117,7 +117,7 @@ class Lengow extends AbstractCarrier implements CarrierInterface
      */
     public function isActive()
     {
-        return (bool)$this->_customerSession->getIsFromlengow();
+        return (bool)$this->_backendSession->getIsFromlengow();
     }
 
     /**

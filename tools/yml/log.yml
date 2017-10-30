@@ -43,6 +43,8 @@ en:
       order_import_failed: "import order failed - %1"
       generate_unique_email: "generate a unique email %1"
       create_customer_failed: "create customer failed - %1"
+      shipping_method_unavailable: "the chosen shipping method is not available for this order. Lengow has assigned a shipping method"
+      order_shipped_by_marketplace: "order shipped by %1"
     connector:
       call_api: "call %1"
       error_api: "API call failed - %1"
