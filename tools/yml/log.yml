@@ -43,6 +43,12 @@ en:
       order_import_failed: "import order failed - %1"
       generate_unique_email: "generate a unique email %1"
       create_customer_failed: "create customer failed - %1"
+    order_action:
+      try_to_send_action: "try to send %1 action (ORDER ID %2)"
+      action_send: "action %1 successfully sent (ORDER ID %2)"
+      action_not_send: "WARNING! action %1 could not be sent (ORDER ID %2)"
+      call_tracking: "call tracking with parameters: %1"
+      call_action_failed: "order action failed - %1"
       shipping_method_unavailable: "the chosen shipping method is not available for this order. Lengow has assigned a shipping method"
       order_shipped_by_marketplace: "order shipped by %1"
     connector:

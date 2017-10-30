@@ -249,7 +249,7 @@ class InstallSchema implements InstallSchemaInterface
                 )->addColumn(
                     'carrier_id_relay',
                     Table::TYPE_TEXT,
-                    null,
+                    100,
                     [
                         'nullable' => true,
                         'default' => null

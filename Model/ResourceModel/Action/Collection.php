@@ -17,19 +17,22 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-namespace Lengow\Connector\Model\ResourceModel;
+namespace Lengow\Connector\Model\ResourceModel\Action;
 
-use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 
-class Ordererror extends AbstractDb
+class Collection extends AbstractCollection
 {
     /**
-     * Initialize order error resource model
+     * Initialize resource collection
      *
      * @return void
      */
-    protected function _construct()
+    public function _construct()
     {
-        $this->_init('lengow_order_error', 'id');
+        $this->_init(
+            'Lengow\Connector\Model\Import\Action',
+            'Lengow\Connector\Model\ResourceModel\Action'
+        );
     }
 }

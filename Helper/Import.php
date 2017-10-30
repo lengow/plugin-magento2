@@ -195,7 +195,7 @@ class Import extends AbstractHelper
      *
      * @param string $name marketplace name
      *
-     * @return array Lengow marketplace
+     * @return \Lengow\Connector\Model\Import\Marketplace
      */
     public function getMarketplaceSingleton($name)
     {
