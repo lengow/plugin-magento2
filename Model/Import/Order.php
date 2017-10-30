@@ -298,6 +298,9 @@ class Order extends AbstractModel
         $success = true;
 
         // TODO Check is a order from Lengow
+        /*if ($order->getData('from_lengow') != 1) {
+            return false;
+        }*/
 
         $lengowOrder = $this->getLengowOrderByOrderId($order->getId());
         if (!$lengowOrder) {
@@ -314,11 +317,12 @@ class Order extends AbstractModel
         );
         // Finish all order errors before API call
         $this->_orderError->finishOrderErrors($lengowOrder->getId(), 'send');
-        if ($lengowOrder->getData('is_in_error') == 1) {
 
-            // TODO Delete is in error in lengow order
+        // TODO Delete is in error in lengow order
+        /*if ($lengowOrder->getData('is_in_error') == 1) {
+            $lengowOrder->updateOrder(['is_in_error' => 0]);
+        }*/
 
-        }
         try {
             $marketplace = $this->_importHelper->getMarketplaceSingleton($lengowOrder->getData('marketplace_name'));
             if ($marketplace->containOrderLine($action)) {
@@ -362,6 +366,7 @@ class Order extends AbstractModel
             if ((int)$lengowOrder->getData('order_process_state') != self::PROCESS_STATE_FINISH) {
 
                 // TODO update is in error in lengow order
+                // $lengowOrder->updateOrder(['is_in_error' => 1]);
 
                 $this->_orderError->createOrderError(
                     [
@@ -415,7 +420,7 @@ class Order extends AbstractModel
                 'marketplace' => $marketplaceName
             ]
         );
-        if (isset($results->count) && $results->count == 0) {
+        if (!isset($results->results) || (isset($results->count) && $results->count == 0)) {
             return false;
         }
         $orderData = $results->results[0];
