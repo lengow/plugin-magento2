@@ -433,13 +433,13 @@ class Marketplace extends AbstractModel
                     } else {
                         // if update doesn't work, create new action
                         $this->_orderAction->createAction(
-                            array(
+                            [
                                 'order_id' => $order->getId(),
                                 'action_type' => $action,
                                 'action_id' => $row->id,
                                 'order_line_sku' => isset($params['line']) ? $params['line'] : null,
                                 'parameters' => $this->_jsonHelper->jsonEncode($params)
-                            )
+                            ]
                         );
                     }
                 }
@@ -448,13 +448,13 @@ class Marketplace extends AbstractModel
                     $result = $this->_connector->queryApi('post', '/v3.0/orders/actions/', $params);
                     if (isset($result->id)) {
                         $this->_orderAction->createAction(
-                            array(
+                            [
                                 'order_id' => $order->getId(),
                                 'action_type' => $action,
                                 'action_id' => $result->id,
                                 'order_line_sku' => isset($params['line']) ? $params['line'] : null,
                                 'parameters' => $this->_jsonHelper->jsonEncode($params)
-                            )
+                            ]
                         );
                     } else {
                         throw new LengowException(
@@ -504,8 +504,8 @@ class Marketplace extends AbstractModel
                 false,
                 $lengowOrder->getData('marketplace_sku')
             );
-            return false;
         }
+        return false;
     }
 
     /**
