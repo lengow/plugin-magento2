@@ -38,6 +38,7 @@ use Magento\Catalog\Model\ProductFactory;
 use Magento\Sales\Model\Service\InvoiceService;
 use Magento\Framework\DB\Transaction;
 use Magento\Shipping\Model\Config as ShippingConfig;
+use Magento\CatalogInventory\Api\StockRegistryInterface;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 use Lengow\Connector\Model\Import\Customer as LengowCustomer;
@@ -53,6 +54,11 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
  */
 class Importorder extends AbstractModel
 {
+
+    /**
+     * @var StockRegistryInterface
+     */
+    private $_stockRegistry;
 
     /**
      * @var \Magento\Shipping\Model\Config Magento shipping config
@@ -295,6 +301,7 @@ class Importorder extends AbstractModel
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService Magento invoice service
      * @param \Magento\Framework\DB\Transaction $transaction Magento transaction
      * @param \Magento\Shipping\Model\Config $shippingConfig Magento shipping config
+     * @param StockRegistryInterface $stockRegistry
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
      * @param \Lengow\Connector\Model\Payment\Lengow $lengowPayment Lengow payment instance
      * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
@@ -324,6 +331,7 @@ class Importorder extends AbstractModel
         InvoiceService $invoiceService,
         Transaction $transaction,
         ShippingConfig $shippingConfig,
+        StockRegistryInterface $stockRegistry,
         LengowPayment $lengowPayment,
         LengowOrder $lengowOrder,
         LengowOrderFactory $lengowOrderFactory,
@@ -351,6 +359,7 @@ class Importorder extends AbstractModel
         $this->_invoiceService = $invoiceService;
         $this->_transaction = $transaction;
         $this->_shippingConfig = $shippingConfig;
+        $this->_stockRegistry = $stockRegistry;
         $this->_lengowOrder = $lengowOrder;
         $this->_lengowPayment = $lengowPayment;
         $this->_lengowOrderFactory = $lengowOrderFactory;
@@ -441,7 +450,7 @@ class Importorder extends AbstractModel
             return false;
         }
         // if order is cancelled or new -> skip
-        if (!$this->_importHelper->checkState($this->_orderStateMarketplace, $this->_marketplace)) {
+        if (false/*!$this->_importHelper->checkState($this->_orderStateMarketplace, $this->_marketplace)*/) {
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
@@ -503,7 +512,7 @@ class Importorder extends AbstractModel
                     'Import',
                     $this->_dataHelper->setLogMessage(
                         'order shipped by %1',
-                        ['marketplace_name' => $this->_marketplace->name]
+                        [$this->_marketplace->name]
                     ),
                     $this->_logOutput,
                     $this->_marketplaceSku
@@ -551,7 +560,7 @@ class Importorder extends AbstractModel
                 'Import',
                 $this->_dataHelper->setLogMessage(
                     'import order failed - %1',
-                    ['decoded_message' => $decodedMessage]
+                    [$decodedMessage]
                 ),
                 $this->_logOutput,
                 $this->_marketplaceSku
@@ -712,7 +721,7 @@ class Importorder extends AbstractModel
         $quote = $this->_lengowQuote
             ->setIsMultiShipping(false)
             ->setStore($this->_storeManager->getStore($this->_storeId))
-            ->setIsSuperMode(true); // set quote to supermode to don't care about stock verification
+            ->setIsSuperMode(true); // don't care about stock verification, don't work ? set for each product
 
         // import customer addresses into quote
         // Set billing Address
@@ -743,6 +752,14 @@ class Importorder extends AbstractModel
         //            $this->_logOutput,
         //            $priceIncludeTax
         //        );
+//        $product1 = $this->_productFactory->create()->load(1);
+//        $stockItem1 = $this->_stockRegistry->getStockItem($product1->getId());
+//        $stockItem1->setAdminArea(true);
+//        $quote->addProduct($product1, intval(1));
+//        $product2 = $this->_productFactory->create()->load(2);
+//        $stockItem2 = $this->_stockRegistry->getStockItem($product2->getId());
+//        $stockItem2->setAdminArea(true);
+//        $quote->addProduct($product2, intval(2));
 
         // Get shipping cost with tax
         $shippingCost = $this->_processingFee + $this->_shippingCost;
@@ -827,11 +844,6 @@ class Importorder extends AbstractModel
     {
         $additionalDatas = [
             'from_lengow' => true,
-            'follow_by_lengow' => true,
-            'marketplace_lengow' => (string)$this->_orderData->marketplace,
-            'order_id_lengow' => (string)$this->_marketplaceSku,
-            'delivery_address_id_lengow' => (int)$this->_deliveryAddressId,
-            'is_reimported_lengow' => false,
             'global_currency_code' => (string)$this->_orderData->currency->iso_a3,
             'base_currency_code' => (string)$this->_orderData->currency->iso_a3,
             'store_currency_code' => (string)$this->_orderData->currency->iso_a3,
@@ -844,6 +856,7 @@ class Importorder extends AbstractModel
                 $this->_dataHelper->setLogMessage('unable to create order based on given quote')
             );
         }
+        $order->addData($additionalDatas);
         // modify order dates to use actual dates
         // Get all params to create order
         if (!is_null($this->_orderData->marketplace_order_date)) {
