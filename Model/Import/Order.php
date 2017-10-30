@@ -333,12 +333,9 @@ class Order extends AbstractModel
     public function callAction($action, $order, $shipment = null)
     {
         $success = true;
-
-        // TODO Check is a order from Lengow
-        /*if ($order->getData('from_lengow') != 1) {
+        if ($order->getData('from_lengow') != 1) {
             return false;
-        }*/
-
+        }
         $lengowOrder = $this->getLengowOrderByOrderId($order->getId());
         if (!$lengowOrder) {
             return false;
