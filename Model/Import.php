@@ -473,7 +473,8 @@ class Import
                     } catch (LengowException $e) {
                         $errorMessage = $e->getMessage();
                     } catch (\Exception $e) {
-                        $errorMessage = '[Magento error] "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
+                        $errorMessage = 'Magento error: "' . $e->getMessage()
+                            . '" ' . $e->getFile() . ' line ' . $e->getLine();
                     }
                     if (isset($errorMessage)) {
                         if (!is_null($this->_orderLengowId)) {
@@ -606,7 +607,9 @@ class Import
                 if (!isset($packageData->delivery->id)) {
                     $this->_dataHelper->log(
                         'Import',
-                        $this->_dataHelper->setLogMessage('import order failed - Lengow error: no delivery address in the order'),
+                        $this->_dataHelper->setLogMessage(
+                            'import order failed - Lengow error: no delivery address in the order'
+                        ),
                         $this->_logOutput,
                         $marketplaceSku
                     );
@@ -646,7 +649,7 @@ class Import
                 } catch (LengowException $e) {
                     $errorMessage = $e->getMessage();
                 } catch (\Exception $e) {
-                    $errorMessage = '[Magento error]: "' . $e->getMessage()
+                    $errorMessage = 'Magento error: "' . $e->getMessage()
                         . '" ' . $e->getFile() . ' line ' . $e->getLine();
                 }
                 if (isset($errorMessage)) {
@@ -803,7 +806,7 @@ class Import
                     [
                         date('Y-m-d', strtotime((string)$dateFrom)),
                         date('Y-m-d', strtotime((string)$dateTo)),
-                        $this->_accountId
+                        implode(', ', $this->_storeCatalogIds)
                     ]
                 ),
                 $this->_logOutput
@@ -827,6 +830,7 @@ class Import
                     [
                         'updated_from' => $dateFrom,
                         'updated_to' => $dateTo,
+                        'catalog_ids' => implode(',', $this->_storeCatalogIds),
                         'account_id' => $this->_accountId,
                         'page' => $page
                     ],
