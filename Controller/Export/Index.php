@@ -187,8 +187,7 @@ class Index extends Action
                     $this->_export->exec();
                 }
             } catch (\Exception $e) {
-                $errorMessage = '[Magento error] "' . $e->getMessage()
-                    . '" ' . $e->getFile() . ' line ' . $e->getLine();
+                $errorMessage = 'Magento error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
                 $this->_dataHelper->log('Export', $errorMessage);
                 $this->getResponse()->setStatusHeader(500, '1.1', 'Internal Server Error');
                 $this->getResponse()->setBody($errorMessage);

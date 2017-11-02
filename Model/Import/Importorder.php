@@ -544,7 +544,7 @@ class Importorder extends AbstractModel
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (\Exception $e) {
-            $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
+            $errorMessage = 'Magento error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
         }
 
         if (isset($errorMessage)) {
@@ -631,15 +631,21 @@ class Importorder extends AbstractModel
             $errorMessages[] = $this->_dataHelper->setLogMessage('Lengow error: no currency in the order');
         }
         if ($this->_orderData->total_order == -1) {
-            $errorMessages[] = $this->_dataHelper->setLogMessage('Lengow error: no exchange rates available for order prices');
+            $errorMessages[] = $this->_dataHelper->setLogMessage(
+                'Lengow error: no exchange rates available for order prices'
+            );
         }
         if (is_null($this->_orderData->billing_address)) {
             $errorMessages[] = $this->_dataHelper->setLogMessage('Lengow error: no billing address in the order');
         } elseif (is_null($this->_orderData->billing_address->common_country_iso_a2)) {
-            $errorMessages[] = $this->_dataHelper->setLogMessage("Lengow error: billing address doesn't contain the country");
+            $errorMessages[] = $this->_dataHelper->setLogMessage(
+                "Lengow error: billing address doesn't contain the country"
+            );
         }
         if (is_null($this->_packageData->delivery->common_country_iso_a2)) {
-            $errorMessages[] = $this->_dataHelper->setLogMessage("Lengow error: delivery address doesn't contain the country");
+            $errorMessages[] = $this->_dataHelper->setLogMessage(
+                "Lengow error: delivery address doesn't contain the country"
+            );
         }
         if (count($errorMessages) > 0) {
             foreach ($errorMessages as $errorMessage) {

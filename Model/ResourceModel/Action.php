@@ -21,15 +21,15 @@ namespace Lengow\Connector\Model\ResourceModel;
 
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 
-class Ordererror extends AbstractDb
+class Action extends AbstractDb
 {
     /**
-     * Initialize order error resource model
+     * Initialize action resource model
      *
      * @return void
      */
     protected function _construct()
     {
-        $this->_init('lengow_order_error', 'id');
+        $this->_init('lengow_action', 'id');
     }
 }

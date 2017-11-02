@@ -198,6 +198,13 @@ en:
       order_failed_with_quote: "unable to create order based on given quote"
       product_not_be_found: "product %1 could not be found"
       product_is_a_parent: "product %1 is a parent ID. Product variation is needed"
+      order_line_required: "order line is required but not found in the order"
+      action_not_valid: "action %1 is not valid"
+      marketplace_action_not_present: "the marketplace action %1 is not present"
+      store_id_require: "store ID is required"
+      marketplace_name_require: "marketplace name is required"
+      arg_is_required: "can't send action: %1 is required"
+      action_not_created: "can't create action: %1"
     error:
       nb_order_imported: "%1 order(s) imported"
       nb_order_updated: "%1 order(s) updated"
