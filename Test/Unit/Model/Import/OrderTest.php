@@ -133,7 +133,7 @@ class OrderTest extends \PHPUnit_Framework_TestCase
         $connectorMock3 = $fixture->mockFunctions($classMock, ['queryApi'], [json_decode($apiOrder2)]);
         $fixture->setPrivatePropertyValue($this->_order, ['_connector'], [$connectorMock3]);
         $this->assertEquals(
-            [['order_line_id' => '123-test-456-1'],['order_line_id' => '123-test-456-2']],
+            [['order_line_id' => '123-test-456-1'], ['order_line_id' => '123-test-456-2']],
             $this->_order->getOrderLineByApi('123-test-456', 'amazon_fr', 54321),
             '[Test Get Order Line By Api] Check if return is valid for order with one package and good delivery id'
         );

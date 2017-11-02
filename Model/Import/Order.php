@@ -123,7 +123,8 @@ class Order extends AbstractModel
         DataHelper $dataHelper,
         ImportHelper $importHelper,
         Connector $connector
-    ) {
+    )
+    {
         $this->_invoiceService = $invoiceService;
         $this->_transaction = $transaction;
         $this->_orderError = $orderError;
@@ -320,16 +321,16 @@ class Order extends AbstractModel
     }
 
     /**
-    * Send Order action
-    *
-    * @param string $action Lengow Actions (ship or cancel)
-    * @param \Magento\Sales\Model\Order $order Magento order instance
-    * @param \Magento\Sales\Model\Order\Shipment $shipment Magento Shipment instance
-    *
-    * @throws LengowException order line is required
-    *
-    * @return boolean
-    */
+     * Send Order action
+     *
+     * @param string $action Lengow Actions (ship or cancel)
+     * @param \Magento\Sales\Model\Order $order Magento order instance
+     * @param \Magento\Sales\Model\Order\Shipment $shipment Magento Shipment instance
+     *
+     * @throws LengowException order line is required
+     *
+     * @return boolean
+     */
     public function callAction($action, $order, $shipment = null)
     {
         $success = true;

@@ -80,7 +80,8 @@ class Action extends AbstractModel
         Registry $registry,
         DateTime $dateTime,
         ActionCollectionFactory $actionCollection
-    ) {
+    )
+    {
         parent::__construct($context, $registry);
         $this->_dateTime = $dateTime;
         $this->_actionCollection = $actionCollection;
