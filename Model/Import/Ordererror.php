@@ -84,7 +84,8 @@ class Ordererror extends AbstractModel
         DateTime $dateTime,
         CollectionFactory $ordererrorCollection,
         OrdererrorFactory $ordererrorFactory
-    ) {
+    )
+    {
         parent::__construct($context, $registry);
         $this->_dateTime = $dateTime;
         $this->_ordererrorCollection = $ordererrorCollection;

@@ -154,7 +154,8 @@ class Marketplace extends AbstractModel
         Action $orderAction,
         ActionFactory $orderActionFactory,
         Ordererror $orderError
-    ) {
+    )
+    {
         $this->_jsonHelper = $jsonHelper;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
@@ -364,7 +365,7 @@ class Marketplace extends AbstractModel
                     case 'shipping_method':
                         if (strlen((string)$lengowOrder->getData('carrier')) > 0) {
                             $carrierCode = (string)$lengowOrder->getData('carrier');
-                        } else  {
+                        } else {
                             $trackings = $shipment->getAllTracks();
                             if (!empty($trackings)) {
                                 $lastTrack = end($trackings);

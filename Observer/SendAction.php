@@ -50,7 +50,8 @@ class SendAction implements ObserverInterface
     public function __construct(
         BackendSession $backendSession,
         LengowOrder $lengowOrder
-    ) {
+    )
+    {
         $this->_backendSession = $backendSession;
         $this->_lengowOrder = $lengowOrder;
     }

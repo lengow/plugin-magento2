@@ -196,6 +196,8 @@ en:
       error_lengow_webservice: "Lengow webservice : %1 - %2 in store %3 (%4)"
       marketplace_not_present: "Lengow error: %1 does not feature in the marketplace list"
       order_failed_with_quote: "unable to create order based on given quote"
+      product_not_be_found: "product %1 could not be found"
+      product_is_a_parent: "product %1 is a parent ID. Product variation is needed"
       order_line_required: "order line is required but not found in the order"
       action_not_valid: "action %1 is not valid"
       marketplace_action_not_present: "the marketplace action %1 is not present"

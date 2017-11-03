@@ -51,6 +51,8 @@ en:
       call_action_failed: "order action failed - %1"
       shipping_method_unavailable: "the chosen shipping method is not available for this order. Lengow has assigned a shipping method"
       order_shipped_by_marketplace: "order shipped by %1"
+      product_state_canceled: "product %1 could not be added to cart - status: %2"
+      product_be_found: "product id %1 found with field %2 (%3)"
     connector:
       call_api: "call %1"
       error_api: "API call failed - %1"

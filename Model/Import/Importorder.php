@@ -751,21 +751,13 @@ class Importorder extends AbstractModel
         $priceIncludeTax = $this->_taxConfig->priceIncludesTax($quote->getStore());
         $shippingIncludeTax = $this->_taxConfig->shippingPriceIncludesTax($quote->getStore());
         // add product in quote
-        //        $quote->addLengowProducts(
-        //            $this->_packageData->cart,
-        //            $this->_marketplace,
-        //            $this->_marketplaceSku,
-        //            $this->_logOutput,
-        //            $priceIncludeTax
-        //        );
-//        $product1 = $this->_productFactory->create()->load(1);
-//        $stockItem1 = $this->_stockRegistry->getStockItem($product1->getId());
-//        $stockItem1->setAdminArea(true);
-//        $quote->addProduct($product1, intval(1));
-//        $product2 = $this->_productFactory->create()->load(2);
-//        $stockItem2 = $this->_stockRegistry->getStockItem($product2->getId());
-//        $stockItem2->setAdminArea(true);
-//        $quote->addProduct($product2, intval(2));
+        $quote->addLengowProducts(
+            $this->_packageData->cart,
+            $this->_marketplace,
+            $this->_marketplaceSku,
+            $this->_logOutput,
+            $priceIncludeTax
+        );
 
         // Get shipping cost with tax
         $shippingCost = $this->_processingFee + $this->_shippingCost;
