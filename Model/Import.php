@@ -461,9 +461,6 @@ class Import
                             $this->_orderError->finishOrderErrors($this->_orderLengowId);
                         }
                         // import orders in Magento
-                        //To see results
-//                        var_dump($orders);
-                        //TODO
                         $result = $this->_importOrders($orders, (int)$store->getId());
                         if (!$this->_importOneOrder) {
                             $orderNew += $result['order_new'];

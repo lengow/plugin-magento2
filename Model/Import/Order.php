@@ -25,6 +25,7 @@ use Magento\Framework\Registry;
 use Magento\Sales\Model\Service\InvoiceService;
 use Magento\Framework\DB\Transaction;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionMagento;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory as OrdererrorCollectionFactory;
 use Lengow\Connector\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
 use Lengow\Connector\Helper\Data as DataHelper;
@@ -37,6 +38,12 @@ use Lengow\Connector\Model\Exception as LengowException;
  */
 class Order extends AbstractModel
 {
+
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     */
+    protected $_dateTime;
+
     /**
      * @var integer order process state for new order not imported
      */
@@ -97,12 +104,47 @@ class Order extends AbstractModel
     protected $_connector;
 
     /**
+     * @var array $_fieldList field list for the table lengow_order_line
+     * required => Required fields when creating registration
+     * update   => Fields allowed when updating registration
+     */
+    protected $_fieldList = [
+        'order_id' => ['required' => false, 'updated' => true],
+        'order_sku' => ['required' => false, 'updated' => true],
+        'store_id' => ['required' => true, 'updated' => false],
+        'feed_id' => ['required' => false, 'updated' => true],
+        'delivery_address_id' => ['required' => true, 'updated' => false],
+        'delivery_country_iso' => ['required' => false, 'updated' => true],
+        'marketplace_sku' => ['required' => true, 'updated' => false],
+        'marketplace_name' => ['required' => true, 'updated' => false],
+        'marketplace_label' => ['required' => true, 'updated' => false],
+        'order_lengow_state' => ['required' => true, 'updated' => true],
+        'order_process_state' => ['required' => false, 'updated' => true],
+        'order_date' => ['required' => true, 'updated' => false],
+        'order_item' => ['required' => false, 'updated' => true],
+        'currency' => ['required' => false, 'updated' => true],
+        'total_paid' => ['required' => false, 'updated' => true],
+        'commission' => ['required' => false, 'updated' => true],
+        'customer_name' => ['required' => false, 'updated' => true],
+        'customer_email' => ['required' => false, 'updated' => true],
+        'carrier' => ['required' => false, 'updated' => true],
+        'carrier_method' => ['required' => false, 'updated' => true],
+        'carrier_tracking' => ['required' => false, 'updated' => true],
+        'carrier_id_relay' => ['required' => false, 'updated' => true],
+        'sent_marketplace' => ['required' => false, 'updated' => true],
+        'is_in_error' => ['required' => false, 'updated' => true],
+        'message' => ['required' => true, 'updated' => true],
+        'extra' => ['required' => false, 'updated' => true]
+    ];
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService Magento invoice service
      * @param \Magento\Framework\DB\Transaction $transaction Magento transaction
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
      * @param \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory $ordererrorCollection
      * @param \Lengow\Connector\Model\ResourceModel\Order\CollectionFactory $orderCollection
@@ -116,6 +158,7 @@ class Order extends AbstractModel
         Registry $registry,
         InvoiceService $invoiceService,
         Transaction $transaction,
+        DateTime $dateTime,
         Ordererror $orderError,
         OrdererrorCollectionFactory $ordererrorCollection,
         OrderCollectionFactory $orderCollection,
@@ -127,6 +170,7 @@ class Order extends AbstractModel
     {
         $this->_invoiceService = $invoiceService;
         $this->_transaction = $transaction;
+        $this->_dateTime = $dateTime;
         $this->_orderError = $orderError;
         $this->_ordererrorCollection = $ordererrorCollection;
         $this->_orderCollection = $orderCollection;
@@ -135,6 +179,87 @@ class Order extends AbstractModel
         $this->_importHelper = $importHelper;
         $this->_connector = $connector;
         parent::__construct($context, $registry);
+    }
+
+    /**
+     * Initialize order model
+     **
+     * @return void
+     */
+    protected function _construct()
+    {
+        $this->_init(\Lengow\Connector\Model\ResourceModel\Order::class);
+    }
+
+    /**
+     * Create Lengow order
+     *
+     * @param array $params order parameters
+     *
+     * @throws LengowException value required
+     *
+     * @return Order
+     */
+    public function createOrder($params = [])
+    {
+        foreach ($this->_fieldList as $key => $value) {
+            if (!array_key_exists($key, $params) && $value['required']) {
+                throw new LengowException(
+                    $this->_dataHelper->setLogMessage(
+                        '%1 is required to create Lengow order',
+                        $key
+                    )
+                );
+            }
+        }
+        foreach ($params as $key => $value) {
+            $this->setData($key, $value);
+        }
+        if (!array_key_exists('order_process_state', $params)) {
+            $this->setData('order_process_state', self::PROCESS_STATE_NEW);
+        }
+        if (!$this->getCreatedAt()) {
+            $this->setData('created_at', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
+        }
+        return $this->save();
+    }
+
+    /**
+     * Update Lengow order
+     *
+     * @param array $params order parameters
+     *
+     * @return Order|false
+     */
+    public function updateOrder($params = array())
+    {
+        if (!$this->id) {
+            return false;
+        }
+        $updatedFields = $this->getUpdatedFields();
+        foreach ($params as $key => $value) {
+            if (in_array($key, $updatedFields)) {
+                $this->setData($key, $value);
+            }
+        }
+        $this->setData('updated_at', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
+        return $this->save();
+    }
+
+    /**
+     * Get updated fields
+     *
+     * @return array
+     */
+    public function getUpdatedFields()
+    {
+        $updatedFields = array();
+        foreach ($this->_fieldList as $key => $value) {
+            if ($value['updated']) {
+                $updatedFields[] = $key;
+            }
+        }
+        return $updatedFields;
     }
 
     /**

@@ -385,4 +385,20 @@ class Quote extends \Magento\Quote\Model\Quote
         }
         return $lengowProducts;
     }
+
+    /**
+     * Get Lengow Products
+     *
+     * @param string $productId Magento product id
+     *
+     * @return array
+     */
+    public function getLengowProducts($productId = null)
+    {
+        if (is_null($productId)) {
+            return $this->_lengowProducts;
+        } else {
+            return $this->_lengowProducts[$productId];
+        }
+    }
 }
