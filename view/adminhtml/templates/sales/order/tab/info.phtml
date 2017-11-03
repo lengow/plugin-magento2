@@ -1,0 +1,45 @@
+<?php
+/**
+ * Copyright 2017 Lengow SAS
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+/** @var Lengow\Connector\Block\Adminhtml\Sales\Order\Tab\Info $block */
+
+$fields = $block->getFields();
+?>
+
+<div class="lgw-box">
+    <div id="lgw-info-title">
+        <h2>
+            <i class="fa fa-rocket"></i>
+            <?= $block->escapeHtml(__('Lengow informations')) ?>
+        </h2>
+    </div>
+    <?php if ($block->isOrderImportedByLengow()): ?>
+        <?php if ($block->isOrderFollowedByLengow()): ?>
+            <div class="clear"></div>
+            <div class="lengow-block-full">
+                <table cellpadding="0" cellspacing="0">
+                <?php foreach ($fields as $field): ?>
+                    <tr>
+                        <td>
+                            <b><?= $field['label'] ?></b>
+                        </td>
+                        <td align="right">
+                            <?= $field['value'] ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </table>
+            </div>
+        <?php else: ?>
+            <div class="clear"></div>
+            <p><?= $block->escapeHtml(__('Due to a reimportation, this order is not tracked by Lengow')) ?></p>
+        <?php endif; ?>
+    <?php else: ?>
+        <div class="clear"></div>
+        <p><?= $block->escapeHtml(__('This order is not from Lengow')) ?></p>
+    <?php endif; ?>
+</div>
