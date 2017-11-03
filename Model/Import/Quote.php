@@ -349,12 +349,8 @@ class Quote extends \Magento\Quote\Model\Quote
                     $this->_dataHelper->log(
                         'Import',
                         $this->_dataHelper->setLogMessage(
-                            'product_be_found: "product id %1 found with field %2 (%3)"',
-                            [
-                                'product_id' => $magentoProduct->getId(),
-                                'attribute_name' => $attributeName,
-                                'attribute_value' => $attributeValue
-                            ]
+                            'product id %1 found with field %2 (%3)',
+                            [$magentoProduct->getId(), $attributeName, $attributeValue]
                         ),
                         $logOutput,
                         $marketplaceSku
