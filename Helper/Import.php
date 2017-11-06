@@ -30,10 +30,11 @@ use Lengow\Connector\Model\Import\Marketplace;
 class Import extends AbstractHelper
 {
     /**
-     * @var ConfigHelper Lengow config helper instance
+     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
      */
-    protected $_configHelper = null;
+    protected $_configHelper;
 
+    /**
     /**
      * @var array marketplaces collection
      */
