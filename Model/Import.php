@@ -630,7 +630,8 @@ class Import
                 }
                 try {
                     // try to import or update order
-                    $orderInit = $this->_importorderFactory->create()->init(
+                    $orderFactory = $this->_importorderFactory->create();
+                    $orderFactory->init(
                         [
                             'store_id' => $storeId,
                             'preprod_mode' => $this->_preprodMode,
@@ -642,7 +643,8 @@ class Import
                             'first_package' => $firstPackage
                         ]
                     );
-                    $order = $orderInit->importOrder();
+                    $order = $orderFactory->importOrder();
+                    unset($orderFactory);
                 } catch (LengowException $e) {
                     $errorMessage = $e->getMessage();
                 } catch (\Exception $e) {
