@@ -684,7 +684,7 @@ class Importorder extends AbstractModel
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (\Exception $e) {
-            $errorMessage = 'Magento error:2 "' . rtrim($e->getMessage()) . '" ' . $e->getFile() . ' line ' . $e->getLine();
+            $errorMessage = 'Magento error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
         }
 
         if (isset($errorMessage)) {
