@@ -141,7 +141,6 @@ class Order extends AbstractModel
         'order_id' => ['required' => false, 'updated' => true],
         'order_sku' => ['required' => false, 'updated' => true],
         'store_id' => ['required' => true, 'updated' => false],
-        'feed_id' => ['required' => false, 'updated' => true],
         'delivery_address_id' => ['required' => true, 'updated' => false],
         'delivery_country_iso' => ['required' => false, 'updated' => true],
         'marketplace_sku' => ['required' => true, 'updated' => false],
