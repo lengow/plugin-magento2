@@ -275,7 +275,7 @@ class Order extends AbstractModel
      *
      * @return Order|false
      */
-    public function updateOrder($params = array())
+    public function updateOrder($params = [])
     {
         if (!$this->getId()) {
             return false;
@@ -297,7 +297,7 @@ class Order extends AbstractModel
      */
     public function getUpdatedFields()
     {
-        $updatedFields = array();
+        $updatedFields = [];
         foreach ($this->_fieldList as $key => $value) {
             if ($value['updated']) {
                 $updatedFields[] = $key;

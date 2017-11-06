@@ -90,7 +90,7 @@ class Orderline extends AbstractModel
      *
      * @return Orderline|false
      */
-    public function createOrderLine($params = array())
+    public function createOrderLine($params = [])
     {
         foreach ($this->_fieldList as $key => $value) {
             if (!array_key_exists($key, $params) && $value['required']) {

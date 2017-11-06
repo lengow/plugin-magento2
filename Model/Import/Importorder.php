@@ -555,7 +555,7 @@ class Importorder extends AbstractModel
         );
         // update Lengow order with new informations
         $orderLengow->updateOrder(
-            array(
+            [
                 'currency' => $this->_orderData->currency->iso_a3,
                 'total_paid' => $this->_orderAmount,
                 'order_item' => $this->_orderItems,
@@ -568,7 +568,7 @@ class Importorder extends AbstractModel
                 'sent_marketplace' => $this->_shippedByMp,
                 'delivery_country_iso' => $this->_packageData->delivery->common_country_iso_a2,
                 'order_lengow_state' => $this->_orderStateLengow
-            )
+            ]
         );
 
         // try to import order
