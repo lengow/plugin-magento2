@@ -33,7 +33,8 @@ use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Import\Ordererror;
 use Lengow\Connector\Model\Exception as LengowException;
-use Lengow\Connector\Model\Import\Importorder as Importorder;
+use Lengow\Connector\Model\Import\Importorder;
+use Lengow\Connector\Model\Import\Action;
 
 /**
  * Lengow import
@@ -66,6 +67,16 @@ class Import
     protected $_websiteFactory;
 
     /**
+     * @var \Magento\Backend\Model\Session $_backendSession Backend session instance
+     */
+    protected $_backendSession;
+
+    /**
+     * @var \Magento\Store\Api\StoreRepositoryInterface
+     */
+    protected $_storeRepository;
+
+    /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
      */
     protected $_dataHelper;
@@ -91,9 +102,19 @@ class Import
     protected $_connector;
 
     /**
-     * @var \Magento\Store\Model\Store\Interceptor Magento store instance
+     * @var \Lengow\Connector\Model\Import\Ordererror Lengow order error instance
      */
-    protected $_store;
+    protected $_orderError;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\Importorder Lengow import order instance
+     */
+    protected $_importorder;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\Action Lengow action instance
+     */
+    protected $_action;
 
     /**
      * @var integer Magento store id
@@ -181,7 +202,7 @@ class Import
     protected $_marketplaceSku = null;
 
     /**
-     * @var string markeplace name
+     * @var string marketplace name
      */
     protected $_marketplaceName = null;
 
@@ -199,26 +220,6 @@ class Import
      * @var integer delivery address id
      */
     protected $_days = null;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\Ordererror Lengow ordererror instance
-     */
-    protected $_orderError;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\Importorder Lengow importorder instance
-     */
-    protected $_importorder;
-
-    /**
-     * @var \Magento\Backend\Model\Session $_backendSession Backend session instance
-     */
-    protected $_backendSession;
-
-    /**
-     * @var \Magento\Store\Api\StoreRepositoryInterface
-     */
-    protected $_storeRepository;
 
     /**
      * @var string account ID
@@ -265,8 +266,9 @@ class Import
      * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
      * @param \Magento\Backend\Model\Session $backendSession Backend session instance
-     * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
-     * @param \Lengow\Connector\Model\Import\Importorder $importorder Lengow importorder instance
+     * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository Magento store repository instance
+     * @param \Lengow\Connector\Model\Import\Importorder $importorder Lengow import order instance
+     * @param \Lengow\Connector\Model\Import\Action $action Lengow action instance
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -282,7 +284,8 @@ class Import
         Connector $connector,
         BackendSession $backendSession,
         StoreRepositoryInterface $storeRepository,
-        Importorder $importorder
+        Importorder $importorder,
+        Action $action
     )
     {
         $this->_storeManager = $storeManager;
@@ -299,6 +302,7 @@ class Import
         $this->_backendSession = $backendSession;
         $this->_storeRepository = $storeRepository;
         $this->_importorder = $importorder;
+        $this->_action = $action;
     }
 
     /**
@@ -525,16 +529,15 @@ class Import
             );
             // sending email in error for orders
             if ($this->_configHelper->get('report_mail_enable') && !$this->_preprodMode && !$this->_importOneOrder) {
-                //TODO
-//                $this->_importHelper->sendMailAlert( $this->_logOutput );
+
+                // TODO Send email alert for order with error
+                // $this->_importHelper->sendMailAlert($this->_logOutput);
+
             }
-            //TODO
-//            if ( ! $this->_preprodMode && ! $this->_importOneOrder && $this->_typeImport == 'manual' ) {
-//                $action = Mage::getModel( 'lengow/import_action' );
-//                $action->checkFinishAction();
-//                $action->checkActionNotSent();
-//                unset( $action );
-//            }
+            // checking marketplace actions
+            if (!$this->_preprodMode && !$this->_importOneOrder && $this->_typeImport == 'manual') {
+                $this->_action->checkFinishAction();
+            }
         }
         // Clear session
         $this->_backendSession->setIsFromlengow(0);

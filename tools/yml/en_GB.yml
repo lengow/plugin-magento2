@@ -205,6 +205,7 @@ en:
       marketplace_name_require: "marketplace name is required"
       arg_is_required: "can't send action: %1 is required"
       action_not_created: "can't create action: %1"
+      action_is_too_old: "order action is too old. Please retry"
     error:
       nb_order_imported: "%1 order(s) imported"
       nb_order_updated: "%1 order(s) updated"

@@ -26,6 +26,7 @@ use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Import as ImportModel;
+use Lengow\Connector\Model\Import\Action as ImportAction;
 
 /**
  * CronController
@@ -53,9 +54,14 @@ class Index extends Action
     protected $_syncHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Import Lengow import model instance
+     * @var \Lengow\Connector\Model\Import Lengow import instance
      */
-    protected $_importModel;
+    protected $_import;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\Action Lengow action instance
+     */
+    protected $_action;
 
     /**
      * Constructor
@@ -65,7 +71,8 @@ class Index extends Action
      * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
-     * @param \Lengow\Connector\Model\Import $importModel Lengow import model instance
+     * @param \Lengow\Connector\Model\Import $import Lengow import instance
+     * @param \Lengow\Connector\Model\Import\Action $action Lengow action instance
      */
     public function __construct(
         Context $context,
@@ -73,15 +80,17 @@ class Index extends Action
         SecurityHelper $securityHelper,
         ConfigHelper $configHelper,
         SyncHelper $syncHelper,
-        ImportModel $importModel
+        ImportModel $import,
+        ImportAction $action
     )
     {
-        parent::__construct($context);
         $this->_jsonHelper = $jsonHelper;
         $this->_securityHelper = $securityHelper;
         $this->_configHelper = $configHelper;
         $this->_syncHelper = $syncHelper;
-        $this->_importModel = $importModel;
+        $this->_import = $import;
+        $this->_action = $action;
+        parent::__construct($context);
     }
 
     /**
@@ -146,12 +155,12 @@ class Index extends Action
                     }
                     $params['type'] = 'cron';
                     // Import orders
-                    $this->_importModel->init($params);
-                    $this->_importModel->exec();
+                    $this->_import->init($params);
+                    $this->_import->exec();
                 }
                 // sync action between Lengow and Magento
                 if (is_null($sync) || $sync === 'action') {
-                    //TODO actions
+                    $this->_action->checkFinishAction();
                 }
                 // sync options between Lengow and Magento
                 if (is_null($sync) || $sync === 'option') {

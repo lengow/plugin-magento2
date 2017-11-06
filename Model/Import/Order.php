@@ -29,6 +29,7 @@ use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory as Orderer
 use Lengow\Connector\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
+use Lengow\Connector\Model\ResourceModel\Order as OrderResource;
 use Lengow\Connector\Model\Connector;
 use Lengow\Connector\Model\Exception as LengowException;
 
@@ -62,14 +63,14 @@ class Order extends AbstractModel
     protected $_invoiceService;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Ordererror Lengow ordererror instance
+     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow order error factory instance
      */
-    protected $_orderError;
+    protected $_orderErrorFactory;
 
     /**
      * @var \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory Lengow order error collection factory
      */
-    protected $_ordererrorCollection;
+    protected $_orderErrorCollection;
 
     /**
      * @var \Lengow\Connector\Model\ResourceModel\Order\CollectionFactory Lengow order collection factory
@@ -97,44 +98,62 @@ class Order extends AbstractModel
     protected $_connector;
 
     /**
+     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order factory instance
+     */
+    protected $_lengowOrderFactory;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService Magento invoice service
      * @param \Magento\Framework\DB\Transaction $transaction Magento transaction
-     * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
-     * @param \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory $ordererrorCollection
+     * @param \Lengow\Connector\Model\Import\OrdererrorFactory $orderErrorFactory Lengow order error factory instance
+     * @param \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory $orderErrorCollection
      * @param \Lengow\Connector\Model\ResourceModel\Order\CollectionFactory $orderCollection
      * @param \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionMagento
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
+     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order factory instance
      */
     public function __construct(
         Context $context,
         Registry $registry,
         InvoiceService $invoiceService,
         Transaction $transaction,
-        Ordererror $orderError,
-        OrdererrorCollectionFactory $ordererrorCollection,
+        OrdererrorFactory $orderErrorFactory,
+        OrdererrorCollectionFactory $orderErrorCollection,
         OrderCollectionFactory $orderCollection,
         OrderCollectionMagento $orderCollectionMagento,
         DataHelper $dataHelper,
         ImportHelper $importHelper,
-        Connector $connector
+        Connector $connector,
+        OrderFactory $lengowOrderFactory
     )
     {
         $this->_invoiceService = $invoiceService;
         $this->_transaction = $transaction;
-        $this->_orderError = $orderError;
-        $this->_ordererrorCollection = $ordererrorCollection;
+        $this->_orderErrorFactory = $orderErrorFactory;
+        $this->_orderErrorCollection = $orderErrorCollection;
         $this->_orderCollection = $orderCollection;
         $this->_orderCollectionMagento = $orderCollectionMagento;
         $this->_dataHelper = $dataHelper;
         $this->_importHelper = $importHelper;
         $this->_connector = $connector;
+        $this->_lengowOrderFactory = $lengowOrderFactory;
         parent::__construct($context, $registry);
+    }
+
+    /**
+     * Initialize order model
+     **
+     * @return void
+     */
+    protected function _construct()
+    {
+        $this->_init(OrderResource::class);
     }
 
     /**
@@ -148,9 +167,9 @@ class Order extends AbstractModel
      */
     public function orderIsInError($marketplaceSku, $deliveryAddressId, $type = 'import')
     {
-        $errorType = $this->_orderError->getOrderErrorType($type);
+        $errorType = $this->_orderErrorFactory->create()->getOrderErrorType($type);
         // check if log already exists for the given order id
-        $results = $this->_ordererrorCollection->create()
+        $results = $this->_orderErrorCollection->create()
             ->join(
                 'lengow_order',
                 '`lengow_order`.id=main_table.order_lengow_id',
@@ -284,15 +303,15 @@ class Order extends AbstractModel
      *
      * @param integer $orderId Magento order id
      *
-     * @return \Lengow\Connector\Model\Import\Order|false
+     * @return integer|false
      */
-    public function getLengowOrderByOrderId($orderId)
+    public function getLengowOrderIdByOrderId($orderId)
     {
         $results = $this->_orderCollection->create()
             ->addFieldToFilter('order_id', $orderId)
-            ->load();
+            ->getData();
         if (count($results) > 0) {
-            return $results->getFirstItem();
+            return (int)$results[0]['id'];
         }
         return false;
     }
@@ -337,10 +356,11 @@ class Order extends AbstractModel
         if ($order->getData('from_lengow') != 1) {
             return false;
         }
-        $lengowOrder = $this->getLengowOrderByOrderId($order->getId());
-        if (!$lengowOrder) {
+        $lengowOrderId = $this->getLengowOrderIdByOrderId($order->getId());
+        if (!$lengowOrderId) {
             return false;
         }
+        $lengowOrder = $this->_lengowOrderFactory->create()->load($lengowOrderId);
         $this->_dataHelper->log(
             'API-OrderAction',
             $this->_dataHelper->setLogMessage(
@@ -351,7 +371,7 @@ class Order extends AbstractModel
             $lengowOrder->getData('marketplace_sku')
         );
         // Finish all order errors before API call
-        $this->_orderError->finishOrderErrors($lengowOrder->getId(), 'send');
+        $this->_orderErrorFactory->create()->finishOrderErrors($lengowOrder->getId(), 'send');
 
         // TODO Delete is in error in lengow order
         /*if ($lengowOrder->getData('is_in_error') == 1) {
@@ -403,13 +423,15 @@ class Order extends AbstractModel
                 // TODO update is in error in lengow order
                 // $lengowOrder->updateOrder(['is_in_error' => 1]);
 
-                $this->_orderError->createOrderError(
+                $orderError = $this->_orderErrorFactory->create();
+                $orderError->createOrderError(
                     [
                         'order_lengow_id' => $lengowOrder->getId(),
                         'message' => $errorMessage,
                         'type' => 'send'
                     ]
                 );
+                unset($orderError);
             }
             $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
             $this->_dataHelper->log(
