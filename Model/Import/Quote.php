@@ -237,7 +237,7 @@ class Quote extends \Magento\Quote\Model\Quote
                 // option "import with product's title from Lengow"
                 $magentoProduct->setName($lengowProduct['title']);
                 // add item to quote
-                $quoteItem = $this->_quoteItem
+                $quoteItem = $this->_quoteItemFactory->create()
                     ->setProduct($magentoProduct)
                     ->setQty($lengowProduct['quantity'])
                     ->setConvertedPrice($price);
@@ -349,7 +349,7 @@ class Quote extends \Magento\Quote\Model\Quote
                     $this->_dataHelper->log(
                         'Import',
                         $this->_dataHelper->setLogMessage(
-                            'product_be_found: "product id %1 found with field %2 (%3)"',
+                            'product id %1 found with field %2 (%3)',
                             [
                                 'product_id' => $magentoProduct->getId(),
                                 'attribute_name' => $attributeName,

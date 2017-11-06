@@ -156,6 +156,8 @@ class Data extends AbstractHelper
      */
     public function decodeLogMessage($message, $useTranslation = true, $params = null)
     {
+        // Clean new line for magento error
+        $message = preg_replace("#\n|\t|\r#", ' ', $message);
         if (preg_match('/^([^\[\]]*)(\[(.*)\]|)$/', $message, $result)) {
             if (isset($result[1])) {
                 $key = $result[1];

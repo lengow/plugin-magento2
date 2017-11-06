@@ -19,6 +19,8 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Magento\Sales\Model\Order\Shipment\TrackFactory;
+use Magento\Sales\Model\Convert\Order as ConvertOrder;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
@@ -32,12 +34,39 @@ use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Model\Connector;
 use Lengow\Connector\Model\Exception as LengowException;
+use Lengow\Connector\Model\ResourceModel\OrderlineFactory;
+use Lengow\Connector\Model\ResourceModel\ActionFactory as ResourceActionFactory;
 
 /**
  * Model import order
  */
 class Order extends AbstractModel
 {
+
+    /**
+     * @var \Lengow\Connector\Model\ResourceModel\ActionFactory Lengow orderline factory instance
+     */
+    protected $_actionFactory;
+
+    /**
+     * @var \Lengow\Connector\Model\ResourceModel\OrderlineFactory Lengow orderline factory instance
+     */
+    protected $_lengowOrderlineFactory;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order instance
+     */
+    protected $_lengowOrderFactory;
+
+    /**
+     * @var \Magento\Sales\Model\Order\Shipment\TrackFactory
+     */
+    protected $_trackFactory;
+
+    /**
+     * @var \Magento\Sales\Model\Convert\Order
+     */
+    protected $_convertOrder;
 
     /**
      * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
@@ -145,6 +174,8 @@ class Order extends AbstractModel
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService Magento invoice service
      * @param \Magento\Framework\DB\Transaction $transaction Magento transaction
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
+     * @param \Magento\Sales\Model\Convert\Order $convertOrder
+     * @param \Magento\Sales\Model\Order\Shipment\TrackFactory $trackFactory
      * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
      * @param \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory $ordererrorCollection
      * @param \Lengow\Connector\Model\ResourceModel\Order\CollectionFactory $orderCollection
@@ -152,6 +183,9 @@ class Order extends AbstractModel
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
+     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
+     * @param \Lengow\Connector\Model\ResourceModel\OrderlineFactory $orderLineFactory Lengow orderline factory instance
+     * @param \Lengow\Connector\Model\ResourceModel\ActionFactory $actionFactory Lengow action factory instance
      */
     public function __construct(
         Context $context,
@@ -159,18 +193,25 @@ class Order extends AbstractModel
         InvoiceService $invoiceService,
         Transaction $transaction,
         DateTime $dateTime,
+        ConvertOrder $convertOrder,
+        TrackFactory $trackFactory,
         Ordererror $orderError,
         OrdererrorCollectionFactory $ordererrorCollection,
         OrderCollectionFactory $orderCollection,
         OrderCollectionMagento $orderCollectionMagento,
         DataHelper $dataHelper,
         ImportHelper $importHelper,
-        Connector $connector
+        Connector $connector,
+        OrderFactory $lengowOrderFactory,
+        OrderlineFactory $orderLineFactory,
+        ResourceActionFactory $actionFactory
     )
     {
         $this->_invoiceService = $invoiceService;
         $this->_transaction = $transaction;
         $this->_dateTime = $dateTime;
+        $this->_convertOrder = $convertOrder;
+        $this->_trackFactory = $trackFactory;
         $this->_orderError = $orderError;
         $this->_ordererrorCollection = $ordererrorCollection;
         $this->_orderCollection = $orderCollection;
@@ -178,6 +219,9 @@ class Order extends AbstractModel
         $this->_dataHelper = $dataHelper;
         $this->_importHelper = $importHelper;
         $this->_connector = $connector;
+        $this->_lengowOrderFactory = $lengowOrderFactory;
+        $this->_lengowOrderlineFactory = $orderLineFactory;
+        $this->_actionFactory = $actionFactory;
         parent::__construct($context, $registry);
     }
 
@@ -233,7 +277,7 @@ class Order extends AbstractModel
      */
     public function updateOrder($params = array())
     {
-        if (!$this->id) {
+        if (!$this->getId()) {
             return false;
         }
         $updatedFields = $this->getUpdatedFields();
@@ -365,6 +409,140 @@ class Order extends AbstractModel
     }
 
     /**
+     * Get ID record from lengow orders table with Magento order Id
+     *
+     * @param integer $orderId Magento order id
+     *
+     * @return integer|false
+     */
+    public function getLengowOrderIdWithOrderId($orderId)
+    {
+        $results = $this->_orderCollection->create()
+            ->addFieldToFilter('order_id', $orderId)
+            ->addFieldToSelect('id')
+            ->getData();
+        if (count($results) > 0) {
+            return (int)$results[0]['id'];
+        }
+        return false;
+    }
+
+    /**
+     * Get Magento equivalent to lengow order state
+     *
+     * @param  string $orderStateLengow Lengow state
+     *
+     * @return integer
+     */
+    public function getOrderState($orderStateLengow)
+    {
+        switch ($orderStateLengow) {
+            case 'new':
+            case 'waiting_acceptance':
+                return \Magento\Sales\Model\Order::STATE_NEW;
+            case 'accepted':
+            case 'waiting_shipment':
+                return \Magento\Sales\Model\Order::STATE_PROCESSING;
+            case 'shipped':
+            case 'closed':
+                return \Magento\Sales\Model\Order::STATE_COMPLETE;
+            case 'refused':
+            case 'canceled':
+                return \Magento\Sales\Model\Order::STATE_CANCELED;
+        }
+    }
+
+    /**
+     * Update order state to marketplace state
+     *
+     * @param \Magento\Sales\Model\Order $order Magento order instance
+     * @param string $orderStateLengow lengow order status
+     * @param mixed $orderData order data
+     * @param mixed $packageData package data
+     * @param mixed $orderLengowId lengow order id or false
+     *
+     * @return string|false
+     */
+    public function updateState($order, $orderStateLengow, $orderData, $packageData, $orderLengowId)
+    {
+        // Finish actions if lengow order is shipped, closed or cancel
+        $orderProcessState = $this->getOrderProcessState($orderStateLengow);
+        $trackings = $packageData->delivery->trackings;
+        if ($orderProcessState == self::PROCESS_STATE_FINISH) {
+            $this->_actionFactory->create()->finishAllActions($order->getId());
+        }
+        // Update Lengow order if necessary
+        if ($orderLengowId) {
+            $orderLengow = $this->_orderCollection->create()->addFieldToFilter('id', $orderLengowId);
+            $params = [];
+            if ($orderLengow->getData('order_lengow_state') != $orderStateLengow) {
+                $params['order_lengow_state'] = $orderStateLengow;
+                $params['extra'] = json_encode($orderData);
+                $params['tracking'] = count($trackings) > 0 ? (string)$trackings[0]->number : null;
+            }
+            if ($orderProcessState == self::PROCESS_STATE_FINISH) {
+                if ((int)$orderLengow->getData('order_process_state') != $orderProcessState) {
+                    $params['order_process_state'] = $orderProcessState;
+                }
+                if ((int)$orderLengow->getData('is_in_error') != 0) {
+                    $params['is_in_error'] = 0;
+                }
+            }
+            if (count($params) > 0) {
+                $orderLengow->updateOrder($params);
+            }
+            unset($orderLengow);
+        }
+        // Update Magento order's status only if in accepted, waiting_shipment, shipped, closed or cancel
+        if ($order->getState() != $this->getOrderState($orderStateLengow) && $order->getData('from_lengow') == 1) {
+            if ($order->getState() == $this->getOrderState('new')
+                && ($orderStateLengow == 'accepted' || $orderStateLengow == 'waiting_shipment')
+            ) {
+                // Generate invoice
+                $this->toInvoice($order);
+                return 'Processing';
+            } elseif (($order->getState() == $this->getOrderState('accepted')
+                    || $order->getState() == $this->getOrderState('new'))
+                && ($orderStateLengow == 'shipped' || $orderStateLengow == 'closed')
+            ) {
+                // if order is new -> generate invoice
+                if ($order->getState() == $this->getOrderState('new')) {
+                    $this->toInvoice($order);
+                }
+                $this->toShip(
+                    $order,
+                    (count($trackings) > 0 ? (string)$trackings[0]->carrier : null),
+                    (count($trackings) > 0 ? (string)$trackings[0]->method : null),
+                    (count($trackings) > 0 ? (string)$trackings[0]->number : null)
+                );
+                return 'Complete';
+            } else {
+                if (($order->getState() == $this->getOrderState('new')
+                        || $order->getState() == $this->getOrderState('accepted')
+                        || $order->getState() == $this->getOrderState('shipped'))
+                    && ($orderStateLengow == 'canceled' || $orderStateLengow == 'refused')
+                ) {
+                    $this->toCancel($order);
+                    return 'Canceled';
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Cancel order
+     *
+     * @param \Magento\Sales\Model\Order $order Magento order instance
+     */
+    public function toCancel($order)
+    {
+        if ($order->canCancel()) {
+            $order->cancel();
+        }
+    }
+
+    /**
      * Create invoice
      *
      * @param \Magento\Sales\Model\Order $order Magento order instance
@@ -382,6 +560,45 @@ class Order extends AbstractModel
                 $invoice->getOrder()
             );
             $transactionSave->save();
+        }
+    }
+
+    /**
+     * Ship order
+     *
+     * @param \Magento\Sales\Model\Order $order Magento order instance
+     * @param string $carrierName carrier name
+     * @param string $carrierMethod carrier method
+     * @param string $trackingNumber tracking number
+     */
+    public function toShip($order, $carrierName, $carrierMethod, $trackingNumber)
+    {
+        if ($order->canShip()) {
+            $shipment = $this->_convertOrder->toShipment($order);
+            if ($shipment) {
+                foreach ($order->getAllItems() AS $orderItem) {
+                    if (!$orderItem->getQtyToShip() || $orderItem->getIsVirtual()) {
+                        continue;
+                    }
+
+                    $qtyShipped = $orderItem->getQtyToShip();
+                    $shipmentItem = $this->_convertOrder->itemToShipmentItem($orderItem)->setQty($qtyShipped);
+                    $shipment->addItem($shipmentItem);
+                }
+
+                $shipment->register();
+                $shipment->getOrder()->setIsInProcess(true);
+                // Add tracking information
+                if (!is_null($trackingNumber)) {
+                    $track = $this->_trackFactory->create()
+                        ->setNumber($trackingNumber)
+                        ->setCarrierCode($carrierName)
+                        ->setTitle($carrierMethod);
+                    $shipment->addTrack($track);
+                }
+                $shipment->save();
+                $shipment->getOrder()->save();
+            }
         }
     }
 
@@ -478,18 +695,16 @@ class Order extends AbstractModel
         // Finish all order errors before API call
         $this->_orderError->finishOrderErrors($lengowOrder->getId(), 'send');
 
-        // TODO Delete is in error in lengow order
-        /*if ($lengowOrder->getData('is_in_error') == 1) {
+        if ($lengowOrder->getData('is_in_error') == 1) {
             $lengowOrder->updateOrder(['is_in_error' => 0]);
-        }*/
+        }
 
         try {
             $marketplace = $this->_importHelper->getMarketplaceSingleton($lengowOrder->getData('marketplace_name'));
             if ($marketplace->containOrderLine($action)) {
 
-                // TODO get all order lines from lengow table
+                $orderLineCollection = $this->_lengowOrderlineFactory->create()->getOrderLineByOrderID($order->getId());
 
-                $orderLineCollection = false;
                 // Get order line ids by API for security
                 if (!$orderLineCollection) {
                     $orderLineCollection = $this->getOrderLineByApi(
@@ -525,8 +740,7 @@ class Order extends AbstractModel
         if (isset($errorMessage)) {
             if ((int)$lengowOrder->getData('order_process_state') != self::PROCESS_STATE_FINISH) {
 
-                // TODO update is in error in lengow order
-                // $lengowOrder->updateOrder(['is_in_error' => 1]);
+                $lengowOrder->updateOrder(['is_in_error' => 1]);
 
                 $this->_orderError->createOrderError(
                     [

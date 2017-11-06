@@ -489,8 +489,7 @@ class Marketplace extends AbstractModel
         if (isset($errorMessage)) {
             if ((int)$lengowOrder->getData('order_process_state') != $lengowOrder->getOrderProcessState('closed')) {
 
-                // TODO update is in error in lengow order
-                // $lengowOrder->updateOrder(['is_in_error' => 1]);
+                $lengowOrder->updateOrder(['is_in_error' => 1]);
 
                 $this->_orderError->createOrderError(
                     [

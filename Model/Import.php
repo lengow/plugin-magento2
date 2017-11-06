@@ -33,7 +33,7 @@ use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Import\Ordererror;
 use Lengow\Connector\Model\Exception as LengowException;
-use Lengow\Connector\Model\Import\Importorder as Importorder;
+use Lengow\Connector\Model\Import\ImportorderFactory;
 
 /**
  * Lengow import
@@ -206,9 +206,9 @@ class Import
     protected $_orderError;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Importorder Lengow importorder instance
+     * @var \Lengow\Connector\Model\Import\ImportorderFactory Lengow importorderFactory instance
      */
-    protected $_importorder;
+    protected $_importorderFactory;
 
     /**
      * @var \Magento\Backend\Model\Session $_backendSession Backend session instance
@@ -266,7 +266,7 @@ class Import
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
      * @param \Magento\Backend\Model\Session $backendSession Backend session instance
      * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
-     * @param \Lengow\Connector\Model\Import\Importorder $importorder Lengow importorder instance
+     * @param \Lengow\Connector\Model\Import\ImportorderFactory $importorderFactory Lengow importorder instance
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -282,7 +282,7 @@ class Import
         Connector $connector,
         BackendSession $backendSession,
         StoreRepositoryInterface $storeRepository,
-        Importorder $importorder
+        ImportorderFactory $importorderFactory
     )
     {
         $this->_storeManager = $storeManager;
@@ -298,7 +298,7 @@ class Import
         $this->_connector = $connector;
         $this->_backendSession = $backendSession;
         $this->_storeRepository = $storeRepository;
-        $this->_importorder = $importorder;
+        $this->_importorderFactory = $importorderFactory;
     }
 
     /**
@@ -630,7 +630,7 @@ class Import
                 }
                 try {
                     // try to import or update order
-                    $this->_importorder->init(
+                    $orderInit = $this->_importorderFactory->create()->init(
                         [
                             'store_id' => $storeId,
                             'preprod_mode' => $this->_preprodMode,
@@ -642,7 +642,7 @@ class Import
                             'first_package' => $firstPackage
                         ]
                     );
-                    $order = $this->_importorder->importOrder();
+                    $order = $orderInit->importOrder();
                 } catch (LengowException $e) {
                     $errorMessage = $e->getMessage();
                 } catch (\Exception $e) {
