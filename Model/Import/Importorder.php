@@ -407,6 +407,7 @@ class Importorder extends AbstractModel
         $this->_shippingConfig = $shippingConfig;
         $this->_stockRegistry = $stockRegistry;
         $this->_stockManagement = $stockManagement;
+        $this->_jsonHelper = $jsonHelper;
         $this->_lengowOrder = $lengowOrder;
         $this->_lengowPayment = $lengowPayment;
         $this->_lengowOrderFactory = $lengowOrderFactory;
