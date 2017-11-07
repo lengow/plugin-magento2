@@ -23,7 +23,7 @@ use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Framework\Serialize\Serializer\Json as JsonHelper;
 use Magento\Store\Model\WebsiteFactory;
 use Magento\Backend\Model\Session as BackendSession;
 use Magento\Store\Api\StoreRepositoryInterface;
@@ -33,8 +33,8 @@ use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Import\Ordererror;
 use Lengow\Connector\Model\Exception as LengowException;
-use Lengow\Connector\Model\Import\Importorder;
 use Lengow\Connector\Model\Import\Action;
+use Lengow\Connector\Model\Import\ImportorderFactory;
 
 /**
  * Lengow import
@@ -57,7 +57,7 @@ class Import
     protected $_scopeConfig;
 
     /**
-     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
+     * @var \Magento\Framework\Serialize\Serializer\Json Magento json helper instance
      */
     protected $_jsonHelper;
 
@@ -107,9 +107,9 @@ class Import
     protected $_orderError;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Importorder Lengow import order instance
+     * @var \Lengow\Connector\Model\Import\ImportorderFactory Lengow import order factory instance
      */
-    protected $_importorder;
+    protected $_importorderFactory;
 
     /**
      * @var \Lengow\Connector\Model\Import\Action Lengow action instance
@@ -257,7 +257,7 @@ class Import
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
+     * @param \Magento\Framework\Serialize\Serializer\Json $jsonHelper Magento json helper instance
      * @param \Magento\Store\Model\WebsiteFactory $websiteFactory Magento website factory instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
@@ -267,7 +267,7 @@ class Import
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
      * @param \Magento\Backend\Model\Session $backendSession Backend session instance
      * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository Magento store repository instance
-     * @param \Lengow\Connector\Model\Import\Importorder $importorder Lengow import order instance
+     * @param \Lengow\Connector\Model\Import\ImportorderFactory $importorderFactory Lengow importorder instance
      * @param \Lengow\Connector\Model\Import\Action $action Lengow action instance
      */
     public function __construct(
@@ -284,7 +284,7 @@ class Import
         Connector $connector,
         BackendSession $backendSession,
         StoreRepositoryInterface $storeRepository,
-        Importorder $importorder,
+        ImportorderFactory $importorderFactory,
         Action $action
     )
     {
@@ -301,7 +301,7 @@ class Import
         $this->_connector = $connector;
         $this->_backendSession = $backendSession;
         $this->_storeRepository = $storeRepository;
-        $this->_importorder = $importorder;
+        $this->_importorderFactory = $importorderFactory;
         $this->_action = $action;
     }
 
@@ -465,9 +465,6 @@ class Import
                             $this->_orderError->finishOrderErrors($this->_orderLengowId);
                         }
                         // import orders in Magento
-                        //To see results
-//                        var_dump($orders);
-                        //TODO
                         $result = $this->_importOrders($orders, (int)$store->getId());
                         if (!$this->_importOneOrder) {
                             $orderNew += $result['order_new'];
@@ -636,7 +633,8 @@ class Import
                 }
                 try {
                     // try to import or update order
-                    $this->_importorder->init(
+                    $orderFactory = $this->_importorderFactory->create();
+                    $orderFactory->init(
                         [
                             'store_id' => $storeId,
                             'preprod_mode' => $this->_preprodMode,
@@ -648,7 +646,8 @@ class Import
                             'first_package' => $firstPackage
                         ]
                     );
-                    $order = $this->_importorder->importOrder();
+                    $order = $orderFactory->importOrder();
+                    unset($orderFactory);
                 } catch (LengowException $e) {
                     $errorMessage = $e->getMessage();
                 } catch (\Exception $e) {

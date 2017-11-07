@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model;
 
+use Magento\Framework\Serialize\Serializer\Json;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Exception as LengowException;
@@ -31,9 +32,9 @@ class Connector
     /**
      * @var string url of the API Lengow
      */
-//    const LENGOW_API_URL = 'http://api.lengow.io:80';
+    const LENGOW_API_URL = 'http://api.lengow.io:80';
     // const LENGOW_API_URL = 'http://api.lengow.net:80';
-    const LENGOW_API_URL = 'http://api.lengow.rec:80';
+//    const LENGOW_API_URL = 'http://api.lengow.rec:80';
     // const LENGOW_API_URL = 'http://10.100.1.82:8081';
 
     /**
@@ -90,17 +91,25 @@ class Connector
     protected $_configHelper;
 
     /**
+     * @var \Magento\Framework\Serialize\Serializer\Json Magento json
+     */
+    protected $_jsonSerializer;
+
+    /**
      * Constructor
      *
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param \Magento\Framework\Serialize\Serializer\Json $jsonSerializer Magento json
      */
     public function __construct(
         DataHelper $dataHelper,
-        ConfigHelper $configHelper
+        ConfigHelper $configHelper,
+        Json $jsonSerializer
     ) {
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
+        $this->_jsonSerializer = $jsonSerializer;
     }
 
     /**
@@ -288,7 +297,7 @@ class Connector
     {
         switch ($format) {
             case 'json':
-                return json_decode($data, true);
+                return $this->_jsonSerializer->unserialize($data);
             case 'csv':
                 return $data;
             case 'xml':
@@ -371,7 +380,7 @@ class Connector
                 }
                 $opts[CURLOPT_URL] = $url;
                 $opts[CURLOPT_POST] = count($args);
-                $opts[CURLOPT_POSTFIELDS] = json_encode($args);
+                $opts[CURLOPT_POSTFIELDS] = $this->_jsonSerializer->serialize($args);
                 break;
             default:
                 $opts[CURLOPT_URL] = $url;

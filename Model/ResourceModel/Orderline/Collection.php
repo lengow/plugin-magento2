@@ -17,7 +17,7 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-namespace Lengow\Connector\Model\ResourceModel\Order;
+namespace Lengow\Connector\Model\ResourceModel\Orderline;
 
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 
@@ -31,8 +31,8 @@ class Collection extends AbstractCollection
     public function _construct()
     {
         $this->_init(
-            'Lengow\Connector\Model\Import\Order',
-            'Lengow\Connector\Model\ResourceModel\Order'
+            'Lengow\Connector\Model\Import\Orderline',
+            'Lengow\Connector\Model\ResourceModel\Orderline'
         );
     }
 }

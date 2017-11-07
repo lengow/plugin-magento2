@@ -126,15 +126,9 @@ class Action extends AbstractModel
         ActionFactory $actionFactory
     )
     {
-        $this->_dateTime = $dateTime;
-        $this->_dataHelper = $dataHelper;
-        $this->_configHelper = $configHelper;
-        $this->_connector = $connector;
-        $this->_lengowOrderFactory = $lengowOrderFactory;
-        $this->_orderErrorFactory = $orderErrorFactory;
-        $this->_actionCollection = $actionCollection;
-        $this->_actionFactory = $actionFactory;
         parent::__construct($context, $registry);
+        $this->_dateTime = $dateTime;
+        $this->_actionCollection = $actionCollection;
     }
 
     /**
