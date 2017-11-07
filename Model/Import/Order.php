@@ -29,6 +29,7 @@ use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory as Orderer
 use Lengow\Connector\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
+use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Connector;
 use Lengow\Connector\Model\Exception as LengowException;
 
@@ -97,6 +98,11 @@ class Order extends AbstractModel
     protected $_connector;
 
     /**
+     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     */
+    protected $_configHelper;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\Model\Context $context Magento context instance
@@ -109,6 +115,7 @@ class Order extends AbstractModel
      * @param \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionMagento
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
+     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
      */
     public function __construct(
@@ -122,6 +129,7 @@ class Order extends AbstractModel
         OrderCollectionMagento $orderCollectionMagento,
         DataHelper $dataHelper,
         ImportHelper $importHelper,
+        ConfigHelper $configHelper,
         Connector $connector
     )
     {
@@ -133,6 +141,7 @@ class Order extends AbstractModel
         $this->_orderCollectionMagento = $orderCollectionMagento;
         $this->_dataHelper = $dataHelper;
         $this->_importHelper = $importHelper;
+        $this->_configHelper = $configHelper;
         $this->_connector = $connector;
         parent::__construct($context, $registry);
     }
@@ -468,5 +477,75 @@ class Order extends AbstractModel
         }
         $return = isset($orderLines[$deliveryAddressId]) ? $orderLines[$deliveryAddressId] : [];
         return count($return) > 0 ? $return : false;
+    }
+
+    /**
+     * Get order ids from lengow order ID
+     *
+     * @param string $marketplaceSku marketplace sku
+     * @param string $marketplaceName delivery address id
+     *
+     * @return array|false
+     */
+    public function getAllOrderIds($marketplaceSku, $marketplaceName)
+    {
+        $results = $this->_orderCollection->create()
+            ->addFieldToFilter('order_id_lengow', $marketplaceSku)
+            ->addFieldToFilter('marketplace_lengow', $marketplaceName)
+            ->addFieldToFilter('follow_by_lengow', array('eq' => 1))
+            ->addFieldToFilter('entity_id')
+            ->getData();
+        if (count($results) > 0) {
+            return $results;
+        }
+        return false;
+    }
+
+    /**
+     * Synchronize order with Lengow API
+     *
+     * @param \Magento\Sales\Model\Order $order Magento order instance
+     *
+     * @return boolean
+     */
+    public function synchronizeOrder($order/*, $connector = null*/)
+    {
+        if ($order->getData('from_lengow') != 1) {
+            return false;
+        }
+        list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessIds();
+//        if (is_null($connector)) {
+//            if ($configHelper->isValidAuth()) {
+//                $connector = Mage::getModel('lengow/connector');
+//                $connector->init($accessToken, $secretToken);
+//            } else {
+//                return false;
+//            }
+//        }
+        $orderIds = $this->getAllOrderIds($order->getData('order_id_lengow'), $order->getData('marketplace_lengow'));
+        if ($orderIds) {
+            $magentoIds = [];
+            foreach ($orderIds as $orderId) {
+                $magentoIds[] = $orderId['entity_id'];
+            }
+            $result = $this->_connector->patch(
+                '/v3.0/orders/moi/',
+                [
+                    'account_id' => $accountId,
+                    'marketplace_order_id' => $order->getData('order_id_lengow'),
+                    'marketplace' => $order->getData('marketplace_lengow'),
+                    'merchant_order_id' => $magentoIds
+                ]
+            );
+            if (is_null($result)
+                || (isset($result['detail']) && $result['detail'] == 'Pas trouvé.')
+                || isset($result['error'])
+            ) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
     }
 }
