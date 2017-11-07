@@ -23,7 +23,7 @@ use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Framework\Serialize\Serializer\Json as JsonHelper;
 use Magento\Store\Model\WebsiteFactory;
 use Magento\Backend\Model\Session as BackendSession;
 use Magento\Store\Api\StoreRepositoryInterface;
@@ -56,7 +56,7 @@ class Import
     protected $_scopeConfig;
 
     /**
-     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
+     * @var \Magento\Framework\Serialize\Serializer\Json Magento json helper instance
      */
     protected $_jsonHelper;
 
@@ -256,7 +256,7 @@ class Import
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
+     * @param \Magento\Framework\Serialize\Serializer\Json $jsonHelper Magento json helper instance
      * @param \Magento\Store\Model\WebsiteFactory $websiteFactory Magento website factory instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
@@ -844,7 +844,7 @@ class Import
                     )
                 );
             }
-            $results = json_decode($results);
+            $results = $this->_jsonHelper->unserialize($results);
             if (!is_object($results)) {
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage(

@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Sales\Model\Order\Shipment\TrackFactory;
 use Magento\Sales\Model\Convert\Order as ConvertOrder;
 use Magento\Framework\Model\AbstractModel;
@@ -42,6 +43,10 @@ use Lengow\Connector\Model\ResourceModel\ActionFactory as ResourceActionFactory;
  */
 class Order extends AbstractModel
 {
+    /**
+     * @var \Magento\Framework\Serialize\Serializer\Json Magento json
+     */
+    protected $_jsonSerialize;
 
     /**
      * @var \Lengow\Connector\Model\ResourceModel\ActionFactory Lengow orderline factory instance
@@ -170,6 +175,7 @@ class Order extends AbstractModel
      *
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
+     * @param \Magento\Framework\Serialize\Serializer\Json $jsonSerialize Magento json
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService Magento invoice service
      * @param \Magento\Framework\DB\Transaction $transaction Magento transaction
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
@@ -189,6 +195,7 @@ class Order extends AbstractModel
     public function __construct(
         Context $context,
         Registry $registry,
+        Json $jsonSerialize,
         InvoiceService $invoiceService,
         Transaction $transaction,
         DateTime $dateTime,
@@ -208,6 +215,7 @@ class Order extends AbstractModel
     {
         $this->_invoiceService = $invoiceService;
         $this->_transaction = $transaction;
+        $this->_jsonSerialize = $jsonSerialize;
         $this->_dateTime = $dateTime;
         $this->_convertOrder = $convertOrder;
         $this->_trackFactory = $trackFactory;
@@ -472,11 +480,11 @@ class Order extends AbstractModel
         }
         // Update Lengow order if necessary
         if ($orderLengowId) {
-            $orderLengow = $this->_orderCollection->create()->addFieldToFilter('id', $orderLengowId);
+            $orderLengow = $this->_lengowOrderFactory->create()->load($orderLengowId);
             $params = [];
             if ($orderLengow->getData('order_lengow_state') != $orderStateLengow) {
                 $params['order_lengow_state'] = $orderStateLengow;
-                $params['extra'] = json_encode($orderData);
+                $params['extra'] = $this->_jsonSerialize->serialize($orderData);
                 $params['tracking'] = count($trackings) > 0 ? (string)$trackings[0]->number : null;
             }
             if ($orderProcessState == self::PROCESS_STATE_FINISH) {

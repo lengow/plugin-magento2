@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Magento\Framework\Serialize\Serializer\Json as JsonHelper;
 use Magento\CatalogInventory\Api\StockManagementInterface;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
@@ -57,6 +58,11 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
  */
 class Importorder extends AbstractModel
 {
+    /**
+     * @var \Magento\Framework\Serialize\Serializer\Json json helper instance
+     */
+    protected $_jsonHelper;
+
     /**
      * @var \Lengow\Connector\Model\Import\OrderlineFactory
      */
@@ -335,6 +341,7 @@ class Importorder extends AbstractModel
      * @param \Magento\Shipping\Model\Config $shippingConfig Magento shipping config
      * @param StockRegistryInterface $stockRegistry
      * @param \Magento\CatalogInventory\Api\StockManagementInterface $stockManagement
+     * @param \Magento\Framework\Serialize\Serializer\Json $jsonHelper Magento json helper instance
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
      * @param \Lengow\Connector\Model\Payment\Lengow $lengowPayment Lengow payment instance
      * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
@@ -368,6 +375,7 @@ class Importorder extends AbstractModel
         ShippingConfig $shippingConfig,
         StockRegistryInterface $stockRegistry,
         StockManagementInterface $stockManagement,
+        JsonHelper $jsonHelper,
         LengowPayment $lengowPayment,
         LengowOrder $lengowOrder,
         LengowOrderFactory $lengowOrderFactory,
@@ -588,7 +596,7 @@ class Importorder extends AbstractModel
                     $orderLengow->updateOrder(
                         [
                             'order_process_state' => 2,
-                            'extra' => json_encode($this->_orderData)
+                            'extra' => $this->_jsonHelper->serialize($this->_orderData)
                         ]
                     );
                     return false;
@@ -653,7 +661,7 @@ class Importorder extends AbstractModel
                         'order_id' => $order->getId(),
                         'order_sku' => $order->getIncrementId(),
                         'order_process_state' => $this->_lengowOrder->getOrderProcessState($this->_orderStateLengow),
-                        'extra' => json_encode($this->_orderData),
+                        'extra' => $this->_jsonHelper->serialize($this->_orderData),
                         'order_lengow_state' => $this->_orderStateLengow,
                         'is_in_error' => 0
                     ]
@@ -707,7 +715,7 @@ class Importorder extends AbstractModel
             );
             $orderLengow->updateOrder(
                 [
-                    'extra' => json_encode($this->_orderData),
+                    'extra' => $this->_jsonHelper->serialize($this->_orderData),
                     'order_lengow_state' => $this->_orderStateLengow,
                 ]
             );
