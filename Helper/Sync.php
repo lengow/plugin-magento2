@@ -21,7 +21,7 @@ namespace Lengow\Connector\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use Magento\Framework\Serialize\Serializer\Json as JsonHelper;
+use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Pricing\PriceCurrencyInterface as PriceCurrency;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
@@ -32,7 +32,7 @@ use Lengow\Connector\Model\Export as Export;
 class Sync extends AbstractHelper
 {
     /**
-     * @var \Magento\Framework\Serialize\Serializer\Json Magento json helper instance
+     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
      */
     protected $_jsonHelper;
 
@@ -90,7 +90,7 @@ class Sync extends AbstractHelper
      * Constructor
      *
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
-     * @param \Magento\Framework\Serialize\Serializer\Json $jsonHelper Magento json helper instance
+     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency Magento price currency instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
@@ -287,7 +287,7 @@ class Sync extends AbstractHelper
                 return false;
             }
         }
-        $options = $this->_jsonHelper->serialize($this->getOptionData());
+        $options = $this->_jsonHelper->jsonEncode($this->getOptionData());
         $this->_connector->queryApi('put', '/v3.1/cms', [], $options);
         $this->_configHelper->set('last_option_cms_update', date('Y-m-d H:i:s'));
         return true;
@@ -308,7 +308,7 @@ class Sync extends AbstractHelper
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_status_update');
             if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTime) {
-                return $this->_jsonHelper->unserialize($this->_configHelper->get('account_status'));
+                return json_decode($this->_configHelper->get('account_status'), true);
             }
         }
         // use static cache for multiple call in same time (specific Magento 2)
@@ -326,12 +326,12 @@ class Sync extends AbstractHelper
                 $status['day'] = 0;
             }
             if ($status) {
-                $this->_configHelper->set('account_status', $this->_jsonHelper->serialize($status));
+                $this->_configHelper->set('account_status', $this->_jsonHelper->jsonEncode($status));
                 $this->_configHelper->set('last_status_update', date('Y-m-d H:i:s'));
             }
         } else {
             if ($this->_configHelper->get('last_status_update')) {
-                $status = $this->_jsonHelper->unserialize($this->_configHelper->get('account_status'));
+                $status = json_decode($this->_configHelper->get('account_status'), true);
             }
         }
         self::$statusAccount = $status;
@@ -350,7 +350,7 @@ class Sync extends AbstractHelper
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_statistic_update');
             if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTime) {
-                return $this->_jsonHelper->unserialize($this->_configHelper->get('order_statistic'));
+                return json_decode($this->_configHelper->get('order_statistic'), true);
             }
         }
         $allCurrencyCodes = $this->_configHelper->getAllAvailableCurrencyCodes();
@@ -373,7 +373,7 @@ class Sync extends AbstractHelper
             ];
         } else {
             if ($this->_configHelper->get('last_statistic_update')) {
-                return $this->_jsonHelper->unserialize($this->_configHelper->get('order_statistic'));
+                return json_decode($this->_configHelper->get('order_statistic'), true);
             } else {
                 return [
                     'total_order' => 0,
@@ -397,7 +397,7 @@ class Sync extends AbstractHelper
         } else {
             $return['total_order'] = number_format($return['total_order'], 2, ',', ' ');
         }
-        $this->_configHelper->set('order_statistic', $this->_jsonHelper->serialize($return));
+        $this->_configHelper->set('order_statistic', $this->_jsonHelper->jsonEncode($return));
         $this->_configHelper->set('last_statistic_update', date('Y-m-d H:i:s'));
         return $return;
     }

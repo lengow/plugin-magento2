@@ -26,7 +26,7 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 use Magento\CatalogInventory\Model\Configuration as CatalogInventoryConfiguration;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
-use Magento\Framework\Serialize\Serializer\Json as JsonHelper;
+use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Store\Model\WebsiteFactory;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
@@ -65,7 +65,7 @@ class Export
     protected $_productCollectionFactory;
 
     /**
-     * @var \Magento\Framework\Serialize\Serializer\Json Magento json helper instance
+     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
      */
     protected $_jsonHelper;
 
@@ -271,7 +271,7 @@ class Export
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
      * @param \Magento\Catalog\Model\Product\Attribute\Source\Status $productStatus Magento product status instance
      * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory
-     * @param \Magento\Framework\Serialize\Serializer\Json $jsonHelper Magento json helper instance
+     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Magento\Store\Model\WebsiteFactory $websiteFactory Magento website factory instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
@@ -640,7 +640,7 @@ class Export
                 'example' => $example
             ];
         }
-        return $this->_jsonHelper->serialize($params);
+        return $this->_jsonHelper->jsonEncode($params);
     }
 
     /**
