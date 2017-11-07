@@ -19,7 +19,6 @@
 
 namespace Lengow\Connector\Model;
 
-use Magento\Framework\Serialize\Serializer\Json;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Exception as LengowException;
@@ -91,25 +90,17 @@ class Connector
     protected $_configHelper;
 
     /**
-     * @var \Magento\Framework\Serialize\Serializer\Json Magento json
-     */
-    protected $_jsonSerializer;
-
-    /**
      * Constructor
      *
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Magento\Framework\Serialize\Serializer\Json $jsonSerializer Magento json
      */
     public function __construct(
         DataHelper $dataHelper,
-        ConfigHelper $configHelper,
-        Json $jsonSerializer
+        ConfigHelper $configHelper
     ) {
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
-        $this->_jsonSerializer = $jsonSerializer;
     }
 
     /**
@@ -297,7 +288,7 @@ class Connector
     {
         switch ($format) {
             case 'json':
-                return $this->_jsonSerializer->unserialize($data);
+                return json_decode($data, true);
             case 'csv':
                 return $data;
             case 'xml':
@@ -380,7 +371,7 @@ class Connector
                 }
                 $opts[CURLOPT_URL] = $url;
                 $opts[CURLOPT_POST] = count($args);
-                $opts[CURLOPT_POSTFIELDS] = $this->_jsonSerializer->serialize($args);
+                $opts[CURLOPT_POSTFIELDS] = json_encode($args);
                 break;
             default:
                 $opts[CURLOPT_URL] = $url;

@@ -24,7 +24,7 @@ use Magento\Framework\View\Element\Template\Context;
 use Magento\Checkout\Model\Session;
 use Magento\Sales\Model\OrderFactory;
 use Magento\Catalog\Model\ProductRepository;
-use Magento\Framework\Serialize\Serializer\Json as JsonHelper;
+use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
 class Tracker extends Template
@@ -45,7 +45,7 @@ class Tracker extends Template
     protected $_productRepository;
 
     /**
-     * @var \Magento\Framework\Serialize\Serializer\Json Magento json helper instance
+     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
      */
     protected $_jsonHelper;
 
@@ -61,7 +61,7 @@ class Tracker extends Template
      * @param \Magento\Checkout\Model\Session $checkoutSession Magento checkout session instance
      * @param \Magento\Sales\Model\OrderFactory $orderFactory Magento order factory instance
      * @param \Magento\Catalog\Model\ProductRepository $productRepository Magento product repository instance
-     * @param \Magento\Framework\Serialize\Serializer\Json $jsonHelper Magento json helper instance
+     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param array $data
      */
@@ -123,7 +123,7 @@ class Tracker extends Template
             ];
             $productsCart[] = $productDatas;
         }
-        return $this->_jsonHelper->serialize($productsCart);
+        return $this->_jsonHelper->jsonEncode($productsCart);
     }
 
     /**
