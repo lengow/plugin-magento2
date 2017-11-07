@@ -502,20 +502,10 @@ class Order extends AbstractModel
         }
         // Update Magento order's status only if in accepted, waiting_shipment, shipped, closed or cancel
         if ($order->getState() != $this->getOrderState($orderStateLengow) && $order->getData('from_lengow') == 1) {
-            if ($order->getState() == $this->getOrderState('new')
-                && ($orderStateLengow == 'accepted' || $orderStateLengow == 'waiting_shipment')
-            ) {
-                // Generate invoice
-                $this->toInvoice($order);
-                return 'Processing';
-            } elseif (($order->getState() == $this->getOrderState('accepted')
+            if (($order->getState() == $this->getOrderState('accepted')
                     || $order->getState() == $this->getOrderState('new'))
                 && ($orderStateLengow == 'shipped' || $orderStateLengow == 'closed')
             ) {
-                // if order is new -> generate invoice
-                if ($order->getState() == $this->getOrderState('new')) {
-                    $this->toInvoice($order);
-                }
                 $this->toShip(
                     $order,
                     (count($trackings) > 0 ? (string)$trackings[0]->carrier : null),

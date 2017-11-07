@@ -442,7 +442,7 @@ class Connector
         } catch (LengowException $e) {
             return false;
         }
-        return $this->_jsonSerializer->unserialize($results);
+        return json_decode($results);
     }
 
     /**

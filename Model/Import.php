@@ -844,7 +844,7 @@ class Import
                     )
                 );
             }
-            $results = $this->_jsonHelper->unserialize($results);
+            $results = json_decode($results);
             if (!is_object($results)) {
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage(
