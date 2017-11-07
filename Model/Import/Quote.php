@@ -237,7 +237,7 @@ class Quote extends \Magento\Quote\Model\Quote
                 // option "import with product's title from Lengow"
                 $magentoProduct->setName($lengowProduct['title']);
                 // add item to quote
-                $quoteItem = $this->_quoteItem
+                $quoteItem = $this->_quoteItemFactory->create()
                     ->setProduct($magentoProduct)
                     ->setQty($lengowProduct['quantity'])
                     ->setConvertedPrice($price);
@@ -380,5 +380,21 @@ class Quote extends \Magento\Quote\Model\Quote
             }
         }
         return $lengowProducts;
+    }
+
+    /**
+     * Get Lengow Products
+     *
+     * @param string $productId Magento product id
+     *
+     * @return array
+     */
+    public function getLengowProducts($productId = null)
+    {
+        if (is_null($productId)) {
+            return $this->_lengowProducts;
+        } else {
+            return $this->_lengowProducts[$productId];
+        }
     }
 }

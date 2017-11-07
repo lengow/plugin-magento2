@@ -22,7 +22,7 @@ namespace Lengow\Connector\Model\Import;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
-use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Framework\Serialize\Serializer\Json as JsonHelper;
 use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
@@ -34,7 +34,7 @@ use Lengow\Connector\Model\Connector;
 class Marketplace extends AbstractModel
 {
     /**
-     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
+     * @var \Magento\Framework\Serialize\Serializer\Json Magento json helper instance
      */
     protected $_jsonHelper;
 
@@ -136,7 +136,7 @@ class Marketplace extends AbstractModel
      *
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
+     * @param \Magento\Framework\Serialize\Serializer\Json $jsonHelper Magento json helper instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Model\Connector $modelConnector Lengow connector instance
@@ -441,7 +441,7 @@ class Marketplace extends AbstractModel
                                 'action_type' => $action,
                                 'action_id' => $row->id,
                                 'order_line_sku' => isset($params['line']) ? $params['line'] : null,
-                                'parameters' => $this->_jsonHelper->jsonEncode($params)
+                                'parameters' => $this->_jsonHelper->serialize($params)
                             ]
                         );
                     }
@@ -456,14 +456,14 @@ class Marketplace extends AbstractModel
                                 'action_type' => $action,
                                 'action_id' => $result->id,
                                 'order_line_sku' => isset($params['line']) ? $params['line'] : null,
-                                'parameters' => $this->_jsonHelper->jsonEncode($params)
+                                'parameters' => $this->_jsonHelper->serialize($params)
                             ]
                         );
                     } else {
                         throw new LengowException(
                             $this->_dataHelper->setLogMessage(
                                 "can't create action: %1",
-                                [$this->_jsonHelper->jsonEncode($result)]
+                                [$this->_jsonHelper->serialize($result)]
                             )
                         );
                     }
@@ -489,8 +489,7 @@ class Marketplace extends AbstractModel
         if (isset($errorMessage)) {
             if ((int)$lengowOrder->getData('order_process_state') != $lengowOrder->getOrderProcessState('closed')) {
 
-                // TODO update is in error in lengow order
-                // $lengowOrder->updateOrder(['is_in_error' => 1]);
+                $lengowOrder->updateOrder(['is_in_error' => 1]);
 
                 $this->_orderError->createOrderError(
                     [

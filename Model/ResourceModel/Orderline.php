@@ -17,22 +17,19 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-namespace Lengow\Connector\Model\ResourceModel\Order;
+namespace Lengow\Connector\Model\ResourceModel;
 
-use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
+use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 
-class Collection extends AbstractCollection
+class Orderline extends AbstractDb
 {
     /**
-     * Initialize resource collection
+     * Initialize orderline resource model
      *
      * @return void
      */
-    public function _construct()
+    protected function _construct()
     {
-        $this->_init(
-            'Lengow\Connector\Model\Import\Order',
-            'Lengow\Connector\Model\ResourceModel\Order'
-        );
+        $this->_init('lengow_order_line', 'id');
     }
 }

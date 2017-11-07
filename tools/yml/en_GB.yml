@@ -220,6 +220,7 @@ en:
       marketplace_name_require: "marketplace name is required"
       arg_is_required: "can't send action: %1 is required"
       action_not_created: "can't create action: %1"
+      order_is_empty: "order could not be saved"
     error:
       nb_order_imported: "%1 order(s) imported"
       nb_order_updated: "%1 order(s) updated"
