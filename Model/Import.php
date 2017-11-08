@@ -33,6 +33,7 @@ use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Import\Ordererror;
 use Lengow\Connector\Model\Exception as LengowException;
+use Lengow\Connector\Model\Import\Action;
 use Lengow\Connector\Model\Import\ImportorderFactory;
 
 /**
@@ -66,6 +67,16 @@ class Import
     protected $_websiteFactory;
 
     /**
+     * @var \Magento\Backend\Model\Session $_backendSession Backend session instance
+     */
+    protected $_backendSession;
+
+    /**
+     * @var \Magento\Store\Api\StoreRepositoryInterface
+     */
+    protected $_storeRepository;
+
+    /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
      */
     protected $_dataHelper;
@@ -91,9 +102,19 @@ class Import
     protected $_connector;
 
     /**
-     * @var \Magento\Store\Model\Store\Interceptor Magento store instance
+     * @var \Lengow\Connector\Model\Import\Ordererror Lengow order error instance
      */
-    protected $_store;
+    protected $_orderError;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\ImportorderFactory Lengow import order factory instance
+     */
+    protected $_importorderFactory;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\Action Lengow action instance
+     */
+    protected $_action;
 
     /**
      * @var integer Magento store id
@@ -181,7 +202,7 @@ class Import
     protected $_marketplaceSku = null;
 
     /**
-     * @var string markeplace name
+     * @var string marketplace name
      */
     protected $_marketplaceName = null;
 
@@ -199,26 +220,6 @@ class Import
      * @var integer delivery address id
      */
     protected $_days = null;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\Ordererror Lengow ordererror instance
-     */
-    protected $_orderError;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\ImportorderFactory Lengow importorderFactory instance
-     */
-    protected $_importorderFactory;
-
-    /**
-     * @var \Magento\Backend\Model\Session $_backendSession Backend session instance
-     */
-    protected $_backendSession;
-
-    /**
-     * @var \Magento\Store\Api\StoreRepositoryInterface
-     */
-    protected $_storeRepository;
 
     /**
      * @var string account ID
@@ -258,15 +259,16 @@ class Import
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Magento\Store\Model\WebsiteFactory $websiteFactory Magento website factory instance
+     * @param \Magento\Backend\Model\Session $backendSession Backend session instance
+     * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository Magento store repository instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Helper\Import $importHelper Lengow config helper instance
      * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
      * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
-     * @param \Magento\Backend\Model\Session $backendSession Backend session instance
-     * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
      * @param \Lengow\Connector\Model\Import\ImportorderFactory $importorderFactory Lengow importorder instance
+     * @param \Lengow\Connector\Model\Import\Action $action Lengow action instance
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -274,31 +276,33 @@ class Import
         ScopeConfigInterface $scopeConfig,
         JsonHelper $jsonHelper,
         WebsiteFactory $websiteFactory,
+        BackendSession $backendSession,
+        StoreRepositoryInterface $storeRepository,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         ImportHelper $importHelper,
         SyncHelper $syncHelper,
         Ordererror $orderError,
         Connector $connector,
-        BackendSession $backendSession,
-        StoreRepositoryInterface $storeRepository,
-        ImportorderFactory $importorderFactory
+        ImportorderFactory $importorderFactory,
+        Action $action
     )
     {
         $this->_storeManager = $storeManager;
+        $this->_dateTime = $dateTime;
+        $this->_scopeConfig = $scopeConfig;
+        $this->_jsonHelper = $jsonHelper;
+        $this->_websiteFactory = $websiteFactory;
+        $this->_backendSession = $backendSession;
+        $this->_storeRepository = $storeRepository;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_importHelper = $importHelper;
         $this->_syncHelper = $syncHelper;
-        $this->_jsonHelper = $jsonHelper;
-        $this->_websiteFactory = $websiteFactory;
-        $this->_dateTime = $dateTime;
-        $this->_scopeConfig = $scopeConfig;
         $this->_orderError = $orderError;
         $this->_connector = $connector;
-        $this->_backendSession = $backendSession;
-        $this->_storeRepository = $storeRepository;
         $this->_importorderFactory = $importorderFactory;
+        $this->_action = $action;
     }
 
     /**
@@ -522,16 +526,15 @@ class Import
             );
             // sending email in error for orders
             if ($this->_configHelper->get('report_mail_enable') && !$this->_preprodMode && !$this->_importOneOrder) {
-                //TODO
-//                $this->_importHelper->sendMailAlert( $this->_logOutput );
+
+                // TODO Send email alert for order with error
+                // $this->_importHelper->sendMailAlert($this->_logOutput);
+
             }
-            //TODO
-//            if ( ! $this->_preprodMode && ! $this->_importOneOrder && $this->_typeImport == 'manual' ) {
-//                $action = Mage::getModel( 'lengow/import_action' );
-//                $action->checkFinishAction();
-//                $action->checkActionNotSent();
-//                unset( $action );
-//            }
+            // checking marketplace actions
+            if (!$this->_preprodMode && !$this->_importOneOrder && $this->_typeImport == 'manual') {
+                $this->_action->checkFinishAction();
+            }
         }
         // Clear session
         $this->_backendSession->setIsFromlengow(0);

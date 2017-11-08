@@ -47,12 +47,12 @@ class Ordererror extends AbstractModel
     protected $_dateTime;
 
     /**
-     * @var \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory Lengow Ordererror $_ordererrorCollection
+     * @var \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory Lengow order error collection factory
      */
     protected $_ordererrorCollection;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow Ordererror $_ordererrorFactory
+     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow order error factory
      */
     protected $_ordererrorFactory;
 
@@ -86,10 +86,10 @@ class Ordererror extends AbstractModel
         OrdererrorFactory $ordererrorFactory
     )
     {
-        parent::__construct($context, $registry);
         $this->_dateTime = $dateTime;
         $this->_ordererrorCollection = $ordererrorCollection;
         $this->_ordererrorFactory = $ordererrorFactory;
+        parent::__construct($context, $registry);
     }
 
     /**

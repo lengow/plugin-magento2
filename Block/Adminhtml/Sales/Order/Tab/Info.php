@@ -25,7 +25,7 @@ use Magento\Backend\Block\Template\Context;
 use Magento\Framework\Registry;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
-use Lengow\Connector\Model\Import\Order as LengowOrder;
+use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 
 class Info extends Template implements TabInterface
 {
@@ -50,9 +50,9 @@ class Info extends Template implements TabInterface
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Order Lengow order instance
+     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order factory instance
      */
-    protected $_lengowOrder;
+    protected $_lengowOrderFactory;
 
     /**
      * Construct
@@ -61,7 +61,7 @@ class Info extends Template implements TabInterface
      * @param \Magento\Framework\Registry $coreRegistry Magento Registry instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
      * @param array $data
      */
     public function __construct(
@@ -69,14 +69,14 @@ class Info extends Template implements TabInterface
         Registry $coreRegistry,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
-        LengowOrder $lengowOrder,
+        LengowOrderFactory $lengowOrderFactory,
         array $data = []
     )
     {
         $this->_coreRegistry = $coreRegistry;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
-        $this->_lengowOrder = $lengowOrder;
+        $this->_lengowOrderFactory = $lengowOrderFactory;
         parent::__construct($context, $data);
     }
 
@@ -138,7 +138,11 @@ class Info extends Template implements TabInterface
     public function getLengowOrder()
     {
         $order = $this->getOrder();
-        return $this->_lengowOrder->getLengowOrderByOrderId($order->getId());
+        $lengowOrderId = $this->_lengowOrderFactory->create()->getLengowOrderIdByOrderId($order->getId());
+        if ($lengowOrderId) {
+            return $this->_lengowOrderFactory->create()->load($lengowOrderId);
+        }
+        return false;
     }
 
     /**
