@@ -43,6 +43,60 @@ use Lengow\Connector\Model\ResourceModel\ActionFactory as ResourceActionFactory;
  */
 class Order extends AbstractModel
 {
+    /**
+     * @var integer order process state for new order not imported
+     */
+    const PROCESS_STATE_NEW = 0;
+
+    /**
+     * @var integer order process state for order imported
+     */
+    const PROCESS_STATE_IMPORT = 1;
+
+    /**
+     * @var integer order process state for order finished
+     */
+    const PROCESS_STATE_FINISH = 2;
+
+    /**
+     * @var \Magento\Sales\Model\Order\Shipment\TrackFactory Magento shipment track instance
+     */
+    protected $_trackFactory;
+
+    /**
+     * @var \Magento\Sales\Model\Convert\Order Magento convert order instance
+     */
+    protected $_convertOrder;
+
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     */
+    protected $_dateTime;
+
+    /**
+     * @var \Magento\Framework\DB\Transaction Magento transaction
+     */
+    protected $_transaction;
+
+    /**
+     * @var \Magento\Sales\Model\Service\InvoiceService Magento invoice service
+     */
+    protected $_invoiceService;
+
+    /**
+     * @var \Magento\Sales\Model\ResourceModel\Order\CollectionFactory Magento order collection factory
+     */
+    protected $_orderCollectionMagento;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow order error factory instance
+     */
+    protected $_orderErrorFactory;
+
+    /**
+     * @var \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory Lengow order error collection factory
+     */
+    protected $_orderErrorCollection;
 
     /**
      * @var \Lengow\Connector\Model\ResourceModel\ActionFactory Lengow orderline factory instance
@@ -60,63 +114,9 @@ class Order extends AbstractModel
     protected $_lengowOrderFactory;
 
     /**
-     * @var \Magento\Sales\Model\Order\Shipment\TrackFactory
-     */
-    protected $_trackFactory;
-
-    /**
-     * @var \Magento\Sales\Model\Convert\Order
-     */
-    protected $_convertOrder;
-
-    /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
-     */
-    protected $_dateTime;
-
-    /**
-     * @var integer order process state for new order not imported
-     */
-    const PROCESS_STATE_NEW = 0;
-
-    /**
-     * @var integer order process state for order imported
-     */
-    const PROCESS_STATE_IMPORT = 1;
-
-    /**
-     * @var integer order process state for order finished
-     */
-    const PROCESS_STATE_FINISH = 2;
-    /**
-     * @var \Magento\Framework\DB\Transaction Magento transaction
-     */
-    protected $_transaction;
-
-    /**
-     * @var \Magento\Sales\Model\Service\InvoiceService Magento invoice service
-     */
-    protected $_invoiceService;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow order error factory instance
-     */
-    protected $_orderErrorFactory;
-
-    /**
-     * @var \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory Lengow order error collection factory
-     */
-    protected $_orderErrorCollection;
-
-    /**
      * @var \Lengow\Connector\Model\ResourceModel\Order\CollectionFactory Lengow order collection factory
      */
     protected $_orderCollection;
-
-    /**
-     * @var \Magento\Sales\Model\ResourceModel\Order\CollectionFactory Magento order collection factory
-     */
-    protected $_orderCollectionMagento;
 
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
@@ -132,11 +132,6 @@ class Order extends AbstractModel
      * @var \Lengow\Connector\Model\Connector Lengow connector instance
      */
     protected $_connector;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order factory instance
-     */
-    protected $_lengowOrderFactory;
 
     /**
      * @var array $_fieldList field list for the table lengow_order_line
@@ -179,8 +174,8 @@ class Order extends AbstractModel
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService Magento invoice service
      * @param \Magento\Framework\DB\Transaction $transaction Magento transaction
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
-     * @param \Magento\Sales\Model\Convert\Order $convertOrder
-     * @param \Magento\Sales\Model\Order\Shipment\TrackFactory $trackFactory
+     * @param \Magento\Sales\Model\Convert\Order $convertOrder Magento convert order instance
+     * @param \Magento\Sales\Model\Order\Shipment\TrackFactory $trackFactory Magento shipment track factory instance
      * @param \Lengow\Connector\Model\Import\OrdererrorFactory $orderErrorFactory Lengow order error factory instance
      * @param \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory $orderErrorCollection
      * @param \Lengow\Connector\Model\ResourceModel\Order\CollectionFactory $orderCollection
@@ -237,7 +232,7 @@ class Order extends AbstractModel
      */
     protected function _construct()
     {
-        $this->_init(\Lengow\Connector\Model\ResourceModel\Order::class);
+        $this->_init(OrderResource::class);
     }
 
     /**
@@ -580,7 +575,6 @@ class Order extends AbstractModel
                     $shipmentItem = $this->_convertOrder->itemToShipmentItem($orderItem)->setQty($qtyShipped);
                     $shipment->addItem($shipmentItem);
                 }
-
                 $shipment->register();
                 $shipment->getOrder()->setIsInProcess(true);
                 // Add tracking information
