@@ -259,14 +259,14 @@ class Import
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Magento\Store\Model\WebsiteFactory $websiteFactory Magento website factory instance
+     * @param \Magento\Backend\Model\Session $backendSession Backend session instance
+     * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository Magento store repository instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Helper\Import $importHelper Lengow config helper instance
      * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
      * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
-     * @param \Magento\Backend\Model\Session $backendSession Backend session instance
-     * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository Magento store repository instance
      * @param \Lengow\Connector\Model\Import\ImportorderFactory $importorderFactory Lengow importorder instance
      * @param \Lengow\Connector\Model\Import\Action $action Lengow action instance
      */
@@ -276,31 +276,31 @@ class Import
         ScopeConfigInterface $scopeConfig,
         JsonHelper $jsonHelper,
         WebsiteFactory $websiteFactory,
+        BackendSession $backendSession,
+        StoreRepositoryInterface $storeRepository,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         ImportHelper $importHelper,
         SyncHelper $syncHelper,
         Ordererror $orderError,
         Connector $connector,
-        BackendSession $backendSession,
-        StoreRepositoryInterface $storeRepository,
         ImportorderFactory $importorderFactory,
         Action $action
     )
     {
         $this->_storeManager = $storeManager;
+        $this->_dateTime = $dateTime;
+        $this->_scopeConfig = $scopeConfig;
+        $this->_jsonHelper = $jsonHelper;
+        $this->_websiteFactory = $websiteFactory;
+        $this->_backendSession = $backendSession;
+        $this->_storeRepository = $storeRepository;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_importHelper = $importHelper;
         $this->_syncHelper = $syncHelper;
-        $this->_jsonHelper = $jsonHelper;
-        $this->_websiteFactory = $websiteFactory;
-        $this->_dateTime = $dateTime;
-        $this->_scopeConfig = $scopeConfig;
         $this->_orderError = $orderError;
         $this->_connector = $connector;
-        $this->_backendSession = $backendSession;
-        $this->_storeRepository = $storeRepository;
         $this->_importorderFactory = $importorderFactory;
         $this->_action = $action;
     }
