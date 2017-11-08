@@ -32,6 +32,7 @@ use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Connector;
 use Lengow\Connector\Model\Exception as LengowException;
+use Lengow\Connector\Model\ResourceModel\Order as OrderResource;
 
 /**
  * Model import order
@@ -144,6 +145,16 @@ class Order extends AbstractModel
         $this->_configHelper = $configHelper;
         $this->_connector = $connector;
         parent::__construct($context, $registry);
+    }
+
+    /**
+     * Initialize ordererror model
+     **
+     * @return void
+     */
+    protected function _construct()
+    {
+        $this->_init(OrderResource::class);
     }
 
     /**
@@ -490,10 +501,9 @@ class Order extends AbstractModel
     public function getAllOrderIds($marketplaceSku, $marketplaceName)
     {
         $results = $this->_orderCollection->create()
-            ->addFieldToFilter('order_id_lengow', $marketplaceSku)
-            ->addFieldToFilter('marketplace_lengow', $marketplaceName)
-            ->addFieldToFilter('follow_by_lengow', array('eq' => 1))
-            ->addFieldToFilter('entity_id')
+            ->addFieldToFilter('marketplace_sku', $marketplaceSku)
+            ->addFieldToFilter('marketplace_name', $marketplaceName)
+            ->addFieldToSelect('order_sku')
             ->getData();
         if (count($results) > 0) {
             return $results;
@@ -504,36 +514,33 @@ class Order extends AbstractModel
     /**
      * Synchronize order with Lengow API
      *
-     * @param \Magento\Sales\Model\Order $order Magento order instance
+     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     * @param $connector
      *
      * @return boolean
      */
-    public function synchronizeOrder($order/*, $connector = null*/)
+    public function synchronizeOrder($lengowOrder, $connector = null)
     {
-        if ($order->getData('from_lengow') != 1) {
-            return false;
-        }
         list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessIds();
-//        if (is_null($connector)) {
-//            if ($configHelper->isValidAuth()) {
-//                $connector = Mage::getModel('lengow/connector');
-//                $connector->init($accessToken, $secretToken);
-//            } else {
-//                return false;
-//            }
-//        }
-        $orderIds = $this->getAllOrderIds($order->getData('order_id_lengow'), $order->getData('marketplace_lengow'));
+        if (is_null($connector)) {
+            if ($this->_connector->isValidAuth()) {
+                $this->_connector->init(['access_token' => $accessToken, 'secret' => $secretToken]);
+            } else {
+                return false;
+            }
+        }
+        $orderIds = $this->getAllOrderIds($lengowOrder->getData('marketplace_sku'), $lengowOrder->getData('marketplace_name'));
         if ($orderIds) {
             $magentoIds = [];
             foreach ($orderIds as $orderId) {
-                $magentoIds[] = $orderId['entity_id'];
+                $magentoIds[] = $orderId['order_sku'];
             }
             $result = $this->_connector->patch(
                 '/v3.0/orders/moi/',
                 [
                     'account_id' => $accountId,
-                    'marketplace_order_id' => $order->getData('order_id_lengow'),
-                    'marketplace' => $order->getData('marketplace_lengow'),
+                    'marketplace_order_id' => $lengowOrder->getData('marketplace_sku'),
+                    'marketplace' => $lengowOrder->getData('marketplace_name'),
                     'merchant_order_id' => $magentoIds
                 ]
             );

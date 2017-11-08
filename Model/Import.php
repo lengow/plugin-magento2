@@ -27,6 +27,8 @@ use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Store\Model\WebsiteFactory;
 use Magento\Backend\Model\Session as BackendSession;
 use Magento\Store\Api\StoreRepositoryInterface;
+use Magento\Sales\Model\OrderFactory;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
@@ -34,12 +36,18 @@ use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Import\Ordererror;
 use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Model\Import\Importorder as Importorder;
+use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 
 /**
  * Lengow import
  */
 class Import
 {
+    /**
+     * @var \Magento\Sales\Model\OrderFactory Magento order factory instance
+     */
+    protected $_orderFactory;
+
     /**
      * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
      */
@@ -64,6 +72,16 @@ class Import
      * @var \Magento\Store\Model\WebsiteFactory Magento website factory instance
      */
     protected $_websiteFactory;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order instance
+     */
+    protected $_lengowOrderFactory;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\Order Lengow order instance
+     */
+    protected $_lengowOrder;
 
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
@@ -253,6 +271,7 @@ class Import
     /**
      * Constructor
      *
+     * @param \Magento\Sales\Model\OrderFactory $orderFactory Magento order factory instance
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
@@ -267,8 +286,11 @@ class Import
      * @param \Magento\Backend\Model\Session $backendSession Backend session instance
      * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
      * @param \Lengow\Connector\Model\Import\Importorder $importorder Lengow importorder instance
+     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
      */
     public function __construct(
+        OrderFactory $orderFactory,
         StoreManagerInterface $storeManager,
         DateTime $dateTime,
         ScopeConfigInterface $scopeConfig,
@@ -282,9 +304,12 @@ class Import
         Connector $connector,
         BackendSession $backendSession,
         StoreRepositoryInterface $storeRepository,
-        Importorder $importorder
+        Importorder $importorder,
+        LengowOrder $lengowOrder,
+        LengowOrderFactory $lengowOrderFactory
     )
     {
+        $this->_orderFactory = $orderFactory;
         $this->_storeManager = $storeManager;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
@@ -299,6 +324,8 @@ class Import
         $this->_backendSession = $backendSession;
         $this->_storeRepository = $storeRepository;
         $this->_importorder = $importorder;
+        $this->_lengowOrder = $lengowOrder;
+        $this->_lengowOrderFactory = $lengowOrderFactory;
     }
 
     /**
@@ -663,28 +690,27 @@ class Import
                     unset($errorMessage);
                     continue;
                 }
-                //TODO
                 // Sync to lengow if no preprod_mode
-//                if (!$this->_preprodMode && isset($order['order_new']) && $order['order_new'] == true) {
-//                    $magentoOrder = Mage::getModel('sales/order')->load($order['order_id']);
-//                    $synchro = Mage::getModel('lengow/import_order')->synchronizeOrder(
-//                        $magentoOrder,
-//                        $this->_connector
-//                    );
-//                    if ($synchro) {
-//                        $synchroMessage = $this->_helper->setLogMessage(
-//                            'log.import.order_synchronized_with_lengow',
-//                            array('order_id' => $magentoOrder->getIncrementId())
-//                        );
-//                    } else {
-//                        $synchroMessage = $this->_helper->setLogMessage(
-//                            'log.import.order_not_synchronized_with_lengow',
-//                            array('order_id' => $magentoOrder->getIncrementId())
-//                        );
-//                    }
-//                    $this->_helper->log('Import', $synchroMessage, $this->_logOutput, $marketplaceSku);
-//                    unset($magentoOrder);
-//                }
+                if (!$this->_preprodMode && isset($order['order_new']) && $order['order_new'] == true) {
+                    $lengowOrder = $this->_lengowOrderFactory->create()->load($order['order_lengow_id']);
+                    $synchro = $this->_lengowOrder->synchronizeOrder(
+                        $lengowOrder,
+                        $this->_connector
+                    );
+                    if ($synchro) {
+                        $synchroMessage = $this->_dataHelper->setLogMessage(
+                            'order successfully synchronised with Lengow webservice (ORDER ID %1)',
+                            [$lengowOrder->getData('order_sku')]
+                        );
+                    } else {
+                        $synchroMessage = $this->_dataHelper->setLogMessage(
+                            'WARNING! Order could NOT be synchronised with Lengow webservice (ORDER ID %1)',
+                            [$lengowOrder->getData('order_sku')]
+                        );
+                    }
+                    $this->_dataHelper->log('Import', $synchroMessage, $this->_logOutput, $marketplaceSku);
+                    unset($lengowOrder);
+                }
                 // Clean current order in session
                 $this->_backendSession->setCurrentOrderLengow(false);
                 // if re-import order -> return order informations

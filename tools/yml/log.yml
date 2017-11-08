@@ -43,6 +43,8 @@ en:
       order_import_failed: "import order failed - %1"
       generate_unique_email: "generate a unique email %1"
       create_customer_failed: "create customer failed - %1"
+      order_synchronized_with_lengow: "order successfully synchronised with Lengow webservice (ORDER ID %1)"
+      order_not_synchronized_with_lengow: "WARNING! Order could NOT be synchronised with Lengow webservice (ORDER ID %1)"
     order_action:
       try_to_send_action: "try to send %1 action (ORDER ID %2)"
       action_send: "action %1 successfully sent (ORDER ID %2)"
