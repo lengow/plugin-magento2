@@ -54,19 +54,14 @@ class Marketplace extends AbstractModel
     protected $_connector;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Action Lengow action instance
-     */
-    protected $_orderAction;
-
-    /**
      * @var \Lengow\Connector\Model\Import\ActionFactory Lengow action factory instance
      */
     protected $_orderActionFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Ordererror Lengow ordererror instance
+     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow order error factory instance
      */
-    protected $_orderError;
+    protected $_orderErrorFactory;
 
     /**
      * @var array all valid actions
@@ -140,9 +135,8 @@ class Marketplace extends AbstractModel
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Model\Connector $modelConnector Lengow connector instance
-     * @param \Lengow\Connector\Model\Import\Action $orderAction Lengow action instance
      * @param \Lengow\Connector\Model\Import\ActionFactory $orderActionFactory Lengow action factory instance
-     * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow order error instance
+     * @param \Lengow\Connector\Model\Import\OrdererrorFactory $orderErrorFactory Lengow order error factory instance
      */
     public function __construct(
         Context $context,
@@ -151,18 +145,16 @@ class Marketplace extends AbstractModel
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         Connector $modelConnector,
-        Action $orderAction,
         ActionFactory $orderActionFactory,
-        Ordererror $orderError
+        OrdererrorFactory $orderErrorFactory
     )
     {
         $this->_jsonHelper = $jsonHelper;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_connector = $modelConnector;
-        $this->_orderAction = $orderAction;
         $this->_orderActionFactory = $orderActionFactory;
-        $this->_orderError = $orderError;
+        $this->_orderErrorFactory = $orderErrorFactory;
         parent::__construct($context, $registry);
     }
 
@@ -427,7 +419,7 @@ class Marketplace extends AbstractModel
             }
             if (isset($result->count) && $result->count > 0) {
                 foreach ($result->results as $row) {
-                    $orderActionId = $this->_orderAction->getActiveActionByActionId($row->id);
+                    $orderActionId = $this->_orderActionFactory->create()->getActiveActionByActionId($row->id);
                     if ($orderActionId) {
                         $orderAction = $this->_orderActionFactory->create()->load($orderActionId);
                         $retry = (int)$orderAction->getData('retry') + 1;
@@ -435,7 +427,8 @@ class Marketplace extends AbstractModel
                         unset($orderAction);
                     } else {
                         // if update doesn't work, create new action
-                        $this->_orderAction->createAction(
+                        $orderAction = $this->_orderActionFactory->create();
+                        $orderAction->createAction(
                             [
                                 'order_id' => $order->getId(),
                                 'action_type' => $action,
@@ -445,12 +438,14 @@ class Marketplace extends AbstractModel
                             ]
                         );
                     }
+                    unset($orderAction);
                 }
             } else {
                 if (!(bool)$this->_configHelper->get('preprod_mode_enable')) {
                     $result = $this->_connector->queryApi('post', '/v3.0/orders/actions/', $params);
                     if (isset($result->id)) {
-                        $this->_orderAction->createAction(
+                        $orderAction = $this->_orderActionFactory->create();
+                        $orderAction->createAction(
                             [
                                 'order_id' => $order->getId(),
                                 'action_type' => $action,
@@ -459,6 +454,7 @@ class Marketplace extends AbstractModel
                                 'parameters' => $this->_jsonHelper->jsonEncode($params)
                             ]
                         );
+                        unset($orderAction);
                     } else {
                         throw new LengowException(
                             $this->_dataHelper->setLogMessage(
@@ -489,16 +485,17 @@ class Marketplace extends AbstractModel
         if (isset($errorMessage)) {
             if ((int)$lengowOrder->getData('order_process_state') != $lengowOrder->getOrderProcessState('closed')) {
 
-                // TODO update is in error in lengow order
-                // $lengowOrder->updateOrder(['is_in_error' => 1]);
+                $lengowOrder->updateOrder(['is_in_error' => 1]);
 
-                $this->_orderError->createOrderError(
+                $orderError = $this->_orderErrorFactory->create();
+                $orderError->createOrderError(
                     [
                         'order_lengow_id' => $lengowOrder->getId(),
                         'message' => $errorMessage,
                         'type' => 'send'
                     ]
                 );
+                unset($orderError);
             }
             $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
             $this->_dataHelper->log(
