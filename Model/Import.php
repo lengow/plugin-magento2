@@ -113,11 +113,6 @@ class Import
     protected $_connector;
 
     /**
-     * @var \Magento\Store\Model\Store\Interceptor Magento store instance
-     */
-    protected $_store;
-
-    /**
      * @var \Lengow\Connector\Model\Import\Ordererror Lengow order error instance
      */
     protected $_orderError;

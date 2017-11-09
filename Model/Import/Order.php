@@ -829,7 +829,7 @@ class Order extends AbstractModel
      * Synchronize order with Lengow API
      *
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
-     * @param $connector
+     * @param \Lengow\Connector\Model\Connector $connector
      *
      * @return boolean
      */
