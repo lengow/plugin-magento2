@@ -42,7 +42,6 @@ class MassPublish extends Product
      */
     protected $_productAction;
 
-
     /**
      * @param \Magento\Backend\App\Action\Context $context Magento action context instance
      * @param Product\Builder $productBuilder Magento product builder instance

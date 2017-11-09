@@ -39,7 +39,7 @@ en:
       order_ready_to_reimport: "order ready to be re-imported (ORDER ID %1)"
       order_state_updated: "order's status has been updated to %1"
       external_id_exist: "already imported in Magento with the order ID %1"
-      current_order_state_unavailable: "current order status [%1] means it is not possible to import the order to the marketplace %2"
+      current_order_state_unavailable: "current order status %1 means it is not possible to import the order to the marketplace %2"
       order_import_failed: "import order failed - %1"
       generate_unique_email: "generate a unique email %1"
       create_customer_failed: "create customer failed - %1"
@@ -58,6 +58,8 @@ en:
       lengow_order_line_saved: "save order lines product: %1"
       rewrite_processing_fee: "rewrite amount without processing fee"
       rewrite_shipping_cost: "rewrite amount without shipping cost"
+      order_synchronized_with_lengow: "order successfully synchronised with Lengow webservice (ORDER ID %1)"
+      order_not_synchronized_with_lengow: "WARNING! Order could NOT be synchronised with Lengow webservice (ORDER ID %1)"
     order_action:
       check_completed_action: "check completed actions"
       try_to_send_action: "try to send %1 action (ORDER ID %2)"
@@ -65,6 +67,10 @@ en:
       action_not_send: "WARNING! action %1 could not be sent (ORDER ID %2)"
       call_tracking: "call tracking with parameters: %1"
       call_action_failed: "order action failed - %1"
+      shipping_method_unavailable: "the chosen shipping method is not available for this order. Lengow has assigned a shipping method"
+      order_shipped_by_marketplace: "order shipped by %1"
+      product_state_canceled: "product %1 could not be added to cart - status: %2"
+      product_be_found: "product id %1 found with field %2 (%3)"
     connector:
       call_api: "call %1"
       error_api: "API call failed - %1"

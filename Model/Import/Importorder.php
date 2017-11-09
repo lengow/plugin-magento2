@@ -501,7 +501,7 @@ class Importorder extends AbstractModel
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
-                    'current order status [%1] means it is not possible to import the order to the marketplace %2',
+                    'current order status %1 means it is not possible to import the order to the marketplace %2',
                     [
                         $this->_orderStateMarketplace,
                         $this->_marketplace->name
@@ -992,7 +992,8 @@ class Importorder extends AbstractModel
         $quote = $this->_lengowQuoteFactory->create()
             ->setIsMultiShipping(false)
             ->setStore($this->_storeManager->getStore($this->_storeId))
-            ->setIsSuperMode(true); // don't care about stock verification, don't work ? set for each product
+            ->setInventoryProcessed(false); // don't care about stock verification, doesn't work? set for each product?
+        // TODO https://github.com/magento/magento2/issues/10304
 
         // import customer addresses into quote
         // Set billing Address

@@ -32,6 +32,7 @@ use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory as Orderer
 use Lengow\Connector\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
+use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\ResourceModel\Order as OrderResource;
 use Lengow\Connector\Model\Connector;
 use Lengow\Connector\Model\Exception as LengowException;
@@ -134,6 +135,11 @@ class Order extends AbstractModel
     protected $_connector;
 
     /**
+     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     */
+    protected $_configHelper;
+
+    /**
      * @var array $_fieldList field list for the table lengow_order_line
      * required => Required fields when creating registration
      * update   => Fields allowed when updating registration
@@ -182,6 +188,7 @@ class Order extends AbstractModel
      * @param \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionMagento
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
+     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
      * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order factory instance
      * @param \Lengow\Connector\Model\ResourceModel\OrderlineFactory $orderLineFactory Lengow orderline factory instance
@@ -201,6 +208,7 @@ class Order extends AbstractModel
         OrderCollectionMagento $orderCollectionMagento,
         DataHelper $dataHelper,
         ImportHelper $importHelper,
+        ConfigHelper $configHelper,
         Connector $connector,
         OrderFactory $lengowOrderFactory,
         OrderlineFactory $orderLineFactory,
@@ -218,6 +226,7 @@ class Order extends AbstractModel
         $this->_orderCollectionMagento = $orderCollectionMagento;
         $this->_dataHelper = $dataHelper;
         $this->_importHelper = $importHelper;
+        $this->_configHelper = $configHelper;
         $this->_connector = $connector;
         $this->_lengowOrderFactory = $lengowOrderFactory;
         $this->_lengowOrderlineFactory = $orderLineFactory;
@@ -793,5 +802,71 @@ class Order extends AbstractModel
         }
         $return = isset($orderLines[$deliveryAddressId]) ? $orderLines[$deliveryAddressId] : [];
         return count($return) > 0 ? $return : false;
+    }
+
+    /**
+     * Get order ids from lengow order ID
+     *
+     * @param string $marketplaceSku marketplace sku
+     * @param string $marketplaceName delivery address id
+     *
+     * @return array|false
+     */
+    public function getAllOrderIds($marketplaceSku, $marketplaceName)
+    {
+        $results = $this->_orderCollection->create()
+            ->addFieldToFilter('marketplace_sku', $marketplaceSku)
+            ->addFieldToFilter('marketplace_name', $marketplaceName)
+            ->addFieldToSelect('order_sku')
+            ->getData();
+        if (count($results) > 0) {
+            return $results;
+        }
+        return false;
+    }
+
+    /**
+     * Synchronize order with Lengow API
+     *
+     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     * @param \Lengow\Connector\Model\Connector $connector
+     *
+     * @return boolean
+     */
+    public function synchronizeOrder($lengowOrder, $connector = null)
+    {
+        list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessIds();
+        if (is_null($connector)) {
+            if ($this->_connector->isValidAuth()) {
+                $this->_connector->init(['access_token' => $accessToken, 'secret' => $secretToken]);
+            } else {
+                return false;
+            }
+        }
+        $orderIds = $this->getAllOrderIds($lengowOrder->getData('marketplace_sku'), $lengowOrder->getData('marketplace_name'));
+        if ($orderIds) {
+            $magentoIds = [];
+            foreach ($orderIds as $orderId) {
+                $magentoIds[] = $orderId['order_sku'];
+            }
+            $result = $this->_connector->patch(
+                '/v3.0/orders/moi/',
+                [
+                    'account_id' => $accountId,
+                    'marketplace_order_id' => $lengowOrder->getData('marketplace_sku'),
+                    'marketplace' => $lengowOrder->getData('marketplace_name'),
+                    'merchant_order_id' => $magentoIds
+                ]
+            );
+            if (is_null($result)
+                || (isset($result['detail']) && $result['detail'] == 'Pas trouvé.')
+                || isset($result['error'])
+            ) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
     }
 }
