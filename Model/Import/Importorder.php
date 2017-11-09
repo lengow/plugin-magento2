@@ -497,7 +497,7 @@ class Importorder extends AbstractModel
             return false;
         }
         // if order is cancelled or new -> skip
-        if (false/*!$this->_importHelper->checkState($this->_orderStateMarketplace, $this->_marketplace)*/) {
+        if (!$this->_importHelper->checkState($this->_orderStateMarketplace, $this->_marketplace)) {
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
@@ -992,7 +992,7 @@ class Importorder extends AbstractModel
         $quote = $this->_lengowQuoteFactory->create()
             ->setIsMultiShipping(false)
             ->setStore($this->_storeManager->getStore($this->_storeId))
-            ->setInventoryProcessed(false); // don't care about stock verification, don't work ? set for each product
+            ->setInventoryProcessed(false); // don't care about stock verification, doesn't work? set for each product?
         // TODO https://github.com/magento/magento2/issues/10304
 
         // import customer addresses into quote

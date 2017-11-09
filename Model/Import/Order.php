@@ -638,24 +638,6 @@ class Order extends AbstractModel
     }
 
     /**
-     * Get Lengow Order by Magento order id from lengow orders table
-     *
-     * @param integer $orderId Magento order id
-     *
-     * @return array|false
-     */
-    public function getLengowOrderByOrderId($orderId)
-    {
-        $results = $this->_orderCollection->create()
-            ->addFieldToFilter('order_id', $orderId)
-            ->load();
-        if (count($results) > 0) {
-            return $results->getFirstItem();
-        }
-        return false;
-    }
-
-    /**
      * Get order process state
      *
      * @param string $state state to be matched

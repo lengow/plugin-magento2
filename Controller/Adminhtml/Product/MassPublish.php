@@ -43,11 +43,6 @@ class MassPublish extends Product
     protected $_productAction;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order instance
-     */
-    protected $_lengowOrderFactory;
-
-    /**
      * @param \Magento\Backend\App\Action\Context $context Magento action context instance
      * @param Product\Builder $productBuilder Magento product builder instance
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
