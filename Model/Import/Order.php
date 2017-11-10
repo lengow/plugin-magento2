@@ -642,7 +642,7 @@ class Order extends AbstractModel
      */
     public function getUnsentOrders()
     {
-        $date = strtotime('-20 days', time());
+        $date = strtotime('-5 days', time());
         $results = $this->_orderCollection->create()
             ->join(
                 ['magento_order' => 'sales_order'],
