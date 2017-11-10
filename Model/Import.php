@@ -27,7 +27,6 @@ use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Store\Model\WebsiteFactory;
 use Magento\Backend\Model\Session as BackendSession;
 use Magento\Store\Api\StoreRepositoryInterface;
-use Magento\Sales\Model\OrderFactory;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
@@ -36,17 +35,13 @@ use Lengow\Connector\Model\Import\Ordererror;
 use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Model\Import\Action;
 use Lengow\Connector\Model\Import\ImportorderFactory;
+use Lengow\Connector\Model\Import\OrderFactory;
 
 /**
  * Lengow import
  */
 class Import
 {
-    /**
-     * @var \Magento\Sales\Model\OrderFactory Magento order factory instance
-     */
-    protected $_orderFactory;
-
     /**
      * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
      */
@@ -265,7 +260,6 @@ class Import
     /**
      * Constructor
      *
-     * @param \Magento\Sales\Model\OrderFactory $orderFactory Magento order factory instance
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
@@ -284,7 +278,6 @@ class Import
      * @param \Lengow\Connector\Model\Import\Action $action Lengow action instance
      */
     public function __construct(
-        OrderFactory $orderFactory,
         StoreManagerInterface $storeManager,
         DateTime $dateTime,
         ScopeConfigInterface $scopeConfig,
@@ -303,7 +296,6 @@ class Import
         Action $action
     )
     {
-        $this->_orderFactory = $orderFactory;
         $this->_storeManager = $storeManager;
         $this->_dateTime = $dateTime;
         $this->_scopeConfig = $scopeConfig;
@@ -551,6 +543,7 @@ class Import
             // checking marketplace actions
             if (!$this->_preprodMode && !$this->_importOneOrder && $this->_typeImport == 'manual') {
                 $this->_action->checkFinishAction();
+                $this->_action->checkActionNotSent();
             }
         }
         // Clear session
@@ -650,8 +643,8 @@ class Import
                 }
                 try {
                     // try to import or update order
-                    $orderFactory = $this->_importorderFactory->create();
-                    $orderFactory->init(
+                    $importOrderFactory = $this->_importorderFactory->create();
+                    $importOrderFactory->init(
                         [
                             'store_id' => $storeId,
                             'preprod_mode' => $this->_preprodMode,
@@ -663,8 +656,8 @@ class Import
                             'first_package' => $firstPackage
                         ]
                     );
-                    $order = $orderFactory->importOrder();
-                    unset($orderFactory);
+                    $order = $importOrderFactory->importOrder();
+                    unset($importOrderFactory);
                 } catch (LengowException $e) {
                     $errorMessage = $e->getMessage();
                 } catch (\Exception $e) {

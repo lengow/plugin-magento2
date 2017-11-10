@@ -28,16 +28,14 @@ use Magento\Sales\Model\Service\InvoiceService;
 use Magento\Framework\DB\Transaction;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionMagento;
 use Magento\Framework\Stdlib\DateTime\DateTime;
-use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory as OrdererrorCollectionFactory;
-use Lengow\Connector\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
-use Lengow\Connector\Model\ResourceModel\Order as OrderResource;
+use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory as OrdererrorCollectionFactory;
+use Lengow\Connector\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
 use Lengow\Connector\Model\Connector;
+use Lengow\Connector\Model\ResourceModel\Order as OrderResource;
 use Lengow\Connector\Model\Exception as LengowException;
-use Lengow\Connector\Model\ResourceModel\OrderlineFactory;
-use Lengow\Connector\Model\ResourceModel\ActionFactory as ResourceActionFactory;
 
 /**
  * Model import order
@@ -60,19 +58,9 @@ class Order extends AbstractModel
     const PROCESS_STATE_FINISH = 2;
 
     /**
-     * @var \Magento\Sales\Model\Order\Shipment\TrackFactory Magento shipment track instance
+     * @var \Magento\Sales\Model\Service\InvoiceService Magento invoice service
      */
-    protected $_trackFactory;
-
-    /**
-     * @var \Magento\Sales\Model\Convert\Order Magento convert order instance
-     */
-    protected $_convertOrder;
-
-    /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
-     */
-    protected $_dateTime;
+    protected $_invoiceService;
 
     /**
      * @var \Magento\Framework\DB\Transaction Magento transaction
@@ -80,44 +68,24 @@ class Order extends AbstractModel
     protected $_transaction;
 
     /**
-     * @var \Magento\Sales\Model\Service\InvoiceService Magento invoice service
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
      */
-    protected $_invoiceService;
+    protected $_dateTime;
+
+    /**
+     * @var \Magento\Sales\Model\Convert\Order Magento convert order instance
+     */
+    protected $_convertOrder;
+
+    /**
+     * @var \Magento\Sales\Model\Order\Shipment\TrackFactory Magento shipment track instance
+     */
+    protected $_trackFactory;
 
     /**
      * @var \Magento\Sales\Model\ResourceModel\Order\CollectionFactory Magento order collection factory
      */
     protected $_orderCollectionMagento;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow order error factory instance
-     */
-    protected $_orderErrorFactory;
-
-    /**
-     * @var \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory Lengow order error collection factory
-     */
-    protected $_orderErrorCollection;
-
-    /**
-     * @var \Lengow\Connector\Model\ResourceModel\ActionFactory Lengow orderline factory instance
-     */
-    protected $_actionFactory;
-
-    /**
-     * @var \Lengow\Connector\Model\ResourceModel\OrderlineFactory Lengow orderline factory instance
-     */
-    protected $_lengowOrderlineFactory;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order instance
-     */
-    protected $_lengowOrderFactory;
-
-    /**
-     * @var \Lengow\Connector\Model\ResourceModel\Order\CollectionFactory Lengow order collection factory
-     */
-    protected $_orderCollection;
 
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
@@ -130,14 +98,44 @@ class Order extends AbstractModel
     protected $_importHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Connector Lengow connector instance
-     */
-    protected $_connector;
-
-    /**
      * @var \Lengow\Connector\Helper\Config Lengow config helper instance
      */
     protected $_configHelper;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow order error factory instance
+     */
+    protected $_orderErrorFactory;
+
+    /**
+     * @var \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory Lengow order error collection factory
+     */
+    protected $_orderErrorCollection;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order instance
+     */
+    protected $_lengowOrderFactory;
+
+    /**
+     * @var \Lengow\Connector\Model\ResourceModel\Order\CollectionFactory Lengow order collection factory
+     */
+    protected $_orderCollection;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\OrderlineFactory Lengow orderline factory instance
+     */
+    protected $_lengowOrderlineFactory;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\ActionFactory Lengow orderline factory instance
+     */
+    protected $_actionFactory;
+
+    /**
+     * @var \Lengow\Connector\Model\Connector Lengow connector instance
+     */
+    protected $_connector;
 
     /**
      * @var array $_fieldList field list for the table lengow_order_line
@@ -182,17 +180,17 @@ class Order extends AbstractModel
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Magento\Sales\Model\Convert\Order $convertOrder Magento convert order instance
      * @param \Magento\Sales\Model\Order\Shipment\TrackFactory $trackFactory Magento shipment track factory instance
-     * @param \Lengow\Connector\Model\Import\OrdererrorFactory $orderErrorFactory Lengow order error factory instance
-     * @param \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory $orderErrorCollection
-     * @param \Lengow\Connector\Model\ResourceModel\Order\CollectionFactory $orderCollection
      * @param \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionMagento
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
+     * @param \Lengow\Connector\Model\Import\OrdererrorFactory $orderErrorFactory Lengow order error factory instance
+     * @param \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory $orderErrorCollection
      * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order factory instance
-     * @param \Lengow\Connector\Model\ResourceModel\OrderlineFactory $orderLineFactory Lengow orderline factory instance
-     * @param \Lengow\Connector\Model\ResourceModel\ActionFactory $actionFactory Lengow action factory instance
+     * @param \Lengow\Connector\Model\ResourceModel\Order\CollectionFactory $orderCollection
+     * @param \Lengow\Connector\Model\Import\OrderlineFactory $orderLineFactory Lengow orderline factory instance
+     * @param \Lengow\Connector\Model\Import\ActionFactory $actionFactory Lengow action factory instance
+     * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
      */
     public function __construct(
         Context $context,
@@ -202,17 +200,17 @@ class Order extends AbstractModel
         DateTime $dateTime,
         ConvertOrder $convertOrder,
         TrackFactory $trackFactory,
-        OrdererrorFactory $orderErrorFactory,
-        OrdererrorCollectionFactory $orderErrorCollection,
-        OrderCollectionFactory $orderCollection,
         OrderCollectionMagento $orderCollectionMagento,
         DataHelper $dataHelper,
         ImportHelper $importHelper,
         ConfigHelper $configHelper,
-        Connector $connector,
+        OrdererrorFactory $orderErrorFactory,
+        OrdererrorCollectionFactory $orderErrorCollection,
         OrderFactory $lengowOrderFactory,
+        OrderCollectionFactory $orderCollection,
         OrderlineFactory $orderLineFactory,
-        ResourceActionFactory $actionFactory
+        ActionFactory $actionFactory,
+        Connector $connector
     )
     {
         $this->_invoiceService = $invoiceService;
@@ -220,17 +218,17 @@ class Order extends AbstractModel
         $this->_dateTime = $dateTime;
         $this->_convertOrder = $convertOrder;
         $this->_trackFactory = $trackFactory;
-        $this->_orderErrorFactory = $orderErrorFactory;
-        $this->_orderErrorCollection = $orderErrorCollection;
-        $this->_orderCollection = $orderCollection;
         $this->_orderCollectionMagento = $orderCollectionMagento;
         $this->_dataHelper = $dataHelper;
         $this->_importHelper = $importHelper;
         $this->_configHelper = $configHelper;
-        $this->_connector = $connector;
+        $this->_orderErrorFactory = $orderErrorFactory;
+        $this->_orderErrorCollection = $orderErrorCollection;
         $this->_lengowOrderFactory = $lengowOrderFactory;
+        $this->_orderCollection = $orderCollection;
         $this->_lengowOrderlineFactory = $orderLineFactory;
         $this->_actionFactory = $actionFactory;
+        $this->_connector = $connector;
         parent::__construct($context, $registry);
     }
 
@@ -510,9 +508,9 @@ class Order extends AbstractModel
             ) {
                 $this->toShip(
                     $order,
-                    (count($trackings) > 0 ? (string)$trackings[0]->carrier : null),
-                    (count($trackings) > 0 ? (string)$trackings[0]->method : null),
-                    (count($trackings) > 0 ? (string)$trackings[0]->number : null)
+                    count($trackings) > 0 ? (string)$trackings[0]->carrier : null,
+                    count($trackings) > 0 ? (string)$trackings[0]->method : null,
+                    count($trackings) > 0 ? (string)$trackings[0]->number : null
                 );
                 return 'Complete';
             } else {
@@ -633,6 +631,35 @@ class Order extends AbstractModel
             ->getData();
         if (count($results) > 0) {
             return (int)$results[0]['id'];
+        }
+        return false;
+    }
+
+    /**
+     * Get all unset orders
+     *
+     * @return array|false
+     */
+    public function getUnsentOrders()
+    {
+        $date = strtotime('-5 days', time());
+        $results = $this->_orderCollection->create()
+            ->join(
+                ['magento_order' => 'sales_order'],
+                'magento_order.entity_id=main_table.order_id',
+                [
+                    'store_id' => 'store_id',
+                    'updated_at' => 'updated_at',
+                    'state' => 'state'
+                ]
+            )
+            ->addFieldToFilter('magento_order.updated_at', ['from' => $date, 'datetime' => true])
+            ->addFieldToFilter('magento_order.state', [['in' => ['cancel', 'complete']]])
+            ->addFieldToFilter('main_table.order_process_state', ['eq' => 1])
+            ->addFieldToFilter('main_table.is_in_error', ['eq' => 0])
+            ->getData();
+        if (count($results) > 0) {
+            return $results;
         }
         return false;
     }
@@ -843,7 +870,10 @@ class Order extends AbstractModel
                 return false;
             }
         }
-        $orderIds = $this->getAllOrderIds($lengowOrder->getData('marketplace_sku'), $lengowOrder->getData('marketplace_name'));
+        $orderIds = $this->getAllOrderIds(
+            $lengowOrder->getData('marketplace_sku'),
+            $lengowOrder->getData('marketplace_name')
+        );
         if ($orderIds) {
             $magentoIds = [];
             foreach ($orderIds as $orderId) {

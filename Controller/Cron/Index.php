@@ -161,6 +161,7 @@ class Index extends Action
                 // sync action between Lengow and Magento
                 if (is_null($sync) || $sync === 'action') {
                     $this->_action->checkFinishAction();
+                    $this->_action->checkActionNotSent();
                 }
                 // sync options between Lengow and Magento
                 if (is_null($sync) || $sync === 'option') {
