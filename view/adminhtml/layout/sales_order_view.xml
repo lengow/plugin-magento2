@@ -1,21 +1,20 @@
 <?xml version="1.0"?>
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-2columns-left"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
-    <head>
-        <css src="Lengow_Connector::css/lengow-components.css"/>
-        <css src="Lengow_Connector::css/lengow-layout.css"/>
-        <css src="Lengow_Connector::css/lengow-pages.css"/>
-        <css src="Lengow_Connector::css/font-awesome.css"/>
-    </head>
-    <body>
-        <referenceContainer name="left">
-            <referenceBlock name="sales_order_tabs">
-                <action method="addTab">
-                    <argument name="name" xsi:type="string">TAB_NAME</argument>
-                    <argument name="block" xsi:type="string">Lengow\Connector\Block\Adminhtml\Sales\Order\Tab\Info
-                    </argument>
-                </action>
-            </referenceBlock>
-        </referenceContainer>
-    </body>
+<head>
+    <css src="Lengow_Connector::css/lengow-components.css"/>
+    <css src="Lengow_Connector::css/lengow-layout.css"/>
+    <css src="Lengow_Connector::css/lengow-pages.css"/>
+    <css src="Lengow_Connector::css/font-awesome.css"/>
+</head>
+<body>
+    <referenceContainer name="left">
+        <referenceBlock name="sales_order_tabs">
+            <action method="addTab">
+                <argument name="name" xsi:type="string">TAB_NAME</argument>
+                <argument name="block" xsi:type="string">Lengow\Connector\Block\Adminhtml\Sales\Order\Tab\Info</argument>
+            </action>
+        </referenceBlock>
+    </referenceContainer>
+</body>
 </page>
