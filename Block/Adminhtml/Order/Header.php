@@ -20,15 +20,22 @@
 namespace Lengow\Connector\Block\Adminhtml\Order;
 
 use Magento\Backend\Block\Template;
-use Lengow\Connector\Helper\Config as ConfigHelper;
 use Magento\Backend\Block\Template\Context;
+use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Import as ImportHelper;
 
 class Header extends Template
 {
+
     /**
      * @var \Lengow\Connector\Helper\Config Lengow config helper instance
      */
     protected $_configHelper;
+
+    /**
+     * @var \Lengow\Connector\Helper\Import Lengow import helper instance
+     */
+    protected $_importHelper;
 
     /**
      * Constructor
@@ -36,14 +43,17 @@ class Header extends Template
      * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
      * @param array $data additional params
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
      */
     public function __construct(
         Context $context,
         array $data = [],
-        ConfigHelper $configHelper
+        ConfigHelper $configHelper,
+        ImportHelper $importHelper
     ) {
-        parent::__construct($context, $data);
         $this->_configHelper = $configHelper;
+        $this->_importHelper = $importHelper;
+        parent::__construct($context, $data);
     }
 
     /**
@@ -55,4 +65,15 @@ class Header extends Template
     {
         return (bool)$this->_configHelper->get('preprod_mode_enable');
     }
+
+    /**
+     * Get Lengow import helper instance
+     *
+     * @return \Lengow\Connector\Helper\Import
+     */
+    public function getImportHelper()
+    {
+        return $this->_importHelper;
+    }
+
 }

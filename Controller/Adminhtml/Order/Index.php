@@ -19,12 +19,49 @@
 
 namespace Lengow\Connector\Controller\Adminhtml\Order;
 
+use Magento\Store\Model\StoreManagerInterface;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\Result\JsonFactory;
 use Lengow\Connector\Helper\Sync as SyncHelper;
+use Lengow\Connector\Helper\Import as ImportHelper;
+use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Model\Import\OrderFactory;
+use Lengow\Connector\Model\Import as ImportModel;
 
 class Index extends Action
 {
+
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager
+     */
+    protected $_storeManager;
+
+    /**
+     * @var \Magento\Framework\Controller\Result\JsonFactory Magento json factory instance
+     */
+    protected $_resultJsonFactory;
+
+    /**
+     * @var \Lengow\Connector\Model\Import Lengow import instance
+     */
+    protected $_import;
+
+    /**
+     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     */
+    protected $_dataHelper;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow import order factory instance
+     */
+    protected $_orderFactory;
+
+    /**
+     * @var \Lengow\Connector\Helper\Import Lengow import helper instance
+     */
+    protected $_importHelper;
+
     /**
      * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
      */
@@ -33,29 +70,150 @@ class Index extends Action
     /**
      * Constructor
      *
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager
      * @param \Magento\Backend\App\Action\Context $context Magento action context instance
+     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory Magento json factory instance
      * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
+     * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
+     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrder Lengow import order factory instance
+     * @param \Lengow\Connector\Model\Import $import Lengow import instance
      */
     public function __construct(
+        StoreManagerInterface $storeManager,
         Context $context,
-        SyncHelper $syncHelper
-    ) {
+        JsonFactory $resultJsonFactory,
+        SyncHelper $syncHelper,
+        ImportHelper $importHelper,
+        DataHelper $dataHelper,
+        OrderFactory $lengowOrder,
+        ImportModel $import
+    )
+    {
+        $this->_storeManager = $storeManager;
+        $this->_resultJsonFactory = $resultJsonFactory;
         $this->_syncHelper = $syncHelper;
+        $this->_importHelper = $importHelper;
+        $this->_dataHelper = $dataHelper;
+        $this->_orderFactory = $lengowOrder;
+        $this->_import = $import;
         parent::__construct($context);
     }
 
     /**
      * Index action
      *
-     * @return void
+     * @return void|string
      */
     public function execute()
     {
         if ($this->_syncHelper->pluginIsBlocked()) {
             $this->_redirect('lengow/home/index');
         } else {
-            $this->_view->loadLayout();
-            $this->_view->renderLayout();
+            if ($this->getRequest()->getParam('isAjax')) {
+                $action = $this->getRequest()->getParam('action');
+                if ($action) {
+                    switch ($action) {
+                        case 'import_all':
+                            $params = ['type' => 'manual'];
+                            $this->_import->init($params);
+                            $results = $this->_import->exec();
+                            $informations = $this->getInformations();
+                            $informations['messages'] = $this->getMessages($results);
+                            return $this->_resultJsonFactory->create()->setData(
+                                ['informations' => $informations]
+                            );
+
+                        case 'load_information':
+                            $informations = $this->getInformations();
+                            return $this->_resultJsonFactory->create()->setData(
+                                ['informations' => $informations]
+                            );
+                            break;
+                    }
+                }
+            } else {
+                $this->_view->loadLayout();
+                $this->_view->renderLayout();
+            }
         }
+    }
+
+    /**
+     * Get Messages
+     *
+     * @param array $results results from import process
+     *
+     * @return array
+     */
+    public function getMessages($results)
+    {
+        $messages = [];
+        // if global error return this
+        if (isset($results['error'][0])) {
+            $messages[] = $this->_dataHelper->decodeLogMessage($results['error'][0]);
+            return $messages;
+        }
+        if (isset($results['order_new']) && $results['order_new'] > 0) {
+            $messages[] = $this->_dataHelper->setLogMessage(
+                '%1 order(s) imported',
+                [$results['order_new']]
+            );
+        }
+        if (isset($results['order_update']) && $results['order_update'] > 0) {
+            $messages[] = $this->_dataHelper->setLogMessage(
+                '%1 order(s) updated',
+                [$results['order_update']]
+            );
+        }
+        if (isset($results['order_error']) && $results['order_error'] > 0) {
+            $messages[] = $this->_dataHelper->setLogMessage(
+                '%1 order(s) with errors',
+                [$results['order_error']]
+            );
+        }
+        if (count($messages) == 0) {
+            $messages[] = $this->_dataHelper->setLogMessage('No new notification on order');
+        }
+        if (isset($results['error'])) {
+            foreach ($results['error'] as $storeId => $values) {
+                if ((int)$storeId > 0) {
+                    $store = $this->_storeManager->getStore($storeId);
+                    $storeName = $store->getName() . ' (' . $store->getId() . ') : ';
+                    if (is_array($values)) {
+                        $messages[] = $storeName . join(', ', $this->_dataHelper->decodeLogMessage($values));
+                    } else {
+                        $messages[] = $storeName . $this->_dataHelper->decodeLogMessage($values);
+                    }
+                }
+            }
+        }
+        return $messages;
+    }
+
+    /**
+     * Get all order informations
+     *
+     * @return array
+     */
+    public function getInformations()
+    {
+        $informations = [];
+        $order = $this->_orderFactory->create();
+        $informations['order_with_error'] = $this->_dataHelper->decodeLogMessage(
+            $this->_dataHelper->setLogMessage(
+                'You have %1 order(s) with errors',
+                [$order->countOrderWithError()]
+            )
+        );
+        $informations['order_to_be_sent'] = $this->_dataHelper->decodeLogMessage(
+            $this->_dataHelper->setLogMessage(
+                'You have %1 order(s) waiting to be sent',
+                [$order->countOrderToBeSent()]
+            )
+        );
+        $informations['last_importation'] = $this->_importHelper->getLastImportDatePrint();
+
+        return $informations;
     }
 }

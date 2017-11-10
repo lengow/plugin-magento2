@@ -2,6 +2,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
         <title>Orders</title>
+        <link src="Lengow_Connector::js/order.js"/>
         <css src="Lengow_Connector::css/lengow-components.css"/>
         <css src="Lengow_Connector::css/lengow-layout.css"/>
         <css src="Lengow_Connector::css/lengow-pages.css"/>
