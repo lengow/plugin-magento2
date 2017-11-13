@@ -55,6 +55,12 @@ class Info extends Template implements TabInterface
     protected $_lengowOrderFactory;
 
     /**
+     * @var \Lengow\Connector\Model\Import\Order Lengow order instance
+     */
+    protected $_lengowOrder;
+
+
+    /**
      * Construct
      *
      * @param \Magento\Backend\Block\Template\Context $context Magento Context instance
@@ -77,6 +83,7 @@ class Info extends Template implements TabInterface
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_lengowOrderFactory = $lengowOrderFactory;
+        $this->_lengowOrder = $this->getLengowOrder();
         parent::__construct($context, $data);
     }
 
@@ -131,6 +138,37 @@ class Info extends Template implements TabInterface
     }
 
     /**
+     * Preprod mode is enabled
+     *
+     * @return boolean
+     */
+    public function preprodModeIsEnabled()
+    {
+        return (bool)$this->_configHelper->get('preprod_mode_enable');
+    }
+
+    /**
+     * Get Magento order id if exist
+     *
+     * @return integer|false
+     */
+    public function getOrderId()
+    {
+        $order = $this->getOrder();
+        return (int)$order->getId();
+    }
+
+    /**
+     * Get Lengow order id if exist
+     *
+     * @return integer|false
+     */
+    public function getLengowOrderId()
+    {
+        return $this->_lengowOrder ? (int)$this->_lengowOrder->getId() : false;
+    }
+
+    /**
      * Get Lengow order by Magento order id
      *
      * @return \Lengow\Connector\Model\Import\Order|false
@@ -162,8 +200,7 @@ class Info extends Template implements TabInterface
      */
     public function isOrderFollowedByLengow()
     {
-        $lengowOrder = $this->getLengowOrder();
-        return $lengowOrder ? true : false;
+        return $this->_lengowOrder ? true : false;
     }
 
     /**
@@ -174,35 +211,72 @@ class Info extends Template implements TabInterface
     public function getFields()
     {
         $fields = [];
-        $lengowOrder = $this->getLengowOrder();
-        if ($lengowOrder) {
-            $fields[] = ['label' => __('Marketplace SKU'), 'value' => $lengowOrder->getData('marketplace_sku')];
-            $fields[] = ['label' => __('Marketplace'), 'value' => $lengowOrder->getData('marketplace_label')];
-            $fields[] = ['label' => __('Delivery Address ID'), 'value' => $lengowOrder->getData('delivery_address_id')];
-            $fields[] = ['label' => __('Currency'), 'value' => $lengowOrder->getData('currency')];
-            $fields[] = ['label' => __('Total Paid'), 'value' => $lengowOrder->getData('total_paid')];
-            $fields[] = ['label' => __('Commission'), 'value' => $lengowOrder->getData('commission')];
-            $fields[] = ['label' => __('Customer name'), 'value' => $lengowOrder->getData('customer_name')];
-            $fields[] = ['label' => __('Customer email'), 'value' => $lengowOrder->getData('customer_email')];
-            $fields[] = ['label' => __('Carrier from marketplace'), 'value' => $lengowOrder->getData('carrier')];
+        if ($this->_lengowOrder) {
+            $fields[] = [
+                'label' => __('Marketplace SKU'),
+                'value' => $this->_lengowOrder->getData('marketplace_sku')
+            ];
+            $fields[] = [
+                'label' => __('Marketplace'),
+                'value' => $this->_lengowOrder->getData('marketplace_label')
+            ];
+            $fields[] = [
+                'label' => __('Delivery Address ID'),
+                'value' => $this->_lengowOrder->getData('delivery_address_id')
+            ];
+            $fields[] = [
+                'label' => __('Currency'),
+                'value' => $this->_lengowOrder->getData('currency')
+            ];
+            $fields[] = [
+                'label' => __('Total Paid'),
+                'value' => $this->_lengowOrder->getData('total_paid')
+            ];
+            $fields[] = [
+                'label' => __('Commission'),
+                'value' => $this->_lengowOrder->getData('commission')
+            ];
+            $fields[] = [
+                'label' => __('Customer name'),
+                'value' => $this->_lengowOrder->getData('customer_name')
+            ];
+            $fields[] = [
+                'label' => __('Customer email'),
+                'value' => $this->_lengowOrder->getData('customer_email')
+            ];
+            $fields[] = [
+                'label' => __('Carrier from marketplace'),
+                'value' => $this->_lengowOrder->getData('carrier')
+            ];
             $fields[] = [
                 'label' => __('Shipping method from marketplace'),
-                'value' => $lengowOrder->getData('carrier_method')
+                'value' => $this->_lengowOrder->getData('carrier_method')
             ];
-            $fields[] = ['label' => __('Tracking number'), 'value' => $lengowOrder->getData('carrier_tracking')];
-            $fields[] = ['label' => __('ID relay'), 'value' => $lengowOrder->getData('carrier_id_relay')];
+            $fields[] = [
+                'label' => __('Tracking number'),
+                'value' => $this->_lengowOrder->getData('carrier_tracking')
+            ];
+            $fields[] = [
+                'label' => __('ID relay'),
+                'value' => $this->_lengowOrder->getData('carrier_id_relay')
+            ];
             $fields[] = [
                 'label' => __('Shipped by marketplace'),
-                'value' => $lengowOrder->getData('sent_marketplace') == 1 ? __('Yes') : __('No')
+                'value' => $this->_lengowOrder->getData('sent_marketplace') == 1 ? __('Yes') : __('No')
             ];
-            $fields[] = ['label' => __('Message'), 'value' => $lengowOrder->getData('message')];
+            $fields[] = [
+                'label' => __('Message'),
+                'value' => $this->_lengowOrder->getData('message')
+            ];
             $fields[] = [
                 'label' => __('Imported at'),
-                'value' => $this->_dataHelper->getDateInCorrectFormat(strtotime($lengowOrder->getData('created_at')))
+                'value' => $this->_dataHelper->getDateInCorrectFormat(
+                    strtotime($this->_lengowOrder->getData('created_at'))
+                )
             ];
             $fields[] = [
                 'label' => __('JSON format'),
-                'value' => '<textarea disabled="disabled">' . $lengowOrder->getData('extra') . '</textarea>'
+                'value' => '<textarea disabled="disabled">' . $this->_lengowOrder->getData('extra') . '</textarea>'
             ];
         }
         return $fields;

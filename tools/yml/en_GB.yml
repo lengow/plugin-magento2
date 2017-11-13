@@ -97,6 +97,8 @@ en:
       extra: "JSON format"
       not_lengow_order: "This order is not from Lengow"
       not_follow_by_lengow: "Due to a reimportation, this order is not tracked by Lengow"
+      synchronize_id: "Synchronize ID"
+      check_synchronize_action: "Do you really want to synchronize the order?"
     table:
       lengow_action: "Actions"
       action_success: "Success"
