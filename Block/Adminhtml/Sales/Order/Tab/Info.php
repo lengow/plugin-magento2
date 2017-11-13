@@ -26,6 +26,7 @@ use Magento\Framework\Registry;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
+use Lengow\Connector\Model\Import\Action;
 
 class Info extends Template implements TabInterface
 {
@@ -55,6 +56,16 @@ class Info extends Template implements TabInterface
     protected $_lengowOrderFactory;
 
     /**
+     * @var \Lengow\Connector\Model\Import\Action Lengow action instance
+     */
+    protected $_action;
+
+    /**
+     * @var \Magento\Sales\Model\Order Magento order instance
+     */
+    protected $_order;
+
+    /**
      * @var \Lengow\Connector\Model\Import\Order Lengow order instance
      */
     protected $_lengowOrder;
@@ -67,7 +78,8 @@ class Info extends Template implements TabInterface
      * @param \Magento\Framework\Registry $coreRegistry Magento Registry instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
+     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order factory instance
+     * @param \Lengow\Connector\Model\Import\Action $action Lengow action instance
      * @param array $data
      */
     public function __construct(
@@ -76,6 +88,7 @@ class Info extends Template implements TabInterface
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         LengowOrderFactory $lengowOrderFactory,
+        Action $action,
         array $data = []
     )
     {
@@ -83,18 +96,10 @@ class Info extends Template implements TabInterface
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_lengowOrderFactory = $lengowOrderFactory;
+        $this->_action = $action;
+        $this->_order = $this->getOrder();
         $this->_lengowOrder = $this->getLengowOrder();
         parent::__construct($context, $data);
-    }
-
-    /**
-     * Retrieve order model instance
-     *
-     * @return \Magento\Sales\Model\Order
-     */
-    public function getOrder()
-    {
-        return $this->_coreRegistry->registry('current_order');
     }
 
     /**
@@ -138,24 +143,47 @@ class Info extends Template implements TabInterface
     }
 
     /**
-     * Preprod mode is enabled
+     * Retrieve order model instance
      *
-     * @return boolean
+     * @return \Magento\Sales\Model\Order
      */
-    public function preprodModeIsEnabled()
+    public function getOrder()
     {
-        return (bool)$this->_configHelper->get('preprod_mode_enable');
+        return $this->_coreRegistry->registry('current_order');
     }
 
     /**
-     * Get Magento order id if exist
+     * Get Lengow order by Magento order id
      *
-     * @return integer|false
+     * @return \Lengow\Connector\Model\Import\Order|false
+     */
+    public function getLengowOrder()
+    {
+        $lengowOrderId = $this->_lengowOrderFactory->create()->getLengowOrderIdByOrderId($this->getOrderId());
+        if ($lengowOrderId) {
+            return $this->_lengowOrderFactory->create()->load($lengowOrderId);
+        }
+        return false;
+    }
+
+    /**
+     * Get Magento order id
+     *
+     * @return integer
      */
     public function getOrderId()
     {
-        $order = $this->getOrder();
-        return (int)$order->getId();
+        return (int)$this->_order->getId();
+    }
+
+    /**
+     * Get Magento order status
+     *
+     * @return string
+     */
+    public function getOrderStatus()
+    {
+        return $this->_order->getStatus();
     }
 
     /**
@@ -169,18 +197,13 @@ class Info extends Template implements TabInterface
     }
 
     /**
-     * Get Lengow order by Magento order id
+     * Preprod mode is enabled
      *
-     * @return \Lengow\Connector\Model\Import\Order|false
+     * @return boolean
      */
-    public function getLengowOrder()
+    public function preprodModeIsEnabled()
     {
-        $order = $this->getOrder();
-        $lengowOrderId = $this->_lengowOrderFactory->create()->getLengowOrderIdByOrderId($order->getId());
-        if ($lengowOrderId) {
-            return $this->_lengowOrderFactory->create()->load($lengowOrderId);
-        }
-        return false;
+        return (bool)$this->_configHelper->get('preprod_mode_enable');
     }
 
     /**
@@ -190,7 +213,7 @@ class Info extends Template implements TabInterface
      */
     public function isOrderImportedByLengow()
     {
-        return (bool)$this->getOrder()->getData('from_lengow');
+        return (bool)$this->_order->getData('from_lengow');
     }
 
     /**
@@ -201,6 +224,25 @@ class Info extends Template implements TabInterface
     public function isOrderFollowedByLengow()
     {
         return $this->_lengowOrder ? true : false;
+    }
+
+    /**
+     * Check if can resend action order
+     *
+     * @return boolean
+     */
+    public function canReSendAction()
+    {
+        if (!$this->_action->getActiveActionByOrderId($this->getOrderId())) {
+            $orderStatus = $this->getOrderStatus();
+            if (($orderStatus === 'complete' || $orderStatus === 'canceled') && $this->_lengowOrder) {
+                $finishProcessState = $this->_lengowOrder->getOrderProcessState('closed');
+                if ($this->_lengowOrder->getData('order_process_state') != $finishProcessState) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
