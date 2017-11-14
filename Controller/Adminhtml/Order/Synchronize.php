@@ -82,11 +82,16 @@ class Synchronize extends Action
         parent::__construct($context);
     }
 
+    /**
+     * Synchronize action
+     *
+     * @return \Magento\Framework\Controller\Result\Redirect
+     */
     public function execute()
     {
         $orderId = $this->getRequest()->getParam('order_id');
-        $lengowOrder = $this->_lengowOrderFactory->create()->load($orderId);
-
+        $lengowOrderId = $this->getRequest()->getParam('lengow_order_id');
+        $lengowOrder = $this->_lengowOrderFactory->create()->load($lengowOrderId);
         if ($lengowOrder) {
             $synchro = $this->_lengowOrder->synchronizeOrder($lengowOrder);
             if ($synchro) {
@@ -102,9 +107,8 @@ class Synchronize extends Action
             }
             $this->_dataHelper->log('Import', $synchroMessage, false, $lengowOrder->getData('marketplace_sku'));
         }
-
         /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
-        return $resultRedirect->setPath('sales/order/view', ['order_id' => $lengowOrder->getData('order_id')]);
+        return $resultRedirect->setPath('sales/order/view', ['order_id' => $orderId]);
     }
 }

@@ -19,6 +19,16 @@ $fields = $block->getFields();
     </div>
     <?php if ($block->isOrderImportedByLengow()): ?>
         <?php if ($block->isOrderFollowedByLengow()): ?>
+            <?php if (!$block->preprodModeIsEnabled()): ?>
+                <div id="lgw-info-btn">
+                    <button type="button" class="primary">
+                        <a href="<?= $block->getUrl('lengow/order/synchronize', ['order_id' => $block->getOrderId(), 'lengow_order_id' => $block->getLengowOrderId()]) ?>"
+                            onclick="return confirm('<?= $block->escapeHtml(__('Do you really want to synchronize the order?')) ?>')">
+                            <?= $block->escapeHtml(__('Synchronize ID')) ?>
+                        </a>
+                    </button>
+                </div>
+            <?php endif; ?>
             <div class="clear"></div>
             <div class="lengow-block-full">
                 <table cellpadding="0" cellspacing="0">
