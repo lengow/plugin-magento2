@@ -24,7 +24,6 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -58,79 +57,9 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 class Importorder extends AbstractModel
 {
     /**
-     * @var \Lengow\Connector\Model\Import\OrderlineFactory
+     * @var \Magento\Sales\Api\OrderRepositoryInterface Magento order repository instance
      */
-    protected $_lengowOrderLineFactory;
-
-    /**
-     * @var StockManagementInterface
-     */
-    protected $_stockManagement;
-
-    /**
-     * @var StockRegistryInterface
-     */
-    protected $_stockRegistry;
-
-    /**
-     * @var \Magento\Shipping\Model\Config Magento shipping config
-     */
-    protected $_shippingConfig;
-
-    /**
-     * @var \Magento\Framework\DB\Transaction Magento transaction
-     */
-    protected $_transaction;
-
-    /**
-     * @var \Magento\Sales\Model\Service\InvoiceService Magento invoice service
-     */
-    protected $_invoiceService;
-
-    /**
-     * @var \Magento\Catalog\Model\ProductFactory Magento product factory
-     */
-    protected $_productFactory;
-
-    /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
-     */
-    protected $_dateTime;
-
-    /**
-     * @var \Magento\Quote\Model\QuoteManagement
-     */
-    protected $_quoteManagement;
-
-    /**
-     * @var \Magento\Sales\Model\Order order magento instance
-     */
-    protected $_order;
-
-    /**
-     * @var \Magento\Tax\Model\Calculation calculation
-     */
-    protected $_calculation;
-
-    /**
-     * @var \Magento\Tax\Model\TaxCalculation tax calculation interface
-     */
-    protected $_taxCalculation;
-
-    /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface Scope config interface
-     */
-    protected $_scopeConfig;
-
-    /**
-     * @var \Magento\Tax\Model\Config Tax configuration object
-     */
-    protected $_taxConfig;
-
-    /**
-     * @var \Magento\Quote\Model\Quote\Address
-     */
-    protected $_quoteAddress;
+    protected $_orderRepository;
 
     /**
      * @var \Magento\Customer\Api\AddressRepositoryInterface
@@ -143,14 +72,79 @@ class Importorder extends AbstractModel
     protected $_customerRepository;
 
     /**
+     * @var \Magento\Tax\Model\Config Tax configuration object
+     */
+    protected $_taxConfig;
+
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface Scope config interface
+     */
+    protected $_scopeConfig;
+
+    /**
      * @var \Magento\Store\Model\StoreManagerInterface Magento store manager
      */
     protected $_storeManager;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Ordererror Lengow ordererror instance
+     * @var \Magento\Quote\Model\Quote\Address
      */
-    protected $_orderError;
+    protected $_quoteAddress;
+
+    /**
+     * @var \Magento\Tax\Model\TaxCalculation tax calculation interface
+     */
+    protected $_taxCalculation;
+
+    /**
+     * @var \Magento\Tax\Model\Calculation calculation
+     */
+    protected $_calculation;
+
+    /**
+     * @var \Magento\Quote\Model\QuoteManagement
+     */
+    protected $_quoteManagement;
+
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     */
+    protected $_dateTime;
+
+    /**
+     * @var \Magento\Catalog\Model\ProductFactory Magento product factory
+     */
+    protected $_productFactory;
+
+    /**
+     * @var \Magento\Sales\Model\Service\InvoiceService Magento invoice service
+     */
+    protected $_invoiceService;
+
+    /**
+     * @var \Magento\Framework\DB\Transaction Magento transaction
+     */
+    protected $_transaction;
+
+    /**
+     * @var \Magento\Shipping\Model\Config Magento shipping config
+     */
+    protected $_shippingConfig;
+
+    /**
+     * @var StockRegistryInterface
+     */
+    protected $_stockRegistry;
+
+    /**
+     * @var StockManagementInterface
+     */
+    protected $_stockManagement;
+
+    /**
+     * @var \Lengow\Connector\Model\Payment\Lengow Lengow payment instance
+     */
+    protected $_lengowPayment;
 
     /**
      * @var \Lengow\Connector\Model\Import\Order Lengow order instance
@@ -158,14 +152,14 @@ class Importorder extends AbstractModel
     protected $_lengowOrder;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Orderline Lengow orderline instance
+     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order instance
      */
-    protected $_lengowOrderline;
+    protected $_lengowOrderFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Payment\Lengow Lengow payment instance
+     * @var \Lengow\Connector\Model\Import\Ordererror Lengow ordererror instance
      */
-    protected $_lengowPayment;
+    protected $_orderError;
 
     /**
      * @var \Lengow\Connector\Model\Import\Customer Lengow customer instance
@@ -178,14 +172,14 @@ class Importorder extends AbstractModel
     protected $_lengowQuoteFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order instance
+     * @var \Lengow\Connector\Model\Import\Orderline Lengow orderline instance
      */
-    protected $_lengowOrderFactory;
+    protected $_lengowOrderline;
 
     /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface Magento order repository instance
+     * @var \Lengow\Connector\Model\Import\OrderlineFactory
      */
-    protected $_orderRepository;
+    protected $_lengowOrderLineFactory;
 
     /**
      * @var \Lengow\Connector\Helper\Import Lengow import helper instance
@@ -313,6 +307,11 @@ class Importorder extends AbstractModel
     protected $_trackingNumber = null;
 
     /**
+     * @var string carrier relay id
+     */
+    protected $_relayId = null;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\Model\Context $context Magento context instance
@@ -326,14 +325,13 @@ class Importorder extends AbstractModel
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Scope config interface
      * @param \Magento\Tax\Model\TaxCalculation $taxCalculation tax calculation interface
      * @param \Magento\Tax\Model\Calculation $calculation calculation
-     * @param \Magento\Sales\Model\Order $order order magento instance
      * @param \Magento\Quote\Model\QuoteManagement $quoteManagement
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Magento\Catalog\Model\ProductFactory $productFactory Magento product factory
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService Magento invoice service
      * @param \Magento\Framework\DB\Transaction $transaction Magento transaction
      * @param \Magento\Shipping\Model\Config $shippingConfig Magento shipping config
-     * @param StockRegistryInterface $stockRegistry
+     * @param \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry Magento stock registry instance
      * @param \Magento\CatalogInventory\Api\StockManagementInterface $stockManagement
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
      * @param \Lengow\Connector\Model\Payment\Lengow $lengowPayment Lengow payment instance
@@ -359,7 +357,6 @@ class Importorder extends AbstractModel
         QuoteAddress $quoteAddress,
         TaxCalculation $taxCalculation,
         Calculation $calculation,
-        MagentoOrder $order,
         QuoteManagement $quoteManagement,
         DateTime $dateTime,
         ProductFactory $productFactory,
@@ -390,7 +387,6 @@ class Importorder extends AbstractModel
         $this->_quoteAddress = $quoteAddress;
         $this->_taxCalculation = $taxCalculation;
         $this->_calculation = $calculation;
-        $this->_order = $order;
         $this->_quoteManagement = $quoteManagement;
         $this->_dateTime = $dateTime;
         $this->_productFactory = $productFactory;
@@ -399,8 +395,8 @@ class Importorder extends AbstractModel
         $this->_shippingConfig = $shippingConfig;
         $this->_stockRegistry = $stockRegistry;
         $this->_stockManagement = $stockManagement;
-        $this->_lengowOrder = $lengowOrder;
         $this->_lengowPayment = $lengowPayment;
+        $this->_lengowOrder = $lengowOrder;
         $this->_lengowOrderFactory = $lengowOrderFactory;
         $this->_orderError = $orderError;
         $this->_lengowCustomer = $lengowCustomer;
@@ -434,7 +430,6 @@ class Importorder extends AbstractModel
         $this->_marketplaceLabel = $this->_marketplace->labelName;
         $this->_orderStateMarketplace = (string)$this->_orderData->marketplace_status;
         $this->_orderStateLengow = $this->_marketplace->getStateLengow($this->_orderStateMarketplace);
-
         return $this;
     }
 
@@ -570,7 +565,6 @@ class Importorder extends AbstractModel
                 'order_lengow_state' => $this->_orderStateLengow
             ]
         );
-
         // try to import order
         try {
             // check if the order is shipped by marketplace
@@ -606,8 +600,7 @@ class Importorder extends AbstractModel
             $quote = $this->_createQuote($customer);
             // Create Magento order
             $order = $this->_makeOrder($quote);
-
-            // If order is succesfully imported
+            // If order is successfully imported
             if ($order) {
                 // Save order line id in lengow_order_line table
                 $orderLineSaved = $this->_saveLengowOrderLine($order, $quote);
@@ -686,7 +679,6 @@ class Importorder extends AbstractModel
         } catch (\Exception $e) {
             $errorMessage = 'Magento error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
         }
-
         if (isset($errorMessage)) {
             $this->_orderError->createOrderError(
                 [
@@ -713,7 +705,7 @@ class Importorder extends AbstractModel
             );
             return $this->_returnResult('error', $this->_orderLengowId);
         }
-        return $this->_returnResult('new', $this->_orderLengowId, $order->getId());
+        return $this->_returnResult('new', $this->_orderLengowId, isset($order) ? $order->getId() : null);
     }
 
     /**
@@ -814,7 +806,13 @@ class Importorder extends AbstractModel
             $this->_marketplaceSku
         );
         $orderLengowId = $this->_lengowOrder->getLengowOrderIdWithOrderId($orderId);
+
+        // TODO load directly a new lengow order object
+
         $result = ['order_lengow_id' => $orderLengowId];
+
+        // TODO get is_reimported in lengowOrder
+
         // Lengow -> Cancel and reimport order
         if ($order->getData('is_reimported_lengow') == 1) {
             $this->_dataHelper->log(

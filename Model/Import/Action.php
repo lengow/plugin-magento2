@@ -23,11 +23,13 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Sales\Model\OrderFactory as MagentoOrderFactory;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Connector;
 use Lengow\Connector\Model\ResourceModel\Action as ResourceAction;
 use Lengow\Connector\Model\ResourceModel\Action\CollectionFactory as ActionCollectionFactory;
+use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 
 /**
  * Model import action
@@ -48,6 +50,11 @@ class Action extends AbstractModel
      * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
      */
     protected $_dateTime;
+
+    /**
+     * @var \Magento\Sales\Model\OrderFactory Magento order factory instance
+     */
+    protected $_orderFactory;
 
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
@@ -105,6 +112,7 @@ class Action extends AbstractModel
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
+     * @param \Magento\Sales\Model\OrderFactory $orderFactory Magento order factory instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
@@ -117,16 +125,18 @@ class Action extends AbstractModel
         Context $context,
         Registry $registry,
         DateTime $dateTime,
+        MagentoOrderFactory $orderFactory,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         Connector $connector,
-        OrderFactory $lengowOrderFactory,
+        LengowOrderFactory $lengowOrderFactory,
         OrdererrorFactory $orderErrorFactory,
         ActionCollectionFactory $actionCollection,
         ActionFactory $actionFactory
     )
     {
         $this->_dateTime = $dateTime;
+        $this->_orderFactory = $orderFactory;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_connector = $connector;
@@ -230,6 +240,29 @@ class Action extends AbstractModel
     }
 
     /**
+     * Find active actions by order id
+     *
+     * @param integer $orderId Magento order id
+     * @param string $actionType action type (ship or cancel)
+     *
+     * @return array|false
+     */
+    public function getActiveActionByOrderId($orderId, $actionType = null)
+    {
+        $collection = $this->_actionCollection->create()
+            ->addFieldToFilter('order_id', $orderId)
+            ->addFieldToFilter('state', self::STATE_NEW);
+        if (!is_null($actionType)) {
+            $collection->addFieldToFilter('action_type', $actionType);
+        }
+        $results = $collection->getData();
+        if (count($results) > 0) {
+            return $results;
+        }
+        return false;
+    }
+
+    /**
      * Get all active actions
      *
      * @return array|false
@@ -318,10 +351,7 @@ class Action extends AbstractModel
                                 'type' => 'send',
                             ]
                         );
-
-                        // TODO update is in error in lengow order
-                        // $lengowOrder->updateOrder(['is_in_error' => 1]);
-
+                        $lengowOrder->updateOrder(['is_in_error' => 1]);
                         $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
                         $this->_dataHelper->log(
                             'API-OrderAction',
@@ -402,20 +432,14 @@ class Action extends AbstractModel
                     if ($lengowOrderId) {
                         $lengowOrder = $this->_lengowOrderFactory->create()->load($lengowOrderId);
                         $this->_orderErrorFactory->create()->finishOrderErrors($lengowOrder->getId(), 'send');
-
-                        // TODO Delete is in error in lengow order
-                        // if ($lengowOrder->getData('is_in_error') == 1) {
-                        //     $lengowOrder->updateOrder(['is_in_error' => 0]);
-                        // }
-
+                        if ($lengowOrder->getData('is_in_error') == 1) {
+                            $lengowOrder->updateOrder(['is_in_error' => 0]);
+                        }
                         $processStateFinish = $lengowOrder->getOrderProcessState('closed');
                         if ((int)$lengowOrder->getData('order_process_state') != $processStateFinish) {
                             // If action is accepted -> close order and finish all order actions
                             if ($apiActions[$action['action_id']]->processed == true) {
-
-                                // TODO update process state in lengow order
-                                // $lengowOrder->updateOrder(['order_process_state' => $processStateFinish]);
-
+                                $lengowOrder->updateOrder(['order_process_state' => $processStateFinish]);
                                 $this->finishAllActions($action['order_id']);
                             } else {
                                 // If action is denied -> create order error
@@ -427,10 +451,7 @@ class Action extends AbstractModel
                                         'type' => 'send',
                                     ]
                                 );
-
-                                // TODO update is in error in lengow order
-                                // $lengowOrder->updateOrder(['is_in_error' => 1]);
-
+                                $lengowOrder->updateOrder(['is_in_error' => 1]);
                                 $this->_dataHelper->log(
                                     'API-OrderAction',
                                     $this->_dataHelper->setLogMessage(
@@ -451,6 +472,33 @@ class Action extends AbstractModel
         }
         // Clean actions after 3 days
         $this->finishAllOldActions();
+        return true;
+    }
+
+    /**
+     * Check if actions are not sent
+     *
+     * @return boolean
+     */
+    public function checkActionNotSent()
+    {
+        if ((bool)$this->_configHelper->get('preprod_mode_enable')) {
+            return false;
+        }
+        $this->_dataHelper->log('API-OrderAction', $this->_dataHelper->setLogMessage('check actions not sent'));
+        // Get unsent orders
+        $lengowOrder = $this->_lengowOrderFactory->create();
+        $unsentOrders = $lengowOrder->getUnsentOrders();
+        if ($unsentOrders) {
+            foreach ($unsentOrders as $unsentOrder) {
+                if (!$this->getActiveActionByOrderId((int)$unsentOrder['order_id'])) {
+                    $action = $unsentOrder['state'] == 'cancel' ? 'cancel' : 'ship';
+                    $order = $this->_orderFactory->create()->load((int)$unsentOrder['order_id']);
+                    $shipment = $action === 'ship' ? $order->getShipmentsCollection()->getFirstItem() : null;
+                    $lengowOrder->callAction($action, $order, $shipment);
+                }
+            }
+        }
         return true;
     }
 }
