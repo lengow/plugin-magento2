@@ -484,9 +484,7 @@ class Marketplace extends AbstractModel
         }
         if (isset($errorMessage)) {
             if ((int)$lengowOrder->getData('order_process_state') != $lengowOrder->getOrderProcessState('closed')) {
-
                 $lengowOrder->updateOrder(['is_in_error' => 1]);
-
                 $orderError = $this->_orderErrorFactory->create();
                 $orderError->createOrderError(
                     [

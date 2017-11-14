@@ -21,13 +21,23 @@ namespace Lengow\Connector\Controller\Adminhtml\Order;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Sales\Model\OrderFactory;
 use Magento\Framework\Controller\ResultFactory;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
-use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 
-class Synchronize extends Action
+class Resend extends Action
 {
+    /**
+     * @var \Magento\Sales\Model\OrderFactory Magento order factory instance
+     */
+    protected $_orderFactory;
+
+    /**
+     * @var \Lengow\Connector\Model\ResourceModel\Order\CollectionFactory Lengow order collection factory
+     */
+    protected $_orderCollection;
+
     /**
      * @var \Lengow\Connector\Model\Import\Order Lengow order instance
      */
@@ -39,56 +49,38 @@ class Synchronize extends Action
     protected $_dataHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order instance
-     */
-    protected $_lengowOrderFactory;
-
-    /**
      * Constructor
      *
      * @param \Magento\Framework\App\Action\Context $context Magento action context instance
+     * @param \Magento\Sales\Model\OrderFactory $orderFactory Magento order factory instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
-     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
      */
     public function __construct(
         Context $context,
+        OrderFactory $orderFactory,
         DataHelper $dataHelper,
-        LengowOrder $lengowOrder,
-        LengowOrderFactory $lengowOrderFactory
+        LengowOrder $lengowOrder
     )
     {
+        $this->_orderFactory = $orderFactory;
         $this->_dataHelper = $dataHelper;
         $this->_lengowOrder = $lengowOrder;
-        $this->_lengowOrderFactory = $lengowOrderFactory;
         parent::__construct($context);
     }
 
     /**
-     * Synchronize action
+     * Resend action
      *
      * @return \Magento\Framework\Controller\Result\Redirect
      */
     public function execute()
     {
         $orderId = $this->getRequest()->getParam('order_id');
-        $lengowOrderId = $this->getRequest()->getParam('lengow_order_id');
-        $lengowOrder = $this->_lengowOrderFactory->create()->load($lengowOrderId);
-        if ($lengowOrder) {
-            $synchro = $this->_lengowOrder->synchronizeOrder($lengowOrder);
-            if ($synchro) {
-                $synchroMessage = $this->_dataHelper->setLogMessage(
-                    'order successfully synchronised with Lengow webservice (ORDER ID %1)',
-                    [$lengowOrder->getData('order_sku')]
-                );
-            } else {
-                $synchroMessage = $this->_dataHelper->setLogMessage(
-                    'WARNING! Order could NOT be synchronised with Lengow webservice (ORDER ID %1)',
-                    [$lengowOrder->getData('order_sku')]
-                );
-            }
-            $this->_dataHelper->log('Import', $synchroMessage, false, $lengowOrder->getData('marketplace_sku'));
-        }
+        $action = $this->getRequest()->getParam('status') === 'canceled' ? 'cancel' : 'ship';
+        $order = $this->_orderFactory->create()->load((int)$orderId);
+        $shipment = $action === 'ship' ? $order->getShipmentsCollection()->getFirstItem() : null;
+        $this->_lengowOrder->callAction($action, $order, $shipment);
         /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         return $resultRedirect->setPath('sales/order/view', ['order_id' => $orderId]);

@@ -844,7 +844,7 @@ class Order extends AbstractModel
         $results = $this->_orderCollection->create()
             ->addFieldToFilter('marketplace_sku', $marketplaceSku)
             ->addFieldToFilter('marketplace_name', $marketplaceName)
-            ->addFieldToSelect('order_sku')
+            ->addFieldToSelect('order_id')
             ->getData();
         if (count($results) > 0) {
             return $results;
@@ -877,7 +877,7 @@ class Order extends AbstractModel
         if ($orderIds) {
             $magentoIds = [];
             foreach ($orderIds as $orderId) {
-                $magentoIds[] = $orderId['order_sku'];
+                $magentoIds[] = (int)$orderId['order_id'];
             }
             $result = $this->_connector->patch(
                 '/v3.0/orders/moi/',
