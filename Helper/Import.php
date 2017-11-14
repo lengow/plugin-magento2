@@ -158,7 +158,7 @@ class Import extends AbstractHelper
      */
     public function updateDateImport($type)
     {
-        if ($type === 'cron') {
+        if ($type === 'cron' || $type === 'magento cron') {
             $this->_configHelper->set('last_import_cron', $this->_dateTime->gmtTimestamp());
         } else {
             $this->_configHelper->set('last_import_manual', $this->_dateTime->gmtTimestamp());
