@@ -27,6 +27,14 @@ $fields = $block->getFields();
                             <?= $block->escapeHtml(__('Synchronize ID')) ?>
                         </a>
                     </button>
+                    <?php if ($block->canReSendAction()): ?>
+                        <button type="button" class="primary">
+                            <a href="<?= $block->getUrl('lengow/order/resend', ['order_id' => $block->getOrderId(), 'status' => $block->getOrderStatus()]) ?>"
+                               onclick="return confirm('<?= $block->escapeHtml(__('Do you really want to %1 the order?', [$block->getOrderStatus()])) ?>')">
+                                <?= $block->escapeHtml(__('Resend Action')) ?>
+                            </a>
+                        </button>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
             <div class="clear"></div>
