@@ -265,8 +265,7 @@ class Import extends AbstractHelper
     {
         $reportMailPrint = '';
         $reportMailActive = (bool)$this->_configHelper->get('report_mail_enable');
-        //TODO admin url ko
-        $reportMailLink = $this->_urlBackend->getUrl('system_config/edit/section/lengow_import_options/');
+        $reportMailLink = $this->_urlBackend->getUrl('adminhtml/system_config/edit/section/lengow_import_options/');
         $reportMails = $this->_configHelper->getReportEmailAddress();
 
         if ($reportMailActive) {
