@@ -30,8 +30,8 @@ use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Store\Model\WebsiteFactory;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
-use Lengow\Connector\Model\Export\Feed;
-use Lengow\Connector\Model\Export\Product;
+use Lengow\Connector\Model\Export\FeedFactory;
+use Lengow\Connector\Model\Export\ProductFactory;
 use Lengow\Connector\Model\Exception as LengowException;
 
 /**
@@ -85,14 +85,14 @@ class Export
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Export\Feed Lengow feed instance
+     * @var \Lengow\Connector\Model\Export\FeedFactory Lengow feed factory instance
      */
-    protected $_feed;
+    protected $_feedFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Export\Product Lengow product instance
+     * @var \Lengow\Connector\Model\Export\ProductFactory Lengow product factory instance
      */
-    protected $_product;
+    protected $_productFactory;
 
     /**
      * @var array all available params for export
@@ -275,8 +275,8 @@ class Export
      * @param \Magento\Store\Model\WebsiteFactory $websiteFactory Magento website factory instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Model\Export\Feed $feed Lengow feed instance
-     * @param \Lengow\Connector\Model\Export\Product $product Lengow product instance
+     * @param \Lengow\Connector\Model\Export\FeedFactory $feedFactory Lengow feed factory instance
+     * @param \Lengow\Connector\Model\Export\ProductFactory $productFactory Lengow product factory instance
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -288,20 +288,20 @@ class Export
         WebsiteFactory $websiteFactory,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
-        Feed $feed,
-        Product $product
+        FeedFactory $feedFactory,
+        ProductFactory $productFactory
     ) {
         $this->_storeManager = $storeManager;
-        $this->_dataHelper = $dataHelper;
-        $this->_configHelper = $configHelper;
-        $this->_feed = $feed;
-        $this->_product = $product;
-        $this->_jsonHelper = $jsonHelper;
-        $this->_websiteFactory = $websiteFactory;
         $this->_dateTime = $dateTime;
         $this->_scopeConfig = $scopeConfig;
         $this->_productStatus = $productStatus;
         $this->_productCollectionFactory = $productCollectionFactory;
+        $this->_jsonHelper = $jsonHelper;
+        $this->_websiteFactory = $websiteFactory;
+        $this->_dataHelper = $dataHelper;
+        $this->_configHelper = $configHelper;
+        $this->_feedFactory = $feedFactory;
+        $this->_productFactory = $productFactory;
     }
 
     /**
@@ -461,52 +461,54 @@ class Export
         // Get the maximum of character for yaml format
         $maxCharacter = $this->_getMaxCharacterSize($fields);
         // init product to export
-        $this->_product->init(['store' => $this->_store, 'currency' => $this->_currency]);
+        $lengowProduct = $this->_productFactory->create();
+        $lengowProduct->init(['store' => $this->_store, 'currency' => $this->_currency]);
         // init feed to export
-        $this->_feed->init(
+        $feed = $this->_feedFactory->create();
+        $feed->init(
             [
                 'stream' => $this->_stream,
                 'format' => $this->_format,
                 'store_code' => $this->_store->getCode()
             ]
         );
-        $this->_feed->write('header', $fields);
+        $feed->write('header', $fields);
         foreach ($products as $product) {
             $productDatas = [];
-            $this->_product->load(
+            $lengowProduct->load(
                 [
                     'product_id' => (int)$product['entity_id'],
                     'product_type' => $product['type_id']
                 ]
             );
-            if (!$this->_inactive && !$this->_product->isEnableForExport()) {
-                $this->_product->clean();
+            if (!$this->_inactive && !$lengowProduct->isEnableForExport()) {
+                $lengowProduct->clean();
                 continue;
             }
             foreach ($fields as $field) {
                 if (isset($this->_defaultFields[$field])) {
-                    $productDatas[$field] = $this->_product->getData($this->_defaultFields[$field]);
+                    $productDatas[$field] = $lengowProduct->getData($this->_defaultFields[$field]);
                 } else {
-                    $productDatas[$field] = $this->_product->getData($field);
+                    $productDatas[$field] = $lengowProduct->getData($field);
                 }
             }
             // write product data
-            $this->_feed->write('body', $productDatas, $isFirst, $maxCharacter);
+            $feed->write('body', $productDatas, $isFirst, $maxCharacter);
             $productCount++;
             $this->_setCounterLog($productModulo, $productCount);
             // clean data for next product
-            $this->_product->clean();
+            $lengowProduct->clean();
             unset($productDatas);
             $isFirst = false;
         }
-        $success = $this->_feed->end();
+        $success = $feed->end();
         if (!$success) {
             throw new LengowException(
-                $this->_dataHelper->setLogMessage('unable to access the folder %1', [$this->_feed->getFolderPath()])
+                $this->_dataHelper->setLogMessage('unable to access the folder %1', [$feed->getFolderPath()])
             );
         }
         // Product counter
-        $counters = $this->_product->getCounters();
+        $counters = $lengowProduct->getCounters();
         $this->_dataHelper->log(
             'Export',
             $this->_dataHelper->setLogMessage(
@@ -536,7 +538,7 @@ class Export
         }
         // Link generation
         if (!$this->_stream) {
-            $feedUrl = $this->_feed->getUrl();
+            $feedUrl = $feed->getUrl();
             if ($feedUrl) {
                 $this->_dataHelper->log(
                     'Export',
@@ -548,6 +550,7 @@ class Export
                 );
             }
         }
+        unset($lengowProduct, $feed);
     }
 
     /**
