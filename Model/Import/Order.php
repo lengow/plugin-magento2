@@ -899,4 +899,32 @@ class Order extends AbstractModel
         }
         return false;
     }
+
+    /**
+     * Count order lengow with error
+     *
+     * @return integer
+     */
+    public function countOrderWithError()
+    {
+        $results = $this->_orderCollection->create()
+            ->addFieldToFilter('is_in_error', 1)
+            ->addFieldToSelect('id')
+            ->getData();
+        return count($results);
+    }
+
+    /**
+     * Count order lengow to be sent
+     *
+     * @return integer
+     */
+    public function countOrderToBeSent()
+    {
+        $results = $this->_orderCollection->create()
+            ->addFieldToFilter('order_process_state', 1)
+            ->addFieldToSelect('id')
+            ->getData();
+        return count($results);
+    }
 }

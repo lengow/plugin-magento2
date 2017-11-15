@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Helper;
 
+use Magento\Backend\Model\UrlInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Stdlib\DateTime\DateTime;
@@ -26,15 +27,20 @@ use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Import\Ordererror;
 use Lengow\Connector\Model\Import\Marketplace;
+use Lengow\Connector\Model\Import\OrderFactory;
 
 class Import extends AbstractHelper
 {
+    /**
+     * @var \Magento\Backend\Model\UrlInterface Backend url interface
+     */
+    protected $_urlBackend;
+
     /**
      * @var \Lengow\Connector\Helper\Config Lengow config helper instance
      */
     protected $_configHelper;
 
-    /**
     /**
      * @var array marketplaces collection
      */
@@ -61,6 +67,11 @@ class Import extends AbstractHelper
     protected $_marketplace;
 
     /**
+     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow import order factory instance
+     */
+    protected $_orderFactory;
+
+    /**
      * @var array valid states lengow to create a Lengow order
      */
     protected $_lengowStates = [
@@ -72,27 +83,33 @@ class Import extends AbstractHelper
     /**
      * Constructor
      *
+     * @param \Magento\Backend\Model\UrlInterface $urlBackend Backend url interface
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
      * @param \Lengow\Connector\Model\Import\Marketplace $marketplace Lengow marketplace instance
+     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrder Lengow import order factory instance
      */
     public function __construct(
+        UrlInterface $urlBackend,
         Context $context,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         Ordererror $orderError,
         DateTime $dateTime,
-        Marketplace $marketplace
+        Marketplace $marketplace,
+        OrderFactory $lengowOrder
     )
     {
+        $this->_urlBackend = $urlBackend;
         $this->_configHelper = $configHelper;
         $this->_dataHelper = $dataHelper;
         $this->_dateTime = $dateTime;
         $this->_orderError = $orderError;
         $this->_marketplace = $marketplace;
+        $this->_orderFactory = $lengowOrder;
         parent::__construct($context);
     }
 
@@ -189,6 +206,83 @@ class Import extends AbstractHelper
         }
 
         return ['type' => 'none', 'timestamp' => 'none'];
+    }
+
+    /**
+     * Get last import to print
+     *
+     * @return string
+     */
+    public function getLastImportDatePrint()
+    {
+        $lastImport = $this->getLastImport();
+        $lastImportDate = $this->_dataHelper->getDateInCorrectFormat(time());
+        if ($lastImport['type'] != 'none') {
+            return $this->_dataHelper->decodeLogMessage(
+                $this->_dataHelper->setLogMessage(
+                    'Last synchronisation : %1',
+                    ['<b>' . $lastImportDate . '</b>']
+                )
+            );
+        } else {
+            return $this->_dataHelper->decodeLogMessage(
+                $this->_dataHelper->setLogMessage('No synchronisation for now')
+            );
+        }
+    }
+
+    /**
+     * Get number order in error to print
+     *
+     * @return string
+     */
+    public function getOrderWithErrorPrint()
+    {
+        return $this->_dataHelper->decodeLogMessage(
+            $this->_dataHelper->setLogMessage(
+                'You have %1 order(s) with errors',
+                [$this->_orderFactory->create()->countOrderWithError()]
+            )
+        );
+    }
+
+    /**
+     * Get number order to sent to print
+     *
+     * @return string
+     */
+    public function getOrderToBeSentPrint()
+    {
+        return $this->_dataHelper->decodeLogMessage(
+            $this->_dataHelper->setLogMessage(
+                'You have %1 order(s) waiting to be sent',
+                [$this->_orderFactory->create()->countOrderToBeSent()]
+            )
+        );
+    }
+
+    /**
+     * Get report email to print
+     *
+     * @return string
+     */
+    public function getReportMailPrint()
+    {
+        $reportMailPrint = '';
+        $reportMailActive = (bool)$this->_configHelper->get('report_mail_enable');
+        $reportMailLink = $this->_urlBackend->getUrl('adminhtml/system_config/edit/section/lengow_import_options/');
+        $reportMails = $this->_configHelper->getReportEmailAddress();
+
+        if ($reportMailActive) {
+            $reportMailPrint .= $this->_dataHelper->setLogMessage('All order issue reports will be sent by mail to') . ' ';
+            $reportMailPrint .= implode(', ', $reportMails) . ' ';
+        } else {
+            $reportMailPrint .= $this->_dataHelper->setLogMessage('No order issue reports will be sent by mail') . ' ';
+        }
+        $reportMailPrint .= '(<a href="' . $reportMailLink . '">' .
+            $this->_dataHelper->setLogMessage('Change this?') . '</a>)';
+
+        return $reportMailPrint;
     }
 
     /**

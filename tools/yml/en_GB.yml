@@ -38,6 +38,9 @@ en:
       get_in_touch: "Get in touch with Lengow."
       visit_help_center: "Visit our Help Center"
       configure_plugin: "for detailed information on how to configure your Magento plugin properly"
+      order_with_error: "You have %1 order(s) with errors"
+      order_to_be_sent: "You have %1 order(s) waiting to be sent"
+      last_order_importation: "Last synchronisation : %1"
   status:
     screen:
       title_end_free_trial: "All good things come to an end"
@@ -80,6 +83,7 @@ en:
   order:
     screen:
       title: "Orders"
+      button_import: "Synchronize Orders"
       preprod_warning_message: "You are in pre-production mode. You can import orders, but no interaction with Lengow is possible."
       preprod_warning_link: "Change this"
       lengow_information: "Lengow informations"
@@ -101,6 +105,10 @@ en:
       check_synchronize_action: "Do you really want to synchronize the order?"
       resend_action: "Resend Action"
       check_resend_action: "Do you really want to %1 the order?"
+      no_order_importation: "No synchronisation for now"
+      all_order_will_be_sent_to: "All order issue reports will be sent by mail to"
+      no_order_will_be_sent: "No order issue reports will be sent by mail"
+      change_this: "Change this?"
     table:
       lengow_action: "Actions"
       action_success: "Success"
@@ -226,7 +234,11 @@ en:
       action_not_created: "can't create action: %1"
       order_is_empty: "order could not be saved"
       action_is_too_old: "order action is too old. Please retry"
+      nb_order_imported: "%1 order(s) imported"
+      nb_order_updated: "%1 order(s) updated"
+      nb_order_with_error: "%1 order(s) with errors"
     error:
+      no_notification: "No new notification on order"
       nb_order_imported: "%1 order(s) imported"
       nb_order_updated: "%1 order(s) updated"
       nb_order_with_error: "%1 order(s) with errors"
