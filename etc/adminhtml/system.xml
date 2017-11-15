@@ -103,7 +103,7 @@
                     <comment>Save the feed on a file</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="export_cron_enable" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="export_cron_enable" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="1">
                     <label>Enable Magento cron</label>
                     <comment>Enable the scheduled task to export your feed every 4 hours</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
