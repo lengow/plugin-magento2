@@ -42,7 +42,6 @@ class Import extends AbstractHelper
     protected $_configHelper;
 
     /**
-     * /**
      * @var array marketplaces collection
      */
     public static $marketplaces = [];
@@ -212,7 +211,7 @@ class Import extends AbstractHelper
     /**
      * Get last import to print
      *
-     * @return array
+     * @return string
      */
     public function getLastImportDatePrint()
     {
@@ -233,6 +232,8 @@ class Import extends AbstractHelper
     }
 
     /**
+     * Get number order in error to print
+     *
      * @return string
      */
     public function getOrderWithErrorPrint()
@@ -246,6 +247,8 @@ class Import extends AbstractHelper
     }
 
     /**
+     * Get number order to sent to print
+     *
      * @return string
      */
     public function getOrderToBeSentPrint()
@@ -259,6 +262,8 @@ class Import extends AbstractHelper
     }
 
     /**
+     * Get report email to print
+     *
      * @return string
      */
     public function getReportMailPrint()
@@ -279,6 +284,7 @@ class Import extends AbstractHelper
 
         return $reportMailPrint;
     }
+
     /**
      * Get Marketplace singleton
      *
