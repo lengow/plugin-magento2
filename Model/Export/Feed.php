@@ -61,6 +61,11 @@ class Feed
     protected $_jsonHelper;
 
     /**
+     * @var \Lengow\Connector\Model\Export\FileFactory Lengow file factory instance
+     */
+    protected $_fileFactory;
+
+    /**
      * @var \Lengow\Connector\Model\Export\File Lengow file instance
      */
     protected $_file;
@@ -123,13 +128,13 @@ class Feed
         DriverFile $driverFile,
         DateTime $dateTime,
         JsonHelper $jsonHelper,
-        File $file,
+        FileFactory $fileFactory,
         DataHelper $dataHelper
     ) {
         $this->_driverFile = $driverFile;
         $this->_dateTime = $dateTime;
         $this->_jsonHelper = $jsonHelper;
-        $this->_file = $file;
+        $this->_fileFactory = $fileFactory;
         $this->_dataHelper = $dataHelper;
     }
 
@@ -145,6 +150,7 @@ class Feed
     {
         $this->_stream = $params['stream'];
         $this->_format = $params['format'];
+        $this->_file = $this->_fileFactory->create();
         if (!$this->_stream) {
             $sep = DIRECTORY_SEPARATOR;
             $this->_folderName = $this->_lengowExportFolder . $sep . $params['store_code'];
