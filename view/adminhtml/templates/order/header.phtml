@@ -18,7 +18,7 @@
             </a>
         </p>
     <?php endif; ?>
-    <div class="col-xs-8">
+    <div class="col-xs-10">
         <div id="lengow_order_with_error">
             <?= $block->getImportHelper()->getOrderWithErrorPrint() ?>
         </div>
@@ -30,13 +30,15 @@
         </div>
         <div><?= $block->getImportHelper()->getReportMailPrint() ?></div>
     </div>
-    <div class="col-xs-4">
+    <div class="col-xs-2">
         <button
             type="button"
             id="lengow_import_orders"
-            class="lgw-btn lengow_import_orders-js"
+            class="primary lengow_import_orders-js"
             data-href="<?= $block->getUrl('lengow/order/index/action/import_all/'); ?>?isAjax=true">
             <?= $block->escapeHtml(__('Synchronize Orders')); ?>
         </button>
     </div>
 </div>
+<div class="row">
+    <div id="lengow_wrapper_messages" class="blue_frame" style="display:none;"></div>
