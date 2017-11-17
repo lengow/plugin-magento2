@@ -535,10 +535,7 @@ class Import
             );
             // sending email in error for orders
             if ($this->_configHelper->get('report_mail_enable') && !$this->_preprodMode && !$this->_importOneOrder) {
-
-                // TODO Send email alert for order with error
-                // $this->_importHelper->sendMailAlert($this->_logOutput);
-
+                $this->_importHelper->sendMailAlert($this->_logOutput);
             }
             // checking marketplace actions
             if (!$this->_preprodMode && !$this->_importOneOrder && $this->_typeImport == 'manual') {
