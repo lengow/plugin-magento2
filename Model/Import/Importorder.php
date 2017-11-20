@@ -19,6 +19,8 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Magento\Quote\Api\CartManagementInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\CatalogInventory\Api\StockManagementInterface;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
@@ -56,6 +58,16 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
  */
 class Importorder extends AbstractModel
 {
+    /**
+     * @var \Magento\Quote\Api\CartManagementInterface Magento cart management instance
+     */
+    protected $_cartManagementInterface;
+
+    /**
+     * @var \Magento\Quote\Api\CartRepositoryInterface Magento cart repository instance
+     */
+    protected $_cartRepositoryInterface;
+
     /**
      * @var \Magento\Sales\Api\OrderRepositoryInterface Magento order repository instance
      */
@@ -314,6 +326,8 @@ class Importorder extends AbstractModel
     /**
      * Constructor
      *
+     * @param \Magento\Quote\Api\CartManagementInterface $cartManagement Magento cart management instance
+     * @param \Magento\Quote\Api\CartRepositoryInterface $cartRepository Magento cart repository instance
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository Lengow order instance
@@ -346,6 +360,8 @@ class Importorder extends AbstractModel
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
     public function __construct(
+        CartManagementInterface $cartManagement,
+        CartRepositoryInterface $cartRepository,
         Context $context,
         Registry $registry,
         OrderRepositoryInterface $orderRepository,
@@ -378,6 +394,8 @@ class Importorder extends AbstractModel
         ConfigHelper $configHelper
     )
     {
+        $this->_cartManagementInterface = $cartManagement;
+        $this->_cartRepositoryInterface = $cartRepository;
         $this->_orderRepository = $orderRepository;
         $this->_addressRepository = $addressRepository;
         $this->_customerRepository = $customerRepository;
@@ -492,7 +510,7 @@ class Importorder extends AbstractModel
             return false;
         }
         // if order is cancelled or new -> skip
-        if (!$this->_importHelper->checkState($this->_orderStateMarketplace, $this->_marketplace)) {
+        if (false/*!$this->_importHelper->checkState($this->_orderStateMarketplace, $this->_marketplace)*/) {
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
@@ -992,6 +1010,7 @@ class Importorder extends AbstractModel
             ->setStore($this->_storeManager->getStore($this->_storeId))
             ->setInventoryProcessed(false); // don't care about stock verification, doesn't work? set for each product?
         // TODO https://github.com/magento/magento2/issues/10304
+        // http://frankclark.xyz/magento2-1-programatically-create-order
 
         // import customer addresses into quote
         // Set billing Address
@@ -1022,6 +1041,8 @@ class Importorder extends AbstractModel
             $this->_logOutput,
             $priceIncludeTax
         );
+
+        $this->_cartRepositoryInterface->save($quote);
 
         // Get shipping cost with tax
         $shippingCost = $this->_processingFee + $this->_shippingCost;
@@ -1087,7 +1108,7 @@ class Importorder extends AbstractModel
         $quote->getPayment()->setMethod('lengow')->setAdditionnalInformation(
             ['marketplace' => (string)$this->_orderData->marketplace . $paymentInfo]
         );
-        $quote->collectTotals()->save();
+        $quote->collectTotals();
         $quote->save();
 
         return $quote;
@@ -1113,6 +1134,8 @@ class Importorder extends AbstractModel
         ];
 
         $order = $this->_quoteManagement->submit($quote, $additionalDatas);
+//        $quote = $this->_cartRepositoryInterface->get($quote->getId());
+//        $order = $this->_cartManagementInterface->submit($quote, $additionalDatas);
         if (!$order) {
             throw new LengowException(
                 $this->_dataHelper->setLogMessage('unable to create order based on given quote')

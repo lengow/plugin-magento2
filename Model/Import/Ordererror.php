@@ -214,4 +214,33 @@ class Ordererror extends AbstractModel
         }
         return false;
     }
+
+    /**
+     * Get all order errors
+     *
+     * @param integer $orderLengowId Lengow order id
+     * @param string $type order error type (import or send)
+     * @param boolean $finished log finished
+     *
+     * @return array|false
+     *
+     */
+    public function getOrderErrors($orderLengowId, $type = null, $finished = null)
+    {
+        $collection = $this->_ordererrorCollection->create()->load()
+            ->addFieldToFilter('order_lengow_id', $orderLengowId);
+        if (!is_null($type)) {
+            $errorType = $this->getOrderErrorType($type);
+            $collection->addFieldToFilter('type', $errorType);
+        }
+        if (!is_null($finished)) {
+            $errorFinished = $finished ? 1 : 0;
+            $collection->addFieldToFilter('is_finished', $errorFinished);
+        }
+        $results = $collection->getData();
+        if (count($results) > 0) {
+            return $results;
+        }
+        return false;
+    }
 }

@@ -232,7 +232,7 @@ class Import extends AbstractHelper
     }
 
     /**
-     * Get number order in error to print
+     * Get number orders in error to print
      *
      * @return string
      */
@@ -247,7 +247,7 @@ class Import extends AbstractHelper
     }
 
     /**
-     * Get number order to sent to print
+     * Get number orders to sent to print
      *
      * @return string
      */

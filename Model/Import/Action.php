@@ -262,6 +262,27 @@ class Action extends AbstractModel
         return false;
     }
 
+
+    /**
+     * Get last order action type to re-send action
+     *
+     * @param integer $orderId Magento order id
+     *
+     * @return string|false
+     */
+    public function getLastOrderActionType($orderId)
+    {
+        $results = $this->_actionCollection->create()
+            ->addFieldToFilter('order_id', $orderId)
+            ->addFieldToFilter('state', self::STATE_NEW)
+            ->addFieldToSelect('action_type');
+        if (count($results) > 0) {
+            $lastAction = $results->getLastItem()->getData();
+            return (string)$lastAction['action_type'];
+        }
+        return false;
+    }
+
     /**
      * Get all active actions
      *

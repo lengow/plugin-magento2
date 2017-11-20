@@ -18,9 +18,7 @@ require(['jquery'], function ($) {
                 context: $('.lgw-box'),
                 dataType: 'json',
                 success: function (data) {
-                    $("#lengow_order_with_error").html(data.informations.order_with_error);
-                    $("#lengow_order_to_be_sent").html(data.informations.order_to_be_sent);
-                    $("#lengow_last_importation").html(data.informations.last_importation);
+                    reloadInformations(data.informations);
                     var all_messages = '';
                     $.each(data.informations.messages, function (index, message) {
                         all_messages += message + '<br/>';
@@ -28,6 +26,7 @@ require(['jquery'], function ($) {
                     lengowWrapperMessage.html(all_messages);
                     lengowWrapperMessage.show(0.25);
                     //reload the grid
+                    //TODO ne fonctionne pas
                     var registry = require('uiRegistry');
                     registry.get('lengow_order_listing.lengow_order_listing').source.reload();
                 }
@@ -35,4 +34,29 @@ require(['jquery'], function ($) {
         });
 
     });
+
+    //TODO
+    function makeLengowActions(url, action, orderLengowId) {
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: {
+                action: action,
+                order_lengow_id: orderLengowId,
+                form_key: FORM_KEY
+            },
+            dataType: 'json',
+            success: function (data) {
+                reloadInformations(data.informations);
+                var registry = require('uiRegistry');
+                registry.get('lengow_order_listing.lengow_order_listing').source.reload();
+            }
+        });
+    }
+
+    function reloadInformations(informations) {
+        $("#lengow_order_with_error").html(informations.order_with_error);
+        $("#lengow_order_to_be_sent").html(informations.order_to_be_sent);
+        $("#lengow_last_importation").html(informations.last_importation);
+    }
 });
