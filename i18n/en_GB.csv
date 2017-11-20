@@ -88,6 +88,8 @@
 "Due to a reimportation, this order is not tracked by Lengow","Due to a reimportation, this order is not tracked by Lengow"
 "Synchronize ID","Synchronize ID"
 "Do you really want to synchronize the order?","Do you really want to synchronize the order?"
+"Re-import order","Re-import order"
+"Do you really want to re-import the order?","Do you really want to re-import the order?"
 "Resend Action","Resend Action"
 "Do you really want to %1 the order?","Do you really want to %1 the order?"
 "No synchronisation for now","No synchronisation for now"
