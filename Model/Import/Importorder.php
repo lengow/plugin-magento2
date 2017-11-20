@@ -1010,7 +1010,6 @@ class Importorder extends AbstractModel
             ->setStore($this->_storeManager->getStore($this->_storeId))
             ->setInventoryProcessed(false); // don't care about stock verification, doesn't work? set for each product?
         // TODO https://github.com/magento/magento2/issues/10304
-        // http://frankclark.xyz/magento2-1-programatically-create-order
         $this->_cartRepositoryInterface->save($quote);
 
         // import customer addresses into quote

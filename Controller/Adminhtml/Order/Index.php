@@ -137,7 +137,7 @@ class Index extends Action
                             if (!is_null($orderLengowId)) {
                                 $result = $this->_lengowOrderFactory->create()->reImportOrder((int)$orderLengowId);
                                 $informations = $this->getInformations();
-                                $informations['import_order'] = $result;
+                                $informations['messages'] = $result;
                                 return $this->_resultJsonFactory->create()->setData(
                                     ['informations' => $informations]
                                 );
@@ -147,8 +147,10 @@ class Index extends Action
                             $orderLengowId = $this->getRequest()->getParam('order_lengow_id');
                             if (!is_null($orderLengowId)) {
                                 $result = $this->_lengowOrderFactory->create()->reSendOrder((int)$orderLengowId);
+                                $informations = $this->getInformations();
+                                $informations['messages'] = $result;
                                 return $this->_resultJsonFactory->create()->setData(
-                                    ['informations' => $result] //TODO directement dans informations ?
+                                    ['informations' => $informations]
                                 );
                             }
                             break;

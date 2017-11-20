@@ -194,7 +194,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
             ? 'magento.shop'
             : $this->_dataHelper->getHost($storeId)
         );
-        // TODO : https://github.com/magento/magento2/issues/4547
+
         $array['billing_address']['email'] = $marketplaceSku . '-' . $orderData->marketplace . '@' . $domain;
         $this->_dataHelper->log(
             'Import',

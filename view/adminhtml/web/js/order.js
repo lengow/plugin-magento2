@@ -1,12 +1,12 @@
-require(['jquery'], function ($) {
+require(['jquery', 'uiRegistry'], function ($, registry) {
     $(document).ready(function () {
 
+        var lgwContainer = $('.lengow-connector');
         /**
          * Show or not the product grid
          */
-        $('.lengow-connector').on('click', '.lengow_import_orders-js', function () {
-            var href = $(this).attr('data-href'),
-                lengowWrapperMessage = $('#lengow_wrapper_messages');
+        lgwContainer.on('click', '.lengow_import_orders-js', function () {
+            var href = $(this).attr('data-href');
             $.ajax({
                 url: href,
                 method: 'POST',
@@ -18,45 +18,64 @@ require(['jquery'], function ($) {
                 context: $('.lgw-box'),
                 dataType: 'json',
                 success: function (data) {
-                    reloadInformations(data.informations);
-                    var all_messages = '';
-                    $.each(data.informations.messages, function (index, message) {
-                        all_messages += message + '<br/>';
-                    });
-                    lengowWrapperMessage.html(all_messages);
-                    lengowWrapperMessage.show(0.25);
+                    reloadInformations(data.informations, true);
                     //reload the grid
-                    //TODO ne fonctionne pas
-                    var registry = require('uiRegistry');
-                    registry.get('lengow_order_listing.lengow_order_listing').source.reload();
+                    var grid = registry.get('lengow_order_listing.lengow_order_listing').source;
+                    if (grid) {
+                        var params = [];
+                        var target = registry.get(grid);
+                        if (target && typeof target === 'object') {
+                            target.set('params.t ', Date.now());
+                        }
+                    }
                 }
             });
         });
 
+        lgwContainer.on('click', '.lgw_order_action_grid-js', function () {
+            var href = $(this).attr('data-href'),
+                lgwAction = $(this).attr('data-lgwAction'),
+                orderLengowId = $(this).attr('data-lgwOrderId');
+            $.ajax({
+                url: href,
+                method: 'POST',
+                data: {
+                    action: lgwAction,
+                    order_lengow_id: orderLengowId,
+                    form_key: FORM_KEY
+                },
+                showLoader: true,
+                dataType: 'json',
+                success: function (data) {
+                    reloadInformations(data.informations, false);
+                    var grid = registry.get('lengow_order_listing.lengow_order_listing').source;
+                    if (grid) {
+                        var params = [];
+                        var target = registry.get(grid);
+                        if (target && typeof target === 'object') {
+                            target.set('params.t ', Date.now());
+                        }
+                    }
+                }
+            });
+        });
     });
 
-    //TODO
-    function makeLengowActions(url, action, orderLengowId) {
-        $.ajax({
-            url: url,
-            method: 'POST',
-            data: {
-                action: action,
-                order_lengow_id: orderLengowId,
-                form_key: FORM_KEY
-            },
-            dataType: 'json',
-            success: function (data) {
-                reloadInformations(data.informations);
-                var registry = require('uiRegistry');
-                registry.get('lengow_order_listing.lengow_order_listing').source.reload();
-            }
-        });
-    }
-
-    function reloadInformations(informations) {
+    function reloadInformations(informations, showMessages) {
+        var lengowWrapperMessage = $('#lengow_wrapper_messages');
         $("#lengow_order_with_error").html(informations.order_with_error);
         $("#lengow_order_to_be_sent").html(informations.order_to_be_sent);
         $("#lengow_last_importation").html(informations.last_importation);
+        var all_messages = '';
+        if (showMessages) {
+            $.each(informations.messages, function (index, message) {
+                all_messages += message + '<br/>';
+            });
+            lengowWrapperMessage.html(all_messages);
+            lengowWrapperMessage.show(0.25);
+        } else {
+            lengowWrapperMessage.html(all_messages);
+            lengowWrapperMessage.hide(0.25);
+        }
     }
 });

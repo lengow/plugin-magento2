@@ -106,7 +106,7 @@ class OrdersActions extends Column
                 if ($item['is_in_error'] == 1) {
                     $orderLengowId = $item['id'];
                     $errorType = $item['order_process_state'] == 0 ? 'import' : 'send';
-                    $url = $this->urlBuilder->getUrl('adminhtml/lengow_order/') . '?isAjax=true';
+                    $url = $this->urlBuilder->getUrl('lengow/order/index') . '?isAjax=true';
                     $errorOrders = $this->_orderErrorFactory->create()->getOrderErrors($orderLengowId, $errorType, false);
                     $errorMessages = [];
                     if ($errorOrders) {
@@ -117,15 +117,15 @@ class OrdersActions extends Column
                     if ($errorType == 'import') {
                         $tootlip = $this->_dataHelper->decodeLogMessage("Order hasn't been imported into Magento")
                             . '<br/>' . join('<br/>', $errorMessages);
-                        $item['is_in_error'] = '<a class="lengow_action lengow_tooltip lgw-btn lgw-btn-white"
-                    onclick="makeLengowActions(\'' . $url . '\', \'re_import\', \'' . $orderLengowId . '\')">'
+                        $item['is_in_error'] = '<a class="lengow_action lengow_tooltip lgw-btn lgw-btn-white lgw_order_action_grid-js"
+                        data-href="' . $url . '" data-lgwAction="re_import" data-lgwOrderId="' . $orderLengowId . '">'
                             . $this->_dataHelper->decodeLogMessage('not imported')
                             . '<span class="lengow_order_action">' . $tootlip . '</span>&nbsp<i class="fa fa-refresh"></i></a>';
                     } else {
                         $tootlip = $this->_dataHelper->decodeLogMessage("Action sent to the marketplace didn't work")
                             . '<br/>' . join('<br/>', $errorMessages);
-                        $item['is_in_error'] = '<a class="lengow_action lengow_tooltip lgw-btn lgw-btn-white"
-                    onclick="makeLengowActions(\'' . $url . '\', \'re_send\', \'' . $orderLengowId . '\')">'
+                        $item['is_in_error'] = '<a class="lengow_action lengow_tooltip lgw-btn lgw-btn-white lgw_order_action_grid-js"
+                        data-href="' . $url . '" data-lgwAction="re_send" data-lgwOrderId="' . $orderLengowId . '">'
                             . $this->_dataHelper->decodeLogMessage('not sent')
                             . '<span class="lengow_order_action">' . $tootlip . '</span>&nbsp<i class="fa fa-refresh"></i></a>';
                     }
@@ -143,7 +143,11 @@ class OrdersActions extends Column
                                 . '<span class="lengow_order_action">'
                                 . $this->_dataHelper->decodeLogMessage('Action sent, waiting for response')
                                 . '</span></a>';
+                        } else {
+                            $item['is_in_error'] = '';
                         }
+                    } else {
+                        $item['is_in_error'] = '';
                     }
                 }
             }
