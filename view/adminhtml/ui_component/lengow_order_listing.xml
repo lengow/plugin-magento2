@@ -184,12 +184,5 @@
                 </item>
             </argument>
         </column>
-        <!--<actionsColumn name="orders_actions" class="Lengow\Connector\Ui\Component\Listing\Column\OrdersActions">-->
-        <!--<argument name="data" xsi:type="array">-->
-        <!--<item name="config" xsi:type="array">-->
-        <!--<item name="indexField" xsi:type="string">id</item>-->
-        <!--</item>-->
-        <!--</argument>-->
-        <!--</actionsColumn>-->
     </columns>
 </listing>

@@ -30,16 +30,15 @@ use Lengow\Connector\Model\Import\Action as ImportAction;
 
 class OrdersActions extends Column
 {
-    /** Url path */
-    const URL_PATH_EDIT = 'your/url/edit';
-    const URL_PATH_DELETE = 'your/url/delete';
 
     /**
      * @var \Magento\Sales\Api\OrderRepositoryInterface Magento order repository instance
      */
     protected $_orderRepository;
 
-    /** @var UrlInterface */
+    /**
+     * @var \Magento\Framework\UrlInterface Magento url interface
+     */
     protected $urlBuilder;
 
     /**
@@ -63,7 +62,7 @@ class OrdersActions extends Column
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository Magento order repository instance
      * @param \Magento\Framework\View\Element\UiComponent\ContextInterface $context Magento ui context instance
      * @param \Magento\Framework\View\Element\UiComponentFactory $uiComponentFactory Magento ui factory instance
-     * @param UrlInterface $urlBuilder
+     * @param \Magento\Framework\UrlInterface $urlBuilder
      * @param array $components component data
      * @param array $data additional params
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
