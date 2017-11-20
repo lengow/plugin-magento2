@@ -431,7 +431,7 @@ class Import
                         // check store catalog ids
                         if (!$this->_checkCatalogIds($store)) {
                             $errorCatalogIds = $this->_dataHelper->setLogMessage(
-                                'No catalog ID valid for the store %1 (%2)e',
+                                'No catalog ID valid for the store %1 (%2)',
                                 [$store->getName(), (int)$store->getId()]
                             );
                             $this->_dataHelper->log('Import', $errorCatalogIds, $this->_logOutput);
