@@ -27,7 +27,7 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
-use Magento\Quote\Model\Quote\Address as QuoteAddress;
+use Magento\Quote\Model\Quote\AddressFactory as QuoteAddressFactory;
 use Magento\Tax\Model\Config as TaxConfig;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Tax\Model\TaxCalculation;
@@ -87,9 +87,9 @@ class Importorder extends AbstractModel
     protected $_storeManager;
 
     /**
-     * @var \Magento\Quote\Model\Quote\Address
+     * @var \Magento\Quote\Model\Quote\AddressFactory
      */
-    protected $_quoteAddress;
+    protected $_quoteAddressFactory;
 
     /**
      * @var \Magento\Tax\Model\TaxCalculation tax calculation interface
@@ -318,7 +318,7 @@ class Importorder extends AbstractModel
      * @param \Magento\Framework\Registry $registry Magento registry instance
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository Lengow order instance
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager
-     * @param \Magento\Quote\Model\Quote\Address $quoteAddress Magento quote address
+     * @param \Magento\Quote\Model\Quote\AddressFactory $quoteAddressFactory Magento quote factory address
      * @param \Magento\Customer\Api\AddressRepositoryInterface $addressRepository
      * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
      * @param \Magento\Tax\Model\Config $taxConfig Tax configuration object
@@ -354,7 +354,7 @@ class Importorder extends AbstractModel
         TaxConfig $taxConfig,
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
-        QuoteAddress $quoteAddress,
+        QuoteAddressFactory $quoteAddressFactory,
         TaxCalculation $taxCalculation,
         Calculation $calculation,
         QuoteManagement $quoteManagement,
@@ -384,7 +384,7 @@ class Importorder extends AbstractModel
         $this->_taxConfig = $taxConfig;
         $this->_scopeConfig = $scopeConfig;
         $this->_storeManager = $storeManager;
-        $this->_quoteAddress = $quoteAddress;
+        $this->_quoteAddressFactory = $quoteAddressFactory;
         $this->_taxCalculation = $taxCalculation;
         $this->_calculation = $calculation;
         $this->_quoteManagement = $quoteManagement;
@@ -571,16 +571,14 @@ class Importorder extends AbstractModel
             if ($this->_shippedByMp) {
                 $this->_dataHelper->log(
                     'Import',
-                    $this->_dataHelper->setLogMessage(
-                        'order shipped by %1',
-                        [$this->_marketplace->name]
-                    ),
+                    $this->_dataHelper->setLogMessage('order shipped by %1', [$this->_marketplace->name]),
                     $this->_logOutput,
                     $this->_marketplaceSku
                 );
                 if (!$this->_configHelper->get('import_ship_mp_enabled', $this->_storeId)) {
                     $orderLengow->updateOrder(
                         [
+                            'is_in_error' => 0,
                             'order_process_state' => 2,
                             'extra' => json_encode($this->_orderData)
                         ]
@@ -667,9 +665,13 @@ class Importorder extends AbstractModel
                 || ($this->_shippedByMp && !$this->_configHelper->get('import_stock_ship_mp', $this->_storeId))
             ) {
                 if ($this->_isReimported) {
-                    $logMessage = $this->_dataHelper->setLogMessage('adding quantity back to stock count (order is re-imported)');
+                    $logMessage = $this->_dataHelper->setLogMessage(
+                        'adding quantity back to stock count (order is re-imported)'
+                    );
                 } else {
-                    $logMessage = $this->_dataHelper->setLogMessage('adding quantity back to stock count (order shipped by marketplace)');
+                    $logMessage = $this->_dataHelper->setLogMessage(
+                        'adding quantity back to stock count (order shipped by marketplace)'
+                    );
                 }
                 $this->_dataHelper->log('Import', $logMessage, $this->_logOutput, $this->_marketplaceSku);
                 $this->_addQuantityBack($quote);
@@ -715,10 +717,10 @@ class Importorder extends AbstractModel
     {
         $trackings = $this->_packageData->delivery->trackings;
         if (count($trackings) > 0) {
-            $this->_carrierName = (!is_null($trackings[0]->carrier) ? (string)$trackings[0]->carrier : null);
-            $this->_carrierMethod = (!is_null($trackings[0]->method) ? (string)$trackings[0]->method : null);
-            $this->_trackingNumber = (!is_null($trackings[0]->number) ? (string)$trackings[0]->number : null);
-            $this->_relayId = (!is_null($trackings[0]->relay->id) ? (string)$trackings[0]->relay->id : null);
+            $this->_carrierName = !is_null($trackings[0]->carrier) ? (string)$trackings[0]->carrier : null;
+            $this->_carrierMethod = !is_null($trackings[0]->method) ? (string)$trackings[0]->method : null;
+            $this->_trackingNumber = !is_null($trackings[0]->number) ? (string)$trackings[0]->number : null;
+            $this->_relayId = !is_null($trackings[0]->relay->id) ? (string)$trackings[0]->relay->id : null;
             if (!is_null($trackings[0]->is_delivered_by_marketplace) && $trackings[0]->is_delivered_by_marketplace) {
                 $this->_shippedByMp = true;
             }
@@ -798,23 +800,15 @@ class Importorder extends AbstractModel
         $order = $this->_orderRepository->get($orderId);
         $this->_dataHelper->log(
             'Import',
-            $this->_dataHelper->setLogMessage(
-                'order already imported (ORDER ID %1)',
-                [$order->getIncrementId()]
-            ),
+            $this->_dataHelper->setLogMessage('order already imported (ORDER ID %1)', [$order->getIncrementId()]),
             $this->_logOutput,
             $this->_marketplaceSku
         );
         $orderLengowId = $this->_lengowOrder->getLengowOrderIdWithOrderId($orderId);
-
-        // TODO load directly a new lengow order object
-
-        $result = ['order_lengow_id' => $orderLengowId];
-
-        // TODO get is_reimported in lengowOrder
-
+        $lengowOrder = $this->_lengowOrderFactory->create()->load($orderLengowId);
+        $result = ['order_lengow_id' => $lengowOrder->getId()];
         // Lengow -> Cancel and reimport order
-        if ($order->getData('is_reimported_lengow') == 1) {
+        if ($lengowOrder->getData('is_reimported') == 1) {
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
@@ -830,28 +824,24 @@ class Importorder extends AbstractModel
             // try to update magento order, lengow order and finish actions if necessary
             $orderUpdated = $this->_lengowOrder->updateState(
                 $order,
+                $lengowOrder,
                 $this->_orderStateLengow,
                 $this->_orderData,
-                $this->_packageData,
-                $orderLengowId
+                $this->_packageData
             );
             if ($orderUpdated) {
                 $result['update'] = true;
                 $this->_dataHelper->log(
                     'Import',
-                    $this->_dataHelper->setLogMessage(
-                        "order's status has been updated to %1",
-                        [$orderUpdated]
-                    ),
+                    $this->_dataHelper->setLogMessage("order's status has been updated to %1", [$orderUpdated]),
                     $this->_logOutput,
                     $this->_marketplaceSku
                 );
             }
         }
-        unset($order);
+        unset($order, $lengowOrder);
         return $result;
     }
-
 
     /**
      * Checks if an external id already exists
@@ -877,7 +867,6 @@ class Importorder extends AbstractModel
         }
         return $orderMagentoId;
     }
-
 
     /**
      * Checks if order data are present
@@ -952,9 +941,9 @@ class Importorder extends AbstractModel
             'marketplace_sku' => $this->_marketplaceSku,
             'marketplace_name' => (string)$this->_marketplace->name,
             'lengow_state' => $this->_orderStateLengow,
-            'order_new' => ($typeResult == 'new' ? true : false),
-            'order_update' => ($typeResult == 'update' ? true : false),
-            'order_error' => ($typeResult == 'error' ? true : false)
+            'order_new' => $typeResult == 'new' ? true : false,
+            'order_update' => $typeResult == 'update' ? true : false,
+            'order_error' => $typeResult == 'error' ? true : false
         ];
         return $result;
     }
@@ -992,25 +981,20 @@ class Importorder extends AbstractModel
             ->setStore($this->_storeManager->getStore($this->_storeId))
             ->setInventoryProcessed(false); // don't care about stock verification, doesn't work? set for each product?
         // TODO https://github.com/magento/magento2/issues/10304
-
         // import customer addresses into quote
         // Set billing Address
         $customerBillingAddress = $this->_addressRepository->getById($customerRepo->getDefaultBilling());
-
-        $billingAddress = $this->_quoteAddress
+        $billingAddress = $this->_quoteAddressFactory->create()
             ->setShouldIgnoreValidation(true)
             ->importCustomerAddressData($customerBillingAddress)
             ->setSaveInAddressBook(0);
-
         $customerShippingAddress = $this->_addressRepository->getById($customerRepo->getDefaultShipping());
-
-        $shippingAddress = $this->_quoteAddress
+        $shippingAddress = $this->_quoteAddressFactory->create()
             ->setShouldIgnoreValidation(true)
             ->importCustomerAddressData($customerShippingAddress)
             ->setSaveInAddressBook(0)
             ->setSameAsBilling(0);
         $quote->assignCustomerWithAddressChange($customerRepo, $billingAddress, $shippingAddress);
-
         // check if store include tax (Product and shipping cost)
         $priceIncludeTax = $this->_taxConfig->priceIncludesTax($quote->getStore());
         $shippingIncludeTax = $this->_taxConfig->shippingPriceIncludesTax($quote->getStore());
@@ -1022,7 +1006,6 @@ class Importorder extends AbstractModel
             $this->_logOutput,
             $priceIncludeTax
         );
-
         // Get shipping cost with tax
         $shippingCost = $this->_processingFee + $this->_shippingCost;
         // if shipping cost not include tax -> get shipping cost without tax
@@ -1040,7 +1023,6 @@ class Importorder extends AbstractModel
             $taxShippingCost = (float)$this->_calculation->calcTaxAmount($shippingCost, $taxRate, true);
             $shippingCost = $shippingCost - $taxShippingCost;
         }
-
         $quoteShippingAddress = $quote->getShippingAddress();
         // update shipping rates for current order
         $quoteShippingAddress->setCollectShippingRates(true);
@@ -1051,29 +1033,6 @@ class Importorder extends AbstractModel
         $quoteShippingAddress
             ->setShippingPrice($shippingCost)
             ->setShippingMethod($shippingMethod);
-
-        // Re-ajuste cents for item quote
-        // Conversion Tax Include > Tax Exclude > Tax Include maybe make 0.01 amount error
-//        if (!$priceIncludeTax) {
-//            if ($quote->getGrandTotal() != $this->_orderAmount) {
-//                $quoteItems = $quote->getAllItems();
-//                foreach ($quoteItems as $item) {
-//                    $lengowProduct = $quote->getLengowProducts((string)$item->getProduct()->getId());
-//                    if ($lengowProduct['amount'] != $item->getRowTotalInclTax()) {
-//                        $diff = $lengowProduct['amount'] - $item->getRowTotalInclTax();
-//                        $item->setPriceInclTax($item->getPriceInclTax() + ($diff / $item->getQty()));
-//                        $item->setBasePriceInclTax($item->getPriceInclTax());
-//                        $item->setPrice($item->getPrice() + ($diff / $item->getQty()));
-//                        $item->setOriginalPrice($item->getPrice());
-//                        $item->setRowTotal($item->getRowTotal() + $diff);
-//                        $item->setBaseRowTotal($item->getRowTotal());
-//                        $item->setRowTotalInclTax($lengowProduct['amount']);
-//                        $item->setBaseRowTotalInclTax($item->getRowTotalInclTax());
-//                    }
-//                }
-//            }
-//        }
-
         // get payment informations
         $paymentInfo = '';
         if (count($this->_orderData->payments) > 0) {
@@ -1111,7 +1070,6 @@ class Importorder extends AbstractModel
             'store_currency_code' => (string)$this->_orderData->currency->iso_a3,
             'order_currency_code' => (string)$this->_orderData->currency->iso_a3
         ];
-
         $order = $this->_quoteManagement->submit($quote, $additionalDatas);
         if (!$order) {
             throw new LengowException(
@@ -1129,40 +1087,6 @@ class Importorder extends AbstractModel
         $order->setCreatedAt($this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)));
         $order->setUpdatedAt($this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)));
         $order->save();
-        // Re-ajuste cents for total and shipping cost
-        // Conversion Tax Include > Tax Exclude > Tax Include maybe make 0.01 amount error
-//        $priceIncludeTax = Mage::helper('tax')->priceIncludesTax($quote->getStore());
-//        $shippingIncludeTax = Mage::helper('tax')->shippingPriceIncludesTax($quote->getStore());
-//        if (!$priceIncludeTax || !$shippingIncludeTax) {
-//            if ($order->getGrandTotal() != $this->_orderAmount) {
-//                // check Grand Total
-//                $diff = $this->_orderAmount - $order->getGrandTotal();
-//                $order->setGrandTotal($this->_orderAmount);
-//                $order->setBaseGrandTotal($order->getGrandTotal());
-//                // if the difference is only on the grand total, removing the difference of shipping cost
-//                if (($order->getSubtotalInclTax() + $order->getShippingInclTax()) == $this->_orderAmount) {
-//                    $order->setShippingAmount($order->getShippingAmount() + $diff);
-//                    $order->setBaseShippingAmount($order->getShippingAmount());
-//                } else {
-//                    // check Shipping Cost
-//                    $diffShipping = 0;
-//                    $shippingCost = $this->_processingFee + $this->_shippingCost;
-//                    if ($order->getShippingInclTax() != $shippingCost) {
-//                        $diffShipping = ($shippingCost - $order->getShippingInclTax());
-//                        $order->setShippingAmount($order->getShippingAmount() + $diffShipping);
-//                        $order->setBaseShippingAmount($order->getShippingAmount());
-//                        $order->setShippingInclTax($shippingCost);
-//                        $order->setBaseShippingInclTax($order->getShippingInclTax());
-//                    }
-//                    // update Subtotal without shipping cost
-//                    $order->setSubtotalInclTax($order->getSubtotalInclTax() + ($diff - $diffShipping));
-//                    $order->setBaseSubtotalInclTax($order->getSubtotalInclTax());
-//                    $order->setSubtotal($order->getSubtotal() + ($diff - $diffShipping));
-//                    $order->setBaseSubtotal($order->getSubtotal());
-//                }
-//            }
-//            $order->save();
-//        }
         // generate invoice for order
         if ($order->canInvoice()) {
             $this->_lengowOrder->toInvoice($order);
@@ -1214,7 +1138,9 @@ class Importorder extends AbstractModel
         // get lengow shipping method if selected shipping method is unavailable
         $this->_dataHelper->log(
             'Import',
-            $this->_dataHelper->setLogMessage('the chosen shipping method is not available for this order. Lengow has assigned a shipping method'),
+            $this->_dataHelper->setLogMessage(
+                'the chosen shipping method is not available for this order. Lengow has assigned a shipping method'
+            ),
             $this->_logOutput,
             $this->_marketplaceSku
         );

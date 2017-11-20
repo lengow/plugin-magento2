@@ -303,8 +303,12 @@ class Quote extends \Magento\Quote\Model\Quote
                 }
                 // search by field if exists
                 if ($productField) {
-                    $attributeModel = $this->_productAttribute->get($productField);
-                    if ($attributeModel->getAttributeId()) {
+                    try {
+                        $attributeModel = $this->_productAttribute->get($productField);
+                    } catch (\Exception $e) {
+                        $attributeModel = false;
+                    }
+                    if ($attributeModel) {
                         $collection = $this->_productCollection->create()
                             ->setStoreId($this->getStore()->getStoreId())
                             ->addAttributeToSelect($productField)
