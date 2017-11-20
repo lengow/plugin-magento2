@@ -22,10 +22,11 @@ namespace Lengow\Connector\Helper;
 use Magento\Backend\Model\UrlInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
-use Lengow\Connector\Model\Import\Ordererror;
+use Lengow\Connector\Model\Import\OrdererrorFactory;
 use Lengow\Connector\Model\Import\Marketplace;
 use Lengow\Connector\Model\Import\OrderFactory;
 
@@ -57,9 +58,9 @@ class Import extends AbstractHelper
     protected $_dataHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Ordererror Lengow ordererror instance
+     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow order error factory instance
      */
-    protected $_orderError;
+    protected $_orderErrorFactory;
 
     /**
      * @var \Lengow\Connector\Model\Import\Marketplace Lengow marketplace instance
@@ -88,7 +89,7 @@ class Import extends AbstractHelper
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
-     * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
+     * @param \Lengow\Connector\Model\Import\OrdererrorFactory $ordererrorFactory Lengow order error factory instance
      * @param \Lengow\Connector\Model\Import\Marketplace $marketplace Lengow marketplace instance
      * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrder Lengow import order factory instance
      */
@@ -97,7 +98,7 @@ class Import extends AbstractHelper
         Context $context,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
-        Ordererror $orderError,
+        OrdererrorFactory $ordererrorFactory,
         DateTime $dateTime,
         Marketplace $marketplace,
         OrderFactory $lengowOrder
@@ -107,7 +108,7 @@ class Import extends AbstractHelper
         $this->_configHelper = $configHelper;
         $this->_dataHelper = $dataHelper;
         $this->_dateTime = $dateTime;
-        $this->_orderError = $orderError;
+        $this->_orderErrorFactory = $ordererrorFactory;
         $this->_marketplace = $marketplace;
         $this->_orderFactory = $lengowOrder;
         parent::__construct($context);
@@ -192,7 +193,6 @@ class Import extends AbstractHelper
     {
         $timestampCron = $this->_configHelper->get('last_import_cron');
         $timestampManual = $this->_configHelper->get('last_import_manual');
-
         if ($timestampCron && $timestampManual) {
             if ((int)$timestampCron > (int)$timestampManual) {
                 return ['type' => 'cron', 'timestamp' => (int)$timestampCron];
@@ -204,7 +204,6 @@ class Import extends AbstractHelper
         } elseif ($timestampManual && !$timestampCron) {
             return ['type' => 'manual', 'timestamp' => (int)$timestampManual];
         }
-
         return ['type' => 'none', 'timestamp' => 'none'];
     }
 
@@ -320,4 +319,57 @@ class Import extends AbstractHelper
         return true;
     }
 
+    /**
+     * Check logs table and send mail for order not imported correctly
+     *
+     * @param boolean $logOutput see log or not
+     */
+    public function sendMailAlert($logOutput = false)
+    {
+        $errors = $this->_orderErrorFactory->create()->getImportErrors();
+        if ($errors) {
+            $subject = $this->_dataHelper->decodeLogMessage('Lengow imports errors');
+            $support = $this->_dataHelper->decodeLogMessage(
+                'no error message, contact support via https://supportlengow.zendesk.com/agent/'
+            );
+            $mailBody = '<h2>' . $subject . '</h2><p><ul>';
+            foreach ($errors as $error) {
+                $order = $this->_dataHelper->decodeLogMessage('Order %1', true, [$error['marketplace_sku']]);
+                $message = $error['message'] != '' ? $this->_dataHelper->decodeLogMessage($error['message']) : $support;
+                $mailBody .= '<li>' . $order . ' - ' . $message . '</li>';
+                $orderError = $this->_orderErrorFactory->create()->load((int)$error['id']);
+                $orderError->updateOrderError(['mail' => 1]);
+                unset($orderError, $order, $message);
+            }
+            $mailBody .= '</ul></p>';
+            $emails = $this->_configHelper->getReportEmailAddress();
+            foreach ($emails as $email) {
+                if (strlen($email) > 0) {
+                    $mail = new \Zend_Mail();
+                    $mail->setSubject($subject);
+                    $mail->setBodyHtml($mailBody);
+                    $mail->setFrom(
+                        $this->scopeConfig->getValue('trans_email/ident_general/email', ScopeInterface::SCOPE_STORE),
+                        'Lengow'
+                    );
+                    $mail->addTo($email);
+                    try {
+                        $mail->send();
+                        $this->_dataHelper->log(
+                            'MailReport',
+                            $this->_dataHelper->setLogMessage('report email sent to %1', [$email]),
+                            $logOutput
+                        );
+                    } catch (\Exception $e) {
+                        $this->_dataHelper->log(
+                            'MailReport',
+                            $this->_dataHelper->setLogMessage('unable to send report email to %1', [$email]),
+                            $logOutput
+                        );
+                    }
+                    unset($mail, $email);
+                }
+            }
+        }
+    }
 }

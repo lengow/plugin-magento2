@@ -243,4 +243,28 @@ class Ordererror extends AbstractModel
         }
         return false;
     }
+
+    /**
+     * Get error import logs never send by mail
+     *
+     * @return array|false
+     */
+    public function getImportErrors()
+    {
+        $results = $this->_ordererrorCollection->create()->load()
+            ->join(
+                'lengow_order',
+                '`lengow_order`.id=main_table.order_lengow_id',
+                ['marketplace_sku' => 'marketplace_sku']
+            )
+            ->addFieldToFilter('mail', ['eq' => 0])
+            ->addFieldToFilter('is_finished', ['eq' => 0])
+            ->addFieldToSelect('message')
+            ->addFieldToSelect('id')
+            ->getData();
+        if (count($results) == 0) {
+            return false;
+        }
+        return $results;
+    }
 }

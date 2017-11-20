@@ -103,6 +103,8 @@ en:
       not_follow_by_lengow: "Due to a reimportation, this order is not tracked by Lengow"
       synchronize_id: "Synchronize ID"
       check_synchronize_action: "Do you really want to synchronize the order?"
+      cancel_and_reimport: "Re-import order"
+      check_cancel_and_reimport: "Do you really want to re-import the order?"
       resend_action: "Resend Action"
       check_resend_action: "Do you really want to %1 the order?"
       no_order_importation: "No synchronisation for now"
@@ -260,3 +262,7 @@ en:
       no_country_for_delivery_address: "Lengow error: delivery address doesn't contain the country"
       no_billing_address: "Lengow error: no billing address in the order"
       no_country_for_billing_address: "Lengow error: billing address doesn't contain the country"
+    mail_report:
+      subject_report_mail: "Lengow imports errors"
+      order: "Order %1"
+      no_error_in_report_mail: "no error message, contact support via https://supportlengow.zendesk.com/agent/"

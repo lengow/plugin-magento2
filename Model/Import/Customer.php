@@ -190,12 +190,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
             'delivery_address' => $this->_extractAddressDataFromAPI($shippingAddress)
         ];
         // generation of fictitious email
-        $domain = (!$this->_dataHelper->getHost($storeId)
-            ? 'magento.shop'
-            : $this->_dataHelper->getHost($storeId)
-        );
-
-        $array['billing_address']['email'] = $marketplaceSku . '-' . $orderData->marketplace . '@' . $domain;
+        $array['billing_address']['email'] = $marketplaceSku . '-' . $orderData->marketplace . '@lengow.com';
         $this->_dataHelper->log(
             'Import',
             $this->_dataHelper->setLogMessage(
@@ -399,6 +394,8 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         $phoneOffice = empty($phoneOffice) ? $phoneHome : $phoneOffice;
         if (!empty($phoneOffice)) {
             $address->setTelephone($phoneOffice);
+        } else {
+            $address->setTelephone('__');
         }
         if (!empty($phoneOffice)) {
             $address->setFax($phoneOffice);

@@ -36,6 +36,7 @@ use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory as Orderer
 use Lengow\Connector\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
 use Lengow\Connector\Model\Connector;
 use Lengow\Connector\Model\ResourceModel\Order as OrderResource;
+use Lengow\Connector\Model\ImportFactory;
 use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Model\Import as ImportModel;
 use Lengow\Connector\Model\Import\Action as ImportAction;
@@ -156,6 +157,11 @@ class Order extends AbstractModel
     protected $_action;
 
     /**
+     * @var \Lengow\Connector\Model\ImportFactory Lengow import factory instance
+     */
+    protected $_importFactory;
+
+    /**
      * @var array $_fieldList field list for the table lengow_order_line
      * required => Required fields when creating registration
      * update   => Fields allowed when updating registration
@@ -184,6 +190,7 @@ class Order extends AbstractModel
         'carrier_id_relay' => ['required' => false, 'updated' => true],
         'sent_marketplace' => ['required' => false, 'updated' => true],
         'is_in_error' => ['required' => false, 'updated' => true],
+        'is_reimported' => ['required' => false, 'updated' => true],
         'message' => ['required' => true, 'updated' => true],
         'extra' => ['required' => false, 'updated' => true]
     ];
@@ -212,6 +219,7 @@ class Order extends AbstractModel
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
      * @param \Lengow\Connector\Model\Import $import Lengow import instance
      * @param \Lengow\Connector\Model\Import\Action $action Lengow action instance
+     * @param \Lengow\Connector\Model\ImportFactory $importFactory Lengow import factory instance
      */
     public function __construct(
         MagentoOrderFactory $orderFactory,
@@ -234,7 +242,8 @@ class Order extends AbstractModel
         ActionFactory $actionFactory,
         Connector $connector,
         ImportModel $import,
-        ImportAction $action
+        ImportAction $action,
+        ImportFactory $importFactory
     )
     {
         $this->_orderFactory = $orderFactory;
@@ -256,6 +265,7 @@ class Order extends AbstractModel
         $this->_connector = $connector;
         $this->_import = $import;
         $this->_action = $action;
+        $this->_importFactory = $importFactory;
         parent::__construct($context, $registry);
     }
 
@@ -387,13 +397,12 @@ class Order extends AbstractModel
     {
         // get order id Magento from our table
         $results = $this->_orderCollection->create()
-            ->addFieldToFilter('order_sku', $marketplaceSku)
-            ->addFieldToFilter('marketplace_name', ['in' => $marketplaceName])
+            ->addFieldToFilter('marketplace_sku', $marketplaceSku)
+            ->addFieldToFilter('marketplace_name', $marketplaceName)
             ->addFieldToFilter('delivery_address_id', $deliveryAddressId)
             ->addFieldToSelect('order_id')
             ->load()
             ->getData();
-
         if (count($results) > 0) {
             return $results[0]['order_id'];
         }
@@ -489,15 +498,15 @@ class Order extends AbstractModel
     /**
      * Update order state to marketplace state
      *
-     * @param \Magento\Sales\Model\Order $order Magento order instance
+     * @param \Magento\Sales\Model\Order|\Magento\Sales\Api\Data\OrderInterface $order Magento order instance
+     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
      * @param string $orderStateLengow lengow order status
      * @param mixed $orderData order data
      * @param mixed $packageData package data
-     * @param mixed $orderLengowId lengow order id or false
      *
      * @return string|false
      */
-    public function updateState($order, $orderStateLengow, $orderData, $packageData, $orderLengowId)
+    public function updateState($order, $lengowOrder, $orderStateLengow, $orderData, $packageData)
     {
         // Finish actions if lengow order is shipped, closed or cancel
         $orderProcessState = $this->getOrderProcessState($orderStateLengow);
@@ -506,26 +515,22 @@ class Order extends AbstractModel
             $this->_actionFactory->create()->finishAllActions($order->getId());
         }
         // Update Lengow order if necessary
-        if ($orderLengowId) {
-            $orderLengow = $this->_lengowOrderFactory->create()->load($orderLengowId);
-            $params = [];
-            if ($orderLengow->getData('order_lengow_state') != $orderStateLengow) {
-                $params['order_lengow_state'] = $orderStateLengow;
-                $params['extra'] = json_encode($orderData);
-                $params['tracking'] = count($trackings) > 0 ? (string)$trackings[0]->number : null;
+        $params = [];
+        if ($lengowOrder->getData('order_lengow_state') != $orderStateLengow) {
+            $params['order_lengow_state'] = $orderStateLengow;
+            $params['extra'] = json_encode($orderData);
+            $params['tracking'] = count($trackings) > 0 ? (string)$trackings[0]->number : null;
+        }
+        if ($orderProcessState == self::PROCESS_STATE_FINISH) {
+            if ((int)$lengowOrder->getData('order_process_state') != $orderProcessState) {
+                $params['order_process_state'] = $orderProcessState;
             }
-            if ($orderProcessState == self::PROCESS_STATE_FINISH) {
-                if ((int)$orderLengow->getData('order_process_state') != $orderProcessState) {
-                    $params['order_process_state'] = $orderProcessState;
-                }
-                if ((int)$orderLengow->getData('is_in_error') != 0) {
-                    $params['is_in_error'] = 0;
-                }
+            if ((int)$lengowOrder->getData('is_in_error') != 0) {
+                $params['is_in_error'] = 0;
             }
-            if (count($params) > 0) {
-                $orderLengow->updateOrder($params);
-            }
-            unset($orderLengow);
+        }
+        if (count($params) > 0) {
+            $lengowOrder->updateOrder($params);
         }
         // Update Magento order's status only if in accepted, waiting_shipment, shipped, closed or cancel
         if ($order->getState() != $this->getOrderState($orderStateLengow) && $order->getData('from_lengow') == 1) {
@@ -569,7 +574,7 @@ class Order extends AbstractModel
     /**
      * Create invoice
      *
-     * @param \Magento\Sales\Model\Order $order Magento order instance
+     * @param \Magento\Sales\Model\Order|\Magento\Sales\Api\Data\OrderInterface $order Magento order instance
      */
     public function toInvoice($order)
     {
@@ -590,7 +595,7 @@ class Order extends AbstractModel
     /**
      * Ship order
      *
-     * @param \Magento\Sales\Model\Order $order Magento order instance
+     * @param \Magento\Sales\Model\Order|\Magento\Sales\Api\Data\OrderInterface $order Magento order instance
      * @param string $carrierName carrier name
      * @param string $carrierMethod carrier method
      * @param string $trackingNumber tracking number
@@ -768,6 +773,67 @@ class Order extends AbstractModel
             default:
                 return false;
         }
+    }
+
+    /**
+     * Cancel and re-import order
+     *
+     * @param \Magento\Sales\Model\Order $order Magento order instance
+     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     *
+     * @return integer|false
+     */
+    public function cancelAndReImportOrder($order, $lengowOrder)
+    {
+        if (!$this->isReimported($lengowOrder)) {
+            return false;
+        }
+        $params = [
+            'marketplace_sku' => $lengowOrder->getData('marketplace_sku'),
+            'marketplace_name' => $lengowOrder->getData('marketplace_name'),
+            'delivery_address_id' => $lengowOrder->getData('delivery_address_id'),
+            'store_id' => $order->getData('store_id')
+        ];
+        $import = $this->_importFactory->create();
+        $import->init($params);
+        $result = $import->exec();
+        if ((isset($result['order_id']) && $result['order_id'] != $order->getData('order_id'))
+            && (isset($result['order_new']) && $result['order_new'])
+        ) {
+            // if state != STATE_COMPLETE or != STATE_CLOSED
+            $order->setState('lengow_technical_error')->setStatus('lengow_technical_error');
+            $order->save();
+            return (int)$result['order_id'];
+        } else {
+            // Finish all order errors before API call
+            $this->_orderErrorFactory->create()->finishOrderErrors($lengowOrder->getId());
+            $lengowOrder->updateOrder(
+                [
+                    'order_id' => $order->getId(),
+                    'order_sku' => $order->getIncrementId(),
+                    'is_reimported' => 0,
+                    'is_in_error' => 0
+                ]
+            );
+        }
+        return false;
+    }
+
+    /**
+     * Mark Lengow order as is_reimported in lengow_order table
+     *
+     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     *
+     * @return boolean
+     */
+    public function isReimported($lengowOrder)
+    {
+        $lengowOrder->updateOrder(['is_reimported' => 1]);
+        // check success update in database
+        if ($lengowOrder->getData('is_reimported') == 1) {
+            return true;
+        }
+        return false;
     }
 
     /**

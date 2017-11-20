@@ -23,9 +23,9 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Sales\Model\OrderFactory;
 use Magento\Framework\Controller\ResultFactory;
-use Lengow\Connector\Model\Import\Order as LengowOrder;
+use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 
-class Resend extends Action
+class Reimport extends Action
 {
     /**
      * @var \Magento\Sales\Model\OrderFactory Magento order factory instance
@@ -33,25 +33,25 @@ class Resend extends Action
     protected $_orderFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Order Lengow order instance
+     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order factory instance
      */
-    protected $_lengowOrder;
+    protected $_lengowOrderFactory;
 
     /**
      * Constructor
      *
      * @param \Magento\Framework\App\Action\Context $context Magento action context instance
      * @param \Magento\Sales\Model\OrderFactory $orderFactory Magento order factory instance
-     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order factory instance
      */
     public function __construct(
         Context $context,
         OrderFactory $orderFactory,
-        LengowOrder $lengowOrder
+        LengowOrderFactory $lengowOrderFactory
     )
     {
         $this->_orderFactory = $orderFactory;
-        $this->_lengowOrder = $lengowOrder;
+        $this->_lengowOrderFactory = $lengowOrderFactory;
         parent::__construct($context);
     }
 
@@ -63,12 +63,13 @@ class Resend extends Action
     public function execute()
     {
         $orderId = $this->getRequest()->getParam('order_id');
-        $action = $this->getRequest()->getParam('status') === 'canceled' ? 'cancel' : 'ship';
+        $lengowOrderId = $this->getRequest()->getParam('lengow_order_id');
         $order = $this->_orderFactory->create()->load((int)$orderId);
-        $shipment = $action === 'ship' ? $order->getShipmentsCollection()->getFirstItem() : null;
-        $this->_lengowOrder->callAction($action, $order, $shipment);
+        $lengowOrder = $this->_lengowOrderFactory->create()->load((int)$lengowOrderId);
+        $newOrderId = $this->_lengowOrderFactory->create()->cancelAndReImportOrder($order, $lengowOrder);
+        $newOrderId = !$newOrderId ? $orderId : $newOrderId;
         /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
-        return $resultRedirect->setPath('sales/order/view', ['order_id' => $orderId]);
+        return $resultRedirect->setPath('sales/order/view', ['order_id' => $newOrderId]);
     }
 }

@@ -27,6 +27,12 @@ $fields = $block->getFields();
                             <?= $block->escapeHtml(__('Synchronize ID')) ?>
                         </a>
                     </button>
+                    <button type="button" class="primary">
+                        <a href="<?= $block->getUrl('lengow/order/reimport', ['order_id' => $block->getOrderId(), 'lengow_order_id' => $block->getLengowOrderId()]) ?>"
+                           onclick="return confirm('<?= $block->escapeHtml(__('Do you really want to re-import the order?')) ?>')">
+                            <?= $block->escapeHtml(__('Re-import order')) ?>
+                        </a>
+                    </button>
                     <?php if ($block->canReSendAction()): ?>
                         <button type="button" class="primary">
                             <a href="<?= $block->getUrl('lengow/order/resend', ['order_id' => $block->getOrderId(), 'status' => $block->getOrderStatus()]) ?>"
