@@ -370,13 +370,12 @@ class Order extends AbstractModel
     {
         // get order id Magento from our table
         $results = $this->_orderCollection->create()
-            ->addFieldToFilter('order_sku', $marketplaceSku)
-            ->addFieldToFilter('marketplace_name', ['in' => $marketplaceName])
+            ->addFieldToFilter('marketplace_sku', $marketplaceSku)
+            ->addFieldToFilter('marketplace_name', $marketplaceName)
             ->addFieldToFilter('delivery_address_id', $deliveryAddressId)
             ->addFieldToSelect('order_id')
             ->load()
             ->getData();
-
         if (count($results) > 0) {
             return $results[0]['order_id'];
         }

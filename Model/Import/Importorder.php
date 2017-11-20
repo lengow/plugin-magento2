@@ -27,7 +27,7 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
-use Magento\Quote\Model\Quote\Address as QuoteAddress;
+use Magento\Quote\Model\Quote\AddressFactory as QuoteAddressFactory;
 use Magento\Tax\Model\Config as TaxConfig;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Tax\Model\TaxCalculation;
@@ -87,9 +87,9 @@ class Importorder extends AbstractModel
     protected $_storeManager;
 
     /**
-     * @var \Magento\Quote\Model\Quote\Address
+     * @var \Magento\Quote\Model\Quote\AddressFactory
      */
-    protected $_quoteAddress;
+    protected $_quoteAddressFactory;
 
     /**
      * @var \Magento\Tax\Model\TaxCalculation tax calculation interface
@@ -318,7 +318,7 @@ class Importorder extends AbstractModel
      * @param \Magento\Framework\Registry $registry Magento registry instance
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository Lengow order instance
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager
-     * @param \Magento\Quote\Model\Quote\Address $quoteAddress Magento quote address
+     * @param \Magento\Quote\Model\Quote\AddressFactory $quoteAddressFactory Magento quote factory address
      * @param \Magento\Customer\Api\AddressRepositoryInterface $addressRepository
      * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
      * @param \Magento\Tax\Model\Config $taxConfig Tax configuration object
@@ -354,7 +354,7 @@ class Importorder extends AbstractModel
         TaxConfig $taxConfig,
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
-        QuoteAddress $quoteAddress,
+        QuoteAddressFactory $quoteAddressFactory,
         TaxCalculation $taxCalculation,
         Calculation $calculation,
         QuoteManagement $quoteManagement,
@@ -384,7 +384,7 @@ class Importorder extends AbstractModel
         $this->_taxConfig = $taxConfig;
         $this->_scopeConfig = $scopeConfig;
         $this->_storeManager = $storeManager;
-        $this->_quoteAddress = $quoteAddress;
+        $this->_quoteAddressFactory = $quoteAddressFactory;
         $this->_taxCalculation = $taxCalculation;
         $this->_calculation = $calculation;
         $this->_quoteManagement = $quoteManagement;
@@ -571,16 +571,14 @@ class Importorder extends AbstractModel
             if ($this->_shippedByMp) {
                 $this->_dataHelper->log(
                     'Import',
-                    $this->_dataHelper->setLogMessage(
-                        'order shipped by %1',
-                        [$this->_marketplace->name]
-                    ),
+                    $this->_dataHelper->setLogMessage('order shipped by %1', [$this->_marketplace->name]),
                     $this->_logOutput,
                     $this->_marketplaceSku
                 );
                 if (!$this->_configHelper->get('import_ship_mp_enabled', $this->_storeId)) {
                     $orderLengow->updateOrder(
                         [
+                            'is_in_error' => 0,
                             'order_process_state' => 2,
                             'extra' => json_encode($this->_orderData)
                         ]
@@ -943,9 +941,9 @@ class Importorder extends AbstractModel
             'marketplace_sku' => $this->_marketplaceSku,
             'marketplace_name' => (string)$this->_marketplace->name,
             'lengow_state' => $this->_orderStateLengow,
-            'order_new' => ($typeResult == 'new' ? true : false),
-            'order_update' => ($typeResult == 'update' ? true : false),
-            'order_error' => ($typeResult == 'error' ? true : false)
+            'order_new' => $typeResult == 'new' ? true : false,
+            'order_update' => $typeResult == 'update' ? true : false,
+            'order_error' => $typeResult == 'error' ? true : false
         ];
         return $result;
     }
@@ -986,12 +984,12 @@ class Importorder extends AbstractModel
         // import customer addresses into quote
         // Set billing Address
         $customerBillingAddress = $this->_addressRepository->getById($customerRepo->getDefaultBilling());
-        $billingAddress = $this->_quoteAddress
+        $billingAddress = $this->_quoteAddressFactory->create()
             ->setShouldIgnoreValidation(true)
             ->importCustomerAddressData($customerBillingAddress)
             ->setSaveInAddressBook(0);
         $customerShippingAddress = $this->_addressRepository->getById($customerRepo->getDefaultShipping());
-        $shippingAddress = $this->_quoteAddress
+        $shippingAddress = $this->_quoteAddressFactory->create()
             ->setShouldIgnoreValidation(true)
             ->importCustomerAddressData($customerShippingAddress)
             ->setSaveInAddressBook(0)
