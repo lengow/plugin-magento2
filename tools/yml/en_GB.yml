@@ -120,6 +120,7 @@ en:
       status_waiting_shipment: "Awaiting shipment"
       status_shipped: "Shipped"
       status_closed: "Closed"
+      status_shipped_by_mkp: "Shipped by Marketplace"
       status_canceled: "Canceled"
       marketplace_name: "Marketplace"
       store: "Store"

@@ -22,6 +22,7 @@ namespace Lengow\Connector\Block\Adminhtml\Home;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Lengow\Connector\Helper\Sync as SyncHelper;
+use Lengow\Connector\Model\Import\OrderFactory;
 
 class Dashboard extends Template
 {
@@ -29,6 +30,11 @@ class Dashboard extends Template
      * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
      */
     protected $_syncHelper;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order instance
+     */
+    protected $_lengowOrderFactory;
 
     /**
      * @var array Lengow statistics
@@ -46,18 +52,21 @@ class Dashboard extends Template
      * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
      * @param array $data additional params
      * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
+     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
      */
     public function __construct(
         Context $context,
         array $data = [],
-        SyncHelper $syncHelper
+        SyncHelper $syncHelper,
+        OrderFactory $lengowOrderFactory
     ) {
         parent::__construct($context, $data);
         $this->_syncHelper = $syncHelper;
+        $this->_lengowOrderFactory = $lengowOrderFactory;
         if (!$this->_syncHelper->pluginIsBlocked()) {
             $this->_stats = $this->_syncHelper->getStatistic();
         }
-        // TODO get number of order to be sent
+        $this->_numberOrderToBeSent = $this->_lengowOrderFactory->create()->countOrderToBeSent();
     }
 
     /**
