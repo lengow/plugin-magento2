@@ -18,6 +18,10 @@ body.lengow-connector .middle,
 
 /* GRID */
 
+.lengow-order-index .admin__data-grid-wrap {
+    overflow-x: visible;
+}
+
 .lgw-row {
   margin-left: -15px;
   margin-right: -15px;
@@ -76,6 +80,10 @@ width: 41.67%;
 
 .clearfix {
   clear: both;
+}
+
+.lengowActionBox .data-grid-cell-content {
+    overflow: visible;
 }
 
 /* SECTIONS */

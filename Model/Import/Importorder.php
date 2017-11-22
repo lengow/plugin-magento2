@@ -19,6 +19,8 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Magento\Quote\Api\CartManagementInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\CatalogInventory\Api\StockManagementInterface;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
@@ -56,6 +58,16 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
  */
 class Importorder extends AbstractModel
 {
+    /**
+     * @var \Magento\Quote\Api\CartManagementInterface Magento cart management instance
+     */
+    protected $_cartManagementInterface;
+
+    /**
+     * @var \Magento\Quote\Api\CartRepositoryInterface Magento cart repository instance
+     */
+    protected $_cartRepositoryInterface;
+
     /**
      * @var \Magento\Sales\Api\OrderRepositoryInterface Magento order repository instance
      */
@@ -314,6 +326,8 @@ class Importorder extends AbstractModel
     /**
      * Constructor
      *
+     * @param \Magento\Quote\Api\CartManagementInterface $cartManagement Magento cart management instance
+     * @param \Magento\Quote\Api\CartRepositoryInterface $cartRepository Magento cart repository instance
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository Lengow order instance
@@ -346,6 +360,8 @@ class Importorder extends AbstractModel
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
     public function __construct(
+        CartManagementInterface $cartManagement,
+        CartRepositoryInterface $cartRepository,
         Context $context,
         Registry $registry,
         OrderRepositoryInterface $orderRepository,
@@ -378,6 +394,8 @@ class Importorder extends AbstractModel
         ConfigHelper $configHelper
     )
     {
+        $this->_cartManagementInterface = $cartManagement;
+        $this->_cartRepositoryInterface = $cartRepository;
         $this->_orderRepository = $orderRepository;
         $this->_addressRepository = $addressRepository;
         $this->_customerRepository = $customerRepository;
@@ -979,7 +997,9 @@ class Importorder extends AbstractModel
         $quote = $this->_lengowQuoteFactory->create()
             ->setIsMultiShipping(false)
             ->setStore($this->_storeManager->getStore($this->_storeId))
-            ->setInventoryProcessed(false);
+            ->setInventoryProcessed(false); // don't care about stock verification, doesn't work? set for each product?
+        $this->_cartRepositoryInterface->save($quote);
+
         // import customer addresses into quote
         // Set billing Address
         $customerBillingAddress = $this->_addressRepository->getById($customerRepo->getDefaultBilling());
@@ -1005,6 +1025,9 @@ class Importorder extends AbstractModel
             $this->_logOutput,
             $priceIncludeTax
         );
+
+        $this->_cartRepositoryInterface->save($quote);
+
         // Get shipping cost with tax
         $shippingCost = $this->_processingFee + $this->_shippingCost;
         // if shipping cost not include tax -> get shipping cost without tax
@@ -1045,7 +1068,7 @@ class Importorder extends AbstractModel
         $quote->getPayment()->setMethod('lengow')->setAdditionnalInformation(
             ['marketplace' => (string)$this->_orderData->marketplace . $paymentInfo]
         );
-        $quote->collectTotals()->save();
+        $quote->collectTotals();
         $quote->save();
 
         return $quote;
