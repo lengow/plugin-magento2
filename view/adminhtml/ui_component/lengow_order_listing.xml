@@ -74,15 +74,6 @@
         </paging>
     </container>
     <massaction name="listing_massaction">
-        <argument name="data" xsi:type="array">
-            <item name="config" xsi:type="array">
-                <item name="selectProvider" xsi:type="string">
-                    lengow_order_listing.lengow_order_listing.lengow_order_columns.ids
-                </item>
-                <item name="displayArea" xsi:type="string">bottom</item>
-                <item name="indexField" xsi:type="string">id</item>
-            </item>
-        </argument>
         <action name="reimport">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
