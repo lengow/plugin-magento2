@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Magento\Sales\Model\OrderFactory as MagentoOrderFactory;
 use Magento\Sales\Model\Order\Shipment\TrackFactory;
 use Magento\Sales\Model\Convert\Order as ConvertOrder;
 use Magento\Framework\Model\AbstractModel;
@@ -37,6 +38,8 @@ use Lengow\Connector\Model\Connector;
 use Lengow\Connector\Model\ResourceModel\Order as OrderResource;
 use Lengow\Connector\Model\ImportFactory;
 use Lengow\Connector\Model\Exception as LengowException;
+use Lengow\Connector\Model\Import as ImportModel;
+use Lengow\Connector\Model\Import\Action as ImportAction;
 
 /**
  * Model import order
@@ -57,6 +60,11 @@ class Order extends AbstractModel
      * @var integer order process state for order finished
      */
     const PROCESS_STATE_FINISH = 2;
+
+    /**
+     * @var \Magento\Sales\Model\OrderFactory Magento order factory instance
+     */
+    protected $_orderFactory;
 
     /**
      * @var \Magento\Sales\Model\Service\InvoiceService Magento invoice service
@@ -134,9 +142,19 @@ class Order extends AbstractModel
     protected $_actionFactory;
 
     /**
+     * @var \Lengow\Connector\Model\Import Lengow import instance
+     */
+    protected $_import;
+
+    /**
      * @var \Lengow\Connector\Model\Connector Lengow connector instance
      */
     protected $_connector;
+
+    /**
+     * @var \Lengow\Connector\Model\Import\Action Lengow action instance
+     */
+    protected $_action;
 
     /**
      * @var \Lengow\Connector\Model\ImportFactory Lengow import factory instance
@@ -180,6 +198,7 @@ class Order extends AbstractModel
     /**
      * Constructor
      *
+     * @param \Magento\Sales\Model\OrderFactory $orderFactory Magento order factory instance
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService Magento invoice service
@@ -198,9 +217,12 @@ class Order extends AbstractModel
      * @param \Lengow\Connector\Model\Import\OrderlineFactory $orderLineFactory Lengow orderline factory instance
      * @param \Lengow\Connector\Model\Import\ActionFactory $actionFactory Lengow action factory instance
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
+     * @param \Lengow\Connector\Model\Import $import Lengow import instance
+     * @param \Lengow\Connector\Model\Import\Action $action Lengow action instance
      * @param \Lengow\Connector\Model\ImportFactory $importFactory Lengow import factory instance
      */
     public function __construct(
+        MagentoOrderFactory $orderFactory,
         Context $context,
         Registry $registry,
         InvoiceService $invoiceService,
@@ -219,9 +241,12 @@ class Order extends AbstractModel
         OrderlineFactory $orderLineFactory,
         ActionFactory $actionFactory,
         Connector $connector,
+        ImportModel $import,
+        ImportAction $action,
         ImportFactory $importFactory
     )
     {
+        $this->_orderFactory = $orderFactory;
         $this->_invoiceService = $invoiceService;
         $this->_transaction = $transaction;
         $this->_dateTime = $dateTime;
@@ -238,6 +263,8 @@ class Order extends AbstractModel
         $this->_lengowOrderlineFactory = $orderLineFactory;
         $this->_actionFactory = $actionFactory;
         $this->_connector = $connector;
+        $this->_import = $import;
+        $this->_action = $action;
         $this->_importFactory = $importFactory;
         parent::__construct($context, $registry);
     }
@@ -665,6 +692,62 @@ class Order extends AbstractModel
             ->getData();
         if (count($results) > 0) {
             return $results;
+        }
+        return false;
+    }
+
+    /**
+     * Re-import order lengow
+     *
+     * @param integer $orderLengowId Lengow order id
+     *
+     * @return array|false
+     */
+    public function reImportOrder($orderLengowId)
+    {
+        $orderLengow = $this->_lengowOrderFactory->create()->load($orderLengowId);
+        if ($orderLengow->getData('order_process_state') == 0 && $orderLengow->getData('is_in_error') == 1) {
+            $params = [
+                'type' => 'manual',
+                'order_lengow_id' => $orderLengowId,
+                'marketplace_sku' => $orderLengow->getData('marketplace_sku'),
+                'marketplace_name' => $orderLengow->getData('marketplace_name'),
+                'delivery_address_id' => $orderLengow->getData('delivery_address_id'),
+                'store_id' => $orderLengow->getData('store_id')
+            ];
+            $this->_import->init($params);
+            $results = $this->_import->exec();
+            return $results;
+        }
+        return false;
+    }
+
+    /**
+     * Re-send order lengow
+     *
+     * @param integer $orderLengowId Lengow order id
+     *
+     * @return boolean
+     */
+    public function reSendOrder($orderLengowId)
+    {
+        $orderLengow = $this->_lengowOrderFactory->create()->load($orderLengowId);
+        if ($orderLengow->getData('order_process_state') == 1 && $orderLengow->getData('is_in_error') == 1) {
+            $orderId = $orderLengow->getData('order_id');
+            if (!is_null($orderId)) {
+                $order = $this->_orderFactory->create()->load($orderId);
+                $action = $this->_action->getLastOrderActionType($orderId);
+                if (!$action) {
+                    if ($order->getData('status') == 'canceled') {
+                        $action = 'cancel';
+                    } else {
+                        $action = 'ship';
+                    }
+                }
+                $shipment = $order->getShipmentsCollection()->getFirstItem();
+                $result = $this->callAction($action, $order, $shipment);
+                return $result;
+            }
         }
         return false;
     }

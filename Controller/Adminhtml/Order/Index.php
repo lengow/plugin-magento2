@@ -28,6 +28,7 @@ use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Import\OrderFactory;
 use Lengow\Connector\Model\Import as ImportModel;
+use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 
 class Index extends Action
 {
@@ -68,6 +69,11 @@ class Index extends Action
     protected $_syncHelper;
 
     /**
+     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order factory instance
+     */
+    protected $_lengowOrderFactory;
+
+    /**
      * Constructor
      *
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager
@@ -78,6 +84,7 @@ class Index extends Action
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrder Lengow import order factory instance
      * @param \Lengow\Connector\Model\Import $import Lengow import instance
+     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order factory instance
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -87,7 +94,8 @@ class Index extends Action
         ImportHelper $importHelper,
         DataHelper $dataHelper,
         OrderFactory $lengowOrder,
-        ImportModel $import
+        ImportModel $import,
+        LengowOrderFactory $lengowOrderFactory
     )
     {
         $this->_storeManager = $storeManager;
@@ -97,6 +105,7 @@ class Index extends Action
         $this->_dataHelper = $dataHelper;
         $this->_orderFactory = $lengowOrder;
         $this->_import = $import;
+        $this->_lengowOrderFactory = $lengowOrderFactory;
         parent::__construct($context);
     }
 
@@ -123,7 +132,28 @@ class Index extends Action
                             return $this->_resultJsonFactory->create()->setData(
                                 ['informations' => $informations]
                             );
-
+                        case 're_import':
+                            $orderLengowId = $this->getRequest()->getParam('order_lengow_id');
+                            if (!is_null($orderLengowId)) {
+                                $result = $this->_lengowOrderFactory->create()->reImportOrder((int)$orderLengowId);
+                                $informations = $this->getInformations();
+                                $informations['messages'] = $result;
+                                return $this->_resultJsonFactory->create()->setData(
+                                    ['informations' => $informations]
+                                );
+                            }
+                            break;
+                        case 're_send':
+                            $orderLengowId = $this->getRequest()->getParam('order_lengow_id');
+                            if (!is_null($orderLengowId)) {
+                                $result = $this->_lengowOrderFactory->create()->reSendOrder((int)$orderLengowId);
+                                $informations = $this->getInformations();
+                                $informations['messages'] = $result;
+                                return $this->_resultJsonFactory->create()->setData(
+                                    ['informations' => $informations]
+                                );
+                            }
+                            break;
                         case 'load_information':
                             $informations = $this->getInformations();
                             return $this->_resultJsonFactory->create()->setData(
@@ -155,25 +185,28 @@ class Index extends Action
             return $messages;
         }
         if (isset($results['order_new']) && $results['order_new'] > 0) {
-            $messages[] = $this->_dataHelper->setLogMessage(
+            $messages[] = $this->_dataHelper->decodeLogMessage(
                 '%1 order(s) imported',
+                true,
                 [$results['order_new']]
             );
         }
         if (isset($results['order_update']) && $results['order_update'] > 0) {
-            $messages[] = $this->_dataHelper->setLogMessage(
+            $messages[] = $this->_dataHelper->decodeLogMessage(
                 '%1 order(s) updated',
+                true,
                 [$results['order_update']]
             );
         }
         if (isset($results['order_error']) && $results['order_error'] > 0) {
-            $messages[] = $this->_dataHelper->setLogMessage(
+            $messages[] = $this->_dataHelper->decodeLogMessage(
                 '%1 order(s) with errors',
+                true,
                 [$results['order_error']]
             );
         }
         if (count($messages) == 0) {
-            $messages[] = $this->_dataHelper->setLogMessage('No new notification on order');
+            $messages[] = $this->_dataHelper->decodeLogMessage('No new notification on order');
         }
         if (isset($results['error'])) {
             foreach ($results['error'] as $storeId => $values) {

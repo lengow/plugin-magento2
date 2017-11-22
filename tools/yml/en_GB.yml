@@ -131,6 +131,12 @@ en:
       country: "Country"
       items: "Items"
       total_paid: "Total Paid"
+      not_imported: "not imported"
+      not_sent: "not sent"
+      order_not_imported: "Order hasn't been imported into Magento"
+      action_sent: "action %1 sent"
+      action_sent_not_work: "Action sent to the marketplace didn't work"
+      action_waiting_return: "Action sent, waiting for response"
   help:
     screen:
       title: "Get a little help from your support team!"
