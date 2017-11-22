@@ -738,7 +738,7 @@ class Order extends AbstractModel
                 $order = $this->_orderFactory->create()->load($orderId);
                 $action = $this->_action->getLastOrderActionType($orderId);
                 if (!$action) {
-                    if ($order->getData('status') == 'cancel') {
+                    if ($order->getData('status') == 'canceled') {
                         $action = 'cancel';
                     } else {
                         $action = 'ship';
