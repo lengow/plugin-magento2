@@ -24,7 +24,6 @@ use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Framework\UrlInterface;
-use Lengow\Connector\Helper\Data as DataHelper;
 
 class OrderSku extends Column
 {
@@ -39,18 +38,12 @@ class OrderSku extends Column
     protected $_orderRepository;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
-     */
-    protected $_dataHelper;
-
-    /**
      * Constructor
      *
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository Magento order repository instance
      * @param \Magento\Framework\UrlInterface $urlBuilder Magento framework url instance
      * @param \Magento\Framework\View\Element\UiComponent\ContextInterface $context Magento ui context instance
      * @param \Magento\Framework\View\Element\UiComponentFactory $uiComponentFactory Magento ui factory instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param array $components component data
      * @param array $data additional params
      */
@@ -59,14 +52,12 @@ class OrderSku extends Column
         UrlInterface $urlBuilder,
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
-        DataHelper $dataHelper,
         array $components = [],
         array $data = []
     ) {
         parent::__construct($context, $uiComponentFactory, $components, $data);
         $this->_urlBuilder = $urlBuilder;
         $this->_orderRepository = $orderRepository;
-        $this->_dataHelper = $dataHelper;
     }
 
     /**
@@ -85,9 +76,6 @@ class OrderSku extends Column
                     $item['order_sku'] = '<a href="'.
                         $this->_urlBuilder->getUrl('sales/order/view',['order_id' => $item['order_id']]). '">
                         '. $item['order_sku'] .'</a>';
-                } elseif ($item['sent_marketplace'] == 1) {
-                    $item['order_sku'] = '<span class="lgw-label">'
-                        . $this->_dataHelper->decodeLogMessage('Shipped by Marketplace') . '</span>';
                 }
             }
         }
