@@ -1,0 +1,65 @@
+<?php
+/**
+ * Copyright 2017 Lengow SAS
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+/** @var Lengow\Connector\Block\Adminhtml\Toolbox\Content $block */
+
+$stores = $block->getStores();
+?>
+
+<div class="lgw-box">
+    <h2><i class="fa fa-rocket"></i> <?= $block->escapeHtml(__('Lengow Toolbox')) ?></h2>
+    <br />
+    <div id="lengow_see_global" class="lgw-switch checked">
+        <label>
+            <div>
+                <span></span>
+                <input type="checkbox" data-action="see_global_information" class="lengow_switch_option" checked="checked">
+            </div>
+            <?= $block->escapeHtml(__('Global information')) ?>
+        </label>
+    </div>
+    <div id="global-information">
+        <div class="lengow-block-full">
+            <h3><i class="fa fa-cog"></i> <?= $block->escapeHtml(__('Plugin information')) ?></h3>
+            <?= $block->getPluginInformations() ?>
+        </div>
+        <div class="lengow-block-full">
+            <h3><i class="fa fa-download"></i> <?= $block->escapeHtml(__('Import information')) ?></h3>
+            <?= $block->getImportInformations() ?>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="lengow-content-header"></div>
+    <div class="lgw-switch" id="lengow_see_store">
+        <label>
+            <div>
+                <span></span>
+                <input type="checkbox" data-action="see_store_information" class="lengow_switch_option">
+            </div>
+            <?= $block->escapeHtml(__('Store information')) ?>
+        </label>
+    </div>
+    <div id="store-information">
+        <div class="lengow-block-full">
+            <h3><i class="fa fa-upload"></i> <?= $block->escapeHtml(__('Export information')) ?></h3>
+            <?php foreach ($stores as $store): ?>
+                <?= $block->getExportInformations($store) ?>
+            <?php endforeach; ?>
+        </div>
+        <div class="lengow-block-full">
+            <h3><i class="fa fa-list"></i> <?= $block->escapeHtml(__('Content folder media')) ?></h3>
+            <?php foreach ($stores as $store): ?>
+                <?= $block->getFileInformations($store) ?>
+            <?php endforeach; ?>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="lengow-content-header"></div>
+</div>
+
+
+

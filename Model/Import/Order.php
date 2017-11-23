@@ -901,6 +901,20 @@ class Order extends AbstractModel
     }
 
     /**
+     * Count order imported by Lengow in Magento
+     *
+     * @return integer
+     */
+    public function countOrderImportedByLengow()
+    {
+        $results = $this->_orderCollection->create()
+            ->join(['magento_order' => 'sales_order'], 'magento_order.entity_id=main_table.order_id')
+            ->addFieldToSelect('id')
+            ->getData();
+        return count($results);
+    }
+
+    /**
      * Count order lengow with error
      *
      * @return integer
