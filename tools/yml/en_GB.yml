@@ -171,7 +171,7 @@ en:
       export_on_a_file: "Export in a file enabled"
       export_cron_enable: "Magento cron job enabled for export"
       pre_production_enable: "Pre-production mode disabled"
-      write_permission: "Write permission from media folder"
+      write_permission: "Read and write permission from media folder"
       import_information: "Import information"
       global_token: "Import token"
       url_import: "Import URL"

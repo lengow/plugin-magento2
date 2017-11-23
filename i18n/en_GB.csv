@@ -146,7 +146,7 @@
 "Export in a file enabled","Export in a file enabled"
 "Magento cron job enabled for export","Magento cron job enabled for export"
 "Pre-production mode disabled","Pre-production mode disabled"
-"Write permission from media folder","Write permission from media folder"
+"Read and write permission from media folder","Read and write permission from media folder"
 "Import information","Import information"
 "Import token","Import token"
 "Import URL","Import URL"

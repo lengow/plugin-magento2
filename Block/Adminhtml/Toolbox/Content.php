@@ -143,15 +143,19 @@ class Content extends Template
         ];
         $sep = DIRECTORY_SEPARATOR;
         $filePath = $this->_dataHelper->getMediaPath() . $sep . 'lengow' . $sep . 'test.txt';
-        $file = fopen($filePath, "w+");
-        if ($file == false) {
+        try {
+            $file = fopen($filePath, "w+");
+            if ($file == false) {
+                $state = false;
+            } else {
+                $state = true;
+                unlink($filePath);
+            }
+        } catch (\Exception $e) {
             $state = false;
-        } else {
-            $state = true;
-            unlink($filePath);
         }
         $checklist[] = [
-            'title' => __('Write permission from media folder'),
+            'title' => __('Read and write permission from media folder'),
             'state' => $state
         ];
         return $this->_getContent($checklist);
