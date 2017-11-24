@@ -59,13 +59,34 @@ $stores = $block->getStores();
         <div class="clear"></div>
     </div>
     <div class="lengow-content-header"></div>
+    <div class="lgw-switch" id="lengow_see_cron">
+        <label>
+            <div>
+                <span></span>
+                <input type="checkbox" data-action="see_cron_information" class="lengow_switch_option">
+            </div>
+            <?= $block->escapeHtml(__('Magento cron schedule')) ?>
+        </label>
+    </div>
+    <div id="cron-information">
+        <div class="lengow-block-full">
+            <h3><i class="fa fa-clock-o"></i> <?= $block->escapeHtml(__('Lengow export cron jobs')) ?></h3>
+            <?= $block->getCronInformation('export') ?>
+        </div>
+        <div class="lengow-block-full">
+            <h3><i class="fa fa-clock-o"></i> <?= $block->escapeHtml(__('Lengow import cron jobs')) ?></h3>
+            <?= $block->getCronInformation('import') ?>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="lengow-content-header"></div>
     <div class="lgw-switch" id="lengow_see_checksum">
         <label>
             <div>
                 <span></span>
                 <input type="checkbox" data-action="see_checksum_information" class="lengow_switch_option">
             </div>
-            <?php echo __('File Checksum integrity'); ?>
+            <?= $block->escapeHtml(__('File Checksum integrity')) ?>
         </label>
     </div>
     <div id="checksum-information">
