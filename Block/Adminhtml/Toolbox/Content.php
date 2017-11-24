@@ -22,6 +22,7 @@ namespace Lengow\Connector\Block\Adminhtml\Toolbox;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\Module\Dir\Reader;
+use Magento\Cron\Model\ResourceModel\Schedule\CollectionFactory as ScheduleCollection;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
@@ -35,6 +36,11 @@ class Content extends Template
      * @var \Magento\Framework\Module\Dir\Reader Magento module reader instance
      */
     protected $_moduleReader;
+
+    /**
+     * @var \Magento\Cron\Model\ResourceModel\Schedule\CollectionFactory Magento schedule collection factory
+     */
+    protected $_scheduleCollection;
 
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
@@ -72,6 +78,7 @@ class Content extends Template
      * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
      * @param array $data additional params
      * @param \Magento\Framework\Module\Dir\Reader $moduleReader Magento module reader instance
+     * @param \Magento\Cron\Model\ResourceModel\Schedule\CollectionFactory $scheduleCollection
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
@@ -83,6 +90,7 @@ class Content extends Template
         Context $context,
         array $data = [],
         Reader $moduleReader,
+        ScheduleCollection $scheduleCollection,
         DataHelper $dataHelper,
         SecurityHelper $securityHelper,
         ConfigHelper $configHelper,
@@ -91,6 +99,7 @@ class Content extends Template
         Export $export
     ) {
         $this->_moduleReader = $moduleReader;
+        $this->_scheduleCollection = $scheduleCollection;
         $this->_dataHelper = $dataHelper;
         $this->_securityHelper = $securityHelper;
         $this->_configHelper = $configHelper;
@@ -320,6 +329,23 @@ class Content extends Template
     }
 
     /**
+     * Get array of file informations
+     *
+     * @param string $type cron type (export or import)
+     *
+     * @return string
+     */
+    public function getCronInformation($type)
+    {
+        $jobCode = $type === 'import' ? 'lengow_connector_launch_synchronization' : 'lengow_connector_launch_export';
+        $lengowCronJobs = $this->_scheduleCollection->create()
+            ->addFieldToFilter('job_code', $jobCode)
+            ->getData();
+        $lengowCronJobs = array_slice(array_reverse($lengowCronJobs), 0, 20);
+        return $this->_getCronContent($lengowCronJobs);
+    }
+
+    /**
      * Get files checksum
      *
      * @return string
@@ -419,6 +445,56 @@ class Content extends Template
                 }
             }
             $out .= '</tr>';
+        }
+        $out .= '</table>';
+        return $out;
+    }
+
+    /**
+     * Get HTML Table content of cron job
+     *
+     * @param array $lengowCronJobs Lengow cron jobs
+     *
+     * @return string
+     */
+    protected function _getCronContent($lengowCronJobs = [])
+    {
+        $out = '<table cellpadding="0" cellspacing="0" style="text-align: left">';
+        if (count($lengowCronJobs) == 0) {
+            $out .= '<tr><td style="border:0">' . __('Any scheduled cron job for now') . '</td></tr>';
+        } else {
+            $out .= '<tr>';
+            $out .= '<th>' . __('Status') . '</th>';
+            $out .= '<th>' . __('Message') . '</th>';
+            $out .= '<th>' . __('Scheduled at') . '</th>';
+            $out .= '<th>' . __('Executed at') . '</th>';
+            $out .= '<th>' . __('Finished at') . '</th>';
+            $out .= '</tr>';
+            foreach ($lengowCronJobs as $lengowCronJob) {
+                $out .= '<tr>';
+                $out .= '<td>' . $lengowCronJob['status'] . '</td>';
+                if ($lengowCronJob['messages'] != '') {
+                    $out .= '<td><a class="lengow_tooltip" href="#">'
+                        . __('see message')
+                        . '<span class="lengow_toolbox_message">'
+                        . $lengowCronJob['messages'] . '</span></a></td>';
+                } else {
+                    $out .= '<td></td>';
+                }
+                $scheduledAt = !is_null($lengowCronJob['scheduled_at'])
+                    ? $this->_dataHelper->getDateInCorrectFormat(strtotime($lengowCronJob['scheduled_at'], true))
+                    : '';
+                $out .= '<td>' . $scheduledAt . '</td>';
+                $executedAt = !is_null($lengowCronJob['executed_at'])
+                    ? $this->_dataHelper->getDateInCorrectFormat(strtotime($lengowCronJob['executed_at'], true))
+                    : '';
+                $out .= '<td>' . $executedAt . '</td>';
+                $finishedAt = !is_null($lengowCronJob['finished_at'])
+                    ? $this->_dataHelper->getDateInCorrectFormat(strtotime($lengowCronJob['finished_at'], true))
+                    : '';
+                $out .= '<td>' . $finishedAt . '</td>';
+                $out .= '</tr>';
+            }
         }
         $out .= '</table>';
         return $out;
