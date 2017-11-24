@@ -21,6 +21,7 @@ namespace Lengow\Connector\Block\Adminhtml\Toolbox;
 
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
+use Magento\Framework\Module\Dir\Reader;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
@@ -30,6 +31,11 @@ use Lengow\Connector\Model\Export;
 
 class Content extends Template
 {
+    /**
+     * @var \Magento\Framework\Module\Dir\Reader Magento module reader instance
+     */
+    protected $_moduleReader;
+
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
      */
@@ -65,6 +71,7 @@ class Content extends Template
      *
      * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
      * @param array $data additional params
+     * @param \Magento\Framework\Module\Dir\Reader $moduleReader Magento module reader instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
@@ -75,6 +82,7 @@ class Content extends Template
     public function __construct(
         Context $context,
         array $data = [],
+        Reader $moduleReader,
         DataHelper $dataHelper,
         SecurityHelper $securityHelper,
         ConfigHelper $configHelper,
@@ -82,6 +90,7 @@ class Content extends Template
         LengowOrder $lengowOrder,
         Export $export
     ) {
+        $this->_moduleReader = $moduleReader;
         $this->_dataHelper = $dataHelper;
         $this->_securityHelper = $securityHelper;
         $this->_configHelper = $configHelper;
@@ -308,6 +317,74 @@ class Content extends Template
             $checklist[] = ['simple' => __('No file exported')];
         }
         return $this->_getContent($checklist);
+    }
+
+    /**
+     * Get files checksum
+     *
+     * @return string
+     */
+    public function checkFileMd5()
+    {
+        $checklist = [];
+        $sep = DIRECTORY_SEPARATOR;
+        $fileName = $this->_moduleReader->getModuleDir('etc', 'Lengow_Connector') . $sep . 'checkmd5.csv';
+        $html = '<h3><i class="fa fa-commenting"></i> ' . __('Summary') . '</h3>';
+        $fileCounter = 0;
+        if (file_exists($fileName)) {
+            $fileErrors = [];
+            $fileDeletes = [];
+            $base =  $this->_moduleReader->getModuleDir('', 'Lengow_Connector');
+            if (($file = fopen($fileName, "r")) !== false) {
+                while (($data = fgetcsv($file, 1000, "|")) !== false) {
+                    $fileCounter++;
+                    $filePath = $base . $data[0];
+                    if (file_exists($filePath)) {
+                        $fileMd = md5_file($filePath);
+                        if ($fileMd !== $data[1]) {
+                            $fileErrors[] = [
+                                'title' => $filePath,
+                                'state' => false
+                            ];
+                        }
+                    } else {
+                        $fileDeletes[] = [
+                            'title' => $filePath,
+                            'state' => false
+                        ];
+                    }
+                }
+                fclose($file);
+            }
+            $checklist[] = [
+                'title' => __('%1 files checked', [$fileCounter]),
+                'state' => true
+            ];
+            $checklist[] = [
+                'title' => __('%1 files changed', [count($fileErrors)]),
+                'state' => count($fileErrors) > 0 ? false : true
+            ];
+            $checklist[] = [
+                'title' => __('%1 files deleted', [count($fileDeletes)]),
+                'state' => count($fileDeletes) > 0 ? false : true
+            ];
+            $html .= $this->_getContent($checklist);
+            if (count($fileErrors) > 0) {
+                $html .= '<h3><i class="fa fa-list"></i> ' . __('List of changed files') . '</h3>';
+                $html .= $this->_getContent($fileErrors);
+            }
+            if (count($fileDeletes) > 0) {
+                $html .= '<h3><i class="fa fa-list"></i> ' . __('List of deleted files') . '</h3>';
+                $html .= $this->_getContent($fileDeletes);
+            }
+        } else {
+            $checklist[] = [
+                'title' => __('checkmd5.csv file is not available. Checking is impossible!'),
+                'state' => false
+            ];
+            $html .= $this->_getContent($checklist);
+        }
+        return $html;
     }
 
     /**
