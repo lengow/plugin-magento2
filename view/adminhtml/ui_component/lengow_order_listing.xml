@@ -76,9 +76,11 @@
     <columns name="lengow_order_columns">
         <column name="is_in_error" class="Lengow\Connector\Ui\Component\Listing\Column\OrdersActions">
             <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">Lengow\Connector\Model\Config\Source\Action</item>
                 <item name="config" xsi:type="array">
                     <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
-                    <item name="filter" xsi:type="string">text</item>
+                    <item name="filter" xsi:type="string">select</item>
+                    <item name="dataType" xsi:type="string">select</item>
                     <item name="label" xsi:type="string" translate="true">Actions</item>
                     <item name="fieldClass" xsi:type="string">lengowActionBox</item>
                 </item>

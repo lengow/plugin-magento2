@@ -111,6 +111,8 @@ en:
       all_order_will_be_sent_to: "All order issue reports will be sent by mail to"
       no_order_will_be_sent: "No order issue reports will be sent by mail"
       change_this: "Change this?"
+      mass_action_reimport: "A total of %1 order(s) in %2 selected have been imported."
+      mass_action_resend: "A total of %1 order(s) in %2 selected have been sent."
     table:
       lengow_action: "Actions"
       action_success: "Success"
@@ -235,6 +237,8 @@ en:
       action_id: "Action ID"
       order_line_sku: "Order line ID"
       action_type: "Action type"
+      action_type_ship: "ship"
+      action_type_cancel: "cancel"
       retry: "Retry"
       parameters: "Settings"
       state: "Status"
