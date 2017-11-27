@@ -41,6 +41,7 @@ use Magento\Sales\Model\Service\InvoiceService;
 use Magento\Framework\DB\Transaction;
 use Magento\Shipping\Model\Config as ShippingConfig;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
+use Magento\Quote\Model\QuoteFactory as MagentoQuoteFactory;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\Orderline as LengowOrderline;
 use Lengow\Connector\Model\Import\OrderlineFactory as LengowOrderlineFactory;
@@ -58,6 +59,11 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
  */
 class Importorder extends AbstractModel
 {
+    /**
+     * @var \Magento\Quote\Model\QuoteFactory Magento quote factory instance
+     */
+    protected $_quoteMagentoFactory;
+
     /**
      * @var \Magento\Quote\Api\CartManagementInterface Magento cart management instance
      */
@@ -347,6 +353,7 @@ class Importorder extends AbstractModel
      * @param \Magento\Shipping\Model\Config $shippingConfig Magento shipping config
      * @param \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry Magento stock registry instance
      * @param \Magento\CatalogInventory\Api\StockManagementInterface $stockManagement
+     * @param \Magento\Quote\Model\QuoteFactory $quoteMagentoFactory
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
      * @param \Lengow\Connector\Model\Payment\Lengow $lengowPayment Lengow payment instance
      * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
@@ -381,6 +388,7 @@ class Importorder extends AbstractModel
         ShippingConfig $shippingConfig,
         StockRegistryInterface $stockRegistry,
         StockManagementInterface $stockManagement,
+        MagentoQuoteFactory $quoteMagentoFactory,
         LengowPayment $lengowPayment,
         LengowOrder $lengowOrder,
         LengowOrderFactory $lengowOrderFactory,
@@ -413,6 +421,7 @@ class Importorder extends AbstractModel
         $this->_shippingConfig = $shippingConfig;
         $this->_stockRegistry = $stockRegistry;
         $this->_stockManagement = $stockManagement;
+        $this->_quoteMagentoFactory = $quoteMagentoFactory;
         $this->_lengowPayment = $lengowPayment;
         $this->_lengowOrder = $lengowOrder;
         $this->_lengowOrderFactory = $lengowOrderFactory;
@@ -510,7 +519,7 @@ class Importorder extends AbstractModel
             return false;
         }
         // if order is cancelled or new -> skip
-        if (!$this->_importHelper->checkState($this->_orderStateMarketplace, $this->_marketplace)) {
+        if (false/*!$this->_importHelper->checkState($this->_orderStateMarketplace, $this->_marketplace)*/) {
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
@@ -997,8 +1006,7 @@ class Importorder extends AbstractModel
         $quote = $this->_lengowQuoteFactory->create()
             ->setIsMultiShipping(false)
             ->setStore($this->_storeManager->getStore($this->_storeId))
-            ->setInventoryProcessed(false); // don't care about stock verification, doesn't work? set for each product?
-        $this->_cartRepositoryInterface->save($quote);
+            ->setInventoryProcessed(false);
 
         // import customer addresses into quote
         // Set billing Address
@@ -1017,6 +1025,7 @@ class Importorder extends AbstractModel
         // check if store include tax (Product and shipping cost)
         $priceIncludeTax = $this->_taxConfig->priceIncludesTax($quote->getStore());
         $shippingIncludeTax = $this->_taxConfig->shippingPriceIncludesTax($quote->getStore());
+
         // add product in quote
         $quote->addLengowProducts(
             $this->_packageData->cart,
@@ -1025,8 +1034,6 @@ class Importorder extends AbstractModel
             $this->_logOutput,
             $priceIncludeTax
         );
-
-        $this->_cartRepositoryInterface->save($quote);
 
         // Get shipping cost with tax
         $shippingCost = $this->_processingFee + $this->_shippingCost;
@@ -1068,7 +1075,7 @@ class Importorder extends AbstractModel
         $quote->getPayment()->setMethod('lengow')->setAdditionnalInformation(
             ['marketplace' => (string)$this->_orderData->marketplace . $paymentInfo]
         );
-        $quote->collectTotals();
+        $quote->collectTotals()->save();
         $quote->save();
 
         return $quote;
@@ -1092,7 +1099,9 @@ class Importorder extends AbstractModel
             'store_currency_code' => (string)$this->_orderData->currency->iso_a3,
             'order_currency_code' => (string)$this->_orderData->currency->iso_a3
         ];
-        $order = $this->_quoteManagement->submit($quote, $additionalDatas);
+        $magentoQuote = $this->_quoteMagentoFactory->create()->load($quote->getId());
+
+        $order = $this->_quoteManagement->submit($magentoQuote, $additionalDatas);
         if (!$order) {
             throw new LengowException(
                 $this->_dataHelper->setLogMessage('unable to create order based on given quote')
