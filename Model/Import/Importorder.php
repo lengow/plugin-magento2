@@ -998,8 +998,7 @@ class Importorder extends AbstractModel
             ->setIsMultiShipping(false)
             ->setStore($this->_storeManager->getStore($this->_storeId))
             ->setInventoryProcessed(false); // don't care about stock verification, doesn't work? set for each product?
-        // TODO https://github.com/magento/magento2/issues/10304
-//        $this->_cartRepositoryInterface->save($quote);
+        $this->_cartRepositoryInterface->save($quote);
 
         // import customer addresses into quote
         // Set billing Address
@@ -1027,7 +1026,7 @@ class Importorder extends AbstractModel
             $priceIncludeTax
         );
 
-//        $this->_cartRepositoryInterface->save($quote);
+        $this->_cartRepositoryInterface->save($quote);
 
         // Get shipping cost with tax
         $shippingCost = $this->_processingFee + $this->_shippingCost;

@@ -23,6 +23,7 @@ use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Lengow\Connector\Helper\Data as DataHelper;
 
 class OrderStatus extends Column
 {
@@ -32,11 +33,17 @@ class OrderStatus extends Column
     protected $_orderRepository;
 
     /**
+     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     */
+    protected $_dataHelper;
+
+    /**
      * Constructor
      *
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository Magento order repository instance
      * @param \Magento\Framework\View\Element\UiComponent\ContextInterface $context Magento ui context instance
      * @param \Magento\Framework\View\Element\UiComponentFactory $uiComponentFactory Magento ui factory instance
+     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param array $components component data
      * @param array $data additional params
      */
@@ -44,11 +51,13 @@ class OrderStatus extends Column
         OrderRepositoryInterface $orderRepository,
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
+        DataHelper $dataHelper,
         array $components = [],
         array $data = []
     ) {
         parent::__construct($context, $uiComponentFactory, $components, $data);
         $this->_orderRepository = $orderRepository;
+        $this->_dataHelper = $dataHelper;
     }
 
     /**
@@ -63,9 +72,11 @@ class OrderStatus extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if (!is_null($item['order_id'])) {
-                    $order = $this->_orderRepository->get($item['order_id'])->getStatus();
-                    $item['order_status'] = $order;
+                if ($item['sent_marketplace'] == 1) {
+                    $item['order_status'] = '<span class="lgw-label">'
+                        . $this->_dataHelper->decodeLogMessage('Shipped by Marketplace') . '</span>';
+                } elseif (!is_null($item['order_id'])) {
+                    $item['order_status'] = $this->_orderRepository->get($item['order_id'])->getStatus();
                 }
             }
         }

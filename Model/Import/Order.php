@@ -92,11 +92,6 @@ class Order extends AbstractModel
     protected $_trackFactory;
 
     /**
-     * @var \Magento\Sales\Model\ResourceModel\Order\CollectionFactory Magento order collection factory
-     */
-    protected $_orderCollectionMagento;
-
-    /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
      */
     protected $_dataHelper;
@@ -206,7 +201,6 @@ class Order extends AbstractModel
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Magento\Sales\Model\Convert\Order $convertOrder Magento convert order instance
      * @param \Magento\Sales\Model\Order\Shipment\TrackFactory $trackFactory Magento shipment track factory instance
-     * @param \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionMagento
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
@@ -230,7 +224,6 @@ class Order extends AbstractModel
         DateTime $dateTime,
         ConvertOrder $convertOrder,
         TrackFactory $trackFactory,
-        OrderCollectionMagento $orderCollectionMagento,
         DataHelper $dataHelper,
         ImportHelper $importHelper,
         ConfigHelper $configHelper,
@@ -252,7 +245,6 @@ class Order extends AbstractModel
         $this->_dateTime = $dateTime;
         $this->_convertOrder = $convertOrder;
         $this->_trackFactory = $trackFactory;
-        $this->_orderCollectionMagento = $orderCollectionMagento;
         $this->_dataHelper = $dataHelper;
         $this->_importHelper = $importHelper;
         $this->_configHelper = $configHelper;
@@ -1047,6 +1039,20 @@ class Order extends AbstractModel
             }
         }
         return false;
+    }
+
+    /**
+     * Count order imported by Lengow in Magento
+     *
+     * @return integer
+     */
+    public function countOrderImportedByLengow()
+    {
+        $results = $this->_orderCollection->create()
+            ->join(['magento_order' => 'sales_order'], 'magento_order.entity_id=main_table.order_id')
+            ->addFieldToSelect('id')
+            ->getData();
+        return count($results);
     }
 
     /**
