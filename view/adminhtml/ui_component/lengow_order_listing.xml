@@ -129,6 +129,7 @@
                     <item name="component" xsi:type="string">Magento_Ui/js/grid/columns/select</item>
                     <item name="dataType" xsi:type="string">select</item>
                     <item name="label" xsi:type="string" translate="true">Lengow status</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -137,6 +138,7 @@
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Marketplace</item>
                     <item name="filter" xsi:type="string">text</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -147,6 +149,7 @@
                     <item name="label" xsi:type="string" translate="true">Store</item>
                     <item name="filter" xsi:type="string">select</item>
                     <item name="dataType" xsi:type="string">select</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -155,6 +158,7 @@
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Marketplace SKU</item>
                     <item name="filter" xsi:type="string">text</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -164,6 +168,7 @@
                     <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
                     <item name="label" xsi:type="string" translate="true">Magento SKU</item>
                     <item name="filter" xsi:type="string">text</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -175,6 +180,7 @@
                     <item name="sortable" xsi:type="boolean">false</item>
                     <item name="label" xsi:type="string" translate="true">Magento status</item>
                     <item name="dataType" xsi:type="string">text</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -185,6 +191,7 @@
                     <item name="filter" xsi:type="string">dateRange</item>
                     <item name="dataType" xsi:type="string">date</item>
                     <item name="sorting" xsi:type="string">desc</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -193,6 +200,7 @@
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Customer name</item>
                     <item name="filter" xsi:type="string">text</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -203,6 +211,7 @@
                     <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
                     <item name="label" xsi:type="string" translate="true">Country</item>
                     <item name="filter" xsi:type="string">text</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -211,6 +220,7 @@
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Items</item>
                     <item name="filter" xsi:type="string">text</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -219,6 +229,7 @@
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Total Paid</item>
                     <item name="filter" xsi:type="string">text</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
