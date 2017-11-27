@@ -73,7 +73,46 @@
             </argument>
         </paging>
     </container>
+    <massaction name="listing_massaction">
+        <action name="reimport">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="type" xsi:type="string">reimport</item>
+                    <item name="label" xsi:type="string" translate="true">Re-import selected orders</item>
+                    <item name="url" xsi:type="url" path="*/*/massReImport"/>
+                    <item name="confirm" xsi:type="array">
+                        <item name="title" xsi:type="string" translate="true">Re-import all selected orders</item>
+                        <item name="message" xsi:type="string" translate="true">Do you want to re-import all selected
+                            orders?
+                        </item>
+                    </item>
+                </item>
+            </argument>
+        </action>
+        <action name="resend">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="type" xsi:type="string">resend</item>
+                    <item name="label" xsi:type="string" translate="true">Re-send selected orders</item>
+                    <item name="url" xsi:type="url" path="*/*/massReSend"/>
+                    <item name="confirm" xsi:type="array">
+                        <item name="title" xsi:type="string" translate="true">Re-send all selected orders</item>
+                        <item name="message" xsi:type="string" translate="true">Do you want to re-send all selected
+                            orders?
+                        </item>
+                    </item>
+                </item>
+            </argument>
+        </action>
+    </massaction>
     <columns name="lengow_order_columns">
+        <selectionsColumn name="ids">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="indexField" xsi:type="string">id</item>
+                </item>
+            </argument>
+        </selectionsColumn>
         <column name="is_in_error" class="Lengow\Connector\Ui\Component\Listing\Column\OrdersActions">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
