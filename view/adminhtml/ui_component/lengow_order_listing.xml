@@ -47,6 +47,7 @@
         <filters name="listing_filters">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
+                    <item name="columnsProvider" xsi:type="string">lengow_order_listing.lengow_order_listing.lengow_order_columns</item>
                     <item name="storageConfig" xsi:type="array">
                         <item name="provider" xsi:type="string">lengow_order_listing.lengow_order_listing.listing_top.bookmarks</item>
                         <item name="namespace" xsi:type="string">current.filters</item>
@@ -74,6 +75,12 @@
         </paging>
     </container>
     <massaction name="listing_massaction">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="selectProvider" xsi:type="string">lengow_order_listing.lengow_order_listing.lengow_order_columns.ids</item>
+                <item name="indexField" xsi:type="string">id</item>
+            </item>
+        </argument>
         <action name="reimport">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
