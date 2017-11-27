@@ -24,6 +24,7 @@
             <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_legal_main" template="Lengow_Connector::toolbox/main.phtml">
                 <block class="Lengow\Connector\Block\Adminhtml\Header" name="lengow_header" as="lengow_header" template="Lengow_Connector::header.phtml"/>
                 <block class="Lengow\Connector\Block\Adminhtml\Toolbox\Content" name="lengow_toolbox_content" as="lengow_toolbox_content" template="Lengow_Connector::toolbox/content.phtml"/>
+                <uiComponent name="lengow_action_listing"/>
                 <block class="Lengow\Connector\Block\Adminhtml\Footer" name="lengow_footer" as="lengow_footer" template="Lengow_Connector::footer.phtml"/>
             </block>
         </referenceContainer>

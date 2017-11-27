@@ -138,6 +138,14 @@ en:
       action_sent: "action %1 sent"
       action_sent_not_work: "Action sent to the marketplace didn't work"
       action_waiting_return: "Action sent, waiting for response"
+      mass_action_reimport: "Re-import selected orders"
+      mass_action_reimport_check_title: "Re-import all selected orders"
+      mass_action_reimport_check_message: "Do you want to re-import all selected orders?"
+      mass_action_reimport_success: "A total of %1 order(s) in %2 selected have been imported."
+      mass_action_resend: "Re-send selected orders"
+      mass_action_resend_check_title: "Re-send all selected orders"
+      mass_action_resend_check_message: "Do you want to re-send all selected orders?"
+      mass_action_resend_success: "A total of %1 order(s) in %2 selected have been sent."
   help:
     screen:
       title: "Get a little help from your support team!"
@@ -235,6 +243,8 @@ en:
       action_id: "Action ID"
       order_line_sku: "Order line ID"
       action_type: "Action type"
+      action_type_ship: "ship"
+      action_type_cancel: "cancel"
       retry: "Retry"
       parameters: "Settings"
       state: "Status"

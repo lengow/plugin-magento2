@@ -201,6 +201,19 @@ body.lengow-order-index .lgw-col-4{
   height: 15px;
 }
 
+body.lengow-order-index .lgw-btn,
+body.lengow-order-index .lgw-label {
+  margin: 0px;
+}
+
+body.lengow-order-index button.action-select {
+  width: 300px;
+}
+
+body.lengow-order-index td.data-grid-checkbox-cell {
+  line-height: 40px;
+}
+
 /*************************************************/
 /*                PAGE DEBUG                     */
 /*************************************************/

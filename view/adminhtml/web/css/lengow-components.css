@@ -95,8 +95,9 @@ body.lengow-connector .grey_frame input[type="text"] {
 /*                    TABLE                      */
 /*************************************************/
 
-.lengow_table_center {
-    line-height: 50px;
+td.lengow_table_center {
+    line-height: 35px;
+    padding-bottom: 0px;
 }
 
 /*************************************************/
