@@ -50,7 +50,7 @@
 /Helper/Config.php|be5f6d19387841537e730221016096e7
 /Helper/Data.php|95d076519a75b7237b357d21c42689dc
 /Helper/Security.php|3179a51d47cc57e4bde230e1dab8438b
-/i18n/en_GB.csv|e6b2e3561b34108c1c2c8b00ad5f87ac
+/i18n/en_GB.csv|517607f4ae2627c4849187533e163971
 /i18n/fr_FR.csv|444d9160ee02a04d9a890523d232f3cc
 /Model/Log.php|fa3640faa7a99832532be5e089b65008
 /Model/Carrier/Lengow.php|768e792ea8311277356f72d2d58caa33
@@ -107,7 +107,7 @@
 /Ui/Component/Listing/Column/ActionParameters.php|e9b7292040c43a1af1a6cc9411ec013b
 /view/adminhtml/ui_component/lengow_log_listing.xml|71b1e8002b42f8585b52bf9940c84974
 /view/adminhtml/ui_component/lengow_product_listing.xml|d41d8cd98f00b204e9800998ecf8427e
-/view/adminhtml/ui_component/lengow_order_listing.xml|765562eb555cd569a7fad205855ac239
+/view/adminhtml/ui_component/lengow_order_listing.xml|ec9634254ac0ed080766edfd2fa690dd
 /view/adminhtml/ui_component/lengow_action_listing.xml|12d106ed5d4dfab95f4e26a8a2ea9e80
 /view/adminhtml/layout/lengow_home_index.xml|be7194b9bad188ad149487782231f610
 /view/adminhtml/layout/lengow_legal_index.xml|9ea2dfe62054e82c708cc46a8a742b24
@@ -354,7 +354,7 @@
 /view/adminhtml/web/css/lengow-components.css|8715684c890d15805720823287536454
 /view/adminhtml/web/css/font-awesome.css|bf4b58c946c9234e4a6b9f7a70d38006
 /view/adminhtml/web/css/lengow-layout.css|16886c92b294b2f88e45bf74586adb9c
-/view/adminhtml/web/css/lengow-pages.css|8f2442dbbb8e162589f8a41b2b33b667
+/view/adminhtml/web/css/lengow-pages.css|a7e3948f531ff62c6e77cff9cc6a38f2
 /view/adminhtml/web/fonts/fontawesome-webfont.ttf|a3de2170e4e9df77161ea5d3f31b2668
 /view/adminhtml/web/fonts/Lato-LightItalic.ttf|3d747d8bf464744eecb91556d86de11b
 /view/adminhtml/web/fonts/fontawesome-webfont.woff|a35720c2fed2c7f043bc7e4ffb45e073

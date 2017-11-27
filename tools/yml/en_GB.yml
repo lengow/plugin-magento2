@@ -111,8 +111,6 @@ en:
       all_order_will_be_sent_to: "All order issue reports will be sent by mail to"
       no_order_will_be_sent: "No order issue reports will be sent by mail"
       change_this: "Change this?"
-      mass_action_reimport: "A total of %1 order(s) in %2 selected have been imported."
-      mass_action_resend: "A total of %1 order(s) in %2 selected have been sent."
     table:
       lengow_action: "Actions"
       action_success: "Success"
@@ -140,6 +138,14 @@ en:
       action_sent: "action %1 sent"
       action_sent_not_work: "Action sent to the marketplace didn't work"
       action_waiting_return: "Action sent, waiting for response"
+      mass_action_reimport: "Re-import selected orders"
+      mass_action_reimport_check_title: "Re-import all selected orders"
+      mass_action_reimport_check_message: "Do you want to re-import all selected orders?"
+      mass_action_reimport_success: "A total of %1 order(s) in %2 selected have been imported."
+      mass_action_resend: "Re-send selected orders"
+      mass_action_resend_check_title: "Re-send all selected orders"
+      mass_action_resend_check_message: "Do you want to re-send all selected orders?"
+      mass_action_resend_success: "A total of %1 order(s) in %2 selected have been sent."
   help:
     screen:
       title: "Get a little help from your support team!"

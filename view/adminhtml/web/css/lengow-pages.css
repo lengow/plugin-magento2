@@ -201,6 +201,10 @@ body.lengow-order-index .lgw-col-4{
   height: 15px;
 }
 
+body.lengow-order-index button.action-select {
+  width: 300px;
+}
+
 /*************************************************/
 /*                PAGE DEBUG                     */
 /*************************************************/
