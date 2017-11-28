@@ -47,6 +47,7 @@
         <filters name="listing_filters">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
+                    <item name="columnsProvider" xsi:type="string">lengow_log_listing.lengow_log_listing.lengow_log_columns</item>
                     <item name="storageConfig" xsi:type="array">
                         <item name="provider" xsi:type="string">lengow_log_listing.lengow_log_listing.listing_top.bookmarks</item>
                         <item name="namespace" xsi:type="string">current.filters</item>

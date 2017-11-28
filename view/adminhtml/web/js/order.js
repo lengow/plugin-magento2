@@ -2,9 +2,7 @@ require(['jquery', 'uiRegistry'], function ($, registry) {
     $(document).ready(function () {
 
         var lgwContainer = $('.lengow-connector');
-        /**
-         * Show or not the product grid
-         */
+
         lgwContainer.on('click', '.lengow_import_orders-js', function () {
             var href = $(this).attr('data-href');
             $.ajax({
@@ -21,12 +19,9 @@ require(['jquery', 'uiRegistry'], function ($, registry) {
                     reloadInformations(data.informations, true);
                     //reload the grid
                     var grid = registry.get('lengow_order_listing.lengow_order_listing').source;
-                    if (grid) {
+                    if (grid && typeof grid === 'object') {
                         var params = [];
-                        var target = registry.get(grid);
-                        if (target && typeof target === 'object') {
-                            target.set('params.t ', Date.now());
-                        }
+                        grid.set('params.t ', Date.now());
                     }
                 }
             });

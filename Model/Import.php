@@ -588,7 +588,7 @@ class Import
         $orderError = 0;
         $importFinished = false;
         foreach ($orders as $orderData) {
-            if ($incr > 0) continue;
+            if ($incr > 5) continue;
             $incr++;
 
             if (!$this->_importOneOrder) {

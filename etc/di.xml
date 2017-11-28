@@ -22,6 +22,7 @@
             <argument name="collections" xsi:type="array">
                 <item name="lengow_log_listing_data_source" xsi:type="string">Lengow\Connector\Model\ResourceModel\Log\Collection</item>
                 <item name="lengow_order_listing_data_source" xsi:type="string">Lengow\Connector\Model\ResourceModel\Order\Collection</item>
+                <item name="lengow_action_listing_data_source" xsi:type="string">Lengow\Connector\Model\ResourceModel\Action\Collection</item>
             </argument>
         </arguments>
     </type>
@@ -31,14 +32,18 @@
             <argument name="resourceModel" xsi:type="string">Lengow\Connector\Model\ResourceModel\Log</argument>
         </arguments>
     </virtualType>
-
     <virtualType name="Lengow\Connector\Model\ResourceModel\Order\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
         <arguments>
             <argument name="mainTable" xsi:type="string">lengow_order</argument>
             <argument name="resourceModel" xsi:type="string">Lengow\Connector\Model\ResourceModel\Order</argument>
         </arguments>
     </virtualType>
-
+    <virtualType name="Lengow\Connector\Model\ResourceModel\Action\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">lengow_action</argument>
+            <argument name="resourceModel" xsi:type="string">Lengow\Connector\Model\ResourceModel\Action</argument>
+        </arguments>
+    </virtualType>
     <virtualType name="LengowConnectorFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
             <argument name="code" xsi:type="const">Lengow\Connector\Model\Payment\Lengow::CODE</argument>

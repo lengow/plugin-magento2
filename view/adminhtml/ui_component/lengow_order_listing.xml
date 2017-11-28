@@ -24,10 +24,10 @@
             </argument>
         </argument>
     </dataSource>
-    <container name="listing_top">
+    <listingToolbar name="listing_top">
         <argument name="data" xsi:type="array">
             <item name="config" xsi:type="array">
-                <item name="template" xsi:type="string">ui/grid/toolbar</item>
+                <item name="sticky" xsi:type="boolean">true</item>
             </item>
         </argument>
         <bookmark name="bookmarks">
@@ -47,6 +47,7 @@
         <filters name="listing_filters">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
+                    <item name="columnsProvider" xsi:type="string">lengow_order_listing.lengow_order_listing.lengow_order_columns</item>
                     <item name="storageConfig" xsi:type="array">
                         <item name="provider" xsi:type="string">lengow_order_listing.lengow_order_listing.listing_top.bookmarks</item>
                         <item name="namespace" xsi:type="string">current.filters</item>
@@ -60,51 +61,48 @@
                 </item>
             </argument>
         </filters>
-        <paging name="listing_paging">
+        <massaction name="listing_massaction">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
-                    <item name="storageConfig" xsi:type="array">
-                        <item name="provider" xsi:type="string">lengow_order_listing.lengow_order_listing.listing_top.bookmarks</item>
-                        <item name="namespace" xsi:type="string">current.paging</item>
+                    <item name="selectProvider" xsi:type="string">
+                        lengow_order_listing.lengow_order_listing.lengow_order_columns.ids
                     </item>
-                    <item name="selectProvider" xsi:type="string">lengow_order_listing.lengow_order_listing.lengow_order_columns.id</item>
-                    <item name="displayArea" xsi:type="string">bottom</item>
+                    <item name="indexField" xsi:type="string">id</item>
                 </item>
             </argument>
-        </paging>
-    </container>
-    <massaction name="listing_massaction">
-        <action name="reimport">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="type" xsi:type="string">reimport</item>
-                    <item name="label" xsi:type="string" translate="true">Re-import selected orders</item>
-                    <item name="url" xsi:type="url" path="*/*/massReImport"/>
-                    <item name="confirm" xsi:type="array">
-                        <item name="title" xsi:type="string" translate="true">Re-import all selected orders</item>
-                        <item name="message" xsi:type="string" translate="true">Do you want to re-import all selected
-                            orders?
+            <action name="reimport">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="type" xsi:type="string">reimport</item>
+                        <item name="label" xsi:type="string" translate="true">Re-import selected orders</item>
+                        <item name="url" xsi:type="url" path="*/*/massReImport"/>
+                        <item name="confirm" xsi:type="array">
+                            <item name="title" xsi:type="string" translate="true">Re-import all selected orders</item>
+                            <item name="message" xsi:type="string" translate="true">Do you want to re-import all
+                                selected orders?
+                            </item>
                         </item>
                     </item>
-                </item>
-            </argument>
-        </action>
-        <action name="resend">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="type" xsi:type="string">resend</item>
-                    <item name="label" xsi:type="string" translate="true">Re-send selected orders</item>
-                    <item name="url" xsi:type="url" path="*/*/massReSend"/>
-                    <item name="confirm" xsi:type="array">
-                        <item name="title" xsi:type="string" translate="true">Re-send all selected orders</item>
-                        <item name="message" xsi:type="string" translate="true">Do you want to re-send all selected
-                            orders?
+                </argument>
+            </action>
+            <action name="resend">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="type" xsi:type="string">resend</item>
+                        <item name="label" xsi:type="string" translate="true">Re-send selected orders</item>
+                        <item name="url" xsi:type="url" path="*/*/massReSend"/>
+                        <item name="confirm" xsi:type="array">
+                            <item name="title" xsi:type="string" translate="true">Re-send all selected orders</item>
+                            <item name="message" xsi:type="string" translate="true">Do you want to re-send all selected
+                                orders?
+                            </item>
                         </item>
                     </item>
-                </item>
-            </argument>
-        </action>
-    </massaction>
+                </argument>
+            </action>
+        </massaction>
+        <paging name="listing_paging"/>
+    </listingToolbar>
     <columns name="lengow_order_columns">
         <selectionsColumn name="ids">
             <argument name="data" xsi:type="array">
@@ -115,9 +113,11 @@
         </selectionsColumn>
         <column name="is_in_error" class="Lengow\Connector\Ui\Component\Listing\Column\OrdersActions">
             <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">Lengow\Connector\Model\Config\Source\Action</item>
                 <item name="config" xsi:type="array">
                     <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
-                    <item name="filter" xsi:type="string">text</item>
+                    <item name="filter" xsi:type="string">select</item>
+                    <item name="dataType" xsi:type="string">select</item>
                     <item name="label" xsi:type="string" translate="true">Actions</item>
                     <item name="fieldClass" xsi:type="string">lengowActionBox</item>
                 </item>
@@ -131,6 +131,7 @@
                     <item name="component" xsi:type="string">Magento_Ui/js/grid/columns/select</item>
                     <item name="dataType" xsi:type="string">select</item>
                     <item name="label" xsi:type="string" translate="true">Lengow status</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -139,6 +140,7 @@
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Marketplace</item>
                     <item name="filter" xsi:type="string">text</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -149,6 +151,7 @@
                     <item name="label" xsi:type="string" translate="true">Store</item>
                     <item name="filter" xsi:type="string">select</item>
                     <item name="dataType" xsi:type="string">select</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -157,6 +160,7 @@
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Marketplace SKU</item>
                     <item name="filter" xsi:type="string">text</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -166,6 +170,7 @@
                     <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
                     <item name="label" xsi:type="string" translate="true">Magento SKU</item>
                     <item name="filter" xsi:type="string">text</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -177,6 +182,7 @@
                     <item name="sortable" xsi:type="boolean">false</item>
                     <item name="label" xsi:type="string" translate="true">Magento status</item>
                     <item name="dataType" xsi:type="string">text</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -187,6 +193,7 @@
                     <item name="filter" xsi:type="string">dateRange</item>
                     <item name="dataType" xsi:type="string">date</item>
                     <item name="sorting" xsi:type="string">desc</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -195,6 +202,7 @@
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Customer name</item>
                     <item name="filter" xsi:type="string">text</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -205,6 +213,7 @@
                     <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
                     <item name="label" xsi:type="string" translate="true">Country</item>
                     <item name="filter" xsi:type="string">text</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -213,6 +222,7 @@
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Items</item>
                     <item name="filter" xsi:type="string">text</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -221,6 +231,7 @@
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Total Paid</item>
                     <item name="filter" xsi:type="string">text</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
