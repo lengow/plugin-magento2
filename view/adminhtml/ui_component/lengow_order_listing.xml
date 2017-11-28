@@ -24,7 +24,7 @@
             </argument>
         </argument>
     </dataSource>
-    <container name="listing_top">
+    <listingToolbar name="listing_top">
         <argument name="data" xsi:type="array">
             <item name="config" xsi:type="array">
                 <item name="sticky" xsi:type="boolean">true</item>
@@ -61,53 +61,48 @@
                 </item>
             </argument>
         </filters>
-        <paging name="listing_paging">
+        <massaction name="listing_massaction">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
-                    <item name="storageConfig" xsi:type="array">
-                        <item name="provider" xsi:type="string">lengow_order_listing.lengow_order_listing.listing_top.bookmarks</item>
-                        <item name="namespace" xsi:type="string">current.paging</item>
+                    <item name="selectProvider" xsi:type="string">
+                        lengow_order_listing.lengow_order_listing.lengow_order_columns.ids
                     </item>
-                    <item name="selectProvider" xsi:type="string">lengow_order_listing.lengow_order_listing.lengow_order_columns.id</item>
-                    <item name="displayArea" xsi:type="string">bottom</item>
+                    <item name="indexField" xsi:type="string">id</item>
                 </item>
             </argument>
-        </paging>
-    </container>
-    <massaction name="listing_massaction">
-        <argument name="data" xsi:type="array">
-            <item name="config" xsi:type="array">
-                <item name="selectProvider" xsi:type="string">lengow_order_listing.lengow_order_listing.lengow_order_columns.ids</item>
-                <item name="indexField" xsi:type="string">id</item>
-            </item>
-        </argument>
-        <action name="reimport">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="type" xsi:type="string">reimport</item>
-                    <item name="label" xsi:type="string" translate="true">Re-import selected orders</item>
-                    <item name="url" xsi:type="url" path="*/*/massReImport"/>
-                    <item name="confirm" xsi:type="array">
-                        <item name="title" xsi:type="string" translate="true">Re-import all selected orders</item>
-                        <item name="message" xsi:type="string" translate="true">Do you want to re-import all selected orders?</item>
+            <action name="reimport">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="type" xsi:type="string">reimport</item>
+                        <item name="label" xsi:type="string" translate="true">Re-import selected orders</item>
+                        <item name="url" xsi:type="url" path="*/*/massReImport"/>
+                        <item name="confirm" xsi:type="array">
+                            <item name="title" xsi:type="string" translate="true">Re-import all selected orders</item>
+                            <item name="message" xsi:type="string" translate="true">Do you want to re-import all
+                                selected orders?
+                            </item>
+                        </item>
                     </item>
-                </item>
-            </argument>
-        </action>
-        <action name="resend">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="type" xsi:type="string">resend</item>
-                    <item name="label" xsi:type="string" translate="true">Re-send selected orders</item>
-                    <item name="url" xsi:type="url" path="*/*/massReSend"/>
-                    <item name="confirm" xsi:type="array">
-                        <item name="title" xsi:type="string" translate="true">Re-send all selected orders</item>
-                        <item name="message" xsi:type="string" translate="true">Do you want to re-send all selected orders?</item>
+                </argument>
+            </action>
+            <action name="resend">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="type" xsi:type="string">resend</item>
+                        <item name="label" xsi:type="string" translate="true">Re-send selected orders</item>
+                        <item name="url" xsi:type="url" path="*/*/massReSend"/>
+                        <item name="confirm" xsi:type="array">
+                            <item name="title" xsi:type="string" translate="true">Re-send all selected orders</item>
+                            <item name="message" xsi:type="string" translate="true">Do you want to re-send all selected
+                                orders?
+                            </item>
+                        </item>
                     </item>
-                </item>
-            </argument>
-        </action>
-    </massaction>
+                </argument>
+            </action>
+        </massaction>
+        <paging name="listing_paging"/>
+    </listingToolbar>
     <columns name="lengow_order_columns">
         <selectionsColumn name="ids">
             <argument name="data" xsi:type="array">
