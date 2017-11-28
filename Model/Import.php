@@ -31,7 +31,7 @@ use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
-use Lengow\Connector\Model\Import\Ordererror;
+use Lengow\Connector\Model\Import\OrdererrorFactory;
 use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Model\Import\Action;
 use Lengow\Connector\Model\Import\ImportorderFactory;
@@ -108,9 +108,9 @@ class Import
     protected $_connector;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Ordererror Lengow order error instance
+     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow order error instance
      */
-    protected $_orderError;
+    protected $_orderErrorFactory;
 
     /**
      * @var \Lengow\Connector\Model\Import\ImportorderFactory Lengow import order factory instance
@@ -271,7 +271,7 @@ class Import
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Helper\Import $importHelper Lengow config helper instance
      * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
-     * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
+     * @param \Lengow\Connector\Model\Import\OrdererrorFactory $orderErrorFactory Lengow orderError instance
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
      * @param \Lengow\Connector\Model\Import\ImportorderFactory $importorderFactory Lengow importorder instance
      * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
@@ -289,7 +289,7 @@ class Import
         ConfigHelper $configHelper,
         ImportHelper $importHelper,
         SyncHelper $syncHelper,
-        Ordererror $orderError,
+        OrdererrorFactory $orderErrorFactory,
         Connector $connector,
         ImportorderFactory $importorderFactory,
         OrderFactory $lengowOrderFactory,
@@ -307,7 +307,7 @@ class Import
         $this->_configHelper = $configHelper;
         $this->_importHelper = $importHelper;
         $this->_syncHelper = $syncHelper;
-        $this->_orderError = $orderError;
+        $this->_orderErrorFactory = $orderErrorFactory;
         $this->_connector = $connector;
         $this->_importorderFactory = $importorderFactory;
         $this->_lengowOrderFactory = $lengowOrderFactory;
@@ -471,7 +471,7 @@ class Import
                             continue;
                         }
                         if (!is_null($this->_orderLengowId)) {
-                            $this->_orderError->finishOrderErrors($this->_orderLengowId);
+                            $this->_orderErrorFactory->create()->finishOrderErrors($this->_orderLengowId);
                         }
                         // import orders in Magento
                         $result = $this->_importOrders($orders, (int)$store->getId());
@@ -488,8 +488,8 @@ class Import
                     }
                     if (isset($errorMessage)) {
                         if (!is_null($this->_orderLengowId)) {
-                            $this->_orderError->finishOrderErrors($this->_orderLengowId);
-                            $this->_orderError->createOrderError(
+                            $this->_orderErrorFactory->create()->finishOrderErrors($this->_orderLengowId);
+                            $this->_orderErrorFactory->create()->createOrderError(
                                 [
                                     'order_lengow_id' => $this->_orderLengowId,
                                     'message' => $errorMessage,
@@ -549,8 +549,8 @@ class Import
         if ($globalError) {
             $errors[0] = $globalError;
             if (isset($this->_orderLengowId) && $this->_orderLengowId) {
-                $this->_orderError->finishOrderErrors($this->_orderLengowId);
-                $this->_orderError->createOrderError(
+                $this->_orderErrorFactory->create()->finishOrderErrors($this->_orderLengowId);
+                $this->_orderErrorFactory->create()->createOrderError(
                     [
                         'order_lengow_id' => $this->_orderLengowId,
                         'message' => $globalError,
