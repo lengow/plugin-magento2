@@ -64,9 +64,10 @@ class MassReImport extends Action
 
         $totalReSent = 0;
         foreach ($ids as $orderLengowId) {
-            if ($this->_orderFactory->create()->reImportOrder((int)$orderLengowId)) {
+            $result = $this->_orderFactory->create()->reImportOrder((int)$orderLengowId);
+            if ($result && isset($result['order_new']) && $result['order_new']) {
                 $totalReSent++;
-            };
+            }
         }
 
         $this->messageManager->addSuccessMessage(
