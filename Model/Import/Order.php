@@ -27,8 +27,9 @@ use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Sales\Model\Service\InvoiceService;
 use Magento\Framework\DB\Transaction;
-use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionMagento;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Data\Collection\AbstractDb;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
@@ -214,6 +215,8 @@ class Order extends AbstractModel
      * @param \Lengow\Connector\Model\Import $import Lengow import instance
      * @param \Lengow\Connector\Model\Import\Action $action Lengow action instance
      * @param \Lengow\Connector\Model\ImportFactory $importFactory Lengow import factory instance
+     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource Magento abstract resource instance
+     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection Magento abstract db instance
      */
     public function __construct(
         MagentoOrderFactory $orderFactory,
@@ -236,7 +239,9 @@ class Order extends AbstractModel
         Connector $connector,
         ImportModel $import,
         ImportAction $action,
-        ImportFactory $importFactory
+        ImportFactory $importFactory,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null
     )
     {
         $this->_orderFactory = $orderFactory;
@@ -258,7 +263,7 @@ class Order extends AbstractModel
         $this->_import = $import;
         $this->_action = $action;
         $this->_importFactory = $importFactory;
-        parent::__construct($context, $registry);
+        parent::__construct($context, $registry, $resource, $resourceCollection);
     }
 
     /**
