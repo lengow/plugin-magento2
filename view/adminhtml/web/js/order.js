@@ -43,13 +43,11 @@ require(['jquery', 'uiRegistry'], function ($, registry) {
                 dataType: 'json',
                 success: function (data) {
                     reloadInformations(data.informations, false);
+                    //reload the grid
                     var grid = registry.get('lengow_order_listing.lengow_order_listing').source;
-                    if (grid) {
+                    if (grid && typeof grid === 'object') {
                         var params = [];
-                        var target = registry.get(grid);
-                        if (target && typeof target === 'object') {
-                            target.set('params.t ', Date.now());
-                        }
+                        grid.set('params.t ', Date.now());
                     }
                 }
             });
