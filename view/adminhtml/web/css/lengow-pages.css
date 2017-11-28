@@ -215,7 +215,7 @@ body.lengow-order-index td.data-grid-checkbox-cell {
 }
 
 /*************************************************/
-/*                PAGE DEBUG                     */
+/*                   TOOLBOX                     */
 /*************************************************/
 
 #store-information,
@@ -294,6 +294,10 @@ body.lengow-order-index td.data-grid-checkbox-cell {
 
 #lengow_action_grid {
   margin-top: 15px;
+}
+
+body.lengow-toolbox-index .lgw-label {
+  margin: 0px;
 }
 
 /*************************************************/
