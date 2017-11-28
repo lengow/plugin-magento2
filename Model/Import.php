@@ -582,15 +582,11 @@ class Import
      */
     protected function _importOrders($orders, $storeId)
     {
-        $incr = 0;
         $orderNew = 0;
         $orderUpdate = 0;
         $orderError = 0;
         $importFinished = false;
         foreach ($orders as $orderData) {
-            if ($incr > 5) continue;
-            $incr++;
-
             if (!$this->_importOneOrder) {
                 $this->_importHelper->setImportInProcess();
             }
