@@ -56,7 +56,23 @@ class MassReSend extends Action
 
     public function execute()
     {
-        $ids = $this->getRequest()->getParam('selected', []);
+        $selectedIds = $this->getRequest()->getParam('selected', null);
+        $excludedIds = $this->getRequest()->getParam('excluded', []);
+        $excludedIds = $excludedIds === 'false' ? [] : $excludedIds;
+        if (count($selectedIds) === 0) {
+            $ids = [];
+            $allLengowOrderIds = $this->_orderFactory->create()->getAllLengowOrderIds();
+            if ($allLengowOrderIds) {
+                foreach ($allLengowOrderIds as $lengowOrderId) {
+                    if (!in_array($lengowOrderId['id'], $excludedIds)) {
+                        $ids[] = $lengowOrderId['id'];
+                    }
+                }
+            }
+        } else {
+            $ids = $selectedIds;
+        }
+
         if (!is_array($ids) || !count($ids)) {
             $resultRedirect = $this->resultRedirectFactory->create();
             return $resultRedirect->setPath('*/*/index', ['_current' => true]);

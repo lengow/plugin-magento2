@@ -999,6 +999,22 @@ class Order extends AbstractModel
     }
 
     /**
+     * Get all Lengow order ids
+     *
+     * @return array|false
+     */
+    public function getAllLengowOrderIds()
+    {
+        $results = $this->_orderCollection->create()
+            ->addFieldToSelect('id')
+            ->getData();
+        if (count($results) > 0) {
+            return $results;
+        }
+        return false;
+    }
+
+    /**
      * Synchronize order with Lengow API
      *
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
