@@ -175,9 +175,9 @@ class Importorder extends AbstractModel
     protected $_lengowOrderFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Ordererror Lengow ordererror instance
+     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow ordererrorFactory instance
      */
-    protected $_orderError;
+    protected $_orderErrorFactory;
 
     /**
      * @var \Lengow\Connector\Model\Import\Customer Lengow customer instance
@@ -357,7 +357,7 @@ class Importorder extends AbstractModel
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
      * @param \Lengow\Connector\Model\Payment\Lengow $lengowPayment Lengow payment instance
      * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
-     * @param \Lengow\Connector\Model\Import\Ordererror $orderError Lengow orderError instance
+     * @param \Lengow\Connector\Model\Import\OrdererrorFactory $orderErrorFactory Lengow orderErrorFactory instance
      * @param \Lengow\Connector\Model\Import\Customer $lengowCustomer Lengow customer instance
      * @param \Lengow\Connector\Model\Import\QuoteFactory $lengowQuoteFactory Lengow quote instance
      * @param \Lengow\Connector\Model\Import\Orderline $lengowOrderline Lengow orderline instance
@@ -392,7 +392,7 @@ class Importorder extends AbstractModel
         LengowPayment $lengowPayment,
         LengowOrder $lengowOrder,
         LengowOrderFactory $lengowOrderFactory,
-        Ordererror $orderError,
+        OrdererrorFactory $orderErrorFactory,
         LengowCustomer $lengowCustomer,
         LengowQuoteFactory $lengowQuoteFactory,
         LengowOrderline $lengowOrderline,
@@ -425,7 +425,7 @@ class Importorder extends AbstractModel
         $this->_lengowPayment = $lengowPayment;
         $this->_lengowOrder = $lengowOrder;
         $this->_lengowOrderFactory = $lengowOrderFactory;
-        $this->_orderError = $orderError;
+        $this->_orderErrorFactory = $orderErrorFactory;
         $this->_lengowCustomer = $lengowCustomer;
         $this->_lengowQuoteFactory = $lengowQuoteFactory;
         $this->_lengowOrderline = $lengowOrderline;
@@ -709,7 +709,8 @@ class Importorder extends AbstractModel
             $errorMessage = 'Magento error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
         }
         if (isset($errorMessage)) {
-            $this->_orderError->createOrderError(
+            $orderError = $this->_orderErrorFactory->create();
+            $orderError->createOrderError(
                 [
                     'order_lengow_id' => $this->_orderLengowId,
                     'message' => $errorMessage,
@@ -732,6 +733,7 @@ class Importorder extends AbstractModel
                     'order_lengow_state' => $this->_orderStateLengow,
                 ]
             );
+            unset($orderError);
             return $this->_returnResult('error', $this->_orderLengowId);
         }
         return $this->_returnResult('new', $this->_orderLengowId, isset($order) ? $order->getId() : null);
@@ -928,7 +930,8 @@ class Importorder extends AbstractModel
         }
         if (count($errorMessages) > 0) {
             foreach ($errorMessages as $errorMessage) {
-                $this->_orderError->createOrderError(
+                $orderError = $this->_orderErrorFactory->create();
+                $orderError->createOrderError(
                     [
                         'order_lengow_id' => $this->_orderLengowId,
                         'message' => $errorMessage,
@@ -945,6 +948,7 @@ class Importorder extends AbstractModel
                     $this->_logOutput,
                     $this->_marketplaceSku
                 );
+                unset($orderError);
             };
             return false;
         }
