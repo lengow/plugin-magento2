@@ -463,7 +463,7 @@ class Config extends AbstractHelper
     public function setActiveStore($storeId, $cleanCache = true)
     {
         $active = true;
-        $storeCatalogIds = self::getCatalogIds($storeId);;
+        $storeCatalogIds = self::getCatalogIds($storeId);
         if (count($storeCatalogIds) === 0) {
             $active = false;
         }
