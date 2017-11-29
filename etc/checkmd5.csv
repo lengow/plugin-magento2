@@ -99,6 +99,7 @@
 /Setup/UpgradeSchema.php|3a98f0b1fe8be441d2deb92d148f939e
 /Ui/Component/Listing/Column/OrdersActions.php|fae9f019c92c3f1fe5db3ec210ff3a5b
 /Ui/Component/Listing/Column/Store.php|d206062b29a5d667a88bdbc6ce623ae5
+/Ui/Component/Listing/Column/LengowOrderStatus.php|719990e3ac441a447dcd7fd1f8b8ba02
 /Ui/Component/Listing/Column/OrderStatus.php|138ed2658079241da37f5f695a1f19c5
 /Ui/Component/Listing/Column/TotalPaid.php|706c5c3af0320dc64b4e568e959e81fa
 /Ui/Component/Listing/Column/Country.php|3503864cef73155938fde458bc5e7907
@@ -107,7 +108,7 @@
 /Ui/Component/Listing/Column/ActionParameters.php|e9b7292040c43a1af1a6cc9411ec013b
 /view/adminhtml/ui_component/lengow_log_listing.xml|ebfbf293571a6910f8116d4910cc9461
 /view/adminhtml/ui_component/lengow_product_listing.xml|d41d8cd98f00b204e9800998ecf8427e
-/view/adminhtml/ui_component/lengow_order_listing.xml|032e70d6369dab9d9676920124143f5c
+/view/adminhtml/ui_component/lengow_order_listing.xml|16a28eee18632994c0a22e94b2b3feec
 /view/adminhtml/ui_component/lengow_action_listing.xml|1c126c32cf9b2c624743d3fbc271a20b
 /view/adminhtml/layout/lengow_home_index.xml|be7194b9bad188ad149487782231f610
 /view/adminhtml/layout/lengow_legal_index.xml|9ea2dfe62054e82c708cc46a8a742b24

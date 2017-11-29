@@ -128,12 +128,12 @@
                 </item>
             </argument>
         </column>
-        <column name="order_lengow_state">
+        <column name="order_lengow_state" class="Lengow\Connector\Ui\Component\Listing\Column\LengowOrderStatus">
             <argument name="data" xsi:type="array">
                 <item name="options" xsi:type="object">Lengow\Connector\Model\Config\Source\Status</item>
                 <item name="config" xsi:type="array">
+                    <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
                     <item name="filter" xsi:type="string">select</item>
-                    <item name="component" xsi:type="string">Magento_Ui/js/grid/columns/select</item>
                     <item name="dataType" xsi:type="string">select</item>
                     <item name="label" xsi:type="string" translate="true">Lengow status</item>
                     <item name="fieldClass" xsi:type="string">lengow_table_center</item>
