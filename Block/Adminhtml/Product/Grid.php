@@ -20,7 +20,7 @@
 namespace Lengow\Connector\Block\Adminhtml\Product;
 
 use Lengow\Connector\Model\Config\Source\Type as SourceType;
-use Magento\Backend\Block\Widget\Grid\Extended;
+use Lengow\Connector\Block\Widget\Grid\Extended;
 use Magento\Catalog\Model\Product\AttributeSet\Options as AttributeSetOptions;
 use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
 use Magento\Backend\Block\Template\Context;
