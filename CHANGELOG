@@ -1,3 +1,15 @@
 =============================================================
 Version 1.0.0
 =============================================================
+
+	- Feature: Full compatibility with the new Lengow platform
+	- Feature: Lengow Dashboard (statistics, helper center and quick links)
+	- Feature: Product page with selection by store
+	- Feature: Orders page with a specific screen to manage Lengow orders
+	- Feature: Help page with all necessary support links
+	- Feature: Toolbox with all Lengow information for support
+	- Feature: Added Lengow simple tag on order validation
+	- Feature: New management of the settings with the recording of the changes
+	- Feature: Account creation and synchronization directly from the module
+	- Feature: Management of actions on marketplaces with error recovery
+	- Feature: Add new actions: re-import, re-send and re-synchronisation orders
