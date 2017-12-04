@@ -213,11 +213,7 @@ class Index extends Action
                 if ((int)$storeId > 0) {
                     $store = $this->_storeManager->getStore($storeId);
                     $storeName = $store->getName() . ' (' . $store->getId() . ') : ';
-                    if (is_array($values)) {
-                        $messages[] = $storeName . join(', ', $this->_dataHelper->decodeLogMessage($values));
-                    } else {
-                        $messages[] = $storeName . $this->_dataHelper->decodeLogMessage($values);
-                    }
+                    $messages[] = $storeName . $this->_dataHelper->decodeLogMessage($values);
                 }
             }
         }
