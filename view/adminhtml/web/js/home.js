@@ -11,9 +11,11 @@ require(['jquery'], function( $ ) {
         }).appendTo('#lengow-iframe-container');
 
         var syncIframe = document.getElementById('lengow-iframe');
+        var href = $('#lengow-iframe-container').attr('data-href');
         if (syncIframe) {
             syncIframe.onload = function () {
                 $.ajax({
+                    url: href,
                     method: 'POST',
                     data: {
                         action: 'get_sync_data',
