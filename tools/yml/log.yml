@@ -62,6 +62,7 @@ en:
       order_not_synchronized_with_lengow: "WARNING! Order could NOT be synchronised with Lengow webservice (ORDER ID %1)"
     order_action:
       check_completed_action: "check completed actions"
+      check_old_action: "check and finish old actions"
       check_action_not_sent: "check actions not sent"
       try_to_send_action: "try to send %1 action (ORDER ID %2)"
       action_send: "action %1 successfully sent (ORDER ID %2)"

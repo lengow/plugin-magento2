@@ -79,6 +79,7 @@ class LaunchSynchronization
             $this->_import->exec();
             // sync action between Lengow and Magento
             $this->_action->checkFinishAction();
+            $this->_action->checkOldAction();
             $this->_action->checkActionNotSent();
             // sync options between Lengow and Magento
             $this->_syncHelper->setCmsOption();

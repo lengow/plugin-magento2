@@ -540,6 +540,7 @@ class Import
             // checking marketplace actions
             if (!$this->_preprodMode && !$this->_importOneOrder && $this->_typeImport == 'manual') {
                 $this->_action->checkFinishAction();
+                $this->_action->checkOldAction();
                 $this->_action->checkActionNotSent();
             }
         }

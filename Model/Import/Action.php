@@ -329,69 +329,6 @@ class Action extends AbstractModel
     }
 
     /**
-     * Remove old actions > 3 days
-     *
-     * @param string $actionType action type (null, ship or cancel)
-     *
-     * @return boolean
-     */
-    public function finishAllOldActions($actionType = null)
-    {
-        // get all old order action (+ 3 days)
-        $collection = $this->_actionCollection->create()
-            ->addFieldToFilter('state', self::STATE_NEW)
-            ->addFieldToFilter(
-                'created_at',
-                [
-                    'to' => strtotime('-3 days', time()),
-                    'datetime' => true
-                ]
-            );
-        if (!is_null($actionType)) {
-            $collection->addFieldToFilter('action_type', $actionType);
-        }
-        $results = $collection->getData();
-        if (count($results) > 0) {
-            foreach ($results as $result) {
-                $action = $this->_actionFactory->create()->load($result['id']);
-                $action->updateAction(['state' => self::STATE_FINISH]);
-                $lengowOrderId = $this->_lengowOrderFactory->create()->getLengowOrderIdByOrderId($result['order_id']);
-                if ($lengowOrderId) {
-                    $lengowOrder = $this->_lengowOrderFactory->create()->load($lengowOrderId);
-                    $processStateFinish = $lengowOrder->getOrderProcessState('closed');
-                    if ((int)$lengowOrder->getData('order_process_state') != $processStateFinish
-                        && $lengowOrder->getData('is_in_error') == 0
-                    ) {
-                        // If action is denied -> create order error
-                        $errorMessage = $this->_dataHelper->setLogMessage('order action is too old. Please retry');
-                        $orderError = $this->_orderErrorFactory->create();
-                        $orderError->createOrderError(
-                            [
-                                'order_lengow_id' => $lengowOrder->getId(),
-                                'message' => $errorMessage,
-                                'type' => 'send',
-                            ]
-                        );
-                        $lengowOrder->updateOrder(['is_in_error' => 1]);
-                        $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
-                        $this->_dataHelper->log(
-                            'API-OrderAction',
-                            $this->_dataHelper->setLogMessage('order action failed - %1', [$decodedMessage]),
-                            false,
-                            $lengowOrder->getData('marketplace_sku')
-                        );
-                        unset($orderError);
-                    }
-                    unset($lengowOrder);
-                }
-                unset($action);
-            }
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * Check if active actions are finished
      *
      * @return boolean
@@ -491,9 +428,74 @@ class Action extends AbstractModel
                 }
             }
         }
-        // Clean actions after 3 days
-        $this->finishAllOldActions();
         return true;
+    }
+
+        /**
+     * Remove old actions > 3 days
+     *
+     * @param string $actionType action type (null, ship or cancel)
+     *
+     * @return boolean
+     */
+    public function checkOldAction($actionType = null)
+    {
+        if ((bool)$this->_configHelper->get('preprod_mode_enable')) {
+            return false;
+        }
+        $this->_dataHelper->log('API-OrderAction', $this->_dataHelper->setLogMessage('check and finish old actions'));
+        // get all old order action (+ 3 days)
+        $collection = $this->_actionCollection->create()
+            ->addFieldToFilter('state', self::STATE_NEW)
+            ->addFieldToFilter(
+                'created_at',
+                [
+                    'to' => strtotime('-3 days', time()),
+                    'datetime' => true
+                ]
+            );
+        if (!is_null($actionType)) {
+            $collection->addFieldToFilter('action_type', $actionType);
+        }
+        $results = $collection->getData();
+        if (count($results) > 0) {
+            foreach ($results as $result) {
+                $action = $this->_actionFactory->create()->load($result['id']);
+                $action->updateAction(['state' => self::STATE_FINISH]);
+                $lengowOrderId = $this->_lengowOrderFactory->create()->getLengowOrderIdByOrderId($result['order_id']);
+                if ($lengowOrderId) {
+                    $lengowOrder = $this->_lengowOrderFactory->create()->load($lengowOrderId);
+                    $processStateFinish = $lengowOrder->getOrderProcessState('closed');
+                    if ((int)$lengowOrder->getData('order_process_state') != $processStateFinish
+                        && $lengowOrder->getData('is_in_error') == 0
+                    ) {
+                        // If action is denied -> create order error
+                        $errorMessage = $this->_dataHelper->setLogMessage('order action is too old. Please retry');
+                        $orderError = $this->_orderErrorFactory->create();
+                        $orderError->createOrderError(
+                            [
+                                'order_lengow_id' => $lengowOrder->getId(),
+                                'message' => $errorMessage,
+                                'type' => 'send',
+                            ]
+                        );
+                        $lengowOrder->updateOrder(['is_in_error' => 1]);
+                        $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
+                        $this->_dataHelper->log(
+                            'API-OrderAction',
+                            $this->_dataHelper->setLogMessage('order action failed - %1', [$decodedMessage]),
+                            false,
+                            $lengowOrder->getData('marketplace_sku')
+                        );
+                        unset($orderError);
+                    }
+                    unset($lengowOrder);
+                }
+                unset($action);
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
