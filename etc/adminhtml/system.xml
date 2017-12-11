@@ -163,7 +163,7 @@
                 </field>
                 <field id="import_cron_enable" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Enable Magento cron</label>
-                    <comment>Enable the scheduled task to import your order every 30 minutes</comment>
+                    <comment>Enable the scheduled task to import your orders every 30 minutes</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
             </group>

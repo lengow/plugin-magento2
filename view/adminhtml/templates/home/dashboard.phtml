@@ -65,7 +65,7 @@
             </div>
             <p>
                 <a href="http://my.lengow.io/" target="_blank" title="<?= $block->escapeHtml(__('Want more stats?')) ?>" class="lgw-btn lgw-btn-white">
-                    <?= $block->escapeHtml(__('Need some help?')) ?>
+                    <?= $block->escapeHtml(__('Want more stats?')) ?>
                 </a>
             </p>
         </div>
@@ -73,12 +73,12 @@
     <div class="lgw-box">
         <h2><?= $block->escapeHtml(__('Need some help?')) ?></h2>
         <p>
-            <a href="" title="<?= $block->escapeHtml(__('Get in touch with Lengow.')) ?>">
+            <a href="<?= $block->getUrl('lengow/help/index') ?>" title="<?= $block->escapeHtml(__('Get in touch with Lengow.')) ?>">
                 <?= $block->escapeHtml(__('Get in touch with Lengow.')) ?>
             </a>
         </p>
         <p>
-            <a href="<?= $block->escapeHtml(__('help.screen.knowledge_link_url')) ?>" target="_blank"
+            <a href="<?= $block->escapeHtml(__('https://en.lengow.help/help/magento-2')) ?>" target="_blank"
                title="<?= $block->escapeHtml(__('Visit our Help Center')) ?>"><?= $block->escapeHtml(__('Visit our Help Center')) ?></a>
             <?= $block->escapeHtml(__('for detailed information on how to configure your Magento plugin properly')) ?>
         </p>

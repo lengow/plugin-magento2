@@ -28,6 +28,7 @@ use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Import\OrdererrorFactory;
 use Lengow\Connector\Model\Import\Marketplace;
+use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Model\Import\OrderFactory;
 
 class Import extends AbstractHelper
@@ -273,13 +274,18 @@ class Import extends AbstractHelper
         $reportMails = $this->_configHelper->getReportEmailAddress();
 
         if ($reportMailActive) {
-            $reportMailPrint .= $this->_dataHelper->setLogMessage('All order issue reports will be sent by mail to') . ' ';
-            $reportMailPrint .= implode(', ', $reportMails) . ' ';
+            $reportMailPrint .= $this->_dataHelper->decodeLogMessage(
+                $this->_dataHelper->setLogMessage('All order issue reports will be sent by mail to')
+            );
+            $reportMailPrint .= ' ' . implode(', ', $reportMails);
         } else {
-            $reportMailPrint .= $this->_dataHelper->setLogMessage('No order issue reports will be sent by mail') . ' ';
+            $reportMailPrint .= $this->_dataHelper->decodeLogMessage(
+                $this->_dataHelper->setLogMessage('No order issue reports will be sent by mail')
+            );
         }
-        $reportMailPrint .= '(<a href="' . $reportMailLink . '">' .
-            $this->_dataHelper->setLogMessage('Change this?') . '</a>)';
+        $reportMailPrint .= ' (<a href="' . $reportMailLink . '">';
+        $reportMailPrint .= $this->_dataHelper->decodeLogMessage($this->_dataHelper->setLogMessage('Change this?'));
+        $reportMailPrint .= '</a>)';
 
         return $reportMailPrint;
     }
@@ -288,6 +294,8 @@ class Import extends AbstractHelper
      * Get Marketplace singleton
      *
      * @param string $name marketplace name
+     *
+     * @throws LengowException
      *
      * @return \Lengow\Connector\Model\Import\Marketplace
      */
@@ -345,15 +353,15 @@ class Import extends AbstractHelper
             $emails = $this->_configHelper->getReportEmailAddress();
             foreach ($emails as $email) {
                 if (strlen($email) > 0) {
-                    $mail = new \Zend_Mail();
-                    $mail->setSubject($subject);
-                    $mail->setBodyHtml($mailBody);
-                    $mail->setFrom(
-                        $this->scopeConfig->getValue('trans_email/ident_general/email', ScopeInterface::SCOPE_STORE),
-                        'Lengow'
-                    );
-                    $mail->addTo($email);
                     try {
+                        $mail = new \Zend_Mail();
+                        $mail->setSubject($subject);
+                        $mail->setBodyHtml($mailBody);
+                        $mail->setFrom(
+                            $this->scopeConfig->getValue('trans_email/ident_general/email', ScopeInterface::SCOPE_STORE),
+                            'Lengow'
+                        );
+                        $mail->addTo($email);
                         $mail->send();
                         $this->_dataHelper->log(
                             'MailReport',

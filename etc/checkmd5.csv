@@ -45,15 +45,16 @@
 /etc/events.xml|2d87b77011008cec0c76349d0cb48ff1
 /etc/adminhtml/routes.xml|b37d51a18bc54f5a872c9797ed06ed5d
 /etc/adminhtml/menu.xml|b77fedabb5e2fa4ac1e16faa8b07add4
-/etc/adminhtml/system.xml|09fb0307800d676c6c8026ea1a7519b9
+/etc/adminhtml/system.xml|cae1f7bf7582ec84678067569ee38a8d
 /etc/module.xml|2866f2e70e2139dda8da1d6889ea0d7d
 /Helper/Sync.php|f57b358ffd1413f6819cdb940a7621df
 /Helper/Data.php|95d076519a75b7237b357d21c42689dc
 /Helper/Security.php|3179a51d47cc57e4bde230e1dab8438b
-/Helper/Import.php|3932568a9bfb939965bb1f8189ed5495
+/Helper/Import.php|0091d2571c9312e8cc64c277f3f79a57
 /Helper/Config.php|5d8902da5b2f158f2059fac578ec2c3c
-/i18n/fr_FR.csv|444d9160ee02a04d9a890523d232f3cc
-/i18n/en_GB.csv|858d4f106ed1ff9a98d76d577edd5a27
+/i18n/fr_FR.csv|d78dddd7197510cdb1932b15593413ea
+/i18n/en_GB.csv|2658a3d71a546ed78eecdc38039df330
+/i18n/de_DE.csv|15792aa877db77b4139612dd08d5d622
 /Model/Config/Source/Actiontype.php|e9d2cf36a5f8f297f60d5b1e4738dc30
 /Model/Config/Source/Attribute.php|d5f79d859b67df912fc6e5f0c6211501
 /Model/Config/Source/Action.php|57bcf9c9cd861f9c1db4fd641ab9a5a1
@@ -78,7 +79,7 @@
 /Model/ResourceModel/Ordererror.php|1d8ded0f9c697219c95c3922d8ad00ed
 /Model/ResourceModel/Log/Collection.php|5e4a18933b7f6ecebf482be80308519d
 /Model/ResourceModel/Order/Collection.php|5850f4e58408a583f995723fd3e51a7f
-/Model/Export.php|aac9dea154a980a1d9db4599b13267c0
+/Model/Export.php|79f033cb74635de1ac18a0e399072f6d
 /Model/Carrier/Lengow.php|768e792ea8311277356f72d2d58caa33
 /Model/Connector.php|befebfbe14fa053143bbb36ed871c8a0
 /Model/Log.php|fa3640faa7a99832532be5e089b65008
@@ -86,7 +87,7 @@
 /Model/Payment/Lengow.php|dd4f2d120fe6faa2d731cbf9eed66408
 /Model/Import/Orderline.php|d712529a1b8799bad7ec9dbccb492fd8
 /Model/Import/Action.php|a018b3ca92ea5891b1666fbabc520ed2
-/Model/Import/Importorder.php|834c1d66d6280864d07fca8871ada38f
+/Model/Import/Importorder.php|98531a150389f9ad99629f87f88f2ae1
 /Model/Import/Order.php|eaf4ba30753a740f36c82080083a4124
 /Model/Import/Quote.php|06bcfa237f9fb1588504cda5bee36507
 /Model/Import/Customer.php|9a6419814a9423cb73249a7d0375ccf9
@@ -116,7 +117,7 @@
 /view/adminhtml/ui_component/lengow_log_listing.xml|ebfbf293571a6910f8116d4910cc9461
 /view/adminhtml/templates/header.phtml|71796ccfbe809eaae216bea2f5361f93
 /view/adminhtml/templates/help/main.phtml|725f74753d014d0300f6614b36168035
-/view/adminhtml/templates/help/content.phtml|b1ee45a131480e8ddfaf26b14549b726
+/view/adminhtml/templates/help/content.phtml|e423151162b42a02eb4251e7588c0880
 /view/adminhtml/templates/order/header.phtml|5585ec94d00388f98d29c865b634272c
 /view/adminhtml/templates/order/main.phtml|c9797fff64fed3885c179acae9901290
 /view/adminhtml/templates/legal/main.phtml|606a3bf257c131e8781f93078d321079
@@ -128,7 +129,7 @@
 /view/adminhtml/templates/home/free_trial.phtml|9a923df731b9d5b6918215bbb1021472
 /view/adminhtml/templates/home/bad_payer.phtml|cd6bd45ffcb392535b33e17282966480
 /view/adminhtml/templates/home/new.phtml|fbcb683a86142fae68605018269c73c3
-/view/adminhtml/templates/home/dashboard.phtml|5a3b959f16e4b266a264fab8ea75f8ea
+/view/adminhtml/templates/home/dashboard.phtml|ca6c11a23f6542157b45db7f4b90ef5e
 /view/adminhtml/templates/home/main.phtml|6fea02eac9da0cc33b0cd43a1397db30
 /view/adminhtml/templates/log/main.phtml|ee2236823cdcf3d8d05c8bdfdce1d0cc
 /view/adminhtml/templates/footer.phtml|225f0c2e61e894ce7b144802fb1451fe

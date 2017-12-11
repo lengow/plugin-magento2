@@ -512,8 +512,8 @@ class Export
         $this->_dataHelper->log(
             'Export',
             $this->_dataHelper->setLogMessage(
-                '%1 product(s) exported, (%2 simple product(s), %3 configurable product(s),
-                %4 grouped product(s), %5 virtual product(s), %6 downloadable product(s))',
+                '%1 product(s) exported, %2 simple product(s), %3 configurable product(s),
+                %4 grouped product(s), %5 virtual product(s), %6 downloadable product(s)',
                 [
                     $counters['total'],
                     $counters['simple_enable'],

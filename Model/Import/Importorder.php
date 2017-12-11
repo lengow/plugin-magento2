@@ -906,7 +906,7 @@ class Importorder extends AbstractModel
     {
         $errorMessages = [];
         if (count($this->_packageData->cart) == 0) {
-            $errorMessages[] = $this->_dataHelper->setLogMessage('Lengow error: no products in the order');
+            $errorMessages[] = $this->_dataHelper->setLogMessage('Lengow error: no product in the order');
         }
         if (!isset($this->_orderData->currency->iso_a3)) {
             $errorMessages[] = $this->_dataHelper->setLogMessage('Lengow error: no currency in the order');
