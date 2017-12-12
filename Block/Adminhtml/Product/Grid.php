@@ -301,7 +301,7 @@ class Grid extends Extended
         $this->addColumn(
             'lengow_product',
             [
-                'header' => __('Include in export ?'),
+                'header' => __('Include in export?'),
                 'index' => 'lengow_product',
                 'type' => 'options',
                 'renderer' => 'Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Lengow',
