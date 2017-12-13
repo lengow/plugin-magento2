@@ -221,17 +221,16 @@ class Action extends AbstractModel
     }
 
     /**
-     * Get active action by API action ID
+     * Get action by API action ID
      *
      * @param integer $actionId action id from API
      *
      * @return integer|false
      */
-    public function getActiveActionByActionId($actionId)
+    public function getActionByActionId($actionId)
     {
         $results = $this->_actionCollection->create()
             ->addFieldToFilter('action_id', $actionId)
-            ->addFieldToFilter('state', self::STATE_NEW)
             ->getData();
         if (count($results) > 0) {
             return (int)$results[0]['id'];

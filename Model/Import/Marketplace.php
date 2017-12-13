@@ -409,6 +409,8 @@ class Marketplace extends AbstractModel
             $params['marketplace_order_id'] = $lengowOrder->getData('marketplace_sku');
             $params['marketplace'] = $lengowOrder->getData('marketplace_name');
             $params['action_type'] = $action;
+            $sendAction = true;
+            // check if action is already created
             $result = $this->_connector->queryApi(
                 'get',
                 '/v3.0/orders/actions/',
@@ -419,12 +421,14 @@ class Marketplace extends AbstractModel
             }
             if (isset($result->count) && $result->count > 0) {
                 foreach ($result->results as $row) {
-                    $orderActionId = $this->_orderActionFactory->create()->getActiveActionByActionId($row->id);
+                    $orderActionId = $this->_orderActionFactory->create()->getActionByActionId($row->id);
                     if ($orderActionId) {
                         $orderAction = $this->_orderActionFactory->create()->load($orderActionId);
-                        $retry = (int)$orderAction->getData('retry') + 1;
-                        $orderAction->updateAction(['retry' => $retry]);
-                        unset($orderAction);
+                        if ($orderAction->getData('state') == 0) {
+                            $retry = (int)$orderAction->getData('retry') + 1;
+                            $orderAction->updateAction(['retry' => $retry]);
+                            $sendAction = false;
+                        }
                     } else {
                         // if update doesn't work, create new action
                         $orderAction = $this->_orderActionFactory->create();
@@ -437,10 +441,12 @@ class Marketplace extends AbstractModel
                                 'parameters' => $this->_jsonHelper->jsonEncode($params)
                             ]
                         );
+                        $sendAction = false;
                     }
                     unset($orderAction);
                 }
-            } else {
+            }
+            if ($sendAction) {
                 if (!(bool)$this->_configHelper->get('preprod_mode_enable')) {
                     $result = $this->_connector->queryApi('post', '/v3.0/orders/actions/', $params);
                     if (isset($result->id)) {
