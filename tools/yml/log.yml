@@ -71,6 +71,9 @@ en:
       order_shipped_by_marketplace: "order shipped by %1"
       product_state_canceled: "product %1 could not be added to cart - status: %2"
       product_be_found: "product id %1 found with field %2 (%3)"
+    mail_report:
+      send_mail_to: "report email sent to %1"
+      unable_send_mail_to: "unable to send report email to %1"
     connector:
       call_api: "call %1"
       error_api: "API call failed - %1"
