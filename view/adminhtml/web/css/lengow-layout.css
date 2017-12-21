@@ -82,7 +82,7 @@ width: 41.67%;
   clear: both;
 }
 
-.lengowActionBox .data-grid-cell-content {
+.lengowOverflowBox .data-grid-cell-content {
     overflow: visible;
 }
 

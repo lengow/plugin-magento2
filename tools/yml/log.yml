@@ -48,7 +48,6 @@ en:
       product_be_found: "product id %1 found with field %2 (%3)"
       lengow_order_not_saved: "WARNING! Order could NOT be saved in Lengow orders table"
       lengow_order_saved: "order saved in Lengow orders table"
-      error_value_required: "%1 is required to create Lengow order"
       lengow_order_updated: "order updated in Lengow orders table"
       quantity_back_reimported_order: "adding quantity back to stock count (order is re-imported)"
       quantity_back_shipped_by_marketplace: "adding quantity back to stock count (order shipped by marketplace)"
@@ -81,3 +80,5 @@ en:
     setting:
       setting_change: "%1 - old value %2 replaced with %3"
       setting_change_for_store: "%1 - old value %2 replaced with %3 for store %4"
+    orm:
+      record_insert_failed: "Error while inserting record in database - %1"

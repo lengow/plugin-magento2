@@ -19,10 +19,14 @@
 
 namespace Lengow\Connector\Model\Import;
 
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Math\Random;
 use Magento\Eav\Model\Entity\Context;
 use Magento\Framework\Registry;
+use Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot;
+use Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Validator\Factory as ValidatorFactory;
+use Magento\Framework\Stdlib\DateTime;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Magento\Store\Model\StoreManagerInterface;
@@ -116,9 +120,9 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
      * @param \Magento\Framework\Registry $registry Magento registry instance
      * @param \Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot $entitySnapshot
      * @param \Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite $entityRelationComposite
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Magento\Framework\Validator\Factory $validatorFactory
-     * @param \Magento\Framework\Stdlib\DateTime $dateTime
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
+     * @param \Magento\Framework\Validator\Factory $validatorFactory Magento validator factory instance
+     * @param \Magento\Framework\Stdlib\DateTime $dateTime Magento date time instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager
@@ -133,11 +137,11 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
     public function __construct(
         Context $context,
         Registry $registry,
-        \Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot $entitySnapshot,
-        \Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite $entityRelationComposite,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\Validator\Factory $validatorFactory,
-        \Magento\Framework\Stdlib\DateTime $dateTime,
+        Snapshot $entitySnapshot,
+        RelationComposite $entityRelationComposite,
+        ScopeConfigInterface $scopeConfig,
+        ValidatorFactory $validatorFactory,
+        DateTime $dateTime,
         ConfigHelper $configHelper,
         DataHelper $dataHelper,
         StoreManagerInterface $storeManager,
@@ -180,6 +184,8 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
      * @param string $marketplaceSku marketplace sku
      * @param boolean $logOutput see log or not
      *
+     * @throws \Exception
+     *
      * @return \Magento\Customer\Model\Customer
      */
     public function createCustomer($orderData, $shippingAddress, $storeId, $marketplaceSku, $logOutput)
@@ -205,7 +211,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
             $customer = $this->_customerFactory->create();
             $customer->setWebsiteId($idWebsite);
             $customer->loadByEmail($array['billing_address']['email']);
-        } catch (NoSuchEntityException $e) {
+        } catch (\Exception $e) {
             // if customer doesn't exist catch exception and set null
             $customer = null;
         }
@@ -252,7 +258,12 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         $shippingAddress = $this->_convertAddress($array['delivery_address'], 'shipping');
         $shippingAddress->setCustomer($customer);
         $customer->addAddress($shippingAddress);
-        $this->_copy->copyFieldsetToTarget('lengow_convert_address', 'to_customer', $array['billing_address'], $customer);
+        $this->_copy->copyFieldsetToTarget(
+            'lengow_convert_address',
+            'to_customer',
+            $array['billing_address'],
+            $customer
+        );
         // set group
         $customer->setGroupId($this->_configHelper->get('customer_group', $storeId));
 
@@ -280,13 +291,15 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
     /**
      * Retrieve random password
      *
-     * @param   int $length
-     * @return  string
+     * @param integer $length length of the password
+     *
+     * @throws \Exception
+     *
+     * @return string
      */
     public function generatePassword($length = 8)
     {
         $chars = Random::CHARS_LOWERS . Random::CHARS_UPPERS . Random::CHARS_DIGITS;
-
         return $password = $this->_mathRandom->getRandomString($length, $chars);
     }
 
@@ -367,8 +380,8 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
             $address->setIsDefaultShipping(true);
         }
         $this->_copy->copyFieldsetToTarget('lengow_convert_address', 'to_' . $type . '_address', $data, $address);
-        $firstLine = $data['first_line'];
-        $secondLine = $data['second_line'];
+        $firstLine = trim($data['first_line']);
+        $secondLine = trim($data['second_line']);
         // Fix first line address
         if (empty($firstLine) && !empty($secondLine)) {
             $firstLine = $secondLine;
@@ -378,7 +391,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         if (!empty($secondLine)) {
             $firstLine = $firstLine . "\n" . $secondLine;
         }
-        $thirdLine = $data['complement'];
+        $thirdLine = trim($data['complement']);
         if (!empty($thirdLine)) {
             $firstLine = $firstLine . "\n" . $thirdLine;
         }

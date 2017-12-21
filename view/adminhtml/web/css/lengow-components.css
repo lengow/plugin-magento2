@@ -68,6 +68,16 @@ body.lengow-connector .blue_frame,
   color: #2e6592;
 }
 
+body.lengow-connector .red_frame,
+.red-frame {
+    border-radius: 3px;
+    margin-bottom: 15px;
+    padding: 30px;
+    background: #f2dede;
+    border: 1px solid #d4929d;
+    color: #a94442;
+}
+
 body.lengow-connector .grey_frame {
   background: #f7f7f7;
   padding: 30px;
@@ -197,9 +207,8 @@ span.lengow_out_of_stock_suuport {
   width: 200px;
 }
 
-
 a.lengow_tooltip.lgw-btn {
-white-space: normal; 
+  white-space: normal;
 }
 
 .lengow_export_feed span {
@@ -211,12 +220,13 @@ white-space: normal;
 span.lengow_order_action {
   bottom: 40px;
   left: -20px;
-  width: 150px;
+  width: 180px;
 }
 
 span.lengow_order_country {
   bottom: 20px;
-  left: -15px;
+  left: -25px;
+  width: 70px;
 }
 
 span.lengow_toolbox_message {

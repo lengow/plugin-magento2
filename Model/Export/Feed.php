@@ -168,6 +168,8 @@ class Feed
      * @param array $data export data
      * @param boolean $isFirst is first product to export
      * @param boolean $maxCharacter Max characters for yaml format
+     *
+     * @throws \Exception
      */
     public function write($type, $data = [], $isFirst = null, $maxCharacter = null)
     {
@@ -196,6 +198,8 @@ class Feed
     /**
      * Finalize export generation
      *
+     * @throws \Exception
+     *
      * @return boolean
      */
     public function end()
@@ -211,6 +215,8 @@ class Feed
 
     /**
      * Get feed URL
+     *
+     * @throws \Exception
      *
      * @return string
      */
@@ -410,6 +416,8 @@ class Feed
 
     /**
      * Flush feed content
+     *
+     * @throws \Exception
      *
      * @param string $content feed content to be flushed
      */

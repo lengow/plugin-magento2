@@ -307,10 +307,6 @@ class Marketplace extends AbstractModel
      * @param \Magento\Sales\Model\Order\Shipment $shipment Magento shipment instance
      * @param string $orderLineId Lengow order line id
      *
-     * @throws LengowException action not valid / marketplace action not present
-     *                         store id is required / marketplace name is required
-     *                         argument is required / action not created
-     *
      * @return boolean
      */
     public function callAction($action, $order, $lengowOrder, $shipment = null, $orderLineId = null)
@@ -501,7 +497,7 @@ class Marketplace extends AbstractModel
                 );
                 unset($orderError);
             }
-            $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
+            $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
             $this->_dataHelper->log(
                 'API-OrderAction',
                 $this->_dataHelper->setLogMessage('order action failed - %1', [$decodedMessage]),

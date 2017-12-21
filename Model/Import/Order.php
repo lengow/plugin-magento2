@@ -281,20 +281,13 @@ class Order extends AbstractModel
      *
      * @param array $params order parameters
      *
-     * @throws LengowException value required
-     *
-     * @return Order
+     * @return Order|false
      */
     public function createOrder($params = [])
     {
         foreach ($this->_fieldList as $key => $value) {
             if (!array_key_exists($key, $params) && $value['required']) {
-                throw new LengowException(
-                    $this->_dataHelper->setLogMessage(
-                        '%1 is required to create Lengow order',
-                        $key
-                    )
-                );
+                return false;
             }
         }
         foreach ($params as $key => $value) {
@@ -306,7 +299,16 @@ class Order extends AbstractModel
         if (!$this->getCreatedAt()) {
             $this->setData('created_at', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
         }
-        return $this->save();
+        try {
+            return $this->save();
+        } catch (\Exception $e) {
+            $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
+            $this->_dataHelper->log(
+                'Orm',
+                $this->_dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
+            );
+            return false;
+        }
     }
 
     /**
@@ -328,7 +330,16 @@ class Order extends AbstractModel
             }
         }
         $this->setData('updated_at', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
-        return $this->save();
+        try {
+            return $this->save();
+        } catch (\Exception $e) {
+            $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
+            $this->_dataHelper->log(
+                'Orm',
+                $this->_dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
+            );
+            return false;
+        }
     }
 
     /**
@@ -529,29 +540,33 @@ class Order extends AbstractModel
         if (count($params) > 0) {
             $lengowOrder->updateOrder($params);
         }
-        // Update Magento order's status only if in accepted, waiting_shipment, shipped, closed or cancel
-        if ($order->getState() != $this->getOrderState($orderStateLengow) && $order->getData('from_lengow') == 1) {
-            if (($order->getState() == $this->getOrderState('accepted')
-                    || $order->getState() == $this->getOrderState('new'))
-                && ($orderStateLengow == 'shipped' || $orderStateLengow == 'closed')
-            ) {
-                $this->toShip(
-                    $order,
-                    count($trackings) > 0 ? (string)$trackings[0]->carrier : null,
-                    count($trackings) > 0 ? (string)$trackings[0]->method : null,
-                    count($trackings) > 0 ? (string)$trackings[0]->number : null
-                );
-                return 'Complete';
-            } else {
-                if (($order->getState() == $this->getOrderState('new')
-                        || $order->getState() == $this->getOrderState('accepted')
-                        || $order->getState() == $this->getOrderState('shipped'))
-                    && ($orderStateLengow == 'canceled' || $orderStateLengow == 'refused')
+        try {
+            // Update Magento order's status only if in accepted, waiting_shipment, shipped, closed or cancel
+            if ($order->getState() != $this->getOrderState($orderStateLengow) && $order->getData('from_lengow') == 1) {
+                if (($order->getState() == $this->getOrderState('accepted')
+                        || $order->getState() == $this->getOrderState('new'))
+                    && ($orderStateLengow == 'shipped' || $orderStateLengow == 'closed')
                 ) {
-                    $this->toCancel($order);
-                    return 'Canceled';
+                    $this->toShip(
+                        $order,
+                        count($trackings) > 0 ? (string)$trackings[0]->carrier : null,
+                        count($trackings) > 0 ? (string)$trackings[0]->method : null,
+                        count($trackings) > 0 ? (string)$trackings[0]->number : null
+                    );
+                    return 'Complete';
+                } else {
+                    if (($order->getState() == $this->getOrderState('new')
+                            || $order->getState() == $this->getOrderState('accepted')
+                            || $order->getState() == $this->getOrderState('shipped'))
+                        && ($orderStateLengow == 'canceled' || $orderStateLengow == 'refused')
+                    ) {
+                        $this->toCancel($order);
+                        return 'Canceled';
+                    }
                 }
             }
+        } catch (\Exception $e) {
+            return false;
         }
         return false;
     }
@@ -572,6 +587,8 @@ class Order extends AbstractModel
      * Create invoice
      *
      * @param \Magento\Sales\Model\Order|\Magento\Sales\Api\Data\OrderInterface $order Magento order instance
+     *
+     * @throws \Exception
      */
     public function toInvoice($order)
     {
@@ -596,6 +613,8 @@ class Order extends AbstractModel
      * @param string $carrierName carrier name
      * @param string $carrierMethod carrier method
      * @param string $trackingNumber tracking number
+     *
+     * @throws \Exception
      */
     public function toShip($order, $carrierName, $carrierMethod, $trackingNumber)
     {
@@ -606,7 +625,6 @@ class Order extends AbstractModel
                     if (!$orderItem->getQtyToShip() || $orderItem->getIsVirtual()) {
                         continue;
                     }
-
                     $qtyShipped = $orderItem->getQtyToShip();
                     $shipmentItem = $this->_convertOrder->itemToShipmentItem($orderItem)->setQty($qtyShipped);
                     $shipment->addItem($shipmentItem);
@@ -797,9 +815,17 @@ class Order extends AbstractModel
         if ((isset($result['order_id']) && $result['order_id'] != $order->getData('order_id'))
             && (isset($result['order_new']) && $result['order_new'])
         ) {
-            // if state != STATE_COMPLETE or != STATE_CLOSED
-            $order->setState('lengow_technical_error')->setStatus('lengow_technical_error');
-            $order->save();
+            try {
+                // if state != STATE_COMPLETE or != STATE_CLOSED
+                $order->setState('lengow_technical_error')->setStatus('lengow_technical_error');
+                $order->save();
+            } catch (\Exception $e) {
+                $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
+                $this->_dataHelper->log(
+                    'Orm',
+                    $this->_dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
+                );
+            }
             return (int)$result['order_id'];
         } else {
             // Finish all order errors before API call
@@ -916,7 +942,7 @@ class Order extends AbstractModel
                 );
                 unset($orderError);
             }
-            $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
+            $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
             $this->_dataHelper->log(
                 'API-OrderAction',
                 $this->_dataHelper->setLogMessage('order action failed - %1', [$decodedMessage]),

@@ -176,7 +176,11 @@ class Action extends AbstractModel
         }
         $this->setData('state', self::STATE_NEW);
         $this->setData('created_at', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
-        return $this->save();
+        try {
+            return $this->save();
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -201,7 +205,11 @@ class Action extends AbstractModel
             }
         }
         $this->setData('updated_at', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
-        return $this->save();
+        try {
+            return $this->save();
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -479,7 +487,7 @@ class Action extends AbstractModel
                             ]
                         );
                         $lengowOrder->updateOrder(['is_in_error' => 1]);
-                        $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
+                        $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
                         $this->_dataHelper->log(
                             'API-OrderAction',
                             $this->_dataHelper->setLogMessage('order action failed - %1', [$decodedMessage]),

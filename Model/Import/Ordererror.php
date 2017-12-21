@@ -123,7 +123,11 @@ class Ordererror extends AbstractModel
             $this->setData($key, $value);
         }
         $this->setData('created_at', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
-        return $this->save();
+        try {
+            return $this->save();
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -145,7 +149,11 @@ class Ordererror extends AbstractModel
             }
         }
         $this->setData('updated_at', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
-        return $this->save();
+        try {
+            return $this->save();
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**

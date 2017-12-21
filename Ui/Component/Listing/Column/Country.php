@@ -79,8 +79,8 @@ class Country extends Column
                         ->loadByCode($item['delivery_country_iso'])
                         ->getName();
                     $item['delivery_country_iso'] = '<a class="lengow_tooltip" href="#">
-                    <img src="' . $filename . '" class="lengow_order_country" />
-                    <span class="lengow_order_country">' . $country_name . '</span></a>';
+                        <img src="' . $filename . '" />
+                        <span class="lengow_order_country">' . $country_name . '</span></a>';
                 }
             }
         }

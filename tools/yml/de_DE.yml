@@ -112,6 +112,7 @@ de:
       all_order_will_be_sent_to: " Alle Bestellfehler-Reports werden per Email gesendet"
       no_order_will_be_sent: "Bestellfehler-Reports werden per Email nicht gesendet"
       change_this: "Ändern Sie dies?"
+      ajax_timeout: "Während der Synchronisierung der Bestellungen kam es zu einem Time-Out-Fehler. Bitte aktualisieren Sie die Seite."
     table:
       lengow_action: "Aktionen"
       action_success: "Erfolg"

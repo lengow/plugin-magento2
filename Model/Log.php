@@ -74,7 +74,7 @@ class Log extends AbstractModel
      *
      * @param array $params
      *
-     * @return AbstractDb|boolean
+     * @return Log|boolean
      */
     public function createLog($params = [])
     {
@@ -87,6 +87,10 @@ class Log extends AbstractModel
             $this->setData($key, $value);
         }
         $this->setData('date', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
-        return $this->getResource()->save($this);
+        try {
+            return $this->save();
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }

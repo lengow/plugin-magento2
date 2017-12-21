@@ -495,7 +495,7 @@ class Import
                                 ]
                             );
                         }
-                        $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
+                        $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
                         $this->_dataHelper->log(
                             'Import',
                             $this->_dataHelper->setLogMessage('import failed - %1', [$decodedMessage]),
@@ -661,7 +661,7 @@ class Import
                         . '" ' . $e->getFile() . ' line ' . $e->getLine();
                 }
                 if (isset($errorMessage)) {
-                    $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
+                    $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
                     $this->_dataHelper->log(
                         'Import',
                         $this->_dataHelper->setLogMessage('import order failed - %1', [$decodedMessage]),

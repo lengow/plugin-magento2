@@ -24,6 +24,8 @@ require(['jquery', 'uiRegistry'], function ($, registry) {
                         grid.set('params.t ', Date.now());
                     }
                 }
+            }).fail( function () {
+                $("#lengow_wrapper_timeout").show(0.25);
             });
         });
 

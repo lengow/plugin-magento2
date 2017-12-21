@@ -97,6 +97,7 @@
 "All order issue reports will be sent by mail to","Les rapports d'erreurs de vos commandes seront envoyés par email à"
 "No order issue reports will be sent by mail","Les rapport d'erreurs de vos commandes ne seront pas envoyés par email "
 "Change this?","Vous voulez modifier cela ?"
+"The synchronisation of the orders was blocked by a timeout. Please reload the page.","La synchronisation des commandes a été bloquée par un timeout. Merci de recharger la page."
 "Actions","Actions"
 "Success","Succès"
 "Error","Erreur"

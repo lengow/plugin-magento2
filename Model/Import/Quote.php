@@ -19,6 +19,40 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Magento\Framework\Model\Context;
+use Magento\Framework\Registry;
+use Magento\Framework\Api\ExtensionAttributesFactory;
+use Magento\Quote\Model\QuoteValidator;
+use Magento\Catalog\Helper\Product;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Quote\Model\Quote\AddressFactory ;
+use Magento\Customer\Model\CustomerFactory;
+use Magento\Customer\Api\GroupRepositoryInterface;
+use Magento\Quote\Model\ResourceModel\Quote\Item\CollectionFactory as ItemCollectionFactory;
+use Magento\Quote\Model\Quote\ItemFactory;
+use Magento\Framework\Message\Factory as MessageFactory;
+use Magento\Sales\Model\Status\ListFactory;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Quote\Model\Quote\PaymentFactory;
+use Magento\Quote\Model\ResourceModel\Quote\Payment\CollectionFactory as PaymentCollectionFactory;
+use Magento\Framework\DataObject\Copy;
+use Magento\CatalogInventory\Api\StockRegistryInterface;
+use Magento\Quote\Model\Quote\Item\Processor;
+use Magento\Framework\DataObject\Factory as DataObjectFactory;
+use Magento\Customer\Api\AddressRepositoryInterface;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Api\FilterBuilder;
+use Magento\Customer\Api\Data\AddressInterfaceFactory;
+use Magento\Customer\Api\Data\CustomerInterfaceFactory;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Framework\Api\DataObjectHelper;
+use Magento\Framework\Api\ExtensibleDataObjectConverter;
+use Magento\Quote\Model\Cart\CurrencyFactory;
+use Magento\Quote\Model\Quote\TotalsCollector;
+use Magento\Quote\Model\Quote\TotalsReader;
+use Magento\Quote\Model\ShippingFactory;
+use Magento\Quote\Model\ShippingAssignmentFactory;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface;
 use Magento\Catalog\Model\Product\Attribute\Repository as ProductAttribute;
@@ -29,7 +63,6 @@ use Magento\Catalog\Model\ProductFactory;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 use Magento\Customer\Model\Group;
 use Lengow\Connector\Model\Import\Quote\Item as QuoteItem;
-use Lengow\Connector\Model\ResourceModel\Log as ResourceLog;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Exception as LengowException;
 
@@ -86,7 +119,7 @@ class Quote extends \Magento\Quote\Model\Quote
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
      * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
-     * @param AttributeValueFactory $customAttributeFactory
+     * @param \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory
      * @param \Magento\Quote\Model\QuoteValidator $quoteValidator
      * @param \Magento\Catalog\Helper\Product $catalogProduct
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
@@ -115,7 +148,7 @@ class Quote extends \Magento\Quote\Model\Quote
      * @param \Magento\Framework\Api\DataObjectHelper $dataObjectHelper
      * @param \Magento\Framework\Api\ExtensibleDataObjectConverter $extensibleDataObjectConverter
      * @param \Magento\Quote\Model\Cart\CurrencyFactory $currencyFactory
-     * @param JoinProcessorInterface $extensionAttributesJoinProcessor
+     * @param \Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface $extensionAttributesJoinProcessor
      * @param \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector
      * @param \Magento\Quote\Model\Quote\TotalsReader $totalsReader
      * @param \Magento\Quote\Model\ShippingFactory $shippingFactory
@@ -130,43 +163,43 @@ class Quote extends \Magento\Quote\Model\Quote
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      */
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
+        Context $context,
+        Registry $registry,
+        ExtensionAttributesFactory $extensionFactory,
         AttributeValueFactory $customAttributeFactory,
-        \Magento\Quote\Model\QuoteValidator $quoteValidator,
-        \Magento\Catalog\Helper\Product $catalogProduct,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\App\Config\ScopeConfigInterface $config,
-        \Magento\Quote\Model\Quote\AddressFactory $quoteAddressFactory,
-        \Magento\Customer\Model\CustomerFactory $customerFactory,
-        \Magento\Customer\Api\GroupRepositoryInterface $groupRepository,
-        \Magento\Quote\Model\ResourceModel\Quote\Item\CollectionFactory $quoteItemCollectionFactory,
-        \Magento\Quote\Model\Quote\ItemFactory $quoteItemFactory,
-        \Magento\Framework\Message\Factory $messageFactory,
-        \Magento\Sales\Model\Status\ListFactory $statusListFactory,
-        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
-        \Magento\Quote\Model\Quote\PaymentFactory $quotePaymentFactory,
-        \Magento\Quote\Model\ResourceModel\Quote\Payment\CollectionFactory $quotePaymentCollectionFactory,
-        \Magento\Framework\DataObject\Copy $objectCopyService,
-        \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry,
-        \Magento\Quote\Model\Quote\Item\Processor $itemProcessor,
-        \Magento\Framework\DataObject\Factory $objectFactory,
-        \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
-        \Magento\Framework\Api\SearchCriteriaBuilder $criteriaBuilder,
-        \Magento\Framework\Api\FilterBuilder $filterBuilder,
-        \Magento\Customer\Api\Data\AddressInterfaceFactory $addressDataFactory,
-        \Magento\Customer\Api\Data\CustomerInterfaceFactory $customerDataFactory,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \Magento\Framework\Api\DataObjectHelper $dataObjectHelper,
-        \Magento\Framework\Api\ExtensibleDataObjectConverter $extensibleDataObjectConverter,
-        \Magento\Quote\Model\Cart\CurrencyFactory $currencyFactory,
+        QuoteValidator $quoteValidator,
+        Product $catalogProduct,
+        ScopeConfigInterface $scopeConfig,
+        StoreManagerInterface $storeManager,
+        ScopeConfigInterface $config,
+        AddressFactory $quoteAddressFactory,
+        CustomerFactory $customerFactory,
+        GroupRepositoryInterface $groupRepository,
+        ItemCollectionFactory $quoteItemCollectionFactory,
+        ItemFactory $quoteItemFactory,
+        MessageFactory $messageFactory,
+        ListFactory $statusListFactory,
+        ProductRepositoryInterface $productRepository,
+        PaymentFactory $quotePaymentFactory,
+        PaymentCollectionFactory $quotePaymentCollectionFactory,
+        Copy $objectCopyService,
+        StockRegistryInterface $stockRegistry,
+        Processor $itemProcessor,
+        DataObjectFactory $objectFactory,
+        AddressRepositoryInterface $addressRepository,
+        SearchCriteriaBuilder $criteriaBuilder,
+        FilterBuilder $filterBuilder,
+        AddressInterfaceFactory $addressDataFactory,
+        CustomerInterfaceFactory $customerDataFactory,
+        CustomerRepositoryInterface $customerRepository,
+        DataObjectHelper $dataObjectHelper,
+        ExtensibleDataObjectConverter $extensibleDataObjectConverter,
+        CurrencyFactory $currencyFactory,
         JoinProcessorInterface $extensionAttributesJoinProcessor,
-        \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
-        \Magento\Quote\Model\Quote\TotalsReader $totalsReader,
-        \Magento\Quote\Model\ShippingFactory $shippingFactory,
-        \Magento\Quote\Model\ShippingAssignmentFactory $shippingAssignmentFactory,
+        TotalsCollector $totalsCollector,
+        TotalsReader $totalsReader,
+        ShippingFactory $shippingFactory,
+        ShippingAssignmentFactory $shippingAssignmentFactory,
         TaxCalculation $taxCalculation,
         Calculation $calculation,
         ProductFactory $productFactory,
@@ -185,14 +218,45 @@ class Quote extends \Magento\Quote\Model\Quote
         $this->_groupCustomer = $groupCustomer;
         $this->_quoteItem = $quoteItem;
         $this->_dataHelper = $dataHelper;
-        parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $quoteValidator,
-            $catalogProduct, $scopeConfig, $storeManager, $config, $quoteAddressFactory, $customerFactory,
-            $groupRepository, $quoteItemCollectionFactory, $quoteItemFactory, $messageFactory, $statusListFactory,
-            $productRepository, $quotePaymentFactory, $quotePaymentCollectionFactory, $objectCopyService,
-            $stockRegistry, $itemProcessor, $objectFactory, $addressRepository, $criteriaBuilder, $filterBuilder,
-            $addressDataFactory, $customerDataFactory, $customerRepository, $dataObjectHelper, $extensibleDataObjectConverter,
-            $currencyFactory, $extensionAttributesJoinProcessor, $totalsCollector, $totalsReader, $shippingFactory,
-            $shippingAssignmentFactory);
+        parent::__construct(
+            $context,
+            $registry,
+            $extensionFactory,
+            $customAttributeFactory,
+            $quoteValidator,
+            $catalogProduct,
+            $scopeConfig,
+            $storeManager,
+            $config,
+            $quoteAddressFactory,
+            $customerFactory,
+            $groupRepository,
+            $quoteItemCollectionFactory,
+            $quoteItemFactory,
+            $messageFactory,
+            $statusListFactory,
+            $productRepository,
+            $quotePaymentFactory,
+            $quotePaymentCollectionFactory,
+            $objectCopyService,
+            $stockRegistry,
+            $itemProcessor,
+            $objectFactory,
+            $addressRepository,
+            $criteriaBuilder,
+            $filterBuilder,
+            $addressDataFactory,
+            $customerDataFactory,
+            $customerRepository,
+            $dataObjectHelper,
+            $extensibleDataObjectConverter,
+            $currencyFactory,
+            $extensionAttributesJoinProcessor,
+            $totalsCollector,
+            $totalsReader,
+            $shippingFactory,
+            $shippingAssignmentFactory
+        );
     }
 
     /**
@@ -203,6 +267,8 @@ class Quote extends \Magento\Quote\Model\Quote
      * @param string $marketplaceSku marketplace sku
      * @param boolean $logOutput see log or not
      * @param boolean $priceIncludeTax price include tax
+     *
+     * @throws \Exception|LengowException product not be found / product is a parent
      *
      * @return Quote
      */

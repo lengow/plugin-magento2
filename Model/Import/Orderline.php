@@ -22,26 +22,24 @@ namespace Lengow\Connector\Model\Import;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
-use Lengow\Connector\Model\Import\OrderlineFactory as LengowOrderlineFactory;
+use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\ResourceModel\Orderline\CollectionFactory as OrderlineCollectionFactory;
 use Lengow\Connector\Model\ResourceModel\Orderline as OrderlineResource;
-
 
 /**
  * Model import orderline
  */
 class Orderline extends AbstractModel
 {
+    /**
+     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     */
+    protected $_dataHelper;
 
     /**
      * @var \Lengow\Connector\Model\ResourceModel\Orderline\CollectionFactory Lengow Orderline collection factory
      */
     protected $_orderlineCollectionFactory;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\OrderlineFactory Lengow Orderline factory
-     */
-    protected $_orderlineFactory;
 
     /**
      * @var array $_fieldList field list for the table lengow_order_line
@@ -59,18 +57,18 @@ class Orderline extends AbstractModel
      *
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
-     * @param \Lengow\Connector\Model\Import\OrderlineFactory $orderlineFactory Lengow Orderline factory
-     * @param \Lengow\Connector\Model\ResourceModel\Orderline\CollectionFactory $orderlineCollectionFactory Lengow Orderline collection factory
+     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param \Lengow\Connector\Model\ResourceModel\Orderline\CollectionFactory $orderlineCollectionFactory
      */
     public function __construct(
         Context $context,
         Registry $registry,
-        LengowOrderlineFactory $orderlineFactory,
+        DataHelper $dataHelper,
         OrderlineCollectionFactory $orderlineCollectionFactory
     )
     {
         parent::__construct($context, $registry);
-        $this->_orderlineFactory = $orderlineFactory;
+        $this->_dataHelper = $dataHelper;
         $this->_orderlineCollectionFactory = $orderlineCollectionFactory;
     }
 
@@ -98,11 +96,19 @@ class Orderline extends AbstractModel
                 return false;
             }
         }
-        $orderline = $this->_orderlineFactory->create();
         foreach ($params as $key => $value) {
-            $orderline->setData($key, $value);
+            $this->setData($key, $value);
         }
-        return $orderline->save();
+        try {
+            return $this->save();
+        } catch (\Exception $e) {
+            $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
+            $this->_dataHelper->log(
+                'Orm',
+                $this->_dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
+            );
+            return false;
+        }
     }
 
     /**
@@ -123,5 +129,4 @@ class Orderline extends AbstractModel
         }
         return false;
     }
-
 }

@@ -112,6 +112,7 @@ en:
       all_order_will_be_sent_to: "All order issue reports will be sent by mail to"
       no_order_will_be_sent: "No order issue reports will be sent by mail"
       change_this: "Change this?"
+      ajax_timeout: "The synchronisation of the orders was blocked by a timeout. Please reload the page."
     table:
       lengow_action: "Actions"
       action_success: "Success"

@@ -441,6 +441,8 @@ class Importorder extends AbstractModel
      *
      * @param array $params optional options for load a import order
      *
+     * @throws LengowException
+     *
      * @return Importorder
      */
     public function init($params)
@@ -463,8 +465,6 @@ class Importorder extends AbstractModel
     /**
      * Create or update order
      *
-     * @throws LengowException order is empty
-     *
      * @return array|false
      */
     public function importOrder()
@@ -476,7 +476,7 @@ class Importorder extends AbstractModel
             'import'
         );
         if ($importLog) {
-            $decodedMessage = $this->_dataHelper->decodeLogMessage($importLog['message'], 'en_GB');
+            $decodedMessage = $this->_dataHelper->decodeLogMessage($importLog['message'], false);
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
@@ -717,7 +717,7 @@ class Importorder extends AbstractModel
                     'type' => 'import'
                 ]
             );
-            $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
+            $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
@@ -938,7 +938,7 @@ class Importorder extends AbstractModel
                         'type' => 'import'
                     ]
                 );
-                $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, 'en_GB');
+                $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
                 $this->_dataHelper->log(
                     'Import',
                     $this->_dataHelper->setLogMessage(
@@ -1002,6 +1002,8 @@ class Importorder extends AbstractModel
      *
      * @param \Magento\Customer\Model\Customer $customer
      *
+     * @throws \Exception
+     *
      * @return LengowQuoteFactory
      */
     protected function _createQuote(\Magento\Customer\Model\Customer $customer)
@@ -1011,7 +1013,6 @@ class Importorder extends AbstractModel
             ->setIsMultiShipping(false)
             ->setStore($this->_storeManager->getStore($this->_storeId))
             ->setInventoryProcessed(false);
-
         // import customer addresses into quote
         // Set billing Address
         $customerBillingAddress = $this->_addressRepository->getById($customerRepo->getDefaultBilling());
@@ -1029,7 +1030,6 @@ class Importorder extends AbstractModel
         // check if store include tax (Product and shipping cost)
         $priceIncludeTax = $this->_taxConfig->priceIncludesTax($quote->getStore());
         $shippingIncludeTax = $this->_taxConfig->shippingPriceIncludesTax($quote->getStore());
-
         // add product in quote
         $quote->addLengowProducts(
             $this->_packageData->cart,
@@ -1038,7 +1038,6 @@ class Importorder extends AbstractModel
             $this->_logOutput,
             $priceIncludeTax
         );
-
         // Get shipping cost with tax
         $shippingCost = $this->_processingFee + $this->_shippingCost;
         // if shipping cost not include tax -> get shipping cost without tax
@@ -1081,7 +1080,6 @@ class Importorder extends AbstractModel
         );
         $quote->collectTotals()->save();
         $quote->save();
-
         return $quote;
     }
 
@@ -1090,7 +1088,7 @@ class Importorder extends AbstractModel
      *
      * @param Quote $quote Lengow quote instance
      *
-     * @throws LengowException order failed with quote
+     * @throws \Exception|LengowException order failed with quote
      *
      * @return \Magento\Sales\Model\Order
      */
@@ -1104,7 +1102,6 @@ class Importorder extends AbstractModel
             'order_currency_code' => (string)$this->_orderData->currency->iso_a3
         ];
         $magentoQuote = $this->_quoteMagentoFactory->create()->load($quote->getId());
-
         $order = $this->_quoteManagement->submit($magentoQuote, $additionalDatas);
         if (!$order) {
             throw new LengowException(
@@ -1134,7 +1131,6 @@ class Importorder extends AbstractModel
             $order->getShippingDescription() . ' [marketplace shipping method : ' . $carrierName . ']'
         );
         $order->save();
-
         return $order;
     }
 

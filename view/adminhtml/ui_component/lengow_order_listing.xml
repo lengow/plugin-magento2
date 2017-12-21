@@ -124,7 +124,7 @@
                     <item name="filter" xsi:type="string">select</item>
                     <item name="dataType" xsi:type="string">select</item>
                     <item name="label" xsi:type="string" translate="true">Actions</item>
-                    <item name="fieldClass" xsi:type="string">lengowActionBox</item>
+                    <item name="fieldClass" xsi:type="string">lengowOverflowBox</item>
                 </item>
             </argument>
         </column>
@@ -218,7 +218,7 @@
                     <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
                     <item name="label" xsi:type="string" translate="true">Country</item>
                     <item name="filter" xsi:type="string">text</item>
-                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center lengowOverflowBox</item>
                 </item>
             </argument>
         </column>
