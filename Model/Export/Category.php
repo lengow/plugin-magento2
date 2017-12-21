@@ -82,6 +82,8 @@ class Category
      *
      * @param array $params optional options for load a specific category
      * \Magento\Catalog\Model\Product\Interceptor product Magento product instance
+     *
+     * @throws \Exception
      */
     public function load($params)
     {
@@ -146,6 +148,8 @@ class Category
      * @param integer $categoryId Magento category id
      * @param string $categoryPath Magento category path
      *
+     * @throws \Exception
+     *
      * @return string
      */
     protected function _getBreadcrumb($categoryId, $categoryPath)
@@ -175,6 +179,8 @@ class Category
      * Get category name
      *
      * @param integer $categoryId Magento category id
+     *
+     * @throws \Exception
      *
      * @return string
      */

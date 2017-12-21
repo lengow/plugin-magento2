@@ -365,8 +365,6 @@ class Import
     /**
      * Execute import: fetch orders and import them
      *
-     * @throws LengowException order not found
-     *
      * @return array
      */
     public function exec()

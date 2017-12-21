@@ -339,6 +339,7 @@
 "WARNING! %1 simple product(s) associated with configurable products are disabled","WARNING! %1 simple product(s) associated with configurable products are disabled"
 "unable to create folder %1","unable to create folder %1"
 "unable to access the folder %1","unable to access the folder %1"
+"the junction with the %1 table did not work","the junction with the %1 table did not work"
 "Action: %1 is not a valid action","Action: %1 is not a valid action"
 "WARNING! Pre-production mode is activated","WARNING! Pre-production mode is activated"
 "## start %1 import ##","## start %1 import ##"

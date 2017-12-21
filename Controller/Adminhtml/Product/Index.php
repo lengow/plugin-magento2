@@ -92,7 +92,7 @@ class Index extends Action
     /**
      * Index action
      *
-     * @return void|string
+     * @return mixed
      */
     public function execute()
     {

@@ -119,6 +119,8 @@ class Grid extends Extended
     /**
      * Prepare collection
      *
+     * @throws \Exception
+     *
      * @return \Magento\Backend\Block\Widget\Grid
      */
     protected function _prepareCollection()
@@ -178,6 +180,8 @@ class Grid extends Extended
 
     /**
      * Prepare columns
+     *
+     * @throws \Exception
      *
      * @return \Magento\Backend\Block\Widget\Grid\Extended
      */
@@ -357,6 +361,8 @@ class Grid extends Extended
 
     /**
      * Inline editing action
+     *
+     * @param \Magento\Framework\DataObject $row Magento data object instance
      *
      * @return string
      */

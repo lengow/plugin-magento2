@@ -37,6 +37,8 @@ class InstallSchema implements InstallSchemaInterface
      * @param \Magento\Framework\Setup\SchemaSetupInterface $setup Magento schema setup instance
      * @param \Magento\Framework\Setup\ModuleContextInterface $context Magento module context instance
      *
+     * @throws \Exception
+     *
      * @return void
      */
     public function install(

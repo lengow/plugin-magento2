@@ -121,6 +121,8 @@ class Connector
      *
      * @param string $userToken the user token if is connected
      *
+     * @throws LengowException get Curl error
+     *
      * @return array|false
      */
     public function connect($userToken = '')
@@ -153,7 +155,7 @@ class Connector
      * @param string $format return format of API
      * @param string $body body datas for request
      *
-     * @return array
+     * @return mixed
      */
     public function call($method, $array = [], $type = 'GET', $format = 'json', $body = '')
     {
@@ -177,7 +179,7 @@ class Connector
      * @param string $format return format of API
      * @param string $body body datas for request
      *
-     * @return array
+     * @return mixed
      */
     public function get($method, $array = [], $format = 'json', $body = '')
     {
@@ -192,7 +194,7 @@ class Connector
      * @param string $format return format of API
      * @param string $body body datas for request
      *
-     * @return array
+     * @return mixed
      */
     public function post($method, $array = [], $format = 'json', $body = '')
     {
@@ -207,7 +209,7 @@ class Connector
      * @param string $format return format of API
      * @param string $body body datas for request
      *
-     * @return array
+     * @return mixed
      */
     public function head($method, $array = [], $format = 'json', $body = '')
     {
@@ -222,7 +224,7 @@ class Connector
      * @param string $format return format of API
      * @param string $body body datas for request
      *
-     * @return array
+     * @return mixed
      */
     public function put($method, $array = [], $format = 'json', $body = '')
     {
@@ -237,7 +239,7 @@ class Connector
      * @param string $format return format of API
      * @param string $body body datas for request
      *
-     * @return array
+     * @return mixed
      */
     public function delete($method, $array = [], $format = 'json', $body = '')
     {
@@ -252,7 +254,7 @@ class Connector
      * @param string $format return format of API
      * @param string $body body datas for request
      *
-     * @return array
+     * @return mixed
      */
     public function patch($method, $array = [], $format = 'json', $body = '')
     {
@@ -268,7 +270,9 @@ class Connector
      * @param string $format return format of API
      * @param string $body body datas for request
      *
-     * @return array
+     * @throws LengowException get Curl error
+     *
+     * @return mixed
      */
     public function callAction($api, $args, $type, $format = 'json', $body = '')
     {
@@ -282,7 +286,7 @@ class Connector
      * @param mixed $data Curl response data
      * @param string $format return format of API
      *
-     * @return array
+     * @return mixed
      */
     private function _format($data, $format)
     {
@@ -311,7 +315,7 @@ class Connector
      *
      * @throws LengowException get Curl error
      *
-     * @return array
+     * @return mixed
      */
     private function _makeRequest($type, $url, $args, $token, $body = '')
     {

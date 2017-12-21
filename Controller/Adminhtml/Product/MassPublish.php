@@ -63,30 +63,23 @@ class MassPublish extends Product
 
     /**
      * Update product(s) publish action
-     *
-     * @throws \Magento\Framework\Exception\NotFoundException
      */
     public function execute()
     {
-        $product_ids = $this->getRequest()->getParam('product');
-        $store_id = (integer)$this->getRequest()
+        $productIds = $this->getRequest()->getParam('product');
+        $storeId = (int)$this->getRequest()
             ->getParam('store', $this->_storeManager->getDefaultStoreView()->getId());
-        $publish = (integer)$this->getRequest()->getParam('publish');
+        $publish = (int)$this->getRequest()->getParam('publish');
         try {
-            $this->_productAction->updateAttributes(
-                $product_ids,
-                ['lengow_product' => $publish],
-                $store_id
-            );
+            $this->_productAction->updateAttributes($productIds, ['lengow_product' => $publish], $storeId);
         } catch (\Exception $e) {
             $this->_getSession()->addException(
                 $e,
                 __('Something went wrong while updating the lengow product(s) attribute.')
             );
         }
-
         /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
-        return $resultRedirect->setPath('lengow/*/', ['store' => $store_id]);
+        return $resultRedirect->setPath('lengow/*/', ['store' => $storeId]);
     }
 }

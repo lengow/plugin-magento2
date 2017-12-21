@@ -840,8 +840,6 @@ class Order extends AbstractModel
      * @param \Magento\Sales\Model\Order $order Magento order instance
      * @param \Magento\Sales\Model\Order\Shipment $shipment Magento Shipment instance
      *
-     * @throws LengowException order line is required
-     *
      * @return boolean
      */
     public function callAction($action, $order, $shipment = null)

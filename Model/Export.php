@@ -450,7 +450,7 @@ class Export
      * @param array $products list of products to be exported
      * @param array $fields list of fields to export
      *
-     * @throws LengowException Export folder not writable
+     * @throws \Exception|LengowException Export folder not writable
      */
     protected function _export($products, $fields)
     {
@@ -767,8 +767,8 @@ class Export
     /**
      * Set the product counter log
      *
-     * @param integer $productModulo
-     * @param integer $productCount
+     * @param integer $productModulo product modulo
+     * @param integer $productCount product counter
      *
      */
     protected function _setCounterLog($productModulo, $productCount)
@@ -851,15 +851,26 @@ class Export
         }
         // Export out of stock products
         if (!$this->_outOfStock) {
-            $config = (int)$this->_scopeConfig->isSetFlag(CatalogInventoryConfiguration::XML_PATH_MANAGE_STOCK);
-            $condition = '({{table}}.`is_in_stock` = 1) '
-                . ' OR IF({{table}}.`use_config_manage_stock` = 1, ' . $config . ', {{table}}.`manage_stock`) = 0';
-            $productCollection->joinTable(
-                'cataloginventory_stock_item',
-                'product_id=entity_id',
-                ['qty' => 'qty', 'is_in_stock' => 'is_in_stock'],
-                $condition
-            );
+            try {
+                $config = (int)$this->_scopeConfig->isSetFlag(CatalogInventoryConfiguration::XML_PATH_MANAGE_STOCK);
+                $condition = '({{table}}.`is_in_stock` = 1) '
+                    . ' OR IF({{table}}.`use_config_manage_stock` = 1, ' . $config . ', {{table}}.`manage_stock`) = 0';
+                $productCollection->joinTable(
+                    'cataloginventory_stock_item',
+                    'product_id=entity_id',
+                    ['qty' => 'qty', 'is_in_stock' => 'is_in_stock'],
+                    $condition
+                );
+            } catch (\Exception $e) {
+                $this->_dataHelper->log(
+                    'Export',
+                    $this->_dataHelper->setLogMessage(
+                        'the junction with the %1 table did not work',
+                        ['cataloginventory_stock_item']
+                    ),
+                    $this->_logOutput
+                );
+            }
         }
         // Export specific products with id
         if (count($this->_productIds) > 0) {

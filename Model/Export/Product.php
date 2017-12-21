@@ -262,6 +262,8 @@ class Product
      * @param array $params optional options for load a specific product
      * string  product_type Magento product type
      * integer product_id   Magento product id
+     *
+     * @throws \Exception
      */
     public function load($params)
     {
@@ -479,6 +481,8 @@ class Product
      * @param integer $productId Magento product is
      * @param boolean $forceReload force reload for product repository
      *
+     * @throws \Exception
+     *
      * @return \Magento\Catalog\Model\Product\Interceptor
      */
     protected function _getProduct($productId, $forceReload = false)
@@ -493,6 +497,8 @@ class Product
 
     /**
      * Get parent product for simple product
+     *
+     * @throws \Exception
      *
      * @return \Magento\Catalog\Model\Product\Interceptor|null
      */
@@ -515,6 +521,8 @@ class Product
      * Get parent product with temporary cache
      *
      * @param integer $parentId Magento parent entity id
+     *
+     * @throws \Exception
      *
      * @return \Magento\Catalog\Model\Product\Interceptor
      */
@@ -671,6 +679,8 @@ class Product
 
     /**
      * Get prices and discounts for grouped products
+     *
+     * @throws \Exception
      *
      * @return array
      */

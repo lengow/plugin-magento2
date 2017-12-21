@@ -675,8 +675,12 @@ class Config extends AbstractHelper
         $emails = trim(str_replace(["\r\n", ',', ' '], ';', $emails), ';');
         $emails = explode(';', $emails);
         foreach ($emails as $email) {
-            if (strlen($email) > 0 && \Zend_Validate::is($email, 'EmailAddress')) {
-                $reportEmailAddress[] = $email;
+            try {
+                if (strlen($email) > 0 && \Zend_Validate::is($email, 'EmailAddress')) {
+                    $reportEmailAddress[] = $email;
+                }
+            } catch (\Exception $e) {
+                continue;
             }
         }
         if (count($reportEmailAddress) == 0) {

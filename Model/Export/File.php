@@ -79,7 +79,7 @@ class File
      * string folder_name Lengow export folder name
      * string file_name   Lengow export file name
      *
-     * @throws LengowException
+     * @throws \Exception
      */
     public function init($params)
     {
@@ -92,6 +92,8 @@ class File
      * Write content in file
      *
      * @param string $data data to be written
+     *
+     * @throws \Exception
      */
     public function write($data)
     {
@@ -104,6 +106,8 @@ class File
 
     /**
      * Write content in file
+     *
+     * @throws \Exception
      */
     public function close()
     {
@@ -116,6 +120,8 @@ class File
      * Rename file
      *
      * @param string $newFileName new file name
+     *
+     * @throws \Exception
      *
      * @return boolean
      */
@@ -137,6 +143,8 @@ class File
 
     /**
      * Get file link
+     *
+     * @throws \Exception
      *
      * @return string
      */
@@ -165,6 +173,8 @@ class File
      *
      * @param string $path file path
      *
+     * @throws \Exception
+     *
      * @return resource
      */
     protected function _getFileResource($path)
@@ -176,6 +186,8 @@ class File
      * Check if current file exists
      *
      * @param string $filePath file path
+     *
+     * @throws \Exception
      *
      * @return boolean
      */

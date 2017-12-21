@@ -18,6 +18,7 @@ en:
       error_configurable_product_disabled: "WARNING! %1 simple product(s) associated with configurable products are disabled"
       error_folder_not_created: "unable to create folder %1"
       error_folder_not_writable: "unable to access the folder %1"
+      error_join_table: "the junction with the %1 table did not work"
     import:
       not_valid_action: "Action: %1 is not a valid action"
       preprod_mode_active: "WARNING! Pre-production mode is activated"

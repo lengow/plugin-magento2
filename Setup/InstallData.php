@@ -92,6 +92,8 @@ class InstallData implements InstallDataInterface
      * @param \Magento\Framework\Setup\ModuleDataSetupInterface $setup Magento module data setup instance
      * @param \Magento\Framework\Setup\ModuleContextInterface $context Magento module context instance
      *
+     * @throws \Exception
+     *
      * @return void
      */
     public function install(

@@ -111,7 +111,11 @@ class Tracker extends Template
             if ($item->hasProduct()) {
                 $product = $item->getProduct();
             } else {
-                $product = $this->_productRepository->getById($item->getProductId());
+                try {
+                    $product = $this->_productRepository->getById($item->getProductId());
+                } catch (\Exception $e) {
+                    continue;
+                }
             }
             $quantity = (int)$item->getQtyOrdered();
             $price = round((float)$item->getRowTotalInclTax() / $quantity, 2);

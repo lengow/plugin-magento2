@@ -121,7 +121,7 @@ class Feed
      * @param \Magento\Framework\Filesystem\Driver\File $driverFile Magento driver file instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
-     * @param \Lengow\Connector\Model\Export\File $file Lengow file instance
+     * @param \Lengow\Connector\Model\Export\FileFactory $fileFactory Lengow file factory instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      */
     public function __construct(
@@ -145,6 +145,8 @@ class Feed
      * boolean stream     generate file or not
      * string  format     feed format
      * string  store_code Magento store code
+     *
+     * @throws \Exception|LengowException unable to create folder
      */
     public function init($params)
     {
@@ -357,7 +359,7 @@ class Feed
     /**
      * Create export file
      *
-     * @throws LengowException unable to create folder
+     * @throws \Exception|LengowException unable to create folder
      */
     protected function _initExportFile()
     {
@@ -377,6 +379,8 @@ class Feed
 
     /**
      * Is Feed Already Launch
+     *
+     * @throws \Exception
      *
      * @return boolean
      */

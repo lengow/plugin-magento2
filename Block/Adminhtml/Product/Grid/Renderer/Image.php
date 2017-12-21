@@ -54,6 +54,7 @@ class Image extends AbstractRenderer
      * Renders grid column
      *
      * @param \Magento\Framework\DataObject $row Magento data object instance
+     *
      * @return  string
      */
     public function render(DataObject $row)
