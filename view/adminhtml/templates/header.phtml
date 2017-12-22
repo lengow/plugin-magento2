@@ -1,0 +1,23 @@
+<?php
+/**
+ * Copyright 2017 Lengow SAS
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+/** @var Lengow\Connector\Block\Adminhtml\Header $block */
+?>
+<?php if($block->preprodModeIsEnabled()): ?>
+    <span id="lgw-preprod">
+        <?= $block->escapeHtml(__('Pre-production mode')) ?>
+    </span>
+<?php endif; ?>
+<?php if($block->freeTrialIsEnabled()): ?>
+    <p id="lgw-counter" class="pull-right">
+        <?= $block->escapeHtml(__('Trial period: %1 day(s) left.', [$block->getFreeTrialDays()])) ?>
+        <a href="http://my.lengow.io/" target="_blank" title="<?= $block->escapeHtml(__('Subscribe')) ?>">
+            <?= $block->escapeHtml(__('Subscribe')) ?>
+        </a>
+    </p>
+    <div class="clear"></div>
+<?php endif; ?>

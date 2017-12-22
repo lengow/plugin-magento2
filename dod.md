@@ -2,11 +2,12 @@
 
 ## Liste des critères  ##
 	
-* Recetter sa feature :
+* Recetter sa feature sur les versions 2.0, 2.1 et 2.2 :
 * Pas de modification de comportement de fonction :
 * Principe SOLID (au moins le S) :
 * Coding Style (PSR2) :
 * Documentation Phpdoc au niveau du code :
+* Mise en place de tests unitaires :
 * Mise en place de log :
 * Mise en place de traductions :
 * Mettre à jour le changelog :
@@ -17,7 +18,7 @@
  	
 ## Explication des critères ##
 
-### Recetter sa feature ###
+### Recetter sa feature sur les versions 2.0 et 2.1 ###
 Tester son développement sur toutes les versions compatibles avec le module
 
 ### Pas de modification de comportement de fonction ###

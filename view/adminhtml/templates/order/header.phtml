@@ -1,0 +1,48 @@
+<?php
+/**
+ * Copyright 2017 Lengow SAS
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+/** @var Lengow\Connector\Block\Adminhtml\Order\Header $block */
+?>
+
+<div class="lgw-box row">
+    <?php if ($block->preprodModeIsEnabled()): ?>
+        <p class="blue_frame" style="line-height: 20px;">
+            <?= $block->escapeHtml(__('You are in pre-production mode. You can import orders, but no interaction with Lengow is possible.')) ?>
+            <a href="<?= $block->getUrl('adminhtml/system_config/edit/section/lengow_import_options') ?>"
+               title="<?= $block->escapeHtml(__('Change this')) ?>">
+                <?= $block->escapeHtml(__('Change this')) ?>
+            </a>
+        </p>
+    <?php endif; ?>
+    <div class="col-xs-10">
+        <div id="lengow_order_with_error">
+            <?= $block->getImportHelper()->getOrderWithErrorPrint() ?>
+        </div>
+        <div id="lengow_order_to_be_sent">
+            <?= $block->getImportHelper()->getOrderToBeSentPrint() ?>
+        </div>
+        <div id="lengow_last_importation">
+            <?= $block->getImportHelper()->getLastImportDatePrint() ?>
+        </div>
+        <div><?= $block->getImportHelper()->getReportMailPrint() ?></div>
+    </div>
+    <div class="col-xs-2">
+        <button
+            type="button"
+            id="lengow_import_orders"
+            class="primary lengow_import_orders-js"
+            data-href="<?= $block->getUrl('lengow/order/index/action/import_all/'); ?>?isAjax=true">
+            <?= $block->escapeHtml(__('Synchronize Orders')); ?>
+        </button>
+    </div>
+</div>
+<div class="row">
+    <div id="lengow_wrapper_messages" class="blue_frame" style="display:none;"></div>
+    <div id="lengow_wrapper_timeout" class="red_frame" style="display:none;">
+        <?= $block->escapeHtml(__('The synchronisation of the orders was blocked by a timeout. Please reload the page.')) ?>
+    </div>
+</div>

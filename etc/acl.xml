@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Lengow_Connector::lengow" title="Lengow" sortOrder="31">
+                    <resource id="Lengow_Connector::home" title="Dashboard" sortOrder="1" />
+                    <resource id="Lengow_Connector::product" title="Products" sortOrder="2" />
+                    <resource id="Lengow_Connector::order" title="Orders" sortOrder="3" />
+                    <resource id="Lengow_Connector::help" title="Help" sortOrder="4" />
+                    <resource id="Lengow_Connector::log" title="Logs" sortOrder="5" />
+                    <resource id="Lengow_Connector::setting" title="Settings" sortOrder="6" />
+                </resource>
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <resource id="Lengow_Connector::global" title="Lengow Global settings" sortOrder="1250" />
+                            <resource id="Lengow_Connector::export" title="Lengow Export settings" sortOrder="1251" />
+                            <resource id="Lengow_Connector::import" title="Lengow Import settings" sortOrder="1252" />
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

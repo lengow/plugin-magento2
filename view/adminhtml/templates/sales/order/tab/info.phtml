@@ -1,0 +1,69 @@
+<?php
+/**
+ * Copyright 2017 Lengow SAS
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+/** @var Lengow\Connector\Block\Adminhtml\Sales\Order\Tab\Info $block */
+
+$fields = $block->getFields();
+?>
+
+<div class="lgw-box">
+    <div id="lgw-info-title">
+        <h2>
+            <i class="fa fa-rocket"></i>
+            <?= $block->escapeHtml(__('Lengow informations')) ?>
+        </h2>
+    </div>
+    <?php if ($block->isOrderImportedByLengow()): ?>
+        <?php if ($block->isOrderFollowedByLengow()): ?>
+            <?php if (!$block->preprodModeIsEnabled()): ?>
+                <div id="lgw-info-btn">
+                    <button type="button" class="primary">
+                        <a href="<?= $block->getUrl('lengow/order/synchronize', ['order_id' => $block->getOrderId(), 'lengow_order_id' => $block->getLengowOrderId()]) ?>"
+                           onclick="return confirm('<?= $block->escapeHtml(__('Do you really want to synchronize the order?')) ?>')">
+                            <?= $block->escapeHtml(__('Synchronize ID')) ?>
+                        </a>
+                    </button>
+                    <button type="button" class="primary">
+                        <a href="<?= $block->getUrl('lengow/order/reimport', ['order_id' => $block->getOrderId(), 'lengow_order_id' => $block->getLengowOrderId()]) ?>"
+                           onclick="return confirm('<?= $block->escapeHtml(__('Do you really want to re-import the order?')) ?>')">
+                            <?= $block->escapeHtml(__('Re-import order')) ?>
+                        </a>
+                    </button>
+                    <?php if ($block->canReSendAction()): ?>
+                        <button type="button" class="primary">
+                            <a href="<?= $block->getUrl('lengow/order/resend', ['order_id' => $block->getOrderId(), 'status' => $block->getOrderStatus()]) ?>"
+                               onclick="return confirm('<?= $block->escapeHtml(__('Do you really want to %1 the order?', [$block->getOrderStatus()])) ?>')">
+                                <?= $block->escapeHtml(__('Resend Action')) ?>
+                            </a>
+                        </button>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+            <div class="clear"></div>
+            <div class="lengow-block-full">
+                <table cellpadding="0" cellspacing="0">
+                    <?php foreach ($fields as $field): ?>
+                        <tr>
+                            <td>
+                                <b><?= $field['label'] ?></b>
+                            </td>
+                            <td align="right">
+                                <?= $field['value'] ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+        <?php else: ?>
+            <div class="clear"></div>
+            <p><?= $block->escapeHtml(__('Due to a reimportation, this order is not tracked by Lengow')) ?></p>
+        <?php endif; ?>
+    <?php else: ?>
+        <div class="clear"></div>
+        <p><?= $block->escapeHtml(__('This order is not from Lengow')) ?></p>
+    <?php endif; ?>
+</div>

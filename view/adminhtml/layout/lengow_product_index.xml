@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <title>Products</title>
+        <link src="Lengow_Connector::js/product.js"/>
+        <css src="Lengow_Connector::css/lengow-components.css"/>
+        <css src="Lengow_Connector::css/lengow-layout.css"/>
+        <css src="Lengow_Connector::css/lengow-pages.css"/>
+        <css src="Lengow_Connector::css/font-awesome.css"/>
+    </head>
+    <body>
+        <referenceBlock name="menu">
+            <action method="setActive">
+                <argument name="itemId" xsi:type="string">Lengow_Connector::product</argument>
+            </action>
+        </referenceBlock>
+        <attribute name="class" value="lengow_connector"/>
+        <referenceBlock name="root">
+            <action method="setHeaderTitle">
+                <argument translate="true" name="title" xsi:type="string">Products</argument>
+            </action>
+        </referenceBlock>
+        <referenceContainer name="content">
+            <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_product_main" template="Lengow_Connector::product/main.phtml">
+                <block class="Lengow\Connector\Block\Adminhtml\Header" name="lengow_header" as="lengow_header" template="Lengow_Connector::header.phtml"/>
+                <block class="Lengow\Connector\Block\Adminhtml\Product\Header" name="lengow_product_header" as="lengow_product_header" template="Lengow_Connector::product/header.phtml">
+                    <block class="Magento\Backend\Block\Store\Switcher" name="store_switcher" as="store_switcher" template="Magento_Backend::store/switcher.phtml">
+                        <action method="setUseConfirm">
+                            <argument name="params" xsi:type="string">0</argument>
+                        </action>
+                        <action method="setStoreVarName">
+                            <argument name="var_name" xsi:type="string">store</argument>
+                        </action>
+                        <arguments>
+                            <argument name="default_selection_name" xsi:type="string" translate="true">Default Store</argument>
+                        </arguments>
+                    </block>
+                </block>
+                <block class="Lengow\Connector\Block\Adminhtml\Product" name="lengow_product_listing"/>
+                <block class="Lengow\Connector\Block\Adminhtml\Footer" name="lengow_footer" as="lengow_footer" template="Lengow_Connector::footer.phtml"/>
+            </block>
+        </referenceContainer>
+    </body>
+</page>
