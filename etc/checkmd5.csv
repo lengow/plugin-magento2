@@ -46,7 +46,7 @@
 /etc/adminhtml/routes.xml|b37d51a18bc54f5a872c9797ed06ed5d
 /etc/adminhtml/menu.xml|b77fedabb5e2fa4ac1e16faa8b07add4
 /etc/adminhtml/system.xml|cae1f7bf7582ec84678067569ee38a8d
-/etc/module.xml|2866f2e70e2139dda8da1d6889ea0d7d
+/etc/module.xml|d32dc1e58e99b7757c491991407a0f58
 /Helper/Sync.php|f57b358ffd1413f6819cdb940a7621df
 /Helper/Data.php|95d076519a75b7237b357d21c42689dc
 /Helper/Security.php|3179a51d47cc57e4bde230e1dab8438b
@@ -88,7 +88,7 @@
 /Model/Import/Orderline.php|f168ab84ed95d8b056fec5691642248b
 /Model/Import/Action.php|c84fa0adb8d8398373959ab76244d799
 /Model/Import/Importorder.php|24b8d82152186b76dff409fa6acd1c61
-/Model/Import/Order.php|c060920c87adb4587ae545b6a359c086
+/Model/Import/Order.php|200d01ffcd522e3dbd0db928673f63b9
 /Model/Import/Quote.php|c518d8f4da94b6c0cf2a74884bcf44f9
 /Model/Import/Customer.php|99c39eb24499eba66f01fc54f45a7b8c
 /Model/Import/Quote/Item.php|f57b5418c2c2f86839acac43fa364133
@@ -102,7 +102,7 @@
 /Setup/InstallData.php|c56eb9d5fcedddcc6f25f45b41180de7
 /Ui/Component/Listing/Column/OrderSku.php|6d38715660b774b71c7d161ff8405c78
 /Ui/Component/Listing/Column/TotalPaid.php|706c5c3af0320dc64b4e568e959e81fa
-/Ui/Component/Listing/Column/OrdersActions.php|fae9f019c92c3f1fe5db3ec210ff3a5b
+/Ui/Component/Listing/Column/OrdersActions.php|9038b164c4489933235550a7ff8b0e9e
 /Ui/Component/Listing/Column/ActionParameters.php|e9b7292040c43a1af1a6cc9411ec013b
 /Ui/Component/Listing/Column/LengowOrderStatus.php|719990e3ac441a447dcd7fd1f8b8ba02
 /Ui/Component/Listing/Column/ActionStatus.php|be37dd872dbdc09884f28b52e3ec72f1
@@ -129,7 +129,7 @@
 /view/adminhtml/templates/home/free_trial.phtml|9a923df731b9d5b6918215bbb1021472
 /view/adminhtml/templates/home/bad_payer.phtml|cd6bd45ffcb392535b33e17282966480
 /view/adminhtml/templates/home/new.phtml|fbcb683a86142fae68605018269c73c3
-/view/adminhtml/templates/home/dashboard.phtml|ca6c11a23f6542157b45db7f4b90ef5e
+/view/adminhtml/templates/home/dashboard.phtml|f356373979ccbb51682de867ee75c9a3
 /view/adminhtml/templates/home/main.phtml|6fea02eac9da0cc33b0cd43a1397db30
 /view/adminhtml/templates/log/main.phtml|ee2236823cdcf3d8d05c8bdfdce1d0cc
 /view/adminhtml/templates/footer.phtml|225f0c2e61e894ce7b144802fb1451fe
@@ -143,9 +143,9 @@
 /view/adminhtml/layout/sales_order_view.xml|5523a3bb17cd1dbf13b46dd84bf33f10
 /view/adminhtml/layout/lengow_product_index.xml|bb406ce7368c8909e8aa31350762cff0
 /view/adminhtml/web/css/font-awesome.css|bf4b58c946c9234e4a6b9f7a70d38006
-/view/adminhtml/web/css/lengow-pages.css|d0fa0ddf9401f3044d3240c97fe72b81
+/view/adminhtml/web/css/lengow-pages.css|5533f9e35e6ba549d02ca4effc43916d
 /view/adminhtml/web/css/lengow-layout.css|1635e5280561461cff838351f11c6eb5
-/view/adminhtml/web/css/lengow-components.css|676d05c9bc6da5cc26e2ec5acfe2f4ec
+/view/adminhtml/web/css/lengow-components.css|d9fff696fa9c281e0d2bbb2ca3ec19db
 /view/adminhtml/web/fonts/Lato-Bold.ttf|44dfe8cc676882243911a3197a50169e
 /view/adminhtml/web/fonts/Lato-Regular.ttf|7f690e503a254e0b8349aec0177e07aa
 /view/adminhtml/web/fonts/fontawesome-webfont.eot|32400f4e08932a94d8bfd2422702c446

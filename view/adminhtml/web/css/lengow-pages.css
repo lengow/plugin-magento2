@@ -96,7 +96,7 @@ body:not(.lengow-home-index) #lgw-counter {
 }
 
 
-.lengow-home-index .lgw-label-red {
+.lengow-home-index .lgw-label.red {
   padding:0 8px;
 }
 

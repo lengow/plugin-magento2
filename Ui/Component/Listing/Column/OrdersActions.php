@@ -102,7 +102,7 @@ class OrdersActions extends Column
 
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if ($item['is_in_error'] == 1) {
+                if ($item['is_in_error'] == 1 && $item['order_process_state'] != 2) {
                     $orderLengowId = $item['id'];
                     $errorType = $item['order_process_state'] == 0 ? 'import' : 'send';
                     $url = $this->urlBuilder->getUrl('lengow/order/index') . '?isAjax=true';

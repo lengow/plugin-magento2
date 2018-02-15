@@ -516,11 +516,12 @@ class Order extends AbstractModel
      */
     public function updateState($order, $lengowOrder, $orderStateLengow, $orderData, $packageData)
     {
-        // Finish actions if lengow order is shipped, closed or cancel
+        // Finish actions if lengow order is shipped, closed, cancel or refunded
         $orderProcessState = $this->getOrderProcessState($orderStateLengow);
         $trackings = $packageData->delivery->trackings;
         if ($orderProcessState == self::PROCESS_STATE_FINISH) {
             $this->_actionFactory->create()->finishAllActions($order->getId());
+            $this->_orderErrorFactory->create()->finishOrderErrors($lengowOrder->getId(), 'send');
         }
         // Update Lengow order if necessary
         $params = [];
@@ -784,6 +785,7 @@ class Order extends AbstractModel
             case 'closed':
             case 'refused':
             case 'canceled':
+            case 'refunded':
                 return self::PROCESS_STATE_FINISH;
             default:
                 return false;

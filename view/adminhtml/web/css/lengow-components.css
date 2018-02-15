@@ -128,11 +128,16 @@ td.lengow_table_center {
   white-space: nowrap;
 }
 
-.lgw-label-red,
-.lgw-label-canceled,
 .lgw-label.red {
   color: white;
   background: #e55a4d;
+}
+
+.lgw-label-canceled {
+  background: transparent;
+  border: 1px solid #e6594d;
+  color: #e6594d;
+  line-height: 21px;
 }
 
 .lgw-label.orange{
@@ -140,18 +145,21 @@ td.lengow_table_center {
   background: #fbb829;
 }
 
-.lgw-label.green {
+.lgw-label.green,
+.lgw-label-shipped,
+.lgw-label-closed {
   color: white;
-  background: #7ac279;
+  background: #7bc27a;
 }
 
-.lgw-label.blue {
+.lgw-label.blue,
+.lgw-label-accepted,
+.lgw-label-waiting_shipment {
   color: white;
-  background: #4bb5c1;
+  background: #00b0f0;
 }
 
-.lgw-label-waiting-shipment,
-.lgw-label-accepted {
+.lgw-label.grey {
   border: 1px solid #7ac279;
   color: #7ac279;
   background: transparent;
