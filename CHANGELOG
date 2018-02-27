@@ -4,6 +4,7 @@ Version 1.0.1
 
 	- Bugfix: Change css style for Lengow order status label
 	- Bugfix: [action] Removing of action errors when orders are completed
+	- Bugfix: [action] Deleting the shipping_date parameter in the action check request
 
 =============================================================
 Version 1.0.0

@@ -407,11 +407,13 @@ class Marketplace extends AbstractModel
             $params['action_type'] = $action;
             $sendAction = true;
             // check if action is already created
-            $result = $this->_connector->queryApi(
-                'get',
-                '/v3.0/orders/actions/',
-                array_merge($params, ['queued' => 'True'])
-            );
+            $getParams = array_merge($params, array('queued' => 'True'));
+            // array key deletion for verification in get
+            if (isset($getParams['shipping_date'])) {
+                unset($getParams['shipping_date']);
+            }
+            // check if action is already created
+            $result = $this->_connector->queryApi('get', '/v3.0/orders/actions/', $getParams);
             if (isset($result->error) && isset($result->error->message)) {
                 throw new LengowException($result->error->message);
             }
