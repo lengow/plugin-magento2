@@ -110,7 +110,15 @@ class OrdersActions extends Column
                     $errorMessages = [];
                     if ($errorOrders) {
                         foreach ($errorOrders as $errorOrder) {
-                            $errorMessages[] = $this->_dataHelper->decodeLogMessage($errorOrder['message']);
+                            if ($errorOrder['message'] != '') {
+                                $errorMessages[] = $this->_dataHelper->cleanData(
+                                    $this->_dataHelper->decodeLogMessage($errorOrder['message'])
+                                );
+                            } else {
+                                $errorMessages[] = $this->_dataHelper->decodeLogMessage(
+                                    "Unidentified error, please contact Lengow's support team for more information"
+                                );
+                            }
                         }
                     }
                     if ($errorType == 'import') {

@@ -128,7 +128,8 @@ td.lengow_table_center {
   white-space: nowrap;
 }
 
-.lgw-label.red {
+.lgw-label.red,
+.lgw-label-refunded {
   color: white;
   background: #e55a4d;
 }
