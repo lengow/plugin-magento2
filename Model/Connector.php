@@ -62,11 +62,6 @@ class Connector
     protected $_accountId;
 
     /**
-     * @var integer the user Id
-     */
-    protected $_userId;
-
-    /**
      * @var array lengow url for curl timeout
      */
     protected $_lengowUrls = [
@@ -119,27 +114,23 @@ class Connector
     /**
      * Connection to the API
      *
-     * @param string $userToken the user token if is connected
-     *
      * @throws LengowException get Curl error
      *
      * @return array|false
      */
-    public function connect($userToken = '')
+    public function connect()
     {
         $data = $this->callAction(
             '/access/get_token',
             [
                 'access_token' => $this->_accessToken,
-                'secret' => $this->_secret,
-                'user_token' => $userToken
+                'secret' => $this->_secret
             ],
             'POST'
         );
         if (isset($data['token'])) {
             $this->_token = $data['token'];
             $this->_accountId = $data['account_id'];
-            $this->_userId = $data['user_id'];
             return $data;
         } else {
             return false;
