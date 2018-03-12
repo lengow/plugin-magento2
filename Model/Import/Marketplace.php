@@ -412,7 +412,6 @@ class Marketplace extends AbstractModel
             if (isset($getParams['shipping_date'])) {
                 unset($getParams['shipping_date']);
             }
-            // check if action is already created
             $result = $this->_connector->queryApi('get', '/v3.0/orders/actions/', $getParams);
             if (isset($result->error) && isset($result->error->message)) {
                 throw new LengowException($result->error->message);
