@@ -673,7 +673,8 @@ class Importorder extends AbstractModel
                         'order_process_state' => $this->_lengowOrder->getOrderProcessState($this->_orderStateLengow),
                         'extra' => json_encode($this->_orderData),
                         'order_lengow_state' => $this->_orderStateLengow,
-                        'is_in_error' => 0
+                        'is_in_error' => 0,
+                        'is_reimported' => 0,
                     ]
                 );
                 $this->_dataHelper->log(
