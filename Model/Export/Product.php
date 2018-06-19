@@ -283,7 +283,7 @@ class Product
             $this->_prices = $this->_price->getPrices();
             $this->_discounts = $this->_price->getDiscounts();
         }
-        $this->_category->load(['product' => $this->_product]);
+        $this->_category->load(['product' => $this->_getParentData ? $this->_parentProduct : $this->_product]);
         $this->_shipping->load(['product' => $this->_product]);
         $this->_setCounter();
     }
