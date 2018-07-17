@@ -320,7 +320,7 @@ fr:
       no_connection_webservice: "la connexion ne se fait pas avec Lengow pour la boutique %1 (%2)"
       error_lengow_webservice: "l'API Lengow : %1 - %2 pour la boutique %3 (%4)"
       marketplace_not_present: "Erreur Lengow : la place de marché  %1 n’apparaît pas dans la liste des places de marché"
-      order_failed_with_quote: "service indisponible pour créer une commande basé sur une cotation donnée"
+      order_failed_with_quote: "impossible de créer une commande en fonction de la quote fournie"
       product_not_be_found: "le produit %1 ne peut être trouvé"
       product_is_a_parent: "le produit %1 est un ID parent. Les déclinaisons du produit sont nécessaires"
       order_line_required: "numéro de la ligne de commande requis, non trouvé dans la commande"

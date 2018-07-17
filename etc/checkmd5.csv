@@ -52,7 +52,7 @@
 /Helper/Security.php|3179a51d47cc57e4bde230e1dab8438b
 /Helper/Import.php|0091d2571c9312e8cc64c277f3f79a57
 /Helper/Config.php|be8b1d31d929494010a970241162f68c
-/i18n/fr_FR.csv|cdef629eb239ea346669f36b9ecb1718
+/i18n/fr_FR.csv|ec3203a60522b72f2298e596ea00d7fa
 /i18n/en_GB.csv|e045c1c5eb23f8798b0dd8e8f1d08d2f
 /i18n/de_DE.csv|991f26adff96caea8a106a4e877bf0ea
 /Model/Config/Source/Actiontype.php|e9d2cf36a5f8f297f60d5b1e4738dc30
@@ -90,7 +90,7 @@
 /Model/Import/Importorder.php|e660f93e9b96b02878c8df5c54f4cc20
 /Model/Import/Order.php|200d01ffcd522e3dbd0db928673f63b9
 /Model/Import/Quote.php|c518d8f4da94b6c0cf2a74884bcf44f9
-/Model/Import/Customer.php|99c39eb24499eba66f01fc54f45a7b8c
+/Model/Import/Customer.php|863b48fc7059e695adc0c6b1b4c44246
 /Model/Import/Quote/Item.php|f57b5418c2c2f86839acac43fa364133
 /Model/Import/Ordererror.php|7830ab281239a92c931b71e2431dfadc
 /Model/Import/Marketplace.php|8742748b5f738dbb8cafed6ff54a925d

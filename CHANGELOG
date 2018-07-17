@@ -12,6 +12,7 @@ Version 1.0.1
 	- Bugfix: Optimizing the display of errors in the order screen
 	- Bugfix: Deleting the indefinite index user_id in the connector
 	- Bugfix: [import] Fixed a multiple order import bug after the re-import action
+	- Bugfix: [import] Resolving the client creation bug in the case of a multi-website magento
 
 =============================================================
 Version 1.0.0
