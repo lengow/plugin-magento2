@@ -193,9 +193,9 @@ class Data extends AbstractHelper
         if ($nbDays <= 0) {
             $nbDays = self::LOG_LIFE;
         }
-        $connection = $this->_resource->getConnection(ResourceConnection::DEFAULT_CONNECTION);
-        $table = $connection->getTableName('lengow_log');
+        $table = $this->_resource->getTableName('lengow_log');
         $query = 'DELETE FROM ' . $table . ' WHERE `date` < DATE_SUB(NOW(),INTERVAL ' . $nbDays . ' DAY)';
+        $connection = $this->_resource->getConnection(ResourceConnection::DEFAULT_CONNECTION);
         $connection->query($query);
     }
 

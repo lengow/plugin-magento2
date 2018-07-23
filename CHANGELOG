@@ -13,6 +13,7 @@ Version 1.0.1
 	- Bugfix: Deleting the indefinite index user_id in the connector
 	- Bugfix: [import] Fixed a multiple order import bug after the re-import action
 	- Bugfix: [import] Resolving the client creation bug in the case of a multi-website magento
+	- Bugfix: [export] Fixed the table name parameter in the clean log action
 
 =============================================================
 Version 1.0.0
