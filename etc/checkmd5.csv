@@ -48,7 +48,7 @@
 /etc/adminhtml/system.xml|cae1f7bf7582ec84678067569ee38a8d
 /etc/module.xml|d32dc1e58e99b7757c491991407a0f58
 /Helper/Sync.php|f57b358ffd1413f6819cdb940a7621df
-/Helper/Data.php|95d076519a75b7237b357d21c42689dc
+/Helper/Data.php|f48edcd4cec7a7d05f5a65e56fcb41c5
 /Helper/Security.php|3179a51d47cc57e4bde230e1dab8438b
 /Helper/Import.php|0091d2571c9312e8cc64c277f3f79a57
 /Helper/Config.php|be8b1d31d929494010a970241162f68c
@@ -160,7 +160,7 @@
 /view/adminhtml/web/fonts/fontawesome-webfont.woff2|db812d8a70a4e88e888744c1c9a27e89
 /view/adminhtml/web/fonts/fontawesome-webfont.svg|f775f9cca88e21d45bebe185b27c0e5b
 /view/adminhtml/web/js/toolbox.js|c0b7af83802a4c739a341952cdff2a42
-/view/adminhtml/web/js/home.js|88b0f10cd6a92d4312af855b5e457ad5
+/view/adminhtml/web/js/home.js|ce910b88350626f13e19808e4fa7d170
 /view/adminhtml/web/js/order.js|5d6c1e4e7c93bd78f4cc9dc4a03f5755
 /view/adminhtml/web/js/product.js|2560b23c8e089d1498cd4dcbc6d50249
 /view/adminhtml/web/images/flag/BW.png|5fb1b531e34de1e246560f3a9defefe2
