@@ -548,11 +548,16 @@ class Order extends AbstractModel
                         || $order->getState() == $this->getOrderState('new'))
                     && ($orderStateLengow == 'shipped' || $orderStateLengow == 'closed')
                 ) {
+                    if (count($trackings) > 0) {
+                        $carrierName = !is_null($trackings[0]->carrier) ? (string)$trackings[0]->carrier : null;
+                        $carrierMethod = !is_null($trackings[0]->method) ? (string)$trackings[0]->method : null;
+                        $trackingNumber = !is_null($trackings[0]->number) ? (string)$trackings[0]->number : null;
+                    }
                     $this->toShip(
                         $order,
-                        count($trackings) > 0 ? (string)$trackings[0]->carrier : null,
-                        count($trackings) > 0 ? (string)$trackings[0]->method : null,
-                        count($trackings) > 0 ? (string)$trackings[0]->number : null
+                        isset($carrierName) ? $carrierName : null,
+                        isset($carrierMethod) ? $carrierMethod : null,
+                        isset($trackingNumber) ? $trackingNumber : null
                     );
                     return 'Complete';
                 } else {
@@ -633,7 +638,7 @@ class Order extends AbstractModel
                 $shipment->register();
                 $shipment->getOrder()->setIsInProcess(true);
                 // Add tracking information
-                if (!is_null($trackingNumber)) {
+                if (!is_null($trackingNumber) && $trackingNumber !== '') {
                     $track = $this->_trackFactory->create()
                         ->setNumber($trackingNumber)
                         ->setCarrierCode($carrierName)
