@@ -16,6 +16,7 @@ Version 1.0.1
 	- Bugfix: [import] Resolving the client creation bug in the case of a multi-website magento
 	- Bugfix: [export] Fixed the table name parameter in the clean log action
 	- Bugfix: [import] Creating a new track only if the tracking number is present
+	- Bugfix: [import] Correction of the from_lengow attribute on the customers
 
 =============================================================
 Version 1.0.0

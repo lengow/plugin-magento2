@@ -230,7 +230,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
             $customer->setConfirmation(null);
             $customer->setForceConfirmed(true);
             $customer->setPasswordHash($this->_encryptor->getHash($this->generatePassword(), true));
-            $customer->addData(['FromLengow' => 1]);
+            $customer->addData(['from_lengow' => true]);
         }
         $billingAddress->setCustomer($customer);
         $customer->addAddress($billingAddress);
