@@ -4,18 +4,13 @@
 
 ### Cloner le repository de Bitbucket dans votre espace de travail ###
 
-    cd ~/Documents/modules_lengow/magento2/
+Pour Magento 2, le module doit se trouver dans le répertoire de Magento pour fonctionner normalement
+
+    cd ~/Documents/docker_images/magento2/app/code
     git clone git@bitbucket.org:lengow-dev/magento2-v3.git Lengow/Connector
-    chmod 777 -R ~/Documents/modules_lengow/magento2/Lengow
+    chmod 777 -R Lengow
 
 ### Installation dans Magento 2 ###
-
-    cd ~/Documents/modules_lengow/magento2/Lengow/Connector/tools
-    sh install.sh ~/Documents/docker_images/magento2/magento
-
-Le script va créer des liens symboliques vers les sources du module
-
-Puis se connecter à l'image Docker de Magento pour activer le module
 
     sudo docker exec -t -i $(sudo docker inspect --format="{{.Id}}" magento2_apache_1) /bin/bash
     php bin/magento module:enable Lengow_Connector
@@ -39,7 +34,7 @@ Il faut bien faire attention que la traduction anglaise soit identique dans le c
 
 Une fois les traductions terminées, il suffit de lancer le script de mise à jour de traduction pour générer les csv dans le dossier i18n :
 
-    cd ~/Documents/modules_lengow/magento/Connector/tools/
+    cd ~/Documents/docker_images/magento2/magento/app/code/Lengow/Connector/tools/
     php translate.php
 
 ## Versionning GIT ##
@@ -52,7 +47,7 @@ Une fois les traductions terminées, il suffit de lancer le script de mise à jo
 
 4 - Exécuter le script suivant pour changer de branche 
 
-    cd ~/Documents/modules_lengow/magento2/Lengow/Connector
+    cd ~/Documents/docker_images/magento2/magento/app/code/Lengow/Connector
     git fetch
     git checkout "Branch name"
 
