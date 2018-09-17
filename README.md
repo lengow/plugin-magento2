@@ -4,17 +4,13 @@
 
 ### Cloner le repository de Bitbucket dans votre espace de travail ###
 
-    cd ~/Documents/modules_lengow/magento2/
-
-### Installation dans Magento 2 ###
-
 Pour Magento 2, le module doit se trouver dans le répertoire de Magento pour fonctionner normalement
 
     cd ~/Documents/docker_images/magento2/app/code
     git clone git@bitbucket.org:lengow-dev/magento2-v3.git Lengow/Connector
     chmod 777 -R Lengow
 
-Puis se connecter à l'image Docker de Magento pour activer le module
+### Installation dans Magento 2 ###
 
     sudo docker exec -t -i $(sudo docker inspect --format="{{.Id}}" magento2_apache_1) /bin/bash
     php bin/magento module:enable Lengow_Connector
