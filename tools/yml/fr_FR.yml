@@ -160,7 +160,7 @@ fr:
       contain_text_support_hour: "Nous ferons notre maximum pour revenir vers vous au plus vite (Notre équipe Support est disponible du lundi au vendredi, de 9h à 18h)."
       find_answer: "Vous pouvez aussi consulter"
       link_magento_guide: "notre guide dédié à Magento 2"
-      knowledge_link_url: "https://fr.lengow.help/help/magento-2"
+      knowledge_link_url: "https://supportlengow.zendesk.com/hc/fr/articles/360012204551"
   log:
     screen:
       title: "Logs"

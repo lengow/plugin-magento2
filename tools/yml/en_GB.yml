@@ -160,7 +160,7 @@ en:
       contain_text_support_hour: "We’ll do our best to get back to you during regular business hours (Monday to Friday – 9am to 6pm GMT+1)."
       find_answer: "You can also find answers in our"
       link_magento_guide: "Magento 2 dedicated guide"
-      knowledge_link_url: "https://en.lengow.help/help/magento-2"
+      knowledge_link_url: "https://supportlengow.zendesk.com/hc/en-us/articles/360012204551"
   log:
     screen:
       title: "Logs"
