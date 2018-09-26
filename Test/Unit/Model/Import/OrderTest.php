@@ -85,7 +85,8 @@ class OrderTest extends \PHPUnit_Framework_TestCase
             $this->_order->getOrderProcessState('canceled'),
             '[Test Get Order Process State] Check if return is valid for canceled'
         );
-        $this->assertFalse(
+        $this->assertEquals(
+            2,
             $this->_order->getOrderProcessState('refunded'),
             '[Test Get Order Process State] Check if return is valid for states not required'
         );

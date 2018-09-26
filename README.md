@@ -136,7 +136,61 @@ Mettre à jour le schéma de base de données du module
 Mettre à jour les fichiers statiques de Magento
 
     php bin/magento setup:static-content:deploy
+    
+Ré-indexer les données de Magento
+
+    php bin/magento indexer:reindex
 
 Remettre les droits sur le dossier var
 
     chmod 777 -R var/
+
+## Désinstallation du module ##
+
+Désactiver le module dans Magento
+
+    php bin/magento module:disable Lengow_Connector --clear-static-content
+    php bin/magento setup:upgrade
+    php bin/magento setup:di:compile
+    php bin/magento cache:flush
+    chmod 777 -R var/
+    
+Supprimer le dossier  app/code/Lengow/Connector
+
+Supprimer toutes les tables Lengow
+
+    DROP TABLE `lengow_action`, `lengow_log`, `lengow_order`, `lengow_order_error`, `lengow_order_line`;
+    
+Supprimer tous les paramètres Lengow
+
+    DELETE FROM core_config_data WHERE path LIKE 'lengow%';
+
+Supprimer l'attribut Lengow sur le customer
+
+    DELETE FROM eav_attribute_option_value WHERE option_id IN (SELECT option_id FROM eav_attribute_option WHERE attribute_id = (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'from_lengow' AND entity_type_id = 1));
+    DELETE FROM eav_attribute_option_swatch WHERE option_id IN (SELECT option_id FROM eav_attribute_option WHERE attribute_id = (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'from_lengow' AND entity_type_id = 1));
+    DELETE FROM eav_attribute_label WHERE attribute_id IN (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'from_lengow' AND entity_type_id = 1);
+    DELETE FROM eav_attribute_option WHERE attribute_id = (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'from_lengow' AND entity_type_id = 1);
+    DELETE FROM eav_attribute WHERE attribute_code = 'from_lengow' AND entity_type_id = 1;
+
+Supprimer l'attribut Lengow sur le produit
+
+    DELETE FROM eav_attribute_option_value WHERE option_id IN (SELECT option_id FROM eav_attribute_option WHERE attribute_id = (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'lengow_product' AND entity_type_id = 4));
+    DELETE FROM eav_attribute_option_swatch WHERE option_id IN (SELECT option_id FROM eav_attribute_option WHERE attribute_id = (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'lengow_product' AND entity_type_id = 4));
+    DELETE FROM eav_attribute_label WHERE attribute_id IN (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'lengow_product' AND entity_type_id = 4);
+    DELETE FROM eav_attribute_option WHERE attribute_id = (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'lengow_product' AND entity_type_id = 4);
+    DELETE FROM eav_attribute WHERE attribute_code = 'lengow_product' AND entity_type_id = 4;
+
+Supprimer l'attribut Lengow sur la commande
+
+    DELETE FROM eav_attribute_option_value WHERE option_id IN (SELECT option_id FROM eav_attribute_option WHERE attribute_id = (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'from_lengow' AND entity_type_id = 5));
+    DELETE FROM eav_attribute_option_swatch WHERE option_id IN (SELECT option_id FROM eav_attribute_option WHERE attribute_id = (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'from_lengow' AND entity_type_id = 5));
+    DELETE FROM eav_attribute_label WHERE attribute_id IN (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'from_lengow' AND entity_type_id = 5);
+    DELETE FROM eav_attribute_option WHERE attribute_id = (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'from_lengow' AND entity_type_id = 5);
+    DELETE FROM eav_attribute WHERE attribute_code = 'from_lengow' AND entity_type_id = 5;
+
+Supprimer le module de la table setup_module
+
+    DELETE FROM setup_module WHERE module='Lengow_Connector';
+
+Supprimer le module du fichier app/etc/config.php

@@ -66,6 +66,9 @@ class LengowOrderStatus extends Column
                         case 'shipped':
                             $translation = 'Shipped';
                             break;
+                        case 'refunded':
+                            $translation = 'Refunded';
+                            break;
                         case 'closed':
                             $translation = 'Closed';
                             break;

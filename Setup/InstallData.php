@@ -26,6 +26,7 @@ use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Setup\SalesSetupFactory;
+use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
 use Magento\Framework\Setup\InstallDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
@@ -54,6 +55,11 @@ class InstallData implements InstallDataInterface
     protected $_salesSetupFactory;
 
     /**
+     * @var AttributeSetFactory
+     */
+    private $_attributeSetFactory;
+
+    /**
      * @var \Magento\Framework\ObjectManagerInterface Magento object manager instance
      */
     protected $_objectManager;
@@ -69,6 +75,7 @@ class InstallData implements InstallDataInterface
      * @param \Magento\Eav\Setup\EavSetupFactory $eavSetupFactory Magento EAV setup factory instance
      * @param \Magento\Customer\Setup\CustomerSetupFactory $customerSetupFactory Magento customer setup factory instance
      * @param \Magento\Sales\Setup\SalesSetupFactory $salesSetupFactory Magento sales setup factory instance
+     * @param \Magento\Eav\Model\Entity\Attribute\SetFactory Magento attribute set factory instance
      * @param \Magento\Framework\ObjectManagerInterface $objectManager Magento object manager instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
@@ -76,12 +83,14 @@ class InstallData implements InstallDataInterface
         EavSetupFactory $eavSetupFactory,
         CustomerSetupFactory $customerSetupFactory,
         SalesSetupFactory $salesSetupFactory,
+        AttributeSetFactory $attributeSetFactory,
         ObjectManagerInterface $objectManager,
         Config $configHelper
     ) {
         $this->_eavSetupFactory = $eavSetupFactory;
         $this->_customerSetupFactory = $customerSetupFactory;
         $this->_salesSetupFactory = $salesSetupFactory;
+        $this->_attributeSetFactory = $attributeSetFactory;
         $this->_objectManager = $objectManager;
         $this->_configHelper = $configHelper;
     }
@@ -139,7 +148,12 @@ class InstallData implements InstallDataInterface
 
         // create attribute from_lengow for customer
         $entityTypeId = $customerSetup->getEntityTypeId(Customer::ENTITY);
+        $customerEntity = $customerSetup->getEavConfig()->getEntityType('customer');
+        $attributeSetId = $customerEntity->getDefaultAttributeSetId();
+        $attributeSet = $this->_attributeSetFactory->create();
+        $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
         $fromLengowCustomer = $eavSetup->getAttribute($entityTypeId, 'from_lengow');
+
         if (!$fromLengowCustomer) {
             $eavSetup->addAttribute(
                 $entityTypeId,
@@ -154,17 +168,25 @@ class InstallData implements InstallDataInterface
                     'default' => 0,
                     'input' => 'select',
                     'system' => 0,
+                    'user_defined' => true,
                     'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean'
                 ]
             );
 
-            $fromLengowCustomer = $customerSetup->getEavConfig()->getAttribute('customer', 'from_lengow')
-                ->addData(['used_in_forms' => 'adminhtml_customer']);
+            $fromLengowCustomer = $customerSetup->getEavConfig()
+                ->getAttribute('customer', 'from_lengow')
+                ->addData(
+                    [
+                        'attribute_set_id' => $attributeSetId,
+                        'attribute_group_id' => $attributeGroupId,
+                        'used_in_forms' => ['adminhtml_customer']
+                    ]
+                );
             $fromLengowCustomer->getResource()->save($fromLengowCustomer);
         }
 
-        $entityTypeId = $salesSetup->getEntityTypeId(Order::ENTITY);
         // create attribute from_lengow for order
+        $entityTypeId = $salesSetup->getEntityTypeId(Order::ENTITY);
         $salesSetup->addAttribute(
             $entityTypeId,
             'from_lengow',

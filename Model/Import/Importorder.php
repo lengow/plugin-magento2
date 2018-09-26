@@ -518,8 +518,27 @@ class Importorder extends AbstractModel
             );
             return false;
         }
+        // get a record in the lengow order table
+        $this->_orderLengowId = $this->_lengowOrder->getLengowOrderId(
+            $this->_marketplaceSku,
+            $this->_deliveryAddressId
+        );
         // if order is cancelled or new -> skip
         if (!$this->_importHelper->checkState($this->_orderStateMarketplace, $this->_marketplace)) {
+            $orderProcessState = $this->_lengowOrder->getOrderProcessState($this->_orderStateLengow);
+            // check and complete an order not imported if it is canceled or refunded
+            if ($this->_orderLengowId && $orderProcessState === LengowOrder::PROCESS_STATE_FINISH) {
+                $this->_orderErrorFactory->create()->finishOrderErrors($this->_orderLengowId);
+                $orderLengow = $this->_lengowOrderFactory->create()->load((int)$this->_orderLengowId);
+                $orderLengow->updateOrder(
+                    [
+                        'is_in_error' => 0,
+                        'order_lengow_state' => $this->_orderStateLengow,
+                        'order_process_state' => $orderProcessState
+                    ]
+                );
+
+            }
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
@@ -534,11 +553,7 @@ class Importorder extends AbstractModel
             );
             return false;
         }
-        // get a record in the lengow order table
-        $this->_orderLengowId = $this->_lengowOrder->getLengowOrderId(
-            $this->_marketplaceSku,
-            $this->_deliveryAddressId
-        );
+        // create a new record in lengow order table if not exist
         if (!$this->_orderLengowId) {
             // created a record in the lengow order table
             if (!$this->_createLengowOrder()) {
@@ -673,7 +688,8 @@ class Importorder extends AbstractModel
                         'order_process_state' => $this->_lengowOrder->getOrderProcessState($this->_orderStateLengow),
                         'extra' => json_encode($this->_orderData),
                         'order_lengow_state' => $this->_orderStateLengow,
-                        'is_in_error' => 0
+                        'is_in_error' => 0,
+                        'is_reimported' => 0,
                     ]
                 );
                 $this->_dataHelper->log(

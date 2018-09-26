@@ -195,7 +195,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
             'billing_address' => $this->_extractAddressDataFromAPI($orderData->billing_address),
             'delivery_address' => $this->_extractAddressDataFromAPI($shippingAddress)
         ];
-        // generation of fictitious email
+        // Generation of fictitious email
         $array['billing_address']['email'] = $marketplaceSku . '-' . $orderData->marketplace . '@lengow.com';
         $this->_dataHelper->log(
             'Import',
@@ -206,16 +206,11 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
             $logOutput,
             $marketplaceSku
         );
-        // first get by email
-        try {
-            $customer = $this->_customerFactory->create();
-            $customer->setWebsiteId($idWebsite);
-            $customer->loadByEmail($array['billing_address']['email']);
-        } catch (\Exception $e) {
-            // if customer doesn't exist catch exception and set null
-            $customer = null;
-        }
-        // Billing address
+        // First get by email
+        $customer = $this->_customerFactory->create();
+        $customer->setWebsiteId($idWebsite);
+        $customer->loadByEmail($array['billing_address']['email']);
+        // Get billing address
         $tempBillingNames = [
             'firstname' => $array['billing_address']['first_name'],
             'lastname' => $array['billing_address']['last_name'],
@@ -225,21 +220,21 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         $array['billing_address']['first_name'] = $billingNames['firstname'];
         $array['billing_address']['last_name'] = $billingNames['lastname'];
         $billingAddress = $this->_convertAddress($array['billing_address']);
-
-        if (is_null($customer)) {
-            $customer->setImportMode(true);# create new subscriber without send a confirmation email
+        // Create new subscriber without send a confirmation email
+        if (!$customer->getId()) {
+            $customer->setImportMode(true);
+            $customer->setWebsiteId($idWebsite);
             $customer->setEmail($array['billing_address']['email']);
             $customer->setFirstName($array['billing_address']['first_name']);
             $customer->setLastName($array['billing_address']['last_name']);
-
             $customer->setConfirmation(null);
             $customer->setForceConfirmed(true);
             $customer->setPasswordHash($this->_encryptor->getHash($this->generatePassword(), true));
-            $customer->addData(['FromLengow' => 1]);
+            $customer->addData(['from_lengow' => true]);
         }
         $billingAddress->setCustomer($customer);
         $customer->addAddress($billingAddress);
-        // Shipping address
+        // Get shipping address
         $tempShippingNames = [
             'firstname' => $array['delivery_address']['first_name'],
             'lastname' => $array['delivery_address']['last_name'],
@@ -264,7 +259,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
             $array['billing_address'],
             $customer
         );
-        // set group
+        // Set group id with specific configuration
         $customer->setGroupId($this->_configHelper->get('customer_group', $storeId));
 
         $customer->save();

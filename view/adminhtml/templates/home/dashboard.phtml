@@ -32,7 +32,7 @@
                     <h2>
                         <?= $block->escapeHtml(__('Orders')) ?>
                         <?php if($block->getNumberOrderToBeSent()): ?>
-                            <span class="lgw-label lgw-label-red"><?= $block->getNumberOrderToBeSent() ?></span>
+                            <span class="lgw-label lgw-label red"><?= $block->getNumberOrderToBeSent() ?></span>
                         <?php endif; ?>
                     </h2>
                     <p><?= $block->escapeHtml(__('Manage your orders directly on your Magento dashboard')) ?></p>

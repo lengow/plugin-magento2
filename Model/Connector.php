@@ -31,15 +31,15 @@ class Connector
     /**
      * @var string url of the API Lengow
      */
-    // const LENGOW_API_URL = 'http://api.lengow.io:80';
-    // const LENGOW_API_URL = 'http://api.lengow.net:80';
-    const LENGOW_API_URL = 'http://api.lengow.rec:80';
+    // const LENGOW_API_URL = 'https://api.lengow.io';
+    // const LENGOW_API_URL = 'https://api.lengow.net';
+    const LENGOW_API_URL = 'http://api.lengow.rec';
     // const LENGOW_API_URL = 'http://10.100.1.82:8081';
 
     /**
      * @var string url of the SANDBOX Lengow
      */
-    const LENGOW_API_SANDBOX_URL = 'http://api.lengow.net:80';
+    const LENGOW_API_SANDBOX_URL = 'https://api.lengow.net';
 
     /**
      * @var string the access token to connect
@@ -60,11 +60,6 @@ class Connector
      * @var integer ID account
      */
     protected $_accountId;
-
-    /**
-     * @var integer the user Id
-     */
-    protected $_userId;
 
     /**
      * @var array lengow url for curl timeout
@@ -119,27 +114,23 @@ class Connector
     /**
      * Connection to the API
      *
-     * @param string $userToken the user token if is connected
-     *
      * @throws LengowException get Curl error
      *
      * @return array|false
      */
-    public function connect($userToken = '')
+    public function connect()
     {
         $data = $this->callAction(
             '/access/get_token',
             [
                 'access_token' => $this->_accessToken,
-                'secret' => $this->_secret,
-                'user_token' => $userToken
+                'secret' => $this->_secret
             ],
             'POST'
         );
         if (isset($data['token'])) {
             $this->_token = $data['token'];
             $this->_accountId = $data['account_id'];
-            $this->_userId = $data['user_id'];
             return $data;
         } else {
             return false;
@@ -337,7 +328,9 @@ class Connector
         $url = self::LENGOW_API_URL . $url;
         $opts[CURLOPT_CUSTOMREQUEST] = strtoupper($type);
         $url = parse_url($url);
-        $opts[CURLOPT_PORT] = $url['port'];
+        if (isset($url['port'])) {
+            $opts[CURLOPT_PORT] = $url['port'];
+        }
         $opts[CURLOPT_HEADER] = false;
         $opts[CURLOPT_RETURNTRANSFER] = true;
         $opts[CURLOPT_VERBOSE] = false;
