@@ -239,6 +239,7 @@ class Data extends AbstractHelper
         if (count($additionalParams) > 0) {
             $defaultParams = array_merge($defaultParams, $additionalParams);
         }
+        $this->_urlBuilder->setScope($this->_storeManager->getDefaultStoreView()->getId());
         return $this->_urlBuilder->getUrl('lengow/cron', $defaultParams);
     }
 

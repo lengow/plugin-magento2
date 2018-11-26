@@ -3,6 +3,7 @@ Version 1.0.2
 =============================================================
 
     - Feature: Adding links to the new Lengow help center
+    - Bugfix: [import] Changing the cron url with the default store
 
 =============================================================
 Version 1.0.1
