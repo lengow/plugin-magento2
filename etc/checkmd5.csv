@@ -79,7 +79,7 @@
 /Model/ResourceModel/Ordererror.php|1d8ded0f9c697219c95c3922d8ad00ed
 /Model/ResourceModel/Log/Collection.php|5e4a18933b7f6ecebf482be80308519d
 /Model/ResourceModel/Order/Collection.php|5850f4e58408a583f995723fd3e51a7f
-/Model/Export.php|8957c9c5582fdb6ce2a1a4f907a72325
+/Model/Export.php|49d8fdda264590041907ca4e273d1c95
 /Model/Carrier/Lengow.php|768e792ea8311277356f72d2d58caa33
 /Model/Connector.php|9f3216bd57cea04b4ec1e713022b254c
 /Model/Log.php|7d5580ad1640a8288af03b0f2dace1f1

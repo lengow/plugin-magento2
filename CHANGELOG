@@ -5,6 +5,7 @@ Version 1.0.2
     - Feature: Adding links to the new Lengow help center
     - Bugfix: [import] Changing the cron url with the default store
     - Bugfix: Correction on Lengow models dependency injection
+    - Bugfix: [Export] Management of duplicate fields
 
 =============================================================
 Version 1.0.1
