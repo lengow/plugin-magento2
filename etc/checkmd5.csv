@@ -40,7 +40,7 @@
 /etc/config.xml|6b29fe03f5b166bbaaf3e63ef59ecc67
 /etc/crontab.xml|ca97f746162b6bd4441d34475c9b0103
 /etc/fieldset.xml|3ef3b0cf86782b4bd3f226570c0c8799
-/etc/di.xml|62e400b5f06afc12304f04fcafbed91c
+/etc/di.xml|594058fc32534212ccb4d3d7810a269b
 /etc/frontend/routes.xml|fd7926ca314017e32250b7e108d09d75
 /etc/events.xml|2d87b77011008cec0c76349d0cb48ff1
 /etc/adminhtml/routes.xml|b37d51a18bc54f5a872c9797ed06ed5d

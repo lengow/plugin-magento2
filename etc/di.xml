@@ -20,25 +20,25 @@
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
-                <item name="lengow_log_listing_data_source" xsi:type="string">Lengow\Connector\Model\ResourceModel\Log\Collection</item>
-                <item name="lengow_order_listing_data_source" xsi:type="string">Lengow\Connector\Model\ResourceModel\Order\Collection</item>
-                <item name="lengow_action_listing_data_source" xsi:type="string">Lengow\Connector\Model\ResourceModel\Action\Collection</item>
+                <item name="lengow_log_listing_data_source" xsi:type="string">Lengow\Connector\Model\ResourceModel\Log\Grid\Collection</item>
+                <item name="lengow_order_listing_data_source" xsi:type="string">Lengow\Connector\Model\ResourceModel\Order\Grid\Collection</item>
+                <item name="lengow_action_listing_data_source" xsi:type="string">Lengow\Connector\Model\ResourceModel\Action\Grid\Collection</item>
             </argument>
         </arguments>
     </type>
-    <virtualType name="Lengow\Connector\Model\ResourceModel\Log\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+    <virtualType name="Lengow\Connector\Model\ResourceModel\Log\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
         <arguments>
             <argument name="mainTable" xsi:type="string">lengow_log</argument>
             <argument name="resourceModel" xsi:type="string">Lengow\Connector\Model\ResourceModel\Log</argument>
         </arguments>
     </virtualType>
-    <virtualType name="Lengow\Connector\Model\ResourceModel\Order\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+    <virtualType name="Lengow\Connector\Model\ResourceModel\Order\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
         <arguments>
             <argument name="mainTable" xsi:type="string">lengow_order</argument>
             <argument name="resourceModel" xsi:type="string">Lengow\Connector\Model\ResourceModel\Order</argument>
         </arguments>
     </virtualType>
-    <virtualType name="Lengow\Connector\Model\ResourceModel\Action\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+    <virtualType name="Lengow\Connector\Model\ResourceModel\Action\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
         <arguments>
             <argument name="mainTable" xsi:type="string">lengow_action</argument>
             <argument name="resourceModel" xsi:type="string">Lengow\Connector\Model\ResourceModel\Action</argument>
