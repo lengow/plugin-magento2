@@ -600,8 +600,9 @@ class Importorder extends AbstractModel
                 'customer_email' => $customerEmail,
                 'commission' => (float)$this->_orderData->commission,
                 'carrier' => $this->_carrierName,
-                'method' => $this->_carrierMethod,
-                'tracking' => $this->_trackingNumber,
+                'carrier_method' => $this->_carrierMethod,
+                'carrier_tracking' => $this->_trackingNumber,
+                'carrier_id_relay' => $this->_relayId,
                 'sent_marketplace' => $this->_shippedByMp,
                 'delivery_country_iso' => $this->_packageData->delivery->common_country_iso_a2,
                 'order_lengow_state' => $this->_orderStateLengow
