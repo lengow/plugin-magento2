@@ -196,15 +196,14 @@ class Sync extends AbstractHelper
                 'account_id' => $params['account_id'],
                 'access_token' => $params['access_token'],
                 'secret_token' => $params['secret_token']
-            ],
-            false
+            ]
         );
         if (isset($params['shops'])) {
             foreach ($params['shops'] as $storeToken => $storeCatalogIds) {
                 $store = $this->_configHelper->getStoreByToken($storeToken);
                 if ($store) {
-                    $this->_configHelper->setCatalogIds($storeCatalogIds['catalog_ids'], (int)$store->getId(), false);
-                    $this->_configHelper->setActiveStore((int)$store->getId(), false);
+                    $this->_configHelper->setCatalogIds($storeCatalogIds['catalog_ids'], (int)$store->getId());
+                    $this->_configHelper->setActiveStore((int)$store->getId());
                 }
             }
         }
@@ -214,9 +213,12 @@ class Sync extends AbstractHelper
 
     /**
      * Sync Lengow catalogs for order synchronisation
+     *
+     * @return boolean
      */
     public function syncCatalog()
     {
+        $cleanCache = false;
         if ($this->_configHelper->isNewMerchant()) {
             return false;
         }
@@ -228,8 +230,14 @@ class Sync extends AbstractHelper
                     foreach ($cms->shops as $cmsShop) {
                         $store = $this->_configHelper->getStoreByToken($cmsShop->token);
                         if ($store) {
-                            $this->_configHelper->setCatalogIds($cmsShop->catalog_ids, (int)$store->getId(), false);
-                            $this->_configHelper->setActiveStore((int)$store->getId(), false);
+                            $catalogIdsChange = $this->_configHelper->setCatalogIds(
+                                $cmsShop->catalog_ids,
+                                (int)$store->getId()
+                            );
+                            $activeStoreChange = $this->_configHelper->setActiveStore((int)$store->getId());
+                            if (!$cleanCache && ($catalogIdsChange || $activeStoreChange)) {
+                                $cleanCache = true;
+                            }
                         }
                     }
                     break;
@@ -237,7 +245,10 @@ class Sync extends AbstractHelper
             }
         }
         // Clean config cache to valid configuration
-        $this->_configHelper->cleanConfigCache();
+        if ($cleanCache) {
+            $this->_configHelper->cleanConfigCache();
+        }
+        return true;
     }
 
     /**

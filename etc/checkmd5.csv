@@ -2,7 +2,7 @@
 /registration.php|dc6e50502663d362b5efdf9c829985c6
 /Block/Adminhtml/System/Config/Check.php|12f8a0300d3f911afeedaa4a4472d246
 /Block/Adminhtml/Footer.php|b1cec27fa7059bc8dd33b2d94d8b3a26
-/Block/Adminhtml/Toolbox/Content.php|458e383f7e25acbbb041916dc094d50c
+/Block/Adminhtml/Toolbox/Content.php|2bcd03e1b1272d2d531b2faa017c67f0
 /Block/Adminhtml/Sales/Order/Tab/Info.php|082a6ecded1c583fc26dea6237716cd5
 /Block/Adminhtml/Legal/Content.php|5daa8a6de26a431c020953205671c6e5
 /Block/Adminhtml/Header.php|9542288304019641db54647cd7aac834
@@ -20,7 +20,7 @@
 /Block/Widget/Grid/Extended.php|27303c73489347b1e6665f3cbe3241ce
 /Controller/Adminhtml/Toolbox/Index.php|c4d645613777b3dbf7e976a63abaa1a5
 /Controller/Adminhtml/Legal/Index.php|cc8f921b206ec9e3bf5d2ad3731e081c
-/Controller/Adminhtml/Product/Index.php|62f644130ec59684957e4b5918e462f7
+/Controller/Adminhtml/Product/Index.php|0d111c6045c61d0e955744213cf8eb4f
 /Controller/Adminhtml/Product/MassPublish.php|ee1015125ded075a2e0a80cad7e6b02f
 /Controller/Adminhtml/Help/Index.php|a8448ab3dadb0da6338ac403967581cb
 /Controller/Adminhtml/Home/Index.php|7b8d731f64e3e49172984167a6dffc0e
@@ -47,11 +47,11 @@
 /etc/adminhtml/menu.xml|b77fedabb5e2fa4ac1e16faa8b07add4
 /etc/adminhtml/system.xml|cae1f7bf7582ec84678067569ee38a8d
 /etc/module.xml|c8afcf49fd47932ec8945d984ead87c4
-/Helper/Sync.php|f57b358ffd1413f6819cdb940a7621df
+/Helper/Sync.php|292a3ac1d0f581b89a56b712e89a9543
 /Helper/Data.php|1a266f173feab2fb4583e51f7b3c1761
 /Helper/Security.php|3179a51d47cc57e4bde230e1dab8438b
-/Helper/Import.php|0091d2571c9312e8cc64c277f3f79a57
-/Helper/Config.php|be8b1d31d929494010a970241162f68c
+/Helper/Import.php|f29ee5f4134715825abf7adc258d3409
+/Helper/Config.php|686a60080c1a50e8c53227f2041b6359
 /i18n/fr_FR.csv|4b19e829d9aa03d045a2ce153137e01c
 /i18n/en_GB.csv|7c6e0cd09861dccd0f1dc0aab27e4721
 /i18n/de_DE.csv|e3575c5f6261a30765970c1593211901

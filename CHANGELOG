@@ -6,6 +6,7 @@ Version 1.0.2
     - Bugfix: [import] Changing the cron url with the default store
     - Bugfix: Correction on Lengow models dependency injection
     - Bugfix: [Export] Management of duplicate fields
+    - Bugfix: Optimizing settings backup without cleaning the configuration cache
 
 =============================================================
 Version 1.0.1

@@ -216,13 +216,10 @@ class Import extends AbstractHelper
     public function getLastImportDatePrint()
     {
         $lastImport = $this->getLastImport();
-        $lastImportDate = $this->_dataHelper->getDateInCorrectFormat(time());
         if ($lastImport['type'] != 'none') {
+            $lastImportDate = $this->_dataHelper->getDateInCorrectFormat($lastImport['timestamp']);
             return $this->_dataHelper->decodeLogMessage(
-                $this->_dataHelper->setLogMessage(
-                    'Last synchronisation : %1',
-                    ['<b>' . $lastImportDate . '</b>']
-                )
+                $this->_dataHelper->setLogMessage('Last synchronisation : %1', ['<b>' . $lastImportDate . '</b>'])
             );
         } else {
             return $this->_dataHelper->decodeLogMessage(
