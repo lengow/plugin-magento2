@@ -8,6 +8,7 @@ Version 1.0.2
     - Bugfix: [Export] Management of duplicate fields
     - Bugfix: Optimizing settings backup without cleaning the configuration cache
     - Bugfix: [import] Saving tracking data in the lengow_order table
+    - Bugfix: [import] Optimizing the creation of the order with the given quote
 
 =============================================================
 Version 1.0.1

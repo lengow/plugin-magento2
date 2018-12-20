@@ -1118,8 +1118,13 @@ class Importorder extends AbstractModel
             'store_currency_code' => (string)$this->_orderData->currency->iso_a3,
             'order_currency_code' => (string)$this->_orderData->currency->iso_a3
         ];
-        $magentoQuote = $this->_quoteMagentoFactory->create()->load($quote->getId());
-        $order = $this->_quoteManagement->submit($magentoQuote, $additionalDatas);
+        try {
+            $order = $this->_quoteManagement->submit($quote, $additionalDatas);
+        } catch (\Exception $e) {
+            // try to generate order with quote factory for "Cart does not contain item" Magento bug
+            $magentoQuote = $this->_quoteMagentoFactory->create()->load($quote->getId());
+            $order = $this->_quoteManagement->submit($magentoQuote, $additionalDatas);
+        }
         if (!$order) {
             throw new LengowException(
                 $this->_dataHelper->setLogMessage('unable to create order based on given quote')
