@@ -2,7 +2,7 @@
 
 ## Liste des critères  ##
 	
-* Recetter sa feature sur les versions 2.0, 2.1 et 2.2 :
+* Recetter sa feature sur les versions 2.0, 2.1, 2.2 et 2.3 :
 * Pas de modification de comportement de fonction :
 * Principe SOLID (au moins le S) :
 * Coding Style (PSR2) :
@@ -18,7 +18,7 @@
  	
 ## Explication des critères ##
 
-### Recetter sa feature sur les versions 2.0 et 2.1 ###
+### Recetter sa feature sur les versions 2.0, 2.1, 2.2 et 2.3 ###
 Tester son développement sur toutes les versions compatibles avec le module
 
 ### Pas de modification de comportement de fonction ###
