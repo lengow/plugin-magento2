@@ -10,6 +10,7 @@ Version 1.0.2
     - Bugfix: [import] Saving tracking data in the lengow_order table
     - Bugfix: [import] Optimizing the creation of the order with the given quote
     - Bugfix: Modifying css classes for compatibility with version 2.3
+    - Bugfix: [import] Adding warning when the quote contains disabled products
 
 =============================================================
 Version 1.0.1

@@ -291,6 +291,7 @@
 "connection didn't work with Lengow's webservice in store %1 (%2)","verbindung mit dem Lengow Webservice im Laden %1 (%2) funktionierte nicht."
 "Lengow webservice : %1 - %2 in store %3 (%4)","Lengow Webservice: %1 - %2 auf Lager %3 (%4)"
 "Lengow error: %1 does not feature in the marketplace list","Lengow Fehler: %1 erscheint nicht in der Marketplace-Liste"
+"product id %1 can not be added to the quote because it is disabled","Die Produkt-ID %1 kann der Quote nicht hinzugefügt werden, da sie deaktiviert ist"
 "unable to create order based on given quote","auf dem Angebot basierende Bestellung konnte nicht erstellt werden"
 "product %1 could not be found","produkt %1 konnte nicht gefunden werden"
 "product %1 is a parent ID. Product variation is needed","produkt %1 hat eine Vorgänger-ID. Produktvariation wird benötigt"

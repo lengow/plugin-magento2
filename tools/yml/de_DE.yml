@@ -320,6 +320,7 @@ de:
       no_connection_webservice: "verbindung mit dem Lengow Webservice im Laden %1 (%2) funktionierte nicht."
       error_lengow_webservice: "Lengow Webservice: %1 - %2 auf Lager %3 (%4)"
       marketplace_not_present: "Lengow Fehler: %1 erscheint nicht in der Marketplace-Liste"
+      product_is_disabled: "Die Produkt-ID %1 kann der Quote nicht hinzugefügt werden, da sie deaktiviert ist"
       order_failed_with_quote: "auf dem Angebot basierende Bestellung konnte nicht erstellt werden"
       product_not_be_found: "produkt %1 konnte nicht gefunden werden"
       product_is_a_parent: "produkt %1 hat eine Vorgänger-ID. Produktvariation wird benötigt"

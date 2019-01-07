@@ -1096,6 +1096,17 @@ class Importorder extends AbstractModel
             ['marketplace' => (string)$this->_orderData->marketplace . $paymentInfo]
         );
         $quote->collectTotals()->save();
+        // stop order creation when a quote is empty
+        if (!$quote->getAllVisibleItems()) {
+            $quote->setIsActive(false);
+            $lengowProducts = $quote->getLengowProducts();
+            throw new LengowException(
+                $this->_dataHelper->setLogMessage(
+                    'product id %1 can not be added to the quote because it is disabled',
+                    [key($lengowProducts)]
+                )
+            );
+        }
         $quote->save();
         return $quote;
     }
