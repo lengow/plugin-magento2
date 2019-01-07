@@ -77,27 +77,27 @@ class Config extends AbstractHelper
         'account_id' => [
             'path' => 'lengow_global_options/store_credential/global_account_id',
             'global' => true,
-            'no_cache' => false,
+            'no_cache' => true,
         ],
         'access_token' => [
             'path' => 'lengow_global_options/store_credential/global_access_token',
             'global' => true,
-            'no_cache' => false,
+            'no_cache' => true,
         ],
         'secret_token' => [
             'path' => 'lengow_global_options/store_credential/global_secret_token',
             'global' => true,
-            'no_cache' => false,
+            'no_cache' => true,
         ],
         'store_enable' => [
             'path' => 'lengow_global_options/store_credential/global_store_enable',
             'store' => true,
-            'no_cache' => false,
+            'no_cache' => true,
         ],
         'catalog_id' => [
             'path' => 'lengow_global_options/store_credential/global_catalog_id',
             'store' => true,
-            'no_cache' => false,
+            'no_cache' => true,
         ],
         'tracking_id' => [
             'path' => 'lengow_global_options/advanced/global_tracking_id',
@@ -117,27 +117,27 @@ class Config extends AbstractHelper
         'last_statistic_update' => [
             'path' => 'lengow_global_options/advanced/last_statistic_update',
             'export' => false,
-            'no_cache' => false,
+            'no_cache' => true,
         ],
         'order_statistic' => [
             'path' => 'lengow_global_options/advanced/order_statistic',
             'export' => false,
-            'no_cache' => false,
+            'no_cache' => true,
         ],
         'last_status_update' => [
             'path' => 'lengow_global_options/advanced/last_status_update',
             'export' => false,
-            'no_cache' => false,
+            'no_cache' => true,
         ],
         'account_status' => [
             'path' => 'lengow_global_options/advanced/account_status',
             'export' => false,
-            'no_cache' => false,
+            'no_cache' => true,
         ],
         'last_option_cms_update' => [
             'path' => 'lengow_global_options/advanced/last_option_cms_update',
             'export' => false,
-            'no_cache' => false,
+            'no_cache' => true,
         ],
         'selection_enable' => [
             'path' => 'lengow_export_options/simple/export_selection_enable',
@@ -192,7 +192,7 @@ class Config extends AbstractHelper
         'last_export' => [
             'path' => 'lengow_export_options/advanced/export_last_export',
             'store' => true,
-            'no_cache' => false,
+            'no_cache' => true,
         ],
         'days' => [
             'path' => 'lengow_import_options/simple/import_days',
@@ -242,17 +242,17 @@ class Config extends AbstractHelper
         'import_in_progress' => [
             'path' => 'lengow_import_options/advanced/import_in_progress',
             'global' => true,
-            'no_cache' => false,
+            'no_cache' => true,
         ],
         'last_import_manual' => [
             'path' => 'lengow_import_options/advanced/last_import_manual',
             'global' => true,
-            'no_cache' => false,
+            'no_cache' => true,
         ],
         'last_import_cron' => [
             'path' => 'lengow_import_options/advanced/last_import_cron',
             'global' => true,
-            'no_cache' => false,
+            'no_cache' => true,
         ],
     ];
 
@@ -335,9 +335,8 @@ class Config extends AbstractHelper
      * @param string $key Lengow setting key
      * @param mixed $value Lengow setting value
      * @param integer $storeId Magento store id
-     * @param boolean $cleanCache clean config cache to valid configuration
      */
-    public function set($key, $value, $storeId = 0, $cleanCache = true)
+    public function set($key, $value, $storeId = 0)
     {
         if ($storeId == 0) {
             $this->_writerInterface->save(
@@ -351,9 +350,6 @@ class Config extends AbstractHelper
                 ScopeInterface::SCOPE_STORES,
                 $storeId
             );
-        }
-        if ($cleanCache) {
-            $this->cleanConfigCache();
         }
     }
 
@@ -386,9 +382,8 @@ class Config extends AbstractHelper
      * Set Valid Account id / Access token / Secret token
      *
      * @param array $accessIds Account id / Access token / Secret token
-     * @param boolean $cleanCache clean config cache to valid configuration
      */
-    public function setAccessIds($accessIds, $cleanCache = true)
+    public function setAccessIds($accessIds)
     {
         $listKey = ['account_id', 'access_token', 'secret_token'];
         foreach ($accessIds as $key => $value) {
@@ -396,7 +391,7 @@ class Config extends AbstractHelper
                 continue;
             }
             if (strlen($value) > 0) {
-                $this->set($key, $value, 0, $cleanCache);
+                $this->set($key, $value);
             }
         }
     }
@@ -429,17 +424,21 @@ class Config extends AbstractHelper
      *
      * @param array $catalogIds Lengow catalog ids
      * @param integer $storeId Magento store id
-     * @param boolean $cleanCache clean config cache to valid configuration
+     *
+     * @return boolean
      */
-    public function setCatalogIds($catalogIds, $storeId, $cleanCache = true)
+    public function setCatalogIds($catalogIds, $storeId)
     {
+        $valueChange = false;
         $storeCatalogIds = self::getCatalogIds($storeId);
         foreach ($catalogIds as $catalogId) {
             if (!in_array($catalogId, $storeCatalogIds) && is_numeric($catalogId) && $catalogId > 0) {
                 $storeCatalogIds[] = (int)$catalogId;
+                $valueChange = true;
             }
         }
-        $this->set('catalog_id', implode(';', $storeCatalogIds), $storeId, $cleanCache);
+        $this->set('catalog_id', implode(';', $storeCatalogIds), $storeId);
+        return $valueChange;
     }
 
     /**
@@ -458,16 +457,15 @@ class Config extends AbstractHelper
      * Set active store or not
      *
      * @param integer $storeId Magento store id
-     * @param boolean $cleanCache clean config cache to valid configuration
+     *
+     * @return boolean
      */
-    public function setActiveStore($storeId, $cleanCache = true)
+    public function setActiveStore($storeId)
     {
-        $active = true;
-        $storeCatalogIds = self::getCatalogIds($storeId);
-        if (count($storeCatalogIds) === 0) {
-            $active = false;
-        }
-        $this->set('store_enable', $active, $storeId, $cleanCache);
+        $storeIsActive = $this->storeIsActive($storeId);
+        $storeHasCatalog = count(self::getCatalogIds($storeId)) > 0;
+        $this->set('store_enable', $storeHasCatalog, $storeId);
+        return $storeIsActive !== $storeHasCatalog ? true : false;
     }
 
     /**
@@ -659,7 +657,8 @@ class Config extends AbstractHelper
                 }
             }
             $attributeList = rtrim($attributeList, ',');
-            $this->set('export_attribute', $attributeList, 0, true);
+            $this->set('export_attribute', $attributeList);
+            $this->cleanConfigCache();
         }
     }
 

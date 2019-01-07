@@ -119,7 +119,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     public function testGet()
     {
         $this->assertEquals(
-            $this->_configHelper->get('account_id'),
+            $this->_configHelper->get('ip_enable'),
             null,
             '[Test Get] Check if return is valid for Lengow setting with cache'
         );
@@ -143,26 +143,6 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             $this->_configHelper->get('toto'),
             null,
             '[Test Get] Check if return is valid for fake Lengow setting with cache'
-        );
-    }
-
-    /**
-     * @covers \Lengow\Connector\Helper\Config::getAccessIds
-     */
-    public function testGetAccessIds()
-    {
-        $results = [null, null, null];
-        $accessIds = $this->_configHelper->getAccessIds();
-        $this->assertInternalType(
-            'array',
-            $accessIds,
-            '[Test Get Access ids] Check if return is a array without store id'
-        );
-
-        $this->assertEquals(
-            $accessIds,
-            $results,
-            '[Test Get Access ids] Check if return is valid without store id'
         );
     }
 

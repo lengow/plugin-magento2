@@ -160,7 +160,7 @@ en:
       contain_text_support_hour: "We’ll do our best to get back to you during regular business hours (Monday to Friday – 9am to 6pm GMT+1)."
       find_answer: "You can also find answers in our"
       link_magento_guide: "Magento 2 dedicated guide"
-      knowledge_link_url: "https://en.lengow.help/help/magento-2"
+      knowledge_link_url: "https://supportlengow.zendesk.com/hc/en-us/articles/360012204551"
   log:
     screen:
       title: "Logs"
@@ -320,6 +320,7 @@ en:
       no_connection_webservice: "connection didn't work with Lengow's webservice in store %1 (%2)"
       error_lengow_webservice: "Lengow webservice : %1 - %2 in store %3 (%4)"
       marketplace_not_present: "Lengow error: %1 does not feature in the marketplace list"
+      product_is_disabled: "product id %1 can not be added to the quote because it is disabled"
       order_failed_with_quote: "unable to create order based on given quote"
       product_not_be_found: "product %1 could not be found"
       product_is_a_parent: "product %1 is a parent ID. Product variation is needed"

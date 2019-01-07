@@ -13,7 +13,7 @@
                 <argument name="itemId" xsi:type="string">Lengow_Connector::help</argument>
             </action>
         </referenceBlock>
-        <attribute name="class" value="lengow_connector"/>
+        <attribute name="class" value="lengow-connector"/>
         <referenceBlock name="root">
             <action method="setHeaderTitle">
                 <argument translate="true" name="title" xsi:type="string">Help</argument>

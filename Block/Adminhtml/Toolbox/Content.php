@@ -287,9 +287,12 @@ class Content extends Template
             'message' => $this->_dataHelper->getExportUrl($store->getId()),
         ];
         $lastExportDate = $this->_configHelper->get('last_export', $store->getId());
+        $lastExportMessage = $lastExportDate === ''
+            ? __('none')
+            : $this->_dataHelper->getDateInCorrectFormat($lastExportDate, true);
         $checklist[] = [
             'title' => __('Last export'),
-            'message' => $this->_dataHelper->getDateInCorrectFormat($lastExportDate, true),
+            'message' => $lastExportMessage,
         ];
         return $this->_getContent($checklist);
     }

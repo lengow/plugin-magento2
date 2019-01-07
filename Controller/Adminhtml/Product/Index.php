@@ -109,6 +109,8 @@ class Index extends Action
                             if ($state !== null) {
                                 $oldValue = $this->_configHelper->get('selection_enable', $storeId);
                                 $this->_configHelper->set('selection_enable', $state, $storeId);
+                                // Clean config cache to valid configuration
+                                $this->_configHelper->cleanConfigCache();
                                 $this->_dataHelper->log(
                                     'Config',
                                     $this->_dataHelper->setLogMessage(

@@ -659,7 +659,9 @@ class Export
         }
         $selectedAttributes = $this->_configHelper->getSelectedAttributes($this->_storeId);
         foreach ($selectedAttributes as $selectedAttribute) {
-            $fields[] = $selectedAttribute;
+            if (!in_array($selectedAttribute, $fields)) {
+                $fields[] = $selectedAttribute;
+            }
         }
         return $fields;
     }

@@ -600,8 +600,9 @@ class Importorder extends AbstractModel
                 'customer_email' => $customerEmail,
                 'commission' => (float)$this->_orderData->commission,
                 'carrier' => $this->_carrierName,
-                'method' => $this->_carrierMethod,
-                'tracking' => $this->_trackingNumber,
+                'carrier_method' => $this->_carrierMethod,
+                'carrier_tracking' => $this->_trackingNumber,
+                'carrier_id_relay' => $this->_relayId,
                 'sent_marketplace' => $this->_shippedByMp,
                 'delivery_country_iso' => $this->_packageData->delivery->common_country_iso_a2,
                 'order_lengow_state' => $this->_orderStateLengow
@@ -1095,6 +1096,17 @@ class Importorder extends AbstractModel
             ['marketplace' => (string)$this->_orderData->marketplace . $paymentInfo]
         );
         $quote->collectTotals()->save();
+        // stop order creation when a quote is empty
+        if (!$quote->getAllVisibleItems()) {
+            $quote->setIsActive(false);
+            $lengowProducts = $quote->getLengowProducts();
+            throw new LengowException(
+                $this->_dataHelper->setLogMessage(
+                    'product id %1 can not be added to the quote because it is disabled',
+                    [key($lengowProducts)]
+                )
+            );
+        }
         $quote->save();
         return $quote;
     }
@@ -1117,8 +1129,13 @@ class Importorder extends AbstractModel
             'store_currency_code' => (string)$this->_orderData->currency->iso_a3,
             'order_currency_code' => (string)$this->_orderData->currency->iso_a3
         ];
-        $magentoQuote = $this->_quoteMagentoFactory->create()->load($quote->getId());
-        $order = $this->_quoteManagement->submit($magentoQuote, $additionalDatas);
+        try {
+            $order = $this->_quoteManagement->submit($quote, $additionalDatas);
+        } catch (\Exception $e) {
+            // try to generate order with quote factory for "Cart does not contain item" Magento bug
+            $magentoQuote = $this->_quoteMagentoFactory->create()->load($quote->getId());
+            $order = $this->_quoteManagement->submit($magentoQuote, $additionalDatas);
+        }
         if (!$order) {
             throw new LengowException(
                 $this->_dataHelper->setLogMessage('unable to create order based on given quote')
