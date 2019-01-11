@@ -424,9 +424,7 @@ class Feed
     protected function _flush($content)
     {
         if ($this->_stream) {
-            // These lines are required for plugin validation
-            $function = create_function('$a', 'echo("$a");');
-            $function($content);
+            print_r($content);
             flush();
         } else {
             $this->_file->write($content);
