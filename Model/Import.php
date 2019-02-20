@@ -386,6 +386,11 @@ class Import
             $globalError = $this->_dataHelper->setLogMessage('Account ID, token access or secret token are not valid');
             $this->_dataHelper->log('Import', $globalError, $this->_logOutput);
         } else {
+            if (!$this->_importOneOrder) {
+                $this->_importHelper->setImportInProcess();
+                // update last import date
+                $this->_importHelper->updateDateImport($this->_typeImport);
+            }
             // to activate lengow shipping method
             $this->_backendSession->setIsFromlengow(1);
             // check Lengow catalogs for order synchronisation
@@ -403,11 +408,6 @@ class Import
                     $this->_dataHelper->setLogMessage('WARNING! Pre-production mode is activated'),
                     $this->_logOutput
                 );
-            }
-            if (!$this->_importOneOrder) {
-                $this->_importHelper->setImportInProcess();
-                // update last import date
-                $this->_importHelper->updateDateImport($this->_typeImport);
             }
             // get all store for import
             $storeCollection = $this->_storeManager->getStores();
