@@ -471,12 +471,18 @@ class Marketplace extends AbstractModel
                         );
                         unset($orderAction);
                     } else {
-                        throw new LengowException(
-                            $this->_dataHelper->setLogMessage(
+                        if ($result !== null) {
+                            $message = $this->_dataHelper->setLogMessage(
                                 "can't create action: %1",
                                 [$this->_jsonHelper->jsonEncode($result)]
-                            )
-                        );
+                            );
+                        } else {
+                            // Generating a generic error message when the Lengow API is unavailable
+                            $message = $this->_dataHelper->setLogMessage(
+                                "can't create action because Lengow API is unavailable. Please retry"
+                            );
+                        }
+                        throw new LengowException($message);
                     }
                 }
                 // Create log for call action

@@ -302,6 +302,7 @@
 "marketplace name is required","marketplace name is required"
 "can't send action: %1 is required","can't send action: %1 is required"
 "can't create action: %1","can't create action: %1"
+"can't create action because Lengow API is unavailable. Please retry","can't create action because Lengow API is unavailable. Please retry"
 "order could not be saved","order could not be saved"
 "order action is too old. Please retry","order action is too old. Please retry"
 "%1 order(s) imported","%1 order(s) imported"

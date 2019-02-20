@@ -331,6 +331,7 @@ fr:
       marketplace_name_require: "le nom de la place de marché est requis"
       arg_is_required: "envoi d'action impossible : %1  est requis"
       action_not_created: "création d'action impossible : %1"
+      action_not_created_api: "création d'action impossible car l'API Lengow n'est pas disponible. Réessayez de nouveau"
       order_is_empty: "la commande ne peut être sauvegardée"
       action_is_too_old: "l'action est trop ancienne. Réessayez de nouveau"
       nb_order_imported: "%1 commande(s) importée(s)"

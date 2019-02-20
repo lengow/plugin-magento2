@@ -302,6 +302,7 @@
 "marketplace name is required","marktplatzname ist erforderlich"
 "can't send action: %1 is required","Aktion nicht ausführbar: %1 ist erforderlich"
 "can't create action: %1","Aktion kann nicht erstellt werden: %1"
+"can't create action because Lengow API is unavailable. Please retry","Aktion kann nicht erstellt werden, da die Lengow-API nicht verfügbar ist. Bitte erneut versuchen"
 "order could not be saved","bestellung konnte nicht gespeichert werden"
 "order action is too old. Please retry","bestellungsaktion ist zu alt. Bitte erneut versuchen"
 "%1 order(s) imported","%1 Bestellung(en) importiert"

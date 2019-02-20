@@ -331,6 +331,7 @@ de:
       marketplace_name_require: "marktplatzname ist erforderlich"
       arg_is_required: "Aktion nicht ausführbar: %1 ist erforderlich"
       action_not_created: "Aktion kann nicht erstellt werden: %1"
+      action_not_created_api: "Aktion kann nicht erstellt werden, da die Lengow-API nicht verfügbar ist. Bitte erneut versuchen"
       order_is_empty: "bestellung konnte nicht gespeichert werden"
       action_is_too_old: "bestellungsaktion ist zu alt. Bitte erneut versuchen"
       nb_order_imported: "%1 Bestellung(en) importiert"
