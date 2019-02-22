@@ -292,6 +292,8 @@
 "Lengow webservice : %1 - %2 in store %3 (%4)","Lengow webservice : %1 - %2 in store %3 (%4)"
 "Lengow error: %1 does not feature in the marketplace list","Lengow error: %1 does not feature in the marketplace list"
 "product id %1 can not be added to the quote because it is disabled","product id %1 can not be added to the quote because it is disabled"
+"product id %1 can not be added to the quote because the stock is insufficient","product id %1 can not be added to the quote because the stock is insufficient"
+"quote does not contain any valid products","quote does not contain any valid products"
 "unable to create order based on given quote","unable to create order based on given quote"
 "product %1 could not be found","product %1 could not be found"
 "product %1 is a parent ID. Product variation is needed","product %1 is a parent ID. Product variation is needed"

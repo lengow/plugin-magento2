@@ -1099,12 +1099,8 @@ class Importorder extends AbstractModel
         // stop order creation when a quote is empty
         if (!$quote->getAllVisibleItems()) {
             $quote->setIsActive(false);
-            $lengowProducts = $quote->getLengowProducts();
             throw new LengowException(
-                $this->_dataHelper->setLogMessage(
-                    'product id %1 can not be added to the quote because it is disabled',
-                    [key($lengowProducts)]
-                )
+                $this->_dataHelper->setLogMessage('quote does not contain any valid products')
             );
         }
         $quote->save();
