@@ -65,6 +65,7 @@ use Magento\Customer\Model\Group;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Lengow\Connector\Model\Import\Quote\Item as QuoteItem;
 use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Model\Exception as LengowException;
 
 class Quote extends \Magento\Quote\Model\Quote
@@ -93,6 +94,11 @@ class Quote extends \Magento\Quote\Model\Quote
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
      */
     protected $_dataHelper;
+
+    /**
+     * @var \Lengow\Connector\Helper\Security Lengow security helper instance
+     */
+    protected $_securityHelper;
 
     /**
      * @var \Lengow\Connector\Model\Import\Quote\Item Lengow quote item instance
@@ -162,6 +168,7 @@ class Quote extends \Magento\Quote\Model\Quote
      * @param \Magento\Customer\Model\Group $groupCustomer Magento group customer
      * @param \Lengow\Connector\Model\Import\Quote\Item $quoteItem Lengow quote item instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
      */
     public function __construct(
         Context $context,
@@ -208,7 +215,8 @@ class Quote extends \Magento\Quote\Model\Quote
         ProductCollectionFactory $productCollection,
         Group $groupCustomer,
         QuoteItem $quoteItem,
-        DataHelper $dataHelper
+        DataHelper $dataHelper,
+        SecurityHelper $securityHelper
     )
     {
         $this->_taxCalculation = $taxCalculation;
@@ -219,6 +227,7 @@ class Quote extends \Magento\Quote\Model\Quote
         $this->_groupCustomer = $groupCustomer;
         $this->_quoteItem = $quoteItem;
         $this->_dataHelper = $dataHelper;
+        $this->_securityHelper = $securityHelper;
         parent::__construct(
             $context,
             $registry,
@@ -467,7 +476,9 @@ class Quote extends \Magento\Quote\Model\Quote
      */
     public function checkProductStatus($product)
     {
-        if ((int)$product->getStatus() === Status::STATUS_DISABLED) {
+        if (version_compare($this->_securityHelper->getMagentoVersion(), '2.2.0', '>=')
+            && (int)$product->getStatus() === Status::STATUS_DISABLED
+        ) {
             throw new LengowException(
                 $this->_dataHelper->setLogMessage(
                     'product id %1 can not be added to the quote because it is disabled',
@@ -494,7 +505,7 @@ class Quote extends \Magento\Quote\Model\Quote
                 $product->getId(),
                 $product->getStore()->getWebsiteId()
             );
-            if (!$stockItem->getIsInStock() || ($stockStatus && $quantity > $stockStatus->getQty())) {
+            if ($stockStatus && $quantity > (float)$stockStatus->getQty()) {
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage(
                         'product id %1 can not be added to the quote because the stock is insufficient',

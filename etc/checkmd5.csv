@@ -89,7 +89,7 @@
 /Model/Import/Action.php|c84fa0adb8d8398373959ab76244d799
 /Model/Import/Importorder.php|45c8c3f2cb6549aec617d09764ffe1cd
 /Model/Import/Order.php|d0a101d708496ea619ea09f502c76f4b
-/Model/Import/Quote.php|5f14653b8f31079f9a5080a4b85270bf
+/Model/Import/Quote.php|460e0e9de03d7c669652a4cc6a09f4cf
 /Model/Import/Customer.php|96d3abbf7b95dd6675ca8a8202550861
 /Model/Import/Quote/Item.php|f57b5418c2c2f86839acac43fa364133
 /Model/Import/Ordererror.php|7830ab281239a92c931b71e2431dfadc
