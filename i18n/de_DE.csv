@@ -275,6 +275,8 @@
 "Choose a customer group for Lengow customer","Kundengruppe für Lengowkunden auswählen"
 "Shipping method","Versandart"
 "Choose a shipping method for imported orders"," Versandart für importierte Bestellungen auswählen"
+"Convert the currency of your order","Umrechnung der Währung Ihrer Bestellung"
+"All orders imported into Magento will be automatically converted into the currency you've selected in Lengow","Alle in Magento importierten Bestellungen werden in Lengow automatisch in die ausgewählte Währung umgerechnet"
 "Advanced import settings","Erweiterte Importeinstellungen"
 "I would like to be notified when there are issues regarding order importation","Bei Problemen während des Importes der Bestellungen möchte ich benachrichtigt werden"
 "Mail for the report email"," Emailaddresse für den Email-Report"

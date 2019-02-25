@@ -302,6 +302,8 @@ de:
     import_customer_group_comment: "Kundengruppe für Lengowkunden auswählen"
     import_default_shipping_method_title: "Versandart"
     import_default_shipping_method_comment: " Versandart für importierte Bestellungen auswählen"
+    import_currency_conversion_enable_title: "Umrechnung der Währung Ihrer Bestellung"
+    import_currency_conversion_enable_comment: "Alle in Magento importierten Bestellungen werden in Lengow automatisch in die ausgewählte Währung umgerechnet"
     import_advanced_setting: "Erweiterte Importeinstellungen"
     import_report_mail_enable_title: "Bei Problemen während des Importes der Bestellungen möchte ich benachrichtigt werden"
     import_report_mail_address_title: " Emailaddresse für den Email-Report"

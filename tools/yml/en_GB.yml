@@ -302,6 +302,8 @@ en:
     import_customer_group_comment: "Choose a customer group for Lengow customer"
     import_default_shipping_method_title: "Shipping method"
     import_default_shipping_method_comment: "Choose a shipping method for imported orders"
+    import_currency_conversion_enable_title: "Convert the currency of your order"
+    import_currency_conversion_enable_comment: "All orders imported into Magento will be automatically converted into the currency you've selected in Lengow"
     import_advanced_setting: "Advanced import settings"
     import_report_mail_enable_title: "I would like to be notified when there are issues regarding order importation"
     import_report_mail_address_title: "Mail for the report email"

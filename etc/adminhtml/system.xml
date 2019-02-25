@@ -130,6 +130,11 @@
                     <comment>Choose a shipping method for imported orders</comment>
                     <source_model>\Magento\Shipping\Model\Config\Source\Allmethods</source_model>
                 </field>
+                <field id="import_currency_conversion_enable" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>Convert the currency of your order</label>
+                    <comment>All orders imported into Magento will be automatically converted into the currency you've selected in Lengow</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
             </group>
             <group id="advanced" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>Advanced import settings</label>

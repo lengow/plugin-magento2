@@ -209,6 +209,11 @@ class Config extends AbstractHelper
             'store' => true,
             'no_cache' => false,
         ],
+        'currency_conversion_enabled' => [
+            'path' => 'lengow_import_options/simple/import_currency_conversion_enable',
+            'store' => true,
+            'no_cache' => false,
+        ],
         'report_mail_enable' => [
             'path' => 'lengow_import_options/advanced/import_report_mail_enable',
             'global' => true,
