@@ -6,6 +6,7 @@ Version 1.0.3
     - Feature: [import] Adding an error when a product does not have enough stock
     - Feature: [import] Import the order with the currency of the marketplace
     - Bugfix: [import] Improved security to avoid duplicate synchronization
+    - Bugfix: Initializing an empty array for log decoding
 
 =============================================================
 Version 1.0.2

@@ -152,14 +152,14 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function decodeLogMessage($message, $useTranslation = true, $params = null)
+    public function decodeLogMessage($message, $useTranslation = true, $params = [])
     {
         // Clean new line for magento error
         $message = preg_replace("#\n|\t|\r#", ' ', $message);
         if (preg_match('/^([^\[\]]*)(\[(.*)\]|)$/', $message, $result)) {
             if (isset($result[1])) {
                 $key = $result[1];
-                if (isset($result[3]) && is_null($params)) {
+                if (isset($result[3]) && empty($params)) {
                     $strParam = $result[3];
                     $params = explode('|', $strParam);
                 }

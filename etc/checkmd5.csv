@@ -48,7 +48,7 @@
 /etc/adminhtml/system.xml|e5b2649d5c39c295cc8546ea73b6aa6b
 /etc/module.xml|de98ee1332e0c76df46e59d698d95554
 /Helper/Sync.php|292a3ac1d0f581b89a56b712e89a9543
-/Helper/Data.php|dc4508ed20d036eb3cc8ec15280d9682
+/Helper/Data.php|455c622c7321a0d54200a7da23098c01
 /Helper/Security.php|3179a51d47cc57e4bde230e1dab8438b
 /Helper/Import.php|f29ee5f4134715825abf7adc258d3409
 /Helper/Config.php|1df6c84f93f426ed36b9d674b1caf1f0
