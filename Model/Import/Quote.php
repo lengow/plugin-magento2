@@ -62,8 +62,10 @@ use Magento\Tax\Model\Calculation;
 use Magento\Catalog\Model\ProductFactory;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 use Magento\Customer\Model\Group;
+use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Lengow\Connector\Model\Import\Quote\Item as QuoteItem;
 use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Model\Exception as LengowException;
 
 class Quote extends \Magento\Quote\Model\Quote
@@ -92,6 +94,11 @@ class Quote extends \Magento\Quote\Model\Quote
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
      */
     protected $_dataHelper;
+
+    /**
+     * @var \Lengow\Connector\Helper\Security Lengow security helper instance
+     */
+    protected $_securityHelper;
 
     /**
      * @var \Lengow\Connector\Model\Import\Quote\Item Lengow quote item instance
@@ -161,6 +168,7 @@ class Quote extends \Magento\Quote\Model\Quote
      * @param \Magento\Customer\Model\Group $groupCustomer Magento group customer
      * @param \Lengow\Connector\Model\Import\Quote\Item $quoteItem Lengow quote item instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
      */
     public function __construct(
         Context $context,
@@ -207,7 +215,8 @@ class Quote extends \Magento\Quote\Model\Quote
         ProductCollectionFactory $productCollection,
         Group $groupCustomer,
         QuoteItem $quoteItem,
-        DataHelper $dataHelper
+        DataHelper $dataHelper,
+        SecurityHelper $securityHelper
     )
     {
         $this->_taxCalculation = $taxCalculation;
@@ -218,6 +227,7 @@ class Quote extends \Magento\Quote\Model\Quote
         $this->_groupCustomer = $groupCustomer;
         $this->_quoteItem = $quoteItem;
         $this->_dataHelper = $dataHelper;
+        $this->_securityHelper = $securityHelper;
         parent::__construct(
             $context,
             $registry,
@@ -278,6 +288,11 @@ class Quote extends \Magento\Quote\Model\Quote
         foreach ($this->_lengowProducts as $lengowProduct) {
             $magentoProduct = $lengowProduct['magento_product'];
             if ($magentoProduct->getId()) {
+                // check if the product is disabled
+                $this->checkProductStatus($magentoProduct);
+                // check if the product has enough stock
+                $this->checkProductQuantity($magentoProduct, $lengowProduct['quantity']);
+                // get product prices
                 $price = $lengowProduct['price_unit'];
                 if (!$priceIncludeTax) {
                     $basedOn = $this->_scopeConfig->getValue(
@@ -450,6 +465,55 @@ class Quote extends \Magento\Quote\Model\Quote
             }
         }
         return $lengowProducts;
+    }
+
+    /**
+     * Check if the product is disabled
+     *
+     * @param \Magento\Catalog\Model\Product\Interceptor $product
+     *
+     * @throws LengowException product is disabled
+     */
+    public function checkProductStatus($product)
+    {
+        if (version_compare($this->_securityHelper->getMagentoVersion(), '2.2.0', '>=')
+            && (int)$product->getStatus() === Status::STATUS_DISABLED
+        ) {
+            throw new LengowException(
+                $this->_dataHelper->setLogMessage(
+                    'product id %1 can not be added to the quote because it is disabled',
+                    [$product->getId()]
+                )
+            );
+        }
+    }
+
+    /**
+     * Check if the product has enough stock
+     *
+     * @param \Magento\Catalog\Model\Product\Interceptor $product
+     * @param integer $quantity
+     *
+     * @throws LengowException stock is insufficient
+     */
+    public function checkProductQuantity($product , $quantity)
+    {
+        $stockItem = $product->getExtensionAttributes()->getStockItem();
+        if ($stockItem->getManageStock()) {
+            // Get salable quantity
+            $stockStatus = $this->stockRegistry->getStockStatus(
+                $product->getId(),
+                $product->getStore()->getWebsiteId()
+            );
+            if ($stockStatus && $quantity > (float)$stockStatus->getQty()) {
+                throw new LengowException(
+                    $this->_dataHelper->setLogMessage(
+                        'product id %1 can not be added to the quote because the stock is insufficient',
+                        [$product->getId()]
+                    )
+                );
+            }
+        }
     }
 
     /**
