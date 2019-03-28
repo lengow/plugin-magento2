@@ -80,9 +80,9 @@ class Marketplace extends AbstractModel
     ];
 
     /**
-     * @var array all marketplaces allowed for an account ID
+     * @var Object all marketplaces allowed for an account ID
      */
-    public static $marketplaces = [];
+    public static $marketplaces = false;
 
     /**
      * @var mixed the current marketplace
@@ -243,7 +243,7 @@ class Marketplace extends AbstractModel
      */
     public function loadApiMarketplace()
     {
-        if (count(self::$marketplaces) === 0) {
+        if (!self::$marketplaces) {
             self::$marketplaces = $this->_connector->queryApi('get', '/v3.0/marketplaces');
         }
     }
