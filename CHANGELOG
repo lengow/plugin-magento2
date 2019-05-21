@@ -3,6 +3,7 @@ Version 1.1.0
 =============================================================
 
     - Bugfix: count() parameter must be an array for php 7.2
+    - Bugfix: [action] Management of orders waiting to return from the marketplace
 
 =============================================================
 Version 1.0.3
