@@ -49,9 +49,18 @@
                         <field id="*/*/global_authorized_ip_enable">1</field>
                     </depends>
                 </field>
-                <field id="global_tracking_id" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="global_tracking_enable" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable Lengow tracking</label>
+                    <comment>This tracker allows you to retrieve order statistics generated on your site directly in Lengow.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="global_tracking_id" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Tracker Product ID</label>
+                    <comment>The name of the unique identifier entered in the Lengow</comment>
                     <source_model>Lengow\Connector\Model\Config\Source\Tracking</source_model>
+                    <depends>
+                        <field id="*/*/global_tracking_enable">1</field>
+                    </depends>
                 </field>
             </group>
         </section>

@@ -99,6 +99,11 @@ class Config extends AbstractHelper
             'store' => true,
             'no_cache' => true,
         ],
+        'tracking_enable' => array(
+            'path' => 'lengow_global_options/advanced/global_tracking_enable',
+            'global' => true,
+            'no_cache' => false,
+        ),
         'tracking_id' => [
             'path' => 'lengow_global_options/advanced/global_tracking_id',
             'global' => true,
