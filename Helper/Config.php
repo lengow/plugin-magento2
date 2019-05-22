@@ -144,6 +144,11 @@ class Config extends AbstractHelper
             'export' => false,
             'no_cache' => true,
         ],
+        'last_marketplace_update' => array(
+            'path' => 'lengow_global_options/advanced/last_marketplace_update',
+            'export' => false,
+            'no_cache' => true,
+        ),
         'selection_enable' => [
             'path' => 'lengow_export_options/simple/export_selection_enable',
             'store' => true,

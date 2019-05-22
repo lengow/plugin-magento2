@@ -57,11 +57,6 @@ class Connector
     protected $_token;
 
     /**
-     * @var integer ID account
-     */
-    protected $_accountId;
-
-    /**
      * @var array lengow url for curl timeout
      */
     protected $_lengowUrls = [
@@ -130,7 +125,6 @@ class Connector
         );
         if (isset($data['token'])) {
             $this->_token = $data['token'];
-            $this->_accountId = $data['account_id'];
             return $data;
         } else {
             return false;
@@ -152,9 +146,6 @@ class Connector
     {
         try {
             $this->connect();
-            if (!array_key_exists('account_id', $array)) {
-                $array['account_id'] = $this->_accountId;
-            }
             $data = $this->callAction($method, $array, $type, $format, $body);
         } catch (LengowException $e) {
             return $e->getMessage();
@@ -340,7 +331,7 @@ class Connector
         $url = $url['scheme'] . '://' . $url['host'] . $url['path'];
         switch ($type) {
             case 'GET':
-                $opts[CURLOPT_URL] = $url . '?' . http_build_query($args);
+                $opts[CURLOPT_URL] = $url . (!empty($args) ? '?' . http_build_query($args) : '');
                 $this->_dataHelper->log(
                     'Connector',
                     $this->_dataHelper->setLogMessage('call %1', [$opts[CURLOPT_URL]])

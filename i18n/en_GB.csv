@@ -363,6 +363,7 @@
 "%1 order found for order ID: %2 and marketplace: %3 with account ID: %4","%1 order found for order ID: %2 and marketplace: %3 with account ID: %4"
 "%1 order(s) found with account ID: %2","%1 order(s) found with account ID: %2"
 "import failed - %1","import failed - %1"
+"marketplace update failed - %1","marketplace update failed - %1"
 "import order failed - Lengow error: no package in the order","import order failed - Lengow error: no package in the order"
 "import order failed - Lengow error: no delivery address in the order","import order failed - Lengow error: no delivery address in the order"
 "import order failed - wrong package number","import order failed - wrong package number"
