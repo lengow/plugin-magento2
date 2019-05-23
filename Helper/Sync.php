@@ -85,18 +85,26 @@ class Sync extends AbstractHelper
     protected $_export;
 
     /**
-     * @var integer cache time for statistic, account status and cms options
+     * @var array cache time for statistic, account status, cms options and marketplace synchronisation
      */
-    protected $_cacheTime = 18000;
+    protected $_cacheTimes = array(
+        'cms_option' => 86400,
+        'status_account' => 86400,
+        'statistic' => 43200,
+        'marketplace' => 21600,
+    );
 
     /**
      * @var array valid sync actions
      */
     protected $_syncActions = [
         'order',
+        'cms_option',
+        'status_account',
+        'statistic',
+        'marketplace',
         'action',
         'catalog',
-        'option'
     ];
 
     /**
@@ -318,7 +326,7 @@ class Sync extends AbstractHelper
         }
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_option_cms_update');
-            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTime) {
+            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTimes['cms_option']) {
                 return false;
             }
         }
@@ -342,7 +350,7 @@ class Sync extends AbstractHelper
         }
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_status_update');
-            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTime) {
+            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTimes['status_account']) {
                 return json_decode($this->_configHelper->get('account_status'), true);
             }
         }
@@ -380,7 +388,7 @@ class Sync extends AbstractHelper
     {
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_statistic_update');
-            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTime) {
+            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTimes['statistic']) {
                 return json_decode($this->_configHelper->get('order_statistic'), true);
             }
         }
@@ -448,7 +456,7 @@ class Sync extends AbstractHelper
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_marketplace_update');
             if (!is_null($updatedAt)
-                && (time() - strtotime($updatedAt)) < $this->_cacheTime
+                && (time() - strtotime($updatedAt)) < $this->_cacheTimes['marketplace']
                 && file_exists($filePath)
             ) {
                 // Recovering data with the marketplaces.json file
@@ -470,7 +478,6 @@ class Sync extends AbstractHelper
                 $this->_driverFile->fileClose($file);
                 $this->_configHelper->set('last_marketplace_update', date('Y-m-d H:i:s'));
             } catch (FileSystemException $e) {
-                die($e->getMessage());
                 $this->_dataHelper->log(
                     'Import',
                     $this->_dataHelper->setLogMessage('marketplace update failed - %1', [$e->getMessage()])

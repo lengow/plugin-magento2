@@ -394,7 +394,7 @@ class Import
             // to activate lengow shipping method
             $this->_backendSession->setIsFromlengow(1);
             // check Lengow catalogs for order synchronisation
-            if (!$this->_preprodMode && !$this->_importOneOrder && $this->_typeImport === 'manual') {
+            if (!$this->_importOneOrder && $this->_typeImport === 'manual') {
                 $this->_syncHelper->syncCatalog();
             }
             $this->_dataHelper->log(

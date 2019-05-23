@@ -27,7 +27,7 @@
         </lengow_export_options>
         <lengow_import_options>
             <simple>
-                <import_days>5</import_days>
+                <import_days>3</import_days>
                 <import_customer_group>0</import_customer_group>
                 <import_default_shipping_method>lengow_lengow</import_default_shipping_method>
                 <import_currency_conversion_enable>1</import_currency_conversion_enable>
