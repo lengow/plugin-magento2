@@ -7,6 +7,7 @@ Version 1.1.0
     - Feature: Optimization of API calls between PrestaShop and Lengow
     - Bugfix: count() parameter must be an array for php 7.2
     - Bugfix: [action] Management of orders waiting to return from the marketplace
+    - Bugfix: Update of the lengow_order table directly after the creation of the Magento order
 
 =============================================================
 Version 1.0.3

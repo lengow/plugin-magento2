@@ -605,7 +605,8 @@ class Importorder extends AbstractModel
                 'carrier_id_relay' => $this->_relayId,
                 'sent_marketplace' => $this->_shippedByMp,
                 'delivery_country_iso' => $this->_packageData->delivery->common_country_iso_a2,
-                'order_lengow_state' => $this->_orderStateLengow
+                'order_lengow_state' => $this->_orderStateLengow,
+                'extra' => json_encode($this->_orderData),
             ]
         );
         // try to import order
@@ -623,7 +624,6 @@ class Importorder extends AbstractModel
                         [
                             'is_in_error' => 0,
                             'order_process_state' => 2,
-                            'extra' => json_encode($this->_orderData)
                         ]
                     );
                     return false;
@@ -640,7 +640,7 @@ class Importorder extends AbstractModel
             // Create Magento Quote
             $quote = $this->_createQuote($customer);
             // Create Magento order
-            $order = $this->_makeOrder($quote);
+            $order = $this->_makeOrder($quote, $orderLengow);
             // If order is successfully imported
             if ($order) {
                 // Save order line id in lengow_order_line table
@@ -681,24 +681,6 @@ class Importorder extends AbstractModel
                         $this->_marketplaceSku
                     );
                 }
-                // Update Lengow order record
-                $orderLengow->updateOrder(
-                    [
-                        'order_id' => $order->getId(),
-                        'order_sku' => $order->getIncrementId(),
-                        'order_process_state' => $this->_lengowOrder->getOrderProcessState($this->_orderStateLengow),
-                        'extra' => json_encode($this->_orderData),
-                        'order_lengow_state' => $this->_orderStateLengow,
-                        'is_in_error' => 0,
-                        'is_reimported' => 0,
-                    ]
-                );
-                $this->_dataHelper->log(
-                    'Import',
-                    $this->_dataHelper->setLogMessage('order updated in Lengow orders table'),
-                    $this->_logOutput,
-                    $this->_marketplaceSku
-                );
             } else {
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage('order could not be saved')
@@ -726,14 +708,17 @@ class Importorder extends AbstractModel
             $errorMessage = 'Magento error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
         }
         if (isset($errorMessage)) {
-            $orderError = $this->_orderErrorFactory->create();
-            $orderError->createOrderError(
-                [
-                    'order_lengow_id' => $this->_orderLengowId,
-                    'message' => $errorMessage,
-                    'type' => 'import'
-                ]
-            );
+            if ($orderLengow->getData('is_in_error') == 1) {
+                $orderError = $this->_orderErrorFactory->create();
+                $orderError->createOrderError(
+                    [
+                        'order_lengow_id' => $this->_orderLengowId,
+                        'message' => $errorMessage,
+                        'type' => 'import'
+                    ]
+                );
+                unset($orderError);
+            }
             $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
             $this->_dataHelper->log(
                 'Import',
@@ -750,7 +735,6 @@ class Importorder extends AbstractModel
                     'order_lengow_state' => $this->_orderStateLengow,
                 ]
             );
-            unset($orderError);
             return $this->_returnResult('error', $this->_orderLengowId);
         }
         return $this->_returnResult('new', $this->_orderLengowId, isset($order) ? $order->getId() : null);
@@ -1111,12 +1095,13 @@ class Importorder extends AbstractModel
      * Create order
      *
      * @param Quote $quote Lengow quote instance
+     * @param LengowOrder $orderLengow Lengow order instance
      *
      * @throws \Exception|LengowException order failed with quote
      *
      * @return \Magento\Sales\Model\Order
      */
-    protected function _makeOrder(Quote $quote)
+    protected function _makeOrder(Quote $quote, $orderLengow)
     {
         $additionalDatas = [
             'from_lengow' => true,
@@ -1148,6 +1133,23 @@ class Importorder extends AbstractModel
         $order->setCreatedAt($this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)));
         $order->setUpdatedAt($this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)));
         $order->save();
+        // Update Lengow order record
+        $orderLengow->updateOrder(
+            [
+                'order_id' => $order->getId(),
+                'order_sku' => $order->getIncrementId(),
+                'order_process_state' => $this->_lengowOrder->getOrderProcessState($this->_orderStateLengow),
+                'order_lengow_state' => $this->_orderStateLengow,
+                'is_in_error' => 0,
+                'is_reimported' => 0,
+            ]
+        );
+        $this->_dataHelper->log(
+            'Import',
+            $this->_dataHelper->setLogMessage('order updated in Lengow orders table'),
+            $this->_logOutput,
+            $this->_marketplaceSku
+        );
         // generate invoice for order
         if ($order->canInvoice()) {
             $this->_lengowOrder->toInvoice($order);
