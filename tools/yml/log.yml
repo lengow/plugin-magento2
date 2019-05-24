@@ -31,6 +31,7 @@ en:
       find_one_order: "%1 order found for order ID: %2 and marketplace: %3 with account ID: %4"
       find_all_orders: "%1 order(s) found with account ID: %2"
       import_failed: "import failed - %1"
+      marketplace_update_failed: "marketplace update failed - %1"
       error_no_package: "import order failed - Lengow error: no package in the order"
       error_no_delivery_address: "import order failed - Lengow error: no delivery address in the order"
       error_wrong_package_number: "import order failed - wrong package number"

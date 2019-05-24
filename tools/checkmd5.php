@@ -29,6 +29,10 @@ $filePaths = [
     $base . '/registration.php'
 ];
 
+$excludedFiles = [
+    $base . '/etc/marketplaces.json',
+];
+
 foreach ($listFolders as $folder) {
     if (file_exists($base . $folder)) {
         $result = explorer($base . $folder);
@@ -36,6 +40,9 @@ foreach ($listFolders as $folder) {
     }
 }
 foreach ($filePaths as $filePath) {
+    if (in_array($filePath, $excludedFiles)) {
+        continue;
+    }
     if (file_exists($filePath)) {
         $checksum = [str_replace($base, '', $filePath) => md5_file($filePath)];
         writeCsv($fp, $checksum);

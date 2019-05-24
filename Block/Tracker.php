@@ -137,7 +137,7 @@ class Tracker extends Template
      */
     protected function _prepareLayout()
     {
-        if ($this->getRequest()->getActionName() === 'success') {
+        if ((bool)$this->_configHelper->get('tracking_enable') && $this->getRequest()->getActionName() === 'success') {
             $order = $this->getLastOrder();
             if ($order) {
                 $this->setData('account_id', $this->_configHelper->get('account_id'));
@@ -161,7 +161,7 @@ class Tracker extends Template
      */
     protected function _toHtml()
     {
-        if ($this->getRequest()->getActionName() !== 'success') {
+        if (!(bool)$this->_configHelper->get('tracking_enable') || $this->getRequest()->getActionName() !== 'success') {
             return '';
         }
         return parent::_toHtml();

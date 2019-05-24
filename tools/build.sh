@@ -45,6 +45,7 @@ fi
 FOLDER_TMP="/tmp/app/code"
 FOLDER_TEST="/tmp/app/code/Lengow/Connector/Test"
 FOLDER_TOOLS="/tmp/app/code/Lengow/Connector/tools"
+FOLDER_ETC="/tmp/app/code/Lengow/Connector/etc"
 
 VERT="\\033[1;32m"
 ROUGE="\\033[1;31m"
@@ -79,6 +80,8 @@ remove_directory $FOLDER_TMP
 mkdir /tmp/app
 #copy files
 cp -rRp $FOLDER $FOLDER_TMP
+# Remove marketplaces.json
+remove_files $FOLDER_ETC "marketplaces.json"
 # Remove dod
 remove_files $FOLDER_TMP "dod.md"
 # Remove Readme

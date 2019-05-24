@@ -19,10 +19,13 @@
 
 namespace Lengow\Connector\Helper;
 
+use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Pricing\PriceCurrencyInterface as PriceCurrency;
+use Magento\Framework\Filesystem\Driver\File as DriverFile;
+use Magento\Framework\Module\Dir\Reader;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Security as SecurityHelper;
@@ -32,6 +35,11 @@ use Lengow\Connector\Model\Export as Export;
 class Sync extends AbstractHelper
 {
     /**
+     * @var mixed status account
+     */
+    public static $statusAccount;
+
+    /**
      * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
      */
     protected $_jsonHelper;
@@ -40,6 +48,16 @@ class Sync extends AbstractHelper
      * @var \Magento\Framework\Pricing\PriceCurrencyInterface Magento price currency instance
      */
     protected $_priceCurrency;
+
+    /**
+     * @var \Magento\Framework\Filesystem\Driver\File Magento driver file instance
+     */
+    protected $_driverFile;
+
+    /**
+     * @var \Magento\Framework\Module\Dir\Reader Magento module reader instance
+     */
+    protected $_moduleReader;
 
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
@@ -67,24 +85,32 @@ class Sync extends AbstractHelper
     protected $_export;
 
     /**
-     * @var integer cache time for statistic, account status and cms options
+     * @var array cache time for statistic, account status, cms options and marketplace synchronisation
      */
-    protected $_cacheTime = 18000;
+    protected $_cacheTimes = array(
+        'cms_option' => 86400,
+        'status_account' => 86400,
+        'statistic' => 43200,
+        'marketplace' => 21600,
+    );
 
     /**
      * @var array valid sync actions
      */
     protected $_syncActions = [
         'order',
+        'cms_option',
+        'status_account',
+        'statistic',
+        'marketplace',
         'action',
         'catalog',
-        'option'
     ];
 
     /**
-     * @var mixed status account
+     * @var string marketplace file name
      */
-    public static $statusAccount;
+    protected $_marketplaceJson = 'marketplaces.json';
 
     /**
      * Constructor
@@ -92,6 +118,8 @@ class Sync extends AbstractHelper
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency Magento price currency instance
+     * @param \Magento\Framework\Filesystem\Driver\File $driverFile Magento driver file instance
+     * @param \Magento\Framework\Module\Dir\Reader $moduleReader Magento module reader instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
@@ -102,6 +130,8 @@ class Sync extends AbstractHelper
         Context $context,
         JsonHelper $jsonHelper,
         PriceCurrency $priceCurrency,
+        DriverFile $driverFile,
+        Reader $moduleReader,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         SecurityHelper $securityHelper,
@@ -110,6 +140,8 @@ class Sync extends AbstractHelper
     ) {
         $this->_jsonHelper = $jsonHelper;
         $this->_priceCurrency = $priceCurrency;
+        $this->_driverFile = $driverFile;
+        $this->_moduleReader = $moduleReader;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_securityHelper = $securityHelper;
@@ -294,7 +326,7 @@ class Sync extends AbstractHelper
         }
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_option_cms_update');
-            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTime) {
+            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTimes['cms_option']) {
                 return false;
             }
         }
@@ -318,7 +350,7 @@ class Sync extends AbstractHelper
         }
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_status_update');
-            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTime) {
+            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTimes['status_account']) {
                 return json_decode($this->_configHelper->get('account_status'), true);
             }
         }
@@ -329,17 +361,13 @@ class Sync extends AbstractHelper
         $status = false;
         $result = $this->_connector->queryApi('get', '/v3.0/plans');
         if (isset($result->isFreeTrial)) {
-            $status = [];
-            $status['type'] = $result->isFreeTrial ? 'free_trial' : '';
-            $status['day'] = (int)$result->leftDaysBeforeExpired;
-            $status['expired'] = (bool)$result->isExpired;
-            if ($status['day'] < 0) {
-                $status['day'] = 0;
-            }
-            if ($status) {
-                $this->_configHelper->set('account_status', $this->_jsonHelper->jsonEncode($status));
-                $this->_configHelper->set('last_status_update', date('Y-m-d H:i:s'));
-            }
+            $status = [
+                'type' => $result->isFreeTrial ? 'free_trial' : '',
+                'day' => (int)$result->leftDaysBeforeExpired < 0 ? 0 : (int)$result->leftDaysBeforeExpired,
+                'expired' => (bool)$result->isExpired,
+            ];
+            $this->_configHelper->set('account_status', $this->_jsonHelper->jsonEncode($status));
+            $this->_configHelper->set('last_status_update', date('Y-m-d H:i:s'));
         } else {
             if ($this->_configHelper->get('last_status_update')) {
                 $status = json_decode($this->_configHelper->get('account_status'), true);
@@ -360,7 +388,7 @@ class Sync extends AbstractHelper
     {
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_statistic_update');
-            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTime) {
+            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTimes['statistic']) {
                 return json_decode($this->_configHelper->get('order_statistic'), true);
             }
         }
@@ -411,5 +439,60 @@ class Sync extends AbstractHelper
         $this->_configHelper->set('order_statistic', $this->_jsonHelper->jsonEncode($return));
         $this->_configHelper->set('last_statistic_update', date('Y-m-d H:i:s'));
         return $return;
+    }
+
+    /**
+     * Get marketplace data
+     *
+     * @param boolean $force force cache update
+     *
+     * @return array|false
+     */
+    public function getMarketplaces($force = false)
+    {
+        $sep = DIRECTORY_SEPARATOR;
+        $folderPath = $this->_moduleReader->getModuleDir('etc', 'Lengow_Connector');
+        $filePath = $folderPath . $sep . $this->_marketplaceJson;
+        if (!$force) {
+            $updatedAt = $this->_configHelper->get('last_marketplace_update');
+            if (!is_null($updatedAt)
+                && (time() - strtotime($updatedAt)) < $this->_cacheTimes['marketplace']
+                && file_exists($filePath)
+            ) {
+                // Recovering data with the marketplaces.json file
+                $marketplacesData = file_get_contents($filePath);
+                if ($marketplacesData) {
+                    return json_decode($marketplacesData);
+                }
+            }
+        }
+        // Recovering data with the API
+        $result = $this->_connector->queryApi('get', '/v3.0/marketplaces');
+        if ($result && is_object($result) && !isset($result->error)) {
+            // Updated marketplaces.json file
+            try {
+                $file = $this->_driverFile->fileOpen($filePath, 'w+');
+                $this->_driverFile->fileLock($file);
+                $this->_driverFile->fileWrite($file, $this->_jsonHelper->jsonEncode($result));
+                $this->_driverFile->fileUnlock($file);
+                $this->_driverFile->fileClose($file);
+                $this->_configHelper->set('last_marketplace_update', date('Y-m-d H:i:s'));
+            } catch (FileSystemException $e) {
+                $this->_dataHelper->log(
+                    'Import',
+                    $this->_dataHelper->setLogMessage('marketplace update failed - %1', [$e->getMessage()])
+                );
+            }
+            return $result;
+        } else {
+            // If the API does not respond, use marketplaces.json if it exists
+            if (file_exists($filePath)) {
+                $marketplacesData = file_get_contents($filePath);
+                if ($marketplacesData) {
+                    return json_decode($marketplacesData);
+                }
+            }
+        }
+        return false;
     }
 }

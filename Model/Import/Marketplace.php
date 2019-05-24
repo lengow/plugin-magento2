@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Lengow\Connector\Helper\Sync;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
@@ -26,6 +27,7 @@ use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Connector;
 
 /**
@@ -47,6 +49,11 @@ class Marketplace extends AbstractModel
      * @var \Lengow\Connector\Helper\Config Lengow config helper instance
      */
     protected $_configHelper;
+
+    /**
+     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     */
+    protected $_syncHelper;
 
     /**
      * @var \Lengow\Connector\Model\Connector Lengow connector instance
@@ -80,9 +87,9 @@ class Marketplace extends AbstractModel
     ];
 
     /**
-     * @var array all marketplaces allowed for an account ID
+     * @var Object all marketplaces allowed for an account ID
      */
-    public static $marketplaces = [];
+    public static $marketplaces = false;
 
     /**
      * @var mixed the current marketplace
@@ -142,6 +149,7 @@ class Marketplace extends AbstractModel
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
      * @param \Lengow\Connector\Model\Connector $modelConnector Lengow connector instance
      * @param \Lengow\Connector\Model\Import\ActionFactory $orderActionFactory Lengow action factory instance
      * @param \Lengow\Connector\Model\Import\OrdererrorFactory $orderErrorFactory Lengow order error factory instance
@@ -152,6 +160,7 @@ class Marketplace extends AbstractModel
         JsonHelper $jsonHelper,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
+        SyncHelper $syncHelper,
         Connector $modelConnector,
         ActionFactory $orderActionFactory,
         OrdererrorFactory $orderErrorFactory
@@ -160,6 +169,7 @@ class Marketplace extends AbstractModel
         $this->_jsonHelper = $jsonHelper;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
+        $this->_syncHelper = $syncHelper;
         $this->_connector = $modelConnector;
         $this->_orderActionFactory = $orderActionFactory;
         $this->_orderErrorFactory = $orderErrorFactory;
@@ -243,8 +253,8 @@ class Marketplace extends AbstractModel
      */
     public function loadApiMarketplace()
     {
-        if (count(self::$marketplaces) === 0) {
-            self::$marketplaces = $this->_connector->queryApi('get', '/v3.0/marketplaces');
+        if (!self::$marketplaces) {
+            self::$marketplaces = $this->_syncHelper->getMarketplaces();
         }
     }
 
