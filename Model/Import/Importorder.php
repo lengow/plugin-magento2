@@ -856,7 +856,6 @@ class Importorder extends AbstractModel
                 $order,
                 $lengowOrder,
                 $this->_orderStateLengow,
-                $this->_orderData,
                 $this->_packageData
             );
             if ($orderUpdated) {
