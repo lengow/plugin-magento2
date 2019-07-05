@@ -3,6 +3,7 @@ Version 1.1.1
 =============================================================
 
     - Feature: [import] Optimization of the order recovery system
+    - Feature: [import] Setting up a cache for synchronizing catalogs ids
 
 =============================================================
 Version 1.1.0

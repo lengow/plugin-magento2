@@ -128,7 +128,7 @@ class Index extends Action
                 $sync = $this->getRequest()->getParam('sync');
                 // sync catalogs id between Lengow and Magento
                 if (!$sync || $sync === 'catalog') {
-                    $this->_syncHelper->syncCatalog();
+                    $this->_syncHelper->syncCatalog($force);
                 }
                 // sync orders between Lengow and Magento
                 if (is_null($sync) || $sync === 'order') {

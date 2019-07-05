@@ -37,9 +37,14 @@ class Connector
     // const LENGOW_API_URL = 'http://10.100.1.82:8081';
 
     /**
-     * @var string url of the SANDBOX Lengow
+     * @var array default options for curl
      */
-    const LENGOW_API_SANDBOX_URL = 'https://api.lengow.net';
+    const CURL_OPTS = [
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 10,
+        CURLOPT_USERAGENT => 'lengow-cms-magento2',
+    ];
 
     /**
      * @var string the access token to connect
@@ -65,7 +70,7 @@ class Connector
         '/v3.0/orders/actions/' => 15,
         '/v3.0/marketplaces' => 15,
         '/v3.0/plans' => 5,
-        '/v3.0/stats' => 3,
+        '/v3.0/stats' => 5,
         '/v3.1/cms' => 5,
     ];
 
@@ -184,21 +189,6 @@ class Connector
     }
 
     /**
-     * Head API call
-     *
-     * @param string $method Lengow method API call
-     * @param array $array Lengow method API parameters
-     * @param string $format return format of API
-     * @param string $body body datas for request
-     *
-     * @return mixed
-     */
-    public function head($method, $array = [], $format = 'json', $body = '')
-    {
-        return $this->call($method, $array, 'HEAD', $format, $body);
-    }
-
-    /**
      * Put API call
      *
      * @param string $method Lengow method API call
@@ -211,21 +201,6 @@ class Connector
     public function put($method, $array = [], $format = 'json', $body = '')
     {
         return $this->call($method, $array, 'PUT', $format, $body);
-    }
-
-    /**
-     * Delete API call
-     *
-     * @param string $method Lengow method API call
-     * @param array $array Lengow method API parameters
-     * @param string $format return format of API
-     * @param string $body body datas for request
-     *
-     * @return mixed
-     */
-    public function delete($method, $array = [], $format = 'json', $body = '')
-    {
-        return $this->call($method, $array, 'DELETE', $format, $body);
     }
 
     /**
@@ -248,7 +223,7 @@ class Connector
      *
      * @param string $api Lengow method API call
      * @param array $args Lengow method API parameters
-     * @param string $type type of request GET|POST|PUT|HEAD|DELETE|PATCH
+     * @param string $type type of request GET|POST|PUT|PATCH
      * @param string $format return format of API
      * @param string $body body datas for request
      *
@@ -305,12 +280,7 @@ class Connector
         defined('CURLE_OPERATION_TIMEDOUT') || define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);
         $ch = curl_init();
         // Default curl Options
-        $opts = [
-            CURLOPT_CONNECTTIMEOUT => 10,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 10,
-            CURLOPT_USERAGENT => 'lengow-php-sdk',
-        ];
+        $opts = self::CURL_OPTS;
         // get special timeout for specific Lengow API
         if (array_key_exists($url, $this->_lengowUrls)) {
             $opts[CURLOPT_TIMEOUT] = $this->_lengowUrls[$url];

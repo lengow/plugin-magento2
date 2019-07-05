@@ -85,14 +85,15 @@ class Sync extends AbstractHelper
     protected $_export;
 
     /**
-     * @var array cache time for statistic, account status, cms options and marketplace synchronisation
+     * @var array cache time for catalog, statistic, account status, cms options and marketplace synchronisation
      */
-    protected $_cacheTimes = array(
+    protected $_cacheTimes = [
+        'catalog' => 21600,
         'cms_option' => 86400,
         'status_account' => 86400,
-        'statistic' => 43200,
-        'marketplace' => 21600,
-    );
+        'statistic' => 86400,
+        'marketplace' => 43200,
+    ];
 
     /**
      * @var array valid sync actions
@@ -248,13 +249,21 @@ class Sync extends AbstractHelper
     /**
      * Sync Lengow catalogs for order synchronisation
      *
+     * @param boolean $force force cache update
+     *
      * @return boolean
      */
-    public function syncCatalog()
+    public function syncCatalog($force = false)
     {
         $cleanCache = false;
         if ($this->_configHelper->isNewMerchant()) {
             return false;
+        }
+        if (!$force) {
+            $updatedAt = $this->_configHelper->get('last_catalog_update');
+            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTimes['catalog']) {
+                return false;
+            }
         }
         $result = $this->_connector->queryApi('get', '/v3.1/cms');
         if (isset($result->cms)) {
@@ -284,6 +293,7 @@ class Sync extends AbstractHelper
             $this->_configHelper->set('last_setting_update', date('Y-m-d H:i:s'));
             $this->_configHelper->cleanConfigCache();
         }
+        $this->_configHelper->set('last_catalog_update', date('Y-m-d H:i:s'));
         return true;
     }
 
