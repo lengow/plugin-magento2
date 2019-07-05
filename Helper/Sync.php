@@ -239,6 +239,8 @@ class Sync extends AbstractHelper
                 }
             }
         }
+        // Save last update date for a specific settings (change synchronisation interval time)
+        $this->_configHelper->set('last_setting_update', date('Y-m-d H:i:s'));
         // Clean config cache to valid configuration
         $this->_configHelper->cleanConfigCache();
     }
@@ -278,6 +280,8 @@ class Sync extends AbstractHelper
         }
         // Clean config cache to valid configuration
         if ($cleanCache) {
+            // Save last update date for a specific settings (change synchronisation interval time)
+            $this->_configHelper->set('last_setting_update', date('Y-m-d H:i:s'));
             $this->_configHelper->cleanConfigCache();
         }
         return true;

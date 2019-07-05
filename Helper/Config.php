@@ -99,11 +99,11 @@ class Config extends AbstractHelper
             'store' => true,
             'no_cache' => true,
         ],
-        'tracking_enable' => array(
+        'tracking_enable' => [
             'path' => 'lengow_global_options/advanced/global_tracking_enable',
             'global' => true,
             'no_cache' => false,
-        ),
+        ],
         'tracking_id' => [
             'path' => 'lengow_global_options/advanced/global_tracking_id',
             'global' => true,
@@ -144,11 +144,16 @@ class Config extends AbstractHelper
             'export' => false,
             'no_cache' => true,
         ],
-        'last_marketplace_update' => array(
+        'last_marketplace_update' => [
             'path' => 'lengow_global_options/advanced/last_marketplace_update',
             'export' => false,
             'no_cache' => true,
-        ),
+        ],
+        'last_setting_update' => [
+            'path' => 'lengow_global_options/advanced/last_setting_update',
+            'global' => true,
+            'no_cache' => true,
+        ],
         'selection_enable' => [
             'path' => 'lengow_export_options/simple/export_selection_enable',
             'store' => true,
