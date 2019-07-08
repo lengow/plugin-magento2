@@ -37,16 +37,6 @@ class Connector
     // const LENGOW_API_URL = 'http://10.100.1.82:8081';
 
     /**
-     * @var array default options for curl
-     */
-    const CURL_OPTS = [
-        CURLOPT_CONNECTTIMEOUT => 10,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 10,
-        CURLOPT_USERAGENT => 'lengow-cms-magento2',
-    ];
-
-    /**
      * @var string the access token to connect
      */
     protected $_accessToken;
@@ -280,7 +270,13 @@ class Connector
         defined('CURLE_OPERATION_TIMEDOUT') || define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);
         $ch = curl_init();
         // Default curl Options
-        $opts = self::CURL_OPTS;
+        // Arrays are not allowed in class constants (Magento Marketplace validator)
+        $opts = [
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 10,
+            CURLOPT_USERAGENT => 'lengow-cms-magento2',
+        ];
         // get special timeout for specific Lengow API
         if (array_key_exists($url, $this->_lengowUrls)) {
             $opts[CURLOPT_TIMEOUT] = $this->_lengowUrls[$url];
