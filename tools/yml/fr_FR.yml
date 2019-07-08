@@ -335,6 +335,7 @@ fr:
       action_not_valid: "l'action %1 n'est pas valide"
       marketplace_action_not_present: "l'action %1 n'est pas présente pour cette place de marché"
       store_id_require: "l'ID de la boutique est requis"
+      marketplace_sku_require: "la référence commande marketplace est requise"
       marketplace_name_require: "le nom de la place de marché est requis"
       arg_is_required: "envoi d'action impossible : %1  est requis"
       action_not_created: "création d'action impossible : %1"

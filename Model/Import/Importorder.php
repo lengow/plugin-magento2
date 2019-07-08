@@ -170,7 +170,7 @@ class Importorder extends AbstractModel
     protected $_lengowOrder;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order instance
+     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order factory instance
      */
     protected $_lengowOrderFactory;
 

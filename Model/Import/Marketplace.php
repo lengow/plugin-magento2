@@ -23,7 +23,6 @@ use Lengow\Connector\Helper\Sync;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
-use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
@@ -35,11 +34,6 @@ use Lengow\Connector\Model\Connector;
  */
 class Marketplace extends AbstractModel
 {
-    /**
-     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
-     */
-    protected $_jsonHelper;
-
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
      */
@@ -61,9 +55,9 @@ class Marketplace extends AbstractModel
     protected $_connector;
 
     /**
-     * @var \Lengow\Connector\Model\Import\ActionFactory Lengow action factory instance
+     * @var \Lengow\Connector\Model\Import\Action Lengow action instance
      */
-    protected $_orderActionFactory;
+    protected $_orderAction;
 
     /**
      * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow order error factory instance
@@ -76,14 +70,6 @@ class Marketplace extends AbstractModel
     public static $validActions = [
         'ship',
         'cancel'
-    ];
-
-    /**
-     * @var array Parameters to delete for Get call
-     */
-    public static $getParamsToDelete = [
-        'shipping_date',
-        'delivery_date',
     ];
 
     /**
@@ -146,32 +132,29 @@ class Marketplace extends AbstractModel
      *
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
      * @param \Lengow\Connector\Model\Connector $modelConnector Lengow connector instance
-     * @param \Lengow\Connector\Model\Import\ActionFactory $orderActionFactory Lengow action factory instance
+     * @param \Lengow\Connector\Model\Import\Action $orderAction Lengow action instance
      * @param \Lengow\Connector\Model\Import\OrdererrorFactory $orderErrorFactory Lengow order error factory instance
      */
     public function __construct(
         Context $context,
         Registry $registry,
-        JsonHelper $jsonHelper,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         SyncHelper $syncHelper,
         Connector $modelConnector,
-        ActionFactory $orderActionFactory,
+        Action $orderAction,
         OrdererrorFactory $orderErrorFactory
     )
     {
-        $this->_jsonHelper = $jsonHelper;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_syncHelper = $syncHelper;
         $this->_connector = $modelConnector;
-        $this->_orderActionFactory = $orderActionFactory;
+        $this->_orderAction = $orderAction;
         $this->_orderErrorFactory = $orderErrorFactory;
         parent::__construct($context, $registry);
     }
@@ -274,6 +257,21 @@ class Marketplace extends AbstractModel
     }
 
     /**
+     * Get the action with parameters
+     *
+     * @param string $action order action (ship or cancel)
+     *
+     * @return array|false
+     */
+    public function getAction($action)
+    {
+        if (array_key_exists($action, $this->actions)) {
+            return $this->actions[$action];
+        }
+        return false;
+    }
+
+    /**
      * Get the default value for argument
      *
      * @param string $name The argument's name
@@ -330,184 +328,28 @@ class Marketplace extends AbstractModel
     public function callAction($action, $order, $lengowOrder, $shipment = null, $orderLineId = null)
     {
         try {
-            if (!in_array($action, self::$validActions)) {
-                throw new LengowException($this->_dataHelper->setLogMessage('action %1 is not valid', [$action]));
-            }
-            if (!isset($this->actions[$action])) {
-                throw new LengowException(
-                    $this->_dataHelper->setLogMessage('the marketplace action %1 is not present', [$action])
-                );
-            }
-            if ((int)$order->getStoreId() == 0) {
-                throw new LengowException($this->_dataHelper->setLogMessage('store ID is required'));
-            }
-            if (strlen($lengowOrder->getData('marketplace_name')) == 0) {
-                throw new LengowException($this->_dataHelper->setLogMessage('marketplace name is required'));
-            }
-            // Get all arguments from API
-            $params = [];
-            $actions = $this->actions[$action];
-            if (isset($actions['args']) && isset($actions['optional_args'])) {
-                $allArgs = array_merge($actions['args'], $actions['optional_args']);
-            } elseif (!isset($actions['args']) && isset($actions['optional_args'])) {
-                $allArgs = $actions['optional_args'];
-            } elseif (isset($actions['args'])) {
-                $allArgs = $actions['args'];
-            } else {
-                $allArgs = [];
-            }
-            // Get all order informations
-            foreach ($allArgs as $arg) {
-                switch ($arg) {
-                    case 'tracking_number':
-                        $trackings = $shipment->getAllTracks();
-                        if (!empty($trackings)) {
-                            $lastTrack = end($trackings);
-                        }
-                        $params[$arg] = isset($lastTrack) ? $lastTrack->getNumber() : '';
-                        break;
-                    case 'carrier':
-                    case 'carrier_name':
-                    case 'shipping_method':
-                    case 'custom_carrier':
-                        if (strlen((string)$lengowOrder->getData('carrier')) > 0) {
-                            $carrierCode = (string)$lengowOrder->getData('carrier');
-                        } else {
-                            $trackings = $shipment->getAllTracks();
-                            if (!empty($trackings)) {
-                                $lastTrack = end($trackings);
-                            }
-                            $carrierCode = isset($lastTrack)
-                                ? $this->_matchCarrier($lastTrack->getCarrierCode(), $lastTrack->getTitle())
-                                : '';
-                        }
-                        $params[$arg] = $carrierCode;
-                        break;
-                    case 'shipping_price':
-                        $params[$arg] = $order->getShippingInclTax();
-                        break;
-                    case 'shipping_date':
-                    case 'delivery_date':
-                        $params[$arg] = date('c');
-                        break;
-                    default:
-                        if (isset($actions['optional_args']) && in_array($arg, $actions['optional_args'])) {
-                            continue;
-                        }
-                        $defaultValue = $this->getDefaultValue((string)$arg);
-                        $paramValue = $defaultValue ? $defaultValue : $arg . ' not available';
-                        $params[$arg] = $paramValue;
-                        break;
-                }
-            }
+            // check the action and order data
+            $this->_checkAction($action);
+            $this->_checkOrderData($lengowOrder);
+            // get all required and optional arguments for a specific marketplace
+            $marketplaceArguments = $this->_getMarketplaceArguments($action);
+            // get all available values from an order
+            $params = $this->_getAllParams($action, $order, $lengowOrder, $shipment, $marketplaceArguments);
+            // check required arguments and clean value for empty optionals arguments
+            $params = $this->_checkAndCleanParams($action, $params);
+            // complete the values with the specific values of the account
             if (!is_null($orderLineId)) {
                 $params['line'] = $orderLineId;
             }
-            // Check all required arguments
-            if (isset($actions['args'])) {
-                foreach ($actions['args'] as $arg) {
-                    if (!isset($params[$arg]) || strlen($params[$arg]) == 0) {
-                        throw new LengowException(
-                            $this->_dataHelper->setLogMessage("can't send action: %1 is required", [$arg])
-                        );
-                    }
-                }
-            }
-            // Clean empty optional arguments
-            if (isset($actions['optional_args'])) {
-                foreach ($actions['optional_args'] as $arg) {
-                    if (isset($params[$arg]) && strlen($params[$arg]) == 0) {
-                        unset($params[$arg]);
-                    }
-                }
-            }
-            // Set identification parameters
             $params['marketplace_order_id'] = $lengowOrder->getData('marketplace_sku');
             $params['marketplace'] = $lengowOrder->getData('marketplace_name');
             $params['action_type'] = $action;
-            $sendAction = true;
-            // check if action is already created
-            $getParams = array_merge($params, array('queued' => 'True'));
-            // array key deletion for GET verification
-            foreach (self::$getParamsToDelete as $param) {
-                if (isset($getParams[$param])) {
-                    unset($getParams[$param]);
-                }
+            // checks whether the action is already created to not return an action
+            $canSendAction = $this->_orderAction->canSendAction($params, $order);
+            if ($canSendAction) {
+                // send a new action on the order via the Lengow API
+                $this->_orderAction->sendAction($params, $order, $lengowOrder);
             }
-            $result = $this->_connector->queryApi('get', '/v3.0/orders/actions/', $getParams);
-            if (isset($result->error) && isset($result->error->message)) {
-                throw new LengowException($result->error->message);
-            }
-            if (isset($result->count) && $result->count > 0) {
-                foreach ($result->results as $row) {
-                    $orderActionId = $this->_orderActionFactory->create()->getActionByActionId($row->id);
-                    if ($orderActionId) {
-                        $orderAction = $this->_orderActionFactory->create()->load($orderActionId);
-                        if ($orderAction->getData('state') == 0) {
-                            $retry = (int)$orderAction->getData('retry') + 1;
-                            $orderAction->updateAction(['retry' => $retry]);
-                            $sendAction = false;
-                        }
-                    } else {
-                        // if update doesn't work, create new action
-                        $orderAction = $this->_orderActionFactory->create();
-                        $orderAction->createAction(
-                            [
-                                'order_id' => $order->getId(),
-                                'action_type' => $action,
-                                'action_id' => $row->id,
-                                'order_line_sku' => isset($params['line']) ? $params['line'] : null,
-                                'parameters' => $this->_jsonHelper->jsonEncode($params)
-                            ]
-                        );
-                        $sendAction = false;
-                    }
-                    unset($orderAction);
-                }
-            }
-            if ($sendAction) {
-                if (!(bool)$this->_configHelper->get('preprod_mode_enable')) {
-                    $result = $this->_connector->queryApi('post', '/v3.0/orders/actions/', $params);
-                    if (isset($result->id)) {
-                        $orderAction = $this->_orderActionFactory->create();
-                        $orderAction->createAction(
-                            [
-                                'order_id' => $order->getId(),
-                                'action_type' => $action,
-                                'action_id' => $result->id,
-                                'order_line_sku' => isset($params['line']) ? $params['line'] : null,
-                                'parameters' => $this->_jsonHelper->jsonEncode($params)
-                            ]
-                        );
-                        unset($orderAction);
-                    } else {
-                        if ($result !== null) {
-                            $message = $this->_dataHelper->setLogMessage(
-                                "can't create action: %1",
-                                [$this->_jsonHelper->jsonEncode($result)]
-                            );
-                        } else {
-                            // Generating a generic error message when the Lengow API is unavailable
-                            $message = $this->_dataHelper->setLogMessage(
-                                "can't create action because Lengow API is unavailable. Please retry"
-                            );
-                        }
-                        throw new LengowException($message);
-                    }
-                }
-                // Create log for call action
-                $paramList = false;
-                foreach ($params as $param => $value) {
-                    $paramList .= !$paramList ? '"' . $param . '": ' . $value : ' -- "' . $param . '": ' . $value;
-                }
-                $this->_dataHelper->log(
-                    'API-OrderAction',
-                    $this->_dataHelper->setLogMessage('call tracking with parameters: %1', [$paramList]),
-                    false,
-                    $lengowOrder->getData('marketplace_sku')
-                );
-            }
-            return true;
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (\Exception $e) {
@@ -533,8 +375,163 @@ class Marketplace extends AbstractModel
                 false,
                 $lengowOrder->getData('marketplace_sku')
             );
+            return false;
         }
-        return false;
+        return true;
+    }
+
+    /**
+     * Check if the action is valid and present on the marketplace
+     *
+     * @param string $action Lengow order actions type (ship or cancel)
+     *
+     * @throws LengowException action not valid / marketplace action not present
+     */
+    protected function _checkAction($action)
+    {
+        if (!in_array($action, self::$validActions)) {
+            throw new LengowException($this->_dataHelper->setLogMessage('action %1 is not valid', [$action]));
+        }
+        if (!isset($this->actions[$action])) {
+            throw new LengowException(
+                $this->_dataHelper->setLogMessage('the marketplace action %1 is not present', [$action])
+            );
+        }
+    }
+
+    /**
+     * Check if the essential data of the order are present
+     *
+     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     *
+     * @throws LengowException marketplace sku is required / marketplace name is required
+     */
+    protected function _checkOrderData($lengowOrder)
+    {
+        if (strlen($lengowOrder->getData('marketplace_sku')) === 0) {
+            throw new LengowException($this->_dataHelper->setLogMessage('marketplace order reference is required'));
+        }
+        if (strlen($lengowOrder->getData('marketplace_name')) === 0) {
+            throw new LengowException($this->_dataHelper->setLogMessage('marketplace name is required'));
+        }
+    }
+
+    /**
+     * Get all marketplace arguments for a specific action
+     *
+     * @param string $action Lengow order actions type (ship or cancel)
+     *
+     * @return array
+     */
+    protected function _getMarketplaceArguments($action)
+    {
+        $actions = $this->getAction($action);
+        if (isset($actions['args']) && isset($actions['optional_args'])) {
+            $marketplaceArguments = array_merge($actions['args'], $actions['optional_args']);
+        } elseif (!isset($actions['args']) && isset($actions['optional_args'])) {
+            $marketplaceArguments = $actions['optional_args'];
+        } elseif (isset($actions['args'])) {
+            $marketplaceArguments = $actions['args'];
+        } else {
+            $marketplaceArguments = [];
+        }
+        return $marketplaceArguments;
+    }
+
+    /**
+     * Get all available values from an order
+     *
+     * @param string $action Lengow order actions type (ship or cancel)
+     * @param \Magento\Sales\Model\Order $order Magento order instance
+     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     * @param \Magento\Sales\Model\Order\Shipment $shipment Magento shipment instance
+     * @param array $marketplaceArguments All marketplace arguments for a specific action
+     *
+     * @return array
+     */
+    protected function _getAllParams($action, $order, $lengowOrder, $shipment, $marketplaceArguments)
+    {
+        $params = [];
+        $actions = $this->getAction($action);
+        // Get all order informations
+        foreach ($marketplaceArguments as $arg) {
+            switch ($arg) {
+                case 'tracking_number':
+                    $trackings = $shipment->getAllTracks();
+                    if (!empty($trackings)) {
+                        $lastTrack = end($trackings);
+                    }
+                    $params[$arg] = isset($lastTrack) ? $lastTrack->getNumber() : '';
+                    break;
+                case 'carrier':
+                case 'carrier_name':
+                case 'shipping_method':
+                case 'custom_carrier':
+                    if (strlen((string)$lengowOrder->getData('carrier')) > 0) {
+                        $carrierCode = (string)$lengowOrder->getData('carrier');
+                    } else {
+                        $trackings = $shipment->getAllTracks();
+                        if (!empty($trackings)) {
+                            $lastTrack = end($trackings);
+                        }
+                        $carrierCode = isset($lastTrack)
+                            ? $this->_matchCarrier($lastTrack->getCarrierCode(), $lastTrack->getTitle())
+                            : '';
+                    }
+                    $params[$arg] = $carrierCode;
+                    break;
+                case 'shipping_price':
+                    $params[$arg] = $order->getShippingInclTax();
+                    break;
+                case 'shipping_date':
+                case 'delivery_date':
+                    $params[$arg] = date('c');
+                    break;
+                default:
+                    if (isset($actions['optional_args']) && in_array($arg, $actions['optional_args'])) {
+                        continue;
+                    }
+                    $defaultValue = $this->getDefaultValue((string)$arg);
+                    $paramValue = $defaultValue ? $defaultValue : $arg . ' not available';
+                    $params[$arg] = $paramValue;
+                    break;
+            }
+        }
+        return $params;
+    }
+
+    /**
+     * Get all available values from an order
+     *
+     * @param string $action Lengow order actions type (ship or cancel)
+     * @param array $params all available values
+     *
+     * @throws LengowException argument is required
+     *
+     * @return array
+     */
+    protected function _checkAndCleanParams($action, $params)
+    {
+        $actions = $this->getAction($action);
+        // Check all required arguments
+        if (isset($actions['args'])) {
+            foreach ($actions['args'] as $arg) {
+                if (!isset($params[$arg]) || strlen($params[$arg]) == 0) {
+                    throw new LengowException(
+                        $this->_dataHelper->setLogMessage("can't send action: %1 is required", [$arg])
+                    );
+                }
+            }
+        }
+        // Clean empty optional arguments
+        if (isset($actions['optional_args'])) {
+            foreach ($actions['optional_args'] as $arg) {
+                if (isset($params[$arg]) && strlen($params[$arg]) == 0) {
+                    unset($params[$arg]);
+                }
+            }
+        }
+        return $params;
     }
 
     /**

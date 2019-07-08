@@ -306,6 +306,7 @@
 "action %1 is not valid","action %1 is not valid"
 "the marketplace action %1 is not present","the marketplace action %1 is not present"
 "store ID is required","store ID is required"
+"marketplace order reference is required","marketplace order reference is required"
 "marketplace name is required","marketplace name is required"
 "can't send action: %1 is required","can't send action: %1 is required"
 "can't create action: %1","can't create action: %1"

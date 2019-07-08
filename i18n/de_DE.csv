@@ -306,6 +306,7 @@
 "action %1 is not valid","aktion %1 ist ungültig"
 "the marketplace action %1 is not present","die Marktplatzaktion %1 ist nicht vorhanden"
 "store ID is required","laden-ID ist erforderlich"
+"marketplace order reference is required","die Marktplatz-Orderreferenz ist erforderlich"
 "marketplace name is required","marktplatzname ist erforderlich"
 "can't send action: %1 is required","Aktion nicht ausführbar: %1 ist erforderlich"
 "can't create action: %1","Aktion kann nicht erstellt werden: %1"

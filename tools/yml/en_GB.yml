@@ -335,6 +335,7 @@ en:
       action_not_valid: "action %1 is not valid"
       marketplace_action_not_present: "the marketplace action %1 is not present"
       store_id_require: "store ID is required"
+      marketplace_sku_require: "marketplace order reference is required"
       marketplace_name_require: "marketplace name is required"
       arg_is_required: "can't send action: %1 is required"
       action_not_created: "can't create action: %1"
