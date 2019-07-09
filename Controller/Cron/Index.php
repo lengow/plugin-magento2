@@ -104,8 +104,10 @@ class Index extends Action
          * integer days                Import period
          * integer limit               Number of orders to import
          * integer store_id            Store id to import
-         * string  $marketplace_sku    Lengow marketplace order id to import
+         * string  marketplace_sku     Lengow marketplace order id to import
          * string  marketplace_name    Lengow marketplace name to import
+         * string  create_from         import of orders since
+         * string  created_to          import of orders until
          * integer delivery_address_id Lengow delivery address id to import
          * boolean preprod_mode        Activate preprod mode
          * boolean log_output          See logs (1) or not (0)
@@ -126,7 +128,7 @@ class Index extends Action
                 $sync = $this->getRequest()->getParam('sync');
                 // sync catalogs id between Lengow and Magento
                 if (!$sync || $sync === 'catalog') {
-                    $this->_syncHelper->syncCatalog();
+                    $this->_syncHelper->syncCatalog($force);
                 }
                 // sync orders between Lengow and Magento
                 if (is_null($sync) || $sync === 'order') {
@@ -141,6 +143,12 @@ class Index extends Action
                     }
                     if (!is_null($this->getRequest()->getParam('days'))) {
                         $params['days'] = (int)$this->getRequest()->getParam('days');
+                    }
+                    if (!is_null($this->getRequest()->getParam('created_from'))) {
+                        $params['created_from'] = (string)$this->getRequest()->getParam('created_from');
+                    }
+                    if (!is_null($this->getRequest()->getParam('created_to'))) {
+                        $params['created_to'] = (string)$this->getRequest()->getParam('created_to');
                     }
                     if (!is_null($this->getRequest()->getParam('limit'))) {
                         $params['limit'] = (int)$this->getRequest()->getParam('limit');

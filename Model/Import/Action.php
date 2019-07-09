@@ -19,11 +19,13 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Lengow\Connector\Model\Exception as LengowException;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Model\OrderFactory as MagentoOrderFactory;
+use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Connector;
@@ -47,6 +49,14 @@ class Action extends AbstractModel
     const STATE_FINISH = 1;
 
     /**
+     * @var array Parameters to delete for Get call
+     */
+    public static $getParamsToDelete = [
+        'shipping_date',
+        'delivery_date',
+    ];
+
+    /**
      * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
      */
     protected $_dateTime;
@@ -55,6 +65,11 @@ class Action extends AbstractModel
      * @var \Magento\Sales\Model\OrderFactory Magento order factory instance
      */
     protected $_orderFactory;
+
+    /**
+     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
+     */
+    protected $_jsonHelper;
 
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
@@ -113,6 +128,7 @@ class Action extends AbstractModel
      * @param \Magento\Framework\Registry $registry Magento registry instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Magento\Sales\Model\OrderFactory $orderFactory Magento order factory instance
+     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
@@ -126,6 +142,7 @@ class Action extends AbstractModel
         Registry $registry,
         DateTime $dateTime,
         MagentoOrderFactory $orderFactory,
+        JsonHelper $jsonHelper,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         Connector $connector,
@@ -137,6 +154,7 @@ class Action extends AbstractModel
     {
         $this->_dateTime = $dateTime;
         $this->_orderFactory = $orderFactory;
+        $this->_jsonHelper = $jsonHelper;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_connector = $connector;
@@ -304,6 +322,114 @@ class Action extends AbstractModel
             return $results;
         }
         return false;
+    }
+
+    /**
+     * Indicates whether an action can be created if it does not already exist
+     *
+     * @param array $params all available values
+     * @param \Magento\Sales\Model\Order $order Magento order instance
+     *
+     * @throws LengowException
+     *
+     * @return boolean
+     */
+    public function canSendAction($params, $order)
+    {
+        $sendAction = true;
+        // check if action is already created
+        $getParams = array_merge($params, ['queued' => 'True']);
+        // array key deletion for GET verification
+        foreach (self::$getParamsToDelete as $param) {
+            if (isset($getParams[$param])) {
+                unset($getParams[$param]);
+            }
+        }
+        $result = $this->_connector->queryApi('get', '/v3.0/orders/actions/', $getParams);
+        if (isset($result->error) && isset($result->error->message)) {
+            throw new LengowException($result->error->message);
+        }
+        if (isset($result->count) && $result->count > 0) {
+            foreach ($result->results as $row) {
+                $actionId = $this->getActionByActionId($row->id);
+                if ($actionId) {
+                    $action = $this->_actionFactory->create()->load($actionId);
+                    if ($action->getData('state') == 0) {
+                        $retry = (int)$action->getData('retry') + 1;
+                        $action->updateAction(['retry' => $retry]);
+                        $sendAction = false;
+                    }
+                } else {
+                    // if update doesn't work, create new action
+                    $action = $this->_actionFactory->create();
+                    $action->createAction(
+                        [
+                            'order_id' => $order->getId(),
+                            'action_type' => $params['action_type'],
+                            'action_id' => $row->id,
+                            'order_line_sku' => isset($params['line']) ? $params['line'] : null,
+                            'parameters' => $this->_jsonHelper->jsonEncode($params)
+                        ]
+                    );
+                    $sendAction = false;
+                }
+                unset($orderAction);
+            }
+        }
+        return $sendAction;
+    }
+
+    /**
+     * Send a new action on the order via the Lengow API
+     *
+     * @param array $params all available values
+     * @param \Magento\Sales\Model\Order $order Magento order instance
+     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     *
+     * @throws LengowException
+     */
+    public function sendAction($params, $order, $lengowOrder)
+    {
+        if (!(bool)$this->_configHelper->get('preprod_mode_enable')) {
+            $result = $this->_connector->queryApi('post', '/v3.0/orders/actions/', $params);
+            if (isset($result->id)) {
+                $action = $this->_actionFactory->create();
+                $action->createAction(
+                    [
+                        'order_id' => $order->getId(),
+                        'action_type' => $params['action_type'],
+                        'action_id' => $result->id,
+                        'order_line_sku' => isset($params['line']) ? $params['line'] : null,
+                        'parameters' => $this->_jsonHelper->jsonEncode($params)
+                    ]
+                );
+                unset($orderAction);
+            } else {
+                if ($result !== null) {
+                    $message = $this->_dataHelper->setLogMessage(
+                        "can't create action: %1",
+                        [$this->_jsonHelper->jsonEncode($result)]
+                    );
+                } else {
+                    // Generating a generic error message when the Lengow API is unavailable
+                    $message = $this->_dataHelper->setLogMessage(
+                        "can't create action because Lengow API is unavailable. Please retry"
+                    );
+                }
+                throw new LengowException($message);
+            }
+        }
+        // Create log for call action
+        $paramList = false;
+        foreach ($params as $param => $value) {
+            $paramList .= !$paramList ? '"' . $param . '": ' . $value : ' -- "' . $param . '": ' . $value;
+        }
+        $this->_dataHelper->log(
+            'API-OrderAction',
+            $this->_dataHelper->setLogMessage('call tracking with parameters: %1', [$paramList]),
+            false,
+            $lengowOrder->getData('marketplace_sku')
+        );
     }
 
     /**

@@ -43,6 +43,11 @@ use Lengow\Connector\Model\Import\OrderFactory;
 class Import
 {
     /**
+     * @var integer max import days for old versions
+     */
+    const MAX_IMPORT_DAYS = 10;
+
+    /**
      * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
      */
     protected $_storeManager;
@@ -228,6 +233,26 @@ class Import
     protected $_days = null;
 
     /**
+     * @var string|false imports orders updated since
+     */
+    protected $_updatedFrom = false;
+
+    /**
+     * @var string|false imports orders updated until
+     */
+    protected $_updatedTo = false;
+
+    /**
+     * @var string|false imports orders created since
+     */
+    protected $_createdFrom = false;
+
+    /**
+     * @var string|false imports orders created until
+     */
+    protected $_createdTo = false;
+
+    /**
      * @var string account ID
      */
     protected $_accountId;
@@ -321,6 +346,8 @@ class Import
      * string  marketplace_sku     lengow marketplace order id to import
      * string  marketplace_name    lengow marketplace name to import
      * string  type                type of current import
+     * string  create_from         import of orders since
+     * string  created_to          import of orders until
      * integer delivery_address_id Lengow delivery address id to import
      * integer order_lengow_id     Lengow order id in Magento
      * integer store_id            store id for current import
@@ -348,8 +375,12 @@ class Import
             }
         } else {
             // recovering the time interval
-            $this->_days = (isset($params['days']) ? (int)$params['days'] : null);
-            $this->_limit = (isset($params['limit']) ? (int)$params['limit'] : 0);
+            $this->_getImportPeriod(
+                isset($params['days']) ? (int)$params['days'] : false,
+                isset($params['created_from']) ? $params['created_from'] : false,
+                isset($params['created_to']) ? $params['created_to'] : false
+            );
+            $this->_limit = isset($params['limit']) ? (int)$params['limit'] : 0;
         }
         // get other params
         $this->_preprodMode = (
@@ -357,9 +388,9 @@ class Import
             ? (bool)$params['preprod_mode']
             : (bool)$this->_configHelper->get('preprod_mode_enable')
         );
-        $this->_typeImport = (isset($params['type']) ? $params['type'] : 'manual');
-        $this->_logOutput = (isset($params['log_output']) ? (bool)$params['log_output'] : false);
-        $this->_storeId = (isset($params['store_id']) ? (int)$params['store_id'] : null);
+        $this->_typeImport = isset($params['type']) ? $params['type'] : 'manual';
+        $this->_logOutput = isset($params['log_output']) ? (bool)$params['log_output'] : false;
+        $this->_storeId = isset($params['store_id']) ? (int)$params['store_id'] : null;
     }
 
     /**
@@ -374,6 +405,7 @@ class Import
         $orderError = 0;
         $errors = [];
         $globalError = false;
+        $syncOk = true;
         // clean logs > 20 days
         $this->_dataHelper->cleanLog();
         if ($this->_importHelper->importIsInProcess() && !$this->_preprodMode && !$this->_importOneOrder) {
@@ -388,8 +420,6 @@ class Import
         } else {
             if (!$this->_importOneOrder) {
                 $this->_importHelper->setImportInProcess();
-                // update last import date
-                $this->_importHelper->updateDateImport($this->_typeImport);
             }
             // to activate lengow shipping method
             $this->_backendSession->setIsFromlengow(1);
@@ -485,6 +515,7 @@ class Import
                             . '" ' . $e->getFile() . ' line ' . $e->getLine();
                     }
                     if (isset($errorMessage)) {
+                        $syncOk = false;
                         if (!is_null($this->_orderLengowId)) {
                             $this->_orderErrorFactory->create()->finishOrderErrors($this->_orderLengowId);
                             $this->_orderErrorFactory->create()->createOrderError(
@@ -523,6 +554,10 @@ class Import
                     $this->_dataHelper->setLogMessage('%1 order(s) with errors', [$orderError]),
                     $this->_logOutput
                 );
+            }
+            // update last import date
+            if (!$this->_importOneOrder && $syncOk) {
+                $this->_importHelper->updateDateImport($this->_typeImport);
             }
             // finish import process
             $this->_importHelper->setImportEnd();
@@ -792,10 +827,6 @@ class Import
     {
         $page = 1;
         $orders = [];
-        // get import period
-        $days = (!is_null($this->_days) ? $this->_days : $this->_configHelper->get('days', $store->getId()));
-        $dateFrom = date('c', strtotime(date('Y-m-d') . ' -' . $days . 'days'));
-        $dateTo = date('c');
         // Convert order amount or not
         $noCurrencyConversion = !(bool)$this->_configHelper->get('currency_conversion_enabled', $store->getId());
         if ($this->_importOneOrder) {
@@ -808,14 +839,16 @@ class Import
                 $this->_logOutput
             );
         } else {
+            $dateFrom = $this->_createdFrom ? $this->_createdFrom : $this->_updatedFrom;
+            $dateTo = $this->_createdTo ? $this->_createdTo : $this->_updatedTo;
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
                     'get orders between %1 and %2 for catalogs ID: %3',
                     [
-                        date('Y-m-d', strtotime((string)$dateFrom)),
-                        date('Y-m-d', strtotime((string)$dateTo)),
-                        implode(', ', $this->_storeCatalogIds)
+                        date('Y-m-d H:i:s', strtotime((string)$dateFrom)),
+                        date('Y-m-d H:i:s', strtotime((string)$dateTo)),
+                        implode(', ', $this->_storeCatalogIds),
                     ]
                 ),
                 $this->_logOutput
@@ -830,21 +863,33 @@ class Import
                         'marketplace' => $this->_marketplaceName,
                         'no_currency_conversion' => $noCurrencyConversion,
                         'account_id' => $this->_accountId,
-                        'page' => $page
+                        'page' => $page,
                     ],
                     'stream'
                 );
             } else {
+                if ($this->_createdFrom && $this->_createdTo) {
+                    $timeParams = [
+                        'marketplace_order_date_from' => $this->_createdFrom,
+                        'marketplace_order_date_to' => $this->_createdTo,
+                    ];
+                } else {
+                    $timeParams = [
+                        'updated_from' => $this->_updatedFrom,
+                        'updated_to' => $this->_updatedTo,
+                    ];
+                }
                 $results = $this->_connector->get(
                     '/v3.0/orders',
-                    [
-                        'updated_from' => $dateFrom,
-                        'updated_to' => $dateTo,
-                        'catalog_ids' => implode(',', $this->_storeCatalogIds),
-                        'no_currency_conversion' => $noCurrencyConversion,
-                        'account_id' => $this->_accountId,
-                        'page' => $page
-                    ],
+                    array_merge(
+                        $timeParams,
+                        [
+                            'catalog_ids' => implode(',', $this->_storeCatalogIds),
+                            'no_currency_conversion' => $noCurrencyConversion,
+                            'account_id' => $this->_accountId,
+                            'page' => $page,
+                        ]
+                    ),
                     'stream'
                 );
             }
@@ -873,7 +918,7 @@ class Import
                             $results->error->code,
                             $results->error->message,
                             $store->getName(),
-                            $store->getId()
+                            $store->getId(),
                         ]
                     )
                 );
@@ -886,5 +931,50 @@ class Import
             $finish = (is_null($results->next) || $this->_importOneOrder) ? true : false;
         } while ($finish != true);
         return $orders;
+    }
+
+    /**
+     * Get Import period
+     *
+     * @param integer|false $days Import period
+     * @param string|false $createdFrom Import of orders since
+     * @param string|false $createdTo Import of orders until
+     */
+    protected function _getImportPeriod($days, $createdFrom, $createdTo)
+    {
+        if ($createdFrom && $createdTo) {
+            // retrieval of orders created from ... until ...
+            $createdFromTimestamp = strtotime($createdFrom);
+            $createdToTimestamp = strtotime($createdTo) + 86399;
+            $intervalDay = (int) (($createdToTimestamp - $createdFromTimestamp) / 86400);
+            if ($intervalDay > self::MAX_IMPORT_DAYS) {
+                $dateFrom = date('c', $createdFromTimestamp);
+                $dateTo = date('c', ($createdFromTimestamp + self::MAX_IMPORT_DAYS * 86400));
+            } else {
+                $dateFrom = date('c', $createdFromTimestamp);
+                $dateTo = date('c', $createdToTimestamp);
+            }
+            $this->_createdFrom = $dateFrom;
+            $this->_createdTo = $dateTo;
+        } else {
+            // order recovery updated since ... days
+            $importDays = (int)$this->_configHelper->get('days');
+            // add security for older versions of the plugin
+            $importDays = $importDays > self::MAX_IMPORT_DAYS ? self::MAX_IMPORT_DAYS : $importDays;
+            if ($days) {
+                $importDays = $days > self::MAX_IMPORT_DAYS ? self::MAX_IMPORT_DAYS : $days;
+            } else {
+                $lastImport = $this->_importHelper->getLastImport();
+                $lastSettingUpdate = $this->_configHelper->get('last_setting_update');
+                if ($lastImport['timestamp'] !== 'none' && $lastImport['timestamp'] > strtotime($lastSettingUpdate)) {
+                    $currentTimestamp = time();
+                    $intervalDay = (int)(($currentTimestamp - $lastImport['timestamp']) / 86400);
+                    $intervalDay = $intervalDay === 0 ? 1 : $intervalDay;
+                    $importDays = $intervalDay > $importDays ? $importDays : $intervalDay;
+                }
+            }
+            $this->_updatedFrom = date('c', (time() - $importDays * 86400));
+            $this->_updatedTo = date('c');
+        }
     }
 }

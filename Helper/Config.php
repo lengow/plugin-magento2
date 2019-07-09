@@ -99,11 +99,11 @@ class Config extends AbstractHelper
             'store' => true,
             'no_cache' => true,
         ],
-        'tracking_enable' => array(
+        'tracking_enable' => [
             'path' => 'lengow_global_options/advanced/global_tracking_enable',
             'global' => true,
             'no_cache' => false,
-        ),
+        ],
         'tracking_id' => [
             'path' => 'lengow_global_options/advanced/global_tracking_id',
             'global' => true,
@@ -121,7 +121,7 @@ class Config extends AbstractHelper
         ],
         'last_statistic_update' => [
             'path' => 'lengow_global_options/advanced/last_statistic_update',
-            'export' => false,
+            'global' => true,
             'no_cache' => true,
         ],
         'order_statistic' => [
@@ -131,7 +131,7 @@ class Config extends AbstractHelper
         ],
         'last_status_update' => [
             'path' => 'lengow_global_options/advanced/last_status_update',
-            'export' => false,
+            'global' => true,
             'no_cache' => true,
         ],
         'account_status' => [
@@ -141,14 +141,24 @@ class Config extends AbstractHelper
         ],
         'last_option_cms_update' => [
             'path' => 'lengow_global_options/advanced/last_option_cms_update',
-            'export' => false,
+            'global' => true,
             'no_cache' => true,
         ],
-        'last_marketplace_update' => array(
+        'last_marketplace_update' => [
             'path' => 'lengow_global_options/advanced/last_marketplace_update',
-            'export' => false,
+            'global' => true,
             'no_cache' => true,
-        ),
+        ],
+        'last_catalog_update' => [
+            'path' => 'lengow_global_options/advanced/last_catalog_update',
+            'global' => true,
+            'no_cache' => true,
+        ],
+        'last_setting_update' => [
+            'path' => 'lengow_global_options/advanced/last_setting_update',
+            'global' => true,
+            'no_cache' => true,
+        ],
         'selection_enable' => [
             'path' => 'lengow_export_options/simple/export_selection_enable',
             'store' => true,

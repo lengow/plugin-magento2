@@ -21,6 +21,7 @@ namespace Lengow\Connector\Plugin;
 
 use Magento\Config\Model\Config;
 use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Helper\Config as ConfigHelper;
 
 class SaveConfig
 {
@@ -28,6 +29,11 @@ class SaveConfig
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
      */
     protected $_dataHelper;
+
+    /**
+     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     */
+    protected $_configHelper;
 
     /**
      * @var array path for Lengow options
@@ -39,14 +45,33 @@ class SaveConfig
     ];
 
     /**
+     * @var array Secret settings list to hide
+     */
+    protected $_secretSettings = [
+        'global_access_token',
+        'global_secret_token',
+    ];
+
+    /**
+     * @var array list of settings for the date of the last update
+     */
+    protected $_updatedSettings = [
+        'global_catalog_id',
+        'import_days',
+    ];
+
+    /**
      * Constructor
      *
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
     public function __construct(
-        DataHelper $dataHelper
+        DataHelper $dataHelper,
+        ConfigHelper $configHelper
     ) {
         $this->_dataHelper = $dataHelper;
+        $this->_configHelper = $configHelper;
     }
 
     /**
@@ -71,7 +96,7 @@ class SaveConfig
                     $value = is_array($value['value']) ? join(',', $value['value']) : $value['value'];
                     $oldValue = array_key_exists($path, $oldConfig) ? (string)$oldConfig[$path] : '';
                     if ($value != $oldValue) {
-                        if ($fieldId == 'global_access_token' || $fieldId == 'global_secret_token') {
+                        if (in_array($fieldId, $this->_secretSettings)) {
                             $value = preg_replace("/[a-zA-Z0-9]/", '*', $value);
                             $oldValue = preg_replace("/[a-zA-Z0-9]/", '*', $oldValue);
                         }
@@ -83,6 +108,10 @@ class SaveConfig
                             $params = [$path, $oldValue, $value];
                         }
                         $this->_dataHelper->log('Config', $this->_dataHelper->setLogMessage($message, $params));
+                        // Save last update date for a specific settings (change synchronisation interval time)
+                        if (in_array($fieldId, $this->_updatedSettings)) {
+                            $this->_configHelper->set('last_setting_update', date('Y-m-d H:i:s'));
+                        }
                     }
                 }
             }

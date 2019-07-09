@@ -509,12 +509,11 @@ class Order extends AbstractModel
      * @param \Magento\Sales\Model\Order|\Magento\Sales\Api\Data\OrderInterface $order Magento order instance
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
      * @param string $orderStateLengow lengow order status
-     * @param mixed $orderData order data
      * @param mixed $packageData package data
      *
      * @return string|false
      */
-    public function updateState($order, $lengowOrder, $orderStateLengow, $orderData, $packageData)
+    public function updateState($order, $lengowOrder, $orderStateLengow, $packageData)
     {
         // Finish actions if lengow order is shipped, closed, cancel or refunded
         $orderProcessState = $this->getOrderProcessState($orderStateLengow);
@@ -527,7 +526,6 @@ class Order extends AbstractModel
         $params = [];
         if ($lengowOrder->getData('order_lengow_state') != $orderStateLengow) {
             $params['order_lengow_state'] = $orderStateLengow;
-            $params['extra'] = json_encode($orderData);
             $params['tracking'] = count($trackings) > 0 ? (string)$trackings[0]->number : null;
         }
         if ($orderProcessState == self::PROCESS_STATE_FINISH) {
