@@ -76,7 +76,6 @@ class Content extends Template
      * Constructor
      *
      * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param array $data additional params
      * @param \Magento\Framework\Module\Dir\Reader $moduleReader Magento module reader instance
      * @param \Magento\Cron\Model\ResourceModel\Schedule\CollectionFactory $scheduleCollection
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
@@ -85,10 +84,10 @@ class Content extends Template
      * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
      * @param \Lengow\Connector\Model\Export $export Lengow export instance
+     * @param array $data additional params
      */
     public function __construct(
         Context $context,
-        array $data = [],
         Reader $moduleReader,
         ScheduleCollection $scheduleCollection,
         DataHelper $dataHelper,
@@ -96,7 +95,8 @@ class Content extends Template
         ConfigHelper $configHelper,
         ImportHelper $importHelper,
         LengowOrder $lengowOrder,
-        Export $export
+        Export $export,
+        array $data = []
     ) {
         $this->_moduleReader = $moduleReader;
         $this->_scheduleCollection = $scheduleCollection;
@@ -137,7 +137,7 @@ class Content extends Template
         ];
         $checklist[] = [
             'title' => __('Server IP'),
-            'message' => $_SERVER["SERVER_ADDR"],
+            'message' => $_SERVER['SERVER_ADDR'],
         ];
         $checklist[] = [
             'title' => __('Authorisation by IP enabled'),
@@ -162,8 +162,8 @@ class Content extends Template
         $sep = DIRECTORY_SEPARATOR;
         $filePath = $this->_dataHelper->getMediaPath() . $sep . 'lengow' . $sep . 'test.txt';
         try {
-            $file = fopen($filePath, "w+");
-            if ($file == false) {
+            $file = fopen($filePath, 'w+');
+            if (!$file) {
                 $state = false;
             } else {
                 $state = true;
@@ -174,7 +174,7 @@ class Content extends Template
         }
         $checklist[] = [
             'title' => __('Read and write permission from media folder'),
-            'state' => $state
+            'state' => $state,
         ];
         return $this->_getContent($checklist);
     }
@@ -215,12 +215,12 @@ class Content extends Template
             'message' => $orderWithError,
         ];
         $lastImport = $this->_importHelper->getLastImport();
-        $lastImportDate = $lastImport['timestamp'] == 'none'
+        $lastImportDate = $lastImport['timestamp'] === 'none'
             ? __('none')
             : $this->_dataHelper->getDateInCorrectFormat($lastImport['timestamp'], true);
-        if ($lastImport['type'] == 'none') {
+        if ($lastImport['type'] === 'none') {
             $lastImportType = __('none');
-        } elseif ($lastImport['type'] == 'cron') {
+        } elseif ($lastImport['type'] === 'cron') {
             $lastImportType = __('cron');
         } else {
             $lastImportType = __('manual');
@@ -310,7 +310,7 @@ class Content extends Template
         $folderPath = $this->_dataHelper->getMediaPath() . $sep . 'lengow' . $sep . $store->getCode() . $sep;
         $folderUrl = $this->_dataHelper->getMediaUrl() . 'lengow' . $sep . $store->getCode() . $sep;
         $files = @array_diff(scandir($folderPath), ['..', '.']);
-        $checklist =[];
+        $checklist = [];
         $checklist[] = [
             'header' => $store->getName() . ' (' . $store->getId() . ') ' . $store->getBaseUrl(),
         ];
@@ -364,8 +364,8 @@ class Content extends Template
             $fileErrors = [];
             $fileDeletes = [];
             $base =  $this->_moduleReader->getModuleDir('', 'Lengow_Connector');
-            if (($file = fopen($fileName, "r")) !== false) {
-                while (($data = fgetcsv($file, 1000, "|")) !== false) {
+            if (($file = fopen($fileName, 'r')) !== false) {
+                while (($data = fgetcsv($file, 1000, '|')) !== false) {
                     $fileCounter++;
                     $filePath = $base . $data[0];
                     if (file_exists($filePath)) {
@@ -373,13 +373,13 @@ class Content extends Template
                         if ($fileMd !== $data[1]) {
                             $fileErrors[] = [
                                 'title' => $filePath,
-                                'state' => false
+                                'state' => false,
                             ];
                         }
                     } else {
                         $fileDeletes[] = [
                             'title' => $filePath,
-                            'state' => false
+                            'state' => false,
                         ];
                     }
                 }
@@ -387,15 +387,15 @@ class Content extends Template
             }
             $checklist[] = [
                 'title' => __('%1 files checked', [$fileCounter]),
-                'state' => true
+                'state' => true,
             ];
             $checklist[] = [
                 'title' => __('%1 files changed', [count($fileErrors)]),
-                'state' => count($fileErrors) > 0 ? false : true
+                'state' => count($fileErrors) > 0 ? false : true,
             ];
             $checklist[] = [
                 'title' => __('%1 files deleted', [count($fileDeletes)]),
-                'state' => count($fileDeletes) > 0 ? false : true
+                'state' => count($fileDeletes) > 0 ? false : true,
             ];
             $html .= $this->_getContent($checklist);
             if (count($fileErrors) > 0) {
@@ -409,7 +409,7 @@ class Content extends Template
         } else {
             $checklist[] = [
                 'title' => __('checkmd5.csv file is not available. Checking is impossible!'),
-                'state' => false
+                'state' => false,
             ];
             $html .= $this->_getContent($checklist);
         }
@@ -463,7 +463,7 @@ class Content extends Template
     protected function _getCronContent($lengowCronJobs = [])
     {
         $out = '<table cellpadding="0" cellspacing="0" style="text-align: left">';
-        if (count($lengowCronJobs) == 0) {
+        if (empty($lengowCronJobs)) {
             $out .= '<tr><td style="border:0">' . __('Any scheduled cron job for now') . '</td></tr>';
         } else {
             $out .= '<tr>';
@@ -476,7 +476,7 @@ class Content extends Template
             foreach ($lengowCronJobs as $lengowCronJob) {
                 $out .= '<tr>';
                 $out .= '<td>' . $lengowCronJob['status'] . '</td>';
-                if ($lengowCronJob['messages'] != '') {
+                if ($lengowCronJob['messages'] !== '') {
                     $out .= '<td><a class="lengow_tooltip" href="#">'
                         . __('see message')
                         . '<span class="lengow_toolbox_message">'

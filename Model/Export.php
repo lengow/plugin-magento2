@@ -115,7 +115,7 @@ class Export
         'legacy_fields',
         'log_output',
         'update_export_date',
-        'get_params'
+        'get_params',
     ];
 
     /**
@@ -326,7 +326,11 @@ class Export
     public function init($params)
     {
         $this->_storeId = isset($params['store_id']) ? (int)$params['store_id'] : 0;
-        $this->_store = $this->_storeManager->getStore($this->_storeId);
+        try {
+            $this->_store = $this->_storeManager->getStore($this->_storeId);
+        } catch (\Exception $e) {
+            $this->_store = $this->_storeManager->getDefaultStoreView();
+        }
         $this->_limit = isset($params['limit']) ? (int)$params['limit'] : 0;
         $this->_offset = isset($params['offset']) ? (int)$params['offset'] : 0;
         $this->_stream = isset($params['stream'])
@@ -382,9 +386,9 @@ class Export
     public function exec()
     {
         try {
-            // start chrono
+            // start timer
             $timeStart = $this->_microtimeFloat();
-            // Clean logs
+            // clean logs
             $this->_dataHelper->cleanLog();
             $this->_dataHelper->log(
                 'Export',
@@ -456,9 +460,9 @@ class Export
     {
         $isFirst = true;
         $productCount = 0;
-        // Get modulo for export counter
+        // get modulo for export counter
         $productModulo = $this->_getProductModulo(count($products));
-        // Get the maximum of character for yaml format
+        // get the maximum of character for yaml format
         $maxCharacter = $this->_getMaxCharacterSize($fields);
         // init product to export
         $lengowProduct = $this->_productFactory->create();
@@ -469,7 +473,7 @@ class Export
             [
                 'stream' => $this->_stream,
                 'format' => $this->_format,
-                'store_code' => $this->_store->getCode()
+                'store_code' => $this->_store->getCode(),
             ]
         );
         $feed->write('header', $fields);
@@ -478,7 +482,7 @@ class Export
             $lengowProduct->load(
                 [
                     'product_id' => (int)$product['entity_id'],
-                    'product_type' => $product['type_id']
+                    'product_type' => $product['type_id'],
                 ]
             );
             if (!$this->_inactive && !$lengowProduct->isEnableForExport()) {
@@ -507,7 +511,7 @@ class Export
                 $this->_dataHelper->setLogMessage('unable to access the folder %1', [$feed->getFolderPath()])
             );
         }
-        // Product counter
+        // product counter
         $counters = $lengowProduct->getCounters();
         $this->_dataHelper->log(
             'Export',
@@ -525,7 +529,7 @@ class Export
             ),
             $this->_logOutput
         );
-        // Warning for simple product associated with configurable products disabled
+        // warning for simple product associated with configurable products disabled
         if ($counters['simple_disabled'] > 0) {
             $this->_dataHelper->log(
                 'Export',
@@ -536,7 +540,7 @@ class Export
                 $this->_logOutput
             );
         }
-        // Link generation
+        // link generation
         if (!$this->_stream) {
             $feedUrl = $feed->getUrl();
             if ($feedUrl) {
@@ -640,7 +644,7 @@ class Export
             $params[$param] = [
                 'authorized_values' => $authorizedValue,
                 'type' => $type,
-                'example' => $example
+                'example' => $example,
             ];
         }
         return $this->_jsonHelper->jsonEncode($params);
@@ -717,7 +721,7 @@ class Export
                 }
             }
         }
-        if (count($types) == 0) {
+        if (empty($types)) {
             $types = explode(',', $this->_configHelper->get('product_type', $this->_storeId));
         }
         return $types;
@@ -776,12 +780,12 @@ class Export
     protected function _setCounterLog($productModulo, $productCount)
     {
         $logMessage = $this->_dataHelper->setLogMessage('%1 product(s) exported', [$productCount]);
-        // Save 10 logs maximum in database
-        if ($productCount % $productModulo == 0) {
+        // save 10 logs maximum in database
+        if ($productCount % $productModulo === 0) {
             $this->_dataHelper->log('Export', $logMessage);
         }
         if (!$this->_stream && $this->_logOutput) {
-            if ($productCount % 50 == 0) {
+            if ($productCount % 50 === 0) {
                 $countMessage = $this->_dataHelper->decodeLogMessage($logMessage, false);
                 print_r('[Export] ' . $countMessage . '<br />');
             }
@@ -836,20 +840,20 @@ class Export
      */
     protected function _getQuery()
     {
-        // Export only specific products types for one store
+        // export only specific products types for one store
         $productCollection = $this->_productCollectionFactory->create()
             ->setStoreId($this->_storeId)
             ->addStoreFilter($this->_storeId)
             ->addAttributeToFilter('type_id', ['in' => $this->_productTypes]);
-        // Export only enabled products
+        // export only enabled products
         if (!$this->_inactive) {
             $productCollection->addAttributeToFilter('status', ['in' => $this->_productStatus->getVisibleStatusIds()]);
         }
-        // Export only selected products
+        // export only selected products
         if ($this->_selection) {
             $productCollection->addAttributeToFilter('lengow_product', 1, 'left');
         }
-        // Export out of stock products
+        // export out of stock products
         if (!$this->_outOfStock) {
             try {
                 $config = (int)$this->_scopeConfig->isSetFlag(CatalogInventoryConfiguration::XML_PATH_MANAGE_STOCK);
@@ -872,11 +876,11 @@ class Export
                 );
             }
         }
-        // Export specific products with id
+        // export specific products with id
         if (count($this->_productIds) > 0) {
             $productCollection->addAttributeToFilter('entity_id', ['in' => $this->_productIds]);
         }
-        // Export with limit & offset
+        // export with limit & offset
         if ($this->_limit > 0) {
             if ($this->_offset > 0) {
                 $productCollection->getSelect()->limit($this->_limit, $this->_offset);

@@ -51,23 +51,23 @@ class Main extends Template
      * Constructor
      *
      * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param array $data additional params
      * @param \Magento\Framework\Locale\Resolver $locale Magento locale resolver instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
+     * @param array $data additional params
      */
     public function __construct(
         Context $context,
-        array $data = [],
         Locale $locale,
         ConfigHelper $configHelper,
-        SyncHelper $syncHelper
+        SyncHelper $syncHelper,
+        array $data = []
     ) {
-        parent::__construct($context, $data);
         $this->_locale = $locale;
         $this->_configHelper = $configHelper;
         $this->_syncHelper = $syncHelper;
         $this->_statusAccount = $this->_syncHelper->getStatusAccount();
+        parent::__construct($context, $data);
     }
 
     /**

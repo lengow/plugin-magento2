@@ -32,7 +32,7 @@ class Tracking implements ArrayInterface
     {
         return [
             ['value' => 'sku', 'label' => __('Sku')],
-            ['value' => 'entity_id', 'label' => __('ID product')]
+            ['value' => 'entity_id', 'label' => __('ID product')],
         ];
     }
 }

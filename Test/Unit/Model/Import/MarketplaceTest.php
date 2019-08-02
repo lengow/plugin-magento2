@@ -89,12 +89,12 @@ class MarketplaceTest extends \PHPUnit_Framework_TestCase
             'carrier' => [
                 'default_value' => 'LAPOSTE',
                 'accept_free_values' => false,
-                'valid_values' => []
+                'valid_values' => [],
             ],
             'tracking_number' => [
                 'default_value' => '',
                 'accept_free_values' => true,
-                'valid_values' => []
+                'valid_values' => [],
             ]
         ];
         $fixture->setPrivatePropertyValue($this->_marketplace, ['argValues'], [$argValues]);
@@ -118,8 +118,8 @@ class MarketplaceTest extends \PHPUnit_Framework_TestCase
         $actions = [
             'ship' => [
                 'args' => ['carrier' => 'carrier', 'line' => 'line'],
-                'optional_args' => []
-            ]
+                'optional_args' => [],
+            ],
         ];
         $fixture->setPrivatePropertyValue($this->_marketplace, ['actions'], [$actions]);
         $this->assertInternalType(
@@ -134,8 +134,8 @@ class MarketplaceTest extends \PHPUnit_Framework_TestCase
         $actions = [
             'ship' => [
                 'args' => ['carrier' => 'carrier'],
-                'optional_args' => ['line' => 'line']
-            ]
+                'optional_args' => ['line' => 'line'],
+            ],
         ];
         $fixture->setPrivatePropertyValue($this->_marketplace, ['actions'], [$actions]);
         $this->assertTrue(
@@ -145,8 +145,8 @@ class MarketplaceTest extends \PHPUnit_Framework_TestCase
         $actions = [
             'ship' => [
                 'args' => ['carrier' => 'carrier', 'tracking_number' => 'tracking_number'],
-                'optional_args' => []
-            ]
+                'optional_args' => [],
+            ],
         ];
         $fixture->setPrivatePropertyValue($this->_marketplace, ['actions'], [$actions]);
         $this->assertFalse(

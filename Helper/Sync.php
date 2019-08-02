@@ -190,15 +190,15 @@ class Sync extends AbstractHelper
     public function getSyncData()
     {
         $data = [
-            'domain_name' => $_SERVER["SERVER_NAME"],
+            'domain_name' => $_SERVER['SERVER_NAME'],
             'token' => $this->_configHelper->getToken(),
             'type' => 'magento',
             'version' => $this->_securityHelper->getMagentoVersion(),
             'plugin_version' => $this->_securityHelper->getPluginVersion(),
             'email' => $this->scopeConfig->getValue('trans_email/ident_general/email'),
             'cron_url' => $this->_dataHelper->getCronUrl(),
-            'return_url' => 'http://' . $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"],
-            'shops' => []
+            'return_url' => 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'],
+            'shops' => [],
         ];
         $stores = $this->_configHelper->getAllStore();
         foreach ($stores as $store) {
@@ -211,7 +211,7 @@ class Sync extends AbstractHelper
                 'feed_url' => $this->_dataHelper->getExportUrl($storeId),
                 'total_product_number' => $this->_export->getTotalProduct(),
                 'exported_product_number' => $this->_export->getTotalExportedProduct(),
-                'enabled' => $this->_configHelper->storeIsActive($storeId)
+                'enabled' => $this->_configHelper->storeIsActive($storeId),
             ];
         }
         return $data;
@@ -228,7 +228,7 @@ class Sync extends AbstractHelper
             [
                 'account_id' => $params['account_id'],
                 'access_token' => $params['access_token'],
-                'secret_token' => $params['secret_token']
+                'secret_token' => $params['secret_token'],
             ]
         );
         if (isset($params['shops'])) {
@@ -240,9 +240,9 @@ class Sync extends AbstractHelper
                 }
             }
         }
-        // Save last update date for a specific settings (change synchronisation interval time)
+        // save last update date for a specific settings (change synchronisation interval time)
         $this->_configHelper->set('last_setting_update', date('Y-m-d H:i:s'));
-        // Clean config cache to valid configuration
+        // clean config cache to valid configuration
         $this->_configHelper->cleanConfigCache();
     }
 
@@ -287,9 +287,9 @@ class Sync extends AbstractHelper
                 }
             }
         }
-        // Clean config cache to valid configuration
+        // clean config cache to valid configuration
         if ($cleanCache) {
-            // Save last update date for a specific settings (change synchronisation interval time)
+            // save last update date for a specific settings (change synchronisation interval time)
             $this->_configHelper->set('last_setting_update', date('Y-m-d H:i:s'));
             $this->_configHelper->cleanConfigCache();
         }
@@ -309,7 +309,7 @@ class Sync extends AbstractHelper
             'version' => $this->_securityHelper->getMagentoVersion(),
             'plugin_version' => $this->_securityHelper->getPluginVersion(),
             'options' => $this->_configHelper->getAllValues(),
-            'shops' => []
+            'shops' => [],
         ];
         $stores = $this->_configHelper->getAllStore();
         foreach ($stores as $store) {
@@ -320,7 +320,7 @@ class Sync extends AbstractHelper
                 'enabled' => $this->_configHelper->storeIsActive($storeId),
                 'total_product_number' => $this->_export->getTotalProduct(),
                 'exported_product_number' => $this->_export->getTotalExportedProduct(),
-                'options' => $this->_configHelper->getAllValues($storeId)
+                'options' => $this->_configHelper->getAllValues($storeId),
             ];
         }
         return $data;
@@ -413,7 +413,7 @@ class Sync extends AbstractHelper
             [
                 'date_from' => date('c', strtotime(date('Y-m-d') . ' -10 years')),
                 'date_to' => date('c'),
-                'metrics' => 'year'
+                'metrics' => 'year',
             ]
         );
         if (isset($result->level0)) {
@@ -422,7 +422,7 @@ class Sync extends AbstractHelper
                 'total_order' => $stats->revenue,
                 'nb_order' => (int)$stats->transactions,
                 'currency' => $result->currency->iso_a3,
-                'available' => false
+                'available' => false,
             ];
         } else {
             if ($this->_configHelper->get('last_statistic_update')) {
@@ -432,7 +432,7 @@ class Sync extends AbstractHelper
                     'total_order' => 0,
                     'nb_order' => 0,
                     'currency' => '',
-                    'available' => false
+                    'available' => false,
                 ];
             }
         }
@@ -473,17 +473,17 @@ class Sync extends AbstractHelper
                 && (time() - strtotime($updatedAt)) < $this->_cacheTimes['marketplace']
                 && file_exists($filePath)
             ) {
-                // Recovering data with the marketplaces.json file
+                // recovering data with the marketplaces.json file
                 $marketplacesData = file_get_contents($filePath);
                 if ($marketplacesData) {
                     return json_decode($marketplacesData);
                 }
             }
         }
-        // Recovering data with the API
+        // recovering data with the API
         $result = $this->_connector->queryApi('get', '/v3.0/marketplaces');
         if ($result && is_object($result) && !isset($result->error)) {
-            // Updated marketplaces.json file
+            // updated marketplaces.json file
             try {
                 $file = $this->_driverFile->fileOpen($filePath, 'w+');
                 $this->_driverFile->fileLock($file);
@@ -499,7 +499,7 @@ class Sync extends AbstractHelper
             }
             return $result;
         } else {
-            // If the API does not respond, use marketplaces.json if it exists
+            // if the API does not respond, use marketplaces.json if it exists
             if (file_exists($filePath)) {
                 $marketplacesData = file_get_contents($filePath);
                 if ($marketplacesData) {

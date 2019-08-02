@@ -62,7 +62,7 @@ require(['jquery'], function( $ ) {
                 url: href,
                 method: 'POST',
                 data: {
-                    state: (state == 1) ? 0 : 1,
+                    state: state == 1 ? 0 : 1,
                     action: action,
                     store_id: storeId,
                     product_id: productId,

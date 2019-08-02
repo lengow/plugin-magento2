@@ -52,9 +52,9 @@ class Lengow extends AbstractRenderer
         Data $backendHelper,
         array $data = []
     ) {
-        parent::__construct($context, $data);
         $this->_dataHelper = $dataHelper;
         $this->_backendHelper = $backendHelper;
+        parent::__construct($context, $data);
     }
 
     /**
@@ -66,7 +66,7 @@ class Lengow extends AbstractRenderer
      */
     public function render(DataObject $row)
     {
-        $value = (integer)$row->getData($this->getColumn()->getIndex());
+        $value = (int)$row->getData($this->getColumn()->getIndex());
         return '<div class="lgw-switch ' . ($value === 1 ? 'checked' : '') . '">
         <label>
             <div>

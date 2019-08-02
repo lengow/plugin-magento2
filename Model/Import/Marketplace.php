@@ -69,7 +69,7 @@ class Marketplace extends AbstractModel
      */
     public static $validActions = [
         'ship',
-        'cancel'
+        'cancel',
     ];
 
     /**
@@ -217,7 +217,7 @@ class Marketplace extends AbstractModel
                     $this->argValues[(string)$argKey] = [
                         'default_value' => $defaultValue,
                         'accept_free_values' => $acceptFreeValue,
-                        'valid_values' => $validValues
+                        'valid_values' => $validValues,
                     ];
                 }
             }
@@ -320,8 +320,8 @@ class Marketplace extends AbstractModel
      * @param string $action order action (ship or cancel)
      * @param \Magento\Sales\Model\Order $order Magento order instance
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
-     * @param \Magento\Sales\Model\Order\Shipment $shipment Magento shipment instance
-     * @param string $orderLineId Lengow order line id
+     * @param \Magento\Sales\Model\Order\Shipment|null $shipment Magento shipment instance
+     * @param string|null $orderLineId Lengow order line id
      *
      * @return boolean
      */
@@ -363,7 +363,7 @@ class Marketplace extends AbstractModel
                     [
                         'order_lengow_id' => $lengowOrder->getId(),
                         'message' => $errorMessage,
-                        'type' => 'send'
+                        'type' => 'send',
                     ]
                 );
                 unset($orderError);
@@ -453,7 +453,7 @@ class Marketplace extends AbstractModel
     {
         $params = [];
         $actions = $this->getAction($action);
-        // Get all order informations
+        // get all order informations
         foreach ($marketplaceArguments as $arg) {
             switch ($arg) {
                 case 'tracking_number':
@@ -513,20 +513,20 @@ class Marketplace extends AbstractModel
     protected function _checkAndCleanParams($action, $params)
     {
         $actions = $this->getAction($action);
-        // Check all required arguments
+        // check all required arguments
         if (isset($actions['args'])) {
             foreach ($actions['args'] as $arg) {
-                if (!isset($params[$arg]) || strlen($params[$arg]) == 0) {
+                if (!isset($params[$arg]) || strlen($params[$arg]) === 0) {
                     throw new LengowException(
                         $this->_dataHelper->setLogMessage("can't send action: %1 is required", [$arg])
                     );
                 }
             }
         }
-        // Clean empty optional arguments
+        // clean empty optional arguments
         if (isset($actions['optional_args'])) {
             foreach ($actions['optional_args'] as $arg) {
-                if (isset($params[$arg]) && strlen($params[$arg]) == 0) {
+                if (isset($params[$arg]) && strlen($params[$arg]) === 0) {
                     unset($params[$arg]);
                 }
             }
@@ -563,7 +563,7 @@ class Marketplace extends AbstractModel
             }
         }
         // no match
-        if ($code == 'custom') {
+        if ($code === 'custom') {
             return $title;
         }
         return $code;

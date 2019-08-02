@@ -89,7 +89,7 @@ class LaunchExport
                                 'stream' => false,
                                 'update_export_date' => false,
                                 'log_output' => false,
-                                'type' => 'magento cron'
+                                'type' => 'magento cron',
                             ]
                         );
                         $export->exec();

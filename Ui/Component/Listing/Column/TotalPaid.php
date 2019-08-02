@@ -55,9 +55,9 @@ class TotalPaid extends Column
         array $components = [],
         array $data = []
     ) {
-        parent::__construct($context, $uiComponentFactory, $components, $data);
         $this->_storeManager = $storeManager;
         $this->_currencyFactory = $currencyFactory;
+        parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
     /**

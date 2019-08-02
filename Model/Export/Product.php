@@ -310,7 +310,7 @@ class Product
             case 'quantity':
                 return $this->_quantity;
             case 'status':
-                return $this->_product->getStatus() == ProductStatus::STATUS_DISABLED ? 'Disabled' : 'Enabled';
+                return (int)$this->_product->getStatus() === ProductStatus::STATUS_DISABLED ? 'Disabled' : 'Enabled';
             case 'category':
                 return $this->_category->getCategoryBreadcrumb();
             case 'url':
@@ -395,7 +395,7 @@ class Product
     {
         if ($this->_type === 'simple'
             && $this->_parentProduct
-            && $this->_parentProduct->getStatus() == ProductStatus::STATUS_DISABLED
+            && (int)$this->_parentProduct->getStatus() === ProductStatus::STATUS_DISABLED
         ) {
             $this->_simpleDisabledCounter++;
             return false;
@@ -444,7 +444,7 @@ class Product
             'configurable' => $this->_configurableCounter,
             'grouped' => $this->_groupedCounter,
             'virtual' => $this->_virtualCounter,
-            'downloadable' => $this->_downloadableCounter
+            'downloadable' => $this->_downloadableCounter,
         ];
         return $counters;
     }
@@ -509,7 +509,7 @@ class Product
             $parentIds = $this->_configurableProduct->getParentIdsByChild($this->_product->getId());
             if (count($parentIds) > 0) {
                 $parentProduct = $this->_getConfigurableProduct((int)$parentIds[0]);
-                if ($this->_product->getVisibility() == ProductVisibility::VISIBILITY_NOT_VISIBLE) {
+                if ((int)$this->_product->getVisibility() === ProductVisibility::VISIBILITY_NOT_VISIBLE) {
                     $this->_getParentData = true;
                 }
             }
@@ -555,7 +555,7 @@ class Product
         for ($i = 1; $i < 11; $i++) {
             $imageUrls['image_url_' . $i] = '';
         }
-        // Get product and parent images
+        // get product and parent images
         if ((bool)$this->_configHelper->get('parent_image', $this->_store->getId()) && $this->_parentProduct) {
             if (!is_null($this->_parentProduct->getMediaGalleryImages())) {
                 $parentImages = $this->_parentProduct->getMediaGalleryImages()->toArray();
@@ -566,13 +566,13 @@ class Product
             $images = isset($images['items']) ? $images['items'] : [];
         }
         $images = $parentImages ? array_merge($parentImages['items'], $images) : $images;
-        // Cleans the array of images to avoid duplicates
+        // cleans the array of images to avoid duplicates
         foreach ($images as $image) {
             if (!in_array($image['url'], $urls)) {
                 $urls[] = $image['url'];
             }
         }
-        // Retrieves up to 10 images per product
+        // retrieves up to 10 images per product
         $counter = 1;
         foreach ($urls as $url) {
             $imageUrls['image_url_' . $counter] = $url;
@@ -581,7 +581,7 @@ class Product
             }
             $counter++;
         }
-        // Get default image if exist
+        // get default image if exist
         $imageUrls['image_default'] = !is_null($this->_product->getImage())
             ? $this->_baseImageUrl . $this->_product->getImage()
             : '';
@@ -597,7 +597,7 @@ class Product
     {
         $variationList = '';
         $variations = false;
-        // Get variation only for configurable product and child
+        // get variation only for configurable product and child
         if ($this->_type === 'configurable') {
             $variations = $this->_product->getTypeInstance()->getConfigurableAttributesAsArray($this->_product);
         } elseif ($this->_type === 'simple' && $this->_parentProduct) {
@@ -714,30 +714,30 @@ class Product
                 $this->_price->clean();
             }
         }
-        // Get discount amount and percent
+        // get discount amount and percent
         $discountAmount = $prices['price_before_discount_incl_tax'] - $prices['price_incl_tax'];
         $discountAmount = $discountAmount > 0 ? $discountAmount : 0;
         $discountPercent = $discountAmount > 0
             ? round((($discountAmount * 100) / $prices['price_before_discount_incl_tax']), 2)
             : 0;
-        // Get discount end and start date
+        // get discount end and start date
         if (count($endTimestamps) > 0) {
             $endTimestamp = min($endTimestamps);
         }
         if (count($startTimestamps) > 0) {
             $startTimestamp = max($startTimestamps);
-            // Reset start timestamp if end date is before start date
+            // reset start timestamp if end date is before start date
             if ($endTimestamp > 0 && $startTimestamp > $endTimestamp) {
                 $startTimestamp = 0;
             }
         }
-        $discountStartDate = $startTimestamp != 0 ? $this->_dateTime->date('Y-m-d H:i:s', $startTimestamp) : '';
-        $discountEndDate = $endTimestamp != 0 ? $this->_dateTime->date('Y-m-d H:i:s', $endTimestamp) : '';
+        $discountStartDate = $startTimestamp !== 0 ? $this->_dateTime->date('Y-m-d H:i:s', $startTimestamp) : '';
+        $discountEndDate = $endTimestamp !== 0 ? $this->_dateTime->date('Y-m-d H:i:s', $endTimestamp) : '';
         $discounts = [
             'discount_amount' => $discountAmount,
             'discount_percent' => $discountPercent,
             'discount_start_date' => $discountStartDate,
-            'discount_end_date' => $discountEndDate
+            'discount_end_date' => $discountEndDate,
         ];
         return ['prices' => $prices, 'discounts' => $discounts];
     }

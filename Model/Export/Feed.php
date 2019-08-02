@@ -166,8 +166,8 @@ class Feed
      *
      * @param string $type (header, body or footer)
      * @param array $data export data
-     * @param boolean $isFirst is first product to export
-     * @param boolean $maxCharacter Max characters for yaml format
+     * @param boolean|null $isFirst is first product to export
+     * @param boolean|null $maxCharacter Max characters for yaml format
      *
      * @throws \Exception
      */
@@ -177,7 +177,7 @@ class Feed
             case 'header':
                 if ($this->_stream) {
                     header($this->_getHtmlHeader());
-                    if ($this->_format == 'csv') {
+                    if ($this->_format === 'csv') {
                         header('Content-Disposition: attachment; filename=feed.csv');
                     }
                 }
@@ -323,7 +323,7 @@ class Feed
                 $content .= $this->_jsonHelper->jsonEncode($jsonArray);
                 return $content;
             case 'yaml':
-                if ($maxCharacter % 2 == 1) {
+                if ($maxCharacter % 2 === 1) {
                     $maxCharacter = $maxCharacter + 1;
                 } else {
                     $maxCharacter = $maxCharacter + 2;

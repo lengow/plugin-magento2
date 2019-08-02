@@ -34,16 +34,16 @@ class Footer extends Template
      * Constructor
      *
      * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param array $data additional params
      * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
+     * @param array $data additional params
      */
     public function __construct(
         Context $context,
-        array $data = [],
-        SecurityHelper $securityHelper
+        SecurityHelper $securityHelper,
+        array $data = []
     ) {
-        parent::__construct($context, $data);
         $this->_securityHelper = $securityHelper;
+        parent::__construct($context, $data);
     }
 
     /**

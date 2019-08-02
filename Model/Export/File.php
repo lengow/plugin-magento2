@@ -185,7 +185,7 @@ class File
     /**
      * Check if current file exists
      *
-     * @param string $filePath file path
+     * @param string|null $filePath file path
      *
      * @throws \Exception
      *

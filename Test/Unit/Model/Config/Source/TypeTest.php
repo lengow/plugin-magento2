@@ -59,7 +59,7 @@ class TypeTest extends \PHPUnit_Framework_TestCase
             ['value' => 'simple', 'label' => __('Simple')],
             ['value' => 'downloadable', 'label' => __('Downloadable')],
             ['value' => 'grouped', 'label' => __('Grouped')],
-            ['value' => 'virtual', 'label' => __('Virtual')]
+            ['value' => 'virtual', 'label' => __('Virtual')],
         ];
         $options = $this->_type->toOptionArray();
         $this->assertInternalType(

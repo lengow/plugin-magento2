@@ -59,7 +59,7 @@ class MassReSend extends Action
         $selectedIds = $this->getRequest()->getParam('selected', null);
         $excludedIds = $this->getRequest()->getParam('excluded', []);
         $excludedIds = $excludedIds === 'false' ? [] : $excludedIds;
-        if (count($selectedIds) === 0) {
+        if (empty($selectedIds)) {
             $ids = [];
             $allLengowOrderIds = $this->_orderFactory->create()->getAllLengowOrderIds();
             if ($allLengowOrderIds) {
@@ -72,19 +72,19 @@ class MassReSend extends Action
         } else {
             $ids = $selectedIds;
         }
-
-        if (!is_array($ids) || !count($ids)) {
+        // if ids is empty -> do nothing
+        if (!is_array($ids) || empty($ids)) {
             $resultRedirect = $this->resultRedirectFactory->create();
             return $resultRedirect->setPath('*/*/index', ['_current' => true]);
         }
-
+        // resend all selected orders
         $totalReSent = 0;
         foreach ($ids as $orderLengowId) {
             if ($this->_orderFactory->create()->reSendOrder((int)$orderLengowId)) {
                 $totalReSent++;
             };
         }
-
+        // get the number of orders correctly resent
         $this->messageManager->addSuccessMessage(
             $this->_dataHelper->decodeLogMessage(
                 'A total of %1 order(s) in %2 selected have been sent.',
@@ -92,7 +92,6 @@ class MassReSend extends Action
                 [$totalReSent, count($ids)]
             )
         );
-
         $resultRedirect = $this->resultRedirectFactory->create();
         return $resultRedirect->setPath('*/*/index', ['_current' => true]);
     }

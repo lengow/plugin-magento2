@@ -256,69 +256,69 @@ class Info extends Template implements TabInterface
         if ($this->_lengowOrder) {
             $fields[] = [
                 'label' => __('Marketplace SKU'),
-                'value' => $this->_lengowOrder->getData('marketplace_sku')
+                'value' => $this->_lengowOrder->getData('marketplace_sku'),
             ];
             $fields[] = [
                 'label' => __('Marketplace'),
-                'value' => $this->_lengowOrder->getData('marketplace_label')
+                'value' => $this->_lengowOrder->getData('marketplace_label'),
             ];
             $fields[] = [
                 'label' => __('Delivery Address ID'),
-                'value' => $this->_lengowOrder->getData('delivery_address_id')
+                'value' => $this->_lengowOrder->getData('delivery_address_id'),
             ];
             $fields[] = [
                 'label' => __('Currency'),
-                'value' => $this->_lengowOrder->getData('currency')
+                'value' => $this->_lengowOrder->getData('currency'),
             ];
             $fields[] = [
                 'label' => __('Total Paid'),
-                'value' => $this->_lengowOrder->getData('total_paid')
+                'value' => $this->_lengowOrder->getData('total_paid'),
             ];
             $fields[] = [
                 'label' => __('Commission'),
-                'value' => $this->_lengowOrder->getData('commission')
+                'value' => $this->_lengowOrder->getData('commission'),
             ];
             $fields[] = [
                 'label' => __('Customer name'),
-                'value' => $this->_lengowOrder->getData('customer_name')
+                'value' => $this->_lengowOrder->getData('customer_name'),
             ];
             $fields[] = [
                 'label' => __('Customer email'),
-                'value' => $this->_lengowOrder->getData('customer_email')
+                'value' => $this->_lengowOrder->getData('customer_email'),
             ];
             $fields[] = [
                 'label' => __('Carrier from marketplace'),
-                'value' => $this->_lengowOrder->getData('carrier')
+                'value' => $this->_lengowOrder->getData('carrier'),
             ];
             $fields[] = [
                 'label' => __('Shipping method from marketplace'),
-                'value' => $this->_lengowOrder->getData('carrier_method')
+                'value' => $this->_lengowOrder->getData('carrier_method'),
             ];
             $fields[] = [
                 'label' => __('Tracking number'),
-                'value' => $this->_lengowOrder->getData('carrier_tracking')
+                'value' => $this->_lengowOrder->getData('carrier_tracking'),
             ];
             $fields[] = [
                 'label' => __('ID relay'),
-                'value' => $this->_lengowOrder->getData('carrier_id_relay')
+                'value' => $this->_lengowOrder->getData('carrier_id_relay'),
             ];
             $fields[] = [
                 'label' => __('Shipped by marketplace'),
-                'value' => $this->_lengowOrder->getData('sent_marketplace') == 1 ? __('Yes') : __('No')
+                'value' => $this->_lengowOrder->getData('sent_marketplace') == 1 ? __('Yes') : __('No'),
             ];
             $fields[] = [
                 'label' => __('Message'),
-                'value' => $this->_lengowOrder->getData('message')
+                'value' => $this->_lengowOrder->getData('message'),
             ];
             $fields[] = [
                 'label' => __('Imported at'),
                 'value' => $this->_dataHelper->getDateInCorrectFormat(
                     strtotime($this->_lengowOrder->getData('created_at'))
-                )
+                ),
             ];
             $fields[] = [
                 'label' => __('JSON format'),
-                'value' => '<textarea disabled="disabled">' . $this->_lengowOrder->getData('extra') . '</textarea>'
+                'value' => '<textarea disabled="disabled">' . $this->_lengowOrder->getData('extra') . '</textarea>',
             ];
         }
         return $fields;

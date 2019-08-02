@@ -159,7 +159,7 @@ class Shipping
         $this->_shippingMethod = isset($shippingData['shipping_method']) ? $shippingData['shipping_method'] : null;
         $this->_shippingIsFixed = isset($shippingData['shipping_is_fixed']) ? $shippingData['shipping_is_fixed'] : null;
         $this->_shippingCountryCode = $this->_configHelper->get('shipping_country', $this->_store->getId());
-        $conversion = $this->_currency != $this->_storeCurrency ? true : false;
+        $conversion = $this->_currency !== $this->_storeCurrency ? true : false;
         $this->_defaultShippingPrice = $this->_configHelper->get('shipping_price', $this->_store->getId());
         if (!is_null($this->_defaultShippingPrice) && $conversion) {
             $this->_defaultShippingPrice = $this->_priceCurrency->convertAndRound(
@@ -244,7 +244,7 @@ class Shipping
     protected function _getProductShippingCost()
     {
         $shippingCost = 0;
-        $conversion = $this->_currency != $this->_storeCurrency ? true : false;
+        $conversion = $this->_currency !== $this->_storeCurrency ? true : false;
         $shippingRateRequest = $this->_getShippingRateRequest();
         $result = $this->_magentoShipping->collectCarrierRates($this->_shippingCarrier, $shippingRateRequest)
             ->getResult();

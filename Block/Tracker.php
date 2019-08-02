@@ -67,12 +67,12 @@ class Tracker extends Template
      */
     public function __construct(
         Context $context,
-        array $data = [],
         Session $checkoutSession,
         OrderFactory $orderFactory,
         ProductRepository $productRepository,
         JsonHelper $jsonHelper,
-        ConfigHelper $configHelper
+        ConfigHelper $configHelper,
+        array $data = []
     ) {
         parent::__construct($context, $data);
         $this->_checkoutSession = $checkoutSession;
@@ -123,7 +123,7 @@ class Tracker extends Template
             $productDatas = [
                 'product_id' => $product->getData($identifier),
                 'price' => $price,
-                'quantity' => $quantity
+                'quantity' => $quantity,
             ];
             $productsCart[] = $productDatas;
         }

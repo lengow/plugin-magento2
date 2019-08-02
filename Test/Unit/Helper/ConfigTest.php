@@ -97,9 +97,9 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             Config::class,
             [
                 '_customerGroupCollectionFactory' => $customerGroupCollectionFactoryMock,
-                '_attributeCollectionFactory'     => $attributeCollectionFactoryMock,
-                '_configDataCollectionFactory'    => $configDataCollectionFactoryMock,
-                '_storeCollectionFactory'         => $storeCollectionFactoryMock,
+                '_attributeCollectionFactory' => $attributeCollectionFactoryMock,
+                '_configDataCollectionFactory' => $configDataCollectionFactoryMock,
+                '_storeCollectionFactory' => $storeCollectionFactoryMock,
             ]
         );
     }

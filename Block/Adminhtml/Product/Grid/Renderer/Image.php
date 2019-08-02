@@ -46,8 +46,8 @@ class Image extends AbstractRenderer
         array $data = []
     ) {
         $this->imageHelper = $imageHelper;
-        parent::__construct($context, $data);
         $this->_authorization = $context->getAuthorization();
+        parent::__construct($context, $data);
     }
 
     /**

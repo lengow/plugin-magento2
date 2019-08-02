@@ -69,6 +69,5 @@ require(['jquery'], function( $ ) {
                 $('#checksum-information').hide();
             }
         }
-
     });
 });

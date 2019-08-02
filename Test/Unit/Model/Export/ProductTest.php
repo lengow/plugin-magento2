@@ -157,7 +157,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                 '_configurableCounter',
                 '_groupedCounter',
                 '_virtualCounter',
-                '_downloadableCounter'
+                '_downloadableCounter',
             ],
             [100, 50, 25, 10, 10, 5]
         );
@@ -175,7 +175,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                 'configurable'    => 25,
                 'grouped'         => 10,
                 'virtual'         => 10,
-                'downloadable'    => 5
+                'downloadable'    => 5,
             ],
             $this->_product->getCounters(),
             '[Test Get All Counter] Check if return is valid'
@@ -207,7 +207,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                 '_getParentData',
                 '_price',
                 '_shipping',
-                '_category'
+                '_category',
             ],
             [
                 'product',
@@ -222,7 +222,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                 true,
                 $priceMock,
                 $shippingMock,
-                $categoryMock
+                $categoryMock,
             ]
         );
         $this->_product->clean();
@@ -455,8 +455,8 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                 ['items' =>
                     [
                         ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-black_main.jpg'],
-                    ]
-                ]
+                    ],
+                ],
             ]
         );
         $productMock = $fixture->mockFunctions(
@@ -473,8 +473,8 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                         ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt1.jpg'],
                         ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_main.jpg'],
                         ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_back.jpg'],
-                    ]
-                ]
+                    ],
+                ],
             ]
         );
         $parentProductMock = $fixture->mockFunctions(
@@ -489,14 +489,14 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                 '_parentProduct',
                 '_product',
                 '_configHelper',
-                '_baseImageUrl'
+                '_baseImageUrl',
             ],
             [
                 $storeMock,
                 $parentProductMock,
                 $productMock,
                 $configHelperMock,
-                'http://www.site.com/pub/media/catalog/product'
+                'http://www.site.com/pub/media/catalog/product',
             ]
         );
         $this->assertInternalType(
@@ -570,8 +570,8 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                         ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt13.jpg'],
                         ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt14.jpg'],
                         ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt15.jpg'],
-                    ]
-                ]
+                    ],
+                ],
             ]
         );
         $parentProductMock2 = $fixture->mockFunctions(
@@ -634,8 +634,8 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                         ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt1.jpg'],
                         ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt2.jpg'],
                         ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt3.jpg'],
-                    ]
-                ]
+                    ],
+                ],
             ]
         );
         $productMock3 = $fixture->mockFunctions(
@@ -651,8 +651,8 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                     [
                         ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt2.jpg'],
                         ['url' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt1.jpg'],
-                    ]
-                ]
+                    ],
+                ],
             ]
         );
         $parentProductMock4 = $fixture->mockFunctions(
@@ -697,7 +697,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                 [
                     ['frontend_label' => 'color'],
                     ['frontend_label' => 'size'],
-                ]
+                ],
             ]
         );
         $productMock = $fixture->mockFunctions($this->_magentoProduct, ['getTypeInstance'], [$collectionMock]);
@@ -709,7 +709,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                     ['frontend_label' => 'color'],
                     ['frontend_label' => 'size'],
                     ['frontend_label' => 'depth'],
-                ]
+                ],
             ]
         );
         $parentProductMock = $fixture->mockFunctions(
@@ -928,7 +928,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                     'discount_amount' => 0,
                     'discount_percent' => 0,
                     'discount_start_date' => '',
-                    'discount_end_date' => ''
+                    'discount_end_date' => '',
                 ]
             ],
             $fixture->invokeMethod($this->_product, '_getGroupedPricesAndDiscounts'),
@@ -945,13 +945,13 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                     'price_excl_tax' => 20,
                     'price_incl_tax' => 24,
                     'price_before_discount_excl_tax' => 20,
-                    'price_before_discount_incl_tax' => 24
+                    'price_before_discount_incl_tax' => 24,
                 ],
                 [
                     'discount_amount' => 0,
                     'discount_percent' => 0,
                     'discount_start_date' => '',
-                    'discount_end_date' => ''
+                    'discount_end_date' => '',
                 ]
             ]
         );
@@ -968,7 +968,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                     'discount_amount' => 0,
                     'discount_percent' => 0,
                     'discount_start_date' => '',
-                    'discount_end_date' => ''
+                    'discount_end_date' => '',
                 ]
             ],
             $fixture->invokeMethod($productMockClass, '_getGroupedPricesAndDiscounts'),
@@ -985,13 +985,13 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                 'price_excl_tax'                 => 15,
                 'price_incl_tax'                 => 18,
                 'price_before_discount_excl_tax' => 20,
-                'price_before_discount_incl_tax' => 24
+                'price_before_discount_incl_tax' => 24,
             ],
             [
                 'price_excl_tax'                 => 100,
                 'price_incl_tax'                 => 120,
                 'price_before_discount_excl_tax' => 100,
-                'price_before_discount_incl_tax' => 120
+                'price_before_discount_incl_tax' => 120,
             ]
         );
         $priceMock2->expects($this->any())->method('getDiscounts')->willReturnOnConsecutiveCalls(
@@ -999,13 +999,13 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                 'discount_amount'     => 5,
                 'discount_percent'    => 20,
                 'discount_start_date' => '2017-03-01 00:00:00',
-                'discount_end_date'   => '2017-03-31 23:59:59'
+                'discount_end_date'   => '2017-03-31 23:59:59',
             ],
             [
                 'discount_amount'     => 0,
                 'discount_percent'    => 0,
                 'discount_start_date' => '',
-                'discount_end_date'   => ''
+                'discount_end_date'   => '',
             ]
         );
         $dateTimeMock = $this->getMockBuilder(get_class($classMock))
@@ -1033,7 +1033,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                     'discount_amount'     => 6,
                     'discount_percent'    => '4.17',
                     'discount_start_date' => '2017-03-01 00:00:00',
-                    'discount_end_date'   => '2017-03-31 23:59:59'
+                    'discount_end_date'   => '2017-03-31 23:59:59',
                 ]
             ],
             $fixture->invokeMethod($productMockClass, '_getGroupedPricesAndDiscounts'),
@@ -1050,13 +1050,13 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                 'price_excl_tax'                 => 15,
                 'price_incl_tax'                 => 18,
                 'price_before_discount_excl_tax' => 20,
-                'price_before_discount_incl_tax' => 24
+                'price_before_discount_incl_tax' => 24,
             ],
             [
                 'price_excl_tax'                 => 80,
                 'price_incl_tax'                 => 96,
                 'price_before_discount_excl_tax' => 100,
-                'price_before_discount_incl_tax' => 120
+                'price_before_discount_incl_tax' => 120,
             ]
         );
         $priceMock3->expects($this->any())->method('getDiscounts')->willReturnOnConsecutiveCalls(
@@ -1064,13 +1064,13 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                 'discount_amount'     => 5,
                 'discount_percent'    => 20,
                 'discount_start_date' => '2017-03-01 00:00:00',
-                'discount_end_date'   => '2017-03-31 23:59:59'
+                'discount_end_date'   => '2017-03-31 23:59:59',
             ],
             [
                 'discount_amount'     => 24,
                 'discount_percent'    => 20,
                 'discount_start_date' => '2017-02-20 00:00:00',
-                'discount_end_date'   => '2017-03-20 23:59:59'
+                'discount_end_date'   => '2017-03-20 23:59:59',
             ]
         );
         $dateTimeMock2 = $this->getMockBuilder(get_class($classMock))
@@ -1100,7 +1100,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                     'discount_amount'     => 30,
                     'discount_percent'    => '20.83',
                     'discount_start_date' => '2017-03-01 00:00:00',
-                    'discount_end_date'   => '2017-03-20 23:59:59'
+                    'discount_end_date'   => '2017-03-20 23:59:59',
                 ]
             ],
             $fixture->invokeMethod($productMockClass, '_getGroupedPricesAndDiscounts'),
@@ -1117,13 +1117,13 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                 'price_excl_tax'                 => 15,
                 'price_incl_tax'                 => 18,
                 'price_before_discount_excl_tax' => 20,
-                'price_before_discount_incl_tax' => 24
+                'price_before_discount_incl_tax' => 24,
             ],
             [
                 'price_excl_tax'                 => 80,
                 'price_incl_tax'                 => 96,
                 'price_before_discount_excl_tax' => 100,
-                'price_before_discount_incl_tax' => 120
+                'price_before_discount_incl_tax' => 120,
             ]
         );
         $priceMock4->expects($this->any())->method('getDiscounts')->willReturnOnConsecutiveCalls(
@@ -1131,13 +1131,13 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                 'discount_amount'     => 5,
                 'discount_percent'    => 20,
                 'discount_start_date' => '2017-03-21 00:00:00',
-                'discount_end_date'   => '2017-03-31 23:59:59'
+                'discount_end_date'   => '2017-03-31 23:59:59',
             ],
             [
                 'discount_amount'     => 24,
                 'discount_percent'    => 20,
                 'discount_start_date' => '2017-02-20 00:00:00',
-                'discount_end_date'   => '2017-03-20 23:59:59'
+                'discount_end_date'   => '2017-03-20 23:59:59',
             ]
         );
         $dateTimeMock3 = $this->getMockBuilder(get_class($classMock))
@@ -1166,7 +1166,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
                     'discount_amount'     => 30,
                     'discount_percent'    => '20.83',
                     'discount_start_date' => '',
-                    'discount_end_date'   => '2017-03-20 23:59:59'
+                    'discount_end_date'   => '2017-03-20 23:59:59',
                 ]
             ],
             $fixture->invokeMethod($productMockClass, '_getGroupedPricesAndDiscounts'),

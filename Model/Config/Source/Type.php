@@ -35,7 +35,7 @@ class Type implements ArrayInterface
             ['value' => 'simple', 'label' => __('Simple')],
             ['value' => 'downloadable', 'label' => __('Downloadable')],
             ['value' => 'grouped', 'label' => __('Grouped')],
-            ['value' => 'virtual', 'label' => __('Virtual')]
+            ['value' => 'virtual', 'label' => __('Virtual')],
         ];
     }
 }

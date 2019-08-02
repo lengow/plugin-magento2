@@ -48,8 +48,9 @@ class InstallSchema implements InstallSchemaInterface
         $installer = $setup;
         $installer->startSetup();
 
+        // create table lengow_order
         $tableName = $installer->getTable('lengow_order');
-        if ($installer->getConnection()->isTableExists($tableName) != true) {
+        if (!$installer->getConnection()->isTableExists($tableName)) {
             $table = $installer->getConnection()
                 ->newTable($tableName)
                 ->addColumn(
@@ -70,7 +71,7 @@ class InstallSchema implements InstallSchemaInterface
                     [
                         'nullable' => true,
                         'unsigned' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Order Id'
                 )->addColumn(
@@ -88,7 +89,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'unsigned' => true
+                        'unsigned' => true,
                     ],
                     'Store Id'
                 )->addColumn(
@@ -98,7 +99,7 @@ class InstallSchema implements InstallSchemaInterface
                     [
                         'nullable' => true,
                         'unsigned' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Delivery Address Id'
                 )->addColumn(
@@ -107,7 +108,7 @@ class InstallSchema implements InstallSchemaInterface
                     3,
                     [
                         'nullable' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Delivery Country Iso'
                 )->addColumn(
@@ -115,7 +116,7 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TEXT,
                     100,
                     [
-                        'nullable' => false
+                        'nullable' => false,
                     ],
                     'Marketplace Sku'
                 )->addColumn(
@@ -123,7 +124,7 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TEXT,
                     100,
                     [
-                        'nullable' => false
+                        'nullable' => false,
                     ],
                     'Marketplace Name'
                 )->addColumn(
@@ -132,7 +133,7 @@ class InstallSchema implements InstallSchemaInterface
                     100,
                     [
                         'nullable' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Marketplace Label'
                 )->addColumn(
@@ -140,7 +141,7 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TEXT,
                     100,
                     [
-                        'nullable' => false
+                        'nullable' => false,
                     ],
                     'Order Lengow State'
                 )->addColumn(
@@ -149,7 +150,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'unsigned' => true
+                        'unsigned' => true,
                     ],
                     'Order Process State'
                 )->addColumn(
@@ -157,7 +158,7 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false
+                        'nullable' => false,
                     ],
                     'Order Date'
                 )->addColumn(
@@ -167,7 +168,7 @@ class InstallSchema implements InstallSchemaInterface
                     [
                         'nullable' => true,
                         'unsigned' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Order Item'
                 )->addColumn(
@@ -176,7 +177,7 @@ class InstallSchema implements InstallSchemaInterface
                     3,
                     [
                         'nullable' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Currency'
                 )->addColumn(
@@ -188,7 +189,7 @@ class InstallSchema implements InstallSchemaInterface
                         'unsigned' => true,
                         'precision' => 17,
                         'scale' => 2,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Total Paid'
                 )->addColumn(
@@ -200,7 +201,7 @@ class InstallSchema implements InstallSchemaInterface
                         'unsigned' => true,
                         'precision' => 17,
                         'scale' => 2,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Commission'
                 )->addColumn(
@@ -209,7 +210,7 @@ class InstallSchema implements InstallSchemaInterface
                     255,
                     [
                         'nullable' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Customer Name'
                 )->addColumn(
@@ -218,7 +219,7 @@ class InstallSchema implements InstallSchemaInterface
                     255,
                     [
                         'nullable' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Customer Email'
                 )->addColumn(
@@ -227,7 +228,7 @@ class InstallSchema implements InstallSchemaInterface
                     100,
                     [
                         'nullable' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Carrier'
                 )->addColumn(
@@ -236,7 +237,7 @@ class InstallSchema implements InstallSchemaInterface
                     100,
                     [
                         'nullable' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Carrier Method'
                 )->addColumn(
@@ -245,7 +246,7 @@ class InstallSchema implements InstallSchemaInterface
                     100,
                     [
                         'nullable' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Carrier Tracking'
                 )->addColumn(
@@ -254,7 +255,7 @@ class InstallSchema implements InstallSchemaInterface
                     100,
                     [
                         'nullable' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Carrier Id Relay'
                 )->addColumn(
@@ -263,7 +264,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'default' => 0
+                        'default' => 0,
                     ],
                     'Sent Marketplace'
                 )->addColumn(
@@ -272,7 +273,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'default' => 0
+                        'default' => 0,
                     ],
                     'Is In Error'
                 )->addColumn(
@@ -281,7 +282,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'unsigned' => true,
-                        'default' => 0
+                        'default' => 0,
                     ],
                     'Is importable again'
                 )->addColumn(
@@ -290,7 +291,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Message'
                 )->addColumn(
@@ -307,7 +308,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Updated At'
                 )->addColumn(
@@ -316,7 +317,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Extra'
                 )->addIndex(
@@ -346,7 +347,7 @@ class InstallSchema implements InstallSchemaInterface
                             'marketplace_name',
                             'marketplace_label',
                             'customer_name',
-                            'customer_email'
+                            'customer_email',
                         ],
                         AdapterInterface::INDEX_TYPE_FULLTEXT
                     ),
@@ -356,7 +357,7 @@ class InstallSchema implements InstallSchemaInterface
                         'marketplace_name',
                         'marketplace_label',
                         'customer_name',
-                        'customer_email'
+                        'customer_email',
                     ],
                     ['type' => AdapterInterface::INDEX_TYPE_FULLTEXT]
                 )
@@ -368,7 +369,7 @@ class InstallSchema implements InstallSchemaInterface
 
         // create table lengow_order_line
         $tableName = $installer->getTable('lengow_order_line');
-        if ($installer->getConnection()->isTableExists($tableName) != true) {
+        if (!$installer->getConnection()->isTableExists($tableName)) {
             $table = $installer->getConnection()
                 ->newTable($installer->getTable('lengow_order_line'))
                 ->addColumn(
@@ -388,7 +389,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'unsigned' => true
+                        'unsigned' => true,
                     ],
                     'Order Id'
                 )->addColumn(
@@ -397,7 +398,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'unsigned' => true
+                        'unsigned' => true,
                     ],
                     'Product Id'
                 )->addColumn(
@@ -405,7 +406,7 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TEXT,
                     100,
                     [
-                        'nullable' => false
+                        'nullable' => false,
                     ],
                     'Order Line Id'
                 );
@@ -414,7 +415,7 @@ class InstallSchema implements InstallSchemaInterface
 
         // create table lengow_order_error
         $tableName = $installer->getTable('lengow_order_error');
-        if ($installer->getConnection()->isTableExists($tableName) != true) {
+        if (!$installer->getConnection()->isTableExists($tableName)) {
             $table = $installer->getConnection()
                 ->newTable($installer->getTable('lengow_order_error'))
                 ->addColumn(
@@ -434,7 +435,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'unsigned' => true
+                        'unsigned' => true,
                     ],
                     'Order Lengow Id'
                 )->addColumn(
@@ -443,7 +444,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Message'
                 )->addColumn(
@@ -452,7 +453,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'unsigned' => true
+                        'unsigned' => true,
                     ],
                     'Type'
                 )->addColumn(
@@ -461,7 +462,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'default' => 0
+                        'default' => 0,
                     ],
                     'Is Finished'
                 )->addColumn(
@@ -470,7 +471,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'default' => 0
+                        'default' => 0,
                     ],
                     'Mail'
                 )->addColumn(
@@ -487,7 +488,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Updated At'
                 );
@@ -496,7 +497,7 @@ class InstallSchema implements InstallSchemaInterface
 
         // create table lengow_action
         $tableName = $installer->getTable('lengow_action');
-        if ($installer->getConnection()->isTableExists($tableName) != true) {
+        if (!$installer->getConnection()->isTableExists($tableName)) {
             $table = $installer->getConnection()
                 ->newTable($installer->getTable('lengow_action'))
                 ->addColumn(
@@ -516,7 +517,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'unsigned' => true
+                        'unsigned' => true,
                     ],
                     'Order Id'
                 )->addColumn(
@@ -525,7 +526,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'unsigned' => true
+                        'unsigned' => true,
                     ],
                     'Action Id'
                 )->addColumn(
@@ -534,7 +535,7 @@ class InstallSchema implements InstallSchemaInterface
                     100,
                     [
                         'nullable' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Order Line Sku'
                 )->addColumn(
@@ -542,7 +543,7 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TEXT,
                     32,
                     [
-                        'nullable' => false
+                        'nullable' => false,
                     ],
                     'Action Type'
                 )->addColumn(
@@ -552,7 +553,7 @@ class InstallSchema implements InstallSchemaInterface
                     [
                         'nullable' => false,
                         'unsigned' => true,
-                        'default' => 0
+                        'default' => 0,
                     ],
                     'Retry'
                 )->addColumn(
@@ -560,7 +561,7 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TEXT,
                     null,
                     [
-                        'nullable' => false
+                        'nullable' => false,
                     ],
                     'Parameters'
                 )->addColumn(
@@ -569,7 +570,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => false,
-                        'unsigned' => true
+                        'unsigned' => true,
                     ],
                     'State'
                 )->addColumn(
@@ -577,7 +578,7 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false
+                        'nullable' => false,
                     ],
                     'Created At'
                 )->addColumn(
@@ -586,7 +587,7 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     [
                         'nullable' => true,
-                        'default' => null
+                        'default' => null,
                     ],
                     'Updated At'
                 )->addIndex(
@@ -594,13 +595,13 @@ class InstallSchema implements InstallSchemaInterface
                         'lengow_action',
                         [
                             'order_line_sku',
-                            'parameters'
+                            'parameters',
                         ],
                         AdapterInterface::INDEX_TYPE_FULLTEXT
                     ),
                     [
                         'order_line_sku',
-                        'parameters'
+                        'parameters',
                     ],
                     ['type' => AdapterInterface::INDEX_TYPE_FULLTEXT]
                 );
@@ -609,7 +610,7 @@ class InstallSchema implements InstallSchemaInterface
 
         // create table lengow_log
         $tableName = $installer->getTable('lengow_log');
-        if ($installer->getConnection()->isTableExists($tableName) != true) {
+        if (!$installer->getConnection()->isTableExists($tableName)) {
             $table = $installer->getConnection()
                 ->newTable($installer->getTable('lengow_log'))
                 ->addColumn(
@@ -620,7 +621,7 @@ class InstallSchema implements InstallSchemaInterface
                         'identity' => true,
                         'unsigned' => true,
                         'nullable' => false,
-                        'primary' => true
+                        'primary' => true,
                     ],
                     'Id'
                 )->addColumn(
@@ -657,12 +658,12 @@ class InstallSchema implements InstallSchemaInterface
                     $installer->getIdxName(
                         'lengow_log',
                         [
-                            'message'
+                            'message',
                         ],
                         AdapterInterface::INDEX_TYPE_FULLTEXT
                     ),
                     [
-                        'message'
+                        'message',
                     ],
                     ['type' => AdapterInterface::INDEX_TYPE_FULLTEXT]
                 );

@@ -63,11 +63,11 @@ class OrdersActions extends Column
      * @param \Magento\Framework\View\Element\UiComponent\ContextInterface $context Magento ui context instance
      * @param \Magento\Framework\View\Element\UiComponentFactory $uiComponentFactory Magento ui factory instance
      * @param \Magento\Framework\UrlInterface $urlBuilder
-     * @param array $components component data
-     * @param array $data additional params
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Model\Import\OrdererrorFactory $orderErrorFactory Lengow order factory instance
      * @param \Lengow\Connector\Model\Import\Action $action Lengow action instance
+     * @param array $components component data
+     * @param array $data additional params
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
@@ -102,15 +102,15 @@ class OrdersActions extends Column
 
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if ($item['is_in_error'] == 1 && $item['order_process_state'] != 2) {
-                    $orderLengowId = $item['id'];
-                    $errorType = $item['order_process_state'] == 0 ? 'import' : 'send';
+                if ((bool)$item['is_in_error'] && (int)$item['order_process_state'] !== 2) {
+                    $orderLengowId = (int)$item['id'];
+                    $errorType = (int)$item['order_process_state'] === 0 ? 'import' : 'send';
                     $url = $this->urlBuilder->getUrl('lengow/order/index') . '?isAjax=true';
                     $errorOrders = $this->_orderErrorFactory->create()->getOrderErrors($orderLengowId, $errorType, false);
                     $errorMessages = [];
                     if ($errorOrders) {
                         foreach ($errorOrders as $errorOrder) {
-                            if ($errorOrder['message'] != '') {
+                            if ($errorOrder['message'] !== '') {
                                 $errorMessages[] = $this->_dataHelper->cleanData(
                                     $this->_dataHelper->decodeLogMessage($errorOrder['message'])
                                 );
@@ -121,7 +121,7 @@ class OrdersActions extends Column
                             }
                         }
                     }
-                    if ($errorType == 'import') {
+                    if ($errorType === 'import') {
                         $tootlip = $this->_dataHelper->decodeLogMessage("Order hasn't been imported into Magento")
                             . '<br/>' . join('<br/>', $errorMessages);
                         $item['is_in_error'] = '<a class="lengow_action lengow_tooltip lgw-btn lgw-btn-white lgw_order_action_grid-js"
@@ -138,7 +138,7 @@ class OrdersActions extends Column
                     }
                 } else {
                     //check if order actions in progress
-                    if (!is_null($item['order_id']) && $item['order_process_state'] == 1) {
+                    if (!is_null($item['order_id']) && (int)$item['order_process_state'] === 1) {
                         $lastActionType = $this->_action->getLastOrderActionType($item['order_id']);
                         if ($lastActionType) {
                             $item['is_in_error'] = '<a class="lengow_action lengow_tooltip lgw-btn lgw-btn-white">'

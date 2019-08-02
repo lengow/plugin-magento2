@@ -88,7 +88,6 @@ class Index extends Action
         ConfigHelper $configHelper,
         Export $export
     ) {
-        parent::__construct($context);
         $this->_storeManager = $storeManager;
         $this->_locale = $locale;
         $this->_translate = $translate;
@@ -96,6 +95,7 @@ class Index extends Action
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_export = $export;
+        parent::__construct($context);
     }
 
     public function execute()
@@ -179,9 +179,9 @@ class Index extends Action
                 $this->_export->init($params);
                 if ($getParams) {
                     $this->getResponse()->setBody($this->_export->getExportParams());
-                } elseif ($mode == 'size') {
+                } elseif ($mode === 'size') {
                     $this->getResponse()->setBody($this->_export->getTotalExportedProduct());
-                } elseif ($mode == 'total') {
+                } elseif ($mode === 'total') {
                     $this->getResponse()->setBody($this->_export->getTotalProduct());
                 } else {
                     $this->_export->exec();

@@ -19,6 +19,10 @@
 
 namespace Lengow\Connector\Block\Widget\Grid\Massaction;
 
+use Magento\Backend\Block\Template\Context;
+use Magento\Framework\Json\EncoderInterface;
+use Magento\Backend\Helper\Data;
+
 /**
  * Class Extended
  * @package Lengow\Connector\Block\Widget\Grid\Massaction
@@ -44,9 +48,9 @@ class Extended extends \Magento\Backend\Block\Widget\Grid\Massaction\Extended
      * @param array $data
      */
     public function __construct(
-        \Magento\Backend\Block\Template\Context $context,
-        \Magento\Framework\Json\EncoderInterface $jsonEncoder,
-        \Magento\Backend\Helper\Data $backendData,
+        Context $context,
+        EncoderInterface $jsonEncoder,
+        Data $backendData,
         array $data = []
     ) {
         $this->_jsonEncoder = $jsonEncoder;
@@ -68,7 +72,7 @@ class Extended extends \Magento\Backend\Block\Widget\Grid\Massaction\Extended
         $gridIds = $allIdsCollection->clear()->setPageSize(0)->getAllIds();
 
         if (!empty($gridIds)) {
-            return join(",", $gridIds);
+            return join(',', $gridIds);
         }
         return '';
     }

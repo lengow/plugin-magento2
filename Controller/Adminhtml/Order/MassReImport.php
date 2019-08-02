@@ -59,7 +59,7 @@ class MassReImport extends Action
         $selectedIds = $this->getRequest()->getParam('selected', null);
         $excludedIds = $this->getRequest()->getParam('excluded', []);
         $excludedIds = $excludedIds === 'false' ? [] : $excludedIds;
-        if (count($selectedIds) === 0) {
+        if (empty($selectedIds)) {
             $ids = [];
             $allLengowOrderIds = $this->_orderFactory->create()->getAllLengowOrderIds();
             if ($allLengowOrderIds) {
@@ -72,12 +72,12 @@ class MassReImport extends Action
         } else {
             $ids = $selectedIds;
         }
-
-        if (!is_array($ids) || !count($ids)) {
+        // if ids is empty -> do nothing
+        if (!is_array($ids) || empty($ids)) {
             $resultRedirect = $this->resultRedirectFactory->create();
             return $resultRedirect->setPath('*/*/index', ['_current' => true]);
         }
-
+        // reimport all selected orders
         $totalReSent = 0;
         foreach ($ids as $orderLengowId) {
             $result = $this->_orderFactory->create()->reImportOrder((int)$orderLengowId);
@@ -85,7 +85,7 @@ class MassReImport extends Action
                 $totalReSent++;
             }
         }
-
+        // get the number of orders correctly reimported
         $this->messageManager->addSuccessMessage(
             $this->_dataHelper->decodeLogMessage(
                 'A total of %1 order(s) in %2 selected have been imported.',
@@ -93,7 +93,6 @@ class MassReImport extends Action
                 [$totalReSent, count($ids)]
             )
         );
-
         $resultRedirect = $this->resultRedirectFactory->create();
         return $resultRedirect->setPath('*/*/index', ['_current' => true]);
     }

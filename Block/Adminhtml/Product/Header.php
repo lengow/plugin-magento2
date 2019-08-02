@@ -51,23 +51,23 @@ class Header extends Template
      * Constructor
      *
      * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param array $data additional params
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Model\Export $export Lengow export instance
+     * @param array $data additional params
      */
     public function __construct(
         Context $context,
-        array $data = [],
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
-        Export $export
+        Export $export,
+        array $data = []
     ) {
-        parent::__construct($context, $data);
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_export = $export;
         $this->_store = $this->_dataHelper->getStore();
+        parent::__construct($context, $data);
     }
 
     /**
@@ -77,10 +77,7 @@ class Header extends Template
      */
     public function selectionIsEnabled()
     {
-        return (bool)$this->_configHelper->get(
-            'selection_enable',
-            $this->_store->getId()
-        );
+        return (bool)$this->_configHelper->get('selection_enable', $this->_store->getId());
     }
 
     /**
@@ -111,9 +108,6 @@ class Header extends Template
      */
     public function getExportUrl()
     {
-        return $this->_dataHelper->getExportUrl(
-            $this->_store->getId(),
-            ['stream' => 1, 'update_export_date' => 0]
-        );
+        return $this->_dataHelper->getExportUrl($this->_store->getId(), ['stream' => 1, 'update_export_date' => 0]);
     }
 }

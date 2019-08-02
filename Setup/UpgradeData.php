@@ -53,13 +53,13 @@ class UpgradeData implements UpgradeDataInterface {
         if (version_compare($context->getVersion(), '1.1.0', '<')) {
 
             // *********************************************************
-            //    Active Lengow tracker for versions 1.0.0 - 1.0.3
+            //    active Lengow tracker for versions 1.0.0 - 1.0.3
             // *********************************************************
 
             $trackingEnable = (bool)$this->_configHelper->get('tracking_enable');
             if (!$this->_configHelper->isNewMerchant() && !$trackingEnable) {
                 $this->_configHelper->set('tracking_enable', 1);
-                // Clean config cache to valid configuration
+                // clean config cache to valid configuration
                 $this->_configHelper->cleanConfigCache();
             }
         }

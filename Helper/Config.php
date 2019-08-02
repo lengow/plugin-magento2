@@ -348,7 +348,7 @@ class Config extends AbstractHelper
                 ->getData();
             $value = count($results) > 0 ? $results[0]['value'] : '';
         } else {
-            $scope = $storeId == 0 ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES;
+            $scope = (int)$storeId === 0 ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES;
             $value = $this->scopeConfig->getValue($this->_options[$key]['path'], $scope, $storeId);
         }
         return $value;
@@ -363,7 +363,7 @@ class Config extends AbstractHelper
      */
     public function set($key, $value, $storeId = 0)
     {
-        if ($storeId == 0) {
+        if ((int)$storeId === 0) {
             $this->_writerInterface->save(
                 $this->_options[$key]['path'],
                 $value
@@ -500,8 +500,7 @@ class Config extends AbstractHelper
      */
     public function getAllCustomerGroup()
     {
-        $allCustomerGroups = $this->_customerGroupCollectionFactory->create()
-            ->toOptionArray();
+        $allCustomerGroups = $this->_customerGroupCollectionFactory->create()->toOptionArray();
         return $allCustomerGroups;
     }
 
@@ -555,7 +554,7 @@ class Config extends AbstractHelper
         $storeCollection = $this->_storeCollectionFactory->create();
         $allCurrencies = [];
         foreach ($storeCollection as $store) {
-            // Get store currencies
+            // get store currencies
             $storeCurrencies = $store->getAvailableCurrencyCodes();
             if (is_array($storeCurrencies)) {
                 foreach ($storeCurrencies as $currency) {
@@ -615,13 +614,13 @@ class Config extends AbstractHelper
             ->load()
             ->getData();
         $allAttributes = [
-            ['value' => 'none', 'label' => '']
+            ['value' => 'none', 'label' => ''],
         ];
         foreach ($attributes as $attribute) {
             if (!in_array($attribute['attribute_code'], $this->_excludeAttributes)) {
                 $allAttributes[] = [
                     'value' => $attribute['attribute_code'],
-                    'label' => $attribute['attribute_code']
+                    'label' => $attribute['attribute_code'],
                 ];
             }
         }
@@ -661,7 +660,7 @@ class Config extends AbstractHelper
         }
         $storeCollection = $this->_storeCollectionFactory->create();
         foreach ($storeCollection as $store) {
-            if ($token == $this->get('token', $store->getId())) {
+            if ($token === $this->get('token', $store->getId())) {
                 return $store;
             }
         }
@@ -677,7 +676,7 @@ class Config extends AbstractHelper
             $attributeList = '';
             $attributes = $this->getAllAttributes();
             foreach ($attributes as $attribute) {
-                if ($attribute['value'] != 'none') {
+                if ($attribute['value'] !== 'none') {
                     $attributeList .= $attribute['value'] . ',';
                 }
             }
@@ -707,7 +706,7 @@ class Config extends AbstractHelper
                 continue;
             }
         }
-        if (count($reportEmailAddress) == 0) {
+        if (empty($reportEmailAddress)) {
             $reportEmailAddress[] = $this->scopeConfig->getValue(
                 'trans_email/ident_general/email',
                 ScopeInterface::SCOPE_STORE
@@ -719,7 +718,7 @@ class Config extends AbstractHelper
     /**
      * Get Values by store or global
      *
-     * @param integer $storeId Magento store id
+     * @param integer|null $storeId Magento store id
      *
      * @return array
      */

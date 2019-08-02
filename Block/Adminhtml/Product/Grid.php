@@ -216,7 +216,7 @@ class Grid extends Extended
                 'index' => 'image',
                 'renderer' => '\Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Image',
                 'column_css_class' => 'data-grid-thumbnail-cell',
-                'filter' => false
+                'filter' => false,
             ]
         );
         $this->addColumn(
@@ -286,7 +286,7 @@ class Grid extends Extended
                 'column_css_class' => 'a-center',
                 'index' => 'status',
                 'type' => 'options',
-                'options' => $this->_status->getOptionArray()
+                'options' => $this->_status->getOptionArray(),
             ]
         );
         if (!$this->_storeManager->isSingleStoreMode()) {
@@ -298,7 +298,7 @@ class Grid extends Extended
                     'index' => 'websites',
                     'type' => 'options',
                     'options' => $this->_websiteFactory->create()->getCollection()->toOptionHash(),
-                    'filter' => false
+                    'filter' => false,
                 ]
             );
         }
@@ -311,7 +311,7 @@ class Grid extends Extended
                 'renderer' => 'Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Lengow',
                 'column_css_class' => 'a-center',
                 'options' => [
-                    1 => __('Yes')
+                    1 => __('Yes'),
                 ],
             ]
         );
@@ -335,7 +335,7 @@ class Grid extends Extended
             [
                 'label' => __('Publish in Lengow'),
                 'url' => $this->getUrl('*/*/massPublish', ['_current' => true, 'publish' => true]),
-                'complete' => 'reloadGrid'
+                'complete' => 'reloadGrid',
             ]
         );
         $this->getMassactionBlock()->addItem(
@@ -343,7 +343,7 @@ class Grid extends Extended
             [
                 'label' => __('Unpublish in Lengow'),
                 'url' => $this->getUrl('*/*/massPublish', ['_current' => true, 'publish' => false]),
-                'complete' => 'reloadGrid'
+                'complete' => 'reloadGrid',
             ]
         );
         return $this;

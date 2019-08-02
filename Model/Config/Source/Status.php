@@ -36,7 +36,7 @@ class Status implements ArrayInterface
             ['value' => 'shipped', 'label' => __('Shipped')],
             ['value' => 'refunded', 'label' => __('Refunded')],
             ['value' => 'closed', 'label' => __('Closed')],
-            ['value' => 'canceled', 'label' => __('Canceled')]
+            ['value' => 'canceled', 'label' => __('Canceled')],
         ];
     }
 }
