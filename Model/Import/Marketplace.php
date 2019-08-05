@@ -545,27 +545,68 @@ class Marketplace extends AbstractModel
     private function _matchCarrier($code, $title)
     {
         if (count($this->carriers) > 0) {
-            // search by code
-            foreach ($this->carriers as $key => $carrier) {
-                if (preg_match('`' . $key . '`i', trim($code))) {
-                    return $key;
-                } elseif (preg_match('`.*?' . $key . '.*?`i', $code)) {
-                    return $key;
+            $codeCleaned = $this->_cleanString($code);
+            $titleCleaned = $this->_cleanString($title);
+            foreach ($this->carriers as $key => $label) {
+                $keyCleaned = $this->_cleanString($key);
+                $labelCleaned = $this->_cleanString($label);
+                // search by code
+                // search on the carrier key
+                $found = $this->_searchValue($keyCleaned, $codeCleaned);
+                // search on the carrier label if it is different from the key
+                if (!$found && $labelCleaned !== $keyCleaned) {
+                    $found = $this->_searchValue($labelCleaned, $codeCleaned);
                 }
-            }
-            // search by title
-            foreach ($this->carriers as $key => $carrier) {
-                if (preg_match('`' . $key . '`i', trim($title))) {
-                    return $key;
-                } elseif (preg_match('`.*?' . $key . '.*?`i', $title)) {
+                // search by title if it is different from the code
+                if (!$found && $titleCleaned !== $codeCleaned) {
+                    // search on the carrier key
+                    $found = $this->_searchValue($keyCleaned, $titleCleaned);
+                    // search on the carrier label if it is different from the key
+                    if (!$found && $labelCleaned !== $keyCleaned) {
+                        $found = $this->_searchValue($labelCleaned, $titleCleaned);
+                    }
+                }
+                if ($found) {
                     return $key;
                 }
             }
         }
         // no match
-        if ($code === 'custom') {
+        if ($code === \Magento\Sales\Model\Order\Shipment\Track::CUSTOM_CARRIER_CODE) {
             return $title;
         }
         return $code;
+    }
+
+    /**
+     * Cleaning a string before search
+     *
+     * @param string $string string to clean
+     *
+     * @return string
+     */
+    private function _cleanString($string)
+    {
+        $cleanFilters = array(' ', '-', '_', '.');
+        return strtolower(str_replace($cleanFilters, '',  trim($string)));
+    }
+
+    /**
+     * Strict and then approximate search for a chain
+     *
+     * @param string $pattern search pattern
+     * @param string $subject string to search
+     *
+     * @return boolean
+     */
+    private function _searchValue($pattern, $subject)
+    {
+        $found = false;
+        if (preg_match('`' . $pattern . '`i', $subject)) {
+            $found = true;
+        } elseif (preg_match('`.*?' . $pattern . '.*?`i', $subject)) {
+            $found = true;
+        }
+        return $found;
     }
 }
