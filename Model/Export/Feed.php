@@ -244,6 +244,7 @@ class Feed
     {
         switch ($this->_format) {
             case 'csv':
+            default:
                 return 'Content-Type: text/csv; charset=UTF-8';
             case 'xml':
                 return 'Content-Type: application/xml; charset=UTF-8';
@@ -251,8 +252,6 @@ class Feed
                 return 'Content-Type: application/json; charset=UTF-8';
             case 'yaml':
                 return 'Content-Type: text/x-yaml; charset=UTF-8';
-            default:
-                return '';
         }
     }
 
@@ -267,6 +266,7 @@ class Feed
     {
         switch ($this->_format) {
             case 'csv':
+            default:
                 $header = '';
                 foreach ($data as $field) {
                     $header .= self::PROTECTION . $this->_formatFields($field) . self::PROTECTION . self::CSV_SEPARATOR;
@@ -278,8 +278,6 @@ class Feed
                 return '{"catalog":[';
             case 'yaml':
                 return '"catalog":' . self::EOL;
-            default:
-                return '';
         }
     }
 
@@ -296,6 +294,7 @@ class Feed
     {
         switch ($this->_format) {
             case 'csv':
+            default:
                 $content = '';
                 foreach ($data as $value) {
                     $content .= self::PROTECTION . $value . self::PROTECTION . self::CSV_SEPARATOR;
@@ -340,8 +339,6 @@ class Feed
                     $content .= $yamlSpace . (string)$value . self::EOL;
                 }
                 return $content;
-            default:
-                return '';
         }
     }
 
