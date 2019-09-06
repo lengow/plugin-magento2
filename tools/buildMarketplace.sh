@@ -31,17 +31,17 @@ remove_directories(){
     find $DIRECTORY -maxdepth 1 -mindepth 1 -type d -exec rm -rf {} \;
     echo "- Delete $FILE : ""$VERT""DONE""$NORMAL"""
 }
-# Check parameters
+# check parameters
 if [ -z "$1" ]; then
 	echo 'Version parameter is not set'
 	echo
 	exit 0
 else
 	VERSION="$1"
-	ARCHIVE_NAME='lengow-connector-'$VERSION'.zip'
+	ARCHIVE_NAME='module-connector-'$VERSION'.zip'
 fi
 
-# Variables
+# variables
 FOLDER_TMP="/tmp/Connector"
 FOLDER_TEST="/tmp/Connector/Test"
 FOLDER_TOOLS="/tmp/Connector/tools"
@@ -52,7 +52,7 @@ ROUGE="\\033[1;31m"
 NORMAL="\\033[0;39m"
 BLEU="\\033[1;36m"
 
-# Process
+# process
 echo
 echo "#####################################################"
 echo "##                                                 ##"
@@ -68,42 +68,42 @@ if [ ! -d "$FOLDER" ]; then
 	exit 0
 fi
 
-# Generate translations
+# generate translations
 php translate.php
 echo "- Generate translations : ""$VERT""DONE""$NORMAL"""
-# Create files checksum
+# create files checksum
 php checkmd5.php
 echo "- Create files checksum : ""$VERT""DONE""$NORMAL"""
-#remove TMP FOLDER
+# remove TMP FOLDER
 remove_directory $FOLDER_TMP
-#create folder
+# create folder
 mkdir /tmp/app
-#copy files
+# copy files
 cp -rRp $FOLDER $FOLDER_TMP
-# Remove marketplaces.json
+# remove marketplaces.json
 remove_files $FOLDER_ETC "marketplaces.json"
-# Remove dod
+# remove dod
 remove_files $FOLDER_TMP "dod.md"
-# Remove Readme
+# remove Readme
 remove_files $FOLDER_TMP "README.md"
-# Remove .gitignore
+# remove .gitignore
 remove_files $FOLDER_TMP ".gitignore"
-# Remove .git
+# remove .git
 remove_files $FOLDER_TMP ".git"
-# Remove .DS_Store
+# remove .DS_Store
 remove_files $FOLDER_TMP ".DS_Store"
-# Remove .idea
+# remove .idea
 remove_files $FOLDER_TMP ".idea"
-# Clean tools folder
+# clean tools folder
 remove_directory $FOLDER_TOOLS
 echo "- Remove Tools folder : ""$VERT""DONE""$NORMAL"""
-# Remove Test folder
+# remove Test folder
 remove_directory $FOLDER_TEST
 echo "- Remove Test folder : ""$VERT""DONE""$NORMAL"""
-# Remove todo.txt
+# remove todo.txt
 find $FOLDER_TMP -name "todo.txt" -delete
 echo "- todo.txt : ""$VERT""DONE""$NORMAL"""
-# Make zip
+# make zip
 cd /tmp
 zip "-r" $ARCHIVE_NAME "Connector"
 echo "- Build archive : ""$VERT""DONE""$NORMAL"""

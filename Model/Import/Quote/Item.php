@@ -34,8 +34,6 @@ class Item extends \Magento\Quote\Model\Quote\Item
     public function setPrice($value)
     {
         $this->setBaseCalculationPrice(null);
-        // don't set converted price to 0
-        //$this->setConvertedPrice(null);
         return $this->setData('price', $value);
     }
 }

@@ -106,7 +106,7 @@ class Index extends Action
          * integer store_id            Store id to import
          * string  marketplace_sku     Lengow marketplace order id to import
          * string  marketplace_name    Lengow marketplace name to import
-         * string  create_from         import of orders since
+         * string  created_from        import of orders since
          * string  created_to          import of orders until
          * integer delivery_address_id Lengow delivery address id to import
          * boolean preprod_mode        Activate preprod mode
@@ -166,7 +166,7 @@ class Index extends Action
                         $params['store_id'] = (int)$this->getRequest()->getParam('store_id');
                     }
                     $params['type'] = 'cron';
-                    // Import orders
+                    // synchronise orders
                     $this->_import->init($params);
                     $this->_import->exec();
                 }

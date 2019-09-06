@@ -89,7 +89,7 @@ class SendAction implements ObserverInterface
         if ($order) {
             $marketplaceSku = $this->_lengowOrder->getMarketplaceSkuByOrderId($order->getId());
             if ($marketplaceSku
-                && $marketplaceSku != $this->_backendSession->getCurrentOrderLengow()
+                && $marketplaceSku !== $this->_backendSession->getCurrentOrderLengow()
                 && !array_key_exists($marketplaceSku, $this->_alreadyShipped)
             ) {
                 $this->_lengowOrder->callAction($action, $order, $shipment);

@@ -49,7 +49,7 @@ class Orderline extends AbstractModel
     protected $_fieldList = [
         'order_id' => ['required' => true, 'updated' => false],
         'product_id' => ['required' => true, 'updated' => false],
-        'order_line_id' => ['required' => true, 'updated' => false]
+        'order_line_id' => ['required' => true, 'updated' => false],
     ];
 
     /**

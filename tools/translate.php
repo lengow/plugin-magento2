@@ -17,14 +17,14 @@
  */
 
 error_reporting(E_ALL);
-ini_set("display_errors", 1);
+ini_set('display_errors', 1);
 
 $directory = dirname(dirname(__FILE__)) . '/tools/yml/';
-$listFiles = array_diff(scandir($directory), array('..', '.', 'index.php'));
-$listFiles = array_diff($listFiles, array('en_GB.yml'));
-array_unshift($listFiles, "en_GB.yml");
+$listFiles = array_diff(scandir($directory), ['..', '.', 'index.php']);
+$listFiles = array_diff($listFiles, ['en_GB.yml']);
+array_unshift($listFiles, 'en_GB.yml');
 
-// Get Default value
+// get Default value
 $defaultFiles = ['en_GB.yml', 'log.yml'];
 $defaultValues = [];
 foreach ($defaultFiles as $defaultFile) {
@@ -34,16 +34,16 @@ foreach ($defaultFiles as $defaultFile) {
     }
 }
 
-// Write csv file
+// write csv file
 foreach ($listFiles as $list) {
     $ymlFile = yaml_parse_file($directory . $list);
     $locale = basename($directory . $list, '.yml');
-    if ($list == 'log.yml') {
+    if ($list === 'log.yml') {
         $fp = fopen(dirname(dirname(__FILE__)) . '/i18n/en_GB.csv', 'a+');
     } else {
         $fp = fopen(dirname(dirname(__FILE__)) . '/i18n/' . $locale . '.csv', 'w+');
     }
-    // Write translation files
+    // write translation files
     foreach ($ymlFile as $language => $categories) {
         writeCsv($categories, $fp, false, $defaultValues);
     }

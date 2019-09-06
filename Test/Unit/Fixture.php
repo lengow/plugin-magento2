@@ -32,10 +32,14 @@ class Fixture extends \PHPUnit_Framework_TestCase
      */
     public function invokeMethod(&$object, $methodName, $parameters = [])
     {
-        $reflection = new \ReflectionClass(get_class($object));
-        $method = $reflection->getMethod($methodName);
-        $method->setAccessible(true);
-        return $method->invokeArgs($object, $parameters);
+        try {
+            $reflection = new \ReflectionClass(get_class($object));
+            $method = $reflection->getMethod($methodName);
+            $method->setAccessible(true);
+            return $method->invokeArgs($object, $parameters);
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -48,10 +52,14 @@ class Fixture extends \PHPUnit_Framework_TestCase
      */
     public function getPrivatePropertyValue(&$object, $propertyName = '_data')
     {
-        $reflection = new \ReflectionClass(get_class($object));
-        $property = $reflection->getProperty($propertyName);
-        $property->setAccessible(true);
-        return $property->getValue($object);
+        try {
+            $reflection = new \ReflectionClass(get_class($object));
+            $property = $reflection->getProperty($propertyName);
+            $property->setAccessible(true);
+            return $property->getValue($object);
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -64,12 +72,22 @@ class Fixture extends \PHPUnit_Framework_TestCase
     public function setPrivatePropertyValue(&$object, $propertyNames, $propertyValues)
     {
         $ii = 0;
-        $reflection = new \ReflectionClass(get_class($object));
-        foreach ($propertyNames as $propertyName) {
-            $property = $reflection->getProperty($propertyName);
-            $property->setAccessible(true);
-            $property->setValue($object, $propertyValues[$ii]);
-            $ii++;
+        try {
+            $reflection = new \ReflectionClass(get_class($object));
+        } catch (\Exception $e) {
+            $reflection = false;
+        }
+        if ($reflection) {
+            foreach ($propertyNames as $propertyName) {
+                try {
+                    $property = $reflection->getProperty($propertyName);
+                    $property->setAccessible(true);
+                    $property->setValue($object, $propertyValues[$ii]);
+                    $ii++;
+                } catch (\Exception $e) {
+                    continue;
+                }
+            }
         }
     }
 

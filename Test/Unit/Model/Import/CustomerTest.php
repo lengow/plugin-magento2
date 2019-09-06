@@ -192,7 +192,7 @@ class CustomerTest extends \PHPUnit_Framework_TestCase
             'common_country_iso_a2' => 'FR',
             'phone_home' => '0812345678',
             'phone_office' => '0866666666',
-            'phone_mobile' => '0611224455'
+            'phone_mobile' => '0611224455',
         ];
 
         $this->assertEquals(

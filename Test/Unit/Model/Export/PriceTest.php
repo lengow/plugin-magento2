@@ -71,7 +71,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
                 'price_excl_tax'                 => 80,
                 'price_incl_tax'                 => 96,
                 'price_before_discount_excl_tax' => 100,
-                'price_before_discount_incl_tax' => 120
+                'price_before_discount_incl_tax' => 120,
             ],
             $this->_price->getPrices(),
             '[Test Get Prices] Check if return is valid'
@@ -99,7 +99,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
                 'discount_amount'     => 80,
                 'discount_percent'    => 96,
                 'discount_start_date' => '2017-02-20 00:00:00',
-                'discount_end_date'   => '2017-03-20 23:59:59'
+                'discount_end_date'   => '2017-03-20 23:59:59',
             ],
             $this->_price->getDiscounts(),
             '[Test Get Discounts] Check if return is valid'
@@ -123,7 +123,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
                 '_discountAmount',
                 '_discountPercent',
                 '_discountStartDate',
-                '_discountEndDate'
+                '_discountEndDate',
             ],
             ['plop', 50, 60, 100, 120, 80, 96, '2017-02-20 00:00:00', '2017-03-20 23:59:59']
         );
@@ -260,7 +260,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
                 [
                     ['from_time' => '1487545200', 'to_time' => '1490050799'],
                     ['from_time' => '1488322800', 'to_time' => '1490997599'],
-                ]
+                ],
             ]
         );
         $catalogueRuleMock2 = $fixture->mockFunctions($classMock, ['getResource'], [$resourceMock2]);

@@ -43,6 +43,11 @@ use Lengow\Connector\Model\Import\OrderFactory;
 class Import
 {
     /**
+     * @var integer min import days for old versions
+     */
+    const MIN_IMPORT_DAYS = 1;
+
+    /**
      * @var integer max import days for old versions
      */
     const MAX_IMPORT_DAYS = 10;
@@ -138,59 +143,14 @@ class Import
     protected $_limit;
 
     /**
-     * @var integer offset of total product
-     */
-    protected $_offset;
-
-    /**
-     * @var string format to return
-     */
-    protected $_format;
-
-    /**
-     * @var boolean stream return
-     */
-    protected $_stream;
-
-    /**
-     * @var string currency iso code for conversion
-     */
-    protected $_currency;
-
-    /**
      * @var boolean export Lengow selection
      */
     protected $_selection;
 
     /**
-     * @var boolean export out of stock product
-     */
-    protected $_outOfStock;
-
-    /**
-     * @var boolean include active products
-     */
-    protected $_inactive;
-
-    /**
      * @var boolean see log or not
      */
     protected $_logOutput;
-
-    /**
-     * @var boolean update export date.
-     */
-    protected $_updateExportDate;
-
-    /**
-     * @var string export type (manual, cron or magento cron)
-     */
-    protected $_exportType;
-
-    /**
-     * @var boolean get params available.
-     */
-    protected $_getParams;
 
     /**
      * @var string import type (manual, cron or magento cron)
@@ -208,29 +168,24 @@ class Import
     protected $_preprodMode = false;
 
     /**
-     * @var string marketplace order sku
+     * @var string|null marketplace order sku
      */
     protected $_marketplaceSku = null;
 
     /**
-     * @var string marketplace name
+     * @var string|null marketplace name
      */
     protected $_marketplaceName = null;
 
     /**
-     * @var integer Lengow order id
+     * @var integer|null Lengow order id
      */
     protected $_orderLengowId = null;
 
     /**
-     * @var integer delivery address id
+     * @var integer|null delivery address id
      */
     protected $_deliveryAddressId = null;
-
-    /**
-     * @var integer delivery address id
-     */
-    protected $_days = null;
 
     /**
      * @var string|false imports orders updated since
@@ -266,11 +221,6 @@ class Import
      * @var string secret token
      */
     protected $_secretToken;
-
-    /**
-     * @var array account ids already imported
-     */
-    protected $_accountIds = [];
 
     /**
      * @var array store catalog ids for import
@@ -346,7 +296,7 @@ class Import
      * string  marketplace_sku     lengow marketplace order id to import
      * string  marketplace_name    lengow marketplace name to import
      * string  type                type of current import
-     * string  create_from         import of orders since
+     * string  created_from        import of orders since
      * string  created_to          import of orders until
      * integer delivery_address_id Lengow delivery address id to import
      * integer order_lengow_id     Lengow order id in Magento
@@ -370,8 +320,8 @@ class Import
             $this->_limit = 1;
             $this->_marketplaceSku = (string)$params['marketplace_sku'];
             $this->_marketplaceName = (string)$params['marketplace_name'];
-            if (array_key_exists('delivery_address_id', $params) && $params['delivery_address_id'] != '') {
-                $this->_deliveryAddressId = $params['delivery_address_id'];
+            if (array_key_exists('delivery_address_id', $params) && $params['delivery_address_id'] !== '') {
+                $this->_deliveryAddressId = (int)$params['delivery_address_id'];
             }
         } else {
             // recovering the time interval
@@ -383,11 +333,9 @@ class Import
             $this->_limit = isset($params['limit']) ? (int)$params['limit'] : 0;
         }
         // get other params
-        $this->_preprodMode = (
-        isset($params['preprod_mode'])
+        $this->_preprodMode = isset($params['preprod_mode'])
             ? (bool)$params['preprod_mode']
-            : (bool)$this->_configHelper->get('preprod_mode_enable')
-        );
+            : (bool)$this->_configHelper->get('preprod_mode_enable');
         $this->_typeImport = isset($params['type']) ? $params['type'] : 'manual';
         $this->_logOutput = isset($params['log_output']) ? (bool)$params['log_output'] : false;
         $this->_storeId = isset($params['store_id']) ? (int)$params['store_id'] : null;
@@ -443,7 +391,7 @@ class Import
             $storeCollection = $this->_storeManager->getStores();
             /** @var Store $store */
             foreach ($storeCollection as $store) {
-                if ((!is_null($this->_storeId) && (int)$store->getId() != $this->_storeId) || !$store->isActive()) {
+                if ((!is_null($this->_storeId) && (int)$store->getId() !== $this->_storeId) || !$store->isActive()) {
                     continue;
                 }
                 if ($this->_configHelper->get('store_enable', (int)$store->getId())) {
@@ -478,7 +426,7 @@ class Import
                                         $totalOrders,
                                         $this->_marketplaceSku,
                                         $this->_marketplaceName,
-                                        $this->_accountId
+                                        $this->_accountId,
                                     ]
                                 ),
                                 $this->_logOutput
@@ -522,7 +470,7 @@ class Import
                                 [
                                     'order_lengow_id' => $this->_orderLengowId,
                                     'message' => $errorMessage,
-                                    'type' => 'import'
+                                    'type' => 'import',
                                 ]
                             );
                         }
@@ -571,13 +519,13 @@ class Import
                 $this->_importHelper->sendMailAlert($this->_logOutput);
             }
             // checking marketplace actions
-            if (!$this->_preprodMode && !$this->_importOneOrder && $this->_typeImport == 'manual') {
+            if (!$this->_preprodMode && !$this->_importOneOrder && $this->_typeImport === 'manual') {
                 $this->_action->checkFinishAction();
                 $this->_action->checkOldAction();
                 $this->_action->checkActionNotSent();
             }
         }
-        // Clear session
+        // clear session
         $this->_backendSession->setIsFromlengow(0);
         // save global error
         if ($globalError) {
@@ -588,7 +536,7 @@ class Import
                     [
                         'order_lengow_id' => $this->_orderLengowId,
                         'message' => $globalError,
-                        'type' => 'import'
+                        'type' => 'import',
                     ]
                 );
             }
@@ -601,7 +549,7 @@ class Import
                 'order_new' => $orderNew,
                 'order_update' => $orderUpdate,
                 'order_error' => $orderError,
-                'error' => $errors
+                'error' => $errors,
             ];
         }
     }
@@ -632,7 +580,7 @@ class Import
             // set current order to cancel hook updateOrderStatus
             $this->_backendSession->setCurrentOrderLengow($marketplaceSku);
             // if order contains no package
-            if (count($orderData->packages) == 0) {
+            if (empty($orderData->packages)) {
                 $this->_dataHelper->log(
                     'Import',
                     $this->_dataHelper->setLogMessage('import order failed - Lengow error: no package in the order'),
@@ -657,11 +605,11 @@ class Import
                     continue;
                 }
                 $packageDeliveryAddressId = (int)$packageData->delivery->id;
-                $firstPackage = ($nbPackage > 1 ? false : true);
+                $firstPackage = $nbPackage > 1 ? false : true;
                 // check the package for re-import order
                 if ($this->_importOneOrder) {
                     if (!is_null($this->_deliveryAddressId)
-                        && $this->_deliveryAddressId != $packageDeliveryAddressId
+                        && $this->_deliveryAddressId !== $packageDeliveryAddressId
                     ) {
                         $this->_dataHelper->log(
                             'Import',
@@ -684,7 +632,7 @@ class Import
                             'delivery_address_id' => $packageDeliveryAddressId,
                             'order_data' => $orderData,
                             'package_data' => $packageData,
-                            'first_package' => $firstPackage
+                            'first_package' => $firstPackage,
                         ]
                     );
                     $order = $importOrderFactory->importOrder();
@@ -706,44 +654,44 @@ class Import
                     unset($errorMessage);
                     continue;
                 }
-                // Sync to lengow if no preprod_mode
-                if (!$this->_preprodMode && isset($order['order_new']) && $order['order_new'] == true) {
-                    $lengowOrder = $this->_lengowOrderFactory->create()->load($order['order_lengow_id']);
-                    $synchro = $this->_lengowOrderFactory->create()->synchronizeOrder(
-                        $lengowOrder,
-                        $this->_connector
-                    );
-                    if ($synchro) {
-                        $synchroMessage = $this->_dataHelper->setLogMessage(
-                            'order successfully synchronised with Lengow webservice (ORDER ID %1)',
-                            [$lengowOrder->getData('order_sku')]
+                if (isset($order)) {
+                    // sync to lengow if no preprod_mode
+                    if (!$this->_preprodMode && isset($order['order_new']) && $order['order_new']) {
+                        $lengowOrder = $this->_lengowOrderFactory->create()->load($order['order_lengow_id']);
+                        $synchro = $this->_lengowOrderFactory->create()->synchronizeOrder(
+                            $lengowOrder,
+                            $this->_connector
                         );
-                    } else {
-                        $synchroMessage = $this->_dataHelper->setLogMessage(
-                            'WARNING! Order could NOT be synchronised with Lengow webservice (ORDER ID %1)',
-                            [$lengowOrder->getData('order_sku')]
-                        );
+                        if ($synchro) {
+                            $synchroMessage = $this->_dataHelper->setLogMessage(
+                                'order successfully synchronised with Lengow webservice (ORDER ID %1)',
+                                [$lengowOrder->getData('order_sku')]
+                            );
+                        } else {
+                            $synchroMessage = $this->_dataHelper->setLogMessage(
+                                'WARNING! Order could NOT be synchronised with Lengow webservice (ORDER ID %1)',
+                                [$lengowOrder->getData('order_sku')]
+                            );
+                        }
+                        $this->_dataHelper->log('Import', $synchroMessage, $this->_logOutput, $marketplaceSku);
+                        unset($lengowOrder);
                     }
-                    $this->_dataHelper->log('Import', $synchroMessage, $this->_logOutput, $marketplaceSku);
-                    unset($lengowOrder);
-                }
-                // Clean current order in session
-                $this->_backendSession->setCurrentOrderLengow(false);
-                // if re-import order -> return order informations
-                if ($this->_importOneOrder) {
-                    return $order;
-                }
-                if ($order) {
-                    if (isset($order['order_new']) && $order['order_new'] == true) {
+                    // clean current order in session
+                    $this->_backendSession->setCurrentOrderLengow(false);
+                    // if re-import order -> return order informations
+                    if ($this->_importOneOrder) {
+                        return $order;
+                    }
+                    if (isset($order['order_new']) && $order['order_new']) {
                         $orderNew++;
-                    } elseif (isset($order['order_update']) && $order['order_update'] == true) {
+                    } elseif (isset($order['order_update']) && $order['order_update']) {
                         $orderUpdate++;
-                    } elseif (isset($order['order_error']) && $order['order_error'] == true) {
+                    } elseif (isset($order['order_error']) && $order['order_error']) {
                         $orderError++;
                     }
                 }
                 // if limit is set
-                if ($this->_limit > 0 && $orderNew == $this->_limit) {
+                if ($this->_limit > 0 && $orderNew === $this->_limit) {
                     $importFinished = true;
                     break;
                 }
@@ -755,7 +703,7 @@ class Import
         return [
             'order_new' => $orderNew,
             'order_update' => $orderUpdate,
-            'order_error' => $orderError
+            'order_error' => $orderError,
         ];
     }
 
@@ -827,7 +775,7 @@ class Import
     {
         $page = 1;
         $orders = [];
-        // Convert order amount or not
+        // convert order amount or not
         $noCurrencyConversion = !(bool)$this->_configHelper->get('currency_conversion_enabled', $store->getId());
         if ($this->_importOneOrder) {
             $this->_dataHelper->log(
@@ -923,7 +871,7 @@ class Import
                     )
                 );
             }
-            // Construct array orders
+            // construct array orders
             foreach ($results->results as $order) {
                 $orders[] = $order;
             }
@@ -946,7 +894,7 @@ class Import
             // retrieval of orders created from ... until ...
             $createdFromTimestamp = strtotime($createdFrom);
             $createdToTimestamp = strtotime($createdTo) + 86399;
-            $intervalDay = (int) (($createdToTimestamp - $createdFromTimestamp) / 86400);
+            $intervalDay = (int)(($createdToTimestamp - $createdFromTimestamp) / 86400);
             if ($intervalDay > self::MAX_IMPORT_DAYS) {
                 $dateFrom = date('c', $createdFromTimestamp);
                 $dateTo = date('c', ($createdFromTimestamp + self::MAX_IMPORT_DAYS * 86400));
@@ -957,13 +905,16 @@ class Import
             $this->_createdFrom = $dateFrom;
             $this->_createdTo = $dateTo;
         } else {
-            // order recovery updated since ... days
-            $importDays = (int)$this->_configHelper->get('days');
-            // add security for older versions of the plugin
-            $importDays = $importDays > self::MAX_IMPORT_DAYS ? self::MAX_IMPORT_DAYS : $importDays;
             if ($days) {
+                $days = $days < self::MIN_IMPORT_DAYS ? self::MIN_IMPORT_DAYS : $days;
                 $importDays = $days > self::MAX_IMPORT_DAYS ? self::MAX_IMPORT_DAYS : $days;
             } else {
+                // order recovery updated since ... days
+                $importDays = (int)$this->_configHelper->get('days');
+                // add security for older versions of the plugin
+                $importDays = $importDays < self::MIN_IMPORT_DAYS ? self::MIN_IMPORT_DAYS : $importDays;
+                $importDays = $importDays > self::MAX_IMPORT_DAYS ? self::MAX_IMPORT_DAYS : $importDays;
+                // adaptation of the time interval according to the last successful synchronisation
                 $lastImport = $this->_importHelper->getLastImport();
                 $lastSettingUpdate = $this->_configHelper->get('last_setting_update');
                 if ($lastImport['timestamp'] !== 'none' && $lastImport['timestamp'] > strtotime($lastSettingUpdate)) {

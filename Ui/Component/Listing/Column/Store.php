@@ -47,8 +47,8 @@ class Store extends Column
         array $components = [],
         array $data = []
     ) {
-        parent::__construct($context, $uiComponentFactory, $components, $data);
         $this->_storeManager = $storeManager;
+        parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
     /**
@@ -63,7 +63,11 @@ class Store extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                $item['store_id'] = $this->_storeManager->getStore($item['store_id'])->getName();
+                try {
+                    $item['store_id'] = $this->_storeManager->getStore($item['store_id'])->getName();
+                } catch (\Exception $e) {
+                    $item['store_id'] = $this->_storeManager->getDefaultStoreView()->getName();
+                }
             }
         }
         return $dataSource;

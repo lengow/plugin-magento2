@@ -66,7 +66,7 @@ class Ordererror extends AbstractModel
         'message' => ['required' => true, 'updated' => false],
         'type' => ['required' => true, 'updated' => false],
         'is_finished' => ['required' => false, 'updated' => true],
-        'mail' => ['required' => false, 'updated' => true]
+        'mail' => ['required' => false, 'updated' => true],
     ];
 
     /**
@@ -117,7 +117,7 @@ class Ordererror extends AbstractModel
             }
         }
         foreach ($params as $key => $value) {
-            if ($key == 'type') {
+            if ($key === 'type') {
                 $value = $this->getOrderErrorType($value);
             }
             $this->setData($key, $value);
@@ -182,12 +182,10 @@ class Ordererror extends AbstractModel
     public function getOrderErrorType($type = null)
     {
         switch ($type) {
-            case 'import':
-                return self::TYPE_ERROR_IMPORT;
-                break;
             case 'send':
                 return self::TYPE_ERROR_SEND;
                 break;
+            case 'import':
             default:
                 return self::TYPE_ERROR_IMPORT;
                 break;
@@ -227,8 +225,8 @@ class Ordererror extends AbstractModel
      * Get all order errors
      *
      * @param integer $orderLengowId Lengow order id
-     * @param string $type order error type (import or send)
-     * @param boolean $finished log finished
+     * @param string|null $type order error type (import or send)
+     * @param boolean|null $finished log finished
      *
      * @return array|false
      *
@@ -253,11 +251,11 @@ class Ordererror extends AbstractModel
     }
 
     /**
-     * Get error import logs never send by mail
+     * Get order errors never sent by mail
      *
      * @return array|false
      */
-    public function getImportErrors()
+    public function getOrderErrorsNotSent()
     {
         $results = $this->_ordererrorCollection->create()->load()
             ->join(
@@ -270,7 +268,7 @@ class Ordererror extends AbstractModel
             ->addFieldToSelect('message')
             ->addFieldToSelect('id')
             ->getData();
-        if (count($results) == 0) {
+        if (empty($results)) {
             return false;
         }
         return $results;

@@ -79,7 +79,7 @@ class Import extends AbstractHelper
     protected $_lengowStates = [
         'waiting_shipment',
         'shipped',
-        'closed'
+        'closed',
     ];
 
     /**
@@ -216,7 +216,7 @@ class Import extends AbstractHelper
     public function getLastImportDatePrint()
     {
         $lastImport = $this->getLastImport();
-        if ($lastImport['type'] != 'none') {
+        if ($lastImport['type'] !== 'none') {
             $lastImportDate = $this->_dataHelper->getDateInCorrectFormat($lastImport['timestamp']);
             return $this->_dataHelper->decodeLogMessage(
                 $this->_dataHelper->setLogMessage('Last synchronisation : %1', ['<b>' . $lastImportDate . '</b>'])
@@ -269,7 +269,6 @@ class Import extends AbstractHelper
         $reportMailActive = (bool)$this->_configHelper->get('report_mail_enable');
         $reportMailLink = $this->_urlBackend->getUrl('adminhtml/system_config/edit/section/lengow_import_options/');
         $reportMails = $this->_configHelper->getReportEmailAddress();
-
         if ($reportMailActive) {
             $reportMailPrint .= $this->_dataHelper->decodeLogMessage(
                 $this->_dataHelper->setLogMessage('All order issue reports will be sent by mail to')
@@ -283,7 +282,6 @@ class Import extends AbstractHelper
         $reportMailPrint .= ' (<a href="' . $reportMailLink . '">';
         $reportMailPrint .= $this->_dataHelper->decodeLogMessage($this->_dataHelper->setLogMessage('Change this?'));
         $reportMailPrint .= '</a>)';
-
         return $reportMailPrint;
     }
 
@@ -331,8 +329,10 @@ class Import extends AbstractHelper
      */
     public function sendMailAlert($logOutput = false)
     {
-        $errors = $this->_orderErrorFactory->create()->getImportErrors();
+        // recovery of all errors not yet sent by email
+        $errors = $this->_orderErrorFactory->create()->getOrderErrorsNotSent();
         if ($errors) {
+            // construction of the report e-mail
             $subject = $this->_dataHelper->decodeLogMessage('Lengow imports errors');
             $support = $this->_dataHelper->decodeLogMessage(
                 'no error message, contact support via https://supportlengow.zendesk.com/agent/'
@@ -340,13 +340,16 @@ class Import extends AbstractHelper
             $mailBody = '<h2>' . $subject . '</h2><p><ul>';
             foreach ($errors as $error) {
                 $order = $this->_dataHelper->decodeLogMessage('Order %1', true, [$error['marketplace_sku']]);
-                $message = $error['message'] != '' ? $this->_dataHelper->decodeLogMessage($error['message']) : $support;
+                $message = $error['message'] !== ''
+                    ? $this->_dataHelper->decodeLogMessage($error['message'])
+                    : $support;
                 $mailBody .= '<li>' . $order . ' - ' . $message . '</li>';
                 $orderError = $this->_orderErrorFactory->create()->load((int)$error['id']);
                 $orderError->updateOrderError(['mail' => 1]);
                 unset($orderError, $order, $message);
             }
             $mailBody .= '</ul></p>';
+            // send an email foreach email address
             $emails = $this->_configHelper->getReportEmailAddress();
             foreach ($emails as $email) {
                 if (strlen($email) > 0) {
@@ -355,7 +358,10 @@ class Import extends AbstractHelper
                         $mail->setSubject($subject);
                         $mail->setBodyHtml($mailBody);
                         $mail->setFrom(
-                            $this->scopeConfig->getValue('trans_email/ident_general/email', ScopeInterface::SCOPE_STORE),
+                            $this->scopeConfig->getValue(
+                                'trans_email/ident_general/email',
+                                ScopeInterface::SCOPE_STORE
+                            ),
                             'Lengow'
                         );
                         $mail->addTo($email);

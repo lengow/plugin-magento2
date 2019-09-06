@@ -41,7 +41,7 @@ class SaveConfig
     protected $_lengowOptions = [
         'lengow_global_options',
         'lengow_export_options',
-        'lengow_import_options'
+        'lengow_import_options',
     ];
 
     /**
@@ -86,7 +86,7 @@ class SaveConfig
         $groups = $subject->getGroups();
         if (in_array($sectionId, $this->_lengowOptions) && !empty($groups)) {
             $oldConfig = $subject->load();
-            $storeId = $subject->getScopeId() != 0 ? (int)$subject->getScopeId() : false;
+            $storeId = (int)$subject->getScopeId() !== 0 ? (int)$subject->getScopeId() : false;
             foreach ($groups as $groupId => $group) {
                 foreach ($group['fields'] as $fieldId => $value) {
                     if (!isset($value['value'])) {
@@ -108,7 +108,7 @@ class SaveConfig
                             $params = [$path, $oldValue, $value];
                         }
                         $this->_dataHelper->log('Config', $this->_dataHelper->setLogMessage($message, $params));
-                        // Save last update date for a specific settings (change synchronisation interval time)
+                        // save last update date for a specific settings (change synchronisation interval time)
                         if (in_array($fieldId, $this->_updatedSettings)) {
                             $this->_configHelper->set('last_setting_update', date('Y-m-d H:i:s'));
                         }

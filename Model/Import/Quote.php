@@ -300,7 +300,7 @@ class Quote extends \Magento\Quote\Model\Quote
                         'store',
                         $this->getStore()
                     );
-                    $countryId = ($basedOn == 'shipping')
+                    $countryId = $basedOn === 'shipping'
                         ? $this->getShippingAddress()->getCountryId()
                         : $this->getBillingAddress()->getCountryId();
                     $taxRequest = new \Magento\Framework\DataObject();
@@ -351,11 +351,10 @@ class Quote extends \Magento\Quote\Model\Quote
             // check whether the product is canceled
             if ($product->marketplace_status != null) {
                 $stateProduct = $marketplace->getStateLengow((string)$product->marketplace_status);
-                if ($stateProduct == 'canceled' || $stateProduct == 'refused') {
-                    $productId = (!is_null($product->merchant_product_id->id)
+                if ($stateProduct === 'canceled' || $stateProduct === 'refused') {
+                    $productId = !is_null($product->merchant_product_id->id)
                         ? (string)$product->merchant_product_id->id
-                        : (string)$product->marketplace_product_id
-                    );
+                        : (string)$product->marketplace_product_id;
                     $this->_dataHelper->log(
                         'Import',
                         $this->_dataHelper->setLogMessage(
@@ -370,7 +369,7 @@ class Quote extends \Magento\Quote\Model\Quote
             }
             $productIds = [
                 'merchant_product_id' => $product->merchant_product_id->id,
-                'marketplace_product_id' => $product->marketplace_product_id
+                'marketplace_product_id' => $product->marketplace_product_id,
             ];
             $productField = $product->merchant_product_id->field != null
                 ? strtolower((string)$product->merchant_product_id->field)
@@ -445,17 +444,16 @@ class Quote extends \Magento\Quote\Model\Quote
                 }
             }
             if (!$found) {
-                $productId = (!is_null($product->merchant_product_id->id)
+                $productId = !is_null($product->merchant_product_id->id)
                     ? (string)$product->merchant_product_id->id
-                    : (string)$product->marketplace_product_id
-                );
+                    : (string)$product->marketplace_product_id;
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage(
                         'product %1 could not be found',
                         [$productId]
                     )
                 );
-            } elseif ($magentoProduct->getTypeId() == Configurable::TYPE_CODE) {
+            } elseif ($magentoProduct->getTypeId() === Configurable::TYPE_CODE) {
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage(
                         'product %1 is a parent ID. Product variation is needed',
@@ -500,7 +498,7 @@ class Quote extends \Magento\Quote\Model\Quote
     {
         $stockItem = $product->getExtensionAttributes()->getStockItem();
         if ($stockItem->getManageStock()) {
-            // Get salable quantity
+            // get salable quantity
             $stockStatus = $this->stockRegistry->getStockStatus(
                 $product->getId(),
                 $product->getStore()->getWebsiteId()
@@ -519,7 +517,7 @@ class Quote extends \Magento\Quote\Model\Quote
     /**
      * Get Lengow Products
      *
-     * @param string $productId Magento product id
+     * @param string|null $productId Magento product id
      *
      * @return array
      */

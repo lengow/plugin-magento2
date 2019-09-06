@@ -230,7 +230,7 @@ class Importorder extends AbstractModel
     protected $_deliveryAddressId;
 
     /**
-     * @var integer Magento store id
+     * @var integer|null Magento store id
      */
     protected $_storeId = null;
 
@@ -305,12 +305,12 @@ class Importorder extends AbstractModel
     protected $_orderAmount;
 
     /**
-     * @var string carrier name
+     * @var string|null carrier name
      */
     protected $_carrierName = null;
 
     /**
-     * @var string carrier method
+     * @var string|null carrier method
      */
     protected $_carrierMethod = null;
 
@@ -320,12 +320,12 @@ class Importorder extends AbstractModel
     protected $_shippedByMp = false;
 
     /**
-     * @var string carrier tracking number
+     * @var string|null carrier tracking number
      */
     protected $_trackingNumber = null;
 
     /**
-     * @var string carrier relay id
+     * @var string|null carrier relay id
      */
     protected $_relayId = null;
 
@@ -534,7 +534,7 @@ class Importorder extends AbstractModel
                     [
                         'is_in_error' => 0,
                         'order_lengow_state' => $this->_orderStateLengow,
-                        'order_process_state' => $orderProcessState
+                        'order_process_state' => $orderProcessState,
                     ]
                 );
 
@@ -545,7 +545,7 @@ class Importorder extends AbstractModel
                     'current order status %1 means it is not possible to import the order to the marketplace %2',
                     [
                         $this->_orderStateMarketplace,
-                        $this->_marketplace->name
+                        $this->_marketplace->name,
                     ]
                 ),
                 $this->_logOutput,
@@ -586,10 +586,9 @@ class Importorder extends AbstractModel
         $this->_loadTrackingData();
         // get customer name and email
         $customerName = $this->_getCustomerName();
-        $customerEmail = (!is_null($this->_orderData->billing_address->email)
+        $customerEmail = !is_null($this->_orderData->billing_address->email)
             ? (string)$this->_orderData->billing_address->email
-            : (string)$this->_packageData->delivery->email
-        );
+            : (string)$this->_packageData->delivery->email;
         // update Lengow order with new informations
         $orderLengow->updateOrder(
             [
@@ -629,7 +628,7 @@ class Importorder extends AbstractModel
                     return false;
                 }
             }
-            // Create or Update customer with addresses
+            // create or update customer with addresses
             $customer = $this->_lengowCustomer->createCustomer(
                 $this->_orderData,
                 $this->_packageData->delivery,
@@ -637,13 +636,13 @@ class Importorder extends AbstractModel
                 $this->_marketplaceSku,
                 $this->_logOutput
             );
-            // Create Magento Quote
+            // create Magento Quote
             $quote = $this->_createQuote($customer);
-            // Create Magento order
+            // create Magento order
             $order = $this->_makeOrder($quote, $orderLengow);
-            // If order is successfully imported
+            // if order is successfully imported
             if ($order) {
-                // Save order line id in lengow_order_line table
+                // save order line id in lengow_order_line table
                 $orderLineSaved = $this->_saveLengowOrderLine($order, $quote);
                 $this->_dataHelper->log(
                     'Import',
@@ -663,8 +662,8 @@ class Importorder extends AbstractModel
                     $this->_logOutput,
                     $this->_marketplaceSku
                 );
-                // Update state to shipped
-                if ($this->_orderStateLengow == 'shipped' || $this->_orderStateLengow == 'closed') {
+                // update state to shipped
+                if ($this->_orderStateLengow === 'shipped' || $this->_orderStateLengow === 'closed') {
                     $this->_lengowOrder->toShip(
                         $order,
                         $this->_carrierName,
@@ -682,9 +681,7 @@ class Importorder extends AbstractModel
                     );
                 }
             } else {
-                throw new LengowException(
-                    $this->_dataHelper->setLogMessage('order could not be saved')
-                );
+                throw new LengowException($this->_dataHelper->setLogMessage('order could not be saved'));
             }
             // add quantity back for re-import order and order shipped by marketplace
             if ($this->_isReimported
@@ -708,13 +705,13 @@ class Importorder extends AbstractModel
             $errorMessage = 'Magento error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
         }
         if (isset($errorMessage)) {
-            if ($orderLengow->getData('is_in_error') == 1) {
+            if ((bool)$orderLengow->getData('is_in_error')) {
                 $orderError = $this->_orderErrorFactory->create();
                 $orderError->createOrderError(
                     [
                         'order_lengow_id' => $this->_orderLengowId,
                         'message' => $errorMessage,
-                        'type' => 'import'
+                        'type' => 'import',
                     ]
                 );
                 unset($orderError);
@@ -767,7 +764,7 @@ class Importorder extends AbstractModel
         $this->_processingFee = (float)$this->_orderData->processing_fee;
         $this->_shippingCost = (float)$this->_orderData->shipping;
         // rewrite processing fees and shipping cost
-        if ($this->_firstPackage == false) {
+        if (!$this->_firstPackage) {
             $this->_processingFee = 0;
             $this->_shippingCost = 0;
             $this->_dataHelper->log(
@@ -790,7 +787,7 @@ class Importorder extends AbstractModel
             // check whether the product is canceled for amount
             if (!is_null($product->marketplace_status)) {
                 $stateProduct = $this->_marketplace->getStateLengow((string)$product->marketplace_status);
-                if ($stateProduct == 'canceled' || $stateProduct == 'refused') {
+                if ($stateProduct === 'canceled' || $stateProduct === 'refused') {
                     continue;
                 }
             }
@@ -813,7 +810,7 @@ class Importorder extends AbstractModel
     {
         $lengowProducts = $quote->getLengowProducts();
         foreach ($lengowProducts as $productId => $product) {
-            $this->_stockManagement->backItemQty($productId, $product['quantity']);
+            $this->_stockManagement->backItemQty($productId, $product['quantity'], $this->_storeId);
         }
         return $this;
     }
@@ -838,7 +835,7 @@ class Importorder extends AbstractModel
         $lengowOrder = $this->_lengowOrderFactory->create()->load($orderLengowId);
         $result = ['order_lengow_id' => $lengowOrder->getId()];
         // Lengow -> Cancel and reimport order
-        if ($lengowOrder->getData('is_reimported') == 1) {
+        if ((bool)$lengowOrder->getData('is_reimported')) {
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
@@ -905,7 +902,7 @@ class Importorder extends AbstractModel
     protected function _checkOrderData()
     {
         $errorMessages = [];
-        if (count($this->_packageData->cart) == 0) {
+        if (empty($this->_packageData->cart)) {
             $errorMessages[] = $this->_dataHelper->setLogMessage('Lengow error: no product in the order');
         }
         if (!isset($this->_orderData->currency->iso_a3)) {
@@ -935,7 +932,7 @@ class Importorder extends AbstractModel
                     [
                         'order_lengow_id' => $this->_orderLengowId,
                         'message' => $errorMessage,
-                        'type' => 'import'
+                        'type' => 'import',
                     ]
                 );
                 $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
@@ -960,7 +957,7 @@ class Importorder extends AbstractModel
      *
      * @param string $typeResult Type of result (new, update, error)
      * @param integer $orderLengowId Lengow order id
-     * @param integer $orderId Magento order id
+     * @param integer|null $orderId Magento order id
      *
      * @return array
      */
@@ -972,9 +969,9 @@ class Importorder extends AbstractModel
             'marketplace_sku' => $this->_marketplaceSku,
             'marketplace_name' => (string)$this->_marketplace->name,
             'lengow_state' => $this->_orderStateLengow,
-            'order_new' => $typeResult == 'new' ? true : false,
-            'order_update' => $typeResult == 'update' ? true : false,
-            'order_error' => $typeResult == 'error' ? true : false
+            'order_new' => $typeResult === 'new' ? true : false,
+            'order_update' => $typeResult === 'update' ? true : false,
+            'order_error' => $typeResult === 'error' ? true : false,
         ];
         return $result;
     }
@@ -1014,7 +1011,7 @@ class Importorder extends AbstractModel
             ->setStore($this->_storeManager->getStore($this->_storeId))
             ->setInventoryProcessed(false);
         // import customer addresses into quote
-        // Set billing Address
+        // set billing Address
         $customerBillingAddress = $this->_addressRepository->getById($customerRepo->getDefaultBilling());
         $billingAddress = $this->_quoteAddressFactory->create()
             ->setShouldIgnoreValidation(true)
@@ -1038,7 +1035,7 @@ class Importorder extends AbstractModel
             $this->_logOutput,
             $priceIncludeTax
         );
-        // Get shipping cost with tax
+        // get shipping cost with tax
         $shippingCost = $this->_processingFee + $this->_shippingCost;
         // if shipping cost not include tax -> get shipping cost without tax
         if (!$shippingIncludeTax) {
@@ -1107,7 +1104,7 @@ class Importorder extends AbstractModel
             'global_currency_code' => (string)$this->_orderData->currency->iso_a3,
             'base_currency_code' => (string)$this->_orderData->currency->iso_a3,
             'store_currency_code' => (string)$this->_orderData->currency->iso_a3,
-            'order_currency_code' => (string)$this->_orderData->currency->iso_a3
+            'order_currency_code' => (string)$this->_orderData->currency->iso_a3,
         ];
         try {
             $order = $this->_quoteManagement->submit($quote, $additionalDatas);
@@ -1123,7 +1120,7 @@ class Importorder extends AbstractModel
         }
         $order->addData($additionalDatas);
         // modify order dates to use actual dates
-        // Get all params to create order
+        // get all params to create order
         if (!is_null($this->_orderData->marketplace_order_date)) {
             $orderDate = (string)$this->_orderData->marketplace_order_date;
         } else {
@@ -1132,7 +1129,7 @@ class Importorder extends AbstractModel
         $order->setCreatedAt($this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)));
         $order->setUpdatedAt($this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)));
         $order->save();
-        // Update Lengow order record
+        // update Lengow order record
         $orderLengow->updateOrder(
             [
                 'order_id' => $order->getId(),
@@ -1154,7 +1151,7 @@ class Importorder extends AbstractModel
             $this->_lengowOrder->toInvoice($order);
         }
         $carrierName = $this->_carrierName;
-        if (is_null($carrierName) || $carrierName == 'None') {
+        if (is_null($carrierName) || $carrierName === 'None') {
             $carrierName = $this->_carrierMethod;
         }
         $order->setShippingDescription(
@@ -1169,7 +1166,7 @@ class Importorder extends AbstractModel
      *
      * @param \Magento\Quote\Model\Quote\Address\Rate $rates Magento rates
      * @param float $shippingCost shipping cost
-     * @param string $shippingMethod Magento shipping method
+     * @param string|null $shippingMethod Magento shipping method
      * @param boolean $first stop recursive effect
      *
      * @return boolean
@@ -1215,7 +1212,7 @@ class Importorder extends AbstractModel
      */
     protected function _createLengowOrder()
     {
-        // Get all params to create order
+        // get all params to create order
         if (!is_null($this->_orderData->marketplace_order_date)) {
             $orderDate = (string)$this->_orderData->marketplace_order_date;
         } else {
@@ -1229,17 +1226,17 @@ class Importorder extends AbstractModel
             'delivery_address_id' => (int)$this->_deliveryAddressId,
             'order_lengow_state' => $this->_orderStateLengow,
             'order_date' => $this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)),
-            'is_in_error' => 1
+            'is_in_error' => 1,
         ];
         if (isset($this->_orderData->comments) && is_array($this->_orderData->comments)) {
             $params['message'] = join(',', $this->_orderData->comments);
         } else {
             $params['message'] = (string)$this->_orderData->comments;
         }
-        // Create lengow order
+        // create lengow order
         $lengowOrder = $this->_lengowOrderFactory->create();
         $lengowOrder->createOrder($params);
-        // Get lengow order id
+        // get lengow order id
         $this->_orderLengowId = $lengowOrder->getLengowOrderId(
             $this->_marketplaceSku,
             $this->_deliveryAddressId
@@ -1269,7 +1266,7 @@ class Importorder extends AbstractModel
                     [
                         'order_id' => (int)$order->getId(),
                         'product_id' => $productId,
-                        'order_line_id' => $idOrderLine
+                        'order_line_id' => $idOrderLine,
                     ]
                 );
                 $orderLineSaved .= !$orderLineSaved ? $idOrderLine : ' / ' . $idOrderLine;

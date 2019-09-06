@@ -17,7 +17,7 @@ require(['jquery', 'uiRegistry'], function ($, registry) {
                 dataType: 'json',
                 success: function (data) {
                     reloadInformations(data.informations, true);
-                    //reload the grid
+                    // reload the grid
                     var grid = registry.get('lengow_order_listing.lengow_order_listing').source;
                     if (grid && typeof grid === 'object') {
                         var params = [];
@@ -45,7 +45,7 @@ require(['jquery', 'uiRegistry'], function ($, registry) {
                 dataType: 'json',
                 success: function (data) {
                     reloadInformations(data.informations, false);
-                    //reload the grid
+                    // reload the grid
                     var grid = registry.get('lengow_order_listing.lengow_order_listing').source;
                     if (grid && typeof grid === 'object') {
                         var params = [];

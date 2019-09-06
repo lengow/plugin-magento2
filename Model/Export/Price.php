@@ -143,17 +143,17 @@ class Price
     public function load($params)
     {
         $this->_product = $params['product'];
-        // Get product prices
+        // get product prices
         $productPrices = $this->_getAllPrices();
         $this->_priceExclTax = $productPrices['price_excl_tax'];
         $this->_priceInclTax = $productPrices['price_incl_tax'];
         $this->_priceBeforeDiscountExclTax = $productPrices['price_before_discount_excl_tax'];
         $this->_priceBeforeDiscountInclTax = $productPrices['price_before_discount_incl_tax'];
-        // Get product discount amount and percent
+        // get product discount amount and percent
         $productDiscount = $this->_getAllDiscounts();
         $this->_discountAmount = $productDiscount['discount_amount'];
         $this->_discountPercent = $productDiscount['discount_percent'];
-        // Get product discount start and end date
+        // get product discount start and end date
         $productDiscountDates = $this->_getAllDiscountDates();
         $this->_discountStartDate = $productDiscountDates['discount_start_date'];
         $this->_discountEndDate = $productDiscountDates['discount_end_date'];
@@ -185,7 +185,7 @@ class Price
             'discount_amount' => $this->_discountAmount,
             'discount_percent' => $this->_discountPercent,
             'discount_start_date' => $this->_discountStartDate,
-            'discount_end_date' => $this->_discountEndDate
+            'discount_end_date' => $this->_discountEndDate,
         ];
     }
 
@@ -212,12 +212,12 @@ class Price
      */
     protected function _getAllPrices()
     {
-        $conversion = $this->_currency != $this->_storeCurrency ? true : false;
+        $conversion = $this->_currency !== $this->_storeCurrency ? true : false;
         $prices = [
             'price_excl_tax' => $this->_getSpecificPrice('final_price', $conversion),
             'price_incl_tax' => $this->_getSpecificPrice('final_price', $conversion, true),
             'price_before_discount_excl_tax' => $this->_getSpecificPrice('regular_price', $conversion),
-            'price_before_discount_incl_tax' => $this->_getSpecificPrice('regular_price', $conversion, true)
+            'price_before_discount_incl_tax' => $this->_getSpecificPrice('regular_price', $conversion, true),
         ];
         return $prices;
     }
@@ -258,7 +258,7 @@ class Price
             : 0;
         return [
             'discount_amount' => $discountAmount,
-            'discount_percent' => $discountPercent
+            'discount_percent' => $discountPercent,
         ];
     }
 
@@ -269,10 +269,10 @@ class Price
      */
     protected function _getAllDiscountDates()
     {
-        // Get discount date from a special price
+        // get discount date from a special price
         $discountStartDate = $this->_product->getSpecialFromDate();
         $discountEndDate = $this->_product->getSpecialToDate();
-        // Get discount date from a catalogue rule if exist
+        // get discount date from a catalogue rule if exist
         $catalogueRules = $this->_catalogueRule->getResource()->getRulesFromProduct(
             (int)$this->_dateTime->gmtTimestamp(),
             $this->_store->getWebsiteId(),
@@ -280,14 +280,14 @@ class Price
             $this->_product->getId()
         );
         if (count($catalogueRules) > 0) {
-            $startTimestamp = $catalogueRules[0]['from_time'];
-            $endTimestamp = $catalogueRules[0]['to_time'];
-            $discountStartDate = $startTimestamp != 0 ? $this->_dateTime->date('Y-m-d H:i:s', $startTimestamp) : '';
-            $discountEndDate = $endTimestamp != 0 ? $this->_dateTime->date('Y-m-d H:i:s', $endTimestamp) : '';
+            $startTimestamp = (int)$catalogueRules[0]['from_time'];
+            $endTimestamp = (int)$catalogueRules[0]['to_time'];
+            $discountStartDate = $startTimestamp !== 0 ? $this->_dateTime->date('Y-m-d H:i:s', $startTimestamp) : '';
+            $discountEndDate = $endTimestamp !== 0 ? $this->_dateTime->date('Y-m-d H:i:s', $endTimestamp) : '';
         }
         return [
             'discount_start_date' => $discountStartDate,
-            'discount_end_date' => $discountEndDate
+            'discount_end_date' => $discountEndDate,
         ];
     }
 }

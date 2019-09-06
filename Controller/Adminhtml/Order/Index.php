@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Controller\Adminhtml\Order;
 
+use Lengow\Connector\Model\Exception;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
@@ -129,18 +130,14 @@ class Index extends Action
                             $results = $this->_import->exec();
                             $informations = $this->getInformations();
                             $informations['messages'] = $this->getMessages($results);
-                            return $this->_resultJsonFactory->create()->setData(
-                                ['informations' => $informations]
-                            );
+                            return $this->_resultJsonFactory->create()->setData(['informations' => $informations]);
                         case 're_import':
                             $orderLengowId = $this->getRequest()->getParam('order_lengow_id');
                             if (!is_null($orderLengowId)) {
                                 $result = $this->_lengowOrderFactory->create()->reImportOrder((int)$orderLengowId);
                                 $informations = $this->getInformations();
                                 $informations['messages'] = $result;
-                                return $this->_resultJsonFactory->create()->setData(
-                                    ['informations' => $informations]
-                                );
+                                return $this->_resultJsonFactory->create()->setData(['informations' => $informations]);
                             }
                             break;
                         case 're_send':
@@ -149,16 +146,12 @@ class Index extends Action
                                 $result = $this->_lengowOrderFactory->create()->reSendOrder((int)$orderLengowId);
                                 $informations = $this->getInformations();
                                 $informations['messages'] = $result;
-                                return $this->_resultJsonFactory->create()->setData(
-                                    ['informations' => $informations]
-                                );
+                                return $this->_resultJsonFactory->create()->setData(['informations' => $informations]);
                             }
                             break;
                         case 'load_information':
                             $informations = $this->getInformations();
-                            return $this->_resultJsonFactory->create()->setData(
-                                ['informations' => $informations]
-                            );
+                            return $this->_resultJsonFactory->create()->setData(['informations' => $informations]);
                             break;
                     }
                 }
@@ -205,14 +198,18 @@ class Index extends Action
                 [$results['order_error']]
             );
         }
-        if (count($messages) == 0) {
+        if (empty($messages)) {
             $messages[] = $this->_dataHelper->decodeLogMessage('No new notification on order');
         }
         if (isset($results['error'])) {
             foreach ($results['error'] as $storeId => $values) {
                 if ((int)$storeId > 0) {
-                    $store = $this->_storeManager->getStore($storeId);
-                    $storeName = $store->getName() . ' (' . $store->getId() . ') : ';
+                    try {
+                        $store = $this->_storeManager->getStore($storeId);
+                        $storeName = $store->getName() . ' (' . $store->getId() . ') : ';
+                    } catch (\Exception $e) {
+                        $storeName = 'Store id ' . $storeId;
+                    }
                     $messages[] = $storeName . $this->_dataHelper->decodeLogMessage($values);
                 }
             }

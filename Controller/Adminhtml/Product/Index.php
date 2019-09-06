@@ -109,7 +109,7 @@ class Index extends Action
                             if ($state !== null) {
                                 $oldValue = $this->_configHelper->get('selection_enable', $storeId);
                                 $this->_configHelper->set('selection_enable', $state, $storeId);
-                                // Clean config cache to valid configuration
+                                // clean config cache to valid configuration
                                 $this->_configHelper->cleanConfigCache();
                                 $this->_dataHelper->log(
                                     'Config',
@@ -119,7 +119,7 @@ class Index extends Action
                                             'lengow_export_options/simple/export_selection_enable',
                                             $oldValue,
                                             $state,
-                                            $storeId
+                                            $storeId,
                                         ]
                                     )
                                 );
@@ -128,7 +128,7 @@ class Index extends Action
                                     [
                                         'state' => $state,
                                         'exported' => $this->_export->getTotalExportedProduct(),
-                                        'total' => $this->_export->getTotalProduct()
+                                        'total' => $this->_export->getTotalProduct(),
                                     ]
                                 );
                             }
@@ -147,7 +147,7 @@ class Index extends Action
                                 return $this->_resultJsonFactory->create()->setData(
                                     [
                                         'exported' => $this->_export->getTotalExportedProduct(),
-                                        'total' => $this->_export->getTotalProduct()
+                                        'total' => $this->_export->getTotalProduct(),
                                     ]
                                 );
                             }

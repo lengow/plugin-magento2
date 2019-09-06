@@ -110,7 +110,6 @@ class InstallData implements InstallDataInterface
         ModuleContextInterface $context
     ) {
         $setup->startSetup();
-
         $eavSetup = $this->_eavSetupFactory->create(['setup' => $setup]);
         $customerSetup = $this->_customerSetupFactory->create(['resourceName' => 'customer_setup', 'setup' => $setup]);
         $salesSetup = $this->_salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
@@ -118,7 +117,6 @@ class InstallData implements InstallDataInterface
         // create attribute lengow_product for product
         $entityTypeId = $customerSetup->getEntityTypeId(Product::ENTITY);
         $lengowProductAttribut = $eavSetup->getAttribute($entityTypeId, 'lengow_product');
-
         if (!$lengowProductAttribut) {
             $eavSetup->addAttribute(
                 $entityTypeId,
@@ -141,7 +139,7 @@ class InstallData implements InstallDataInterface
                     'visible_on_front' => 0,
                     'used_in_product_listing' => 1,
                     'system' => 0,
-                    'group' => 'Lengow'
+                    'group' => 'Lengow',
                 ]
             );
         }
@@ -153,7 +151,6 @@ class InstallData implements InstallDataInterface
         $attributeSet = $this->_attributeSetFactory->create();
         $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
         $fromLengowCustomer = $eavSetup->getAttribute($entityTypeId, 'from_lengow');
-
         if (!$fromLengowCustomer) {
             $eavSetup->addAttribute(
                 $entityTypeId,
@@ -169,17 +166,16 @@ class InstallData implements InstallDataInterface
                     'input' => 'select',
                     'system' => 0,
                     'user_defined' => true,
-                    'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean'
+                    'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
                 ]
             );
-
             $fromLengowCustomer = $customerSetup->getEavConfig()
                 ->getAttribute('customer', 'from_lengow')
                 ->addData(
                     [
                         'attribute_set_id' => $attributeSetId,
                         'attribute_group_id' => $attributeGroupId,
-                        'used_in_forms' => ['adminhtml_customer']
+                        'used_in_forms' => ['adminhtml_customer'],
                     ]
                 );
             $fromLengowCustomer->getResource()->save($fromLengowCustomer);
@@ -202,40 +198,39 @@ class InstallData implements InstallDataInterface
                 'input' => 'select',
                 'system' => 0,
                 'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
-                'grid' => true
+                'grid' => true,
             ]
         );
 
-        // Set default attributes
+        // set default attributes
         $this->_configHelper->setDefaultAttributes();
 
-        //check if order state and status 'Lengow technical error' exists
+        // check if order state and status 'Lengow technical error' exists
         $collections = $this->_objectManager->create('Magento\Sales\Model\Order\Status')
             ->getCollection()
             ->toOptionArray();
         $lengowTechnicalExists = false;
         foreach ($collections as $value) {
-            if ($value['value'] == 'lengow_technical_error') {
+            if ($value['value'] === 'lengow_technical_error') {
                 $lengowTechnicalExists = true;
             }
         }
         // if not exists create new order state and status 'Lengow technical error'
         $statusTable = $setup->getTable('sales_order_status');
         $statusStateTable = $setup->getTable('sales_order_status_state');
-
         if (!$lengowTechnicalExists) {
-            // Insert statuses
+            // insert statuses
             $setup->getConnection()->insertArray(
                 $statusTable,
                 ['status', 'label'],
                 [
                     [
                         'status' => 'lengow_technical_error',
-                        'label' => 'Lengow Technical Error'
-                    ]
+                        'label' => 'Lengow Technical Error',
+                    ],
                 ]
             );
-            // Insert states and mapping of statuses to states
+            // insert states and mapping of statuses to states
             $setup->getConnection()->insertArray(
                 $statusStateTable,
                 ['status', 'state', 'is_default'],
@@ -243,8 +238,8 @@ class InstallData implements InstallDataInterface
                     [
                         'status' => 'lengow_technical_error',
                         'state' => 'lengow_technical_error',
-                        'is_default' => 1
-                    ]
+                        'is_default' => 1,
+                    ],
                 ]
             );
         }

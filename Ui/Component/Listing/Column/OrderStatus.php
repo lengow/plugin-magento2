@@ -55,9 +55,9 @@ class OrderStatus extends Column
         array $components = [],
         array $data = []
     ) {
-        parent::__construct($context, $uiComponentFactory, $components, $data);
         $this->_orderRepository = $orderRepository;
         $this->_dataHelper = $dataHelper;
+        parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
     /**
@@ -72,7 +72,7 @@ class OrderStatus extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if ($item['sent_marketplace'] == 1) {
+                if ((bool)$item['sent_marketplace']) {
                     $item['order_status'] = '<span class="lgw-label">'
                         . $this->_dataHelper->decodeLogMessage('Shipped by Marketplace') . '</span>';
                 } elseif (!is_null($item['order_id'])) {

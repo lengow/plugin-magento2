@@ -55,9 +55,9 @@ class OrderSku extends Column
         array $components = [],
         array $data = []
     ) {
-        parent::__construct($context, $uiComponentFactory, $components, $data);
         $this->_urlBuilder = $urlBuilder;
         $this->_orderRepository = $orderRepository;
+        parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
     /**

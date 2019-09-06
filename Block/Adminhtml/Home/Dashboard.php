@@ -50,23 +50,23 @@ class Dashboard extends Template
      * Constructor
      *
      * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param array $data additional params
      * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     * @param array $data additional params
      */
     public function __construct(
         Context $context,
-        array $data = [],
         SyncHelper $syncHelper,
-        Order $lengowOrder
+        Order $lengowOrder,
+        array $data = []
     ) {
-        parent::__construct($context, $data);
         $this->_syncHelper = $syncHelper;
         $this->_lengowOrder = $lengowOrder;
         if (!$this->_syncHelper->pluginIsBlocked()) {
             $this->_stats = $this->_syncHelper->getStatistic();
             $this->_numberOrderToBeSent = $this->_lengowOrder->countOrderToBeSent();
         }
+        parent::__construct($context, $data);
     }
 
     /**

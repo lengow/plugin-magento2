@@ -90,7 +90,7 @@ class Category
         $this->_product = $params['product'];
         $defaultCategory = $this->_getDefaultCategory();
         $this->_categoryBreadcrumb = $defaultCategory['id'] > 0
-            ? $this->_getBreadcrumb($defaultCategory['id'], $defaultCategory['path'])
+            ? $this->_getBreadcrumb((int)$defaultCategory['id'], $defaultCategory['path'])
             : '';
     }
 
@@ -122,12 +122,12 @@ class Category
     {
         $currentLevel = 0;
         $defaultCategory = [];
-        // Get category collection for one product
+        // get category collection for one product
         $categoryCollection = $this->_product->getCategoryCollection()
             ->addPathsFilter('1/' . $this->_store->getRootCategoryId() . '/')
             ->exportToArray();
         if (count($categoryCollection) > 0) {
-            // Select category with max level by default
+            // select category with max level by default
             foreach ($categoryCollection as $categoryArray) {
                 if ($categoryArray['level'] > $currentLevel) {
                     $currentLevel = $categoryArray['level'];
@@ -137,7 +137,7 @@ class Category
         }
         $category = [
             'id' => isset($defaultCategory['entity_id']) ? (int)$defaultCategory['entity_id'] : 0,
-            'path' => isset($defaultCategory['path']) ? $defaultCategory['path'] : ''
+            'path' => isset($defaultCategory['path']) ? $defaultCategory['path'] : '',
         ];
         return $category;
     }
@@ -154,23 +154,23 @@ class Category
      */
     protected function _getBreadcrumb($categoryId, $categoryPath)
     {
-        if ($categoryId == 0 || $categoryPath == '') {
+        if ($categoryId === 0 || $categoryPath === '') {
             return '';
         }
         $categoryNames = [];
         if (isset($this->_cacheCategoryBreadcrumbs[$categoryId])) {
             return $this->_cacheCategoryBreadcrumbs[$categoryId];
         }
-        // Create breadcrumb with categories
+        // create breadcrumb with categories
         $categoryIds = explode('/', $categoryPath);
         foreach ($categoryIds as $id) {
-            // No root category in breadcrumb
-            if ((int)$id != 1) {
+            // no root category in breadcrumb
+            if ((int)$id !== 1) {
                 $categoryNames[] = $this->_getName((int)$id);
             }
         }
         $categoryBreadcrumb = implode(' > ', $categoryNames);
-        // Set breadcrumb in category cache
+        // set breadcrumb in category cache
         $this->_cacheCategoryBreadcrumbs[$categoryId] = $categoryBreadcrumb;
         return $categoryBreadcrumb;
     }
@@ -186,7 +186,7 @@ class Category
      */
     protected function _getName($categoryId)
     {
-        if ($categoryId == 0) {
+        if ($categoryId === 0) {
             return '';
         }
         if (isset($this->_cacheCategoryNames[$categoryId])) {

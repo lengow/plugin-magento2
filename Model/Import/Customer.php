@@ -193,9 +193,9 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         $idWebsite = $this->_storeManager->getStore($storeId)->getWebsiteId();
         $array = [
             'billing_address' => $this->_extractAddressDataFromAPI($orderData->billing_address),
-            'delivery_address' => $this->_extractAddressDataFromAPI($shippingAddress)
+            'delivery_address' => $this->_extractAddressDataFromAPI($shippingAddress),
         ];
-        // Generation of fictitious email
+        // generation of fictitious email
         $array['billing_address']['email'] = $marketplaceSku . '-' . $orderData->marketplace . '@lengow.com';
         $this->_dataHelper->log(
             'Import',
@@ -206,21 +206,21 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
             $logOutput,
             $marketplaceSku
         );
-        // First get by email
+        // first get by email
         $customer = $this->_customerFactory->create();
         $customer->setWebsiteId($idWebsite);
         $customer->loadByEmail($array['billing_address']['email']);
-        // Get billing address
+        // get billing address
         $tempBillingNames = [
             'firstname' => $array['billing_address']['first_name'],
             'lastname' => $array['billing_address']['last_name'],
-            'fullname' => $array['billing_address']['full_name']
+            'fullname' => $array['billing_address']['full_name'],
         ];
         $billingNames = $this->_getNames($tempBillingNames);
         $array['billing_address']['first_name'] = $billingNames['firstname'];
         $array['billing_address']['last_name'] = $billingNames['lastname'];
         $billingAddress = $this->_convertAddress($array['billing_address']);
-        // Create new subscriber without send a confirmation email
+        // create new subscriber without send a confirmation email
         if (!$customer->getId()) {
             $customer->setImportMode(true);
             $customer->setWebsiteId($idWebsite);
@@ -234,16 +234,16 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         }
         $billingAddress->setCustomer($customer);
         $customer->addAddress($billingAddress);
-        // Get shipping address
+        // get shipping address
         $tempShippingNames = [
             'firstname' => $array['delivery_address']['first_name'],
             'lastname' => $array['delivery_address']['last_name'],
-            'fullname' => $array['delivery_address']['full_name']
+            'fullname' => $array['delivery_address']['full_name'],
         ];
         $shippingNames = $this->_getNames($tempShippingNames);
         $array['delivery_address']['first_name'] = $shippingNames['firstname'];
         $array['delivery_address']['last_name'] = $shippingNames['lastname'];
-        // Get relay id if exist
+        // get relay id if exist
         if (count($shippingAddress->trackings) > 0
             && isset($shippingAddress->trackings[0]->relay)
             && !is_null($shippingAddress->trackings[0]->relay->id)
@@ -259,7 +259,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
             $array['billing_address'],
             $customer
         );
-        // Set group id with specific configuration
+        // set group id with specific configuration
         $customer->setGroupId($this->_configHelper->get('customer_group', $storeId));
 
         $customer->save();
@@ -340,7 +340,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
     protected function _splitNames($fullname)
     {
         $split = explode(' ', $fullname);
-        if ($split && count($split)) {
+        if ($split && !empty($split)) {
             $names['firstname'] = $split[0];
             $names['lastname'] = '';
             for ($i = 1; $i < count($split); $i++) {
@@ -377,12 +377,12 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         $this->_copy->copyFieldsetToTarget('lengow_convert_address', 'to_' . $type . '_address', $data, $address);
         $firstLine = trim($data['first_line']);
         $secondLine = trim($data['second_line']);
-        // Fix first line address
+        // fix first line address
         if (empty($firstLine) && !empty($secondLine)) {
             $firstLine = $secondLine;
             $secondLine = null;
         }
-        // Fix second line address
+        // fix second line address
         if (!empty($secondLine)) {
             $firstLine = $firstLine . "\n" . $secondLine;
         }

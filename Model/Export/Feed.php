@@ -166,8 +166,8 @@ class Feed
      *
      * @param string $type (header, body or footer)
      * @param array $data export data
-     * @param boolean $isFirst is first product to export
-     * @param boolean $maxCharacter Max characters for yaml format
+     * @param boolean|null $isFirst is first product to export
+     * @param boolean|null $maxCharacter Max characters for yaml format
      *
      * @throws \Exception
      */
@@ -177,7 +177,7 @@ class Feed
             case 'header':
                 if ($this->_stream) {
                     header($this->_getHtmlHeader());
-                    if ($this->_format == 'csv') {
+                    if ($this->_format === 'csv') {
                         header('Content-Disposition: attachment; filename=feed.csv');
                     }
                 }
@@ -244,6 +244,7 @@ class Feed
     {
         switch ($this->_format) {
             case 'csv':
+            default:
                 return 'Content-Type: text/csv; charset=UTF-8';
             case 'xml':
                 return 'Content-Type: application/xml; charset=UTF-8';
@@ -251,8 +252,6 @@ class Feed
                 return 'Content-Type: application/json; charset=UTF-8';
             case 'yaml':
                 return 'Content-Type: text/x-yaml; charset=UTF-8';
-            default:
-                return '';
         }
     }
 
@@ -267,6 +266,7 @@ class Feed
     {
         switch ($this->_format) {
             case 'csv':
+            default:
                 $header = '';
                 foreach ($data as $field) {
                     $header .= self::PROTECTION . $this->_formatFields($field) . self::PROTECTION . self::CSV_SEPARATOR;
@@ -278,8 +278,6 @@ class Feed
                 return '{"catalog":[';
             case 'yaml':
                 return '"catalog":' . self::EOL;
-            default:
-                return '';
         }
     }
 
@@ -296,6 +294,7 @@ class Feed
     {
         switch ($this->_format) {
             case 'csv':
+            default:
                 $content = '';
                 foreach ($data as $value) {
                     $content .= self::PROTECTION . $value . self::PROTECTION . self::CSV_SEPARATOR;
@@ -323,7 +322,7 @@ class Feed
                 $content .= $this->_jsonHelper->jsonEncode($jsonArray);
                 return $content;
             case 'yaml':
-                if ($maxCharacter % 2 == 1) {
+                if ($maxCharacter % 2 === 1) {
                     $maxCharacter = $maxCharacter + 1;
                 } else {
                     $maxCharacter = $maxCharacter + 2;
@@ -340,8 +339,6 @@ class Feed
                     $content .= $yamlSpace . (string)$value . self::EOL;
                 }
                 return $content;
-            default:
-                return '';
         }
     }
 

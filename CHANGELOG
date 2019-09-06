@@ -1,4 +1,11 @@
 =============================================================
+Version 1.1.2
+=============================================================
+
+    - Feature: [action] Improved carrier matching with search on carrier code and label
+    - Bugfix: [import] Save tracking number during updating process
+
+=============================================================
 Version 1.1.1
 =============================================================
 

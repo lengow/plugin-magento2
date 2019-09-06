@@ -114,7 +114,7 @@ class Connector
             '/access/get_token',
             [
                 'access_token' => $this->_accessToken,
-                'secret' => $this->_secret
+                'secret' => $this->_secret,
             ],
             'POST'
         );
@@ -240,12 +240,10 @@ class Connector
         switch ($format) {
             case 'json':
                 return json_decode($data, true);
-            case 'csv':
-                return $data;
             case 'xml':
                 return simplexml_load_string($data);
+            case 'csv':
             case 'stream':
-                return $data;
             default:
                 return $data;
         }
@@ -309,7 +307,7 @@ class Connector
                         $opts[CURLOPT_HTTPHEADER],
                         [
                             'Content-Type: application/json',
-                            'Content-Length: ' . strlen($body)
+                            'Content-Length: ' . strlen($body),
                         ]
                     );
                 }
@@ -401,7 +399,7 @@ class Connector
             return false;
         }
         list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessIds();
-        if (is_null($accountId) || $accountId == 0 || !is_numeric($accountId)) {
+        if (is_null($accountId) || (int)$accountId === 0 || !is_numeric($accountId)) {
             return false;
         }
         try {

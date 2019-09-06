@@ -142,7 +142,7 @@ class ShippingTest extends \PHPUnit_Framework_TestCase
             [
                 'shipping_carrier'  => 'ups',
                 'shipping_is_fixed' => true,
-                'shipping_method'   => 'Flatrate'
+                'shipping_method'   => 'Flatrate',
             ],
             $fixture->invokeMethod($this->_shipping, '_getShippingData'),
             '[Test Get Shipping Data] Check return when carrier is fixed'
@@ -154,7 +154,7 @@ class ShippingTest extends \PHPUnit_Framework_TestCase
             [
                 'shipping_carrier'  => 'ups',
                 'shipping_is_fixed' => false,
-                'shipping_method'   => 'Flatrate'
+                'shipping_method'   => 'Flatrate',
             ],
             $fixture->invokeMethod($this->_shipping, '_getShippingData'),
             '[Test Get Shipping Data] Check return when carrier is not fixed'
@@ -165,7 +165,7 @@ class ShippingTest extends \PHPUnit_Framework_TestCase
             [
                 'shipping_carrier'  => '',
                 'shipping_is_fixed' => '',
-                'shipping_method'   => 'Flatrate'
+                'shipping_method'   => 'Flatrate',
             ],
             $fixture->invokeMethod($this->_shipping, '_getShippingData'),
             '[Test Get Shipping Data] Check return when carrier is null'

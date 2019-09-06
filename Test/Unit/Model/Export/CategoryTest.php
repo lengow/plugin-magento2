@@ -125,8 +125,8 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
                     ['entity_id' => '5', 'level' => '5', 'path' => '1/2/3/4/5'],
                     ['entity_id' => '3', 'level' => '3', 'path' => '1/2/3'],
                     ['entity_id' => '2', 'level' => '2', 'path' => '1/2'],
-                    ['entity_id' => '4', 'level' => '4', 'path' => '1/2/3/4']
-                ]
+                    ['entity_id' => '4', 'level' => '4', 'path' => '1/2/3/4'],
+                ],
             ]
         );
         $categoryCollectionMock2 = $fixture->mockFunctions($classMock, ['addPathsFilter'], [$pathFilterMock2]);

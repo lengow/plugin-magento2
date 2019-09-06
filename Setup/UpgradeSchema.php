@@ -32,7 +32,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
         $setup->startSetup();
-        //Order table
+
+        // order table
         $setup->getConnection()
             ->addColumn(
                 $setup->getTable('sales_order'),
@@ -50,7 +51,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'system' => 0,
                     'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
                     'grid' => true,
-                    'comment' => 'From Lengow'
+                    'comment' => 'From Lengow',
                 ]
             );
 

@@ -101,13 +101,13 @@ class Data extends AbstractHelper
      * @param string $category Category
      * @param string $message log message
      * @param boolean $display display on screen
-     * @param string $marketplaceSku lengow order id
+     * @param string|null $marketplaceSku lengow order id
      *
      * @return boolean
      */
-    public function log($category, $message = "", $display = false, $marketplaceSku = null)
+    public function log($category, $message = '', $display = false, $marketplaceSku = null)
     {
-        if (strlen($message) == 0) {
+        if (strlen($message) === 0) {
             return false;
         }
         $decodedMessage = $this->decodeLogMessage($message, false);
@@ -125,13 +125,13 @@ class Data extends AbstractHelper
      * Set message with parameters for translation
      *
      * @param string $key log key
-     * @param array $params log parameters
+     * @param array|null $params log parameters
      *
      * @return string
      */
     public function setLogMessage($key, $params = null)
     {
-        if (is_null($params) || (is_array($params) && count($params) == 0)) {
+        if (is_null($params) || (is_array($params) && empty($params))) {
             return $key;
         }
         $allParams = [];
@@ -154,7 +154,7 @@ class Data extends AbstractHelper
      */
     public function decodeLogMessage($message, $useTranslation = true, $params = [])
     {
-        // Clean new line for magento error
+        // clean new line for magento error
         $message = preg_replace("#\n|\t|\r#", ' ', $message);
         if (preg_match('/^([^\[\]]*)(\[(.*)\]|)$/', $message, $result)) {
             if (isset($result[1])) {
@@ -267,10 +267,15 @@ class Data extends AbstractHelper
     public function getStore()
     {
         $storeId = (int)$this->_getRequest()->getParam('store', 0);
-        if ($storeId == 0) {
+        if ($storeId === 0) {
             $storeId = $this->_storeManager->getDefaultStoreView()->getId();
         }
-        return $this->_storeManager->getStore($storeId);
+        try {
+            $store = $this->_storeManager->getStore($storeId);
+        } catch (\Exception $e) {
+            $store = $this->_storeManager->getDefaultStoreView();
+        }
+        return $store;
     }
 
     /**
@@ -280,7 +285,12 @@ class Data extends AbstractHelper
      */
     public function getMediaUrl()
     {
-        return $this->_storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
+        try {
+            $url = $this->_storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
+        } catch (\Exception $e) {
+            $url = '';
+        }
+        return $url;
     }
 
     /**
@@ -290,24 +300,12 @@ class Data extends AbstractHelper
      */
     public function getMediaPath()
     {
-        return $this->_directoryList->getPath('media');
-    }
-
-    /**
-     * Get host for generated email
-     *
-     * @param integer $storeId Magento store id
-     *
-     * @return string
-     */
-    public function getHost($storeId)
-    {
-        $domain = $this->_storeManager->getStore($storeId)->getBaseUrl();
-        preg_match('`([a-zàâäéèêëôöùûüîïç0-9-]+\.[a-z]+)`', $domain, $out);
-        if ($out[1]) {
-            return $out[1];
+        try {
+            $path = $this->_directoryList->getPath('media');
+        } catch (\Exception $e) {
+            $path = '';
         }
-        return $domain;
+        return $path;
     }
 
     /**
@@ -351,7 +349,7 @@ class Data extends AbstractHelper
                 chr(29),
                 chr(28),
                 "\n",
-                "\r"
+                "\r",
             ],
             [
                 ' ',
@@ -368,7 +366,7 @@ class Data extends AbstractHelper
                 '',
                 '',
                 '',
-                ''
+                '',
             ],
             $str
         );
@@ -568,7 +566,7 @@ class Data extends AbstractHelper
             /* YU */
             '/[\x{042E}]/u',
             /* ZH */
-            '/[\x{0416}]/u'
+            '/[\x{0416}]/u',
         ];
 
         // ö to oe
@@ -647,7 +645,7 @@ class Data extends AbstractHelper
             'YI',
             'YO',
             'YU',
-            'ZH'
+            'ZH',
         ];
         return preg_replace($patterns, $replacements, $str);
     }
