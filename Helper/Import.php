@@ -28,6 +28,7 @@ use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Import\OrdererrorFactory;
 use Lengow\Connector\Model\Import\Marketplace;
+use Lengow\Connector\Model\Import\MarketplaceFactory;
 use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Model\Import\OrderFactory;
 
@@ -64,9 +65,9 @@ class Import extends AbstractHelper
     protected $_orderErrorFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Marketplace Lengow marketplace instance
+     * @var \Lengow\Connector\Model\Import\MarketplaceFactory Lengow marketplace factory instance
      */
-    protected $_marketplace;
+    protected $_marketplaceFactory;
 
     /**
      * @var \Lengow\Connector\Model\Import\OrderFactory Lengow import order factory instance
@@ -91,7 +92,7 @@ class Import extends AbstractHelper
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Lengow\Connector\Model\Import\OrdererrorFactory $ordererrorFactory Lengow order error factory instance
-     * @param \Lengow\Connector\Model\Import\Marketplace $marketplace Lengow marketplace instance
+     * @param \Lengow\Connector\Model\Import\MarketplaceFactory $marketplaceFactory Lengow marketplace factory instance
      * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrder Lengow import order factory instance
      */
     public function __construct(
@@ -101,7 +102,7 @@ class Import extends AbstractHelper
         ConfigHelper $configHelper,
         OrdererrorFactory $ordererrorFactory,
         DateTime $dateTime,
-        Marketplace $marketplace,
+        MarketplaceFactory $marketplaceFactory,
         OrderFactory $lengowOrder
     )
     {
@@ -110,7 +111,7 @@ class Import extends AbstractHelper
         $this->_dataHelper = $dataHelper;
         $this->_dateTime = $dateTime;
         $this->_orderErrorFactory = $ordererrorFactory;
-        $this->_marketplace = $marketplace;
+        $this->_marketplaceFactory = $marketplaceFactory;
         $this->_orderFactory = $lengowOrder;
         parent::__construct($context);
     }
@@ -292,13 +293,14 @@ class Import extends AbstractHelper
      *
      * @throws LengowException
      *
-     * @return \Lengow\Connector\Model\Import\Marketplace
+     * @return Marketplace
      */
     public function getMarketplaceSingleton($name)
     {
         if (!array_key_exists($name, self::$marketplaces)) {
-            $this->_marketplace->init(['name' => $name]);
-            self::$marketplaces[$name] = $this->_marketplace;
+            $marketplace = $this->_marketplaceFactory->create();
+            $marketplace->init(['name' => $name]);
+            self::$marketplaces[$name] = $marketplace;
         }
         return self::$marketplaces[$name];
     }
