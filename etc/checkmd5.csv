@@ -68,7 +68,7 @@
 /Model/Export/Price.php|3b7cd501c0e53f9bf165ccdb5df57370
 /Model/Export/File.php|5978a7e33602b7894c2332e2145ad7b3
 /Model/Export/Category.php|187bfdaa7096e767b68a6fd711e05850
-/Model/Export/Product.php|29463011ba36364b5b404a0d87e60adf
+/Model/Export/Product.php|95aa885b9a45595fe856a7fb82a7d107
 /Model/ResourceModel/Orderline.php|3f668e6e192780a17847a5ecb354374e
 /Model/ResourceModel/Action.php|7fc9a81dd0327b44d3f843cc4b374f03
 /Model/ResourceModel/Order.php|10cb298ccc1cf0d041396cb497af037b

@@ -666,7 +666,18 @@ class Product
         $attribute = $this->_product->getData($field);
         if ($attribute !== null) {
             if (is_array($attribute)) {
-                $attributeValue = implode(',', $attribute);
+                $attributeValue = '';
+                foreach ($attribute as $key => $value) {
+                    // checks whether an array-form product attribute contains another array
+                    if (is_array($value)) {
+                        $value = json_encode($value);
+                    }
+                    if (!is_numeric($key)) {
+                        $value = $key . ': ' . $value;
+                    }
+                    $attributeValue .= $value . ', ';
+                }
+                $attributeValue = rtrim($attributeValue, ', ');
             } else {
                 $attributeValue = $this->_product->getResource()
                     ->getAttribute($field)
