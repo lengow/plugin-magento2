@@ -22,10 +22,12 @@ namespace Lengow\Connector\Helper;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Catalog\Model\Product;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\App\Cache\Manager as CacheManager;
 use Magento\Framework\App\Cache\Type\Config as CacheTypeConfig;
 use Magento\Framework\App\Helper\Context;
+use Magento\Eav\Model\Config as EavConfig;
 use Magento\Eav\Model\Entity\Attribute\Set as AttibuteSet;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as AttributeCollectionFactory;
 use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as CustomerGroupCollectionFactory;
@@ -64,6 +66,11 @@ class Config extends AbstractHelper
      * @var \Magento\Store\Model\ResourceModel\Store\CollectionFactory Magento store collection factory
      */
     protected $_storeCollectionFactory;
+
+    /**
+     * @var \Magento\Eav\Model\Config Magento eav config
+     */
+    protected $_eavConfig;
 
     /**
      * @var array all Lengow options path
@@ -304,6 +311,7 @@ class Config extends AbstractHelper
      * @param \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface Magento writer instance
      * @param \Magento\Framework\App\Cache\Manager $cacheManager Magento Cache manager instance
      * @param \Magento\Customer\Model\ResourceModel\Group\CollectionFactory $customerGroupCollectionFactory
+     * @param \Magento\Eav\Model\Config $eavConfig Magento eav config
      * @param \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory $attributeCollectionFactory
      * @param \Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory $configDataCollectionFactory
      * @param \Magento\Store\Model\ResourceModel\Store\CollectionFactory $storeCollectionFactory
@@ -313,6 +321,7 @@ class Config extends AbstractHelper
         WriterInterface $writerInterface,
         CacheManager $cacheManager,
         CustomerGroupCollectionFactory $customerGroupCollectionFactory,
+        EavConfig $eavConfig,
         AttributeCollectionFactory $attributeCollectionFactory,
         ConfigDataCollectionFactory $configDataCollectionFactory,
         StoreCollectionFactory $storeCollectionFactory
@@ -321,6 +330,7 @@ class Config extends AbstractHelper
         $this->_writerInterface = $writerInterface;
         $this->_cacheManager = $cacheManager;
         $this->_customerGroupCollectionFactory = $customerGroupCollectionFactory;
+        $this->_eavConfig = $eavConfig;
         $this->_attributeCollectionFactory = $attributeCollectionFactory;
         $this->_configDataCollectionFactory = $configDataCollectionFactory;
         $this->_storeCollectionFactory = $storeCollectionFactory;
@@ -608,21 +618,26 @@ class Config extends AbstractHelper
      */
     public function getAllAttributes()
     {
-        // add filter by entity type to get product attributes only
-        $attributes = $this->_attributeCollectionFactory->create()
-            ->addFieldToFilter(AttibuteSet::KEY_ENTITY_TYPE_ID, 4)
-            ->load()
-            ->getData();
-        $allAttributes = [
-            ['value' => 'none', 'label' => ''],
-        ];
-        foreach ($attributes as $attribute) {
-            if (!in_array($attribute['attribute_code'], $this->_excludeAttributes)) {
-                $allAttributes[] = [
-                    'value' => $attribute['attribute_code'],
-                    'label' => $attribute['attribute_code'],
-                ];
+        try {
+            // add filter by entity type to get product attributes only
+            $productEntityId = (int)$this->_eavConfig->getEntityType(Product::ENTITY)->getEntityTypeId();
+            $attributes = $this->_attributeCollectionFactory->create()
+                ->addFieldToFilter(AttibuteSet::KEY_ENTITY_TYPE_ID, $productEntityId)
+                ->load()
+                ->getData();
+            $allAttributes = [
+                ['value' => 'none', 'label' => ''],
+            ];
+            foreach ($attributes as $attribute) {
+                if (!in_array($attribute['attribute_code'], $this->_excludeAttributes)) {
+                    $allAttributes[] = [
+                        'value' => $attribute['attribute_code'],
+                        'label' => $attribute['attribute_code'],
+                    ];
+                }
             }
+        }  catch (\Exception $e) {
+            $allAttributes = [];
         }
         return $allAttributes;
     }
