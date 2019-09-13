@@ -891,7 +891,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
         $productMock2 = $fixture->mockFunctions($this->_product, ['getData'], [['array', 'plop', 'value']]);
         $fixture->setPrivatePropertyValue($this->_product, ['_product'], [$productMock2]);
         $this->assertEquals(
-            'array,plop,value',
+            'array, plop, value',
             $fixture->invokeMethod($this->_product, '_getAttributeValue', ['plop']),
             '[Test Get Attribute Value] Check if a valid return when attribute value is null'
         );

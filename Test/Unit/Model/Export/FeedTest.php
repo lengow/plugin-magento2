@@ -101,7 +101,7 @@ class FeedTest extends \PHPUnit_Framework_TestCase
         );
         $fixture->setPrivatePropertyValue($this->_feed, ['_format' ], ['plop']);
         $this->assertEquals(
-            '',
+            'Content-Type: text/csv; charset=UTF-8',
             $fixture->invokeMethod($this->_feed, '_getHtmlHeader'),
             '[Test Get Html Header] Check if return is valid for fake format'
         );
@@ -146,7 +146,7 @@ class FeedTest extends \PHPUnit_Framework_TestCase
         );
         $fixture->setPrivatePropertyValue($this->_feed, ['_format'], ['plop']);
         $this->assertEquals(
-            '',
+            '"id"|"sku"|"name"|"child_name"|"quantity"|"status"'.Feed::EOL,
             $fixture->invokeMethod($this->_feed, '_getHeader', [$dataMock]),
             '[Test Get Header] Check if return is valid for fake format'
         );
@@ -251,7 +251,7 @@ class FeedTest extends \PHPUnit_Framework_TestCase
         );
         $fixture->setPrivatePropertyValue($this->_feed, ['_format'], ['plop']);
         $this->assertEquals(
-            '',
+            '"110"|"my sku"|"my product"'.Feed::EOL,
             $fixture->invokeMethod($this->_feed, '_getBody', [$dataMock, false, 4]),
             '[Test Get Body] Check if return is a valid for fake format'
         );

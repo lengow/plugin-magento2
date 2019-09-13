@@ -226,47 +226,4 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             '[Test Get Selected Attributes] Check if return is valid when is null'
         );
     }
-
-    /**
-     * @covers \Lengow\Connector\Helper\Config::getAllAttributes
-     */
-    public function testGetAllAttributes()
-    {
-        $mockAttributes = [
-            ['attribute_code' => 'activity'],
-            ['attribute_code' => 'category_gear'],
-            ['attribute_code' => 'short_description'],
-            ['attribute_code' => 'category_ids'],
-            ['attribute_code' => 'climate'],
-            ['attribute_code' => 'lengow_product'],
-        ];
-        $results = [
-            ['value' => 'none', 'label' => ''],
-            ['value' => 'activity', 'label' => 'activity'],
-            ['value' => 'category_gear', 'label' => 'category_gear'],
-            ['value' => 'category_ids', 'label' => 'category_ids'],
-            ['value' => 'climate', 'label' => 'climate'],
-        ];
-        $this->_attributeCollectionMock->expects($this->once())
-            ->method('addFieldToFilter')
-            ->will($this->returnValue($this->_attributeCollectionMock));
-        $this->_attributeCollectionMock->expects($this->once())
-            ->method('load')
-            ->will($this->returnValue($this->_attributeCollectionMock));
-        $this->_attributeCollectionMock->expects($this->once())
-            ->method('getData')
-            ->will($this->returnValue($mockAttributes));
-        $attributes = $this->_configHelper->getAllAttributes();
-        $this->assertInternalType(
-            'array',
-            $attributes,
-            '[Test Get All Attributes] Check if return is a array'
-        );
-
-        $this->assertEquals(
-            $attributes,
-            $results,
-            '[Test Get All Attributes] Check if return is valid'
-        );
-    }
 }

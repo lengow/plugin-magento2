@@ -309,7 +309,11 @@ class Content extends Template
         $sep = DIRECTORY_SEPARATOR;
         $folderPath = $this->_dataHelper->getMediaPath() . $sep . 'lengow' . $sep . $store->getCode() . $sep;
         $folderUrl = $this->_dataHelper->getMediaUrl() . 'lengow' . $sep . $store->getCode() . $sep;
-        $files = array_diff(scandir($folderPath), ['..', '.']);
+        try {
+            $files = array_diff(scandir($folderPath), ['..', '.']);
+        } catch (\Exception $e) {
+            $files = [];
+        }
         $checklist = [];
         $checklist[] = [
             'header' => $store->getName() . ' (' . $store->getId() . ') ' . $store->getBaseUrl(),

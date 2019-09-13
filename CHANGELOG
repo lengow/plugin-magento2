@@ -1,4 +1,13 @@
 =============================================================
+Version 1.1.3
+=============================================================
+
+    - Bugfix: [action] Using factory process for the instantiation of marketplace
+    - Bugfix: [export] Dynamic recovery of the entity type id for the product attributes
+    - Bugfix: [export] Checks whether an array-form product attribute contains another array
+    - Bugfix: [toolbox] Adding security on the recovery of export files
+
+=============================================================
 Version 1.1.2
 =============================================================
 
