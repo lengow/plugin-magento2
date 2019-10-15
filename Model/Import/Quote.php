@@ -295,21 +295,12 @@ class Quote extends \Magento\Quote\Model\Quote
                 // get product prices
                 $price = $lengowProduct['price_unit'];
                 if (!$priceIncludeTax) {
-                    $basedOn = $this->_scopeConfig->getValue(
-                        \Magento\Tax\Model\Config::CONFIG_XML_PATH_BASED_ON,
-                        'store',
+                    $taxRate = $this->_taxCalculation->getCalculatedRate(
+                        $magentoProduct->getTaxClassId(),
+                        $this->getCustomer()->getId(),
                         $this->getStore()
                     );
-                    $countryId = $basedOn === 'shipping'
-                        ? $this->getShippingAddress()->getCountryId()
-                        : $this->getBillingAddress()->getCountryId();
-                    $taxRequest = new \Magento\Framework\DataObject();
-                    $groupCustomer = $this->_groupCustomer->load($this->getCustomer()->getGroupId());
-                    $taxRequest->setCountryId($countryId)
-                        ->setCustomerClassId($groupCustomer->getCustomerGroupCode())
-                        ->setProductClassId($magentoProduct->getTaxClassId());
-                    $taxRate = (float)$this->_calculation->getRate($taxRequest);
-                    $tax = (float)$this->_calculation->calcTaxAmount($price, $taxRate, true);
+                    $tax = $this->_calculation->calcTaxAmount($price, $taxRate, true);
                     $price = $price - $tax;
                 }
                 $magentoProduct->setPrice($price);
