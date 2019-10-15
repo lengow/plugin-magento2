@@ -1,4 +1,4 @@
-/composer.json|5d5ca82aff2ad72df1bf97b6e5e88589
+/composer.json|f2919bab4d73acc9ad581c3ee4b28bfa
 /registration.php|dc6e50502663d362b5efdf9c829985c6
 /Block/Adminhtml/System/Config/Check.php|12f8a0300d3f911afeedaa4a4472d246
 /Block/Adminhtml/Footer.php|966e0da3c7e0dc7d136b848c498755c0
@@ -46,7 +46,7 @@
 /etc/adminhtml/routes.xml|b37d51a18bc54f5a872c9797ed06ed5d
 /etc/adminhtml/menu.xml|b77fedabb5e2fa4ac1e16faa8b07add4
 /etc/adminhtml/system.xml|22dcc6182f987c2f1981a94ec81532e5
-/etc/module.xml|fb6ccae568fa4c8d4bec9bd02884bcb6
+/etc/module.xml|ab53814aa0197220e81032c54475223c
 /Helper/Sync.php|126c3b14970cd60de8de72cff954186e
 /Helper/Data.php|4b994c8a3e7606974a3c61a2b7ea7edf
 /Helper/Security.php|3179a51d47cc57e4bde230e1dab8438b
