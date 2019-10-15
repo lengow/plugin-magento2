@@ -39,7 +39,6 @@
 /etc/acl.xml|9b7ef12d777d5f9bed984c600c04477c
 /etc/config.xml|629ee7384e45b915387b08fa89ff1ee9
 /etc/crontab.xml|ca97f746162b6bd4441d34475c9b0103
-/etc/fieldset.xml|3ef3b0cf86782b4bd3f226570c0c8799
 /etc/di.xml|594058fc32534212ccb4d3d7810a269b
 /etc/frontend/routes.xml|fd7926ca314017e32250b7e108d09d75
 /etc/events.xml|2d87b77011008cec0c76349d0cb48ff1
@@ -90,7 +89,7 @@
 /Model/Import/Importorder.php|d51a0dfdf6f2261afea2de157b47dad3
 /Model/Import/Order.php|929a225046ed3c06d574dd5c7a887637
 /Model/Import/Quote.php|28188f44fd633775a425e251305d50ce
-/Model/Import/Customer.php|d827a2bdd33790eda6f9215a746ac48d
+/Model/Import/Customer.php|bda00945ee515fb4dd11b4d3bc293582
 /Model/Import/Quote/Item.php|e03c9210e98976b3eba0feda34012a05
 /Model/Import/Ordererror.php|63849f903867cdaf1abe5edecb2da78f
 /Model/Import/Marketplace.php|e63f2fbfe9249d34b54c0dc77711fcae
