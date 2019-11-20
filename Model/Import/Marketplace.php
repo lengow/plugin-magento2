@@ -489,7 +489,7 @@ class Marketplace extends AbstractModel
                     break;
                 default:
                     if (isset($actions['optional_args']) && in_array($arg, $actions['optional_args'])) {
-                        continue;
+                        break;
                     }
                     $defaultValue = $this->getDefaultValue((string)$arg);
                     $paramValue = $defaultValue ? $defaultValue : $arg . ' not available';

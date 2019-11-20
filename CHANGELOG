@@ -1,4 +1,12 @@
 =============================================================
+Version 1.1.4
+=============================================================
+
+    - Feature: Adding compatibility with php 7.3
+    - Bugfix: [import] Tax rate recovery when product prices do not include tax
+    - Bugfix: [import] Update address creation for compatibility with version 2.3.3
+
+=============================================================
 Version 1.1.3
 =============================================================
 

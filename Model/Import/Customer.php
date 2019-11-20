@@ -35,18 +35,12 @@ use Magento\Customer\Model\AddressFactory;
 use Magento\Directory\Model\ResourceModel\Region\Collection as RegionCollection;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
-use Magento\Framework\DataObject\Copy;
 
 /**
  * Model import customer
  */
 class Customer extends \Magento\Customer\Model\ResourceModel\Customer
 {
-    /**
-     * @var Copy
-     */
-    protected $_copy;
-
     /**
      * @var EncryptorInterface
      */
@@ -132,7 +126,6 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
      * @param \Magento\Directory\Model\ResourceModel\Region\Collection $regionCollection Magento region collection
      * @param \Magento\Framework\Math\Random $mathRandom Magento math random
      * @param \Magento\Framework\Encryption\EncryptorInterface $encryptor encryption interface
-     * @param \Magento\Framework\DataObject\Copy $copyService Magento copy service
      */
     public function __construct(
         Context $context,
@@ -150,8 +143,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         CustomerRepositoryInterface $customerRepository,
         RegionCollection $regionCollection,
         Random $mathRandom,
-        EncryptorInterface $encryptor,
-        Copy $copyService
+        EncryptorInterface $encryptor
     )
     {
         $this->_dataHelper = $dataHelper;
@@ -163,7 +155,6 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         $this->_regionCollection = $regionCollection;
         $this->_mathRandom = $mathRandom;
         $this->_encryptor = $encryptor;
-        $this->_copy = $copyService;
         parent::__construct(
             $context,
             $entitySnapshot,
@@ -224,9 +215,10 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         if (!$customer->getId()) {
             $customer->setImportMode(true);
             $customer->setWebsiteId($idWebsite);
+            $customer->setCompany($array['billing_address']['company']);
+            $customer->setLastname($array['billing_address']['last_name']);
+            $customer->setFirstname($array['billing_address']['first_name']);
             $customer->setEmail($array['billing_address']['email']);
-            $customer->setFirstName($array['billing_address']['first_name']);
-            $customer->setLastName($array['billing_address']['last_name']);
             $customer->setConfirmation(null);
             $customer->setForceConfirmed(true);
             $customer->setPasswordHash($this->_encryptor->getHash($this->generatePassword(), true));
@@ -253,12 +245,6 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         $shippingAddress = $this->_convertAddress($array['delivery_address'], 'shipping');
         $shippingAddress->setCustomer($customer);
         $customer->addAddress($shippingAddress);
-        $this->_copy->copyFieldsetToTarget(
-            'lengow_convert_address',
-            'to_customer',
-            $array['billing_address'],
-            $customer
-        );
         // set group id with specific configuration
         $customer->setGroupId($this->_configHelper->get('customer_group', $storeId));
 
@@ -374,7 +360,13 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
             $address->setIsDefaultBilling(false);
             $address->setIsDefaultShipping(true);
         }
-        $this->_copy->copyFieldsetToTarget('lengow_convert_address', 'to_' . $type . '_address', $data, $address);
+        $address->setCompany($data['company']);
+        $address->setLastname($data['last_name']);
+        $address->setFirstname($data['first_name']);
+        $address->setEmail($data['email']);
+        $address->setPostcode($data['zipcode']);
+        $address->setCity($data['city']);
+        $address->setCountryId($data['common_country_iso_a2']);
         $firstLine = trim($data['first_line']);
         $secondLine = trim($data['second_line']);
         // fix first line address
