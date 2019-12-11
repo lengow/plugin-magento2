@@ -180,9 +180,9 @@ class Index extends Action
                 if ($getParams) {
                     $this->getResponse()->setBody($this->_export->getExportParams());
                 } elseif ($mode === 'size') {
-                    $this->getResponse()->setBody($this->_export->getTotalExportedProduct());
+                    $this->getResponse()->setBody((string)$this->_export->getTotalExportedProduct());
                 } elseif ($mode === 'total') {
-                    $this->getResponse()->setBody($this->_export->getTotalProduct());
+                    $this->getResponse()->setBody((string)$this->_export->getTotalProduct());
                 } else {
                     $this->_export->exec();
                 }
