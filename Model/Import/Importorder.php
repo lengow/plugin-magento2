@@ -504,6 +504,16 @@ class Importorder extends AbstractModel
                 return false;
             }
         }
+        // skip import if the order is anonymized
+        if ($this->_orderData->anonymized) {
+          $this->_dataHelper->log(
+            'Import',
+            $this->_dataHelper->setLogMessage('Order is anonymized and has not been imported'),
+            $this->_logOutput,
+            $this->_marketplaceSku
+          );
+          return false;
+        }
         // checks if an external id already exists
         $orderMagentoId = $this->_checkExternalIds($this->_orderData->merchant_order_id);
         if ($orderMagentoId && !$this->_preprodMode && !$this->_isReimported) {
