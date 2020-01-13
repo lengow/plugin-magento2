@@ -990,8 +990,8 @@ class Order extends AbstractModel
     {
         $orderLines = [];
         $results = $this->_connector->queryApi(
-            'get',
-            '/v3.0/orders',
+            Connector::GET,
+            Connector::API_ORDER,
             [
                 'marketplace_order_id' => $marketplaceSku,
                 'marketplace' => $marketplaceName,
@@ -1054,14 +1054,15 @@ class Order extends AbstractModel
      *
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
      * @param \Lengow\Connector\Model\Connector|null $connector
+     * @param boolean $logOutput see log or not
      *
      * @return boolean
      */
-    public function synchronizeOrder($lengowOrder, $connector = null)
+    public function synchronizeOrder($lengowOrder, $connector = null, $logOutput = false)
     {
         list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessIds();
         if (is_null($connector)) {
-            if ($this->_connector->isValidAuth()) {
+            if ($this->_connector->isValidAuth($logOutput)) {
                 $this->_connector->init(['access_token' => $accessToken, 'secret' => $secretToken]);
             } else {
                 return false;
@@ -1076,15 +1077,25 @@ class Order extends AbstractModel
             foreach ($orderIds as $orderId) {
                 $magentoIds[] = (int)$orderId['order_id'];
             }
+            try {
             $result = $this->_connector->patch(
-                '/v3.0/orders/moi/',
+                Connector::API_ORDER_MOI,
                 [
                     'account_id' => $accountId,
                     'marketplace_order_id' => $lengowOrder->getData('marketplace_sku'),
                     'marketplace' => $lengowOrder->getData('marketplace_name'),
                     'merchant_order_id' => $magentoIds,
-                ]
+                ],
+                Connector::FORMAT_JSON,
+                '',
+                $logOutput
             );
+            } catch (\Exception $e) {
+                $message = $this->_dataHelper->decodeLogMessage($e->getMessage(), false);
+                $error = $this->_dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
+                $this->_dataHelper->log('Connector', $error, $logOutput);
+                return false;
+            }
             if (is_null($result)
                 || (isset($result['detail']) && $result['detail'] === 'Pas trouvé.')
                 || isset($result['error'])
