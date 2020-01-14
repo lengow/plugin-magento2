@@ -481,7 +481,7 @@ class Order extends AbstractModel
     /**
      * Get Magento equivalent to lengow order state
      *
-     * @param  string $orderStateLengow Lengow state
+     * @param string $orderStateLengow Lengow state
      *
      * @return string
      */
@@ -1078,18 +1078,18 @@ class Order extends AbstractModel
                 $magentoIds[] = (int)$orderId['order_id'];
             }
             try {
-            $result = $this->_connector->patch(
-                Connector::API_ORDER_MOI,
-                [
-                    'account_id' => $accountId,
-                    'marketplace_order_id' => $lengowOrder->getData('marketplace_sku'),
-                    'marketplace' => $lengowOrder->getData('marketplace_name'),
-                    'merchant_order_id' => $magentoIds,
-                ],
-                Connector::FORMAT_JSON,
-                '',
-                $logOutput
-            );
+                $result = $this->_connector->patch(
+                    Connector::API_ORDER_MOI,
+                    [
+                        'account_id' => $accountId,
+                        'marketplace_order_id' => $lengowOrder->getData('marketplace_sku'),
+                        'marketplace' => $lengowOrder->getData('marketplace_name'),
+                        'merchant_order_id' => $magentoIds,
+                    ],
+                    Connector::FORMAT_JSON,
+                    '',
+                    $logOutput
+                );
             } catch (\Exception $e) {
                 $message = $this->_dataHelper->decodeLogMessage($e->getMessage(), false);
                 $error = $this->_dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);

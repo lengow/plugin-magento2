@@ -138,7 +138,8 @@ class Sync extends AbstractHelper
         SecurityHelper $securityHelper,
         Connector $connector,
         Export $export
-    ) {
+    )
+    {
         $this->_jsonHelper = $jsonHelper;
         $this->_priceCurrency = $priceCurrency;
         $this->_driverFile = $driverFile;

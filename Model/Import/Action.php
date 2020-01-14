@@ -644,16 +644,17 @@ class Action extends AbstractModel
      *
      * @return array|false
      */
-    public function getOldActions() {
+    public function getOldActions()
+    {
         $collection = $this->_actionCollection->create()
-              ->addFieldToFilter('state', self::STATE_NEW)
-              ->addFieldToFilter(
-                  'created_at',
-                  [
-                      'to' => strtotime('-3 days', time()),
-                      'datetime' => true,
-                  ]
-              );
+            ->addFieldToFilter('state', self::STATE_NEW)
+            ->addFieldToFilter(
+                'created_at',
+                [
+                    'to' => strtotime('-3 days', time()),
+                    'datetime' => true,
+                ]
+            );
         $results = $collection->getData();
         return !empty($results) ? $results : false;
     }

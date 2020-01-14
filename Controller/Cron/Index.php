@@ -119,7 +119,7 @@ class Index extends Action
             if ($this->getRequest()->getParam('get_sync') == 1) {
                 $storeData = $this->_syncHelper->getSyncData();
                 $this->getResponse()->setBody($this->_jsonHelper->jsonEncode($storeData));
-            } else {;
+            } else {
                 $force = $this->getRequest()->getParam('force') !== null
                     ? (bool)$this->getRequest()->getParam('force')
                     : false;

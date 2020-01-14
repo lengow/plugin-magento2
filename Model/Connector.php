@@ -188,7 +188,8 @@ class Connector
     public function __construct(
         DataHelper $dataHelper,
         ConfigHelper $configHelper
-    ) {
+    )
+    {
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
     }
@@ -414,8 +415,8 @@ class Connector
                 $this->connect(true, $logOutput);
                 $data = $this->_callAction($api, $args, $type, $format, $body, $logOutput);
             } else {
-                    throw new LengowException($e->getMessage(), $e->getCode());
-                };
+                throw new LengowException($e->getMessage(), $e->getCode());
+            };
         }
         return $data;
     }
@@ -449,7 +450,8 @@ class Connector
      *
      * @return string
      */
-    private function _getAuthorizationToken($logOutput) {
+    private function _getAuthorizationToken($logOutput)
+    {
         $data = $this->_callAction(
             self::API_ACCESS_TOKEN,
             [
@@ -574,7 +576,8 @@ class Connector
      * @throws LengowException
      *
      */
-    private function _checkReturnRequest($result, $httpCode, $curlError, $curlErrorNumber) {
+    private function _checkReturnRequest($result, $httpCode, $curlError, $curlErrorNumber)
+    {
         if ($result === false) {
             // recovery of Curl errors
             if (in_array($curlErrorNumber, [CURLE_OPERATION_TIMEDOUT, CURLE_OPERATION_TIMEOUTED])) {
