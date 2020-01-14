@@ -76,8 +76,14 @@ en:
       send_mail_to: "report email sent to %1"
       unable_send_mail_to: "unable to send report email to %1"
     connector:
-      call_api: "call %1"
-      error_api: "API call failed - %1"
+      call_api: "call %1 %2"
+      error_api: "API call failed - %1 - %2"
+      timeout_api: "API call blocked due to a timeout"
+      error_curl: "Curl error %1 - %2"
+      token_not_return: "no authorization token returned"
+      token_is_empty: "the returned authorization token is empty"
+      api_not_available: "Lengow APIs are not available"
+      retry_get_token: "API call failed - authorization token expired - attempt to recover a new token"
     setting:
       setting_change: "%1 - old value %2 replaced with %3"
       setting_change_for_store: "%1 - old value %2 replaced with %3 for store %4"

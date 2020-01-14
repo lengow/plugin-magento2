@@ -320,10 +320,8 @@ en:
     import_cron_enable_comment: "Enable the scheduled task to import your orders every 30 minutes"
   lengow_log:
     exception:
-      timeout_api: "API call blocked due to a timeout"
-      error_curl: "Curl error %1 - %2"
       no_connection_webservice: "connection didn't work with Lengow's webservice in store %1 (%2)"
-      error_lengow_webservice: "Lengow webservice : %1 - %2 in store %3 (%4)"
+      error_lengow_webservice: "Lengow webservice : %1 - \"%2\" in store %3 (%4)"
       marketplace_not_present: "Lengow error: %1 does not feature in the marketplace list"
       product_is_disabled: "product id %1 can not be added to the quote because it is disabled"
       product_stock_is_insufficient: "product id %1 can not be added to the quote because the stock is insufficient"

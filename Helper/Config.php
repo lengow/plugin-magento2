@@ -96,6 +96,18 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => true,
         ],
+        'authorization_token' => [
+            'path' => 'lengow_global_options/store_credential/authorization_token',
+            'global' => true,
+            'export' => false,
+            'no_cache' => true,
+        ],
+        'last_authorization_token_update' => [
+            'path' => 'lengow_global_options/store_credential/last_authorization_token_update',
+            'global' => true,
+            'export' => false,
+            'no_cache' => true,
+        ],
         'store_enable' => [
             'path' => 'lengow_global_options/store_credential/global_store_enable',
             'store' => true,
@@ -636,7 +648,7 @@ class Config extends AbstractHelper
                     ];
                 }
             }
-        }  catch (\Exception $e) {
+        } catch (\Exception $e) {
             $allAttributes = [];
         }
         return $allAttributes;

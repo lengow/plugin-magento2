@@ -138,7 +138,8 @@ class Sync extends AbstractHelper
         SecurityHelper $securityHelper,
         Connector $connector,
         Export $export
-    ) {
+    )
+    {
         $this->_jsonHelper = $jsonHelper;
         $this->_priceCurrency = $priceCurrency;
         $this->_driverFile = $driverFile;
@@ -250,10 +251,11 @@ class Sync extends AbstractHelper
      * Sync Lengow catalogs for order synchronisation
      *
      * @param boolean $force force cache update
+     * @param boolean $logOutput see log or not
      *
      * @return boolean
      */
-    public function syncCatalog($force = false)
+    public function syncCatalog($force = false, $logOutput = false)
     {
         $cleanCache = false;
         if ($this->_configHelper->isNewMerchant()) {
@@ -265,7 +267,7 @@ class Sync extends AbstractHelper
                 return false;
             }
         }
-        $result = $this->_connector->queryApi('get', '/v3.1/cms');
+        $result = $this->_connector->queryApi(Connector::GET, Connector::API_CMS, [], '', $logOutput);
         if (isset($result->cms)) {
             $cmsToken = $this->_configHelper->getToken();
             foreach ($result->cms as $cms) {
@@ -330,10 +332,11 @@ class Sync extends AbstractHelper
      * Set CMS options
      *
      * @param boolean $force force cache update
+     * @param boolean $logOutput see log or not
      *
      * @return boolean
      */
-    public function setCmsOption($force = false)
+    public function setCmsOption($force = false, $logOutput = false)
     {
         if ($this->_configHelper->isNewMerchant() || (bool)$this->_configHelper->get('preprod_mode_enable')) {
             return false;
@@ -345,7 +348,7 @@ class Sync extends AbstractHelper
             }
         }
         $options = $this->_jsonHelper->jsonEncode($this->getOptionData());
-        $this->_connector->queryApi('put', '/v3.1/cms', [], $options);
+        $this->_connector->queryApi(Connector::PUT, Connector::API_CMS, [], $options, $logOutput);
         $this->_configHelper->set('last_option_cms_update', date('Y-m-d H:i:s'));
         return true;
     }
@@ -354,10 +357,11 @@ class Sync extends AbstractHelper
      * Get Status Account
      *
      * @param boolean $force force cache update
+     * @param boolean $logOutput see log or not
      *
      * @return array|false
      */
-    public function getStatusAccount($force = false)
+    public function getStatusAccount($force = false, $logOutput = false)
     {
         if ($this->_configHelper->isNewMerchant()) {
             return false;
@@ -373,7 +377,7 @@ class Sync extends AbstractHelper
             return self::$statusAccount;
         }
         $status = false;
-        $result = $this->_connector->queryApi('get', '/v3.0/plans');
+        $result = $this->_connector->queryApi(Connector::GET, Connector::API_PLAN, [], '', $logOutput);
         if (isset($result->isFreeTrial)) {
             $status = [
                 'type' => $result->isFreeTrial ? 'free_trial' : '',
@@ -395,10 +399,11 @@ class Sync extends AbstractHelper
      * Get Statistic for all stores
      *
      * @param boolean $force force cache update
+     * @param boolean $logOutput see log or not
      *
      * @return array
      */
-    public function getStatistic($force = false)
+    public function getStatistic($force = false, $logOutput = false)
     {
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_statistic_update');
@@ -408,13 +413,15 @@ class Sync extends AbstractHelper
         }
         $allCurrencyCodes = $this->_configHelper->getAllAvailableCurrencyCodes();
         $result = $this->_connector->queryApi(
-            'get',
-            '/v3.0/stats',
+            Connector::GET,
+            Connector::API_STATISTIC,
             [
                 'date_from' => date('c', strtotime(date('Y-m-d') . ' -10 years')),
                 'date_to' => date('c'),
                 'metrics' => 'year',
-            ]
+            ],
+            '',
+            $logOutput
         );
         if (isset($result->level0)) {
             $stats = $result->level0[0];
@@ -459,10 +466,11 @@ class Sync extends AbstractHelper
      * Get marketplace data
      *
      * @param boolean $force force cache update
+     * @param boolean $logOutput see log or not
      *
      * @return array|false
      */
-    public function getMarketplaces($force = false)
+    public function getMarketplaces($force = false, $logOutput = false)
     {
         $sep = DIRECTORY_SEPARATOR;
         $folderPath = $this->_moduleReader->getModuleDir('etc', 'Lengow_Connector');
@@ -481,7 +489,7 @@ class Sync extends AbstractHelper
             }
         }
         // recovering data with the API
-        $result = $this->_connector->queryApi('get', '/v3.0/marketplaces');
+        $result = $this->_connector->queryApi(Connector::GET, Connector::API_MARKETPLACE, [], '', $logOutput);
         if ($result && is_object($result) && !isset($result->error)) {
             // updated marketplaces.json file
             try {
@@ -494,7 +502,8 @@ class Sync extends AbstractHelper
             } catch (FileSystemException $e) {
                 $this->_dataHelper->log(
                     'Import',
-                    $this->_dataHelper->setLogMessage('marketplace update failed - %1', [$e->getMessage()])
+                    $this->_dataHelper->setLogMessage('marketplace update failed - %1', [$e->getMessage()]),
+                    $logOutput
                 );
             }
             return $result;

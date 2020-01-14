@@ -201,7 +201,7 @@ class Index extends Action
                     : __('unauthorised access: token parameter is empty');
             }
             $this->getResponse()->setStatusHeader(403, '1.1', 'Forbidden');
-            $this->getResponse()->setBody($errorMessage);
+            $this->getResponse()->setBody($errorMessage->__toString());
         }
     }
 }

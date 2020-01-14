@@ -115,31 +115,33 @@ class Index extends Action
          */
         $token = $this->getRequest()->getParam('token');
         if ($this->_securityHelper->checkWebserviceAccess($token)) {
-            // get all store datas for synchronisation with Lengow
+            // get all store data for synchronisation with Lengow
             if ($this->getRequest()->getParam('get_sync') == 1) {
-                $storeDatas = $this->_syncHelper->getSyncData();
-                $this->getResponse()->setBody($this->_jsonHelper->jsonEncode($storeDatas));
+                $storeData = $this->_syncHelper->getSyncData();
+                $this->getResponse()->setBody($this->_jsonHelper->jsonEncode($storeData));
             } else {
-                $force = false;
-                if (!is_null($this->getRequest()->getParam('force'))) {
-                    $force = (bool)$this->getRequest()->getParam('force');
-                }
+                $force = $this->getRequest()->getParam('force') !== null
+                    ? (bool)$this->getRequest()->getParam('force')
+                    : false;
+                $logOutput = $this->getRequest()->getParam('log_output') !== null
+                    ? (bool)$this->getRequest()->getParam('log_output')
+                    : false;
                 // get sync action if exists
                 $sync = $this->getRequest()->getParam('sync');
                 // sync catalogs id between Lengow and Magento
                 if (!$sync || $sync === 'catalog') {
-                    $this->_syncHelper->syncCatalog($force);
+                    $this->_syncHelper->syncCatalog($force, $logOutput);
                 }
                 // sync orders between Lengow and Magento
                 if (is_null($sync) || $sync === 'order') {
                     // array of params for import order
-                    $params = [];
+                    $params = [
+                        'type' => 'cron',
+                        'log_output' => $logOutput,
+                    ];
                     // check if the GET parameters are available
                     if (!is_null($this->getRequest()->getParam('preprod_mode'))) {
                         $params['preprod_mode'] = (bool)$this->getRequest()->getParam('preprod_mode');
-                    }
-                    if (!is_null($this->getRequest()->getParam('log_output'))) {
-                        $params['log_output'] = (bool)$this->getRequest()->getParam('log_output');
                     }
                     if (!is_null($this->getRequest()->getParam('days'))) {
                         $params['days'] = (int)$this->getRequest()->getParam('days');
@@ -165,37 +167,37 @@ class Index extends Action
                     if (!is_null($this->getRequest()->getParam('store_id'))) {
                         $params['store_id'] = (int)$this->getRequest()->getParam('store_id');
                     }
-                    $params['type'] = 'cron';
                     // synchronise orders
                     $this->_import->init($params);
                     $this->_import->exec();
                 }
                 // sync action between Lengow and Magento
                 if (is_null($sync) || $sync === 'action') {
-                    $this->_action->checkFinishAction();
-                    $this->_action->checkOldAction();
-                    $this->_action->checkActionNotSent();
+                    $this->_action->checkFinishAction($logOutput);
+                    $this->_action->checkOldAction($logOutput);
+                    $this->_action->checkActionNotSent($logOutput);
                 }
                 // sync options between Lengow and Magento
                 if (is_null($sync) || $sync === 'cms_option') {
-                    $this->_syncHelper->setCmsOption($force);
+                    $this->_syncHelper->setCmsOption($force, $logOutput);
                 }
                 // sync marketplaces between Lengow and Magento
                 if ($sync === 'marketplace') {
-                    $this->_syncHelper->getMarketplaces($force);
+                    $this->_syncHelper->getMarketplaces($force, $logOutput);
                 }
                 // sync status account between Lengow and Magento
                 if ($sync === 'status_account') {
-                    $this->_syncHelper->getStatusAccount($force);
+                    $this->_syncHelper->getStatusAccount($force, $logOutput);
                 }
                 // sync statistics between Lengow and Magento
                 if ($sync === 'statistic') {
-                    $this->_syncHelper->getStatistic($force);
+                    $this->_syncHelper->getStatistic($force, $logOutput);
                 }
                 // sync option is not valid
                 if ($sync && !$this->_syncHelper->isSyncAction($sync)) {
-                    $this->getResponse()->setStatusHeader('400', '1.1', 'Bad Request');
-                    $this->getResponse()->setBody(__('Action: %1 is not a valid action', [$sync]));
+                    $errorMessage = __('Action: %1 is not a valid action', [$sync]);
+                    $this->getResponse()->setStatusHeader(400, '1.1', 'Bad Request');
+                    $this->getResponse()->setBody($errorMessage->__toString());
                 }
             }
         } else {
@@ -206,8 +208,8 @@ class Index extends Action
                     ? __('unauthorised access for this token: %1', [$token])
                     : __('unauthorised access: token parameter is empty');
             }
-            $this->getResponse()->setStatusHeader('403', '1.1', 'Forbidden');
-            $this->getResponse()->setBody($errorMessage);
+            $this->getResponse()->setStatusHeader(403, '1.1', 'Forbidden');
+            $this->getResponse()->setBody($errorMessage->__toString());
         }
     }
 }

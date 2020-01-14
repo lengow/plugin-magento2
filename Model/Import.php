@@ -520,9 +520,9 @@ class Import
             }
             // checking marketplace actions
             if (!$this->_preprodMode && !$this->_importOneOrder && $this->_typeImport === 'manual') {
-                $this->_action->checkFinishAction();
-                $this->_action->checkOldAction();
-                $this->_action->checkActionNotSent();
+                $this->_action->checkFinishAction($this->_logOutput);
+                $this->_action->checkOldAction($this->_logOutput);
+                $this->_action->checkActionNotSent($this->_logOutput);
             }
         }
         // clear session
@@ -660,7 +660,8 @@ class Import
                         $lengowOrder = $this->_lengowOrderFactory->create()->load($order['order_lengow_id']);
                         $synchro = $this->_lengowOrderFactory->create()->synchronizeOrder(
                             $lengowOrder,
-                            $this->_connector
+                            $this->_connector,
+                            $this->_logOutput
                         );
                         if ($synchro) {
                             $synchroMessage = $this->_dataHelper->setLogMessage(
@@ -714,7 +715,7 @@ class Import
      */
     protected function _checkCredentials()
     {
-        if ($this->_connector->isValidAuth()) {
+        if ($this->_connector->isValidAuth($this->_logOutput)) {
             list($this->_accountId, $this->_accessToken, $this->_secretToken) = $this->_configHelper->getAccessIds();
             $this->_connector->init(['access_token' => $this->_accessToken, 'secret' => $this->_secretToken]);
             return true;
@@ -803,45 +804,63 @@ class Import
             );
         }
         do {
-            if ($this->_importOneOrder) {
-                $results = $this->_connector->get(
-                    '/v3.0/orders',
-                    [
-                        'marketplace_order_id' => $this->_marketplaceSku,
-                        'marketplace' => $this->_marketplaceName,
-                        'no_currency_conversion' => $noCurrencyConversion,
-                        'account_id' => $this->_accountId,
-                        'page' => $page,
-                    ],
-                    'stream'
-                );
-            } else {
-                if ($this->_createdFrom && $this->_createdTo) {
-                    $timeParams = [
-                        'marketplace_order_date_from' => $this->_createdFrom,
-                        'marketplace_order_date_to' => $this->_createdTo,
-                    ];
-                } else {
-                    $timeParams = [
-                        'updated_from' => $this->_updatedFrom,
-                        'updated_to' => $this->_updatedTo,
-                    ];
-                }
-                $results = $this->_connector->get(
-                    '/v3.0/orders',
-                    array_merge(
-                        $timeParams,
+            try {
+                if ($this->_importOneOrder) {
+                    $results = $this->_connector->get(
+                        Connector::API_ORDER,
                         [
-                            'catalog_ids' => implode(',', $this->_storeCatalogIds),
+                            'marketplace_order_id' => $this->_marketplaceSku,
+                            'marketplace' => $this->_marketplaceName,
                             'no_currency_conversion' => $noCurrencyConversion,
                             'account_id' => $this->_accountId,
                             'page' => $page,
+                        ],
+                        Connector::FORMAT_STREAM,
+                        '',
+                        $this->_logOutput
+                    );
+                } else {
+                    if ($this->_createdFrom && $this->_createdTo) {
+                        $timeParams = [
+                            'marketplace_order_date_from' => $this->_createdFrom,
+                            'marketplace_order_date_to' => $this->_createdTo,
+                        ];
+                    } else {
+                        $timeParams = [
+                            'updated_from' => $this->_updatedFrom,
+                            'updated_to' => $this->_updatedTo,
+                        ];
+                    }
+                    $results = $this->_connector->get(
+                        Connector::API_ORDER,
+                        array_merge(
+                            $timeParams,
+                            [
+                                'catalog_ids' => implode(',', $this->_storeCatalogIds),
+                                'no_currency_conversion' => $noCurrencyConversion,
+                                'account_id' => $this->_accountId,
+                                'page' => $page,
+                            ]
+                        ),
+                        Connector::FORMAT_STREAM,
+                        '',
+                        $this->_logOutput
+                    );
+                }
+            } catch (\Exception $e) {
+                throw new LengowException(
+                    $this->_dataHelper->setLogMessage(
+                        'Lengow webservice : %1 - "%2" in store %3 (%4)',
+                        [
+                            $e->getCode(),
+                            $this->_dataHelper->decodeLogMessage($e->getMessage(), false),
+                            $store->getName(),
+                            $store->getId(),
                         ]
-                    ),
-                    'stream'
+                    )
                 );
             }
-            if (is_null($results)) {
+            if ($results === null) {
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage(
                         "connection didn't work with Lengow's webservice in store %1 (%2)",
@@ -855,19 +874,6 @@ class Import
                     $this->_dataHelper->setLogMessage(
                         "connection didn't work with Lengow's webservice in store %1 (%2)",
                         [$store->getName(), $store->getId()]
-                    )
-                );
-            }
-            if (isset($results->error)) {
-                throw new LengowException(
-                    $this->_dataHelper->setLogMessage(
-                        'Lengow webservice : %1 - %2 in store %3 (%4)',
-                        [
-                            $results->error->code,
-                            $results->error->message,
-                            $store->getName(),
-                            $store->getId(),
-                        ]
                     )
                 );
             }
