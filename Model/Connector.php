@@ -383,7 +383,6 @@ class Connector
         return $this->_call($api, $args, self::PATCH, $format, $body, $logOutput);
     }
 
-
     /**
      * The API method
      *
