@@ -333,9 +333,6 @@ class InstallSchema implements InstallSchemaInterface
                     $installer->getIdxName('lengow_order', ['order_lengow_state']),
                     ['order_lengow_state']
                 )->addIndex(
-                    $installer->getIdxName('lengow_order', ['order_date']),
-                    ['order_date']
-                )->addIndex(
                     $installer->getIdxName('lengow_order', ['total_paid']),
                     ['total_paid']
                 )->addIndex(
