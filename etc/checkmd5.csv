@@ -54,7 +54,7 @@
 /i18n/en_GB.csv|8428dc7ceaf5dcf972d590401b73ef7e
 /i18n/fr_FR.csv|dba347053480a3a39096f794694180c9
 /i18n/de_DE.csv|fbdf51ed158a6df527e9e436a82d8283
-/Model/Connector.php|cdb055357ba434c9c4eac3bf2e4f4e6c
+/Model/Connector.php|ee3a729d827e9d43d8022fb244f39db9
 /Model/Log.php|a0da7331c34be29ae359610f62e2e5a7
 /Model/Import/Action.php|b89eddd527aabc238ff91720b4b30401
 /Model/Import/Quote/Item.php|e03c9210e98976b3eba0feda34012a05
@@ -121,12 +121,12 @@
 /view/adminhtml/layout/lengow_log_index.xml|b440b764d7a94bfc0995751bc0d8094b
 /view/adminhtml/templates/toolbox/main.phtml|8f5641ad17206c7c2c52f72e8500b3d8
 /view/adminhtml/templates/toolbox/content.phtml|749c12d826a13175c26a2d3400609adc
-/view/adminhtml/templates/home/free_trial.phtml|938289f1e11048038f80024642715f8b
+/view/adminhtml/templates/home/free_trial.phtml|9a923df731b9d5b6918215bbb1021472
 /view/adminhtml/templates/home/new.phtml|fbcb683a86142fae68605018269c73c3
 /view/adminhtml/templates/home/main.phtml|6fea02eac9da0cc33b0cd43a1397db30
-/view/adminhtml/templates/home/bad_payer.phtml|0c4fe54fde6dad02df4ca3a4374428e9
-/view/adminhtml/templates/home/dashboard.phtml|485295902e6d5cdd3a3106036b52f9b8
-/view/adminhtml/templates/header.phtml|5a65c0d85e62254999dfabe998bc8905
+/view/adminhtml/templates/home/bad_payer.phtml|cd6bd45ffcb392535b33e17282966480
+/view/adminhtml/templates/home/dashboard.phtml|4cc2c281aabe740c43eb54fbc327f18e
+/view/adminhtml/templates/header.phtml|71796ccfbe809eaae216bea2f5361f93
 /view/adminhtml/templates/footer.phtml|225f0c2e61e894ce7b144802fb1451fe
 /view/adminhtml/templates/legal/main.phtml|606a3bf257c131e8781f93078d321079
 /view/adminhtml/templates/legal/content.phtml|cade706265d9c4fcf3a006ef22c44e6a
@@ -376,7 +376,7 @@
 /view/adminhtml/web/css/lengow-components.css|f629cf714cc340659825f53c3f648ee7
 /view/adminhtml/web/css/lengow-pages.css|5533f9e35e6ba549d02ca4effc43916d
 /view/adminhtml/web/css/lengow-layout.css|1635e5280561461cff838351f11c6eb5
-/view/adminhtml/web/js/home.js|4f53c76967de35ba53ee7dcc91d7a71f
+/view/adminhtml/web/js/home.js|3c530252471930ae576595a0d46e83ff
 /view/adminhtml/web/js/product.js|cb15141074f239070753c4e715277d36
 /view/adminhtml/web/js/order.js|1787fe572efa8a1035c4141e7968c176
 /view/adminhtml/web/js/toolbox.js|02be0fe16e0ff40885da8a499bb35206
