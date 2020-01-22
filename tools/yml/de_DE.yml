@@ -320,10 +320,8 @@ de:
     import_cron_enable_comment: "Geplante Tasks aktivieren, um Ihre Bestellungen alle 30 Minuten zu importieren"
   lengow_log:
     exception:
-      timeout_api: "API Anruf wegen Zeitüberschreitung blockiert"
-      error_curl: "fehler Curl %1 - %2"
       no_connection_webservice: "verbindung mit dem Lengow Webservice im Laden %1 (%2) funktionierte nicht."
-      error_lengow_webservice: "Lengow Webservice: %1 - %2 auf Lager %3 (%4)"
+      error_lengow_webservice: "Lengow Webservice: %1 - \"%2\" auf Lager %3 (%4)"
       marketplace_not_present: "Lengow Fehler: %1 erscheint nicht in der Marketplace-Liste"
       product_is_disabled: "Die Produkt-ID %1 kann nicht zum Angebot hinzugefügt werden, da sie deaktiviert ist"
       product_stock_is_insufficient: "Produkt-ID %1 kann nicht zum Angebot hinzugefügt werden, da der Bestand nicht ausreicht"

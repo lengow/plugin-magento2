@@ -345,7 +345,7 @@ class Action extends AbstractModel
                 unset($getParams[$param]);
             }
         }
-        $result = $this->_connector->queryApi('get', '/v3.0/orders/actions/', $getParams);
+        $result = $this->_connector->queryApi(Connector::GET, Connector::API_ORDER_ACTION, $getParams);
         if (isset($result->error) && isset($result->error->message)) {
             throw new LengowException($result->error->message);
         }
@@ -391,7 +391,7 @@ class Action extends AbstractModel
     public function sendAction($params, $order, $lengowOrder)
     {
         if (!(bool)$this->_configHelper->get('preprod_mode_enable')) {
-            $result = $this->_connector->queryApi('post', '/v3.0/orders/actions/', $params);
+            $result = $this->_connector->queryApi(Connector::POST, Connector::API_ORDER_ACTION, $params);
             if (isset($result->id)) {
                 $action = $this->_actionFactory->create();
                 $action->createAction(
@@ -464,14 +464,20 @@ class Action extends AbstractModel
     /**
      * Check if active actions are finished
      *
+     * @param boolean $logOutput see log or not
+     *
      * @return boolean
      */
-    public function checkFinishAction()
+    public function checkFinishAction($logOutput = false)
     {
         if ((bool)$this->_configHelper->get('preprod_mode_enable')) {
             return false;
         }
-        $this->_dataHelper->log('API-OrderAction', $this->_dataHelper->setLogMessage('check completed actions'));
+        $this->_dataHelper->log(
+            'API-OrderAction',
+            $this->_dataHelper->setLogMessage('check completed actions'),
+            $logOutput
+        );
         // get all active actions
         $activeActions = $this->getActiveActions();
         // if no active action, do nothing
@@ -483,13 +489,15 @@ class Action extends AbstractModel
         $apiActions = [];
         do {
             $results = $this->_connector->queryApi(
-                'get',
-                '/v3.0/orders/actions/',
+                Connector::GET,
+                Connector::API_ORDER_ACTION,
                 [
                     'updated_from' => date('c', strtotime(date('Y-m-d') . ' -3days')),
                     'updated_to' => date('c'),
                     'page' => $page,
-                ]
+                ],
+                '',
+                $logOutput
             );
             if (!is_object($results) || isset($results->error)) {
                 break;
@@ -557,7 +565,7 @@ class Action extends AbstractModel
                                         'order action failed - %1',
                                         [$apiActions[$action['action_id']]->errors]
                                     ),
-                                    false,
+                                    $logOutput,
                                     $lengowOrder->getData('marketplace_sku')
                                 );
                                 unset($orderError);
@@ -572,38 +580,30 @@ class Action extends AbstractModel
         return true;
     }
 
-        /**
+    /**
      * Remove old actions > 3 days
      *
-     * @param string|null $actionType action type (ship or cancel)
+     * @param boolean $logOutput see log or not
      *
      * @return boolean
      */
-    public function checkOldAction($actionType = null)
+    public function checkOldAction($logOutput = false)
     {
         if ((bool)$this->_configHelper->get('preprod_mode_enable')) {
             return false;
         }
-        $this->_dataHelper->log('API-OrderAction', $this->_dataHelper->setLogMessage('check and finish old actions'));
+        $this->_dataHelper->log(
+            'API-OrderAction',
+            $this->_dataHelper->setLogMessage('check and finish old actions'),
+            $logOutput
+        );
         // get all old order action (+ 3 days)
-        $collection = $this->_actionCollection->create()
-            ->addFieldToFilter('state', self::STATE_NEW)
-            ->addFieldToFilter(
-                'created_at',
-                [
-                    'to' => strtotime('-3 days', time()),
-                    'datetime' => true,
-                ]
-            );
-        if (!is_null($actionType)) {
-            $collection->addFieldToFilter('action_type', $actionType);
-        }
-        $results = $collection->getData();
-        if (count($results) > 0) {
-            foreach ($results as $result) {
-                $action = $this->_actionFactory->create()->load($result['id']);
+        $actions = $this->getOldActions();
+        if ($actions) {
+            foreach ($actions as $action) {
+                $action = $this->_actionFactory->create()->load($action['id']);
                 $action->updateAction(['state' => self::STATE_FINISH]);
-                $lengowOrderId = $this->_lengowOrderFactory->create()->getLengowOrderIdByOrderId($result['order_id']);
+                $lengowOrderId = $this->_lengowOrderFactory->create()->getLengowOrderIdByOrderId($action['order_id']);
                 if ($lengowOrderId) {
                     $lengowOrder = $this->_lengowOrderFactory->create()->load($lengowOrderId);
                     $processStateFinish = $lengowOrder->getOrderProcessState('closed');
@@ -625,7 +625,7 @@ class Action extends AbstractModel
                         $this->_dataHelper->log(
                             'API-OrderAction',
                             $this->_dataHelper->setLogMessage('order action failed - %1', [$decodedMessage]),
-                            false,
+                            $logOutput,
                             $lengowOrder->getData('marketplace_sku')
                         );
                         unset($orderError);
@@ -640,16 +640,42 @@ class Action extends AbstractModel
     }
 
     /**
+     * Get old untreated actions of more than 3 days
+     *
+     * @return array|false
+     */
+    public function getOldActions()
+    {
+        $collection = $this->_actionCollection->create()
+            ->addFieldToFilter('state', self::STATE_NEW)
+            ->addFieldToFilter(
+                'created_at',
+                [
+                    'to' => strtotime('-3 days', time()),
+                    'datetime' => true,
+                ]
+            );
+        $results = $collection->getData();
+        return !empty($results) ? $results : false;
+    }
+
+    /**
      * Check if actions are not sent
+     *
+     * @param boolean $logOutput see log or not
      *
      * @return boolean
      */
-    public function checkActionNotSent()
+    public function checkActionNotSent($logOutput = false)
     {
         if ((bool)$this->_configHelper->get('preprod_mode_enable')) {
             return false;
         }
-        $this->_dataHelper->log('API-OrderAction', $this->_dataHelper->setLogMessage('check actions not sent'));
+        $this->_dataHelper->log(
+            'API-OrderAction',
+            $this->_dataHelper->setLogMessage('check actions not sent'),
+            $logOutput
+        );
         // get unsent orders
         $lengowOrder = $this->_lengowOrderFactory->create();
         $unsentOrders = $lengowOrder->getUnsentOrders();
