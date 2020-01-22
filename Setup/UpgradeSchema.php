@@ -23,6 +23,7 @@ namespace Lengow\Connector\Setup;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UpgradeSchemaInterface;
+use Magento\Framework\DB\Ddl\Table;
 
 class UpgradeSchema implements UpgradeSchemaInterface
 {
@@ -40,7 +41,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 'from_lengow',
                 [
                     'label' => 'From Lengow',
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    'type' => Table::TYPE_INTEGER,
                     'visible' => true,
                     'required' => false,
                     'unique' => false,
@@ -54,6 +55,25 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'comment' => 'From Lengow',
                 ]
             );
+
+        //
+        if (version_compare($context->getVersion(), '1.2.0', '<')) {
+            $tableName = $setup->getTable('lengow_order');
+            $columnName = 'order_date';
+            if ($setup->getConnection()->tableColumnExists($tableName, $columnName)) {
+                $setup->getConnection()->dropIndex($tableName, $setup->getIdxName($tableName, [$columnName]));
+                $setup->getConnection()->modifyColumn(
+                    $tableName,
+                    $columnName,
+                    [
+                        'type' => Table::TYPE_TIMESTAMP,
+                        'nullable' => false,
+                        'default' => Table::TIMESTAMP_INIT,
+                    ]
+                );
+            }
+
+        }
 
         $setup->endSetup();
     }

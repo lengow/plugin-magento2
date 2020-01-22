@@ -51,7 +51,7 @@
 /Helper/Security.php|3179a51d47cc57e4bde230e1dab8438b
 /Helper/Data.php|4b994c8a3e7606974a3c61a2b7ea7edf
 /Helper/Import.php|07f8db989c7ad142401c95cd699102ef
-/i18n/en_GB.csv|8428dc7ceaf5dcf972d590401b73ef7e
+/i18n/en_GB.csv|51f919fabc0cd8de4dcd13abb73f0ed1
 /i18n/de_DE.csv|fbdf51ed158a6df527e9e436a82d8283
 /i18n/fr_FR.csv|dba347053480a3a39096f794694180c9
 /Model/Import/Customer.php|bda00945ee515fb4dd11b4d3bc293582
@@ -82,7 +82,7 @@
 /Model/Config/Source/Actiontype.php|e9d2cf36a5f8f297f60d5b1e4738dc30
 /Model/Config/Source/Status.php|c82613065a25162f3deb01dcaf5f8f56
 /Model/Config/Source/Attribute.php|d5f79d859b67df912fc6e5f0c6211501
-/Model/Connector.php|ee3a729d827e9d43d8022fb244f39db9
+/Model/Connector.php|cdb055357ba434c9c4eac3bf2e4f4e6c
 /Model/Export/File.php|5978a7e33602b7894c2332e2145ad7b3
 /Model/Export/Shipping.php|03fe9dc75194dd1ff602585ce63ba444
 /Model/Export/Product.php|95aa885b9a45595fe856a7fb82a7d107
@@ -96,8 +96,8 @@
 /Model/Import.php|e7b9c59b099193ade62aad546703dab7
 /Observer/SendAction.php|0cb4af1b8501e5fc214c5d01ba2e536c
 /Plugin/SaveConfig.php|8a5540f4b45f639041d1aed9f512e8da
-/Setup/InstallSchema.php|7b1617ff1c660d2d9fd40734bb7c9d19
-/Setup/UpgradeSchema.php|ed8305db45007c68002a8388b93f5fc3
+/Setup/InstallSchema.php|7fb1d0ccb4944a292d3786a00ee3fa4c
+/Setup/UpgradeSchema.php|20f34ec03d23e5fb100d389d6e6dbc1d
 /Setup/InstallData.php|dc72861e98addc8e77ae842c9fdab718
 /Setup/UpgradeData.php|e73e7e1e6fd7e69459402099ddd6e658
 /Ui/Component/Listing/Column/OrderStatus.php|a9789cf9883a6b39b8b3605cf0e0bb29
@@ -113,7 +113,7 @@
 /view/frontend/layout/default.xml|52691c169f2e1e870cb418313f2ec063
 /view/adminhtml/web/js/toolbox.js|02be0fe16e0ff40885da8a499bb35206
 /view/adminhtml/web/js/product.js|cb15141074f239070753c4e715277d36
-/view/adminhtml/web/js/home.js|3c530252471930ae576595a0d46e83ff
+/view/adminhtml/web/js/home.js|4f53c76967de35ba53ee7dcc91d7a71f
 /view/adminhtml/web/js/order.js|1787fe572efa8a1035c4141e7968c176
 /view/adminhtml/web/css/font-awesome.css|bf4b58c946c9234e4a6b9f7a70d38006
 /view/adminhtml/web/css/lengow-pages.css|5533f9e35e6ba549d02ca4effc43916d
@@ -371,15 +371,15 @@
 /view/adminhtml/ui_component/lengow_order_listing.xml|d612af0fa5137a3e24e393129eafe488
 /view/adminhtml/ui_component/lengow_log_listing.xml|ebfbf293571a6910f8116d4910cc9461
 /view/adminhtml/templates/footer.phtml|225f0c2e61e894ce7b144802fb1451fe
-/view/adminhtml/templates/header.phtml|71796ccfbe809eaae216bea2f5361f93
+/view/adminhtml/templates/header.phtml|5a65c0d85e62254999dfabe998bc8905
 /view/adminhtml/templates/help/main.phtml|725f74753d014d0300f6614b36168035
 /view/adminhtml/templates/help/content.phtml|436f409d949019423dafd787f77a8ad7
 /view/adminhtml/templates/log/main.phtml|ee2236823cdcf3d8d05c8bdfdce1d0cc
-/view/adminhtml/templates/home/bad_payer.phtml|cd6bd45ffcb392535b33e17282966480
-/view/adminhtml/templates/home/dashboard.phtml|4cc2c281aabe740c43eb54fbc327f18e
+/view/adminhtml/templates/home/bad_payer.phtml|0c4fe54fde6dad02df4ca3a4374428e9
+/view/adminhtml/templates/home/dashboard.phtml|485295902e6d5cdd3a3106036b52f9b8
 /view/adminhtml/templates/home/new.phtml|fbcb683a86142fae68605018269c73c3
 /view/adminhtml/templates/home/main.phtml|6fea02eac9da0cc33b0cd43a1397db30
-/view/adminhtml/templates/home/free_trial.phtml|9a923df731b9d5b6918215bbb1021472
+/view/adminhtml/templates/home/free_trial.phtml|938289f1e11048038f80024642715f8b
 /view/adminhtml/templates/legal/main.phtml|606a3bf257c131e8781f93078d321079
 /view/adminhtml/templates/legal/content.phtml|cade706265d9c4fcf3a006ef22c44e6a
 /view/adminhtml/templates/order/header.phtml|535d39aead3f68a5e763d671e375b74f
