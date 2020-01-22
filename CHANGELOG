@@ -3,6 +3,7 @@ Version 1.2.0
 =============================================================
 
     - Feature: Refactoring and optimization of the connector class
+    - Feature : [import] Protection of the import of anonymized orders
     - Bugfix: [import] Deleting order_date index on lengow_orders table
 
 =============================================================
