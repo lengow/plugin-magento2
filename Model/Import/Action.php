@@ -24,6 +24,7 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Sales\Model\OrderFactory as MagentoOrderFactory;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
@@ -49,6 +50,16 @@ class Action extends AbstractModel
     const STATE_FINISH = 1;
 
     /**
+     * @var integer max interval time for action synchronisation (3 days)
+     */
+    const MAX_INTERVAL_TIME = 259200;
+
+    /**
+     * @var integer security interval time for action synchronisation (2 hours)
+     */
+    const SECURITY_INTERVAL_TIME = 7200;
+
+    /**
      * @var array Parameters to delete for Get call
      */
     public static $getParamsToDelete = [
@@ -60,6 +71,11 @@ class Action extends AbstractModel
      * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
      */
     protected $_dateTime;
+
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
+     */
+    protected $_timezone;
 
     /**
      * @var \Magento\Sales\Model\OrderFactory Magento order factory instance
@@ -127,6 +143,7 @@ class Action extends AbstractModel
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
      * @param \Magento\Sales\Model\OrderFactory $orderFactory Magento order factory instance
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
@@ -141,6 +158,7 @@ class Action extends AbstractModel
         Context $context,
         Registry $registry,
         DateTime $dateTime,
+        TimezoneInterface $timezone,
         MagentoOrderFactory $orderFactory,
         JsonHelper $jsonHelper,
         DataHelper $dataHelper,
@@ -153,6 +171,7 @@ class Action extends AbstractModel
     )
     {
         $this->_dateTime = $dateTime;
+        $this->_timezone = $timezone;
         $this->_orderFactory = $orderFactory;
         $this->_jsonHelper = $jsonHelper;
         $this->_dataHelper = $dataHelper;
@@ -484,16 +503,30 @@ class Action extends AbstractModel
         if (!$activeActions) {
             return true;
         }
-        // get all actions with API for 3 days
+        // get all actions with API (max 3 days)
         $page = 1;
         $apiActions = [];
+        $intervalTime = $this->_getIntervalTime();
+        $dateFrom = $this->_timezone->date(time() - $intervalTime);
+        $dateTo = $this->_timezone->date();
+        $this->_dataHelper->log(
+            'API-OrderAction',
+            $this->_dataHelper->setLogMessage(
+                'get order actions between %1 and %2',
+                [
+                    $dateFrom->format('Y-m-d H:i:s'),
+                    $dateTo->format('Y-m-d H:i:s'),
+                ]
+            ),
+            $logOutput
+        );
         do {
             $results = $this->_connector->queryApi(
                 Connector::GET,
                 Connector::API_ORDER_ACTION,
                 [
-                    'updated_from' => date('c', strtotime(date('Y-m-d') . ' -3days')),
-                    'updated_to' => date('c'),
+                    'updated_from' => $dateFrom->format('c'),
+                    'updated_to' => $dateTo->format('c'),
                     'page' => $page,
                 ],
                 '',
@@ -577,6 +610,7 @@ class Action extends AbstractModel
                 }
             }
         }
+        $this->_configHelper->set('last_action_sync', time());
         return true;
     }
 
@@ -651,7 +685,7 @@ class Action extends AbstractModel
             ->addFieldToFilter(
                 'created_at',
                 [
-                    'to' => strtotime('-3 days', time()),
+                    'to' => time() - self::MAX_INTERVAL_TIME,
                     'datetime' => true,
                 ]
             );
@@ -690,5 +724,22 @@ class Action extends AbstractModel
             }
         }
         return true;
+    }
+
+    /**
+     * Get interval time for action synchronisation
+     *
+     * @return integer
+     */
+    protected function _getIntervalTime()
+    {
+        $intervalTime = self::MAX_INTERVAL_TIME;
+        $lastActionSynchronisation = $this->_configHelper->get('last_action_sync');
+        if ($lastActionSynchronisation) {
+            $lastIntervalTime = time() - (int)$lastActionSynchronisation;
+            $lastIntervalTime = $lastIntervalTime + self::SECURITY_INTERVAL_TIME;
+            $intervalTime = $lastIntervalTime > $intervalTime ? $intervalTime : $lastIntervalTime;
+        }
+        return $intervalTime;
     }
 }

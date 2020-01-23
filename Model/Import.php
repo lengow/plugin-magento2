@@ -22,6 +22,7 @@ namespace Lengow\Connector\Model;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Store\Model\WebsiteFactory;
@@ -43,14 +44,19 @@ use Lengow\Connector\Model\Import\OrderFactory;
 class Import
 {
     /**
-     * @var integer min import days for old versions
+     * @var integer max interval time for order synchronisation old versions (1 day)
      */
-    const MIN_IMPORT_DAYS = 1;
+    const MIN_INTERVAL_TIME = 86400;
 
     /**
-     * @var integer max import days for old versions
+     * @var integer max import days for old versions (10 days)
      */
-    const MAX_IMPORT_DAYS = 10;
+    const MAX_INTERVAL_TIME = 864000;
+
+    /**
+     * @var integer security interval time for cron synchronisation (2 hours)
+     */
+    const SECURITY_INTERVAL_TIME = 7200;
 
     /**
      * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
@@ -61,6 +67,11 @@ class Import
      * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
      */
     protected $_dateTime;
+
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
+     */
+    protected $_timezone;
 
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface Magento scope config instance
@@ -188,22 +199,22 @@ class Import
     protected $_deliveryAddressId = null;
 
     /**
-     * @var string|false imports orders updated since
+     * @var integer|false imports orders updated since (timestamp)
      */
     protected $_updatedFrom = false;
 
     /**
-     * @var string|false imports orders updated until
+     * @var integer|false imports orders updated until (timestamp)
      */
     protected $_updatedTo = false;
 
     /**
-     * @var string|false imports orders created since
+     * @var integer|false imports orders created since (timestamp)
      */
     protected $_createdFrom = false;
 
     /**
-     * @var string|false imports orders created until
+     * @var integer|false imports orders created until (timestamp)
      */
     protected $_createdTo = false;
 
@@ -237,6 +248,7 @@ class Import
      *
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Magento\Store\Model\WebsiteFactory $websiteFactory Magento website factory instance
@@ -255,6 +267,7 @@ class Import
     public function __construct(
         StoreManagerInterface $storeManager,
         DateTime $dateTime,
+        TimezoneInterface $timezone,
         ScopeConfigInterface $scopeConfig,
         JsonHelper $jsonHelper,
         WebsiteFactory $websiteFactory,
@@ -273,6 +286,7 @@ class Import
     {
         $this->_storeManager = $storeManager;
         $this->_dateTime = $dateTime;
+        $this->_timezone = $timezone;
         $this->_scopeConfig = $scopeConfig;
         $this->_jsonHelper = $jsonHelper;
         $this->_websiteFactory = $websiteFactory;
@@ -308,7 +322,14 @@ class Import
      */
     public function init($params)
     {
-        // params for re-import order
+        // get generic params for synchronisation
+        $this->_preprodMode = isset($params['preprod_mode'])
+            ? (bool)$params['preprod_mode']
+            : (bool)$this->_configHelper->get('preprod_mode_enable');
+        $this->_typeImport = isset($params['type']) ? $params['type'] : 'manual';
+        $this->_logOutput = isset($params['log_output']) ? (bool)$params['log_output'] : false;
+        $this->_storeId = isset($params['store_id']) ? (int)$params['store_id'] : null;
+        // get params for synchronise one or all orders
         if (array_key_exists('marketplace_sku', $params)
             && array_key_exists('marketplace_name', $params)
             && array_key_exists('store_id', $params)
@@ -324,21 +345,14 @@ class Import
                 $this->_deliveryAddressId = (int)$params['delivery_address_id'];
             }
         } else {
-            // recovering the time interval
-            $this->_getImportPeriod(
+            // set the time interval
+            $this->_setIntervalTime(
                 isset($params['days']) ? (int)$params['days'] : false,
                 isset($params['created_from']) ? $params['created_from'] : false,
                 isset($params['created_to']) ? $params['created_to'] : false
             );
             $this->_limit = isset($params['limit']) ? (int)$params['limit'] : 0;
         }
-        // get other params
-        $this->_preprodMode = isset($params['preprod_mode'])
-            ? (bool)$params['preprod_mode']
-            : (bool)$this->_configHelper->get('preprod_mode_enable');
-        $this->_typeImport = isset($params['type']) ? $params['type'] : 'manual';
-        $this->_logOutput = isset($params['log_output']) ? (bool)$params['log_output'] : false;
-        $this->_storeId = isset($params['store_id']) ? (int)$params['store_id'] : null;
     }
 
     /**
@@ -788,15 +802,19 @@ class Import
                 $this->_logOutput
             );
         } else {
-            $dateFrom = $this->_createdFrom ? $this->_createdFrom : $this->_updatedFrom;
-            $dateTo = $this->_createdTo ? $this->_createdTo : $this->_updatedTo;
+            $dateFrom = $this->_createdFrom
+                ? $this->_dateTime->gmtDate('Y-m-d H:i:s', $this->_createdFrom)
+                : $this->_timezone->date($this->_updatedFrom)->format('Y-m-d H:i:s');
+            $dateTo = $this->_createdTo
+                ? $this->_dateTime->gmtDate('Y-m-d H:i:s', $this->_createdTo)
+                : $this->_timezone->date($this->_updatedTo)->format('Y-m-d H:i:s');
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
                     'get orders between %1 and %2 for catalogs ID: %3',
                     [
-                        date('Y-m-d H:i:s', strtotime((string)$dateFrom)),
-                        date('Y-m-d H:i:s', strtotime((string)$dateTo)),
+                        $dateFrom,
+                        $dateTo,
                         implode(', ', $this->_storeCatalogIds),
                     ]
                 ),
@@ -822,13 +840,13 @@ class Import
                 } else {
                     if ($this->_createdFrom && $this->_createdTo) {
                         $timeParams = [
-                            'marketplace_order_date_from' => $this->_createdFrom,
-                            'marketplace_order_date_to' => $this->_createdTo,
+                            'marketplace_order_date_from' => $this->_dateTime->gmtDate('c', $this->_createdFrom),
+                            'marketplace_order_date_to' => $this->_dateTime->gmtDate('c', $this->_createdTo),
                         ];
                     } else {
                         $timeParams = [
-                            'updated_from' => $this->_updatedFrom,
-                            'updated_to' => $this->_updatedTo,
+                            'updated_from' => $this->_timezone->date($this->_updatedFrom)->format('c'),
+                            'updated_to' => $this->_timezone->date($this->_updatedTo)->format('c'),
                         ];
                     }
                     $results = $this->_connector->get(
@@ -888,50 +906,47 @@ class Import
     }
 
     /**
-     * Get Import period
+     * Set interval time for order synchronisation
      *
      * @param integer|false $days Import period
      * @param string|false $createdFrom Import of orders since
      * @param string|false $createdTo Import of orders until
      */
-    protected function _getImportPeriod($days, $createdFrom, $createdTo)
+    protected function _setIntervalTime($days, $createdFrom, $createdTo)
     {
         if ($createdFrom && $createdTo) {
             // retrieval of orders created from ... until ...
-            $createdFromTimestamp = strtotime($createdFrom);
-            $createdToTimestamp = strtotime($createdTo) + 86399;
-            $intervalDay = (int)(($createdToTimestamp - $createdFromTimestamp) / 86400);
-            if ($intervalDay > self::MAX_IMPORT_DAYS) {
-                $dateFrom = date('c', $createdFromTimestamp);
-                $dateTo = date('c', ($createdFromTimestamp + self::MAX_IMPORT_DAYS * 86400));
-            } else {
-                $dateFrom = date('c', $createdFromTimestamp);
-                $dateTo = date('c', $createdToTimestamp);
-            }
-            $this->_createdFrom = $dateFrom;
-            $this->_createdTo = $dateTo;
+            $createdFromTimestamp = $this->_dateTime->gmtTimestamp($createdFrom);
+            $createdToTimestamp = $this->_dateTime->gmtTimestamp($createdTo) + 86399;
+            $intervalTime = (int)($createdToTimestamp - $createdFromTimestamp);
+            $this->_createdFrom = $createdFromTimestamp;
+            $this->_createdTo = $intervalTime > self::MAX_INTERVAL_TIME
+                ? $createdFromTimestamp + self::MAX_INTERVAL_TIME
+                : $createdToTimestamp;
         } else {
             if ($days) {
-                $days = $days < self::MIN_IMPORT_DAYS ? self::MIN_IMPORT_DAYS : $days;
-                $importDays = $days > self::MAX_IMPORT_DAYS ? self::MAX_IMPORT_DAYS : $days;
+                $intervalTime = $days * 86400;
+                $intervalTime = $intervalTime > self::MAX_INTERVAL_TIME ? self::MAX_INTERVAL_TIME : $intervalTime;
             } else {
                 // order recovery updated since ... days
                 $importDays = (int)$this->_configHelper->get('days');
+                $intervalTime = $importDays * 86400;
                 // add security for older versions of the plugin
-                $importDays = $importDays < self::MIN_IMPORT_DAYS ? self::MIN_IMPORT_DAYS : $importDays;
-                $importDays = $importDays > self::MAX_IMPORT_DAYS ? self::MAX_IMPORT_DAYS : $importDays;
-                // adaptation of the time interval according to the last successful synchronisation
+                $intervalTime = $intervalTime < self::MIN_INTERVAL_TIME ? self::MIN_INTERVAL_TIME : $intervalTime;
+                $intervalTime = $intervalTime > self::MAX_INTERVAL_TIME ? self::MAX_INTERVAL_TIME : $intervalTime;
+                // get dynamic interval time for cron synchronisation
                 $lastImport = $this->_importHelper->getLastImport();
                 $lastSettingUpdate = $this->_configHelper->get('last_setting_update');
-                if ($lastImport['timestamp'] !== 'none' && $lastImport['timestamp'] > strtotime($lastSettingUpdate)) {
-                    $currentTimestamp = time();
-                    $intervalDay = (int)(($currentTimestamp - $lastImport['timestamp']) / 86400);
-                    $intervalDay = $intervalDay === 0 ? 1 : $intervalDay;
-                    $importDays = $intervalDay > $importDays ? $importDays : $intervalDay;
+                if ($this->_typeImport !== 'manual'
+                    && $lastImport['timestamp'] !== 'none'
+                    && $lastImport['timestamp'] > strtotime($lastSettingUpdate)
+                ) {
+                    $lastIntervalTime = (time() - $lastImport['timestamp']) + self::SECURITY_INTERVAL_TIME;
+                    $intervalTime = $lastIntervalTime > $intervalTime ? $intervalTime : $lastIntervalTime;
                 }
             }
-            $this->_updatedFrom = date('c', (time() - $importDays * 86400));
-            $this->_updatedTo = date('c');
+            $this->_updatedFrom = time() - $intervalTime;
+            $this->_updatedTo = time();
         }
     }
 }

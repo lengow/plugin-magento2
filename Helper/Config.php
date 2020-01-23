@@ -298,6 +298,11 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => true,
         ],
+        'last_action_sync' => array(
+            'path' => 'lengow_import_options/advanced/last_action_sync',
+            'global' => true,
+            'no_cache' => true,
+        ),
     ];
 
     /**
@@ -415,11 +420,11 @@ class Config extends AbstractHelper
      */
     public function getAccessIds()
     {
-        $accountId = (int)$this->get('account_id');
+        $accountId = $this->get('account_id');
         $accessToken = $this->get('access_token');
         $secretToken = $this->get('secret_token');
         if (strlen($accountId) > 0 && strlen($accessToken) > 0 && strlen($secretToken) > 0) {
-            return [$accountId, $accessToken, $secretToken];
+            return [(int)$accountId, $accessToken, $secretToken];
         } else {
             return [null, null, null];
         }
@@ -597,7 +602,7 @@ class Config extends AbstractHelper
     public function isNewMerchant()
     {
         list($accountId, $accessToken, $secretToken) = $this->getAccessIds();
-        if (!is_null($accountId) && !is_null($accessToken) && !is_null($secretToken)) {
+        if ($accountId !== null && $accessToken !== null && $secretToken !== null) {
             return false;
         }
         return true;
