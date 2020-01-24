@@ -52,7 +52,7 @@ class Data extends AbstractHelper
     protected $_resource;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
+     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
      */
     protected $_timezone;
 
@@ -73,7 +73,7 @@ class Data extends AbstractHelper
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
      * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList Magento directory list instance
      * @param \Magento\Framework\App\ResourceConnection $resource Magento resource connection instance
-     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
      * @param \Lengow\Connector\Model\LogFactory $logFactory Lengow log factory instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
