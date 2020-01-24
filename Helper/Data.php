@@ -25,7 +25,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\UrlInterface;
-use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Lengow\Connector\Model\LogFactory as LogFactory;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
@@ -52,9 +52,9 @@ class Data extends AbstractHelper
     protected $_resource;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
      */
-    protected $_date;
+    protected $_timezone;
 
     /**
      * @var \Lengow\Connector\Model\LogFactory Lengow log factory instance
@@ -73,7 +73,7 @@ class Data extends AbstractHelper
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
      * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList Magento directory list instance
      * @param \Magento\Framework\App\ResourceConnection $resource Magento resource connection instance
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $date Magento datetime instance
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
      * @param \Lengow\Connector\Model\LogFactory $logFactory Lengow log factory instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
@@ -82,14 +82,14 @@ class Data extends AbstractHelper
         Context $context,
         DirectoryList $directoryList,
         ResourceConnection $resource,
-        DateTime $date,
+        TimezoneInterface $timezone,
         LogFactory $logFactory,
         ConfigHelper $configHelper
     ) {
         $this->_storeManager = $storeManager;
         $this->_directoryList = $directoryList;
         $this->_resource = $resource;
-        $this->_date = $date;
+        $this->_timezone = $timezone;
         $this->_logFactory = $logFactory;
         $this->_configHelper = $configHelper;
         parent::__construct($context);
@@ -114,7 +114,8 @@ class Data extends AbstractHelper
         $finalMessage = '' . (empty($marketplaceSku) ? '' : 'order ' . $marketplaceSku . ' : ');
         $finalMessage .= $decodedMessage;
         if ($display) {
-            print_r('[' . $category . '] ' . $finalMessage . '<br />');
+            $date = $this->_timezone->date()->format('Y-m-d H:i:s');
+            print_r($date . ' - [' . $category . '] ' . $finalMessage . '<br />');
             flush();
         }
         $log = $this->_logFactory->create();
@@ -139,8 +140,7 @@ class Data extends AbstractHelper
             $value = str_replace('|', '', $value);
             $allParams[] = $value;
         }
-        $message = $key . '[' . join('|', $allParams) . ']';
-        return $message;
+        return $key . '[' . join('|', $allParams) . ']';
     }
 
     /**
@@ -256,7 +256,7 @@ class Data extends AbstractHelper
         } else {
             $format = 'l d F Y @ H:i';
         }
-        return $this->_date->date($format, $timestamp);
+        return $this->_timezone->date($timestamp)->format($format);
     }
 
     /**
