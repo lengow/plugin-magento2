@@ -56,8 +56,40 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 ]
             );
 
-        //
+        // deletion of the attribute "on update CURRENT_TIMESTAMP" created automatically by Magento
         if (version_compare($context->getVersion(), '1.2.0', '<')) {
+            // remove attribute for table lengow_action
+            $tableName = $setup->getTable('lengow_action');
+            $columnName = 'created_at';
+            if ($setup->getConnection()->tableColumnExists($tableName, $columnName)) {
+                $setup->getConnection()->modifyColumn(
+                    $tableName,
+                    $columnName,
+                    [
+                        'type' => Table::TYPE_TIMESTAMP,
+                        'nullable' => true,
+                        'default' => null,
+                        'comment' => 'Created At',
+                    ]
+                );
+            }
+            // remove attribute and index for table lengow_log
+            $tableName = $setup->getTable('lengow_log');
+            $columnName = 'date';
+            if ($setup->getConnection()->tableColumnExists($tableName, $columnName)) {
+                $setup->getConnection()->dropIndex($tableName, $setup->getIdxName($tableName, [$columnName]));
+                $setup->getConnection()->modifyColumn(
+                    $tableName,
+                    $columnName,
+                    [
+                        'type' => Table::TYPE_TIMESTAMP,
+                        'nullable' => true,
+                        'default' => null,
+                        'comment' => 'Date',
+                    ]
+                );
+            }
+            // remove attribute and index for table lengow_order
             $tableName = $setup->getTable('lengow_order');
             $columnName = 'order_date';
             if ($setup->getConnection()->tableColumnExists($tableName, $columnName)) {
@@ -67,12 +99,40 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     $columnName,
                     [
                         'type' => Table::TYPE_TIMESTAMP,
-                        'nullable' => false,
-                        'default' => Table::TIMESTAMP_INIT,
+                        'nullable' => true,
+                        'default' => null,
+                        'comment' => 'Order Date',
                     ]
                 );
             }
-
+            $columnName = 'created_at';
+            if ($setup->getConnection()->tableColumnExists($tableName, $columnName)) {
+                $setup->getConnection()->modifyColumn(
+                    $tableName,
+                    $columnName,
+                    [
+                        'type' => Table::TYPE_TIMESTAMP,
+                        'nullable' => true,
+                        'default' => null,
+                        'comment' => 'Created At',
+                    ]
+                );
+            }
+            // remove attribute for table lengow_order_error
+            $tableName = $setup->getTable('lengow_order_error');
+            $columnName = 'created_at';
+            if ($setup->getConnection()->tableColumnExists($tableName, $columnName)) {
+                $setup->getConnection()->modifyColumn(
+                    $tableName,
+                    $columnName,
+                    [
+                        'type' => Table::TYPE_TIMESTAMP,
+                        'nullable' => true,
+                        'default' => null,
+                        'comment' => 'Created At',
+                    ]
+                );
+            }
         }
 
         $setup->endSetup();

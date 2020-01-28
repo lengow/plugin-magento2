@@ -21,10 +21,16 @@ namespace Lengow\Connector\Block\Adminhtml;
 
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Lengow\Connector\Helper\Security as SecurityHelper;
 
 class Footer extends Template
 {
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
+     */
+    protected $_timezone;
+
     /**
      * @var \Lengow\Connector\Helper\Security Lengow security helper instance
      */
@@ -34,14 +40,17 @@ class Footer extends Template
      * Constructor
      *
      * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
      * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
      * @param array $data additional params
      */
     public function __construct(
         Context $context,
+        TimezoneInterface $timezone,
         SecurityHelper $securityHelper,
         array $data = []
     ) {
+        $this->_timezone = $timezone;
         $this->_securityHelper = $securityHelper;
         parent::__construct($context, $data);
     }
@@ -63,6 +72,6 @@ class Footer extends Template
      */
     public function getPluginCopyright()
     {
-        return 'copyright © ' . date('Y');
+        return 'copyright © ' . $this->_timezone->date()->format('Y');
     }
 }

@@ -251,12 +251,15 @@ class Data extends AbstractHelper
      */
     public function getDateInCorrectFormat($timestamp, $second = false)
     {
-        if ($second) {
-            $format = 'l d F Y @ H:i:s';
-        } else {
-            $format = 'l d F Y @ H:i';
-        }
-        return $this->_timezone->date($timestamp)->format($format);
+        $date = $this->_timezone->date($timestamp);
+        $pattern = $second ? 'EEEE d MMMM y @ HH:mm:ss' : 'EEEE d MMMM y @ HH:mm';
+        return $this->_timezone->formatDateTime($date,
+            \IntlDateFormatter::FULL,
+            \IntlDateFormatter::FULL,
+            null,
+            null,
+            $pattern
+        );
     }
 
     /**

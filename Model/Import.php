@@ -936,10 +936,10 @@ class Import
                 $intervalTime = $intervalTime > self::MAX_INTERVAL_TIME ? self::MAX_INTERVAL_TIME : $intervalTime;
                 // get dynamic interval time for cron synchronisation
                 $lastImport = $this->_importHelper->getLastImport();
-                $lastSettingUpdate = $this->_configHelper->get('last_setting_update');
+                $lastSettingUpdate = (int)$this->_configHelper->get('last_setting_update');
                 if ($this->_typeImport !== 'manual'
                     && $lastImport['timestamp'] !== 'none'
-                    && $lastImport['timestamp'] > strtotime($lastSettingUpdate)
+                    && $lastImport['timestamp'] > $lastSettingUpdate
                 ) {
                     $lastIntervalTime = (time() - $lastImport['timestamp']) + self::SECURITY_INTERVAL_TIME;
                     $intervalTime = $lastIntervalTime > $intervalTime ? $intervalTime : $lastIntervalTime;

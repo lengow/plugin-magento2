@@ -20,11 +20,17 @@
 namespace Lengow\Connector\Plugin;
 
 use Magento\Config\Model\Config;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
 class SaveConfig
 {
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     */
+    protected $_dateTime;
+
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
      */
@@ -63,13 +69,16 @@ class SaveConfig
     /**
      * Constructor
      *
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
     public function __construct(
+        DateTime $dateTime,
         DataHelper $dataHelper,
         ConfigHelper $configHelper
     ) {
+        $this->_dateTime = $dateTime;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
     }
@@ -110,7 +119,7 @@ class SaveConfig
                         $this->_dataHelper->log('Config', $this->_dataHelper->setLogMessage($message, $params));
                         // save last update date for a specific settings (change synchronisation interval time)
                         if (in_array($fieldId, $this->_updatedSettings)) {
-                            $this->_configHelper->set('last_setting_update', date('Y-m-d H:i:s'));
+                            $this->_configHelper->set('last_setting_update', time());
                         }
                     }
                 }
