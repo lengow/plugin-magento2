@@ -1146,8 +1146,8 @@ class Importorder extends AbstractModel
         } else {
             $orderDate = (string)$this->_orderData->imported_at;
         }
-        $order->setCreatedAt($this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)));
-        $order->setUpdatedAt($this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)));
+        $order->setCreatedAt($this->_dateTime->gmtDate('Y-m-d H:i:s', strtotime($orderDate)));
+        $order->setUpdatedAt($this->_dateTime->gmtDate('Y-m-d H:i:s', strtotime($orderDate)));
         $order->save();
         // update Lengow order record
         $orderLengow->updateOrder(
@@ -1245,7 +1245,7 @@ class Importorder extends AbstractModel
             'marketplace_label' => (string)$this->_marketplaceLabel,
             'delivery_address_id' => (int)$this->_deliveryAddressId,
             'order_lengow_state' => $this->_orderStateLengow,
-            'order_date' => $this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)),
+            'order_date' => $this->_dateTime->gmtDate('Y-m-d H:i:s', strtotime($orderDate)),
             'is_in_error' => 1,
         ];
         if (isset($this->_orderData->comments) && is_array($this->_orderData->comments)) {

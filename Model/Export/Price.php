@@ -22,6 +22,7 @@ namespace Lengow\Connector\Model\Export;
 use Magento\Framework\Pricing\PriceCurrencyInterface as PriceCurrency;
 use Magento\CatalogRule\Model\Rule as CatalogueRule;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 
 /**
  * Lengow export price
@@ -42,6 +43,11 @@ class Price
      * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
      */
     protected $_dateTime;
+
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
+     */
+    protected $_timezone;
 
     /**
      * @var \Magento\Catalog\Model\Product\Interceptor Magento product instance
@@ -109,15 +115,18 @@ class Price
      * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency Magento price currency instance
      * @param \Magento\CatalogRule\Model\Rule $catalogueRule Magento catalogue rule instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
      */
     public function __construct(
         PriceCurrency $priceCurrency,
         CatalogueRule $catalogueRule,
-        DateTime $dateTime
+        DateTime $dateTime,
+        TimezoneInterface $timezone
     ) {
         $this->_priceCurrency = $priceCurrency;
         $this->_catalogueRule = $catalogueRule;
         $this->_dateTime = $dateTime;
+        $this->_timezone = $timezone;
     }
 
     /**
@@ -282,8 +291,12 @@ class Price
         if (count($catalogueRules) > 0) {
             $startTimestamp = (int)$catalogueRules[0]['from_time'];
             $endTimestamp = (int)$catalogueRules[0]['to_time'];
-            $discountStartDate = $startTimestamp !== 0 ? $this->_dateTime->date('Y-m-d H:i:s', $startTimestamp) : '';
-            $discountEndDate = $endTimestamp !== 0 ? $this->_dateTime->date('Y-m-d H:i:s', $endTimestamp) : '';
+            $discountStartDate = $startTimestamp !== 0
+                ? $this->_timezone->date($startTimestamp)->format('Y-m-d H:i:s')
+                : '';
+            $discountEndDate = $endTimestamp !== 0
+                ? $this->_timezone->date($endTimestamp)->format('Y-m-d H:i:s')
+                : '';
         }
         return [
             'discount_start_date' => $discountStartDate,

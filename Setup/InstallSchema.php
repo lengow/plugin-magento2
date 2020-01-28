@@ -158,7 +158,8 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false,
+                        'nullable' => true,
+                        'default' => null,
                     ],
                     'Order Date'
                 )->addColumn(
@@ -299,7 +300,8 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false,
+                        'nullable' => true,
+                        'default' => null,
                     ],
                     'Created At'
                 )->addColumn(
@@ -476,7 +478,8 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false,
+                        'nullable' => true,
+                        'default' => null,
                     ],
                     'Created At'
                 )->addColumn(
@@ -575,7 +578,8 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false,
+                        'nullable' => true,
+                        'default' => null,
                     ],
                     'Created At'
                 )->addColumn(
@@ -626,7 +630,8 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false,
+                        'nullable' => true,
+                        'default' => null,
                     ],
                     'Date'
                 )->addColumn(
@@ -645,9 +650,6 @@ class InstallSchema implements InstallSchemaInterface
                         'nullable' => false,
                     ],
                     'Message'
-                )->addIndex(
-                    $installer->getIdxName('lengow_log', ['date']),
-                    ['date']
                 )->addIndex(
                     $installer->getIdxName('lengow_log', ['category']),
                     ['category']

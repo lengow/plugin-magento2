@@ -394,15 +394,15 @@ class Feed
             foreach ($listFiles as $filePath) {
                 $fileName = str_replace($this->_folderPath . '/', '', $filePath);
                 if (preg_match('/^' . $this->_fileName . '\.[\d]{10}/', $fileName)) {
-                    $fileModified = $this->_dateTime->date('Y-m-d H:i:s', filemtime($filePath));
+                    $fileModified = $this->_dateTime->gmtDate('Y-m-d H:i:s', filemtime($filePath));
                     $fileModifiedDatetime = new \DateTime($fileModified);
                     $fileModifiedDatetime->add(new \DateInterval('P5D'));
-                    if ($this->_dateTime->date('Y-m-d') > $fileModifiedDatetime->format('Y-m-d')) {
+                    if ($this->_dateTime->gmtDate('Y-m-d') > $fileModifiedDatetime->format('Y-m-d')) {
                         $this->_driverFile->deleteFile($filePath);
                     }
                     $fileModifiedDatetime = new \DateTime($fileModified);
                     $fileModifiedDatetime->add(new \DateInterval('PT20S'));
-                    if ($this->_dateTime->date('Y-m-d H:i:s') < $fileModifiedDatetime->format('Y-m-d H:i:s')) {
+                    if ($this->_dateTime->gmtDate('Y-m-d H:i:s') < $fileModifiedDatetime->format('Y-m-d H:i:s')) {
                         return true;
                     }
                 }
