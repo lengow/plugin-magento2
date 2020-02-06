@@ -553,31 +553,27 @@ class Marketplace extends AbstractModel
      */
     private function _matchCarrier($code, $title)
     {
-        if (count($this->carriers) > 0) {
+        if (!empty($this->carriers)) {
             $codeCleaned = $this->_cleanString($code);
             $titleCleaned = $this->_cleanString($title);
-            foreach ($this->carriers as $key => $label) {
-                $keyCleaned = $this->_cleanString($key);
-                $labelCleaned = $this->_cleanString($label);
-                // search by code
-                // search on the carrier key
-                $found = $this->_searchValue($keyCleaned, $codeCleaned);
-                // search on the carrier label if it is different from the key
-                if (!$found && $labelCleaned !== $keyCleaned) {
-                    $found = $this->_searchValue($labelCleaned, $codeCleaned);
+            // search by Magento carrier code
+            // strict search
+            $result = $this->_searchCarrierCode($codeCleaned);
+            if (!$result) {
+                // approximate search
+                $result = $this->_searchCarrierCode($codeCleaned, false);
+            }
+            // search by Magento carrier title if it is different from the Magento carrier code
+            if (!$result && $titleCleaned !== $codeCleaned) {
+                // strict search
+                $result = $this->_searchCarrierCode($titleCleaned);
+                if (!$result) {
+                    // approximate search
+                    $result = $this->_searchCarrierCode($titleCleaned, false);
                 }
-                // search by title if it is different from the code
-                if (!$found && $titleCleaned !== $codeCleaned) {
-                    // search on the carrier key
-                    $found = $this->_searchValue($keyCleaned, $titleCleaned);
-                    // search on the carrier label if it is different from the key
-                    if (!$found && $labelCleaned !== $keyCleaned) {
-                        $found = $this->_searchValue($labelCleaned, $titleCleaned);
-                    }
-                }
-                if ($found) {
-                    return $key;
-                }
+            }
+            if ($result) {
+                return $result;
             }
         }
         // no match
@@ -597,24 +593,51 @@ class Marketplace extends AbstractModel
     private function _cleanString($string)
     {
         $cleanFilters = array(' ', '-', '_', '.');
-        return strtolower(str_replace($cleanFilters, '',  trim($string)));
+        return strtolower(str_replace($cleanFilters, '', trim($string)));
     }
 
     /**
-     * Strict and then approximate search for a chain
+     * Search carrier code in a chain
+     *
+     * @param string $search string cleaned to search
+     * @param boolean $strict strict search
+     *
+     * @return string|false
+     */
+    private function _searchCarrierCode($search, $strict = true)
+    {
+        $result = false;
+        foreach ($this->carriers as $key => $label) {
+            $keyCleaned = $this->_cleanString($key);
+            $labelCleaned = $this->_cleanString($label);
+            // search on the carrier key
+            $found = $this->_searchValue($keyCleaned, $search, $strict);
+            // search on the carrier label if it is different from the key
+            if (!$found && $labelCleaned !== $keyCleaned) {
+                $found = $this->_searchValue($labelCleaned, $search, $strict);
+            }
+            if ($found) {
+                $result = $key;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Strict or approximate search for a chain
      *
      * @param string $pattern search pattern
      * @param string $subject string to search
+     * @param boolean $strict strict search
      *
      * @return boolean
      */
-    private function _searchValue($pattern, $subject)
+    private function _searchValue($pattern, $subject, $strict = true)
     {
-        $found = false;
-        if (preg_match('`' . $pattern . '`i', $subject)) {
-            $found = true;
-        } elseif (preg_match('`.*?' . $pattern . '.*?`i', $subject)) {
-            $found = true;
+        if ($strict) {
+            $found = $pattern === $subject ? true : false;
+        } else {
+            $found = preg_match('`.*?' . $pattern . '.*?`i', $subject) ? true : false;
         }
         return $found;
     }
