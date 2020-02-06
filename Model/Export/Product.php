@@ -26,6 +26,7 @@ use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
 use Magento\Framework\Locale\Resolver;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
@@ -58,6 +59,11 @@ class Product
      * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
      */
     protected $_dateTime;
+
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
+     */
+    protected $_timezone;
 
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
@@ -165,11 +171,6 @@ class Product
     protected $_clearCacheConfigurable = 0;
 
     /**
-     * @var array cache categories
-     */
-    protected $_cacheCategories = [];
-
-    /**
      * @var integer counter for simple product
      */
     protected $_simpleCounter = 0;
@@ -208,6 +209,7 @@ class Product
      * @param \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry Magento stock registry instance
      * @param \Magento\Framework\Locale\Resolver $locale Magento locale resolver instance
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Model\Export\Price $price Lengow product price instance
@@ -220,6 +222,7 @@ class Product
         StockRegistryInterface $stockRegistry,
         Resolver $locale,
         DateTime $dateTime,
+        TimezoneInterface $timezone,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         Price $price,
@@ -231,6 +234,7 @@ class Product
         $this->_stockRegistry = $stockRegistry;
         $this->_locale = $locale;
         $this->_dateTime = $dateTime;
+        $this->_timezone = $timezone;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_price = $price;
@@ -742,8 +746,12 @@ class Product
                 $startTimestamp = 0;
             }
         }
-        $discountStartDate = $startTimestamp !== 0 ? $this->_dateTime->date('Y-m-d H:i:s', $startTimestamp) : '';
-        $discountEndDate = $endTimestamp !== 0 ? $this->_dateTime->date('Y-m-d H:i:s', $endTimestamp) : '';
+        $discountStartDate = $startTimestamp !== 0
+            ? $this->_timezone->date($startTimestamp)->format('Y-m-d H:i:s')
+            : '';
+        $discountEndDate = $endTimestamp !== 0
+            ? $this->_timezone->date($endTimestamp)->format('Y-m-d H:i:s')
+            : '';
         $discounts = [
             'discount_amount' => $discountAmount,
             'discount_percent' => $discountPercent,

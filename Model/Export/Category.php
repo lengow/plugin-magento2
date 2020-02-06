@@ -116,6 +116,8 @@ class Category
     /**
      * Get default category id and path
      *
+     * @throws \Exception
+     *
      * @return array
      */
     protected function _getDefaultCategory()
@@ -135,11 +137,10 @@ class Category
                 }
             }
         }
-        $category = [
+        return [
             'id' => isset($defaultCategory['entity_id']) ? (int)$defaultCategory['entity_id'] : 0,
             'path' => isset($defaultCategory['path']) ? $defaultCategory['path'] : '',
         ];
-        return $category;
     }
 
     /**

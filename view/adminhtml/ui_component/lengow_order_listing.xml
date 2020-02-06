@@ -191,13 +191,14 @@
                 </item>
             </argument>
         </column>
-        <column name="order_date">
+        <column name="order_date" class="Magento\Ui\Component\Listing\Columns\Date">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Order Date</item>
                     <item name="filter" xsi:type="string">dateRange</item>
                     <item name="dataType" xsi:type="string">date</item>
                     <item name="sorting" xsi:type="string">desc</item>
+                    <item name="component" xsi:type="string">Magento_Ui/js/grid/columns/date</item>
                     <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>

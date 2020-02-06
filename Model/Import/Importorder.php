@@ -36,6 +36,7 @@ use Magento\Tax\Model\TaxCalculation;
 use Magento\Tax\Model\Calculation;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Catalog\Model\ProductFactory;
 use Magento\Sales\Model\Service\InvoiceService;
 use Magento\Framework\DB\Transaction;
@@ -128,6 +129,11 @@ class Importorder extends AbstractModel
      * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
      */
     protected $_dateTime;
+
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
+     */
+    protected $_timezone;
 
     /**
      * @var \Magento\Catalog\Model\ProductFactory Magento product factory
@@ -347,6 +353,7 @@ class Importorder extends AbstractModel
      * @param \Magento\Tax\Model\Calculation $calculation calculation
      * @param \Magento\Quote\Model\QuoteManagement $quoteManagement
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
      * @param \Magento\Catalog\Model\ProductFactory $productFactory Magento product factory
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService Magento invoice service
      * @param \Magento\Framework\DB\Transaction $transaction Magento transaction
@@ -382,6 +389,7 @@ class Importorder extends AbstractModel
         Calculation $calculation,
         QuoteManagement $quoteManagement,
         DateTime $dateTime,
+        TimezoneInterface $timezone,
         ProductFactory $productFactory,
         InvoiceService $invoiceService,
         Transaction $transaction,
@@ -415,6 +423,7 @@ class Importorder extends AbstractModel
         $this->_calculation = $calculation;
         $this->_quoteManagement = $quoteManagement;
         $this->_dateTime = $dateTime;
+        $this->_timezone = $timezone;
         $this->_productFactory = $productFactory;
         $this->_invoiceService = $invoiceService;
         $this->_transaction = $transaction;
@@ -476,12 +485,13 @@ class Importorder extends AbstractModel
             'import'
         );
         if ($importLog) {
+            $dateMessage = $this->_timezone->date(strtotime($importLog['created_at']))->format('Y-m-d H:i:s');
             $decodedMessage = $this->_dataHelper->decodeLogMessage($importLog['message'], false);
             $this->_dataHelper->log(
                 'Import',
                 $this->_dataHelper->setLogMessage(
                     '%1 (created on the %2)',
-                    [$decodedMessage, $importLog['created_at']]
+                    [$decodedMessage, $dateMessage]
                 ),
                 $this->_logOutput,
                 $this->_marketplaceSku
@@ -503,6 +513,16 @@ class Importorder extends AbstractModel
             if (!$this->_isReimported) {
                 return false;
             }
+        }
+        // skip import if the order is anonymized
+        if ($this->_orderData->anonymized) {
+            $this->_dataHelper->log(
+                'Import',
+                $this->_dataHelper->setLogMessage('Order is anonymized and has not been imported'),
+                $this->_logOutput,
+                $this->_marketplaceSku
+            );
+            return false;
         }
         // checks if an external id already exists
         $orderMagentoId = $this->_checkExternalIds($this->_orderData->merchant_order_id);
@@ -1126,8 +1146,8 @@ class Importorder extends AbstractModel
         } else {
             $orderDate = (string)$this->_orderData->imported_at;
         }
-        $order->setCreatedAt($this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)));
-        $order->setUpdatedAt($this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)));
+        $order->setCreatedAt($this->_dateTime->gmtDate('Y-m-d H:i:s', strtotime($orderDate)));
+        $order->setUpdatedAt($this->_dateTime->gmtDate('Y-m-d H:i:s', strtotime($orderDate)));
         $order->save();
         // update Lengow order record
         $orderLengow->updateOrder(
@@ -1225,7 +1245,7 @@ class Importorder extends AbstractModel
             'marketplace_label' => (string)$this->_marketplaceLabel,
             'delivery_address_id' => (int)$this->_deliveryAddressId,
             'order_lengow_state' => $this->_orderStateLengow,
-            'order_date' => $this->_dateTime->date('Y-m-d H:i:s', strtotime($orderDate)),
+            'order_date' => $this->_dateTime->gmtDate('Y-m-d H:i:s', strtotime($orderDate)),
             'is_in_error' => 1,
         ];
         if (isset($this->_orderData->comments) && is_array($this->_orderData->comments)) {

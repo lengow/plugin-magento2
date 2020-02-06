@@ -23,6 +23,7 @@ use Lengow\Connector\Helper\Sync;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
@@ -34,6 +35,11 @@ use Lengow\Connector\Model\Connector;
  */
 class Marketplace extends AbstractModel
 {
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
+     */
+    protected $_timezone;
+
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
      */
@@ -132,6 +138,7 @@ class Marketplace extends AbstractModel
      *
      * @param \Magento\Framework\Model\Context $context Magento context instance
      * @param \Magento\Framework\Registry $registry Magento registry instance
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
@@ -142,6 +149,7 @@ class Marketplace extends AbstractModel
     public function __construct(
         Context $context,
         Registry $registry,
+        TimezoneInterface $timezone,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         SyncHelper $syncHelper,
@@ -150,6 +158,7 @@ class Marketplace extends AbstractModel
         OrdererrorFactory $orderErrorFactory
     )
     {
+        $this->_timezone = $timezone;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_syncHelper = $syncHelper;
@@ -485,7 +494,7 @@ class Marketplace extends AbstractModel
                     break;
                 case 'shipping_date':
                 case 'delivery_date':
-                    $params[$arg] = date('c');
+                    $params[$arg] = $this->_timezone->date()->format('c');
                     break;
                 default:
                     if (isset($actions['optional_args']) && in_array($arg, $actions['optional_args'])) {

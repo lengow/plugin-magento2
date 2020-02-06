@@ -158,7 +158,8 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false,
+                        'nullable' => true,
+                        'default' => null,
                     ],
                     'Order Date'
                 )->addColumn(
@@ -299,7 +300,8 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false,
+                        'nullable' => true,
+                        'default' => null,
                     ],
                     'Created At'
                 )->addColumn(
@@ -332,9 +334,6 @@ class InstallSchema implements InstallSchemaInterface
                 )->addIndex(
                     $installer->getIdxName('lengow_order', ['order_lengow_state']),
                     ['order_lengow_state']
-                )->addIndex(
-                    $installer->getIdxName('lengow_order', ['order_date']),
-                    ['order_date']
                 )->addIndex(
                     $installer->getIdxName('lengow_order', ['total_paid']),
                     ['total_paid']
@@ -479,7 +478,8 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false,
+                        'nullable' => true,
+                        'default' => null,
                     ],
                     'Created At'
                 )->addColumn(
@@ -578,7 +578,8 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false,
+                        'nullable' => true,
+                        'default' => null,
                     ],
                     'Created At'
                 )->addColumn(
@@ -629,7 +630,8 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false,
+                        'nullable' => true,
+                        'default' => null,
                     ],
                     'Date'
                 )->addColumn(
@@ -648,9 +650,6 @@ class InstallSchema implements InstallSchemaInterface
                         'nullable' => false,
                     ],
                     'Message'
-                )->addIndex(
-                    $installer->getIdxName('lengow_log', ['date']),
-                    ['date']
                 )->addIndex(
                     $installer->getIdxName('lengow_log', ['category']),
                     ['category']

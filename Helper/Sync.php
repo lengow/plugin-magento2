@@ -26,6 +26,8 @@ use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Pricing\PriceCurrencyInterface as PriceCurrency;
 use Magento\Framework\Filesystem\Driver\File as DriverFile;
 use Magento\Framework\Module\Dir\Reader;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Security as SecurityHelper;
@@ -58,6 +60,16 @@ class Sync extends AbstractHelper
      * @var \Magento\Framework\Module\Dir\Reader Magento module reader instance
      */
     protected $_moduleReader;
+
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     */
+    protected $_dateTime;
+
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
+     */
+    protected $_timezone;
 
     /**
      * @var \Lengow\Connector\Helper\Data Lengow data helper instance
@@ -121,6 +133,8 @@ class Sync extends AbstractHelper
      * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency Magento price currency instance
      * @param \Magento\Framework\Filesystem\Driver\File $driverFile Magento driver file instance
      * @param \Magento\Framework\Module\Dir\Reader $moduleReader Magento module reader instance
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
@@ -133,16 +147,21 @@ class Sync extends AbstractHelper
         PriceCurrency $priceCurrency,
         DriverFile $driverFile,
         Reader $moduleReader,
+        DateTime $dateTime,
+        TimezoneInterface $timezone,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         SecurityHelper $securityHelper,
         Connector $connector,
         Export $export
-    ) {
+    )
+    {
         $this->_jsonHelper = $jsonHelper;
         $this->_priceCurrency = $priceCurrency;
         $this->_driverFile = $driverFile;
         $this->_moduleReader = $moduleReader;
+        $this->_dateTime = $dateTime;
+        $this->_timezone = $timezone;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_securityHelper = $securityHelper;
@@ -241,7 +260,7 @@ class Sync extends AbstractHelper
             }
         }
         // save last update date for a specific settings (change synchronisation interval time)
-        $this->_configHelper->set('last_setting_update', date('Y-m-d H:i:s'));
+        $this->_configHelper->set('last_setting_update', time());
         // clean config cache to valid configuration
         $this->_configHelper->cleanConfigCache();
     }
@@ -250,10 +269,11 @@ class Sync extends AbstractHelper
      * Sync Lengow catalogs for order synchronisation
      *
      * @param boolean $force force cache update
+     * @param boolean $logOutput see log or not
      *
      * @return boolean
      */
-    public function syncCatalog($force = false)
+    public function syncCatalog($force = false, $logOutput = false)
     {
         $cleanCache = false;
         if ($this->_configHelper->isNewMerchant()) {
@@ -261,11 +281,11 @@ class Sync extends AbstractHelper
         }
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_catalog_update');
-            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTimes['catalog']) {
+            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < $this->_cacheTimes['catalog']) {
                 return false;
             }
         }
-        $result = $this->_connector->queryApi('get', '/v3.1/cms');
+        $result = $this->_connector->queryApi(Connector::GET, Connector::API_CMS, [], '', $logOutput);
         if (isset($result->cms)) {
             $cmsToken = $this->_configHelper->getToken();
             foreach ($result->cms as $cms) {
@@ -290,10 +310,10 @@ class Sync extends AbstractHelper
         // clean config cache to valid configuration
         if ($cleanCache) {
             // save last update date for a specific settings (change synchronisation interval time)
-            $this->_configHelper->set('last_setting_update', date('Y-m-d H:i:s'));
+            $this->_configHelper->set('last_setting_update', time());
             $this->_configHelper->cleanConfigCache();
         }
-        $this->_configHelper->set('last_catalog_update', date('Y-m-d H:i:s'));
+        $this->_configHelper->set('last_catalog_update', time());
         return true;
     }
 
@@ -330,23 +350,24 @@ class Sync extends AbstractHelper
      * Set CMS options
      *
      * @param boolean $force force cache update
+     * @param boolean $logOutput see log or not
      *
      * @return boolean
      */
-    public function setCmsOption($force = false)
+    public function setCmsOption($force = false, $logOutput = false)
     {
         if ($this->_configHelper->isNewMerchant() || (bool)$this->_configHelper->get('preprod_mode_enable')) {
             return false;
         }
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_option_cms_update');
-            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTimes['cms_option']) {
+            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < $this->_cacheTimes['cms_option']) {
                 return false;
             }
         }
         $options = $this->_jsonHelper->jsonEncode($this->getOptionData());
-        $this->_connector->queryApi('put', '/v3.1/cms', [], $options);
-        $this->_configHelper->set('last_option_cms_update', date('Y-m-d H:i:s'));
+        $this->_connector->queryApi(Connector::PUT, Connector::API_CMS, [], $options, $logOutput);
+        $this->_configHelper->set('last_option_cms_update', time());
         return true;
     }
 
@@ -354,17 +375,18 @@ class Sync extends AbstractHelper
      * Get Status Account
      *
      * @param boolean $force force cache update
+     * @param boolean $logOutput see log or not
      *
      * @return array|false
      */
-    public function getStatusAccount($force = false)
+    public function getStatusAccount($force = false, $logOutput = false)
     {
         if ($this->_configHelper->isNewMerchant()) {
             return false;
         }
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_status_update');
-            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTimes['status_account']) {
+            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < $this->_cacheTimes['status_account']) {
                 return json_decode($this->_configHelper->get('account_status'), true);
             }
         }
@@ -373,7 +395,7 @@ class Sync extends AbstractHelper
             return self::$statusAccount;
         }
         $status = false;
-        $result = $this->_connector->queryApi('get', '/v3.0/plans');
+        $result = $this->_connector->queryApi(Connector::GET, Connector::API_PLAN, [], '', $logOutput);
         if (isset($result->isFreeTrial)) {
             $status = [
                 'type' => $result->isFreeTrial ? 'free_trial' : '',
@@ -381,7 +403,7 @@ class Sync extends AbstractHelper
                 'expired' => (bool)$result->isExpired,
             ];
             $this->_configHelper->set('account_status', $this->_jsonHelper->jsonEncode($status));
-            $this->_configHelper->set('last_status_update', date('Y-m-d H:i:s'));
+            $this->_configHelper->set('last_status_update', time());
         } else {
             if ($this->_configHelper->get('last_status_update')) {
                 $status = json_decode($this->_configHelper->get('account_status'), true);
@@ -395,26 +417,30 @@ class Sync extends AbstractHelper
      * Get Statistic for all stores
      *
      * @param boolean $force force cache update
+     * @param boolean $logOutput see log or not
      *
      * @return array
      */
-    public function getStatistic($force = false)
+    public function getStatistic($force = false, $logOutput = false)
     {
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_statistic_update');
-            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < $this->_cacheTimes['statistic']) {
+            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < $this->_cacheTimes['statistic']) {
                 return json_decode($this->_configHelper->get('order_statistic'), true);
             }
         }
         $allCurrencyCodes = $this->_configHelper->getAllAvailableCurrencyCodes();
+        $dateFromTimestamp = strtotime($this->_dateTime->gmtDate('Y-m-d') . ' -10 years');
         $result = $this->_connector->queryApi(
-            'get',
-            '/v3.0/stats',
+            Connector::GET,
+            Connector::API_STATISTIC,
             [
-                'date_from' => date('c', strtotime(date('Y-m-d') . ' -10 years')),
-                'date_to' => date('c'),
+                'date_from' => $this->_dateTime->gmtDate('c', $dateFromTimestamp),
+                'date_to' => $this->_timezone->date()->format('c'),
                 'metrics' => 'year',
-            ]
+            ],
+            '',
+            $logOutput
         );
         if (isset($result->level0)) {
             $stats = $result->level0[0];
@@ -451,7 +477,7 @@ class Sync extends AbstractHelper
             $return['total_order'] = number_format($return['total_order'], 2, ',', ' ');
         }
         $this->_configHelper->set('order_statistic', $this->_jsonHelper->jsonEncode($return));
-        $this->_configHelper->set('last_statistic_update', date('Y-m-d H:i:s'));
+        $this->_configHelper->set('last_statistic_update', time());
         return $return;
     }
 
@@ -459,10 +485,11 @@ class Sync extends AbstractHelper
      * Get marketplace data
      *
      * @param boolean $force force cache update
+     * @param boolean $logOutput see log or not
      *
      * @return array|false
      */
-    public function getMarketplaces($force = false)
+    public function getMarketplaces($force = false, $logOutput = false)
     {
         $sep = DIRECTORY_SEPARATOR;
         $folderPath = $this->_moduleReader->getModuleDir('etc', 'Lengow_Connector');
@@ -470,7 +497,7 @@ class Sync extends AbstractHelper
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_marketplace_update');
             if (!is_null($updatedAt)
-                && (time() - strtotime($updatedAt)) < $this->_cacheTimes['marketplace']
+                && (time() - (int)$updatedAt) < $this->_cacheTimes['marketplace']
                 && file_exists($filePath)
             ) {
                 // recovering data with the marketplaces.json file
@@ -481,7 +508,7 @@ class Sync extends AbstractHelper
             }
         }
         // recovering data with the API
-        $result = $this->_connector->queryApi('get', '/v3.0/marketplaces');
+        $result = $this->_connector->queryApi(Connector::GET, Connector::API_MARKETPLACE, [], '', $logOutput);
         if ($result && is_object($result) && !isset($result->error)) {
             // updated marketplaces.json file
             try {
@@ -490,11 +517,12 @@ class Sync extends AbstractHelper
                 $this->_driverFile->fileWrite($file, $this->_jsonHelper->jsonEncode($result));
                 $this->_driverFile->fileUnlock($file);
                 $this->_driverFile->fileClose($file);
-                $this->_configHelper->set('last_marketplace_update', date('Y-m-d H:i:s'));
+                $this->_configHelper->set('last_marketplace_update', time());
             } catch (FileSystemException $e) {
                 $this->_dataHelper->log(
                     'Import',
-                    $this->_dataHelper->setLogMessage('marketplace update failed - %1', [$e->getMessage()])
+                    $this->_dataHelper->setLogMessage('marketplace update failed - %1', [$e->getMessage()]),
+                    $logOutput
                 );
             }
             return $result;

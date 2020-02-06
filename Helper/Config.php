@@ -96,6 +96,18 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => true,
         ],
+        'authorization_token' => [
+            'path' => 'lengow_global_options/store_credential/authorization_token',
+            'global' => true,
+            'export' => false,
+            'no_cache' => true,
+        ],
+        'last_authorization_token_update' => [
+            'path' => 'lengow_global_options/store_credential/last_authorization_token_update',
+            'global' => true,
+            'export' => false,
+            'no_cache' => true,
+        ],
         'store_enable' => [
             'path' => 'lengow_global_options/store_credential/global_store_enable',
             'store' => true,
@@ -286,6 +298,11 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => true,
         ],
+        'last_action_sync' => array(
+            'path' => 'lengow_import_options/advanced/last_action_sync',
+            'global' => true,
+            'no_cache' => true,
+        ),
     ];
 
     /**
@@ -403,11 +420,11 @@ class Config extends AbstractHelper
      */
     public function getAccessIds()
     {
-        $accountId = (int)$this->get('account_id');
+        $accountId = $this->get('account_id');
         $accessToken = $this->get('access_token');
         $secretToken = $this->get('secret_token');
         if (strlen($accountId) > 0 && strlen($accessToken) > 0 && strlen($secretToken) > 0) {
-            return [$accountId, $accessToken, $secretToken];
+            return [(int)$accountId, $accessToken, $secretToken];
         } else {
             return [null, null, null];
         }
@@ -585,7 +602,7 @@ class Config extends AbstractHelper
     public function isNewMerchant()
     {
         list($accountId, $accessToken, $secretToken) = $this->getAccessIds();
-        if (!is_null($accountId) && !is_null($accessToken) && !is_null($secretToken)) {
+        if ($accountId !== null && $accessToken !== null && $secretToken !== null) {
             return false;
         }
         return true;
@@ -636,7 +653,7 @@ class Config extends AbstractHelper
                     ];
                 }
             }
-        }  catch (\Exception $e) {
+        } catch (\Exception $e) {
             $allAttributes = [];
         }
         return $allAttributes;

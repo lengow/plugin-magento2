@@ -320,10 +320,8 @@ fr:
     import_cron_enable_comment: "Si votre Cron est en place sur Magento, les commandes seront importées automatiquement toutes les 30 minutes"
   lengow_log:
     exception:
-      timeout_api: "l'API a été bloquée par un timeout"
-      error_curl: "Curl erreur %1 - %2"
       no_connection_webservice: "la connexion ne se fait pas avec Lengow pour la boutique %1 (%2)"
-      error_lengow_webservice: "l'API Lengow : %1 - %2 pour la boutique %3 (%4)"
+      error_lengow_webservice: "l'API Lengow : %1 - \"%2\" pour la boutique %3 (%4)"
       marketplace_not_present: "Erreur Lengow : la place de marché  %1 n’apparaît pas dans la liste des places de marché"
       product_is_disabled: "le produit id %1 ne peut pas être ajouté au quote car il est désactivé"
       product_stock_is_insufficient: "le produit id %1 ne peut pas être ajouté au quote car le stock est insuffisant"
