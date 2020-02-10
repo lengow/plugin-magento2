@@ -64,12 +64,12 @@ class Import
     const TYPE_MANUAL = 'manual';
 
     /**
-     * @var integer cron import type
+     * @var string cron import type
      */
     const TYPE_CRON = 'cron';
 
     /**
-     * @var integer Magento cron import type
+     * @var string Magento cron import type
      */
     const TYPE_MAGENTO_CRON = 'magento cron';
 

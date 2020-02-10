@@ -45,12 +45,12 @@ class Export
     const TYPE_MANUAL = 'manual';
 
     /**
-     * @var integer cron export type
+     * @var string cron export type
      */
     const TYPE_CRON = 'cron';
 
     /**
-     * @var integer Magento cron export type
+     * @var string Magento cron export type
      */
     const TYPE_MAGENTO_CRON = 'magento cron';
 
