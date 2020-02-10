@@ -87,7 +87,12 @@ class Synchronize extends Action
                     [$lengowOrder->getData('order_sku')]
                 );
             }
-            $this->_dataHelper->log('Import', $synchroMessage, false, $lengowOrder->getData('marketplace_sku'));
+            $this->_dataHelper->log(
+                DataHelper::CODE_IMPORT,
+                $synchroMessage,
+                false,
+                $lengowOrder->getData('marketplace_sku')
+            );
         }
         /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);

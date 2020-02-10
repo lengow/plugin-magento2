@@ -189,7 +189,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         // generation of fictitious email
         $array['billing_address']['email'] = $marketplaceSku . '-' . $orderData->marketplace . '@lengow.com';
         $this->_dataHelper->log(
-            'Import',
+            DataHelper::CODE_IMPORT,
             $this->_dataHelper->setLogMessage(
                 'generate a unique email %1',
                 [$array['billing_address']['email']]

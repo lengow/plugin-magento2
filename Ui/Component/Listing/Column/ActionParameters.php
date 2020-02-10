@@ -22,8 +22,7 @@ namespace Lengow\Connector\Ui\Component\Listing\Column;
 use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
-use Magento\Sales\Api\OrderRepositoryInterface;
-use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Model\Import\Action as LengowAction;
 
 class ActionParameters extends Column
 {
@@ -60,9 +59,9 @@ class ActionParameters extends Column
                     $return = '';
                     $parameters = json_decode($item['parameters'], true);
                     foreach ($parameters as $key => $value) {
-                        if ($key === 'line' || $key === 'action_type') {
+                        if ($key === LengowAction::ARG_LINE || $key === LengowAction::ARG_ACTION_TYPE) {
                             continue;
-                        } elseif ($key === 'tracking_number') {
+                        } elseif ($key === LengowAction::ARG_TRACKING_NUMBER) {
                             $key = 'tracking';
                         } elseif ($key === 'marketplace_order_id') {
                             $key = 'marketplace sku';

@@ -61,6 +61,21 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 class Importorder extends AbstractModel
 {
     /**
+     * @var string result for order imported
+     */
+    const RESULT_NEW = 'new';
+
+    /**
+     * @var string result for order updated
+     */
+    const RESULT_UPDATE = 'update';
+
+    /**
+     * @var string result for order in error
+     */
+    const RESULT_ERROR = 'error';
+
+    /**
      * @var \Magento\Quote\Model\QuoteFactory Magento quote factory instance
      */
     protected $_quoteMagentoFactory;
@@ -488,10 +503,13 @@ class Importorder extends AbstractModel
             $dateMessage = $this->_timezone->date(strtotime($importLog['created_at']))->format('Y-m-d H:i:s');
             $decodedMessage = $this->_dataHelper->decodeLogMessage($importLog['message'], false);
             $this->_dataHelper->log(
-                'Import',
+                DataHelper::CODE_IMPORT,
                 $this->_dataHelper->setLogMessage(
                     '%1 (created on the %2)',
-                    [$decodedMessage, $dateMessage]
+                    [
+                        $decodedMessage,
+                        $dateMessage,
+                    ]
                 ),
                 $this->_logOutput,
                 $this->_marketplaceSku
@@ -508,7 +526,7 @@ class Importorder extends AbstractModel
         if ($orderId) {
             $orderUpdated = $this->_checkAndUpdateOrder($orderId);
             if ($orderUpdated && isset($orderUpdated['update'])) {
-                return $this->_returnResult('update', $orderUpdated['order_lengow_id'], $orderId);
+                return $this->_returnResult(self::RESULT_UPDATE, $orderUpdated['order_lengow_id'], $orderId);
             }
             if (!$this->_isReimported) {
                 return false;
@@ -517,7 +535,7 @@ class Importorder extends AbstractModel
         // skip import if the order is anonymized
         if ($this->_orderData->anonymized) {
             $this->_dataHelper->log(
-                'Import',
+                DataHelper::CODE_IMPORT,
                 $this->_dataHelper->setLogMessage('Order is anonymized and has not been imported'),
                 $this->_logOutput,
                 $this->_marketplaceSku
@@ -528,7 +546,7 @@ class Importorder extends AbstractModel
         $orderMagentoId = $this->_checkExternalIds($this->_orderData->merchant_order_id);
         if ($orderMagentoId && !$this->_preprodMode && !$this->_isReimported) {
             $this->_dataHelper->log(
-                'Import',
+                DataHelper::CODE_IMPORT,
                 $this->_dataHelper->setLogMessage(
                     'already imported in Magento with the order ID %1',
                     [$orderMagentoId]
@@ -560,7 +578,7 @@ class Importorder extends AbstractModel
 
             }
             $this->_dataHelper->log(
-                'Import',
+                DataHelper::CODE_IMPORT,
                 $this->_dataHelper->setLogMessage(
                     'current order status %1 means it is not possible to import the order to the marketplace %2',
                     [
@@ -578,7 +596,7 @@ class Importorder extends AbstractModel
             // created a record in the lengow order table
             if (!$this->_createLengowOrder()) {
                 $this->_dataHelper->log(
-                    'Import',
+                    DataHelper::CODE_IMPORT,
                     $this->_dataHelper->setLogMessage('WARNING! Order could NOT be saved in Lengow orders table'),
                     $this->_logOutput,
                     $this->_marketplaceSku
@@ -586,7 +604,7 @@ class Importorder extends AbstractModel
                 return false;
             } else {
                 $this->_dataHelper->log(
-                    'Import',
+                    DataHelper::CODE_IMPORT,
                     $this->_dataHelper->setLogMessage('order saved in Lengow orders table'),
                     $this->_logOutput,
                     $this->_marketplaceSku
@@ -598,7 +616,7 @@ class Importorder extends AbstractModel
         $orderLengow = $orderFactory->load((int)$this->_orderLengowId);
         // checks if the required order data is present
         if (!$this->_checkOrderData()) {
-            return $this->_returnResult('error', $this->_orderLengowId);
+            return $this->_returnResult(self::RESULT_ERROR, $this->_orderLengowId);
         }
         // get order amount and load processing fees and shipping cost
         $this->_orderAmount = $this->_getOrderAmount();
@@ -633,7 +651,7 @@ class Importorder extends AbstractModel
             // check if the order is shipped by marketplace
             if ($this->_shippedByMp) {
                 $this->_dataHelper->log(
-                    'Import',
+                    DataHelper::CODE_IMPORT,
                     $this->_dataHelper->setLogMessage('order shipped by %1', [$this->_marketplace->name]),
                     $this->_logOutput,
                     $this->_marketplaceSku
@@ -665,7 +683,7 @@ class Importorder extends AbstractModel
                 // save order line id in lengow_order_line table
                 $orderLineSaved = $this->_saveLengowOrderLine($order, $quote);
                 $this->_dataHelper->log(
-                    'Import',
+                    DataHelper::CODE_IMPORT,
                     $this->_dataHelper->setLogMessage(
                         'save order lines product: %1',
                         [$orderLineSaved]
@@ -674,7 +692,7 @@ class Importorder extends AbstractModel
                     $this->_marketplaceSku
                 );
                 $this->_dataHelper->log(
-                    'Import',
+                    DataHelper::CODE_IMPORT,
                     $this->_dataHelper->setLogMessage(
                         'order successfully imported (ORDER ID %1)',
                         [$order->getIncrementId()]
@@ -683,7 +701,9 @@ class Importorder extends AbstractModel
                     $this->_marketplaceSku
                 );
                 // update state to shipped
-                if ($this->_orderStateLengow === 'shipped' || $this->_orderStateLengow === 'closed') {
+                if ($this->_orderStateLengow === LengowOrder::STATE_SHIPPED
+                    || $this->_orderStateLengow === LengowOrder::STATE_CLOSED
+                ) {
                     $this->_lengowOrder->toShip(
                         $order,
                         $this->_carrierName,
@@ -691,7 +711,7 @@ class Importorder extends AbstractModel
                         $this->_trackingNumber
                     );
                     $this->_dataHelper->log(
-                        'Import',
+                        DataHelper::CODE_IMPORT,
                         $this->_dataHelper->setLogMessage(
                             "order's status has been updated to %1",
                             ['Complete']
@@ -716,7 +736,12 @@ class Importorder extends AbstractModel
                         'adding quantity back to stock count (order shipped by marketplace)'
                     );
                 }
-                $this->_dataHelper->log('Import', $logMessage, $this->_logOutput, $this->_marketplaceSku);
+                $this->_dataHelper->log(
+                    DataHelper::CODE_IMPORT,
+                    $logMessage,
+                    $this->_logOutput,
+                    $this->_marketplaceSku
+                );
                 $this->_addQuantityBack($quote);
             }
         } catch (LengowException $e) {
@@ -738,7 +763,7 @@ class Importorder extends AbstractModel
             }
             $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
             $this->_dataHelper->log(
-                'Import',
+                DataHelper::CODE_IMPORT,
                 $this->_dataHelper->setLogMessage(
                     'import order failed - %1',
                     [$decodedMessage]
@@ -752,9 +777,9 @@ class Importorder extends AbstractModel
                     'order_lengow_state' => $this->_orderStateLengow,
                 ]
             );
-            return $this->_returnResult('error', $this->_orderLengowId);
+            return $this->_returnResult(self::RESULT_ERROR, $this->_orderLengowId);
         }
-        return $this->_returnResult('new', $this->_orderLengowId, isset($order) ? $order->getId() : null);
+        return $this->_returnResult(self::RESULT_NEW, $this->_orderLengowId, isset($order) ? $order->getId() : null);
     }
 
     /**
@@ -788,13 +813,13 @@ class Importorder extends AbstractModel
             $this->_processingFee = 0;
             $this->_shippingCost = 0;
             $this->_dataHelper->log(
-                'Import',
+                DataHelper::CODE_IMPORT,
                 $this->_dataHelper->setLogMessage('rewrite amount without processing fee'),
                 $this->_logOutput,
                 $this->_marketplaceSku
             );
             $this->_dataHelper->log(
-                'Import',
+                DataHelper::CODE_IMPORT,
                 $this->_dataHelper->setLogMessage('rewrite amount without shipping cost'),
                 $this->_logOutput,
                 $this->_marketplaceSku
@@ -807,7 +832,7 @@ class Importorder extends AbstractModel
             // check whether the product is canceled for amount
             if (!is_null($product->marketplace_status)) {
                 $stateProduct = $this->_marketplace->getStateLengow((string)$product->marketplace_status);
-                if ($stateProduct === 'canceled' || $stateProduct === 'refused') {
+                if ($stateProduct === LengowOrder::STATE_CANCELED || $stateProduct === LengowOrder::STATE_REFUSED) {
                     continue;
                 }
             }
@@ -846,7 +871,7 @@ class Importorder extends AbstractModel
     {
         $order = $this->_orderRepository->get($orderId);
         $this->_dataHelper->log(
-            'Import',
+            DataHelper::CODE_IMPORT,
             $this->_dataHelper->setLogMessage('order already imported (ORDER ID %1)', [$order->getIncrementId()]),
             $this->_logOutput,
             $this->_marketplaceSku
@@ -857,7 +882,7 @@ class Importorder extends AbstractModel
         // Lengow -> Cancel and reimport order
         if ((bool)$lengowOrder->getData('is_reimported')) {
             $this->_dataHelper->log(
-                'Import',
+                DataHelper::CODE_IMPORT,
                 $this->_dataHelper->setLogMessage(
                     'order ready to be re-imported (ORDER ID %1)',
                     [$order->getIncrementId()]
@@ -878,7 +903,7 @@ class Importorder extends AbstractModel
             if ($orderUpdated) {
                 $result['update'] = true;
                 $this->_dataHelper->log(
-                    'Import',
+                    DataHelper::CODE_IMPORT,
                     $this->_dataHelper->setLogMessage("order's status has been updated to %1", [$orderUpdated]),
                     $this->_logOutput,
                     $this->_marketplaceSku
@@ -957,7 +982,7 @@ class Importorder extends AbstractModel
                 );
                 $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
                 $this->_dataHelper->log(
-                    'Import',
+                    DataHelper::CODE_IMPORT,
                     $this->_dataHelper->setLogMessage(
                         'import order failed - %1',
                         [$decodedMessage]
@@ -989,9 +1014,9 @@ class Importorder extends AbstractModel
             'marketplace_sku' => $this->_marketplaceSku,
             'marketplace_name' => (string)$this->_marketplace->name,
             'lengow_state' => $this->_orderStateLengow,
-            'order_new' => $typeResult === 'new' ? true : false,
-            'order_update' => $typeResult === 'update' ? true : false,
-            'order_error' => $typeResult === 'error' ? true : false,
+            'order_new' => $typeResult === self::RESULT_NEW ? true : false,
+            'order_update' => $typeResult === self::RESULT_UPDATE ? true : false,
+            'order_error' => $typeResult === self::RESULT_ERROR ? true : false,
         ];
         return $result;
     }
@@ -1161,7 +1186,7 @@ class Importorder extends AbstractModel
             ]
         );
         $this->_dataHelper->log(
-            'Import',
+            DataHelper::CODE_IMPORT,
             $this->_dataHelper->setLogMessage('order updated in Lengow orders table'),
             $this->_logOutput,
             $this->_marketplaceSku
@@ -1215,7 +1240,7 @@ class Importorder extends AbstractModel
         }
         // get lengow shipping method if selected shipping method is unavailable
         $this->_dataHelper->log(
-            'Import',
+            DataHelper::CODE_IMPORT,
             $this->_dataHelper->setLogMessage(
                 'the chosen shipping method is not available for this order. Lengow has assigned a shipping method'
             ),

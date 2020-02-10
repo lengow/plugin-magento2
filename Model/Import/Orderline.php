@@ -104,7 +104,7 @@ class Orderline extends AbstractModel
         } catch (\Exception $e) {
             $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
             $this->_dataHelper->log(
-                'Orm',
+                DataHelper::CODE_ORM,
                 $this->_dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
             );
             return false;

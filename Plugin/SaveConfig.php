@@ -116,7 +116,10 @@ class SaveConfig
                             $message = '%1 - old value %2 replaced with %3';
                             $params = [$path, $oldValue, $value];
                         }
-                        $this->_dataHelper->log('Config', $this->_dataHelper->setLogMessage($message, $params));
+                        $this->_dataHelper->log(
+                            DataHelper::CODE_SETTING,
+                            $this->_dataHelper->setLogMessage($message, $params)
+                        );
                         // save last update date for a specific settings (change synchronisation interval time)
                         if (in_array($fieldId, $this->_updatedSettings)) {
                             $this->_configHelper->set('last_setting_update', time());

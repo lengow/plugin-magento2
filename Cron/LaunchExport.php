@@ -22,7 +22,8 @@ namespace Lengow\Connector\Cron;
 use Magento\Store\Model\StoreManagerInterface;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
-use Lengow\Connector\Model\ExportFactory;
+use Lengow\Connector\Model\Export as LengowExport;
+use Lengow\Connector\Model\ExportFactory as LengowExportFactory;
 
 class LaunchExport
 {
@@ -58,7 +59,7 @@ class LaunchExport
         StoreManagerInterface $storeManager,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
-        ExportFactory $exportFactory
+        LengowExportFactory $exportFactory
     ) {
         $this->_storeManager = $storeManager;
         $this->_dataHelper = $dataHelper;
@@ -89,7 +90,7 @@ class LaunchExport
                                 'stream' => false,
                                 'update_export_date' => false,
                                 'log_output' => false,
-                                'type' => 'magento cron',
+                                'type' => LengowExport::TYPE_MAGENTO_CRON,
                             ]
                         );
                         $export->exec();
@@ -97,7 +98,7 @@ class LaunchExport
                     } catch (\Exception $e) {
                         $errorMessage = 'Magento error: "' . $e->getMessage()
                             . '" ' . $e->getFile() . ' line ' . $e->getLine();
-                        $this->_dataHelper->log('Export', $errorMessage);
+                        $this->_dataHelper->log(DataHelper::CODE_EXPORT, $errorMessage);
                     }
                 }
             }

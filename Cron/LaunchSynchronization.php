@@ -21,8 +21,8 @@ namespace Lengow\Connector\Cron;
 
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
-use Lengow\Connector\Model\Import;
-use Lengow\Connector\Model\Import\Action;
+use Lengow\Connector\Model\Import as LengowImport;
+use Lengow\Connector\Model\Import\Action as LengowAction;
 
 class LaunchSynchronization
 {
@@ -57,8 +57,8 @@ class LaunchSynchronization
     public function __construct(
         ConfigHelper $configHelper,
         SyncHelper $syncHelper,
-        Import $import,
-        Action $action
+        LengowImport $import,
+        LengowAction $action
     ) {
         $this->_configHelper = $configHelper;
         $this->_syncHelper = $syncHelper;
@@ -75,7 +75,7 @@ class LaunchSynchronization
             // sync catalogs id between Lengow and Magento
             $this->_syncHelper->syncCatalog();
             // sync orders between Lengow and Magento
-            $this->_import->init(['type' => 'magento cron']);
+            $this->_import->init(['type' => LengowImport::TYPE_MAGENTO_CRON]);
             $this->_import->exec();
             // sync action between Lengow and Magento
             $this->_action->checkFinishAction();

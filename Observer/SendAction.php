@@ -22,6 +22,7 @@ namespace Lengow\Connector\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Backend\Model\Session as BackendSession;
+use Lengow\Connector\Model\Import\Action as LengowAction;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class SendAction implements ObserverInterface
@@ -66,7 +67,7 @@ class SendAction implements ObserverInterface
     {
         $order = null;
         $shipment = null;
-        $action = 'ship';
+        $action = LengowAction::TYPE_SHIP;
         $eventName = $observer->getEvent()->getName();
         switch ($eventName) {
             case 'sales_order_shipment_save_after':
@@ -79,7 +80,7 @@ class SendAction implements ObserverInterface
                 $order = $shipment->getOrder();
                 break;
             case 'sales_order_payment_cancel':
-                $action = 'cancel';
+                $action = LengowAction::TYPE_CANCEL;
                 $payment = $observer->getEvent()->getPayment();
                 $order = $payment->getOrder();
                 break;

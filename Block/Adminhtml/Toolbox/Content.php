@@ -27,8 +27,9 @@ use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
+use Lengow\Connector\Model\Import as LengowImport;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
-use Lengow\Connector\Model\Export;
+use Lengow\Connector\Model\Export as LengowExport;
 
 class Content extends Template
 {
@@ -95,7 +96,7 @@ class Content extends Template
         ConfigHelper $configHelper,
         ImportHelper $importHelper,
         LengowOrder $lengowOrder,
-        Export $export,
+        LengowExport $export,
         array $data = []
     ) {
         $this->_moduleReader = $moduleReader;
@@ -220,7 +221,7 @@ class Content extends Template
             : $this->_dataHelper->getDateInCorrectFormat($lastImport['timestamp'], true);
         if ($lastImport['type'] === 'none') {
             $lastImportType = __('none');
-        } elseif ($lastImport['type'] === 'cron') {
+        } elseif ($lastImport['type'] === LengowImport::TYPE_CRON) {
             $lastImportType = __('cron');
         } else {
             $lastImportType = __('manual');

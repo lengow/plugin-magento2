@@ -40,6 +40,21 @@ use Lengow\Connector\Model\Exception as LengowException;
 class Export
 {
     /**
+     * @var string manual export type
+     */
+    const TYPE_MANUAL = 'manual';
+
+    /**
+     * @var integer cron export type
+     */
+    const TYPE_CRON = 'cron';
+
+    /**
+     * @var integer Magento cron export type
+     */
+    const TYPE_MAGENTO_CRON = 'magento cron';
+
+    /**
      * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
      */
     protected $_storeManager;
@@ -391,15 +406,18 @@ class Export
             // clean logs
             $this->_dataHelper->cleanLog();
             $this->_dataHelper->log(
-                'Export',
+                DataHelper::CODE_EXPORT,
                 $this->_dataHelper->setLogMessage('## start %1 export ##', [$this->_exportType]),
                 $this->_logOutput
             );
             $this->_dataHelper->log(
-                'Export',
+                DataHelper::CODE_EXPORT,
                 $this->_dataHelper->setLogMessage(
                     'start export in store %1 (%2)',
-                    [$this->_store->getName(), $this->_storeId]
+                    [
+                        $this->_store->getName(),
+                        $this->_storeId,
+                    ]
                 ),
                 $this->_logOutput
             );
@@ -409,7 +427,7 @@ class Export
             $productCollection = $this->_getQuery();
             $products = $productCollection->getData();
             $this->_dataHelper->log(
-                'Export',
+                DataHelper::CODE_EXPORT,
                 $this->_dataHelper->setLogMessage('%1 product(s) found', [count($products)]),
                 $this->_logOutput
             );
@@ -419,17 +437,17 @@ class Export
             }
             $timeEnd = $this->_microtimeFloat();
             $this->_dataHelper->log(
-                'Export',
+                DataHelper::CODE_EXPORT,
                 $this->_dataHelper->setLogMessage('memory usage: %1 Mb', [round(memory_get_usage() / 1000000, 2)]),
                 $this->_logOutput
             );
             $this->_dataHelper->log(
-                'Export',
+                DataHelper::CODE_EXPORT,
                 $this->_dataHelper->setLogMessage('execution time: %1 seconds', [round($timeEnd - $timeStart, 4)]),
                 $this->_logOutput
             );
             $this->_dataHelper->log(
-                'Export',
+                DataHelper::CODE_EXPORT,
                 $this->_dataHelper->setLogMessage('## end %1 export ##', [$this->_exportType]),
                 $this->_logOutput
             );
@@ -441,7 +459,7 @@ class Export
         if (isset($errorMessage)) {
             $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
             $this->_dataHelper->log(
-                'Export',
+                DataHelper::CODE_EXPORT,
                 $this->_dataHelper->setLogMessage('export failed - %1', [$decodedMessage]),
                 $this->_logOutput
             );
@@ -514,7 +532,7 @@ class Export
         // product counter
         $counters = $lengowProduct->getCounters();
         $this->_dataHelper->log(
-            'Export',
+            DataHelper::CODE_EXPORT,
             $this->_dataHelper->setLogMessage(
                 '%1 product(s) exported, %2 simple product(s), %3 configurable product(s),
                 %4 grouped product(s), %5 virtual product(s), %6 downloadable product(s)',
@@ -532,7 +550,7 @@ class Export
         // warning for simple product associated with configurable products disabled
         if ($counters['simple_disabled'] > 0) {
             $this->_dataHelper->log(
-                'Export',
+                DataHelper::CODE_EXPORT,
                 $this->_dataHelper->setLogMessage(
                     'WARNING! %1 simple product(s) associated with configurable products are disabled',
                     [$counters['simple_disabled']]
@@ -545,10 +563,14 @@ class Export
             $feedUrl = $feed->getUrl();
             if ($feedUrl) {
                 $this->_dataHelper->log(
-                    'Export',
+                    DataHelper::CODE_EXPORT,
                     $this->_dataHelper->setLogMessage(
                         'the export for the store %1 (%2) generated the following file: %3',
-                        [$this->_store->getName(), $this->_storeId, $feedUrl]
+                        [
+                            $this->_store->getName(),
+                            $this->_storeId,
+                            $feedUrl,
+                        ]
                     ),
                     $this->_logOutput
                 );
@@ -765,7 +787,7 @@ class Export
     protected function _setType($type)
     {
         if (!$type) {
-            $type = $this->_updateExportDate ? 'cron' : 'manual';
+            $type = $this->_updateExportDate ? self::TYPE_CRON : self::TYPE_MANUAL;
         }
         return $type;
     }
@@ -782,7 +804,7 @@ class Export
         $logMessage = $this->_dataHelper->setLogMessage('%1 product(s) exported', [$productCount]);
         // save 10 logs maximum in database
         if ($productCount % $productModulo === 0) {
-            $this->_dataHelper->log('Export', $logMessage);
+            $this->_dataHelper->log(DataHelper::CODE_EXPORT, $logMessage);
         }
         if (!$this->_stream && $this->_logOutput) {
             if ($productCount % 50 === 0) {
@@ -867,7 +889,7 @@ class Export
                 );
             } catch (\Exception $e) {
                 $this->_dataHelper->log(
-                    'Export',
+                    DataHelper::CODE_EXPORT,
                     $this->_dataHelper->setLogMessage(
                         'the junction with the %1 table did not work',
                         ['cataloginventory_stock_item']
