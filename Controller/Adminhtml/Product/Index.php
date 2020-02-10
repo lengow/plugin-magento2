@@ -112,7 +112,7 @@ class Index extends Action
                                 // clean config cache to valid configuration
                                 $this->_configHelper->cleanConfigCache();
                                 $this->_dataHelper->log(
-                                    'Config',
+                                    DataHelper::CODE_SETTING,
                                     $this->_dataHelper->setLogMessage(
                                         '%1 - old value %2 replaced with %3 for store %4',
                                         [

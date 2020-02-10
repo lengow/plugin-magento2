@@ -66,6 +66,7 @@ use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Lengow\Connector\Model\Import\Quote\Item as QuoteItem;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Security as SecurityHelper;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Exception as LengowException;
 
 class Quote extends \Magento\Quote\Model\Quote
@@ -342,15 +343,18 @@ class Quote extends \Magento\Quote\Model\Quote
             // check whether the product is canceled
             if ($product->marketplace_status != null) {
                 $stateProduct = $marketplace->getStateLengow((string)$product->marketplace_status);
-                if ($stateProduct === 'canceled' || $stateProduct === 'refused') {
+                if ($stateProduct === LengowOrder::STATE_CANCELED || $stateProduct === LengowOrder::STATE_REFUSED) {
                     $productId = !is_null($product->merchant_product_id->id)
                         ? (string)$product->merchant_product_id->id
                         : (string)$product->marketplace_product_id;
                     $this->_dataHelper->log(
-                        'Import',
+                        DataHelper::CODE_IMPORT,
                         $this->_dataHelper->setLogMessage(
                             'product %1 could not be added to cart - status: %2',
-                            [$productId, $stateProduct]
+                            [
+                                $productId,
+                                $stateProduct,
+                            ]
                         ),
                         $logOutput,
                         $marketplaceSku
@@ -422,10 +426,14 @@ class Quote extends \Magento\Quote\Model\Quote
                         ];
                     }
                     $this->_dataHelper->log(
-                        'Import',
+                        DataHelper::CODE_IMPORT,
                         $this->_dataHelper->setLogMessage(
                             'product id %1 found with field %2 (%3)',
-                            [$magentoProduct->getId(), $attributeName, $attributeValue]
+                            [
+                                $magentoProduct->getId(),
+                                $attributeName,
+                                $attributeValue,
+                            ]
                         ),
                         $logOutput,
                         $marketplaceSku

@@ -20,6 +20,7 @@
 namespace Lengow\Connector\Model\Config\Source;
 
 use Magento\Framework\Option\ArrayInterface;
+use Lengow\Connector\Model\Import\Action as LengowAction;
 
 class Actiontype implements ArrayInterface
 {
@@ -31,8 +32,8 @@ class Actiontype implements ArrayInterface
     public function toOptionArray()
     {
         return [
-            ['value' => 'ship', 'label' => __('ship')],
-            ['value' => 'cancel', 'label' => __('cancel')],
+            ['value' => LengowAction::TYPE_SHIP, 'label' => __('ship')],
+            ['value' => LengowAction::TYPE_CANCEL, 'label' => __('cancel')],
         ];
     }
 }

@@ -59,6 +59,21 @@ class Import
     const SECURITY_INTERVAL_TIME = 7200;
 
     /**
+     * @var string manual import type
+     */
+    const TYPE_MANUAL = 'manual';
+
+    /**
+     * @var integer cron import type
+     */
+    const TYPE_CRON = 'cron';
+
+    /**
+     * @var integer Magento cron import type
+     */
+    const TYPE_MAGENTO_CRON = 'magento cron';
+
+    /**
      * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
      */
     protected $_storeManager;
@@ -326,7 +341,7 @@ class Import
         $this->_preprodMode = isset($params['preprod_mode'])
             ? (bool)$params['preprod_mode']
             : (bool)$this->_configHelper->get('preprod_mode_enable');
-        $this->_typeImport = isset($params['type']) ? $params['type'] : 'manual';
+        $this->_typeImport = isset($params['type']) ? $params['type'] : self::TYPE_MANUAL;
         $this->_logOutput = isset($params['log_output']) ? (bool)$params['log_output'] : false;
         $this->_storeId = isset($params['store_id']) ? (int)$params['store_id'] : null;
         // get params for synchronise one or all orders
@@ -375,10 +390,10 @@ class Import
                 'Import has already started. Please wait %1 seconds before re-importing orders',
                 [$this->_importHelper->restTimeToImport()]
             );
-            $this->_dataHelper->log('Import', $globalError, $this->_logOutput);
+            $this->_dataHelper->log(DataHelper::CODE_IMPORT, $globalError, $this->_logOutput);
         } elseif (!$this->_checkCredentials()) {
             $globalError = $this->_dataHelper->setLogMessage('Account ID, token access or secret token are not valid');
-            $this->_dataHelper->log('Import', $globalError, $this->_logOutput);
+            $this->_dataHelper->log(DataHelper::CODE_IMPORT, $globalError, $this->_logOutput);
         } else {
             if (!$this->_importOneOrder) {
                 $this->_importHelper->setImportInProcess();
@@ -386,17 +401,17 @@ class Import
             // to activate lengow shipping method
             $this->_backendSession->setIsFromlengow(1);
             // check Lengow catalogs for order synchronisation
-            if (!$this->_importOneOrder && $this->_typeImport === 'manual') {
+            if (!$this->_importOneOrder && $this->_typeImport === self::TYPE_MANUAL) {
                 $this->_syncHelper->syncCatalog();
             }
             $this->_dataHelper->log(
-                'Import',
+                DataHelper::CODE_IMPORT,
                 $this->_dataHelper->setLogMessage('## start %1 import ##', [$this->_typeImport]),
                 $this->_logOutput
             );
             if ($this->_preprodMode) {
                 $this->_dataHelper->log(
-                    'Import',
+                    DataHelper::CODE_IMPORT,
                     $this->_dataHelper->setLogMessage('WARNING! Pre-production mode is activated'),
                     $this->_logOutput
                 );
@@ -410,10 +425,13 @@ class Import
                 }
                 if ($this->_configHelper->get('store_enable', (int)$store->getId())) {
                     $this->_dataHelper->log(
-                        'Import',
+                        DataHelper::CODE_IMPORT,
                         $this->_dataHelper->setLogMessage(
                             'start import in store %1 (%2)',
-                            [$store->getName(), (int)$store->getId()]
+                            [
+                                $store->getName(),
+                                (int)$store->getId(),
+                            ]
                         ),
                         $this->_logOutput
                     );
@@ -424,7 +442,7 @@ class Import
                                 'No catalog ID valid for the store %1 (%2)',
                                 [$store->getName(), (int)$store->getId()]
                             );
-                            $this->_dataHelper->log('Import', $errorCatalogIds, $this->_logOutput);
+                            $this->_dataHelper->log(DataHelper::CODE_IMPORT, $errorCatalogIds, $this->_logOutput);
                             $errors[(int)$store->getId()] = $errorCatalogIds;
                             continue;
                         }
@@ -433,7 +451,7 @@ class Import
                         $totalOrders = count($orders);
                         if ($this->_importOneOrder) {
                             $this->_dataHelper->log(
-                                'Import',
+                                DataHelper::CODE_IMPORT,
                                 $this->_dataHelper->setLogMessage(
                                     '%1 order found for order ID: %2 and marketplace: %3 with account ID: %4',
                                     [
@@ -447,10 +465,13 @@ class Import
                             );
                         } else {
                             $this->_dataHelper->log(
-                                'Import',
+                                DataHelper::CODE_IMPORT,
                                 $this->_dataHelper->setLogMessage(
                                     '%1 order(s) found with account ID: %2',
-                                    [$totalOrders, $this->_accountId]
+                                    [
+                                        $totalOrders,
+                                        $this->_accountId,
+                                    ]
                                 ),
                                 $this->_logOutput
                             );
@@ -490,7 +511,7 @@ class Import
                         }
                         $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
                         $this->_dataHelper->log(
-                            'Import',
+                            DataHelper::CODE_IMPORT,
                             $this->_dataHelper->setLogMessage('import failed - %1', [$decodedMessage]),
                             $this->_logOutput
                         );
@@ -502,17 +523,18 @@ class Import
                 unset($store);
             }
             if (!$this->_importOneOrder) {
-                $this->_dataHelper->log('Import',
+                $this->_dataHelper->log(
+                    DataHelper::CODE_IMPORT,
                     $this->_dataHelper->setLogMessage('%1 order(s) imported', [$orderNew]),
                     $this->_logOutput
                 );
                 $this->_dataHelper->log(
-                    'Import',
+                    DataHelper::CODE_IMPORT,
                     $this->_dataHelper->setLogMessage('%1 order(s) updated', [$orderUpdate]),
                     $this->_logOutput
                 );
                 $this->_dataHelper->log(
-                    'Import',
+                    DataHelper::CODE_IMPORT,
                     $this->_dataHelper->setLogMessage('%1 order(s) with errors', [$orderError]),
                     $this->_logOutput
                 );
@@ -524,7 +546,7 @@ class Import
             // finish import process
             $this->_importHelper->setImportEnd();
             $this->_dataHelper->log(
-                'Import',
+                DataHelper::CODE_IMPORT,
                 $this->_dataHelper->setLogMessage('## end %1 import ##', [$this->_typeImport]),
                 $this->_logOutput
             );
@@ -533,7 +555,7 @@ class Import
                 $this->_importHelper->sendMailAlert($this->_logOutput);
             }
             // checking marketplace actions
-            if (!$this->_preprodMode && !$this->_importOneOrder && $this->_typeImport === 'manual') {
+            if (!$this->_preprodMode && !$this->_importOneOrder && $this->_typeImport === self::TYPE_MANUAL) {
                 $this->_action->checkFinishAction($this->_logOutput);
                 $this->_action->checkOldAction($this->_logOutput);
                 $this->_action->checkActionNotSent($this->_logOutput);
@@ -596,7 +618,7 @@ class Import
             // if order contains no package
             if (empty($orderData->packages)) {
                 $this->_dataHelper->log(
-                    'Import',
+                    DataHelper::CODE_IMPORT,
                     $this->_dataHelper->setLogMessage('import order failed - Lengow error: no package in the order'),
                     $this->_logOutput,
                     $marketplaceSku
@@ -609,7 +631,7 @@ class Import
                 // check whether the package contains a shipping address
                 if (!isset($packageData->delivery->id)) {
                     $this->_dataHelper->log(
-                        'Import',
+                        DataHelper::CODE_IMPORT,
                         $this->_dataHelper->setLogMessage(
                             'import order failed - Lengow error: no delivery address in the order'
                         ),
@@ -626,7 +648,7 @@ class Import
                         && $this->_deliveryAddressId !== $packageDeliveryAddressId
                     ) {
                         $this->_dataHelper->log(
-                            'Import',
+                            DataHelper::CODE_IMPORT,
                             $this->_dataHelper->setLogMessage('import order failed - wrong package number'),
                             $this->_logOutput,
                             $marketplaceSku
@@ -660,7 +682,7 @@ class Import
                 if (isset($errorMessage)) {
                     $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
                     $this->_dataHelper->log(
-                        'Import',
+                        DataHelper::CODE_IMPORT,
                         $this->_dataHelper->setLogMessage('import order failed - %1', [$decodedMessage]),
                         $this->_logOutput,
                         $marketplaceSku
@@ -688,7 +710,12 @@ class Import
                                 [$lengowOrder->getData('order_sku')]
                             );
                         }
-                        $this->_dataHelper->log('Import', $synchroMessage, $this->_logOutput, $marketplaceSku);
+                        $this->_dataHelper->log(
+                            DataHelper::CODE_IMPORT,
+                            $synchroMessage,
+                            $this->_logOutput,
+                            $marketplaceSku
+                        );
                         unset($lengowOrder);
                     }
                     // clean current order in session
@@ -754,7 +781,7 @@ class Import
         foreach ($catalogIds as $catalogId) {
             if (array_key_exists($catalogId, $this->_catalogIds)) {
                 $this->_dataHelper->log(
-                    'Import',
+                    DataHelper::CODE_IMPORT,
                     $this->_dataHelper->setLogMessage(
                         'catalog ID %1 is already used by shop %2 (%3)',
                         [
@@ -794,10 +821,13 @@ class Import
         $noCurrencyConversion = !(bool)$this->_configHelper->get('currency_conversion_enabled', $store->getId());
         if ($this->_importOneOrder) {
             $this->_dataHelper->log(
-                'Import',
+                DataHelper::CODE_IMPORT,
                 $this->_dataHelper->setLogMessage(
                     'get order with order ID: %1 and marketplace: %2',
-                    [$this->_marketplaceSku, $this->_marketplaceName]
+                    [
+                        $this->_marketplaceSku,
+                        $this->_marketplaceName,
+                    ]
                 ),
                 $this->_logOutput
             );
@@ -809,7 +839,7 @@ class Import
                 ? $this->_dateTime->gmtDate('Y-m-d H:i:s', $this->_createdTo)
                 : $this->_timezone->date($this->_updatedTo)->format('Y-m-d H:i:s');
             $this->_dataHelper->log(
-                'Import',
+                DataHelper::CODE_IMPORT,
                 $this->_dataHelper->setLogMessage(
                     'get orders between %1 and %2 for catalogs ID: %3',
                     [
@@ -937,7 +967,7 @@ class Import
                 // get dynamic interval time for cron synchronisation
                 $lastImport = $this->_importHelper->getLastImport();
                 $lastSettingUpdate = (int)$this->_configHelper->get('last_setting_update');
-                if ($this->_typeImport !== 'manual'
+                if ($this->_typeImport !== self::TYPE_MANUAL
                     && $lastImport['timestamp'] !== 'none'
                     && $lastImport['timestamp'] > $lastSettingUpdate
                 ) {

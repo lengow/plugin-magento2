@@ -37,6 +37,41 @@ class Data extends AbstractHelper
     const LOG_LIFE = 20;
 
     /**
+     * @var string setting log code
+     */
+    const CODE_SETTING = 'Setting';
+
+    /**
+     * @var string connector log code
+     */
+    const CODE_CONNECTOR = 'Connector';
+
+    /**
+     * @var string export log code
+     */
+    const CODE_EXPORT = 'Export';
+
+    /**
+     * @var string import log code
+     */
+    const CODE_IMPORT = 'Import';
+
+    /**
+     * @var string action log code
+     */
+    const CODE_ACTION = 'Action';
+
+    /**
+     * @var string mail report code
+     */
+    const CODE_MAIL_REPORT = 'Mail Report';
+
+    /**
+     * @var string orm code
+     */
+    const CODE_ORM = 'Orm';
+
+    /**
      * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
      */
     protected $_storeManager;

@@ -22,6 +22,7 @@ namespace Lengow\Connector\Ui\Component\Listing\Column;
 use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class LengowOrderStatus extends Column
 {
@@ -57,22 +58,22 @@ class LengowOrderStatus extends Column
                 if (!is_null($item['order_lengow_state'])) {
                     $status = $item['order_lengow_state'];
                     switch ($status) {
-                        case 'accepted':
+                        case LengowOrder::STATE_ACCEPTED:
                             $translation = 'Accepted';
                             break;
-                        case 'waiting_shipment':
+                        case LengowOrder::STATE_WAITING_SHIPMENT:
                             $translation = 'Awaiting shipment';
                             break;
-                        case 'shipped':
+                        case LengowOrder::STATE_SHIPPED:
                             $translation = 'Shipped';
                             break;
-                        case 'refunded':
+                        case LengowOrder::STATE_REFUNDED:
                             $translation = 'Refunded';
                             break;
-                        case 'closed':
+                        case LengowOrder::STATE_CLOSED:
                             $translation = 'Closed';
                             break;
-                        case 'canceled':
+                        case LengowOrder::STATE_CANCELED:
                             $translation = 'Canceled';
                             break;
                         default:

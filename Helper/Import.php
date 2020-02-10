@@ -26,11 +26,13 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Model\Import as LengowImport;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
+use Lengow\Connector\Model\Import\OrderFactory;
 use Lengow\Connector\Model\Import\OrdererrorFactory;
 use Lengow\Connector\Model\Import\Marketplace;
 use Lengow\Connector\Model\Import\MarketplaceFactory;
 use Lengow\Connector\Model\Exception as LengowException;
-use Lengow\Connector\Model\Import\OrderFactory;
 
 class Import extends AbstractHelper
 {
@@ -78,9 +80,9 @@ class Import extends AbstractHelper
      * @var array valid states lengow to create a Lengow order
      */
     protected $_lengowStates = [
-        'waiting_shipment',
-        'shipped',
-        'closed',
+        LengowOrder::STATE_WAITING_SHIPMENT,
+        LengowOrder::STATE_SHIPPED,
+        LengowOrder::STATE_CLOSED,
     ];
 
     /**
@@ -151,22 +153,18 @@ class Import extends AbstractHelper
 
     /**
      * Set import to "in process" state
-     *
-     * @return boolean
      */
     public function setImportInProcess()
     {
-        return $this->_configHelper->set('import_in_progress', time());
+        $this->_configHelper->set('import_in_progress', time());
     }
 
     /**
      * Set import to finished
-     *
-     * @return boolean
      */
     public function setImportEnd()
     {
-        return $this->_configHelper->set('import_in_progress', -1);
+        $this->_configHelper->set('import_in_progress', -1);
     }
 
     /**
@@ -178,7 +176,7 @@ class Import extends AbstractHelper
      */
     public function updateDateImport($type)
     {
-        if ($type === 'cron' || $type === 'magento cron') {
+        if ($type === LengowImport::TYPE_CRON || $type === LengowImport::TYPE_MAGENTO_CRON) {
             $this->_configHelper->set('last_import_cron', $this->_dateTime->gmtTimestamp());
         } else {
             $this->_configHelper->set('last_import_manual', $this->_dateTime->gmtTimestamp());
@@ -197,14 +195,14 @@ class Import extends AbstractHelper
         $timestampManual = $this->_configHelper->get('last_import_manual');
         if ($timestampCron && $timestampManual) {
             if ((int)$timestampCron > (int)$timestampManual) {
-                return ['type' => 'cron', 'timestamp' => (int)$timestampCron];
+                return ['type' => LengowImport::TYPE_CRON, 'timestamp' => (int)$timestampCron];
             } else {
-                return ['type' => 'manual', 'timestamp' => (int)$timestampManual];
+                return ['type' => LengowImport::TYPE_MANUAL, 'timestamp' => (int)$timestampManual];
             }
         } elseif ($timestampCron && !$timestampManual) {
-            return ['type' => 'cron', 'timestamp' => (int)$timestampCron];
+            return ['type' => LengowImport::TYPE_CRON, 'timestamp' => (int)$timestampCron];
         } elseif ($timestampManual && !$timestampCron) {
-            return ['type' => 'manual', 'timestamp' => (int)$timestampManual];
+            return ['type' => LengowImport::TYPE_MANUAL, 'timestamp' => (int)$timestampManual];
         }
         return ['type' => 'none', 'timestamp' => 'none'];
     }
@@ -369,13 +367,13 @@ class Import extends AbstractHelper
                         $mail->addTo($email);
                         $mail->send();
                         $this->_dataHelper->log(
-                            'MailReport',
+                            DataHelper::CODE_MAIL_REPORT,
                             $this->_dataHelper->setLogMessage('report email sent to %1', [$email]),
                             $logOutput
                         );
                     } catch (\Exception $e) {
                         $this->_dataHelper->log(
-                            'MailReport',
+                            DataHelper::CODE_MAIL_REPORT,
                             $this->_dataHelper->setLogMessage('unable to send report email to %1', [$email]),
                             $logOutput
                         );

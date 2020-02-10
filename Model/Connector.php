@@ -239,7 +239,7 @@ class Connector
         } catch (LengowException $e) {
             $message = $this->_dataHelper->decodeLogMessage($e->getMessage(), false);
             $error = $this->_dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
-            $this->_dataHelper->log('Connector', $error, $logOutput);
+            $this->_dataHelper->log(DataHelper::CODE_CONNECTOR, $error, $logOutput);
             return false;
         }
         return true;
@@ -278,7 +278,7 @@ class Connector
         } catch (LengowException $e) {
             $message = $this->_dataHelper->decodeLogMessage($e->getMessage(), false);
             $error = $this->_dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
-            $this->_dataHelper->log('Connector', $error, $logOutput);
+            $this->_dataHelper->log(DataHelper::CODE_CONNECTOR, $error, $logOutput);
             return false;
         }
         return json_decode($results);
@@ -405,7 +405,7 @@ class Connector
         } catch (LengowException $e) {
             if ($e->getCode() === self::CODE_403) {
                 $this->_dataHelper->log(
-                    'Connector',
+                    DataHelper::CODE_CONNECTOR,
                     $this->_dataHelper->setLogMessage(
                         'API call failed - authorization token expired - attempt to recover a new token'
                     ),
@@ -550,7 +550,7 @@ class Connector
                 break;
         }
         $this->_dataHelper->log(
-            'Connector',
+            DataHelper::CODE_CONNECTOR,
             $this->_dataHelper->setLogMessage('call %1 %2', [$type, $opts[CURLOPT_URL]]),
             $logOutput
         );

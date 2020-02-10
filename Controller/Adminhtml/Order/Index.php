@@ -19,7 +19,6 @@
 
 namespace Lengow\Connector\Controller\Adminhtml\Order;
 
-use Lengow\Connector\Model\Exception;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
@@ -27,8 +26,7 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
-use Lengow\Connector\Model\Import\OrderFactory;
-use Lengow\Connector\Model\Import as ImportModel;
+use Lengow\Connector\Model\Import as LengowImport;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 
 class Index extends Action
@@ -55,11 +53,6 @@ class Index extends Action
     protected $_dataHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow import order factory instance
-     */
-    protected $_orderFactory;
-
-    /**
      * @var \Lengow\Connector\Helper\Import Lengow import helper instance
      */
     protected $_importHelper;
@@ -83,7 +76,6 @@ class Index extends Action
      * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
      * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrder Lengow import order factory instance
      * @param \Lengow\Connector\Model\Import $import Lengow import instance
      * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order factory instance
      */
@@ -94,8 +86,7 @@ class Index extends Action
         SyncHelper $syncHelper,
         ImportHelper $importHelper,
         DataHelper $dataHelper,
-        OrderFactory $lengowOrder,
-        ImportModel $import,
+        LengowImport $import,
         LengowOrderFactory $lengowOrderFactory
     )
     {
@@ -104,7 +95,6 @@ class Index extends Action
         $this->_syncHelper = $syncHelper;
         $this->_importHelper = $importHelper;
         $this->_dataHelper = $dataHelper;
-        $this->_orderFactory = $lengowOrder;
         $this->_import = $import;
         $this->_lengowOrderFactory = $lengowOrderFactory;
         parent::__construct($context);
@@ -125,7 +115,7 @@ class Index extends Action
                 if ($action) {
                     switch ($action) {
                         case 'import_all':
-                            $params = ['type' => 'manual'];
+                            $params = ['type' => LengowImport::TYPE_MANUAL];
                             $this->_import->init($params);
                             $results = $this->_import->exec();
                             $informations = $this->getInformations();
@@ -225,7 +215,7 @@ class Index extends Action
     public function getInformations()
     {
         $informations = [];
-        $order = $this->_orderFactory->create();
+        $order = $this->_lengowOrderFactory->create();
         $informations['order_with_error'] = $this->_dataHelper->decodeLogMessage(
             $this->_dataHelper->setLogMessage(
                 'You have %1 order(s) with errors',

@@ -23,6 +23,7 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Sales\Model\OrderFactory;
 use Magento\Framework\Controller\ResultFactory;
+use Lengow\Connector\Model\Import\Action as LengowAction;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class Resend extends Action
@@ -63,9 +64,11 @@ class Resend extends Action
     public function execute()
     {
         $orderId = $this->getRequest()->getParam('order_id');
-        $action = $this->getRequest()->getParam('status') === 'canceled' ? 'cancel' : 'ship';
+        $action = $this->getRequest()->getParam('status') === LengowOrder::STATE_CANCELED
+            ? LengowAction::TYPE_CANCEL
+            : LengowAction::TYPE_SHIP;
         $order = $this->_orderFactory->create()->load((int)$orderId);
-        $shipment = $action === 'ship' ? $order->getShipmentsCollection()->getFirstItem() : null;
+        $shipment = $action === LengowAction::TYPE_SHIP ? $order->getShipmentsCollection()->getFirstItem() : null;
         $this->_lengowOrder->callAction($action, $order, $shipment);
         /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);

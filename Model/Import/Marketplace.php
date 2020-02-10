@@ -29,6 +29,7 @@ use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Connector;
+use Lengow\Connector\Model\Import\Action as LengowAction;
 
 /**
  * Model marketplace
@@ -74,8 +75,8 @@ class Marketplace extends AbstractModel
      * @var array all valid actions
      */
     public static $validActions = [
-        'ship',
-        'cancel',
+        LengowAction::TYPE_SHIP,
+        LengowAction::TYPE_CANCEL,
     ];
 
     /**
@@ -348,11 +349,11 @@ class Marketplace extends AbstractModel
             $params = $this->_checkAndCleanParams($action, $params);
             // complete the values with the specific values of the account
             if (!is_null($orderLineId)) {
-                $params['line'] = $orderLineId;
+                $params[LengowAction::ARG_LINE] = $orderLineId;
             }
             $params['marketplace_order_id'] = $lengowOrder->getData('marketplace_sku');
             $params['marketplace'] = $lengowOrder->getData('marketplace_name');
-            $params['action_type'] = $action;
+            $params[LengowAction::ARG_ACTION_TYPE] = $action;
             // checks whether the action is already created to not return an action
             $canSendAction = $this->_orderAction->canSendAction($params, $order);
             if ($canSendAction) {
@@ -379,7 +380,7 @@ class Marketplace extends AbstractModel
             }
             $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
             $this->_dataHelper->log(
-                'API-OrderAction',
+                DataHelper::CODE_ACTION,
                 $this->_dataHelper->setLogMessage('order action failed - %1', [$decodedMessage]),
                 false,
                 $lengowOrder->getData('marketplace_sku')
@@ -465,23 +466,23 @@ class Marketplace extends AbstractModel
         // get all order informations
         foreach ($marketplaceArguments as $arg) {
             switch ($arg) {
-                case 'tracking_number':
-                    $trackings = $shipment->getAllTracks();
-                    if (!empty($trackings)) {
-                        $lastTrack = end($trackings);
+                case LengowAction::ARG_TRACKING_NUMBER:
+                    $tracks = $shipment->getAllTracks();
+                    if (!empty($tracks)) {
+                        $lastTrack = end($tracks);
                     }
                     $params[$arg] = isset($lastTrack) ? $lastTrack->getNumber() : '';
                     break;
-                case 'carrier':
-                case 'carrier_name':
-                case 'shipping_method':
-                case 'custom_carrier':
+                case LengowAction::ARG_CARRIER:
+                case LengowAction::ARG_CARRIER_NAME:
+                case LengowAction::ARG_SHIPPING_METHOD:
+                case LengowAction::ARG_CUSTOM_CARRIER:
                     if (strlen((string)$lengowOrder->getData('carrier')) > 0) {
                         $carrierCode = (string)$lengowOrder->getData('carrier');
                     } else {
-                        $trackings = $shipment->getAllTracks();
-                        if (!empty($trackings)) {
-                            $lastTrack = end($trackings);
+                        $tracks = $shipment->getAllTracks();
+                        if (!empty($tracks)) {
+                            $lastTrack = end($tracks);
                         }
                         $carrierCode = isset($lastTrack)
                             ? $this->_matchCarrier($lastTrack->getCarrierCode(), $lastTrack->getTitle())
@@ -489,11 +490,11 @@ class Marketplace extends AbstractModel
                     }
                     $params[$arg] = $carrierCode;
                     break;
-                case 'shipping_price':
+                case LengowAction::ARG_SHIPPING_PRICE:
                     $params[$arg] = $order->getShippingInclTax();
                     break;
-                case 'shipping_date':
-                case 'delivery_date':
+                case LengowAction::ARG_SHIPPING_DATE:
+                case LengowAction::ARG_DELIVERY_DATE:
                     $params[$arg] = $this->_timezone->date()->format('c');
                     break;
                 default:

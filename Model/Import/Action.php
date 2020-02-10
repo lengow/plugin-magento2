@@ -50,6 +50,66 @@ class Action extends AbstractModel
     const STATE_FINISH = 1;
 
     /**
+     * @var string action type ship
+     */
+    const TYPE_SHIP = 'ship';
+
+    /**
+     * @var string action type cancel
+     */
+    const TYPE_CANCEL = 'cancel';
+
+    /**
+     * @var string action argument action type
+     */
+    const ARG_ACTION_TYPE = 'action_type';
+
+    /**
+     * @var string action argument line
+     */
+    const ARG_LINE = 'line';
+
+    /**
+     * @var string action argument carrier
+     */
+    const ARG_CARRIER = 'carrier';
+
+    /**
+     * @var string action argument carrier name
+     */
+    const ARG_CARRIER_NAME = 'carrier_name';
+
+    /**
+     * @var string action argument custom carrier
+     */
+    const ARG_CUSTOM_CARRIER = 'custom_carrier';
+
+    /**
+     * @var string action argument shipping method
+     */
+    const ARG_SHIPPING_METHOD = 'shipping_method';
+
+    /**
+     * @var string action argument tracking number
+     */
+    const ARG_TRACKING_NUMBER = 'tracking_number';
+
+    /**
+     * @var string action argument shipping price
+     */
+    const ARG_SHIPPING_PRICE = 'shipping_price';
+
+    /**
+     * @var string action argument shipping date
+     */
+    const ARG_SHIPPING_DATE = 'shipping_date';
+
+    /**
+     * @var string action argument delivery date
+     */
+    const ARG_DELIVERY_DATE = 'delivery_date';
+
+    /**
      * @var integer max interval time for action synchronisation (3 days)
      */
     const MAX_INTERVAL_TIME = 259200;
@@ -63,8 +123,8 @@ class Action extends AbstractModel
      * @var array Parameters to delete for Get call
      */
     public static $getParamsToDelete = [
-        'shipping_date',
-        'delivery_date',
+        self::ARG_SHIPPING_DATE,
+        self::ARG_DELIVERY_DATE,
     ];
 
     /**
@@ -384,7 +444,7 @@ class Action extends AbstractModel
                     $action->createAction(
                         [
                             'order_id' => $order->getId(),
-                            'action_type' => $params['action_type'],
+                            'action_type' => $params[self::ARG_ACTION_TYPE],
                             'action_id' => $row->id,
                             'order_line_sku' => isset($params['line']) ? $params['line'] : null,
                             'parameters' => $this->_jsonHelper->jsonEncode($params),
@@ -416,7 +476,7 @@ class Action extends AbstractModel
                 $action->createAction(
                     [
                         'order_id' => $order->getId(),
-                        'action_type' => $params['action_type'],
+                        'action_type' => $params[self::ARG_ACTION_TYPE],
                         'action_id' => $result->id,
                         'order_line_sku' => isset($params['line']) ? $params['line'] : null,
                         'parameters' => $this->_jsonHelper->jsonEncode($params),
@@ -444,7 +504,7 @@ class Action extends AbstractModel
             $paramList .= !$paramList ? '"' . $param . '": ' . $value : ' -- "' . $param . '": ' . $value;
         }
         $this->_dataHelper->log(
-            'API-OrderAction',
+            DataHelper::CODE_ACTION,
             $this->_dataHelper->setLogMessage('call tracking with parameters: %1', [$paramList]),
             false,
             $lengowOrder->getData('marketplace_sku')
@@ -493,7 +553,7 @@ class Action extends AbstractModel
             return false;
         }
         $this->_dataHelper->log(
-            'API-OrderAction',
+            DataHelper::CODE_ACTION,
             $this->_dataHelper->setLogMessage('check completed actions'),
             $logOutput
         );
@@ -510,7 +570,7 @@ class Action extends AbstractModel
         $dateFrom = $this->_timezone->date(time() - $intervalTime);
         $dateTo = $this->_timezone->date();
         $this->_dataHelper->log(
-            'API-OrderAction',
+            DataHelper::CODE_ACTION,
             $this->_dataHelper->setLogMessage(
                 'get order actions between %1 and %2',
                 [
@@ -593,7 +653,7 @@ class Action extends AbstractModel
                                 );
                                 $lengowOrder->updateOrder(['is_in_error' => 1]);
                                 $this->_dataHelper->log(
-                                    'API-OrderAction',
+                                    DataHelper::CODE_ACTION,
                                     $this->_dataHelper->setLogMessage(
                                         'order action failed - %1',
                                         [$apiActions[$action['action_id']]->errors]
@@ -627,7 +687,7 @@ class Action extends AbstractModel
             return false;
         }
         $this->_dataHelper->log(
-            'API-OrderAction',
+            DataHelper::CODE_ACTION,
             $this->_dataHelper->setLogMessage('check and finish old actions'),
             $logOutput
         );
@@ -657,7 +717,7 @@ class Action extends AbstractModel
                         $lengowOrder->updateOrder(['is_in_error' => 1]);
                         $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
                         $this->_dataHelper->log(
-                            'API-OrderAction',
+                            DataHelper::CODE_ACTION,
                             $this->_dataHelper->setLogMessage('order action failed - %1', [$decodedMessage]),
                             $logOutput,
                             $lengowOrder->getData('marketplace_sku')
@@ -706,7 +766,7 @@ class Action extends AbstractModel
             return false;
         }
         $this->_dataHelper->log(
-            'API-OrderAction',
+            DataHelper::CODE_ACTION,
             $this->_dataHelper->setLogMessage('check actions not sent'),
             $logOutput
         );
@@ -716,9 +776,9 @@ class Action extends AbstractModel
         if ($unsentOrders) {
             foreach ($unsentOrders as $unsentOrder) {
                 if (!$this->getActiveActionByOrderId((int)$unsentOrder['order_id'])) {
-                    $action = $unsentOrder['state'] === 'cancel' ? 'cancel' : 'ship';
+                    $action = $unsentOrder['state'] === self::TYPE_CANCEL ? self::TYPE_CANCEL : self::TYPE_SHIP;
                     $order = $this->_orderFactory->create()->load((int)$unsentOrder['order_id']);
-                    $shipment = $action === 'ship' ? $order->getShipmentsCollection()->getFirstItem() : null;
+                    $shipment = $action === self::TYPE_SHIP ? $order->getShipmentsCollection()->getFirstItem() : null;
                     $lengowOrder->callAction($action, $order, $shipment);
                 }
             }

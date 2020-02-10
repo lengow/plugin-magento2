@@ -39,8 +39,8 @@ use Lengow\Connector\Model\Connector;
 use Lengow\Connector\Model\ResourceModel\Order as OrderResource;
 use Lengow\Connector\Model\ImportFactory;
 use Lengow\Connector\Model\Exception as LengowException;
-use Lengow\Connector\Model\Import as ImportModel;
-use Lengow\Connector\Model\Import\Action as ImportAction;
+use Lengow\Connector\Model\Import as LengowImport;
+use Lengow\Connector\Model\Import\Action as LengowAction;
 
 /**
  * Model import order
@@ -61,6 +61,51 @@ class Order extends AbstractModel
      * @var integer order process state for order finished
      */
     const PROCESS_STATE_FINISH = 2;
+
+    /**
+     * @var string order new
+     */
+    const STATE_NEW = 'new';
+
+    /**
+     * @var string order state waiting acceptance
+     */
+    const STATE_WAITING_ACCEPTANCE = 'waiting_acceptance';
+
+    /**
+     * @var string order state accepted
+     */
+    const STATE_ACCEPTED = 'accepted';
+
+    /**
+     * @var string order state waiting_shipment
+     */
+    const STATE_WAITING_SHIPMENT = 'waiting_shipment';
+
+    /**
+     * @var string order state shipped
+     */
+    const STATE_SHIPPED = 'shipped';
+
+    /**
+     * @var string order state closed
+     */
+    const STATE_CLOSED = 'closed';
+
+    /**
+     * @var string order state refused
+     */
+    const STATE_REFUSED = 'refused';
+
+    /**
+     * @var string order state canceled
+     */
+    const STATE_CANCELED = 'canceled';
+
+    /**
+     * @var string order state refunded
+     */
+    const STATE_REFUNDED = 'refunded';
 
     /**
      * @var \Magento\Sales\Model\OrderFactory Magento order factory instance
@@ -133,7 +178,7 @@ class Order extends AbstractModel
     protected $_lengowOrderlineFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Import\ActionFactory Lengow orderline factory instance
+     * @var \Lengow\Connector\Model\Import\ActionFactory Lengow action factory instance
      */
     protected $_actionFactory;
 
@@ -237,8 +282,8 @@ class Order extends AbstractModel
         OrderlineFactory $orderLineFactory,
         ActionFactory $actionFactory,
         Connector $connector,
-        ImportModel $import,
-        ImportAction $action,
+        LengowImport $import,
+        LengowAction $action,
         ImportFactory $importFactory,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null
@@ -304,7 +349,7 @@ class Order extends AbstractModel
         } catch (\Exception $e) {
             $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
             $this->_dataHelper->log(
-                'Orm',
+                DataHelper::CODE_ORM,
                 $this->_dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
             );
             return false;
@@ -335,7 +380,7 @@ class Order extends AbstractModel
         } catch (\Exception $e) {
             $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
             $this->_dataHelper->log(
-                'Orm',
+                DataHelper::CODE_ORM,
                 $this->_dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
             );
             return false;
@@ -488,17 +533,17 @@ class Order extends AbstractModel
     public function getOrderState($orderStateLengow)
     {
         switch ($orderStateLengow) {
-            case 'new':
-            case 'waiting_acceptance':
+            case self::STATE_NEW:
+            case self::STATE_WAITING_ACCEPTANCE:
                 return \Magento\Sales\Model\Order::STATE_NEW;
-            case 'accepted':
-            case 'waiting_shipment':
+            case self::STATE_ACCEPTED:
+            case self::STATE_WAITING_SHIPMENT:
                 return \Magento\Sales\Model\Order::STATE_PROCESSING;
-            case 'shipped':
-            case 'closed':
+            case self::STATE_SHIPPED:
+            case self::STATE_CLOSED:
                 return \Magento\Sales\Model\Order::STATE_COMPLETE;
-            case 'refused':
-            case 'canceled':
+            case self::STATE_REFUSED:
+            case self::STATE_CANCELED:
                 return \Magento\Sales\Model\Order::STATE_CANCELED;
         }
     }
@@ -544,9 +589,9 @@ class Order extends AbstractModel
             if ($order->getState() !== $this->getOrderState($orderStateLengow)
                 && (bool)$order->getData('from_lengow')
             ) {
-                if (($order->getState() === $this->getOrderState('accepted')
-                        || $order->getState() === $this->getOrderState('new'))
-                    && ($orderStateLengow === 'shipped' || $orderStateLengow === 'closed')
+                if (($order->getState() === $this->getOrderState(self::STATE_ACCEPTED)
+                        || $order->getState() === $this->getOrderState(self::STATE_NEW))
+                    && ($orderStateLengow === self::STATE_SHIPPED || $orderStateLengow === self::STATE_CLOSED)
                 ) {
                     if (count($trackings) > 0) {
                         $carrierName = !is_null($trackings[0]->carrier) ? (string)$trackings[0]->carrier : null;
@@ -561,10 +606,10 @@ class Order extends AbstractModel
                     );
                     return 'Complete';
                 } else {
-                    if (($order->getState() === $this->getOrderState('new')
-                            || $order->getState() === $this->getOrderState('accepted')
-                            || $order->getState() === $this->getOrderState('shipped'))
-                        && ($orderStateLengow === 'canceled' || $orderStateLengow === 'refused')
+                    if (($order->getState() === $this->getOrderState(self::STATE_NEW)
+                            || $order->getState() === $this->getOrderState(self::STATE_ACCEPTED)
+                            || $order->getState() === $this->getOrderState(self::STATE_SHIPPED))
+                        && ($orderStateLengow === self::STATE_CANCELED || $orderStateLengow === self::STATE_REFUSED)
                     ) {
                         $this->toCancel($order);
                         return 'Canceled';
@@ -733,7 +778,7 @@ class Order extends AbstractModel
         $orderLengow = $this->_lengowOrderFactory->create()->load($orderLengowId);
         if ((int)$orderLengow->getData('order_process_state') === 0 && (bool)$orderLengow->getData('is_in_error')) {
             $params = [
-                'type' => 'manual',
+                'type' => LengowImport::TYPE_MANUAL,
                 'order_lengow_id' => $orderLengowId,
                 'marketplace_sku' => $orderLengow->getData('marketplace_sku'),
                 'marketplace_name' => $orderLengow->getData('marketplace_name'),
@@ -763,11 +808,9 @@ class Order extends AbstractModel
                 $order = $this->_orderFactory->create()->load($orderId);
                 $action = $this->_action->getLastOrderActionType($orderId);
                 if (!$action) {
-                    if ($order->getData('status') === 'canceled') {
-                        $action = 'cancel';
-                    } else {
-                        $action = 'ship';
-                    }
+                    $action = $order->getData('status') === self::STATE_CANCELED
+                        ? LengowAction::TYPE_CANCEL
+                        : LengowAction::TYPE_SHIP;
                 }
                 $shipment = $order->getShipmentsCollection()->getFirstItem();
                 $result = $this->callAction($action, $order, $shipment);
@@ -787,14 +830,14 @@ class Order extends AbstractModel
     public function getOrderProcessState($state)
     {
         switch ($state) {
-            case 'accepted':
-            case 'waiting_shipment':
+            case self::STATE_ACCEPTED:
+            case self::STATE_WAITING_SHIPMENT:
                 return self::PROCESS_STATE_IMPORT;
-            case 'shipped':
-            case 'closed':
-            case 'refused':
-            case 'canceled':
-            case 'refunded':
+            case self::STATE_SHIPPED:
+            case self::STATE_CLOSED:
+            case self::STATE_REFUSED:
+            case self::STATE_CANCELED:
+            case self::STATE_REFUNDED:
                 return self::PROCESS_STATE_FINISH;
             default:
                 return false;
@@ -833,7 +876,7 @@ class Order extends AbstractModel
             } catch (\Exception $e) {
                 $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
                 $this->_dataHelper->log(
-                    'Orm',
+                    DataHelper::CODE_ORM,
                     $this->_dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
                 );
             }
@@ -891,7 +934,7 @@ class Order extends AbstractModel
         }
         $lengowOrder = $this->_lengowOrderFactory->create()->load($lengowOrderId);
         $this->_dataHelper->log(
-            'API-OrderAction',
+            DataHelper::CODE_ACTION,
             $this->_dataHelper->setLogMessage(
                 'try to send %1 action (ORDER ID %2)',
                 [$action, $order->getIncrementId()]
@@ -955,7 +998,7 @@ class Order extends AbstractModel
             }
             $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
             $this->_dataHelper->log(
-                'API-OrderAction',
+                DataHelper::CODE_ACTION,
                 $this->_dataHelper->setLogMessage('order action failed - %1', [$decodedMessage]),
                 false,
                 $lengowOrder->getData('marketplace_sku')
@@ -973,7 +1016,7 @@ class Order extends AbstractModel
                 [$action, $order->getIncrementId()]
             );
         }
-        $this->_dataHelper->log('API-OrderAction', $message, false, $lengowOrder->getData('marketplace_sku'));
+        $this->_dataHelper->log(DataHelper::CODE_ACTION, $message, false, $lengowOrder->getData('marketplace_sku'));
         return $success;
     }
 
@@ -1093,7 +1136,7 @@ class Order extends AbstractModel
             } catch (\Exception $e) {
                 $message = $this->_dataHelper->decodeLogMessage($e->getMessage(), false);
                 $error = $this->_dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
-                $this->_dataHelper->log('Connector', $error, $logOutput);
+                $this->_dataHelper->log(DataHelper::CODE_CONNECTOR, $error, $logOutput);
                 return false;
             }
             if (is_null($result)

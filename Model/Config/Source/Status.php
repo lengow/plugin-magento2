@@ -20,6 +20,7 @@
 namespace Lengow\Connector\Model\Config\Source;
 
 use Magento\Framework\Option\ArrayInterface;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class Status implements ArrayInterface
 {
@@ -31,12 +32,12 @@ class Status implements ArrayInterface
     public function toOptionArray()
     {
         return [
-            ['value' => 'accepted', 'label' => __('Accepted')],
-            ['value' => 'waiting_shipment', 'label' => __('Awaiting shipment')],
-            ['value' => 'shipped', 'label' => __('Shipped')],
-            ['value' => 'refunded', 'label' => __('Refunded')],
-            ['value' => 'closed', 'label' => __('Closed')],
-            ['value' => 'canceled', 'label' => __('Canceled')],
+            ['value' => LengowOrder::STATE_ACCEPTED, 'label' => __('Accepted')],
+            ['value' => LengowOrder::STATE_WAITING_SHIPMENT, 'label' => __('Awaiting shipment')],
+            ['value' => LengowOrder::STATE_SHIPPED, 'label' => __('Shipped')],
+            ['value' => LengowOrder::STATE_REFUSED, 'label' => __('Refunded')],
+            ['value' => LengowOrder::STATE_CLOSED, 'label' => __('Closed')],
+            ['value' => LengowOrder::STATE_CANCELED, 'label' => __('Canceled')],
         ];
     }
 }
