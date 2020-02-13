@@ -395,7 +395,7 @@ class Config extends AbstractHelper
     /**
      * Delete configuration key
      *
-     * @param string $path Lengow setting key
+     * @param string $path Magento setting path
      * @param integer $storeId Magento store id
      */
     public function delete($path, $storeId = 0)
