@@ -94,36 +94,4 @@ class MainTest extends \PHPUnit_Framework_TestCase
             '[Test Free Trial Is Expired] Check if return is valid when type is unknown and expired is true'
         );
     }
-
-    /**
-     * @covers \Lengow\Connector\Block\Adminhtml\Main::isBadPayer
-     */
-    public function testIsBadPayer()
-    {
-        $fixture = New Fixture();
-        $this->assertInternalType(
-            'boolean',
-            $this->_main->isBadPayer(),
-            '[Test Is Bad Payer] Check if return is a boolean'
-        );
-        $this->assertFalse(
-            $this->_main->isBadPayer(),
-            '[Test Is Bad Payer] Check if return is valid when status account is empty'
-        );
-        $fixture->setPrivatePropertyValue($this->_main, ['_statusAccount'], [['type' => 'bad_payer']]);
-        $this->assertTrue(
-            $this->_main->isBadPayer(),
-            '[Test Is Bad Payer] Check if return is valid when customer is a bad payer'
-        );
-        $fixture->setPrivatePropertyValue($this->_main, ['_statusAccount'], [['type' => 'free_trial']]);
-        $this->assertFalse(
-            $this->_main->isBadPayer(),
-            '[Test Is Bad Payer] Check if return is valid when free trial is active'
-        );
-        $fixture->setPrivatePropertyValue($this->_main, ['_statusAccount'], [['type' => '']]);
-        $this->assertFalse(
-            $this->_main->isBadPayer(),
-            '[Test Is Bad Payer] Check if return is valid when type is unknown'
-        );
-    }
 }

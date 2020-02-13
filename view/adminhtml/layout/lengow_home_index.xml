@@ -26,7 +26,6 @@
                 <block class="Lengow\Connector\Block\Adminhtml\Home\Dashboard" name="lengow_home_dashboard" as="lengow_home_dashboard" template="Lengow_Connector::home/dashboard.phtml"/>
                 <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_home_new" as="lengow_home_new" template="Lengow_Connector::home/new.phtml"/>
                 <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_home_free_trial" as="lengow_home_free_trial" template="Lengow_Connector::home/free_trial.phtml"/>
-                <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_home_bad_payer" as="lengow_home_bad_payer" template="Lengow_Connector::home/bad_payer.phtml"/>
                 <block class="Lengow\Connector\Block\Adminhtml\Footer" name="lengow_footer" as="lengow_footer" template="Lengow_Connector::footer.phtml"/>
             </block>
         </referenceContainer>

@@ -23,10 +23,8 @@ use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
-use Magento\Framework\Pricing\PriceCurrencyInterface as PriceCurrency;
 use Magento\Framework\Filesystem\Driver\File as DriverFile;
 use Magento\Framework\Module\Dir\Reader;
-use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
@@ -57,11 +55,6 @@ class Sync extends AbstractHelper
     const SYNC_STATUS_ACCOUNT = 'status_account';
 
     /**
-     * @var string sync statistic action
-     */
-    const SYNC_STATISTIC = 'statistic';
-
-    /**
      * @var string sync marketplace action
      */
     const SYNC_MARKETPLACE = 'marketplace';
@@ -87,11 +80,6 @@ class Sync extends AbstractHelper
     protected $_jsonHelper;
 
     /**
-     * @var \Magento\Framework\Pricing\PriceCurrencyInterface Magento price currency instance
-     */
-    protected $_priceCurrency;
-
-    /**
      * @var \Magento\Framework\Filesystem\Driver\File Magento driver file instance
      */
     protected $_driverFile;
@@ -100,11 +88,6 @@ class Sync extends AbstractHelper
      * @var \Magento\Framework\Module\Dir\Reader Magento module reader instance
      */
     protected $_moduleReader;
-
-    /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
-     */
-    protected $_dateTime;
 
     /**
      * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
@@ -137,13 +120,12 @@ class Sync extends AbstractHelper
     protected $_export;
 
     /**
-     * @var array cache time for catalog, statistic, account status, cms options and marketplace synchronisation
+     * @var array cache time for catalog, account status, cms options and marketplace synchronisation
      */
     protected $_cacheTimes = [
         self::SYNC_CATALOG => 21600,
         self::SYNC_CMS_OPTION => 86400,
         self::SYNC_STATUS_ACCOUNT => 86400,
-        self::SYNC_STATISTIC => 86400,
         self::SYNC_MARKETPLACE => 43200,
     ];
 
@@ -154,7 +136,6 @@ class Sync extends AbstractHelper
         self::SYNC_ORDER,
         self::SYNC_CMS_OPTION,
         self::SYNC_STATUS_ACCOUNT,
-        self::SYNC_STATISTIC,
         self::SYNC_MARKETPLACE,
         self::SYNC_ACTION,
         self::SYNC_CATALOG,
@@ -170,10 +151,8 @@ class Sync extends AbstractHelper
      *
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
-     * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency Magento price currency instance
      * @param \Magento\Framework\Filesystem\Driver\File $driverFile Magento driver file instance
      * @param \Magento\Framework\Module\Dir\Reader $moduleReader Magento module reader instance
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
      * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
      * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
@@ -184,10 +163,8 @@ class Sync extends AbstractHelper
     public function __construct(
         Context $context,
         JsonHelper $jsonHelper,
-        PriceCurrency $priceCurrency,
         DriverFile $driverFile,
         Reader $moduleReader,
-        DateTime $dateTime,
         TimezoneInterface $timezone,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
@@ -197,10 +174,8 @@ class Sync extends AbstractHelper
     )
     {
         $this->_jsonHelper = $jsonHelper;
-        $this->_priceCurrency = $priceCurrency;
         $this->_driverFile = $driverFile;
         $this->_moduleReader = $moduleReader;
-        $this->_dateTime = $dateTime;
         $this->_timezone = $timezone;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
@@ -233,9 +208,7 @@ class Sync extends AbstractHelper
             return true;
         }
         $statusAccount = $this->getStatusAccount();
-        if (($statusAccount['type'] === 'free_trial' && $statusAccount['expired'])
-            || $statusAccount['type'] === 'bad_payer'
-        ) {
+        if (($statusAccount['type'] === 'free_trial' && $statusAccount['expired'])) {
             return true;
         }
         return false;
@@ -451,74 +424,6 @@ class Sync extends AbstractHelper
         }
         self::$statusAccount = $status;
         return $status;
-    }
-
-    /**
-     * Get Statistic for all stores
-     *
-     * @param boolean $force force cache update
-     * @param boolean $logOutput see log or not
-     *
-     * @return array
-     */
-    public function getStatistic($force = false, $logOutput = false)
-    {
-        if (!$force) {
-            $updatedAt = $this->_configHelper->get('last_statistic_update');
-            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < $this->_cacheTimes[self::SYNC_STATISTIC]) {
-                return json_decode($this->_configHelper->get('order_statistic'), true);
-            }
-        }
-        $allCurrencyCodes = $this->_configHelper->getAllAvailableCurrencyCodes();
-        $dateFromTimestamp = strtotime($this->_dateTime->gmtDate('Y-m-d') . ' -10 years');
-        $result = $this->_connector->queryApi(
-            Connector::GET,
-            Connector::API_STATISTIC,
-            [
-                'date_from' => $this->_dateTime->gmtDate('c', $dateFromTimestamp),
-                'date_to' => $this->_timezone->date()->format('c'),
-                'metrics' => 'year',
-            ],
-            '',
-            $logOutput
-        );
-        if (isset($result->level0)) {
-            $stats = $result->level0[0];
-            $return = [
-                'total_order' => $stats->revenue,
-                'nb_order' => (int)$stats->transactions,
-                'currency' => $result->currency->iso_a3,
-                'available' => false,
-            ];
-        } else {
-            if ($this->_configHelper->get('last_statistic_update')) {
-                return json_decode($this->_configHelper->get('order_statistic'), true);
-            } else {
-                return [
-                    'total_order' => 0,
-                    'nb_order' => 0,
-                    'currency' => '',
-                    'available' => false,
-                ];
-            }
-        }
-        if ($return['total_order'] > 0 || $return['nb_order'] > 0) {
-            $return['available'] = true;
-        }
-        if ($return['currency'] && in_array($return['currency'], $allCurrencyCodes)) {
-            $return['total_order'] = $this->_priceCurrency->format(
-                (float)$return['total_order'],
-                false,
-                2,
-                null,
-                $return['currency']
-            );
-        } else {
-            $return['total_order'] = number_format($return['total_order'], 2, ',', ' ');
-        }
-        $this->_configHelper->set('order_statistic', $this->_jsonHelper->jsonEncode($return));
-        $this->_configHelper->set('last_statistic_update', time());
-        return $return;
     }
 
     /**

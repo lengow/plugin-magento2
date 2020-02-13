@@ -138,16 +138,6 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => false,
         ],
-        'last_statistic_update' => [
-            'path' => 'lengow_global_options/advanced/last_statistic_update',
-            'global' => true,
-            'no_cache' => true,
-        ],
-        'order_statistic' => [
-            'path' => 'lengow_global_options/advanced/order_statistic',
-            'export' => false,
-            'no_cache' => true,
-        ],
         'last_status_update' => [
             'path' => 'lengow_global_options/advanced/last_status_update',
             'global' => true,
@@ -391,10 +381,7 @@ class Config extends AbstractHelper
     public function set($key, $value, $storeId = 0)
     {
         if ((int)$storeId === 0) {
-            $this->_writerInterface->save(
-                $this->_options[$key]['path'],
-                $value
-            );
+            $this->_writerInterface->save($this->_options[$key]['path'], $value);
         } else {
             $this->_writerInterface->save(
                 $this->_options[$key]['path'],
@@ -402,6 +389,21 @@ class Config extends AbstractHelper
                 ScopeInterface::SCOPE_STORES,
                 $storeId
             );
+        }
+    }
+
+    /**
+     * Delete configuration key
+     *
+     * @param string $path Magento setting path
+     * @param integer $storeId Magento store id
+     */
+    public function delete($path, $storeId = 0)
+    {
+        if ((int)$storeId === 0) {
+            $this->_writerInterface->delete($path);
+        } else {
+            $this->_writerInterface->delete($path, ScopeInterface::SCOPE_STORES, $storeId);
         }
     }
 

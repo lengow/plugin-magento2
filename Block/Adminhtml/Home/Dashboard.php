@@ -37,11 +37,6 @@ class Dashboard extends Template
     protected $_lengowOrder;
 
     /**
-     * @var array Lengow statistics
-     */
-    protected $_stats = [];
-
-    /**
      * @var integer number of Lengow order to be sent
      */
     protected $_numberOrderToBeSent;
@@ -63,40 +58,9 @@ class Dashboard extends Template
         $this->_syncHelper = $syncHelper;
         $this->_lengowOrder = $lengowOrder;
         if (!$this->_syncHelper->pluginIsBlocked()) {
-            $this->_stats = $this->_syncHelper->getStatistic();
             $this->_numberOrderToBeSent = $this->_lengowOrder->countOrderToBeSent();
         }
         parent::__construct($context, $data);
-    }
-
-    /**
-     * Get total order
-     *
-     * @return integer
-     */
-    public function getNumberOrder()
-    {
-        return isset($this->_stats['nb_order']) ? (int)$this->_stats['nb_order']  : 0;
-    }
-
-    /**
-     * Get turnover
-     *
-     * @return string
-     */
-    public function getTurnover()
-    {
-        return isset($this->_stats['total_order']) ? $this->_stats['total_order'] : '';
-    }
-
-    /**
-     * Get statistics is available
-     *
-     * @return boolean
-     */
-    public function statIsAvailable()
-    {
-        return isset($this->_stats['available']) ? (bool)$this->_stats['available'] : false;
     }
 
     /**
