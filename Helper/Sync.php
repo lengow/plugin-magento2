@@ -150,7 +150,7 @@ class Sync extends AbstractHelper
      * Constructor
      *
      * @param \Magento\Framework\App\Helper\Context $context Magento context instance
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instancee
+     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
      * @param \Magento\Framework\Filesystem\Driver\File $driverFile Magento driver file instance
      * @param \Magento\Framework\Module\Dir\Reader $moduleReader Magento module reader instance
      * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
