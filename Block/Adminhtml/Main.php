@@ -106,19 +106,6 @@ class Main extends Template
     }
 
     /**
-     * Check is customer is a bad payer
-     *
-     * @return boolean
-     */
-    public function isBadPayer()
-    {
-        if ((isset($this->_statusAccount['type']) && $this->_statusAccount['type'] === 'bad_payer')) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * Get current locale
      *
      * @return string

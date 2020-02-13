@@ -67,11 +67,6 @@ class Connector
     const API_PLAN = '/v3.0/plans';
 
     /**
-     * @var string url of statistic API
-     */
-    const API_STATISTIC = '/v3.0/stats';
-
-    /**
      * @var string url of cms API
      */
     const API_CMS = '/v3.1/cms';
@@ -165,7 +160,6 @@ class Connector
         self::API_ORDER_ACTION => 15,
         self::API_MARKETPLACE => 15,
         self::API_PLAN => 5,
-        self::API_STATISTIC => 5,
         self::API_CMS => 5,
     ];
 

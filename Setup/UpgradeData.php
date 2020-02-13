@@ -64,6 +64,17 @@ class UpgradeData implements UpgradeDataInterface {
             }
         }
 
+        if (version_compare($context->getVersion(), '1.2.0', '<')) {
+
+            // **********************************************************
+            // Delete statistic configurations for versions 1.0.0 - 1.1.5
+            // **********************************************************
+
+            $this->_configHelper->delete('lengow_global_options/advanced/order_statistic');
+            $this->_configHelper->delete('lengow_global_options/advanced/last_statistic_update');
+        }
+
+
         $setup->endSetup();
     }
 }

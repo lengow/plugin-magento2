@@ -189,10 +189,6 @@ class Index extends Action
                 if ($sync === SyncHelper::SYNC_STATUS_ACCOUNT) {
                     $this->_syncHelper->getStatusAccount($force, $logOutput);
                 }
-                // sync statistics between Lengow and Magento
-                if ($sync === SyncHelper::SYNC_STATISTIC) {
-                    $this->_syncHelper->getStatistic($force, $logOutput);
-                }
                 // sync option is not valid
                 if ($sync && !$this->_syncHelper->isSyncAction($sync)) {
                     $errorMessage = __('Action: %1 is not a valid action', [$sync]);

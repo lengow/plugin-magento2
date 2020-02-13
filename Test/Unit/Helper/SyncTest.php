@@ -116,7 +116,6 @@ class SyncTest extends \PHPUnit_Framework_TestCase
         $syncHelperMock->expects($this->any())->method('getStatusAccount')->willReturnOnConsecutiveCalls(
             ['type' => 'free_trial', 'day' => 12, 'expired' => false],
             ['type' => 'free_trial', 'day' => 0, 'expired' => true],
-            ['type' => 'bad_payer', 'day' => 0, 'expired' => false],
             ['type' => '', 'day' => 0, 'expired' => false]
         );
         $fixture->setPrivatePropertyValue($syncHelperMock, ['_configHelper'], [$configHelperMock2]);
@@ -127,10 +126,6 @@ class SyncTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(
             $syncHelperMock->pluginIsBlocked(),
             '[Test Plugin Is Blocked] Check if return is valid when free trial is expired'
-        );
-        $this->assertTrue(
-            $syncHelperMock->pluginIsBlocked(),
-            '[Test Plugin Is Blocked] Check if return is valid when merchant is a bad payer'
         );
         $this->assertFalse(
             $syncHelperMock->pluginIsBlocked(),
@@ -263,120 +258,6 @@ class SyncTest extends \PHPUnit_Framework_TestCase
             ['type' => 'free_trial', 'day' => 0, 'expired' => true],
             $this->_syncHelper->getStatusAccount(true),
             '[Test Get Status Account] Check if return is valid with static cache'
-        );
-    }
-
-    /**
-     * @covers \Lengow\Connector\Helper\Sync::getStatistic
-     */
-    public function testGetStatistic()
-    {
-        $fixture = New Fixture();
-        $classMock = $fixture->getFakeClass();
-        $updatedAt = date('Y-m-d H:i:s', time() - 1000);
-        $stats = '{"total_order":"445\u00a0761,17\u00a0\u20ac","nb_order":1231,"currency":"GBP","available":true}';
-        $configHelperMock = $this->getMockBuilder(get_class($classMock))
-            ->setMethods(['get'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $configHelperMock->expects($this->any())->method('get')->willReturnOnConsecutiveCalls(
-            $updatedAt,
-            $stats,
-            $updatedAt,
-            $stats
-        );
-        $fixture->setPrivatePropertyValue($this->_syncHelper, ['_configHelper'], [$configHelperMock]);
-        $this->assertInternalType(
-            'array',
-            $this->_syncHelper->getStatistic(),
-            '[Test Get Statistic] Check if return is a array'
-        );
-        $this->assertEquals(
-            json_decode($stats, true),
-            $this->_syncHelper->getStatistic(),
-            '[Test Get Statistic] Check if return is valid with cache'
-        );
-
-        $configHelperMock2 = $this->getMockBuilder(get_class($classMock))
-            ->setMethods(['get', 'getAllAvailableCurrencyCodes'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $configHelperMock2->expects($this->any())->method('get')->willReturnOnConsecutiveCalls(
-            $updatedAt,
-            $stats,
-            null
-        );
-        $configHelperMock2->expects($this->any())->method('getAllAvailableCurrencyCodes')->will($this->returnValue([]));
-        $connectorMock = $fixture->mockFunctions($classMock, ['queryApi'], [null]);
-        $fixture->setPrivatePropertyValue(
-            $this->_syncHelper,
-            ['_configHelper', '_connector'],
-            [$configHelperMock2, $connectorMock]
-        );
-        $this->assertEquals(
-            json_decode($stats, true),
-            $this->_syncHelper->getStatistic(true),
-            '[Test Get Statistic] Check if return is valid without cache, no API response but stats in database'
-        );
-        $this->assertEquals(
-            ['total_order' => 0, 'nb_order' => 0, 'currency' => '', 'available' => false],
-            $this->_syncHelper->getStatistic(true),
-            '[Test Get Statistic] Check if return is valid without cache, no API response and no stats in database'
-        );
-
-        $apiStats = '{"currency":{"iso_a3":"EUR"},"level0":[{"transactions":1231.0,"revenue":445761.17}]}';
-        $apiStats2 = '{"currency":{"iso_a3":"EUR"},"level0":[{"transactions":null,"revenue":null}]}';
-
-        $configHelperMock3 = $fixture->mockFunctions($classMock, ['getAllAvailableCurrencyCodes', 'set'], [[], null]);
-        $connectorMock = $fixture->mockFunctions($classMock, ['queryApi'], [json_decode($apiStats)]);
-        $fixture->setPrivatePropertyValue(
-            $this->_syncHelper,
-            ['_configHelper', '_connector'],
-            [$configHelperMock3, $connectorMock]
-        );
-        $this->assertEquals(
-            ['total_order' => '445 761,17', 'nb_order' => 1231, 'currency' => 'EUR', 'available' => true],
-            $this->_syncHelper->getStatistic(true),
-            '[Test Get Statistic] Check if return is valid with API response but no specific currency'
-        );
-        $connectorMock2 = $fixture->mockFunctions($classMock, ['queryApi'], [json_decode($apiStats2)]);
-        $fixture->setPrivatePropertyValue(
-            $this->_syncHelper,
-            ['_configHelper', '_connector'],
-            [$configHelperMock3, $connectorMock2]
-        );
-        $this->assertEquals(
-            ['total_order' => '0,00', 'nb_order' => 0, 'currency' => 'EUR', 'available' => false],
-            $this->_syncHelper->getStatistic(true),
-            '[Test Get Statistic] Check if return is valid with API response but no specific currency and no stats'
-        );
-
-        $configHelperMock4 = $fixture->mockFunctions(
-            $classMock,
-            ['getAllAvailableCurrencyCodes', 'set'],
-            [['EUR'], null]
-        );
-        $priceCurrencyMock = $fixture->mockFunctions($classMock, ['format'], ['445 761,17€']);
-        $fixture->setPrivatePropertyValue(
-            $this->_syncHelper,
-            ['_configHelper', '_connector', '_priceCurrency'],
-            [$configHelperMock4, $connectorMock, $priceCurrencyMock]
-        );
-        $this->assertEquals(
-            ['total_order' => '445 761,17€', 'nb_order' => 1231, 'currency' => 'EUR', 'available' => true],
-            $this->_syncHelper->getStatistic(true),
-            '[Test Get Statistic] Check if return is valid with API response and specific currency'
-        );
-        $priceCurrencyMock2= $fixture->mockFunctions($classMock, ['format'], ['0,00€']);
-        $fixture->setPrivatePropertyValue(
-            $this->_syncHelper,
-            ['_configHelper', '_connector', '_priceCurrency'],
-            [$configHelperMock4, $connectorMock2, $priceCurrencyMock2]
-        );
-        $this->assertEquals(
-            ['total_order' => '0,00€', 'nb_order' => 0, 'currency' => 'EUR', 'available' => false],
-            $this->_syncHelper->getStatistic(true),
-            '[Test Get Statistic] Check if return is valid with API response and specific currency and no stats'
         );
     }
 }
