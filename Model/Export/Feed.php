@@ -46,6 +46,41 @@ class Feed
     const EOL = "\r\n";
 
     /**
+     * @var string csv format.
+     */
+    const FORMAT_CSV = 'csv';
+
+    /**
+     * @var string yaml format.
+     */
+    const FORMAT_YAML = 'yaml';
+
+    /**
+     * @var string xml format.
+     */
+    const FORMAT_XML = 'xml';
+
+    /**
+     * @var string json format.
+     */
+    const FORMAT_JSON = 'json';
+
+    /**
+     * @var string header content.
+     */
+    const HEADER = 'header';
+
+    /**
+     * @var string body content.
+     */
+    const BODY = 'body';
+
+    /**
+     * @var string footer content.
+     */
+    const FOOTER = 'footer';
+
+    /**
      * @var \Magento\Framework\Filesystem\Driver\File Magento driver file instance
      */
     protected $_driverFile;
@@ -169,21 +204,21 @@ class Feed
     public function write($type, $data = [], $isFirst = null, $maxCharacter = null)
     {
         switch ($type) {
-            case 'header':
+            case self::HEADER:
                 if ($this->_stream) {
                     header($this->_getHtmlHeader());
-                    if ($this->_format === 'csv') {
+                    if ($this->_format === self::FORMAT_CSV) {
                         header('Content-Disposition: attachment; filename=feed.csv');
                     }
                 }
                 $header = $this->_getHeader($data);
                 $this->_flush($header);
                 break;
-            case 'body':
+            case self::BODY:
                 $body = $this->_getBody($data, $isFirst, $maxCharacter);
                 $this->_flush($body);
                 break;
-            case 'footer':
+            case self::FOOTER:
                 $footer = $this->_getFooter();
                 $this->_flush($footer);
                 break;
@@ -199,7 +234,7 @@ class Feed
      */
     public function end()
     {
-        $this->write('footer');
+        $this->write(self::FOOTER);
         if (!$this->_stream) {
             $this->_file->close();
             $newFileName = 'lengow_feed.' . $this->_format;
@@ -238,14 +273,14 @@ class Feed
     protected function _getHtmlHeader()
     {
         switch ($this->_format) {
-            case 'csv':
+            case self::FORMAT_CSV:
             default:
                 return 'Content-Type: text/csv; charset=UTF-8';
-            case 'xml':
+            case self::FORMAT_XML:
                 return 'Content-Type: application/xml; charset=UTF-8';
-            case 'json':
+            case self::FORMAT_JSON:
                 return 'Content-Type: application/json; charset=UTF-8';
-            case 'yaml':
+            case self::FORMAT_YAML:
                 return 'Content-Type: text/x-yaml; charset=UTF-8';
         }
     }
@@ -260,18 +295,18 @@ class Feed
     protected function _getHeader($data)
     {
         switch ($this->_format) {
-            case 'csv':
+            case self::FORMAT_CSV:
             default:
                 $header = '';
                 foreach ($data as $field) {
                     $header .= self::PROTECTION . $this->_formatFields($field) . self::PROTECTION . self::CSV_SEPARATOR;
                 }
                 return rtrim($header, self::CSV_SEPARATOR) . self::EOL;
-            case 'xml':
+            case self::FORMAT_XML:
                 return '<?xml version="1.0" encoding="UTF-8"?>' . self::EOL . '<catalog>' . self::EOL;
-            case 'json':
+            case self::FORMAT_JSON:
                 return '{"catalog":[';
-            case 'yaml':
+            case self::FORMAT_YAML:
                 return '"catalog":' . self::EOL;
         }
     }
@@ -288,14 +323,14 @@ class Feed
     protected function _getBody($data, $isFirst, $maxCharacter)
     {
         switch ($this->_format) {
-            case 'csv':
+            case self::FORMAT_CSV:
             default:
                 $content = '';
                 foreach ($data as $value) {
                     $content .= self::PROTECTION . $value . self::PROTECTION . self::CSV_SEPARATOR;
                 }
                 return rtrim($content, self::CSV_SEPARATOR) . self::EOL;
-            case 'xml':
+            case self::FORMAT_XML:
                 $content = '<product>';
                 foreach ($data as $field => $value) {
                     $field = isset($this->_formattedFields[$field])
@@ -305,7 +340,7 @@ class Feed
                 }
                 $content .= '</product>' . self::EOL;
                 return $content;
-            case 'json':
+            case self::FORMAT_JSON:
                 $content = $isFirst ? '' : ',';
                 $jsonArray = [];
                 foreach ($data as $field => $value) {
@@ -316,7 +351,7 @@ class Feed
                 }
                 $content .= $this->_jsonHelper->jsonEncode($jsonArray);
                 return $content;
-            case 'yaml':
+            case self::FORMAT_YAML:
                 if ($maxCharacter % 2 === 1) {
                     $maxCharacter = $maxCharacter + 1;
                 } else {
@@ -345,9 +380,9 @@ class Feed
     protected function _getFooter()
     {
         switch ($this->_format) {
-            case 'xml':
+            case self::FORMAT_XML:
                 return '</catalog>';
-            case 'json':
+            case self::FORMAT_JSON:
                 return ']}';
             default:
                 return '';
@@ -433,7 +468,7 @@ class Feed
     protected function _formatFields($field)
     {
         switch ($this->_format) {
-            case 'csv':
+            case self::FORMAT_CSV:
                 $formatField = substr(
                     strtolower(
                         preg_replace(

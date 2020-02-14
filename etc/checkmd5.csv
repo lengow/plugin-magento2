@@ -77,14 +77,14 @@
 /Model/ResourceModel/Ordererror.php|1d8ded0f9c697219c95c3922d8ad00ed
 /Model/Export/Product.php|2f073fe10a20ef7acb783830e8f9ec2b
 /Model/Export/Shipping.php|faed948eb930b9045fc56bc37da473d2
-/Model/Export/Feed.php|d54c14afe60758bca28fe82f6fab7ff2
+/Model/Export/Feed.php|697ae23a430f19f0c1425065226faa4c
 /Model/Export/Price.php|6cf902041f701473b28de8cd538746ed
 /Model/Export/Category.php|bcc41d2ccb5fdf265fdbce40e0aeacce
 /Model/Export/File.php|5978a7e33602b7894c2332e2145ad7b3
 /Model/Carrier/Lengow.php|768e792ea8311277356f72d2d58caa33
 /Model/Exception.php|54edeb8720951a9e4cdc0011f8e2572f
 /Model/Payment/Lengow.php|dd4f2d120fe6faa2d731cbf9eed66408
-/Model/Export.php|a0e860922de8971697dfdfe021dc28ae
+/Model/Export.php|135e7ae0131e1dde97b35d6a9846e5e1
 /Model/Config/Source/Group.php|abbe10e025483f9e8bd84d220a0a4858
 /Model/Config/Source/Status.php|18841de5529d1121f06b60afa36d46c9
 /Model/Config/Source/Action.php|57bcf9c9cd861f9c1db4fd641ab9a5a1

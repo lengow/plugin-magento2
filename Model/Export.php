@@ -30,6 +30,7 @@ use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Store\Model\WebsiteFactory;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Model\Export\Feed as LengowFeed;
 use Lengow\Connector\Model\Export\FeedFactory;
 use Lengow\Connector\Model\Export\ProductFactory;
 use Lengow\Connector\Model\Exception as LengowException;
@@ -137,10 +138,10 @@ class Export
      * @var array available formats for export
      */
     protected $_availableFormats = [
-        'csv',
-        'json',
-        'yaml',
-        'xml',
+        LengowFeed::FORMAT_CSV,
+        LengowFeed::FORMAT_YAML,
+        LengowFeed::FORMAT_XML,
+        LengowFeed::FORMAT_JSON,
     ];
 
     /**
@@ -359,7 +360,7 @@ class Export
             : (bool)$this->_configHelper->get('product_status', $this->_storeId);
         $this->_outOfStock = isset($params['out_of_stock']) ? $params['out_of_stock'] : true;
         $this->_updateExportDate = isset($params['update_export_date']) ? (bool)$params['update_export_date'] : true;
-        $this->_format = $this->_setFormat(isset($params['format']) ? $params['format'] : 'csv');
+        $this->_format = $this->_setFormat(isset($params['format']) ? $params['format'] : LengowFeed::FORMAT_CSV);
         $this->_productIds = $this->_setProductIds(isset($params['product_ids']) ? $params['product_ids'] : false);
         $this->_productTypes = $this->_setProductTypes(
             isset($params['product_types']) ? $params['product_types'] : false
@@ -494,7 +495,7 @@ class Export
                 'store_code' => $this->_store->getCode(),
             ]
         );
-        $feed->write('header', $fields);
+        $feed->write(LengowFeed::HEADER, $fields);
         foreach ($products as $product) {
             $productDatas = [];
             $lengowProduct->load(
@@ -515,7 +516,7 @@ class Export
                 }
             }
             // write product data
-            $feed->write('body', $productDatas, $isFirst, $maxCharacter);
+            $feed->write(LengowFeed::BODY, $productDatas, $isFirst, $maxCharacter);
             $productCount++;
             $this->_setCounterLog($productModulo, $productCount);
             // clean data for next product
@@ -624,7 +625,7 @@ class Export
                 case 'format':
                     $authorizedValue = $this->_availableFormats;
                     $type = 'string';
-                    $example = 'csv';
+                    $example = LengowFeed::FORMAT_CSV;
                     break;
                 case 'store':
                     $authorizedValue = $availableStores;
@@ -701,7 +702,7 @@ class Export
      */
     protected function _setFormat($format)
     {
-        return !in_array($format, $this->_availableFormats) ? 'csv' : $format;
+        return !in_array($format, $this->_availableFormats) ? LengowFeed::FORMAT_CSV : $format;
     }
 
     /**
