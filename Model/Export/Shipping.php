@@ -19,7 +19,7 @@
 
 namespace Lengow\Connector\Model\Export;
 
-use Magento\Shipping\Model\Shipping as MagentoShipping;
+use Magento\Shipping\Model\ShippingFactory;
 use Magento\Shipping\Model\CarrierFactory;
 use Magento\Quote\Model\Quote\Address\RateRequestFactory;
 use Magento\Quote\Model\Quote\ItemFactory;
@@ -32,9 +32,9 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 class Shipping
 {
     /**
-     * @var \Magento\Shipping\Model\Shipping Magento shipping instance
+     * @var \Magento\Shipping\Model\ShippingFactory Magento shipping Factory instance
      */
-    protected $_magentoShipping;
+    protected $_shippingFactory;
 
     /**
      * @var \Magento\Shipping\Model\CarrierFactory Magento carrier Factory instance
@@ -119,7 +119,7 @@ class Shipping
     /**
      * Constructor
      *
-     * @param \Magento\Shipping\Model\Shipping $magentoShipping Magento shipping instance
+     * @param \Magento\Shipping\Model\ShippingFactory $shippingFactory Magento shipping Factory instance
      * @param \Magento\Shipping\Model\CarrierFactory $carrierFactory Magento carrier Factory instance
      * @param \Magento\Quote\Model\Quote\Address\RateRequestFactory $rateRequestFactory Magento rate request instance
      * @param \Magento\Quote\Model\Quote\ItemFactory $quoteItemFactory Magento quote item factory
@@ -127,14 +127,14 @@ class Shipping
      * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
      */
     public function __construct(
-        MagentoShipping $magentoShipping,
+        ShippingFactory $shippingFactory,
         CarrierFactory $carrierFactory,
         RateRequestFactory $rateRequestFactory,
         ItemFactory $quoteItemFactory,
         PriceCurrency $priceCurrency,
         ConfigHelper $configHelper
     ) {
-        $this->_magentoShipping = $magentoShipping;
+        $this->_shippingFactory = $shippingFactory;
         $this->_carrierFactory = $carrierFactory;
         $this->_rateRequestFactory = $rateRequestFactory;
         $this->_quoteItemFactory = $quoteItemFactory;
@@ -246,13 +246,14 @@ class Shipping
         $shippingCost = 0;
         $conversion = $this->_currency !== $this->_storeCurrency ? true : false;
         $shippingRateRequest = $this->_getShippingRateRequest();
-        $result = $this->_magentoShipping->collectCarrierRates($this->_shippingCarrier, $shippingRateRequest)
+        $shippingFactory = $this->_shippingFactory->create();
+        $result = $shippingFactory->collectCarrierRates($this->_shippingCarrier, $shippingRateRequest)
             ->getResult();
         if (is_null($result) || $result->getError()) {
             return false;
         }
         $rates = $result->getAllRates();
-        if (count($rates) > 0) {
+        if (!empty($rates)) {
             foreach ($rates as $rate) {
                 $shippingCost = $rate->getPrice();
                 break;
