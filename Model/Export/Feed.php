@@ -96,11 +96,6 @@ class Feed
     protected $_yamlSpaces = [];
 
     /**
-     * @var string Lengow export folder
-     */
-    protected $_lengowExportFolder = 'lengow';
-
-    /**
      * @var string folder name that contains the file
      */
     protected $_folderName;
@@ -155,7 +150,7 @@ class Feed
         $this->_file = $this->_fileFactory->create();
         if (!$this->_stream) {
             $sep = DIRECTORY_SEPARATOR;
-            $this->_folderName = $this->_lengowExportFolder . $sep . $params['store_code'];
+            $this->_folderName = DataHelper::LENGOW_FOLDER . $sep . $params['store_code'];
             $this->_folderPath = $this->_dataHelper->getMediaPath() . $sep . $this->_folderName;
             $this->_initExportFile();
         }

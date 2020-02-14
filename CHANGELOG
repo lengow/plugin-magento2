@@ -9,6 +9,7 @@ Version 1.2.0
     - Bugfix: Refactoring and optimization of dates with the correct locale
     - Bugfix: [action] Improved carrier matching with a strict then approximate search
     - Bugfix: [export] Recovery of correct shipping costs for each product
+    - Bugfix: [import] Saving the marketplaces.json file in the Magento media folder
 
 =============================================================
 Version 1.1.5

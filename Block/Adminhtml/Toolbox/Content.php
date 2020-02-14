@@ -161,7 +161,7 @@ class Content extends Template
             'state' => !(bool)$this->_configHelper->get('preprod_mode_enable'),
         ];
         $sep = DIRECTORY_SEPARATOR;
-        $filePath = $this->_dataHelper->getMediaPath() . $sep . 'lengow' . $sep . 'test.txt';
+        $filePath = $this->_dataHelper->getMediaPath() . $sep . DataHelper::LENGOW_FOLDER . $sep . 'test.txt';
         try {
             $file = fopen($filePath, 'w+');
             if (!$file) {
@@ -308,8 +308,9 @@ class Content extends Template
     public function getFileInformations($store)
     {
         $sep = DIRECTORY_SEPARATOR;
-        $folderPath = $this->_dataHelper->getMediaPath() . $sep . 'lengow' . $sep . $store->getCode() . $sep;
-        $folderUrl = $this->_dataHelper->getMediaUrl() . 'lengow' . $sep . $store->getCode() . $sep;
+        $storePath = DataHelper::LENGOW_FOLDER . $sep. $store->getCode() . $sep;
+        $folderPath = $this->_dataHelper->getMediaPath() . $sep . $storePath;
+        $folderUrl = $this->_dataHelper->getMediaUrl() . $storePath;
         try {
             $files = array_diff(scandir($folderPath), ['..', '.']);
         } catch (\Exception $e) {

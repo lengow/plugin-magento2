@@ -42,6 +42,11 @@ class Data extends AbstractHelper
     const CODE_SETTING = 'Setting';
 
     /**
+     * @var string Lengow media folder
+     */
+    const LENGOW_FOLDER = 'lengow';
+
+    /**
      * @var string connector log code
      */
     const CODE_CONNECTOR = 'Connector';

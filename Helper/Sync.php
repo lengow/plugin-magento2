@@ -437,7 +437,7 @@ class Sync extends AbstractHelper
     public function getMarketplaces($force = false, $logOutput = false)
     {
         $sep = DIRECTORY_SEPARATOR;
-        $folderPath = $this->_moduleReader->getModuleDir('etc', 'Lengow_Connector');
+        $folderPath = $this->_dataHelper->getMediaPath() . $sep . DataHelper::LENGOW_FOLDER;
         $filePath = $folderPath . $sep . $this->_marketplaceJson;
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_marketplace_update');
@@ -457,6 +457,7 @@ class Sync extends AbstractHelper
         if ($result && is_object($result) && !isset($result->error)) {
             // updated marketplaces.json file
             try {
+                $this->_driverFile->createDirectory($folderPath);
                 $file = $this->_driverFile->fileOpen($filePath, 'w+');
                 $this->_driverFile->fileLock($file);
                 $this->_driverFile->fileWrite($file, $this->_jsonHelper->jsonEncode($result));
