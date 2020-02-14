@@ -75,7 +75,7 @@ class OrderStatus extends Column
                 if ((bool)$item['sent_marketplace']) {
                     $item['order_status'] = '<span class="lgw-label">'
                         . $this->_dataHelper->decodeLogMessage('Shipped by Marketplace') . '</span>';
-                } elseif (!is_null($item['order_id'])) {
+                } elseif ($item['order_id'] !== null) {
                     $item['order_status'] = $this->_orderRepository->get($item['order_id'])->getStatus();
                 }
             }

@@ -288,7 +288,7 @@ class Price
             1,
             $this->_product->getId()
         );
-        if (count($catalogueRules) > 0) {
+        if (!empty($catalogueRules)) {
             $startTimestamp = (int)$catalogueRules[0]['from_time'];
             $endTimestamp = (int)$catalogueRules[0]['to_time'];
             $discountStartDate = $startTimestamp !== 0

@@ -72,7 +72,7 @@ class TotalPaid extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if (!is_null($item['total_paid'])) {
+                if ($item['total_paid'] !== null) {
                     $currencyFactory = $this->_currencyFactory->create()->load($item['currency']);
                     $currencySymbol = $currencyFactory->getCurrencySymbol();
                     $item['total_paid'] = $currencySymbol . $item['total_paid'];

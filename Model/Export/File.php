@@ -193,7 +193,7 @@ class File
      */
     protected function _fileExists($filePath = null)
     {
-        $filePath = !is_null($filePath) ? $filePath : $this->getPath();
+        $filePath = $filePath !== null ? $filePath : $this->getPath();
         return $this->_driverFile->isExists($filePath);
     }
 

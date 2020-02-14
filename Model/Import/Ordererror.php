@@ -210,7 +210,7 @@ class Ordererror extends AbstractModel
             ->addFieldToFilter('type', $errorType)
             ->addFieldToSelect('id')
             ->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             foreach ($results as $result) {
                 $orderError = $this->_ordererrorFactory->create()->load((int)$result['id']);
                 $orderError->updateOrderError(['is_finished' => 1]);
@@ -235,16 +235,16 @@ class Ordererror extends AbstractModel
     {
         $collection = $this->_ordererrorCollection->create()->load()
             ->addFieldToFilter('order_lengow_id', $orderLengowId);
-        if (!is_null($type)) {
+        if ($type !== null) {
             $errorType = $this->getOrderErrorType($type);
             $collection->addFieldToFilter('type', $errorType);
         }
-        if (!is_null($finished)) {
+        if ($finished !== null) {
             $errorFinished = $finished ? 1 : 0;
             $collection->addFieldToFilter('is_finished', $errorFinished);
         }
         $results = $collection->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return $results;
         }
         return false;

@@ -161,7 +161,7 @@ class Shipping
         $this->_shippingCountryCode = $this->_configHelper->get('shipping_country', $this->_store->getId());
         $conversion = $this->_currency !== $this->_storeCurrency ? true : false;
         $this->_defaultShippingPrice = $this->_configHelper->get('shipping_price', $this->_store->getId());
-        if (!is_null($this->_defaultShippingPrice) && $conversion) {
+        if ($this->_defaultShippingPrice !== null && $conversion) {
             $this->_defaultShippingPrice = $this->_priceCurrency->convertAndRound(
                 $this->_defaultShippingPrice,
                 $this->_storeCurrency,
@@ -179,9 +179,9 @@ class Shipping
     public function load($params)
     {
         $this->_product = $params['product'];
-        if (!is_null($this->_defaultShippingPrice) || is_null($this->_shippingCarrier)) {
+        if ($this->_defaultShippingPrice !== null || $this->_shippingCarrier === null) {
             $this->_shippingCost = $this->_defaultShippingPrice;
-        } elseif ($this->_shippingIsFixed && !is_null($this->_shippingCostFixed)) {
+        } elseif ($this->_shippingIsFixed && $this->_shippingCostFixed !== null) {
             $this->_shippingCost = $this->_shippingCostFixed;
         } else {
             $this->_shippingCost = $this->_getProductShippingCost();
@@ -226,7 +226,7 @@ class Shipping
     {
         $shippingData = [];
         $shippingMethod = $this->_configHelper->get('shipping_method', $this->_store->getId());
-        if (!is_null($shippingMethod)) {
+        if ($shippingMethod !== null) {
             $shippingMethod = explode('_', $shippingMethod);
             $carrier = $this->_carrierFactory->get($shippingMethod[0]);
             $shippingData['shipping_carrier'] = $carrier ? $carrier->getCarrierCode() : '';
@@ -249,7 +249,7 @@ class Shipping
         $shippingFactory = $this->_shippingFactory->create();
         $result = $shippingFactory->collectCarrierRates($this->_shippingCarrier, $shippingRateRequest)
             ->getResult();
-        if (is_null($result) || $result->getError()) {
+        if ($result === null || $result->getError()) {
             return false;
         }
         $rates = $result->getAllRates();

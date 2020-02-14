@@ -124,7 +124,7 @@ class Orderline extends AbstractModel
             ->addFieldToFilter('order_id', $orderId)
             ->addFieldToSelect('order_line_id')
             ->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return $results;
         }
         return false;

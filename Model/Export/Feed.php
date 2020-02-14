@@ -420,7 +420,7 @@ class Feed
     protected function _isAlreadyLaunch()
     {
         $listFiles = $this->_driverFile->readDirectory($this->_folderPath);
-        if (count($listFiles) > 0) {
+        if (!empty($listFiles)) {
             foreach ($listFiles as $filePath) {
                 $fileName = str_replace($this->_folderPath . '/', '', $filePath);
                 if (preg_match('/^' . $this->_fileName . '\.[\d]{10}/', $fileName)) {

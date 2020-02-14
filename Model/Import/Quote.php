@@ -344,7 +344,7 @@ class Quote extends \Magento\Quote\Model\Quote
             if ($product->marketplace_status != null) {
                 $stateProduct = $marketplace->getStateLengow((string)$product->marketplace_status);
                 if ($stateProduct === LengowOrder::STATE_CANCELED || $stateProduct === LengowOrder::STATE_REFUSED) {
-                    $productId = !is_null($product->merchant_product_id->id)
+                    $productId = $product->merchant_product_id->id !== null
                         ? (string)$product->merchant_product_id->id
                         : (string)$product->marketplace_product_id;
                     $this->_dataHelper->log(
@@ -390,7 +390,7 @@ class Quote extends \Magento\Quote\Model\Quote
                             ->addAttributeToFilter($productField, $attributeValue)
                             ->setPage(1, 1)
                             ->getData();
-                        if (is_array($collection) && count($collection) > 0) {
+                        if (is_array($collection) && !empty($collection)) {
                             $magentoProduct = $this->_productFactory->create()->load($collection[0]['entity_id']);
                         }
                     }
@@ -443,7 +443,7 @@ class Quote extends \Magento\Quote\Model\Quote
                 }
             }
             if (!$found) {
-                $productId = !is_null($product->merchant_product_id->id)
+                $productId = $product->merchant_product_id->id !== null
                     ? (string)$product->merchant_product_id->id
                     : (string)$product->marketplace_product_id;
                 throw new LengowException(
@@ -522,7 +522,7 @@ class Quote extends \Magento\Quote\Model\Quote
      */
     public function getLengowProducts($productId = null)
     {
-        if (is_null($productId)) {
+        if ($productId === null) {
             return $this->_lengowProducts;
         } else {
             return $this->_lengowProducts[$productId];

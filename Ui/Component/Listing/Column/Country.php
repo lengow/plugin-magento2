@@ -72,7 +72,7 @@ class Country extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if (!is_null(['delivery_country_iso']) && strlen($item['delivery_country_iso']) === 2) {
+                if (['delivery_country_iso'] !== null && strlen($item['delivery_country_iso']) === 2) {
                     $filename = $this->_assetRepo->getUrl('Lengow_Connector/images/flag')
                         . DIRECTORY_SEPARATOR . strtoupper($item['delivery_country_iso']) . '.png';
                     $country_name = $this->_countryFactory->create()

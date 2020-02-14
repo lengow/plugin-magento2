@@ -123,7 +123,7 @@ class Index extends Action
                             return $this->_resultJsonFactory->create()->setData(['informations' => $informations]);
                         case 're_import':
                             $orderLengowId = $this->getRequest()->getParam('order_lengow_id');
-                            if (!is_null($orderLengowId)) {
+                            if ($orderLengowId !== null) {
                                 $result = $this->_lengowOrderFactory->create()->reImportOrder((int)$orderLengowId);
                                 $informations = $this->getInformations();
                                 $informations['messages'] = $result;
@@ -132,7 +132,7 @@ class Index extends Action
                             break;
                         case 're_send':
                             $orderLengowId = $this->getRequest()->getParam('order_lengow_id');
-                            if (!is_null($orderLengowId)) {
+                            if ($orderLengowId !== null) {
                                 $result = $this->_lengowOrderFactory->create()->reSendOrder((int)$orderLengowId);
                                 $informations = $this->getInformations();
                                 $informations['messages'] = $result;

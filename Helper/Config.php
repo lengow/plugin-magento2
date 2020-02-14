@@ -363,7 +363,7 @@ class Config extends AbstractHelper
                 ->addFieldToFilter('scope_id', $storeId)
                 ->load()
                 ->getData();
-            $value = count($results) > 0 ? $results[0]['value'] : '';
+            $value = !empty($results) ? $results[0]['value'] : '';
         } else {
             $scope = (int)$storeId === 0 ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES;
             $value = $this->scopeConfig->getValue($this->_options[$key]['path'], $scope, $storeId);
@@ -517,7 +517,7 @@ class Config extends AbstractHelper
     public function setActiveStore($storeId)
     {
         $storeIsActive = $this->storeIsActive($storeId);
-        $storeHasCatalog = count(self::getCatalogIds($storeId)) > 0;
+        $storeHasCatalog = !empty(self::getCatalogIds($storeId));
         $this->set('store_enable', $storeHasCatalog, $storeId);
         return $storeIsActive !== $storeHasCatalog ? true : false;
     }
@@ -621,7 +621,7 @@ class Config extends AbstractHelper
     {
         $selectedAttributes = [];
         $attributes = $this->get('export_attribute', $storeId);
-        if (!is_null($attributes)) {
+        if ($attributes !== null) {
             $attributes = explode(',', $attributes);
             foreach ($attributes as $attribute) {
                 $selectedAttributes[] = $attribute;
@@ -706,7 +706,7 @@ class Config extends AbstractHelper
      */
     public function setDefaultAttributes()
     {
-        if (is_null($this->get('export_attribute'))) {
+        if ($this->get('export_attribute') === null) {
             $attributeList = '';
             $attributes = $this->getAllAttributes();
             foreach ($attributes as $attribute) {

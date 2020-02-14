@@ -294,7 +294,7 @@ class Sync extends AbstractHelper
         }
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_catalog_update');
-            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < $this->_cacheTimes[self::SYNC_CATALOG]) {
+            if ($updatedAt !== null && (time() - (int)$updatedAt) < $this->_cacheTimes[self::SYNC_CATALOG]) {
                 return false;
             }
         }
@@ -374,7 +374,7 @@ class Sync extends AbstractHelper
         }
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_option_cms_update');
-            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < $this->_cacheTimes[self::SYNC_CMS_OPTION]) {
+            if ($updatedAt !== null && (time() - (int)$updatedAt) < $this->_cacheTimes[self::SYNC_CMS_OPTION]) {
                 return false;
             }
         }
@@ -399,12 +399,12 @@ class Sync extends AbstractHelper
         }
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_status_update');
-            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < $this->_cacheTimes[self::SYNC_STATUS_ACCOUNT]) {
+            if ($updatedAt !== null && (time() - (int)$updatedAt) < $this->_cacheTimes[self::SYNC_STATUS_ACCOUNT]) {
                 return json_decode($this->_configHelper->get('account_status'), true);
             }
         }
         // use static cache for multiple call in same time (specific Magento 2)
-        if (!is_null(self::$statusAccount)) {
+        if (self::$statusAccount !== null) {
             return self::$statusAccount;
         }
         $status = false;
@@ -441,7 +441,7 @@ class Sync extends AbstractHelper
         $filePath = $folderPath . $sep . $this->_marketplaceJson;
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_marketplace_update');
-            if (!is_null($updatedAt)
+            if ($updatedAt !== null
                 && (time() - (int)$updatedAt) < $this->_cacheTimes[self::SYNC_MARKETPLACE]
                 && file_exists($filePath)
             ) {

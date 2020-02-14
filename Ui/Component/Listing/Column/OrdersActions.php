@@ -138,7 +138,7 @@ class OrdersActions extends Column
                     }
                 } else {
                     //check if order actions in progress
-                    if (!is_null($item['order_id']) && (int)$item['order_process_state'] === 1) {
+                    if ($item['order_id'] !== null && (int)$item['order_process_state'] === 1) {
                         $lastActionType = $this->_action->getLastOrderActionType($item['order_id']);
                         if ($lastActionType) {
                             $item['is_in_error'] = '<a class="lengow_action lengow_tooltip lgw-btn lgw-btn-white">'

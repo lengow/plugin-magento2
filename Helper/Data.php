@@ -172,7 +172,7 @@ class Data extends AbstractHelper
      */
     public function setLogMessage($key, $params = null)
     {
-        if (is_null($params) || (is_array($params) && empty($params))) {
+        if ($params === null || (is_array($params) && empty($params))) {
             return $key;
         }
         $allParams = [];
@@ -207,7 +207,7 @@ class Data extends AbstractHelper
                     $phrase = __($key, $params);
                     $message = $phrase->__toString();
                 } else {
-                    if (count($params) > 0) {
+                    if (!empty($params)) {
                         $ii = 1;
                         foreach ($params as $param) {
                             $key = str_replace('%' . $ii, $param, $key);
@@ -253,7 +253,7 @@ class Data extends AbstractHelper
             '_nosid' => true,
             '_store_to_url' => false,
         ];
-        if (count($additionalParams) > 0) {
+        if (!empty($additionalParams)) {
             $defaultParams = array_merge($defaultParams, $additionalParams);
         }
         $this->_urlBuilder->setScope($storeId);
@@ -274,7 +274,7 @@ class Data extends AbstractHelper
             '_nosid' => true,
             '_store_to_url' => false,
         ];
-        if (count($additionalParams) > 0) {
+        if (!empty($additionalParams)) {
             $defaultParams = array_merge($defaultParams, $additionalParams);
         }
         $this->_urlBuilder->setScope($this->_storeManager->getDefaultStoreView()->getId());

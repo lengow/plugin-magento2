@@ -900,7 +900,7 @@ class Export
             }
         }
         // export specific products with id
-        if (count($this->_productIds) > 0) {
+        if (!empty($this->_productIds)) {
             $productCollection->addAttributeToFilter('entity_id', ['in' => $this->_productIds]);
         }
         // export with limit & offset

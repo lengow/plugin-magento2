@@ -321,7 +321,7 @@ class Content extends Template
             'header' => $store->getName() . ' (' . $store->getId() . ') ' . $store->getBaseUrl(),
         ];
         $checklist[] = ['title' => __('Folder path'), 'message' => $folderPath];
-        if (count($files) > 0) {
+        if (!empty($files)) {
             $checklist[] = ['simple' => __('File list')];
             foreach ($files as $file) {
                 $fileTimestamp = filectime($folderPath . $file);
@@ -397,18 +397,18 @@ class Content extends Template
             ];
             $checklist[] = [
                 'title' => __('%1 files changed', [count($fileErrors)]),
-                'state' => count($fileErrors) > 0 ? false : true,
+                'state' => !empty($fileErrors) ? false : true,
             ];
             $checklist[] = [
                 'title' => __('%1 files deleted', [count($fileDeletes)]),
-                'state' => count($fileDeletes) > 0 ? false : true,
+                'state' => !empty($fileDeletes) ? false : true,
             ];
             $html .= $this->_getContent($checklist);
-            if (count($fileErrors) > 0) {
+            if (!empty($fileErrors)) {
                 $html .= '<h3><i class="fa fa-list"></i> ' . __('List of changed files') . '</h3>';
                 $html .= $this->_getContent($fileErrors);
             }
-            if (count($fileDeletes) > 0) {
+            if (!empty($fileDeletes)) {
                 $html .= '<h3><i class="fa fa-list"></i> ' . __('List of deleted files') . '</h3>';
                 $html .= $this->_getContent($fileDeletes);
             }
@@ -490,15 +490,15 @@ class Content extends Template
                 } else {
                     $out .= '<td></td>';
                 }
-                $scheduledAt = !is_null($lengowCronJob['scheduled_at'])
+                $scheduledAt = $lengowCronJob['scheduled_at'] !== null
                     ? $this->_dataHelper->getDateInCorrectFormat(strtotime($lengowCronJob['scheduled_at'], true))
                     : '';
                 $out .= '<td>' . $scheduledAt . '</td>';
-                $executedAt = !is_null($lengowCronJob['executed_at'])
+                $executedAt = $lengowCronJob['executed_at'] !== null
                     ? $this->_dataHelper->getDateInCorrectFormat(strtotime($lengowCronJob['executed_at'], true))
                     : '';
                 $out .= '<td>' . $executedAt . '</td>';
-                $finishedAt = !is_null($lengowCronJob['finished_at'])
+                $finishedAt = $lengowCronJob['finished_at'] !== null
                     ? $this->_dataHelper->getDateInCorrectFormat(strtotime($lengowCronJob['finished_at'], true))
                     : '';
                 $out .= '<td>' . $finishedAt . '</td>';

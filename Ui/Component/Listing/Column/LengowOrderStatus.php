@@ -55,7 +55,7 @@ class LengowOrderStatus extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if (!is_null($item['order_lengow_state'])) {
+                if ($item['order_lengow_state'] !== null) {
                     $status = $item['order_lengow_state'];
                     switch ($status) {
                         case LengowOrder::STATE_ACCEPTED:

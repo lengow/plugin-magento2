@@ -236,9 +236,9 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         $array['delivery_address']['first_name'] = $shippingNames['firstname'];
         $array['delivery_address']['last_name'] = $shippingNames['lastname'];
         // get relay id if exist
-        if (count($shippingAddress->trackings) > 0
+        if (!empty($shippingAddress->trackings)
             && isset($shippingAddress->trackings[0]->relay)
-            && !is_null($shippingAddress->trackings[0]->relay->id)
+            && $shippingAddress->trackings[0]->relay->id !== null
         ) {
             $array['delivery_address']['tracking_relay'] = $shippingAddress->trackings[0]->relay->id;
         }

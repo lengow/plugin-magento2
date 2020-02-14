@@ -128,7 +128,7 @@ class Category
         $categoryCollection = $this->_product->getCategoryCollection()
             ->addPathsFilter('1/' . $this->_store->getRootCategoryId() . '/')
             ->exportToArray();
-        if (count($categoryCollection) > 0) {
+        if (!empty($categoryCollection)) {
             // select category with max level by default
             foreach ($categoryCollection as $categoryArray) {
                 if ($categoryArray['level'] > $currentLevel) {

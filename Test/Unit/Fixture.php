@@ -112,7 +112,7 @@ class Fixture extends \PHPUnit_Framework_TestCase
     public function mockFunctions($object, $methodNames, $returns, $constructArgs = [])
     {
         $ii = 0;
-        if (count($constructArgs) > 0) {
+        if (!empty($constructArgs)) {
             $mockFunction = $this->getMockBuilder(get_class($object))
                 ->setMethods($methodNames)
                 ->setConstructorArgs($constructArgs)

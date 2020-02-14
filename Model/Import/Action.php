@@ -337,7 +337,7 @@ class Action extends AbstractModel
         $results = $this->_actionCollection->create()
             ->addFieldToFilter('action_id', $actionId)
             ->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return (int)$results[0]['id'];
         }
         return false;
@@ -356,11 +356,11 @@ class Action extends AbstractModel
         $collection = $this->_actionCollection->create()
             ->addFieldToFilter('order_id', $orderId)
             ->addFieldToFilter('state', self::STATE_NEW);
-        if (!is_null($actionType)) {
+        if ($actionType !== null) {
             $collection->addFieldToFilter('action_type', $actionType);
         }
         $results = $collection->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return $results;
         }
         return false;
@@ -380,7 +380,7 @@ class Action extends AbstractModel
             ->addFieldToFilter('order_id', $orderId)
             ->addFieldToFilter('state', self::STATE_NEW)
             ->addFieldToSelect('action_type');
-        if (count($results) > 0) {
+        if (!empty($results)) {
             $lastAction = $results->getLastItem()->getData();
             return (string)$lastAction['action_type'];
         }
@@ -397,7 +397,7 @@ class Action extends AbstractModel
         $results = $this->_actionCollection->create()
             ->addFieldToFilter('state', self::STATE_NEW)
             ->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return $results;
         }
         return false;
@@ -525,11 +525,11 @@ class Action extends AbstractModel
         $collection = $this->_actionCollection->create()
             ->addFieldToFilter('order_id', $orderId)
             ->addFieldToFilter('state', self::STATE_NEW);
-        if (!is_null($actionType)) {
+        if ($actionType !== null) {
             $collection->addFieldToFilter('action_type', $actionType);
         }
         $results = $collection->addFieldToSelect('id')->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             foreach ($results as $result) {
                 $action = $this->_actionFactory->create()->load($result['id']);
                 $action->updateAction(['state' => self::STATE_FINISH]);

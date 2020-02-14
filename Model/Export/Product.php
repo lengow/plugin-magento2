@@ -511,7 +511,7 @@ class Product
         $parentProduct = null;
         if ($this->_type === 'simple') {
             $parentIds = $this->_configurableProduct->getParentIdsByChild($this->_product->getId());
-            if (count($parentIds) > 0) {
+            if (!empty($parentIds)) {
                 $parentProduct = $this->_getConfigurableProduct((int)$parentIds[0]);
                 if ((int)$this->_product->getVisibility() === ProductVisibility::VISIBILITY_NOT_VISIBLE) {
                     $this->_getParentData = true;
@@ -561,11 +561,11 @@ class Product
         }
         // get product and parent images
         if ((bool)$this->_configHelper->get('parent_image', $this->_store->getId()) && $this->_parentProduct) {
-            if (!is_null($this->_parentProduct->getMediaGalleryImages())) {
+            if ($this->_parentProduct->getMediaGalleryImages() !== null) {
                 $parentImages = $this->_parentProduct->getMediaGalleryImages()->toArray();
             }
         }
-        if (!is_null($this->_product->getMediaGalleryImages())) {
+        if ($this->_product->getMediaGalleryImages() !== null) {
             $images = $this->_product->getMediaGalleryImages()->toArray();
             $images = isset($images['items']) ? $images['items'] : [];
         }
@@ -586,7 +586,7 @@ class Product
             $counter++;
         }
         // get default image if exist
-        $imageUrls['image_default'] = !is_null($this->_product->getImage())
+        $imageUrls['image_default'] = $this->_product->getImage() !== null
             ? $this->_baseImageUrl . $this->_product->getImage()
             : '';
         return $imageUrls;
@@ -644,7 +644,7 @@ class Product
      */
     protected function _getQuantity()
     {
-        if ($this->_type === 'grouped' && count($this->_childrenIds) > 0) {
+        if ($this->_type === 'grouped' && !empty($this->_childrenIds)) {
             $quantities = [];
             foreach ($this->_childrenIds as $childrenId) {
                 $quantities[] = $this->_stockRegistry->getStockItem($childrenId, $this->_store->getId())->getQty();
@@ -711,7 +711,7 @@ class Product
             'price_before_discount_excl_tax' => 0,
             'price_before_discount_incl_tax' => 0,
         ];
-        if (count($this->_childrenIds) > 0) {
+        if (!empty($this->_childrenIds)) {
             foreach ($this->_childrenIds as $childrenId) {
                 $children = $this->_getProduct($childrenId, true);
                 $this->_price->load(['product' => $children]);
@@ -736,10 +736,10 @@ class Product
             ? round((($discountAmount * 100) / $prices['price_before_discount_incl_tax']), 2)
             : 0;
         // get discount end and start date
-        if (count($endTimestamps) > 0) {
+        if (!empty($endTimestamps)) {
             $endTimestamp = min($endTimestamps);
         }
-        if (count($startTimestamps) > 0) {
+        if (!empty($startTimestamps)) {
             $startTimestamp = max($startTimestamps);
             // reset start timestamp if end date is before start date
             if ($endTimestamp > 0 && $startTimestamp > $endTimestamp) {

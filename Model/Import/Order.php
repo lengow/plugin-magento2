@@ -456,7 +456,7 @@ class Order extends AbstractModel
             ->addFieldToSelect('order_id')
             ->load()
             ->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return $results[0]['order_id'];
         }
         return false;
@@ -477,7 +477,7 @@ class Order extends AbstractModel
             ->addFieldToFilter('delivery_address_id', $deliveryAddressId)
             ->addFieldToSelect('id')
             ->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return $results[0]['id'];
         }
         return false;
@@ -498,7 +498,7 @@ class Order extends AbstractModel
             ->addFieldToFilter('delivery_address_id', $deliveryAddressId)
             ->addFieldToSelect('id')
             ->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return (int)$results[0]['id'];
         }
         return false;
@@ -517,7 +517,7 @@ class Order extends AbstractModel
             ->addFieldToFilter('order_id', $orderId)
             ->addFieldToSelect('id')
             ->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return (int)$results[0]['id'];
         }
         return false;
@@ -571,7 +571,7 @@ class Order extends AbstractModel
         $params = [];
         if ($lengowOrder->getData('order_lengow_state') !== $orderStateLengow) {
             $params['order_lengow_state'] = $orderStateLengow;
-            $params['carrier_tracking'] = count($trackings) > 0 ? (string)$trackings[0]->number : null;
+            $params['carrier_tracking'] = !empty($trackings) ? (string)$trackings[0]->number : null;
         }
         if ($orderProcessState === self::PROCESS_STATE_FINISH) {
             if ((int)$lengowOrder->getData('order_process_state') !== $orderProcessState) {
@@ -581,7 +581,7 @@ class Order extends AbstractModel
                 $params['is_in_error'] = 0;
             }
         }
-        if (count($params) > 0) {
+        if (!empty($params)) {
             $lengowOrder->updateOrder($params);
         }
         try {
@@ -593,10 +593,11 @@ class Order extends AbstractModel
                         || $order->getState() === $this->getOrderState(self::STATE_NEW))
                     && ($orderStateLengow === self::STATE_SHIPPED || $orderStateLengow === self::STATE_CLOSED)
                 ) {
-                    if (count($trackings) > 0) {
-                        $carrierName = !is_null($trackings[0]->carrier) ? (string)$trackings[0]->carrier : null;
-                        $carrierMethod = !is_null($trackings[0]->method) ? (string)$trackings[0]->method : null;
-                        $trackingNumber = !is_null($trackings[0]->number) ? (string)$trackings[0]->number : null;
+                    if (!empty($trackings)) {
+                        $tracking = $trackings[0];
+                        $carrierName = $tracking->carrier !== null ? (string)$tracking->carrier : null;
+                        $carrierMethod = $tracking->method !== null ? (string)$tracking->method : null;
+                        $trackingNumber = $tracking->number !== null ? (string)$tracking->number : null;
                     }
                     $this->toShip(
                         $order,
@@ -683,9 +684,9 @@ class Order extends AbstractModel
                 $shipment->register();
                 $shipment->getOrder()->setIsInProcess(true);
                 // add tracking information
-                if (!is_null($trackingNumber) && $trackingNumber !== '') {
+                if ($trackingNumber !== null && $trackingNumber !== '') {
                     $title = $carrierName;
-                    if (is_null($title) || $title === 'None') {
+                    if ($title === null || $title === 'None') {
                         $title = $carrierMethod;
                     }
                     $track = $this->_trackFactory->create()
@@ -713,7 +714,7 @@ class Order extends AbstractModel
             ->addFieldToFilter('order_id', $orderId)
             ->addFieldToSelect('marketplace_sku')
             ->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return $results[0]['marketplace_sku'];
         }
         return false;
@@ -731,7 +732,7 @@ class Order extends AbstractModel
         $results = $this->_orderCollection->create()
             ->addFieldToFilter('order_id', $orderId)
             ->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return (int)$results[0]['id'];
         }
         return false;
@@ -760,7 +761,7 @@ class Order extends AbstractModel
             ->addFieldToFilter('main_table.order_process_state', ['eq' => 1])
             ->addFieldToFilter('main_table.is_in_error', ['eq' => 0])
             ->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return $results;
         }
         return false;
@@ -804,7 +805,7 @@ class Order extends AbstractModel
         $orderLengow = $this->_lengowOrderFactory->create()->load($orderLengowId);
         if ((int)$orderLengow->getData('order_process_state') === 1 && (bool)$orderLengow->getData('is_in_error')) {
             $orderId = $orderLengow->getData('order_id');
-            if (!is_null($orderId)) {
+            if ($orderId !== null) {
                 $order = $this->_orderFactory->create()->load($orderId);
                 $action = $this->_action->getLastOrderActionType($orderId);
                 if (!$action) {
@@ -1052,7 +1053,7 @@ class Order extends AbstractModel
             $orderLines[(int)$package->delivery->id] = $productLines;
         }
         $return = isset($orderLines[$deliveryAddressId]) ? $orderLines[$deliveryAddressId] : [];
-        return count($return) > 0 ? $return : false;
+        return !empty($return) ? $return : false;
     }
 
     /**
@@ -1070,7 +1071,7 @@ class Order extends AbstractModel
             ->addFieldToFilter('marketplace_name', $marketplaceName)
             ->addFieldToSelect('order_id')
             ->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return $results;
         }
         return false;
@@ -1086,7 +1087,7 @@ class Order extends AbstractModel
         $results = $this->_orderCollection->create()
             ->addFieldToSelect('id')
             ->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return $results;
         }
         return false;
@@ -1104,7 +1105,7 @@ class Order extends AbstractModel
     public function synchronizeOrder($lengowOrder, $connector = null, $logOutput = false)
     {
         list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessIds();
-        if (is_null($connector)) {
+        if ($connector === null) {
             if ($this->_connector->isValidAuth($logOutput)) {
                 $this->_connector->init(['access_token' => $accessToken, 'secret' => $secretToken]);
             } else {
@@ -1139,7 +1140,7 @@ class Order extends AbstractModel
                 $this->_dataHelper->log(DataHelper::CODE_CONNECTOR, $error, $logOutput);
                 return false;
             }
-            if (is_null($result)
+            if ($result === null
                 || (isset($result['detail']) && $result['detail'] === 'Pas trouvé.')
                 || isset($result['error'])
             ) {

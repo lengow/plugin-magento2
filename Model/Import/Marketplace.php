@@ -348,7 +348,7 @@ class Marketplace extends AbstractModel
             // check required arguments and clean value for empty optionals arguments
             $params = $this->_checkAndCleanParams($action, $params);
             // complete the values with the specific values of the account
-            if (!is_null($orderLineId)) {
+            if ($orderLineId !== null) {
                 $params[LengowAction::ARG_LINE] = $orderLineId;
             }
             $params['marketplace_order_id'] = $lengowOrder->getData('marketplace_sku');
