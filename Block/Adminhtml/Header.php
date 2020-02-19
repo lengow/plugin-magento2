@@ -19,12 +19,12 @@
 
 namespace Lengow\Connector\Block\Adminhtml;
 
-use Lengow\Connector\Model\Connector;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
+use Lengow\Connector\Model\Connector;
 
 class Header extends Template
 {
@@ -138,7 +138,7 @@ class Header extends Template
     }
 
     /**
-     * Recovers the number of days of free trial
+     * Get new plugin version
      *
      * @return string
      */
@@ -148,7 +148,7 @@ class Header extends Template
     }
 
     /**
-     * Recovers the number of days of free trial
+     * Get new plugin download link
      *
      * @return string
      */
