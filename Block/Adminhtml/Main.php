@@ -24,6 +24,7 @@ use Magento\Backend\Block\Template\Context;
 use Magento\Framework\Locale\Resolver as Locale;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
+use Lengow\Connector\Model\Connector;
 
 class Main extends Template
 {
@@ -113,5 +114,25 @@ class Main extends Template
     public function getIsoCode()
     {
         return strtolower(substr($this->_locale->getLocale(), 0, 2));
+    }
+
+    /**
+     * Get lengow url
+     *
+     * @return string
+     */
+    public function getLengowUrl()
+    {
+        return Connector::LENGOW_URL;
+    }
+
+    /**
+     * Get Lengow solution url
+     *
+     * @return string
+     */
+    public function getLengowSolutionUrl()
+    {
+        return '//my.' . Connector::LENGOW_URL;
     }
 }

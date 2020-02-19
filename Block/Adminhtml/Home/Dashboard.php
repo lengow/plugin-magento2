@@ -22,6 +22,7 @@ namespace Lengow\Connector\Block\Adminhtml\Home;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Lengow\Connector\Helper\Sync as SyncHelper;
+use Lengow\Connector\Model\Connector;
 use Lengow\Connector\Model\Import\Order;
 
 class Dashboard extends Template
@@ -61,6 +62,16 @@ class Dashboard extends Template
             $this->_numberOrderToBeSent = $this->_lengowOrder->countOrderToBeSent();
         }
         parent::__construct($context, $data);
+    }
+
+    /**
+     * Get Lengow solution url
+     *
+     * @return string
+     */
+    public function getLengowSolutionUrl()
+    {
+        return '//my.' . Connector::LENGOW_URL;
     }
 
     /**

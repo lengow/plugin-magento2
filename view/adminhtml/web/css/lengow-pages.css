@@ -37,7 +37,8 @@ body.lengow-connector .middle {
 
 /* COUNTER FREE TRIAL */
 
-body:not(.lengow-home-index) #lgw-counter {
+body:not(.lengow-home-index) #lgw-counter,
+body:not(.lengow-home-index) #lgw-plugin-available {
   background: #cdf1ff;
   border: 1px solid #00aeef;
   border-radius: 3px;
@@ -47,12 +48,14 @@ body:not(.lengow-home-index) #lgw-counter {
   display: inline-block;
 }
 
-#lgw-counter a {
+#lgw-counter a,
+#lgw-plugin-available a {
   color: #555;
   text-decoration: underline;
 }
 
-#lgw-counter a:hover {
+#lgw-counter a:hover,
+#lgw-plugin-available a:hover {
   color: #00aeef;
   text-decoration: underline;
 }
@@ -69,24 +72,31 @@ body:not(.lengow-home-index) #lgw-counter {
 
 /*Counter*/
 
-.lengow-home-index #lgw-counter {
+.lengow-home-index #lgw-counter,
+.lengow-home-index #lgw-plugin-available {
   color: #555;
   margin-top: 20px;
   font-size: 12px;
 }
 
-.lengow-home-index #lgw-counter a {
+.lengow-home-index #lgw-counter a,
+.lengow-home-index #lgw-plugin-available a {
   color: #00aeef;
   text-decoration: none;
 }
 
-.lengow-home-index #lgw-counter a:hover {
+.lengow-home-index #lgw-counter a:hover,
+.lengow-home-index #lgw-plugin-available a:hover {
   text-decoration: underline;
 }
 
+.lengow-home-index #lgw-counter,
+.lengow-home-indexr #lgw-plugin-available {
+  margin-bottom: 10px;
+}
+
 .lengow-home-index #lgw-free-trial a:hover,
-.lengow-home-index #lgw-bad-payer a:hover
-{
+.lengow-home-index #lgw-bad-payer a:hover {
   text-decoration: none;
 }
 
