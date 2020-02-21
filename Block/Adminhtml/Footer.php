@@ -22,6 +22,7 @@ namespace Lengow\Connector\Block\Adminhtml;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Lengow\Connector\Helper\Security as SecurityHelper;
+use Lengow\Connector\Model\Connector;
 
 class Footer extends Template
 {
@@ -54,6 +55,16 @@ class Footer extends Template
     public function getPluginVersion()
     {
         return $this->_securityHelper->getPluginVersion();
+    }
+
+    /**
+     * Get preprod warning
+     *
+     * @return string
+     */
+    public function isPreprodPlugin()
+    {
+        return Connector::LENGOW_URL === 'lengow.net';
     }
 
     /**

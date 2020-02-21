@@ -15,6 +15,8 @@ de:
     preprod_active: "Vorproduktionsmodus"
     counter: "Testzeitraum: %1 Tag(e) verbleiben."
     upgrade_account: "Jetzt anmelden!"
+    new_version_available: "Eine neue Version %1 ist verfügbar!"
+    download_plugin: "Herunterladen"
   footer:
     toolbox: "Toolbox"
     legals: "Rechtshinweise"
@@ -54,7 +56,7 @@ de:
       nb_available: "Produkte verfügbar"
       include_specific_product: "Spezifische Produkte einbeziehen"
       include_specific_product_support: "Verwenden Sie diese Option, um Ihre Produkte einzeln auszuwählen"
-      button_download: "Download"
+      button_download: "Herunterladen"
     table:
       id: "ID"
       image: "Image"

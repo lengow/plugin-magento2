@@ -9,14 +9,18 @@
 ?>
 
 <div id="footer" class="lgw-footer">
-    <div class="pull-right">
+    <div class="text-center">
         <a href="<?= $block->getUrl('lengow/toolbox/index') ?>" class="sub-link" title="<?= $block->escapeHtml(__('Toolbox')) ?>">
             <?= $block->escapeHtml(__('Toolbox')) ?>
         </a> |
         <a href="<?= $block->getUrl('lengow/legal/index') ?>" class="sub-link" title="<?= $block->escapeHtml(__('Legal notices')) ?>">
             <?= $block->escapeHtml(__('Legal notices')) ?>
         </a> |
-        <?= $block->escapeHtml(__('Lengow Magento Plugin')) ?> - v.<?= $block->getPluginVersion() ?> |
+        <?= $block->escapeHtml(__('Lengow Magento Plugin')) ?> - v.<?= $block->getPluginVersion() ?>
+        <?php if($block->isPreprodPlugin()): ?>
+            <span class="lgw-label-preprod">preprod</span>
+        <?php endif; ?>
+        |
         <?= $block->getPluginCopyright() ?>
         <a href="<?= $block->escapeHtml(__('http://www.lengow.com/')) ?>" class="sub-link" title="Lengow.com" target="_blank">
             Lengow

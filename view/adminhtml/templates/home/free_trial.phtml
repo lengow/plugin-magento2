@@ -18,7 +18,7 @@
                 <p class="text-center"><?= $block->escapeHtml(__("Don't forget that trial accounts are deleted 30 days after the end of the trial period. Make sure to subscribe so you do not lose the work you've done building channels.")) ?></p>
                 <div class="text-center">
                     <button type="button" class="lgw-btn">
-                        <a href="http://my.lengow.io/" target="_blank">
+                        <a href="<?= $block->getLengowSolutionUrl() ?>" target="_blank">
                             <?= $block->escapeHtml(__("It's ok, I'm ready to subscribe!")) ?>
                         </a>
                     </button>

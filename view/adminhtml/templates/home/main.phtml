@@ -11,6 +11,7 @@
     <?= $block->getChildHtml('lengow_home_new') ?>
     <input type="hidden" id="lengow_sync_link" value="<?= $block->isSync() ?>">
     <input type="hidden" id="lengow_lang_iso" value="<?= $block->getIsoCode() ?>">
+    <input type="hidden" id="lengow_url" value="<?= $block->getLengowUrl() ?>">
 <?php elseif ($block->freeTrialIsExpired()): ?>
     <?= $block->getChildHtml('lengow_home_free_trial') ?>
 <?php else: ?>
