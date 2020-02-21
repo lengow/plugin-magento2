@@ -559,6 +559,7 @@ class Importorder extends AbstractModel
         // get a record in the lengow order table
         $this->_orderLengowId = $this->_lengowOrder->getLengowOrderId(
             $this->_marketplaceSku,
+            $this->_marketplace->name,
             $this->_deliveryAddressId
         );
         // if order is cancelled or new -> skip
@@ -1259,32 +1260,30 @@ class Importorder extends AbstractModel
     protected function _createLengowOrder()
     {
         // get all params to create order
-        if ($this->_orderData->marketplace_order_date !== null) {
-            $orderDate = (string)$this->_orderData->marketplace_order_date;
-        } else {
-            $orderDate = (string)$this->_orderData->imported_at;
-        }
+        $orderDate = $this->_orderData->marketplace_order_date !== null
+            ? (string)$this->_orderData->marketplace_order_date
+            : (string)$this->_orderData->imported_at;
+        $message = (isset($this->_orderData->comments) && is_array($this->_orderData->comments))
+            ? join(',', $this->_orderData->comments)
+            : (string)$this->_orderData->comments;
         $params = [
             'store_id' => (int)$this->_storeId,
             'marketplace_sku' => $this->_marketplaceSku,
-            'marketplace_name' => strtolower((string)$this->_orderData->marketplace),
+            'marketplace_name' => $this->_marketplace->name,
             'marketplace_label' => (string)$this->_marketplaceLabel,
             'delivery_address_id' => (int)$this->_deliveryAddressId,
             'order_lengow_state' => $this->_orderStateLengow,
             'order_date' => $this->_dateTime->gmtDate('Y-m-d H:i:s', strtotime($orderDate)),
+            'message' => $message,
             'is_in_error' => 1,
         ];
-        if (isset($this->_orderData->comments) && is_array($this->_orderData->comments)) {
-            $params['message'] = join(',', $this->_orderData->comments);
-        } else {
-            $params['message'] = (string)$this->_orderData->comments;
-        }
         // create lengow order
         $lengowOrder = $this->_lengowOrderFactory->create();
         $lengowOrder->createOrder($params);
         // get lengow order id
         $this->_orderLengowId = $lengowOrder->getLengowOrderId(
             $this->_marketplaceSku,
+            $this->_marketplace->name,
             $this->_deliveryAddressId
         );
         if (!$this->_orderLengowId) {

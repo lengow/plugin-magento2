@@ -11,6 +11,7 @@ Version 1.2.0
     - Bugfix: [action] Improved carrier matching with a strict then approximate search
     - Bugfix: [export] Recovery of correct shipping costs for each product
     - Bugfix: [import] Saving the marketplaces.json file in the Magento media folder
+    - Bugfix: [import] Enhanced security for orders that change their marketplace name
 
 =============================================================
 Version 1.1.5
