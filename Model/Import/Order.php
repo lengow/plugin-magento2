@@ -487,14 +487,16 @@ class Order extends AbstractModel
      * Get ID record from lengow orders table
      *
      * @param string $marketplaceSku marketplace sku
+     * @param string $marketplaceName marketplace name
      * @param integer $deliveryAddressId delivery address id
      *
      * @return integer|false
      */
-    public function getLengowOrderId($marketplaceSku, $deliveryAddressId)
+    public function getLengowOrderId($marketplaceSku, $marketplaceName, $deliveryAddressId)
     {
         $results = $this->_orderCollection->create()
             ->addFieldToFilter('marketplace_sku', $marketplaceSku)
+            ->addFieldToFilter('marketplace_name', $marketplaceName)
             ->addFieldToFilter('delivery_address_id', $deliveryAddressId)
             ->addFieldToSelect('id')
             ->getData();
