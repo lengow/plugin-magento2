@@ -117,7 +117,7 @@ class Main extends Template
     }
 
     /**
-     * Get lengow url
+     * Get Lengow url
      *
      * @return string
      */
