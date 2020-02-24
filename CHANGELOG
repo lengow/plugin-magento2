@@ -6,6 +6,7 @@ Version 1.2.0
     - Feature: [import] Protection of the import of anonymized orders
     - Feature: Optimization of API calls for synchronisation of orders and actions
     - Feature: Display of an alert when the plugin is no longer up to date
+    - Feature: Renaming from Preprod Mode to Debug Mode
     - Bugfix: [import] Deleting order_date index on lengow_orders table
     - Bugfix: Refactoring and optimization of dates with the correct locale
     - Bugfix: [action] Improved carrier matching with a strict then approximate search

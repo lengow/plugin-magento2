@@ -157,8 +157,8 @@ class Content extends Template
             'state' => (bool)$this->_configHelper->get('export_cron_enable'),
         ];
         $checklist[] = [
-            'title' => __('Pre-production mode disabled'),
-            'state' => !(bool)$this->_configHelper->get('preprod_mode_enable'),
+            'title' => __('Debug Mode disabled'),
+            'state' => !$this->_configHelper->debugModeIsActive(),
         ];
         $sep = DIRECTORY_SEPARATOR;
         $filePath = $this->_dataHelper->getMediaPath() . $sep . DataHelper::LENGOW_FOLDER . $sep . 'test.txt';

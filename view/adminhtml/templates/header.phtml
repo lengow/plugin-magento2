@@ -7,9 +7,9 @@
 // @codingStandardsIgnoreFile
 /** @var Lengow\Connector\Block\Adminhtml\Header $block */
 ?>
-<?php if($block->preprodModeIsEnabled()): ?>
-    <span id="lgw-preprod">
-        <?= $block->escapeHtml(__('Pre-production mode')) ?>
+<?php if($block->debugModeIsEnabled()): ?>
+    <span id="lgw-debug">
+        <?= $block->escapeHtml(__('Debug Mode')) ?>
     </span>
 <?php endif; ?>
 <div class="lgw-row">

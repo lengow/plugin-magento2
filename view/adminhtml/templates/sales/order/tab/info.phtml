@@ -19,7 +19,7 @@ $fields = $block->getFields();
     </div>
     <?php if ($block->isOrderImportedByLengow()): ?>
         <?php if ($block->isOrderFollowedByLengow()): ?>
-            <?php if (!$block->preprodModeIsEnabled()): ?>
+            <?php if (!$block->debugModeIsEnabled()): ?>
                 <div id="lgw-info-btn">
                     <button type="button" class="primary">
                         <a href="<?= $block->getUrl('lengow/order/synchronize', ['order_id' => $block->getOrderId(), 'lengow_order_id' => $block->getLengowOrderId()]) ?>"

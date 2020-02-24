@@ -36,7 +36,7 @@
                 <import_report_mail_enable>1</import_report_mail_enable>
                 <import_ship_mp_enabled>0</import_ship_mp_enabled>
                 <import_stock_ship_mp>0</import_stock_ship_mp>
-                <import_preprod_mode_enable>0</import_preprod_mode_enable>
+                <import_debug_mode_enable>0</import_debug_mode_enable>
                 <import_cron_enable>0</import_cron_enable>
             </advanced>
         </lengow_import_options>

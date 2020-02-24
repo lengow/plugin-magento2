@@ -275,8 +275,8 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => false,
         ],
-        'preprod_mode_enable' => [
-            'path' => 'lengow_import_options/advanced/import_preprod_mode_enable',
+        'debug_mode_enable' => [
+            'path' => 'lengow_import_options/advanced/import_debug_mode_enable',
             'global' => true,
             'no_cache' => false,
         ],
@@ -536,14 +536,23 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Recovers if a store is active or not
+     *
+     * @return boolean
+     */
+    public function debugModeIsActive()
+    {
+        return (bool)$this->get('debug_mode_enable');
+    }
+
+    /**
      * Get all Magento customer group
      *
      * @return array
      */
     public function getAllCustomerGroup()
     {
-        $allCustomerGroups = $this->_customerGroupCollectionFactory->create()->toOptionArray();
-        return $allCustomerGroups;
+        return $this->_customerGroupCollectionFactory->create()->toOptionArray();
     }
 
     /**
@@ -584,29 +593,6 @@ class Config extends AbstractHelper
             $storeIds[] = $store->getId();
         }
         return $storeIds;
-    }
-
-    /**
-     * Get all available currency codes
-     *
-     * @return array
-     */
-    public function getAllAvailableCurrencyCodes()
-    {
-        $storeCollection = $this->_storeCollectionFactory->create();
-        $allCurrencies = [];
-        foreach ($storeCollection as $store) {
-            // get store currencies
-            $storeCurrencies = $store->getAvailableCurrencyCodes();
-            if (is_array($storeCurrencies)) {
-                foreach ($storeCurrencies as $currency) {
-                    if (!in_array($currency, $allCurrencies)) {
-                        $allCurrencies[] = $currency;
-                    }
-                }
-            }
-        }
-        return $allCurrencies;
     }
 
     /**
