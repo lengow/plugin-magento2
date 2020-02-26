@@ -376,7 +376,7 @@ class Sync extends AbstractHelper
      */
     public function setCmsOption($force = false, $logOutput = false)
     {
-        if ($this->_configHelper->isNewMerchant() || (bool)$this->_configHelper->get('preprod_mode_enable')) {
+        if ($this->_configHelper->isNewMerchant() || $this->_configHelper->debugModeIsActive()) {
             return false;
         }
         if (!$force) {

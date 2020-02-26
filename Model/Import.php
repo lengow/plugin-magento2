@@ -189,9 +189,9 @@ class Import
     protected $_importOneOrder = false;
 
     /**
-     * @var boolean use preprod mode
+     * @var boolean use debug mode
      */
-    protected $_preprodMode = false;
+    protected $_debugMode = false;
 
     /**
      * @var string|null marketplace order sku
@@ -333,14 +333,14 @@ class Import
      * integer days                import period
      * integer limit               number of orders to import
      * boolean log_output          display log messages
-     * boolean preprod_mode        preprod mode
+     * boolean debug_mode          debug mode
      */
     public function init($params)
     {
         // get generic params for synchronisation
-        $this->_preprodMode = isset($params['preprod_mode'])
-            ? (bool)$params['preprod_mode']
-            : (bool)$this->_configHelper->get('preprod_mode_enable');
+        $this->_debugMode = isset($params['debug_mode'])
+            ? (bool)$params['debug_mode']
+            : $this->_configHelper->debugModeIsActive();
         $this->_typeImport = isset($params['type']) ? $params['type'] : self::TYPE_MANUAL;
         $this->_logOutput = isset($params['log_output']) ? (bool)$params['log_output'] : false;
         $this->_storeId = isset($params['store_id']) ? (int)$params['store_id'] : null;
@@ -385,7 +385,7 @@ class Import
         $syncOk = true;
         // clean logs > 20 days
         $this->_dataHelper->cleanLog();
-        if ($this->_importHelper->importIsInProcess() && !$this->_preprodMode && !$this->_importOneOrder) {
+        if ($this->_importHelper->importIsInProcess() && !$this->_debugMode && !$this->_importOneOrder) {
             $globalError = $this->_dataHelper->setLogMessage(
                 'Import has already started. Please wait %1 seconds before re-importing orders',
                 [$this->_importHelper->restTimeToImport()]
@@ -409,10 +409,10 @@ class Import
                 $this->_dataHelper->setLogMessage('## start %1 import ##', [$this->_typeImport]),
                 $this->_logOutput
             );
-            if ($this->_preprodMode) {
+            if ($this->_debugMode) {
                 $this->_dataHelper->log(
                     DataHelper::CODE_IMPORT,
-                    $this->_dataHelper->setLogMessage('WARNING! Pre-production mode is activated'),
+                    $this->_dataHelper->setLogMessage('WARNING! Debug Mode is activated'),
                     $this->_logOutput
                 );
             }
@@ -551,11 +551,11 @@ class Import
                 $this->_logOutput
             );
             // sending email in error for orders
-            if ($this->_configHelper->get('report_mail_enable') && !$this->_preprodMode && !$this->_importOneOrder) {
+            if ($this->_configHelper->get('report_mail_enable') && !$this->_debugMode && !$this->_importOneOrder) {
                 $this->_importHelper->sendMailAlert($this->_logOutput);
             }
             // checking marketplace actions
-            if (!$this->_preprodMode && !$this->_importOneOrder && $this->_typeImport === self::TYPE_MANUAL) {
+            if (!$this->_debugMode && !$this->_importOneOrder && $this->_typeImport === self::TYPE_MANUAL) {
                 $this->_action->checkFinishAction($this->_logOutput);
                 $this->_action->checkOldAction($this->_logOutput);
                 $this->_action->checkActionNotSent($this->_logOutput);
@@ -610,7 +610,7 @@ class Import
             }
             $nbPackage = 0;
             $marketplaceSku = (string)$orderData->marketplace_order_id;
-            if ($this->_preprodMode) {
+            if ($this->_debugMode) {
                 $marketplaceSku .= '--' . time();
             }
             // set current order to cancel hook updateOrderStatus
@@ -660,7 +660,7 @@ class Import
                     $importOrderFactory->init(
                         [
                             'store_id' => $storeId,
-                            'preprod_mode' => $this->_preprodMode,
+                            'debug_mode' => $this->_debugMode,
                             'log_output' => $this->_logOutput,
                             'marketplace_sku' => $marketplaceSku,
                             'delivery_address_id' => $packageDeliveryAddressId,
@@ -689,8 +689,8 @@ class Import
                     continue;
                 }
                 if (isset($order)) {
-                    // sync to lengow if no preprod_mode
-                    if (!$this->_preprodMode && isset($order['order_new']) && $order['order_new']) {
+                    // sync to lengow if no debug_mode
+                    if (!$this->_debugMode && isset($order['order_new']) && $order['order_new']) {
                         $lengowOrder = $this->_lengowOrderFactory->create()->load($order['order_lengow_id']);
                         $synchro = $this->_lengowOrderFactory->create()->synchronizeOrder(
                             $lengowOrder,

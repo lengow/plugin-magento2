@@ -21,7 +21,7 @@ en:
       error_join_table: "the junction with the %1 table did not work"
     import:
       not_valid_action: "Action: %1 is not a valid action"
-      preprod_mode_active: "WARNING! Pre-production mode is activated"
+      debug_mode_active: "WARNING! Debug Mode is activated"
       start: "## start %1 import ##"
       end: "## end %1 import ##"
       start_for_store: "start import in store %1 (%2)"

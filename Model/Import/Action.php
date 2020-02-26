@@ -469,7 +469,7 @@ class Action extends AbstractModel
      */
     public function sendAction($params, $order, $lengowOrder)
     {
-        if (!(bool)$this->_configHelper->get('preprod_mode_enable')) {
+        if (!$this->_configHelper->debugModeIsActive()) {
             $result = $this->_connector->queryApi(Connector::POST, Connector::API_ORDER_ACTION, $params);
             if (isset($result->id)) {
                 $action = $this->_actionFactory->create();
@@ -549,7 +549,7 @@ class Action extends AbstractModel
      */
     public function checkFinishAction($logOutput = false)
     {
-        if ((bool)$this->_configHelper->get('preprod_mode_enable')) {
+        if ($this->_configHelper->debugModeIsActive()) {
             return false;
         }
         $this->_dataHelper->log(
@@ -683,7 +683,7 @@ class Action extends AbstractModel
      */
     public function checkOldAction($logOutput = false)
     {
-        if ((bool)$this->_configHelper->get('preprod_mode_enable')) {
+        if ($this->_configHelper->debugModeIsActive()) {
             return false;
         }
         $this->_dataHelper->log(
@@ -762,7 +762,7 @@ class Action extends AbstractModel
      */
     public function checkActionNotSent($logOutput = false)
     {
-        if ((bool)$this->_configHelper->get('preprod_mode_enable')) {
+        if ($this->_configHelper->debugModeIsActive()) {
             return false;
         }
         $this->_dataHelper->log(

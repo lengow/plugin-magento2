@@ -78,13 +78,13 @@ class Header extends Template
     }
 
     /**
-     * Preprod mode is enabled
+     * Debug Mode is enabled
      *
      * @return boolean
      */
-    public function preprodModeIsEnabled()
+    public function debugModeIsEnabled()
     {
-        return (bool)$this->_configHelper->get('preprod_mode_enable');
+        return $this->_configHelper->debugModeIsActive();
     }
 
     /**

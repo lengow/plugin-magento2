@@ -256,9 +256,9 @@ class Importorder extends AbstractModel
     protected $_storeId = null;
 
     /**
-     * @var boolean use preprod mode
+     * @var boolean use debug mode
      */
-    protected $_preprodMode = false;
+    protected $_debugMode = false;
 
     /**
      * @var boolean display log messages
@@ -472,7 +472,7 @@ class Importorder extends AbstractModel
     public function init($params)
     {
         $this->_storeId = $params['store_id'];
-        $this->_preprodMode = $params['preprod_mode'];
+        $this->_debugMode = $params['debug_mode'];
         $this->_logOutput = $params['log_output'];
         $this->_marketplaceSku = $params['marketplace_sku'];
         $this->_deliveryAddressId = $params['delivery_address_id'];
@@ -544,7 +544,7 @@ class Importorder extends AbstractModel
         }
         // checks if an external id already exists
         $orderMagentoId = $this->_checkExternalIds($this->_orderData->merchant_order_id);
-        if ($orderMagentoId && !$this->_preprodMode && !$this->_isReimported) {
+        if ($orderMagentoId && !$this->_debugMode && !$this->_isReimported) {
             $this->_dataHelper->log(
                 DataHelper::CODE_IMPORT,
                 $this->_dataHelper->setLogMessage(

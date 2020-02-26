@@ -72,6 +72,12 @@ class UpgradeData implements UpgradeDataInterface {
 
             $this->_configHelper->delete('lengow_global_options/advanced/order_statistic');
             $this->_configHelper->delete('lengow_global_options/advanced/last_statistic_update');
+
+            // *************************************************************
+            // Delete preprod mode configuration for versions 1.0.0 - 1.1.5
+            // *************************************************************
+
+            $this->_configHelper->delete('lengow_import_options/advanced/import_preprod_mode_enable');
         }
 
 
