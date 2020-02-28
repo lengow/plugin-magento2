@@ -22,31 +22,31 @@ namespace Lengow\Connector\Controller\Adminhtml\Order;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Lengow\Connector\Helper\Data as DataHelper;
-use Lengow\Connector\Model\Import\OrderFactory;
+use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 
 class MassReSend extends Action
 {
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var DataHelper Lengow data helper instance
      */
     protected $_dataHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order factory instance
+     * @var LengowOrderFactory Lengow order factory instance
      */
     protected $_orderFactory;
 
     /**
      * Constructor
      *
-     * @param \Magento\Backend\App\Action\Context $context Magento action context instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Model\Import\OrderFactory $orderFactory Lengow order factory instance
+     * @param Context $context Magento action context instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param LengowOrderFactory $orderFactory Lengow order factory instance
      */
     public function __construct(
         Context $context,
         DataHelper $dataHelper,
-        OrderFactory $orderFactory
+        LengowOrderFactory $orderFactory
     )
     {
         $this->_dataHelper = $dataHelper;

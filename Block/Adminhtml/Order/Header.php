@@ -27,21 +27,21 @@ use Lengow\Connector\Helper\Import as ImportHelper;
 class Header extends Template
 {
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Import Lengow import helper instance
+     * @var ImportHelper Lengow import helper instance
      */
     protected $_importHelper;
 
     /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
+     * @param Context $context Magento block context instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param ImportHelper $importHelper Lengow import helper instance
      * @param array $data additional params
      */
     public function __construct(
@@ -49,7 +49,8 @@ class Header extends Template
         ConfigHelper $configHelper,
         ImportHelper $importHelper,
         array $data = []
-    ) {
+    )
+    {
         $this->_configHelper = $configHelper;
         $this->_importHelper = $importHelper;
         parent::__construct($context, $data);
@@ -68,7 +69,7 @@ class Header extends Template
     /**
      * Get Lengow import helper instance
      *
-     * @return \Lengow\Connector\Helper\Import
+     * @return ImportHelper
      */
     public function getImportHelper()
     {

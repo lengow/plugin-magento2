@@ -19,8 +19,10 @@
 
 namespace Lengow\Connector\Model\Export;
 
-use Magento\Framework\Pricing\PriceCurrencyInterface as PriceCurrency;
+use Magento\Catalog\Model\Product\Interceptor as ProductInterceptor;
+use Magento\Store\Model\Store\Interceptor as StoreInterceptor;
 use Magento\CatalogRule\Model\Rule as CatalogueRule;
+use Magento\Framework\Pricing\PriceCurrencyInterface as PriceCurrency;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 
@@ -30,34 +32,34 @@ use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 class Price
 {
     /**
-     * @var \Magento\Framework\Pricing\PriceCurrencyInterface Magento price currency instance
-     */
-    protected $_priceCurrency;
-
-    /**
-     * @var \Magento\CatalogRule\Model\Rule Magento catalogue rule instance
-     */
-    protected $_catalogueRule;
-
-    /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
-     */
-    protected $_dateTime;
-
-    /**
-     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
-     */
-    protected $_timezone;
-
-    /**
-     * @var \Magento\Catalog\Model\Product\Interceptor Magento product instance
+     * @var ProductInterceptor Magento product instance
      */
     protected $_product;
 
     /**
-     * @var \Magento\Store\Model\Store\Interceptor Magento store instance
+     * @var StoreInterceptor Magento store instance
      */
     protected $_store;
+
+    /**
+     * @var CatalogueRule Magento catalogue rule instance
+     */
+    protected $_catalogueRule;
+
+    /**
+     * @var PriceCurrency Magento price currency instance
+     */
+    protected $_priceCurrency;
+
+    /**
+     * @var DateTime Magento datetime instance
+     */
+    protected $_dateTime;
+
+    /**
+     * @var TimezoneInterface Magento datetime timezone instance
+     */
+    protected $_timezone;
 
     /**
      * @var string currency code for conversion
@@ -112,17 +114,18 @@ class Price
     /**
      * Constructor
      *
-     * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency Magento price currency instance
-     * @param \Magento\CatalogRule\Model\Rule $catalogueRule Magento catalogue rule instance
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
-     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
+     * @param PriceCurrency $priceCurrency Magento price currency instance
+     * @param CatalogueRule $catalogueRule Magento catalogue rule instance
+     * @param DateTime $dateTime Magento datetime instance
+     * @param TimezoneInterface $timezone Magento datetime timezone instance
      */
     public function __construct(
         PriceCurrency $priceCurrency,
         CatalogueRule $catalogueRule,
         DateTime $dateTime,
         TimezoneInterface $timezone
-    ) {
+    )
+    {
         $this->_priceCurrency = $priceCurrency;
         $this->_catalogueRule = $catalogueRule;
         $this->_dateTime = $dateTime;
@@ -133,8 +136,8 @@ class Price
      * init a new price
      *
      * @param array $params optional options for load a specific product
-     * \Magento\Store\Model\Store\Interceptor store    Magento store instance
-     * string                                 currency Currency iso code for conversion
+     * StoreInterceptor store    Magento store instance
+     * string           currency Currency iso code for conversion
      */
     public function init($params)
     {
@@ -147,7 +150,7 @@ class Price
      * Load a new price with a specific params
      *
      * @param array $params optional options for load a specific price
-     * \Magento\Catalog\Model\Product\Interceptor product Magento product instance
+     * ProductInterceptor product Magento product instance
      */
     public function load($params)
     {

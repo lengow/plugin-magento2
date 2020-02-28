@@ -26,50 +26,50 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
-use Lengow\Connector\Model\Export;
+use Lengow\Connector\Model\Export as LengowExport;
 
 class Index extends Action
 {
     /**
-     * @var \Magento\Catalog\Model\Product\Action Magento product action instance
+     * @var ProductAction Magento product action instance
      */
     protected $_productAction;
 
     /**
-     * @var \Magento\Framework\Controller\Result\JsonFactory Magento json factory instance
+     * @var JsonFactory Magento json factory instance
      */
     protected $_resultJsonFactory;
 
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var DataHelper Lengow data helper instance
      */
     protected $_dataHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     * @var SyncHelper Lengow sync helper instance
      */
     protected $_syncHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Export Lengow export instance
+     * @var LengowExport Lengow export instance
      */
     protected $_export;
 
     /**
      * Constructor
      *
-     * @param \Magento\Backend\App\Action\Context $context Magento action context instance
-     * @param \Magento\Catalog\Model\Product\Action $productAction Magento product action instance
-     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory Magento json factory instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
-     * @param \Lengow\Connector\Model\Export $export Lengow export instance
+     * @param Context $context Magento action context instance
+     * @param ProductAction $productAction Magento product action instance
+     * @param JsonFactory $resultJsonFactory Magento json factory instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param SyncHelper $syncHelper Lengow sync helper instance
+     * @param LengowExport $export Lengow export instance
      */
     public function __construct(
         Context $context,
@@ -78,8 +78,9 @@ class Index extends Action
         ConfigHelper $configHelper,
         DataHelper $dataHelper,
         SyncHelper $syncHelper,
-        Export $export
-    ) {
+        LengowExport $export
+    )
+    {
         $this->_productAction = $productAction;
         $this->_resultJsonFactory = $resultJsonFactory;
         $this->_configHelper = $configHelper;

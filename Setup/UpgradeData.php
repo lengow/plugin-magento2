@@ -20,23 +20,23 @@
 
 namespace Lengow\Connector\Setup;
 
-use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
+use Magento\Framework\Setup\UpgradeDataInterface;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
 
-class UpgradeData implements UpgradeDataInterface {
-
+class UpgradeData implements UpgradeDataInterface
+{
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
      * Constructor
      *
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
      */
     public function __construct(ConfigHelper $configHelper)
     {

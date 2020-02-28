@@ -19,9 +19,9 @@
 
 namespace Lengow\Connector\Ui\Component\Listing\Column;
 
-use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
+use Magento\Ui\Component\Listing\Columns\Column;
 use Lengow\Connector\Model\Import\Action as LengowAction;
 
 class ActionParameters extends Column
@@ -29,8 +29,8 @@ class ActionParameters extends Column
     /**
      * Constructor
      *
-     * @param \Magento\Framework\View\Element\UiComponent\ContextInterface $context Magento ui context instance
-     * @param \Magento\Framework\View\Element\UiComponentFactory $uiComponentFactory Magento ui factory instance
+     * @param ContextInterface $context Magento ui context instance
+     * @param UiComponentFactory $uiComponentFactory Magento ui factory instance
      * @param array $components component data
      * @param array $data additional params
      */
@@ -39,7 +39,8 @@ class ActionParameters extends Column
         UiComponentFactory $uiComponentFactory,
         array $components = [],
         array $data = []
-    ) {
+    )
+    {
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 

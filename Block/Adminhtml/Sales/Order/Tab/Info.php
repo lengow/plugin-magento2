@@ -20,13 +20,15 @@
 namespace Lengow\Connector\Block\Adminhtml\Sales\Order\Tab;
 
 use Magento\Backend\Block\Template;
-use Magento\Backend\Block\Widget\Tab\TabInterface;
 use Magento\Backend\Block\Template\Context;
+use Magento\Backend\Block\Widget\Tab\TabInterface;
 use Magento\Framework\Registry;
+use Magento\Sales\Model\Order;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Model\Import\Action as LengowAction;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
-use Lengow\Connector\Model\Import\Action;
 
 class Info extends Template implements TabInterface
 {
@@ -36,50 +38,49 @@ class Info extends Template implements TabInterface
     protected $_template = 'sales/order/tab/info.phtml';
 
     /**
-     * @var \Magento\Framework\Registry Magento Registry instance
+     * @var Registry Magento Registry instance
      */
     protected $_coreRegistry;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
-     */
-    protected $_dataHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
-     */
-    protected $_configHelper;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order factory instance
-     */
-    protected $_lengowOrderFactory;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\Action Lengow action instance
-     */
-    protected $_action;
-
-    /**
-     * @var \Magento\Sales\Model\Order Magento order instance
+     * @var Order Magento order instance
      */
     protected $_order;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Order Lengow order instance
+     * @var DataHelper Lengow data helper instance
+     */
+    protected $_dataHelper;
+
+    /**
+     * @var ConfigHelper Lengow config helper instance
+     */
+    protected $_configHelper;
+
+    /**
+     * @var LengowAction Lengow action instance
+     */
+    protected $_action;
+
+    /**
+     * @var LengowOrder Lengow order instance
      */
     protected $_lengowOrder;
 
+    /**
+     * @var LengowOrderFactory Lengow order factory instance
+     */
+    protected $_lengowOrderFactory;
 
     /**
      * Construct
      *
-     * @param \Magento\Backend\Block\Template\Context $context Magento Context instance
-     * @param \Magento\Framework\Registry $coreRegistry Magento Registry instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order factory instance
-     * @param \Lengow\Connector\Model\Import\Action $action Lengow action instance
+     * @param Context $context Magento Context instance
+     * @param Registry $coreRegistry Magento Registry instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param LengowOrderFactory $lengowOrderFactory Lengow order factory instance
+     * @param LengowAction $action Lengow action instance
      * @param array $data
      */
     public function __construct(
@@ -88,7 +89,7 @@ class Info extends Template implements TabInterface
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         LengowOrderFactory $lengowOrderFactory,
-        Action $action,
+        LengowAction $action,
         array $data = []
     )
     {
@@ -145,7 +146,7 @@ class Info extends Template implements TabInterface
     /**
      * Retrieve order model instance
      *
-     * @return \Magento\Sales\Model\Order
+     * @return Order
      */
     public function getOrder()
     {
@@ -155,7 +156,7 @@ class Info extends Template implements TabInterface
     /**
      * Get Lengow order by Magento order id
      *
-     * @return \Lengow\Connector\Model\Import\Order|false
+     * @return LengowOrder|false
      */
     public function getLengowOrder()
     {

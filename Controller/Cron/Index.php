@@ -22,11 +22,11 @@ namespace Lengow\Connector\Controller\Cron;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
-use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
-use Lengow\Connector\Model\Import as LengowImport;
 use Lengow\Connector\Model\Import\Action as LengowAction;
+use Lengow\Connector\Model\Import as LengowImport;
 
 /**
  * CronController
@@ -34,45 +34,45 @@ use Lengow\Connector\Model\Import\Action as LengowAction;
 class Index extends Action
 {
     /**
-     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
+     * @var JsonHelper Magento json helper instance
      */
     protected $_jsonHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Security Lengow security helper instance
-     */
-    protected $_securityHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     * @var SecurityHelper Lengow security helper instance
+     */
+    protected $_securityHelper;
+
+    /**
+     * @var SyncHelper Lengow sync helper instance
      */
     protected $_syncHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Import Lengow import instance
-     */
-    protected $_import;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\Action Lengow action instance
+     * @var LengowAction Lengow action instance
      */
     protected $_action;
 
     /**
+     * @var LengowImport Lengow import instance
+     */
+    protected $_import;
+
+    /**
      * Constructor
      *
-     * @param \Magento\Framework\App\Action\Context $context Magento action context instance
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
-     * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
-     * @param \Lengow\Connector\Model\Import $import Lengow import instance
-     * @param \Lengow\Connector\Model\Import\Action $action Lengow action instance
+     * @param Context $context Magento action context instance
+     * @param JsonHelper $jsonHelper Magento json helper instance
+     * @param SecurityHelper $securityHelper Lengow security helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param SyncHelper $syncHelper Lengow sync helper instance
+     * @param LengowImport $import Lengow import instance
+     * @param LengowAction $action Lengow action instance
      */
     public function __construct(
         Context $context,

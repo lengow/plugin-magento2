@@ -19,18 +19,18 @@
 
 namespace Lengow\Connector\Helper;
 
-use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\Driver\File as DriverFile;
+use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Module\Dir\Reader;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
-use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Security as SecurityHelper;
-use Lengow\Connector\Model\Connector as Connector;
-use Lengow\Connector\Model\Export as Export;
+use Lengow\Connector\Model\Connector as LengowConnector;
+use Lengow\Connector\Model\Export as LengowExport;
 
 class Sync extends AbstractHelper
 {
@@ -80,47 +80,47 @@ class Sync extends AbstractHelper
     public static $statusAccount;
 
     /**
-     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
-     */
-    protected $_jsonHelper;
-
-    /**
-     * @var \Magento\Framework\Filesystem\Driver\File Magento driver file instance
+     * @var DriverFile Magento driver file instance
      */
     protected $_driverFile;
 
     /**
-     * @var \Magento\Framework\Module\Dir\Reader Magento module reader instance
+     * @var JsonHelper Magento json helper instance
+     */
+    protected $_jsonHelper;
+
+    /**
+     * @var Reader Magento module reader instance
      */
     protected $_moduleReader;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
+     * @var TimezoneInterface Magento datetime timezone instance
      */
     protected $_timezone;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
-     */
-    protected $_dataHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Security Lengow security helper instance
+     * @var DataHelper data helper instance
+     */
+    protected $_dataHelper;
+
+    /**
+     * @var SecurityHelper Lengow security helper instance
      */
     protected $_securityHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Connector Lengow connector instance
+     * @var LengowConnector Lengow connector instance
      */
     protected $_connector;
 
     /**
-     * @var \Lengow\Connector\Model\Export Lengow export instance
+     * @var LengowExport Lengow export instance
      */
     protected $_export;
 
@@ -156,16 +156,16 @@ class Sync extends AbstractHelper
     /**
      * Constructor
      *
-     * @param \Magento\Framework\App\Helper\Context $context Magento context instance
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
-     * @param \Magento\Framework\Filesystem\Driver\File $driverFile Magento driver file instance
-     * @param \Magento\Framework\Module\Dir\Reader $moduleReader Magento module reader instance
-     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
-     * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
-     * @param \Lengow\Connector\Model\Export $export Lengow export instance
+     * @param Context $context Magento context instance
+     * @param JsonHelper $jsonHelper Magento json helper instance
+     * @param DriverFile $driverFile Magento driver file instance
+     * @param Reader $moduleReader Magento module reader instance
+     * @param TimezoneInterface $timezone Magento datetime timezone instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param SecurityHelper $securityHelper Lengow security helper instance
+     * @param LengowConnector $connector Lengow connector instance
+     * @param LengowExport $export Lengow export instance
      */
     public function __construct(
         Context $context,
@@ -176,8 +176,8 @@ class Sync extends AbstractHelper
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         SecurityHelper $securityHelper,
-        Connector $connector,
-        Export $export
+        LengowConnector $connector,
+        LengowExport $export
     )
     {
         $this->_jsonHelper = $jsonHelper;
@@ -305,7 +305,7 @@ class Sync extends AbstractHelper
                 return false;
             }
         }
-        $result = $this->_connector->queryApi(Connector::GET, Connector::API_CMS, [], '', $logOutput);
+        $result = $this->_connector->queryApi(LengowConnector::GET, LengowConnector::API_CMS, [], '', $logOutput);
         if (isset($result->cms)) {
             $cmsToken = $this->_configHelper->getToken();
             foreach ($result->cms as $cms) {
@@ -386,7 +386,7 @@ class Sync extends AbstractHelper
             }
         }
         $options = $this->_jsonHelper->jsonEncode($this->getOptionData());
-        $this->_connector->queryApi(Connector::PUT, Connector::API_CMS, [], $options, $logOutput);
+        $this->_connector->queryApi(LengowConnector::PUT, LengowConnector::API_CMS, [], $options, $logOutput);
         $this->_configHelper->set('last_option_cms_update', time());
         return true;
     }
@@ -415,7 +415,7 @@ class Sync extends AbstractHelper
             return self::$statusAccount;
         }
         $status = false;
-        $result = $this->_connector->queryApi(Connector::GET, Connector::API_PLAN, [], '', $logOutput);
+        $result = $this->_connector->queryApi(LengowConnector::GET, LengowConnector::API_PLAN, [], '', $logOutput);
         if (isset($result->isFreeTrial)) {
             $status = [
                 'type' => $result->isFreeTrial ? 'free_trial' : '',
@@ -460,7 +460,13 @@ class Sync extends AbstractHelper
             }
         }
         // recovering data with the API
-        $result = $this->_connector->queryApi(Connector::GET, Connector::API_MARKETPLACE, [], '', $logOutput);
+        $result = $this->_connector->queryApi(
+            LengowConnector::GET,
+            LengowConnector::API_MARKETPLACE,
+            [],
+            '',
+            $logOutput
+        );
         if ($result && is_object($result) && !isset($result->error)) {
             // updated marketplaces.json file
             try {
@@ -510,7 +516,13 @@ class Sync extends AbstractHelper
                 return json_decode($this->_configHelper->get('plugin_data'), true);
             }
         }
-        $plugins = $this->_connector->queryApi(Connector::GET, Connector::API_PLUGIN, array(), '', $logOutput);
+        $plugins = $this->_connector->queryApi(
+            LengowConnector::GET,
+            LengowConnector::API_PLUGIN,
+            array(),
+            '',
+            $logOutput
+        );
         if ($plugins) {
             $pluginData = false;
             foreach ($plugins as $plugin) {

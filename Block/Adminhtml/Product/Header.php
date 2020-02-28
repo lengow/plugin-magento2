@@ -20,49 +20,51 @@
 namespace Lengow\Connector\Block\Adminhtml\Product;
 
 use Magento\Backend\Block\Template;
+use Magento\Backend\Block\Template\Context;
+use Magento\Store\Api\Data\StoreInterface;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
-use Lengow\Connector\Model\Export as Export;
-use Magento\Backend\Block\Template\Context;
+use Lengow\Connector\Model\Export as LengowExport;
 
 class Header extends Template
 {
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
-     */
-    protected $_dataHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
-     */
-    protected $_configHelper;
-
-    /**
-     * @var \Lengow\Connector\Model\Export Lengow export instance
-     */
-    protected $_export;
-
-    /**
-     * @var \Magento\Store\Api\Data\StoreInterface Magento store instance
+     * @var StoreInterface Magento store instance
      */
     protected $_store;
 
     /**
+     * @var DataHelper Lengow data helper instance
+     */
+    protected $_dataHelper;
+
+    /**
+     * @var ConfigHelper Lengow config helper instance
+     */
+    protected $_configHelper;
+
+    /**
+     * @var LengowExport Lengow export instance
+     */
+    protected $_export;
+
+    /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Model\Export $export Lengow export instance
+     * @param Context $context Magento block context instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param LengowExport $export Lengow export instance
      * @param array $data additional params
      */
     public function __construct(
         Context $context,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
-        Export $export,
+        LengowExport $export,
         array $data = []
-    ) {
+    )
+    {
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_export = $export;
@@ -83,7 +85,7 @@ class Header extends Template
     /**
      * Get Magento store instance
      *
-     * @return \Magento\Store\Api\Data\StoreInterface
+     * @return StoreInterface
      */
     public function getStore()
     {
@@ -93,7 +95,7 @@ class Header extends Template
     /**
      * Get Lengow export instance
      *
-     * @return \Lengow\Connector\Model\Export
+     * @return LengowExport
      */
     public function getExport()
     {

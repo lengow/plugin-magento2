@@ -21,12 +21,13 @@ namespace Lengow\Connector\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\ResourceConnection;
-use Magento\Framework\UrlInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
-use Lengow\Connector\Model\LogFactory as LogFactory;
+use Magento\Framework\UrlInterface;
+use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Lengow\Connector\Model\LogFactory as LengowLogFactory;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
 class Data extends AbstractHelper
@@ -77,45 +78,45 @@ class Data extends AbstractHelper
     const CODE_ORM = 'Orm';
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
-     */
-    protected $_storeManager;
-
-    /**
-     * @var \Magento\Framework\App\Filesystem\DirectoryList Magento directory list instance
+     * @var DirectoryList Magento directory list instance
      */
     protected $_directoryList;
 
     /**
-     * @var \Magento\Framework\App\ResourceConnection Magento resource connection instance
+     * @var ResourceConnection Magento resource connection instance
      */
     protected $_resource;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
+     * @var storeManagerInterface Magento store manager instance
+     */
+    protected $_storeManager;
+
+    /**
+     * @var TimezoneInterface Magento datetime timezone instance
      */
     protected $_timezone;
 
     /**
-     * @var \Lengow\Connector\Model\LogFactory Lengow log factory instance
-     */
-    protected $_logFactory;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
+     * @var LengowLogFactory Lengow log factory instance
+     */
+    protected $_logFactory;
+
+    /**
      * Constructor
      *
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
-     * @param \Magento\Framework\App\Helper\Context $context Magento context instance
-     * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList Magento directory list instance
-     * @param \Magento\Framework\App\ResourceConnection $resource Magento resource connection instance
-     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
-     * @param \Lengow\Connector\Model\LogFactory $logFactory Lengow log factory instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param StoreManagerInterface $storeManager Magento store manager instance
+     * @param Context $context Magento context instance
+     * @param DirectoryList $directoryList Magento directory list instance
+     * @param ResourceConnection $resource Magento resource connection instance
+     * @param TimezoneInterface $timezone Magento datetime timezone instance
+     * @param LengowLogFactory $logFactory Lengow log factory instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -123,9 +124,10 @@ class Data extends AbstractHelper
         DirectoryList $directoryList,
         ResourceConnection $resource,
         TimezoneInterface $timezone,
-        LogFactory $logFactory,
+        LengowLogFactory $logFactory,
         ConfigHelper $configHelper
-    ) {
+    )
+    {
         $this->_storeManager = $storeManager;
         $this->_directoryList = $directoryList;
         $this->_resource = $resource;
@@ -305,7 +307,7 @@ class Data extends AbstractHelper
     /**
      * Get store
      *
-     * @return \Magento\Store\Api\Data\StoreInterface
+     * @return StoreInterface
      */
     public function getStore()
     {

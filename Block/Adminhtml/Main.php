@@ -24,22 +24,22 @@ use Magento\Backend\Block\Template\Context;
 use Magento\Framework\Locale\Resolver as Locale;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
-use Lengow\Connector\Model\Connector;
+use Lengow\Connector\Model\Connector as LengowConnector;
 
 class Main extends Template
 {
     /**
-     * @var \Magento\Framework\Locale\Resolver Magento locale resolver instance
+     * @var Locale Magento locale resolver instance
      */
     protected $_locale;
 
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     * @var SyncHelper Lengow sync helper instance
      */
     protected $_syncHelper;
 
@@ -51,10 +51,10 @@ class Main extends Template
     /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param \Magento\Framework\Locale\Resolver $locale Magento locale resolver instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
+     * @param Context $context Magento block context instance
+     * @param Locale $locale Magento locale resolver instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param SyncHelper $syncHelper Lengow sync helper instance
      * @param array $data additional params
      */
     public function __construct(
@@ -63,7 +63,8 @@ class Main extends Template
         ConfigHelper $configHelper,
         SyncHelper $syncHelper,
         array $data = []
-    ) {
+    )
+    {
         $this->_locale = $locale;
         $this->_configHelper = $configHelper;
         $this->_syncHelper = $syncHelper;
@@ -123,7 +124,7 @@ class Main extends Template
      */
     public function getLengowUrl()
     {
-        return Connector::LENGOW_URL;
+        return LengowConnector::LENGOW_URL;
     }
 
     /**
@@ -133,6 +134,6 @@ class Main extends Template
      */
     public function getLengowSolutionUrl()
     {
-        return '//my.' . Connector::LENGOW_URL;
+        return '//my.' . LengowConnector::LENGOW_URL;
     }
 }

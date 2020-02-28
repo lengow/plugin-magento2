@@ -21,25 +21,25 @@ namespace Lengow\Connector\Plugin;
 
 use Magento\Config\Model\Config;
 use Magento\Framework\Stdlib\DateTime\DateTime;
-use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Data as DataHelper;
 
 class SaveConfig
 {
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     * @var DateTime Magento datetime instance
      */
     protected $_dateTime;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
-     */
-    protected $_dataHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
+
+    /**
+     * @var DataHelper Lengow data helper instance
+     */
+    protected $_dataHelper;
 
     /**
      * @var array path for Lengow options
@@ -69,15 +69,16 @@ class SaveConfig
     /**
      * Constructor
      *
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param DateTime $dateTime Magento datetime instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
      */
     public function __construct(
         DateTime $dateTime,
         DataHelper $dataHelper,
         ConfigHelper $configHelper
-    ) {
+    )
+    {
         $this->_dateTime = $dateTime;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
@@ -86,7 +87,7 @@ class SaveConfig
     /**
      * Check and log changes on lengow data configuration
      *
-     * @param \Magento\Config\Model\Config $subject Magento Config instance
+     * @param Config $subject Magento Config instance
      * @param \Closure $proceed
      */
     public function aroundSave(Config $subject, \Closure $proceed)

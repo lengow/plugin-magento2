@@ -19,65 +19,64 @@
 
 namespace Lengow\Connector\Controller\Adminhtml\Order;
 
-use Magento\Store\Model\StoreManagerInterface;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Lengow\Connector\Helper\Sync as SyncHelper;
-use Lengow\Connector\Helper\Import as ImportHelper;
+use Magento\Store\Model\StoreManagerInterface;
 use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Helper\Import as ImportHelper;
+use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Import as LengowImport;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 
 class Index extends Action
 {
-
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager
+     * @var StoreManagerInterface Magento store manager
      */
     protected $_storeManager;
 
     /**
-     * @var \Magento\Framework\Controller\Result\JsonFactory Magento json factory instance
+     * @var JsonFactory Magento json factory instance
      */
     protected $_resultJsonFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Import Lengow import instance
-     */
-    protected $_import;
-
-    /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var DataHelper Lengow data helper instance
      */
     protected $_dataHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Import Lengow import helper instance
+     * @var LengowImport Lengow import helper instance
      */
     protected $_importHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     * @var SyncHelper Lengow sync helper instance
      */
     protected $_syncHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order factory instance
+     * @var LengowImport Lengow import instance
+     */
+    protected $_import;
+
+    /**
+     * @var LengowOrderFactory Lengow order factory instance
      */
     protected $_lengowOrderFactory;
 
     /**
      * Constructor
      *
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager
-     * @param \Magento\Backend\App\Action\Context $context Magento action context instance
-     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory Magento json factory instance
-     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
-     * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Model\Import $import Lengow import instance
-     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order factory instance
+     * @param StoreManagerInterface $storeManager Magento store manager
+     * @param Context $context Magento action context instance
+     * @param JsonFactory $resultJsonFactory Magento json factory instance
+     * @param SyncHelper $syncHelper Lengow sync helper instance
+     * @param ImportHelper $importHelper Lengow import helper instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param LengowImport $import Lengow import instance
+     * @param LengowOrderFactory $lengowOrderFactory Lengow order factory instance
      */
     public function __construct(
         StoreManagerInterface $storeManager,

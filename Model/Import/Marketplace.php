@@ -19,17 +19,20 @@
 
 namespace Lengow\Connector\Model\Import;
 
-use Lengow\Connector\Helper\Sync;
-use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
+use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
-use Lengow\Connector\Model\Exception as LengowException;
-use Lengow\Connector\Helper\Data as DataHelper;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Shipment;
+use Magento\Sales\Model\Order\Shipment\Track;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
-use Lengow\Connector\Model\Connector;
+use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Model\Import\Action as LengowAction;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
+use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
 
 /**
  * Model marketplace
@@ -37,37 +40,32 @@ use Lengow\Connector\Model\Import\Action as LengowAction;
 class Marketplace extends AbstractModel
 {
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
+     * @var TimezoneInterface Magento datetime timezone instance
      */
     protected $_timezone;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var DataHelper Lengow data helper instance
      */
     protected $_dataHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     * @var SyncHelper Lengow sync helper instance
      */
     protected $_syncHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Connector Lengow connector instance
-     */
-    protected $_connector;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\Action Lengow action instance
+     * @var LengowAction Lengow action instance
      */
     protected $_orderAction;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow order error factory instance
+     * @var LengowOrderErrorFactory Lengow order error factory instance
      */
     protected $_orderErrorFactory;
 
@@ -137,15 +135,14 @@ class Marketplace extends AbstractModel
     /**
      * Constructor
      *
-     * @param \Magento\Framework\Model\Context $context Magento context instance
-     * @param \Magento\Framework\Registry $registry Magento registry instance
-     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
-     * @param \Lengow\Connector\Model\Connector $modelConnector Lengow connector instance
-     * @param \Lengow\Connector\Model\Import\Action $orderAction Lengow action instance
-     * @param \Lengow\Connector\Model\Import\OrdererrorFactory $orderErrorFactory Lengow order error factory instance
+     * @param Context $context Magento context instance
+     * @param Registry $registry Magento registry instance
+     * @param TimezoneInterface $timezone Magento datetime timezone instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param SyncHelper $syncHelper Lengow sync helper instance
+     * @param LengowAction $orderAction Lengow action instance
+     * @param LengowOrderErrorFactory $orderErrorFactory Lengow order error factory instance
      */
     public function __construct(
         Context $context,
@@ -154,16 +151,14 @@ class Marketplace extends AbstractModel
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         SyncHelper $syncHelper,
-        Connector $modelConnector,
-        Action $orderAction,
-        OrdererrorFactory $orderErrorFactory
+        LengowAction $orderAction,
+        LengowOrderErrorFactory $orderErrorFactory
     )
     {
         $this->_timezone = $timezone;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_syncHelper = $syncHelper;
-        $this->_connector = $modelConnector;
         $this->_orderAction = $orderAction;
         $this->_orderErrorFactory = $orderErrorFactory;
         parent::__construct($context, $registry);
@@ -173,9 +168,9 @@ class Marketplace extends AbstractModel
      * Construct a new Marketplace instance with marketplace API
      *
      * @param array $params options
-     * string  name     Marketplace name
+     * string name Marketplace name
      *
-     * @throws LengowException marketplace not present
+     * @throws LengowException
      */
     public function init($params = [])
     {
@@ -395,7 +390,7 @@ class Marketplace extends AbstractModel
      *
      * @param string $action Lengow order actions type (ship or cancel)
      *
-     * @throws LengowException action not valid / marketplace action not present
+     * @throws LengowException
      */
     protected function _checkAction($action)
     {
@@ -414,7 +409,7 @@ class Marketplace extends AbstractModel
      *
      * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
      *
-     * @throws LengowException marketplace sku is required / marketplace name is required
+     * @throws LengowException
      */
     protected function _checkOrderData($lengowOrder)
     {
@@ -452,9 +447,9 @@ class Marketplace extends AbstractModel
      * Get all available values from an order
      *
      * @param string $action Lengow order actions type (ship or cancel)
-     * @param \Magento\Sales\Model\Order $order Magento order instance
-     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
-     * @param \Magento\Sales\Model\Order\Shipment $shipment Magento shipment instance
+     * @param Order $order Magento order instance
+     * @param LengowOrder $lengowOrder Lengow order instance
+     * @param Shipment $shipment Magento shipment instance
      * @param array $marketplaceArguments All marketplace arguments for a specific action
      *
      * @return array
@@ -463,7 +458,7 @@ class Marketplace extends AbstractModel
     {
         $params = [];
         $actions = $this->getAction($action);
-        // get all order informations
+        // get all order data
         foreach ($marketplaceArguments as $arg) {
             switch ($arg) {
                 case LengowAction::ARG_TRACKING_NUMBER:
@@ -516,7 +511,7 @@ class Marketplace extends AbstractModel
      * @param string $action Lengow order actions type (ship or cancel)
      * @param array $params all available values
      *
-     * @throws LengowException argument is required
+     * @throws LengowException
      *
      * @return array
      */
@@ -578,7 +573,7 @@ class Marketplace extends AbstractModel
             }
         }
         // no match
-        if ($code === \Magento\Sales\Model\Order\Shipment\Track::CUSTOM_CARRIER_CODE) {
+        if ($code === Track::CUSTOM_CARRIER_CODE) {
             return $title;
         }
         return $code;

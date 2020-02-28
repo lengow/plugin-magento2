@@ -24,22 +24,22 @@ use Magento\Backend\Block\Template\Context;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
-use Lengow\Connector\Model\Connector;
+use Lengow\Connector\Model\Connector as LengowConnector;
 
 class Header extends Template
 {
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Security Lengow security helper instance
+     * @var SecurityHelper Lengow security helper instance
      */
     protected $_securityHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     * @var SyncHelper Lengow sync helper instance
      */
     protected $_syncHelper;
 
@@ -56,10 +56,10 @@ class Header extends Template
     /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
-     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
+     * @param Context $context Magento block context instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param SecurityHelper $securityHelper Lengow security helper instance
+     * @param SyncHelper $syncHelper Lengow sync helper instance
      * @param array $data additional params
      */
     public function __construct(
@@ -68,7 +68,8 @@ class Header extends Template
         SecurityHelper $securityHelper,
         SyncHelper $syncHelper,
         array $data = []
-    ) {
+    )
+    {
         $this->_configHelper = $configHelper;
         $this->_securityHelper = $securityHelper;
         $this->_syncHelper = $syncHelper;
@@ -94,7 +95,7 @@ class Header extends Template
      */
     public function getLengowSolutionUrl()
     {
-        return '//my.' . Connector::LENGOW_URL;
+        return '//my.' . LengowConnector::LENGOW_URL;
     }
 
     /**
@@ -119,7 +120,7 @@ class Header extends Template
      */
     public function getFreeTrialDays()
     {
-        return isset($this->_statusAccount['day']) ? (int)$this->_statusAccount['day']  : 0;
+        return isset($this->_statusAccount['day']) ? (int)$this->_statusAccount['day'] : 0;
     }
 
     /**
@@ -144,7 +145,7 @@ class Header extends Template
      */
     public function getNewPluginVersion()
     {
-        return ($this->_pluginData && isset($this->_pluginData['version'])) ? $this->_pluginData['version']  : '';
+        return ($this->_pluginData && isset($this->_pluginData['version'])) ? $this->_pluginData['version'] : '';
     }
 
     /**

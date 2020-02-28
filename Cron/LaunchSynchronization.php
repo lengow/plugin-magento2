@@ -21,38 +21,38 @@ namespace Lengow\Connector\Cron;
 
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
-use Lengow\Connector\Model\Import as LengowImport;
 use Lengow\Connector\Model\Import\Action as LengowAction;
+use Lengow\Connector\Model\Import as LengowImport;
 
 class LaunchSynchronization
 {
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     * @var SyncHelper Lengow sync helper instance
      */
     protected $_syncHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Import Lengow import instance
-     */
-    protected $_import;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\Action Lengow action instance
+     * @var LengowAction Lengow action instance
      */
     protected $_action;
 
     /**
+     * @var LengowImport Lengow import instance
+     */
+    protected $_import;
+
+    /**
      * Constructor
      *
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
-     * @param \Lengow\Connector\Model\Import $import Lengow import instance
-     * @param \Lengow\Connector\Model\Import\Action $action Lengow action instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param SyncHelper $syncHelper Lengow sync helper instance
+     * @param LengowImport $import Lengow import instance
+     * @param LengowAction $action Lengow action instance
      */
     public function __construct(
         ConfigHelper $configHelper,

@@ -22,27 +22,28 @@ namespace Lengow\Connector\Block\Adminhtml;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Lengow\Connector\Helper\Security as SecurityHelper;
-use Lengow\Connector\Model\Connector;
+use Lengow\Connector\Model\Connector as LengowConnector;
 
 class Footer extends Template
 {
     /**
-     * @var \Lengow\Connector\Helper\Security Lengow security helper instance
+     * @var SecurityHelper Lengow security helper instance
      */
     protected $_securityHelper;
 
     /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
+     * @param Context $context Magento block context instance
+     * @param SecurityHelper $securityHelper Lengow security helper instance
      * @param array $data additional params
      */
     public function __construct(
         Context $context,
         SecurityHelper $securityHelper,
         array $data = []
-    ) {
+    )
+    {
         $this->_securityHelper = $securityHelper;
         parent::__construct($context, $data);
     }
@@ -64,7 +65,7 @@ class Footer extends Template
      */
     public function isPreprodPlugin()
     {
-        return Connector::LENGOW_URL === 'lengow.net';
+        return LengowConnector::LENGOW_URL === 'lengow.net';
     }
 
     /**

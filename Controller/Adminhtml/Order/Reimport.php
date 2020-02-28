@@ -21,28 +21,29 @@ namespace Lengow\Connector\Controller\Adminhtml\Order;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Sales\Model\OrderFactory;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Sales\Model\OrderFactory;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 
 class Reimport extends Action
 {
     /**
-     * @var \Magento\Sales\Model\OrderFactory Magento order factory instance
+     * @var OrderFactory Magento order factory instance
      */
     protected $_orderFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order factory instance
+     * @var LengowOrderFactory Lengow order factory instance
      */
     protected $_lengowOrderFactory;
 
     /**
      * Constructor
      *
-     * @param \Magento\Framework\App\Action\Context $context Magento action context instance
-     * @param \Magento\Sales\Model\OrderFactory $orderFactory Magento order factory instance
-     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order factory instance
+     * @param Context $context Magento action context instance
+     * @param OrderFactory $orderFactory Magento order factory instance
+     * @param LengowOrderFactory $lengowOrderFactory Lengow order factory instance
      */
     public function __construct(
         Context $context,
@@ -58,7 +59,7 @@ class Reimport extends Action
     /**
      * Resend action
      *
-     * @return \Magento\Framework\Controller\Result\Redirect
+     * @return Redirect
      */
     public function execute()
     {
@@ -68,7 +69,7 @@ class Reimport extends Action
         $lengowOrder = $this->_lengowOrderFactory->create()->load((int)$lengowOrderId);
         $newOrderId = $this->_lengowOrderFactory->create()->cancelAndReImportOrder($order, $lengowOrder);
         $newOrderId = !$newOrderId ? $orderId : $newOrderId;
-        /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
+        /** @var Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         return $resultRedirect->setPath('sales/order/view', ['order_id' => $newOrderId]);
     }

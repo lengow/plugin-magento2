@@ -30,7 +30,7 @@ class Check extends Field
     /**
      * Retrieve element HTML markup
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element Magento Abstract Element Instance
+     * @param AbstractElement $element Magento Abstract Element Instance
      *
      * @return string
      */

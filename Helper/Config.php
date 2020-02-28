@@ -19,56 +19,58 @@
 
 namespace Lengow\Connector\Helper;
 
-use Magento\Framework\App\Helper\AbstractHelper;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Catalog\Model\Product;
-use Magento\Store\Model\ScopeInterface;
+use Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory as ConfigDataCollectionFactory;
+use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as CustomerGroupCollectionFactory;
+use Magento\Eav\Model\Config as EavConfig;
+use Magento\Eav\Model\Entity\Attribute\Set as AttributeSet;
+use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as AttributeCollectionFactory;
 use Magento\Framework\App\Cache\Manager as CacheManager;
 use Magento\Framework\App\Cache\Type\Config as CacheTypeConfig;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use Magento\Eav\Model\Config as EavConfig;
-use Magento\Eav\Model\Entity\Attribute\Set as AttibuteSet;
-use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as AttributeCollectionFactory;
-use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as CustomerGroupCollectionFactory;
-use Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory as ConfigDataCollectionFactory;
+use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
 use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollectionFactory;
 
 class Config extends AbstractHelper
 {
 
     /**
-     * @var \Magento\Framework\App\Config\Storage\WriterInterface Magento writer instance
+     * @var WriterInterface Magento writer instance
      */
     protected $_writerInterface;
 
     /**
-     * @var \Magento\Framework\App\Cache\Manager Magento cache manager instance
+     * @var CacheManager Magento cache manager instance
      */
     protected $_cacheManager;
 
     /**
-     * @var \Magento\Customer\Model\ResourceModel\Group\CollectionFactory Magento customer group collection factory
+     * @var CustomerGroupCollectionFactory Magento customer group collection factory
      */
     protected $_customerGroupCollectionFactory;
 
     /**
-     * @var \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory Magento attribute collection factory
+     * @var AttributeCollectionFactory Magento attribute collection factory
      */
     protected $_attributeCollectionFactory;
 
     /**
-     * @var \Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory Magento config data collection factory
+     * @var ConfigDataCollectionFactory Magento config data collection factory
      */
     protected $_configDataCollectionFactory;
 
     /**
-     * @var \Magento\Store\Model\ResourceModel\Store\CollectionFactory Magento store collection factory
+     * @var StoreCollectionFactory Magento store collection factory
      */
     protected $_storeCollectionFactory;
 
     /**
-     * @var \Magento\Eav\Model\Config Magento eav config
+     * @var EavConfig Magento eav config
      */
     protected $_eavConfig;
 
@@ -326,14 +328,14 @@ class Config extends AbstractHelper
     /**
      * Constructor
      *
-     * @param \Magento\Framework\App\Helper\Context $context Magento context instance
-     * @param \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface Magento writer instance
-     * @param \Magento\Framework\App\Cache\Manager $cacheManager Magento Cache manager instance
-     * @param \Magento\Customer\Model\ResourceModel\Group\CollectionFactory $customerGroupCollectionFactory
-     * @param \Magento\Eav\Model\Config $eavConfig Magento eav config
-     * @param \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory $attributeCollectionFactory
-     * @param \Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory $configDataCollectionFactory
-     * @param \Magento\Store\Model\ResourceModel\Store\CollectionFactory $storeCollectionFactory
+     * @param Context $context Magento context instance
+     * @param WriterInterface $writerInterface Magento writer instance
+     * @param CacheManager $cacheManager Magento Cache manager instance
+     * @param CustomerGroupCollectionFactory $customerGroupCollectionFactory Magento Customer group factory instance
+     * @param EavConfig $eavConfig Magento eav config instance
+     * @param AttributeCollectionFactory $attributeCollectionFactory Magento Attribute factory instance
+     * @param ConfigDataCollectionFactory $configDataCollectionFactory Magento config data factory instance
+     * @param StoreCollectionFactory $storeCollectionFactory Magento store factory instance
      */
     public function __construct(
         Context $context,
@@ -558,7 +560,7 @@ class Config extends AbstractHelper
     /**
      * Get all stores
      *
-     * @return \Magento\Store\Model\ResourceModel\Store\Collection
+     * @return StoreCollection
      */
     public function getAllStore()
     {
@@ -640,7 +642,7 @@ class Config extends AbstractHelper
             // add filter by entity type to get product attributes only
             $productEntityId = (int)$this->_eavConfig->getEntityType(Product::ENTITY)->getEntityTypeId();
             $attributes = $this->_attributeCollectionFactory->create()
-                ->addFieldToFilter(AttibuteSet::KEY_ENTITY_TYPE_ID, $productEntityId)
+                ->addFieldToFilter(AttributeSet::KEY_ENTITY_TYPE_ID, $productEntityId)
                 ->load()
                 ->getData();
             $allAttributes = [
@@ -684,7 +686,7 @@ class Config extends AbstractHelper
      *
      * @param string $token Lengow store token
      *
-     * @return \Magento\Store\Api\Data\StoreInterface|false
+     * @return StoreInterface|false
      */
     public function getStoreByToken($token)
     {
