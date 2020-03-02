@@ -23,7 +23,7 @@ use Magento\Framework\Model\Context;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
-use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Sales\Model\Order\Shipment;
 use Magento\Sales\Model\Order\Shipment\Track;
 use Lengow\Connector\Helper\Config as ConfigHelper;
@@ -323,9 +323,9 @@ class Marketplace extends AbstractModel
      * Call Action with marketplace
      *
      * @param string $action order action (ship or cancel)
-     * @param \Magento\Sales\Model\Order $order Magento order instance
-     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
-     * @param \Magento\Sales\Model\Order\Shipment|null $shipment Magento shipment instance
+     * @param MagentoOrder $order Magento order instance
+     * @param LengowOrder $lengowOrder Lengow order instance
+     * @param Shipment|null $shipment Magento shipment instance
      * @param string|null $orderLineId Lengow order line id
      *
      * @return boolean
@@ -407,7 +407,7 @@ class Marketplace extends AbstractModel
     /**
      * Check if the essential data of the order are present
      *
-     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     * @param LengowOrder $lengowOrder Lengow order instance
      *
      * @throws LengowException
      */
@@ -447,7 +447,7 @@ class Marketplace extends AbstractModel
      * Get all available values from an order
      *
      * @param string $action Lengow order actions type (ship or cancel)
-     * @param Order $order Magento order instance
+     * @param MagentoOrder $order Magento order instance
      * @param LengowOrder $lengowOrder Lengow order instance
      * @param Shipment $shipment Magento shipment instance
      * @param array $marketplaceArguments All marketplace arguments for a specific action

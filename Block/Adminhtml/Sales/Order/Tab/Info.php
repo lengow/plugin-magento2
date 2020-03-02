@@ -23,7 +23,7 @@ use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Block\Widget\Tab\TabInterface;
 use Magento\Framework\Registry;
-use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order as MagentoOrder;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Import\Action as LengowAction;
@@ -43,7 +43,7 @@ class Info extends Template implements TabInterface
     protected $_coreRegistry;
 
     /**
-     * @var Order Magento order instance
+     * @var MagentoOrder Magento order instance
      */
     protected $_order;
 
@@ -146,7 +146,7 @@ class Info extends Template implements TabInterface
     /**
      * Retrieve order model instance
      *
-     * @return Order
+     * @return MagentoOrder
      */
     public function getOrder()
     {

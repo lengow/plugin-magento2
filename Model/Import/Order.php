@@ -29,7 +29,7 @@ use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Convert\Order as ConvertOrder;
 use Magento\Sales\Model\Order as MagentoOrder;
-use Magento\Sales\Model\OrderFactory;
+use Magento\Sales\Model\OrderFactory as MagentoOrderFactory;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Shipment;
 use Magento\Sales\Model\Order\Shipment\Track;
@@ -117,7 +117,7 @@ class Order extends AbstractModel
     const STATE_REFUNDED = 'refunded';
 
     /**
-     * @var OrderFactory Magento order factory instance
+     * @var MagentoOrderFactory Magento order factory instance
      */
     protected $_orderFactory;
 
@@ -248,7 +248,7 @@ class Order extends AbstractModel
     /**
      * Constructor
      *
-     * @param OrderFactory $orderFactory Magento order factory instance
+     * @param MagentoOrderFactory $orderFactory Magento order factory instance
      * @param Context $context Magento context instance
      * @param Registry $registry Magento registry instance
      * @param InvoiceService $invoiceService Magento invoice service
@@ -273,7 +273,7 @@ class Order extends AbstractModel
      * @param AbstractDb $resourceCollection Magento abstract db instance
      */
     public function __construct(
-        OrderFactory $orderFactory,
+        MagentoOrderFactory $orderFactory,
         Context $context,
         Registry $registry,
         InvoiceService $invoiceService,

@@ -23,14 +23,14 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\Result\Redirect;
-use Magento\Sales\Model\OrderFactory;
+use Magento\Sales\Model\OrderFactory as MagentoOrderFactory;
 use Lengow\Connector\Model\Import\Action as LengowAction;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class Resend extends Action
 {
     /**
-     * @var OrderFactory Magento order factory instance
+     * @var MagentoOrderFactory Magento order factory instance
      */
     protected $_orderFactory;
 
@@ -43,12 +43,12 @@ class Resend extends Action
      * Constructor
      *
      * @param Context $context Magento action context instance
-     * @param OrderFactory $orderFactory Magento order factory instance
+     * @param MagentoOrderFactory $orderFactory Magento order factory instance
      * @param LengowOrder $lengowOrder Lengow order instance
      */
     public function __construct(
         Context $context,
-        OrderFactory $orderFactory,
+        MagentoOrderFactory $orderFactory,
         LengowOrder $lengowOrder
     )
     {

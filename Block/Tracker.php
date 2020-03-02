@@ -24,8 +24,8 @@ use Magento\Checkout\Model\Session;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
-use Magento\Sales\Model\Order;
-use Magento\Sales\Model\OrderFactory;
+use Magento\Sales\Model\Order as MagentoOrder;
+use Magento\Sales\Model\OrderFactory as MagentoOrderFactory;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
 class Tracker extends Template
@@ -46,7 +46,7 @@ class Tracker extends Template
     protected $_jsonHelper;
 
     /**
-     * @var OrderFactory Magento order factory instance
+     * @var MagentoOrderFactory Magento order factory instance
      */
     protected $_orderFactory;
 
@@ -60,7 +60,7 @@ class Tracker extends Template
      *
      * @param Context $context Magento block context instance
      * @param Session $checkoutSession Magento checkout session instance
-     * @param OrderFactory $orderFactory Magento order factory instance
+     * @param MagentoOrderFactory $orderFactory Magento order factory instance
      * @param ProductRepository $productRepository Magento product repository instance
      * @param JsonHelper $jsonHelper Magento json helper instance
      * @param ConfigHelper $configHelper Lengow config helper instance
@@ -69,7 +69,7 @@ class Tracker extends Template
     public function __construct(
         Context $context,
         Session $checkoutSession,
-        OrderFactory $orderFactory,
+        MagentoOrderFactory $orderFactory,
         ProductRepository $productRepository,
         JsonHelper $jsonHelper,
         ConfigHelper $configHelper,
@@ -87,7 +87,7 @@ class Tracker extends Template
     /**
      * Get last order
      *
-     * @return Order|false
+     * @return MagentoOrder|false
      */
     public function getLastOrder()
     {
@@ -100,7 +100,7 @@ class Tracker extends Template
     /**
      * Return list of order's items id
      *
-     * @param Order $order Magento order instance
+     * @param MagentoOrder $order Magento order instance
      *
      * @return string
      */

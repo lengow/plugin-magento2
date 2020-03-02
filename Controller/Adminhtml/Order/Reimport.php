@@ -23,13 +23,13 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\Result\Redirect;
-use Magento\Sales\Model\OrderFactory;
+use Magento\Sales\Model\OrderFactory as MagentoOrderFactory;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 
 class Reimport extends Action
 {
     /**
-     * @var OrderFactory Magento order factory instance
+     * @var MagentoOrderFactory Magento order factory instance
      */
     protected $_orderFactory;
 
@@ -42,12 +42,12 @@ class Reimport extends Action
      * Constructor
      *
      * @param Context $context Magento action context instance
-     * @param OrderFactory $orderFactory Magento order factory instance
+     * @param MagentoOrderFactory $orderFactory Magento order factory instance
      * @param LengowOrderFactory $lengowOrderFactory Lengow order factory instance
      */
     public function __construct(
         Context $context,
-        OrderFactory $orderFactory,
+        MagentoOrderFactory $orderFactory,
         LengowOrderFactory $lengowOrderFactory
     )
     {

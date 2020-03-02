@@ -29,8 +29,8 @@ use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
-use Magento\Customer\Model\Customer;
-use Magento\Sales\Model\Order;
+use Magento\Customer\Model\Customer as MagentoCustomer;
+use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Quote\Model\QuoteFactory as MagentoQuoteFactory;
@@ -975,13 +975,13 @@ class Importorder extends AbstractModel
     /**
      * Create quote
      *
-     * @param Customer $customer
+     * @param MagentoCustomer $customer
      *
      * @throws \Exception
      *
      * @return LengowQuoteFactory
      */
-    protected function _createQuote(Customer $customer)
+    protected function _createQuote(MagentoCustomer $customer)
     {
         $customerRepo = $this->_customerRepository->getById($customer->getId());
         $quote = $this->_lengowQuoteFactory->create()
@@ -1073,7 +1073,7 @@ class Importorder extends AbstractModel
      *
      * @throws \Exception|LengowException
      *
-     * @return Order
+     * @return MagentoOrder
      */
     protected function _makeOrder(Quote $quote, $orderLengow)
     {
@@ -1226,7 +1226,7 @@ class Importorder extends AbstractModel
     /**
      * Save order line in lengow orders line table
      *
-     * @param Order $order Magento order instance
+     * @param MagentoOrder $order Magento order instance
      * @param Quote $quote Lengow quote instance
      *
      * @return string

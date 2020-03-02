@@ -25,8 +25,8 @@ use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
-use Magento\Sales\Model\Order;
-use Magento\Sales\Model\OrderFactory;
+use Magento\Sales\Model\Order as MagentoOrder;
+use Magento\Sales\Model\OrderFactory as MagentoOrderFactory;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Connector as LengowConnector;
@@ -143,7 +143,7 @@ class Action extends AbstractModel
     protected $_timezone;
 
     /**
-     * @var OrderFactory Magento order factory instance
+     * @var MagentoOrderFactory Magento order factory instance
      */
     protected $_orderFactory;
 
@@ -209,7 +209,7 @@ class Action extends AbstractModel
      * @param Registry $registry Magento registry instance
      * @param DateTime $dateTime Magento datetime instance
      * @param TimezoneInterface $timezone Magento datetime timezone instance
-     * @param OrderFactory $orderFactory Magento order factory instance
+     * @param MagentoOrderFactory $orderFactory Magento order factory instance
      * @param JsonHelper $jsonHelper Magento json helper instance
      * @param DataHelper $dataHelper Lengow data helper instance
      * @param ConfigHelper $configHelper Lengow config helper instance
@@ -224,7 +224,7 @@ class Action extends AbstractModel
         Registry $registry,
         DateTime $dateTime,
         TimezoneInterface $timezone,
-        OrderFactory $orderFactory,
+        MagentoOrderFactory $orderFactory,
         JsonHelper $jsonHelper,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
@@ -412,7 +412,7 @@ class Action extends AbstractModel
      * Indicates whether an action can be created if it does not already exist
      *
      * @param array $params all available values
-     * @param Order $order Magento order instance
+     * @param MagentoOrder $order Magento order instance
      *
      * @throws LengowException
      *
@@ -467,7 +467,7 @@ class Action extends AbstractModel
      * Send a new action on the order via the Lengow API
      *
      * @param array $params all available values
-     * @param Order $order Magento order instance
+     * @param MagentoOrder $order Magento order instance
      * @param LengowOrder $lengowOrder Lengow order instance
      *
      * @throws LengowException
