@@ -46,7 +46,7 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\AddressInterfaceFactory;
 use Magento\Customer\Api\Data\CustomerInterfaceFactory;
 use Magento\Customer\Api\GroupRepositoryInterface;
-use Magento\Customer\Model\CustomerFactory;
+use Magento\Customer\Model\CustomerFactory as MagentoCustomerFactory;
 use Magento\Customer\Model\Group;
 use Magento\Quote\Model\Cart\CurrencyFactory;
 use Magento\Quote\Model\Quote as MagentoQuote;
@@ -136,7 +136,7 @@ class Quote extends MagentoQuote
      * @param StoreManagerInterface $storeManager Magento scope manager instance
      * @param ScopeConfigInterface $config Magento scope config instance
      * @param AddressFactory $quoteAddressFactory Magento address factory instance
-     * @param CustomerFactory $customerFactory Magento customer factory instance
+     * @param MagentoCustomerFactory $customerFactory Magento customer factory instance
      * @param GroupRepositoryInterface $groupRepository Magento group repository instance
      * @param ItemCollectionFactory $quoteItemCollectionFactory Magento item collection factory instance
      * @param ItemFactory $quoteItemFactory Magento item factory instance
@@ -184,7 +184,7 @@ class Quote extends MagentoQuote
         StoreManagerInterface $storeManager,
         ScopeConfigInterface $config,
         AddressFactory $quoteAddressFactory,
-        CustomerFactory $customerFactory,
+        MagentoCustomerFactory $customerFactory,
         GroupRepositoryInterface $groupRepository,
         ItemCollectionFactory $quoteItemCollectionFactory,
         ItemFactory $quoteItemFactory,

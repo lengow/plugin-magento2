@@ -385,8 +385,8 @@ class Action extends AbstractModel
             ->addFieldToFilter('order_id', $orderId)
             ->addFieldToFilter('state', self::STATE_NEW)
             ->addFieldToSelect('action_type');
-        if (!empty($results)) {
-            $lastAction = $results->getLastItem()->getData();
+        $lastAction = $results->getLastItem()->getData();
+        if (!empty($lastAction)) {
             return (string)$lastAction['action_type'];
         }
         return false;

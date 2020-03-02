@@ -721,9 +721,9 @@ class Importorder extends AbstractModel
      */
     protected function _loadTrackingData()
     {
-        $trackings = $this->_packageData->delivery->trackings;
-        if (!empty($trackings)) {
-            $tracking = $trackings[0];
+        $tracks = $this->_packageData->delivery->trackings;
+        if (!empty($tracks)) {
+            $tracking = $tracks[0];
             $this->_carrierName = $tracking->carrier !== null ? (string)$tracking->carrier : null;
             $this->_carrierMethod = $tracking->method !== null ? (string)$tracking->method : null;
             $this->_trackingNumber = $tracking->number !== null ? (string)$tracking->number : null;

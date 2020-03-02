@@ -21,7 +21,7 @@ namespace Lengow\Connector\Model\Import;
 
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Customer as MagentoCustomer;
-use Magento\Customer\Model\CustomerFactory;
+use Magento\Customer\Model\CustomerFactory as MagentoCustomerFactory;
 use Magento\Customer\Model\Address;
 use Magento\Customer\Model\AddressFactory;
 use Magento\Customer\Model\ResourceModel\Customer as MagentoResourceCustomer;
@@ -49,7 +49,7 @@ class Customer extends MagentoResourceCustomer
     protected $_customerRepository;
 
     /**
-     * @var CustomerFactory Magento customer factory
+     * @var MagentoCustomerFactory Magento customer factory
      */
     protected $_customerFactory;
 
@@ -121,7 +121,7 @@ class Customer extends MagentoResourceCustomer
      * @param ConfigHelper $configHelper Lengow config helper instance
      * @param DataHelper $dataHelper Lengow data helper instance
      * @param StoreManagerInterface $storeManager Magento store manager
-     * @param CustomerFactory $customerFactory Magento customer factory
+     * @param MagentoCustomerFactory $customerFactory Magento customer factory
      * @param AddressFactory $addressFactory Magento address factory
      * @param CustomerRepositoryInterface $customerRepository Magento customer repository
      * @param RegionCollection $regionCollection Magento region collection
@@ -138,7 +138,7 @@ class Customer extends MagentoResourceCustomer
         ConfigHelper $configHelper,
         DataHelper $dataHelper,
         StoreManagerInterface $storeManager,
-        CustomerFactory $customerFactory,
+        MagentoCustomerFactory $customerFactory,
         AddressFactory $addressFactory,
         CustomerRepositoryInterface $customerRepository,
         RegionCollection $regionCollection,
