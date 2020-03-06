@@ -225,13 +225,12 @@ class Price
     protected function _getAllPrices()
     {
         $conversion = $this->_currency !== $this->_storeCurrency ? true : false;
-        $prices = [
+        return [
             'price_excl_tax' => $this->_getSpecificPrice('final_price', $conversion),
             'price_incl_tax' => $this->_getSpecificPrice('final_price', $conversion, true),
             'price_before_discount_excl_tax' => $this->_getSpecificPrice('regular_price', $conversion),
             'price_before_discount_incl_tax' => $this->_getSpecificPrice('regular_price', $conversion, true),
         ];
-        return $prices;
     }
 
     /**
