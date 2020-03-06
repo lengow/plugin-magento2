@@ -383,6 +383,7 @@
 "order successfully synchronised with Lengow webservice (ORDER ID %1)","order successfully synchronised with Lengow webservice (ORDER ID %1)"
 "WARNING! Order could NOT be synchronised with Lengow webservice (ORDER ID %1)","WARNING! Order could NOT be synchronised with Lengow webservice (ORDER ID %1)"
 "Order is anonymized and has not been imported","Order is anonymized and has not been imported"
+"Order is older than 3 months and has not been imported","Order is older than 3 months and has not been imported"
 "check completed actions","check completed actions"
 "check and finish old actions","check and finish old actions"
 "check actions not sent","check actions not sent"
