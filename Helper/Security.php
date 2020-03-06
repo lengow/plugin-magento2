@@ -21,9 +21,9 @@ namespace Lengow\Connector\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
+use Magento\Framework\App\ProductMetadataInterface as ProductMetadata;
 use Magento\Framework\HTTP\PhpEnvironment\ServerAddress;
 use Magento\Framework\Module\ModuleListInterface as ModuleList;
-use Magento\Framework\App\ProductMetadataInterface as ProductMetadata;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
 class Security extends AbstractHelper
@@ -68,33 +68,33 @@ class Security extends AbstractHelper
     ];
 
     /**
-     * @var \Magento\Framework\HTTP\PhpEnvironment\ServerAddress Magento server address instance
+     * @var ServerAddress Magento server address instance
      */
     protected $_serverAddress;
 
     /**
-     * @var \Magento\Framework\Module\ModuleListInterface Magento module list instance
+     * @var ModuleList Magento module list instance
      */
     protected $_moduleList;
 
     /**
-     * @var \Magento\Framework\App\ProductMetadataInterface Magento product metadata instance
+     * @var ProductMetadata Magento product metadata instance
      */
     protected $_productMetadata;
 
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
      * Constructor
      *
-     * @param \Magento\Framework\App\Helper\Context $context Magento context instance
-     * @param \Magento\Framework\HTTP\PhpEnvironment\ServerAddress $serverAddress Magento server address instance
-     * @param \Magento\Framework\Module\ModuleListInterface $moduleList Magento module list instance
-     * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata Magento product metadata instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param Context $context Magento context instance
+     * @param ServerAddress $serverAddress Magento server address instance
+     * @param ModuleList $moduleList Magento module list instance
+     * @param ProductMetadata $productMetadata Magento product metadata instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
      */
     public function __construct(
         Context $context,
@@ -102,7 +102,8 @@ class Security extends AbstractHelper
         ModuleList $moduleList,
         ProductMetadata $productMetadata,
         ConfigHelper $configHelper
-    ) {
+    )
+    {
         $this->_serverAddress = $serverAddress;
         $this->_moduleList = $moduleList;
         $this->_productMetadata = $productMetadata;

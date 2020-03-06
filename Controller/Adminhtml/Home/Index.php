@@ -27,27 +27,28 @@ use Lengow\Connector\Helper\Sync as SyncHelper;
 class Index extends Action
 {
     /**
-     * @var \Magento\Framework\Controller\Result\JsonFactory Magento json factory instance
+     * @var JsonFactory Magento json factory instance
      */
     protected $_resultJsonFactory;
 
     /**
-     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     * @var SyncHelper Lengow sync helper instance
      */
     protected $_syncHelper;
 
     /**
      * Constructor
      *
-     * @param \Magento\Backend\App\Action\Context $context Magento action context instance
-     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory Magento json factory instance
-     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
+     * @param Context $context Magento action context instance
+     * @param JsonFactory $resultJsonFactory Magento json factory instance
+     * @param SyncHelper $syncHelper Lengow sync helper instance
      */
     public function __construct(
         Context $context,
         JsonFactory $resultJsonFactory,
         SyncHelper $syncHelper
-    ) {
+    )
+    {
         $this->_resultJsonFactory = $resultJsonFactory;
         $this->_syncHelper = $syncHelper;
         parent::__construct($context);

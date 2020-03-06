@@ -22,59 +22,59 @@ namespace Lengow\Connector\Helper;
 use Magento\Backend\Model\UrlInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
-use Lengow\Connector\Helper\Data as DataHelper;
+use Magento\Store\Model\ScopeInterface;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Import as LengowImport;
+use Lengow\Connector\Model\Import\Marketplace as LengowMarketplace;
+use Lengow\Connector\Model\Import\MarketplaceFactory as LengowMarketplaceFactory;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
-use Lengow\Connector\Model\Import\OrderFactory;
-use Lengow\Connector\Model\Import\OrdererrorFactory;
-use Lengow\Connector\Model\Import\Marketplace;
-use Lengow\Connector\Model\Import\MarketplaceFactory;
+use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
+use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
 use Lengow\Connector\Model\Exception as LengowException;
 
 class Import extends AbstractHelper
 {
-    /**
-     * @var \Magento\Backend\Model\UrlInterface Backend url interface
-     */
-    protected $_urlBackend;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
-     */
-    protected $_configHelper;
-
     /**
      * @var array marketplaces collection
      */
     public static $marketplaces = [];
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     * @var UrlInterface Backend url interface
+     */
+    protected $_urlBackend;
+
+    /**
+     * @var DateTime Magento datetime instance
      */
     protected $_dateTime;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var ConfigHelper Lengow config helper instance
+     */
+    protected $_configHelper;
+
+    /**
+     * @var DataHelper Lengow data helper instance
      */
     protected $_dataHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow order error factory instance
-     */
-    protected $_orderErrorFactory;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\MarketplaceFactory Lengow marketplace factory instance
+     * @var LengowMarketplaceFactory Lengow marketplace factory instance
      */
     protected $_marketplaceFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow import order factory instance
+     * @var LengowOrderFactory Lengow import order factory instance
      */
     protected $_orderFactory;
+
+    /**
+     * @var LengowOrderErrorFactory Lengow order error factory instance
+     */
+    protected $_orderErrorFactory;
 
     /**
      * @var array valid states lengow to create a Lengow order
@@ -88,31 +88,31 @@ class Import extends AbstractHelper
     /**
      * Constructor
      *
-     * @param \Magento\Backend\Model\UrlInterface $urlBackend Backend url interface
-     * @param \Magento\Framework\App\Helper\Context $context Magento context instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
-     * @param \Lengow\Connector\Model\Import\OrdererrorFactory $ordererrorFactory Lengow order error factory instance
-     * @param \Lengow\Connector\Model\Import\MarketplaceFactory $marketplaceFactory Lengow marketplace factory instance
-     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrder Lengow import order factory instance
+     * @param UrlInterface $urlBackend Backend url interface
+     * @param Context $context Magento context instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param DateTime $dateTime Magento datetime instance
+     * @param LengowOrderErrorFactory $orderErrorFactory Lengow order error factory instance
+     * @param LengowMarketplaceFactory $marketplaceFactory Lengow marketplace factory instance
+     * @param LengowOrderFactory $lengowOrder Lengow import order factory instance
      */
     public function __construct(
         UrlInterface $urlBackend,
         Context $context,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
-        OrdererrorFactory $ordererrorFactory,
+        LengowOrderErrorFactory $orderErrorFactory,
         DateTime $dateTime,
-        MarketplaceFactory $marketplaceFactory,
-        OrderFactory $lengowOrder
+        LengowMarketplaceFactory $marketplaceFactory,
+        LengowOrderFactory $lengowOrder
     )
     {
         $this->_urlBackend = $urlBackend;
         $this->_configHelper = $configHelper;
         $this->_dataHelper = $dataHelper;
         $this->_dateTime = $dateTime;
-        $this->_orderErrorFactory = $ordererrorFactory;
+        $this->_orderErrorFactory = $orderErrorFactory;
         $this->_marketplaceFactory = $marketplaceFactory;
         $this->_orderFactory = $lengowOrder;
         parent::__construct($context);
@@ -291,7 +291,7 @@ class Import extends AbstractHelper
      *
      * @throws LengowException
      *
-     * @return Marketplace
+     * @return LengowMarketplace
      */
     public function getMarketplaceSingleton($name)
     {
@@ -307,7 +307,7 @@ class Import extends AbstractHelper
      * Check if order status is valid for import
      *
      * @param string $orderStateMarketplace order state
-     * @param Marketplace $marketplace order marketplace
+     * @param LengowMarketplace $marketplace order marketplace
      *
      * @return boolean
      */

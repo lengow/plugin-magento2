@@ -21,10 +21,10 @@
 namespace Lengow\Connector\Setup;
 
 use Magento\Framework\DB\Adapter\AdapterInterface;
+use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
-use Magento\Framework\DB\Ddl\Table;
 
 /**
  * @codeCoverageIgnore
@@ -34,17 +34,15 @@ class InstallSchema implements InstallSchemaInterface
     /**
      * Installs DB schema for a module
      *
-     * @param \Magento\Framework\Setup\SchemaSetupInterface $setup Magento schema setup instance
-     * @param \Magento\Framework\Setup\ModuleContextInterface $context Magento module context instance
+     * @param SchemaSetupInterface $setup Magento schema setup instance
+     * @param ModuleContextInterface $context Magento module context instance
      *
      * @throws \Exception
      *
      * @return void
      */
-    public function install(
-        SchemaSetupInterface $setup,
-        ModuleContextInterface $context
-    ) {
+    public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
+    {
         $installer = $setup;
         $installer->startSetup();
 

@@ -21,33 +21,34 @@ namespace Lengow\Connector\Controller\Adminhtml\Order;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Sales\Model\OrderFactory;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Sales\Model\OrderFactory as MagentoOrderFactory;
 use Lengow\Connector\Model\Import\Action as LengowAction;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class Resend extends Action
 {
     /**
-     * @var \Magento\Sales\Model\OrderFactory Magento order factory instance
+     * @var MagentoOrderFactory Magento order factory instance
      */
     protected $_orderFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Order Lengow order instance
+     * @var LengowOrder Lengow order instance
      */
     protected $_lengowOrder;
 
     /**
      * Constructor
      *
-     * @param \Magento\Framework\App\Action\Context $context Magento action context instance
-     * @param \Magento\Sales\Model\OrderFactory $orderFactory Magento order factory instance
-     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     * @param Context $context Magento action context instance
+     * @param MagentoOrderFactory $orderFactory Magento order factory instance
+     * @param LengowOrder $lengowOrder Lengow order instance
      */
     public function __construct(
         Context $context,
-        OrderFactory $orderFactory,
+        MagentoOrderFactory $orderFactory,
         LengowOrder $lengowOrder
     )
     {
@@ -59,7 +60,7 @@ class Resend extends Action
     /**
      * Resend action
      *
-     * @return \Magento\Framework\Controller\Result\Redirect
+     * @return Redirect
      */
     public function execute()
     {
@@ -70,7 +71,7 @@ class Resend extends Action
         $order = $this->_orderFactory->create()->load((int)$orderId);
         $shipment = $action === LengowAction::TYPE_SHIP ? $order->getShipmentsCollection()->getFirstItem() : null;
         $this->_lengowOrder->callAction($action, $order, $shipment);
-        /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
+        /** @var Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         return $resultRedirect->setPath('sales/order/view', ['order_id' => $orderId]);
     }

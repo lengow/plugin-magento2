@@ -20,10 +20,12 @@
 namespace Lengow\Connector\Model\Export;
 
 use Magento\Framework\Filesystem\Driver\File as DriverFile;
-use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Exception as LengowException;
+use Lengow\Connector\Model\Export\File as LengowFile;
+use Lengow\Connector\Model\Export\FileFactory as LengowFileFactory;
 
 /**
  * Lengow export feed
@@ -81,32 +83,32 @@ class Feed
     const FOOTER = 'footer';
 
     /**
-     * @var \Magento\Framework\Filesystem\Driver\File Magento driver file instance
+     * @var DriverFile Magento driver file instance
      */
     protected $_driverFile;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     * @var DateTime Magento datetime instance
      */
     protected $_dateTime;
 
     /**
-     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
+     * @var JsonHelper Magento json helper instance
      */
     protected $_jsonHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Export\FileFactory Lengow file factory instance
+     * @var LengowFileFactory Lengow file factory instance
      */
     protected $_fileFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Export\File Lengow file instance
+     * @var LengowFile Lengow file instance
      */
     protected $_file;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var DataHelper Lengow data helper instance
      */
     protected $_dataHelper;
 
@@ -148,19 +150,20 @@ class Feed
     /**
      * Constructor
      *
-     * @param \Magento\Framework\Filesystem\Driver\File $driverFile Magento driver file instance
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
-     * @param \Lengow\Connector\Model\Export\FileFactory $fileFactory Lengow file factory instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param DriverFile $driverFile Magento driver file instance
+     * @param DateTime $dateTime Magento datetime instance
+     * @param JsonHelper $jsonHelper Magento json helper instance
+     * @param LengowFileFactory $fileFactory Lengow file factory instance
+     * @param DataHelper $dataHelper Lengow data helper instance
      */
     public function __construct(
         DriverFile $driverFile,
         DateTime $dateTime,
         JsonHelper $jsonHelper,
-        FileFactory $fileFactory,
+        LengowFileFactory $fileFactory,
         DataHelper $dataHelper
-    ) {
+    )
+    {
         $this->_driverFile = $driverFile;
         $this->_dateTime = $dateTime;
         $this->_jsonHelper = $jsonHelper;
@@ -176,7 +179,7 @@ class Feed
      * string  format     feed format
      * string  store_code Magento store code
      *
-     * @throws \Exception|LengowException unable to create folder
+     * @throws \Exception|LengowException
      */
     public function init($params)
     {
@@ -392,7 +395,7 @@ class Feed
     /**
      * Create export file
      *
-     * @throws \Exception|LengowException unable to create folder
+     * @throws \Exception|LengowException
      */
     protected function _initExportFile()
     {
@@ -444,9 +447,9 @@ class Feed
     /**
      * Flush feed content
      *
+     * @param string $content feed content to be flushed
      * @throws \Exception
      *
-     * @param string $content feed content to be flushed
      */
     protected function _flush($content)
     {

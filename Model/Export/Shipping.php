@@ -19,11 +19,14 @@
 
 namespace Lengow\Connector\Model\Export;
 
-use Magento\Shipping\Model\ShippingFactory;
-use Magento\Shipping\Model\CarrierFactory;
+use Magento\Catalog\Model\Product\Interceptor as ProductInterceptor;
+use Magento\Framework\Pricing\PriceCurrencyInterface as PriceCurrency;
+use Magento\Quote\Model\Quote\Address\RateRequest;
 use Magento\Quote\Model\Quote\Address\RateRequestFactory;
 use Magento\Quote\Model\Quote\ItemFactory;
-use Magento\Framework\Pricing\PriceCurrencyInterface as PriceCurrency;
+use Magento\Shipping\Model\CarrierFactory;
+use Magento\Shipping\Model\ShippingFactory;
+use Magento\Store\Model\Store\Interceptor as StoreInterceptor;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
 /**
@@ -32,44 +35,44 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 class Shipping
 {
     /**
-     * @var \Magento\Shipping\Model\ShippingFactory Magento shipping Factory instance
-     */
-    protected $_shippingFactory;
-
-    /**
-     * @var \Magento\Shipping\Model\CarrierFactory Magento carrier Factory instance
-     */
-    protected $_carrierFactory;
-
-    /**
-     * @var \Magento\Quote\Model\Quote\Address\RateRequestFactory Magento rate request instance
-     */
-    protected $_rateRequestFactory;
-
-    /**
-     * @var \Magento\Quote\Model\Quote\ItemFactory Magento quote item factory
-     */
-    protected $_quoteItemFactory;
-
-    /**
-     * @var \Magento\Framework\Pricing\PriceCurrencyInterface Magento price currency instance
-     */
-    protected $_priceCurrency;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
-     */
-    protected $_configHelper;
-
-    /**
-     * @var \Magento\Catalog\Model\Product\Interceptor Magento product instance
+     * @var ProductInterceptor Magento product instance
      */
     protected $_product;
 
     /**
-     * @var \Magento\Store\Model\Store\Interceptor Magento store instance
+     * @var ShippingFactory Magento shipping Factory instance
+     */
+    protected $_shippingFactory;
+
+    /**
+     * @var CarrierFactory Magento carrier Factory instance
+     */
+    protected $_carrierFactory;
+
+    /**
+     * @var RateRequestFactory Magento rate request instance
+     */
+    protected $_rateRequestFactory;
+
+    /**
+     * @var ItemFactory Magento quote item factory
+     */
+    protected $_quoteItemFactory;
+
+    /**
+     * @var PriceCurrency Magento price currency instance
+     */
+    protected $_priceCurrency;
+
+    /**
+     * @var StoreInterceptor Magento store instance
      */
     protected $_store;
+
+    /**
+     * @var ConfigHelper Lengow config helper instance
+     */
+    protected $_configHelper;
 
     /**
      * @var string currency code for conversion
@@ -119,12 +122,12 @@ class Shipping
     /**
      * Constructor
      *
-     * @param \Magento\Shipping\Model\ShippingFactory $shippingFactory Magento shipping Factory instance
-     * @param \Magento\Shipping\Model\CarrierFactory $carrierFactory Magento carrier Factory instance
-     * @param \Magento\Quote\Model\Quote\Address\RateRequestFactory $rateRequestFactory Magento rate request instance
-     * @param \Magento\Quote\Model\Quote\ItemFactory $quoteItemFactory Magento quote item factory
-     * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency Magento price currency instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param ShippingFactory $shippingFactory Magento shipping Factory instance
+     * @param CarrierFactory $carrierFactory Magento carrier Factory instance
+     * @param RateRequestFactory $rateRequestFactory Magento rate request instance
+     * @param ItemFactory $quoteItemFactory Magento quote item factory
+     * @param PriceCurrency $priceCurrency Magento price currency instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
      */
     public function __construct(
         ShippingFactory $shippingFactory,
@@ -133,7 +136,8 @@ class Shipping
         ItemFactory $quoteItemFactory,
         PriceCurrency $priceCurrency,
         ConfigHelper $configHelper
-    ) {
+    )
+    {
         $this->_shippingFactory = $shippingFactory;
         $this->_carrierFactory = $carrierFactory;
         $this->_rateRequestFactory = $rateRequestFactory;
@@ -146,8 +150,8 @@ class Shipping
      * init a new shipping
      *
      * @param array $params optional options for load a specific product
-     * \Magento\Store\Model\Store\Interceptor store    Magento store instance
-     * string                                 currency Currency iso code for conversion
+     * StoreInterceptor store    Magento store instance
+     * string           currency Currency iso code for conversion
      */
     public function init($params)
     {
@@ -174,7 +178,7 @@ class Shipping
      * Load a new shipping with specific params
      *
      * @param array $params optional options for load a specific shipping
-     * \Magento\Catalog\Model\Product\Interceptor product Magento product instance
+     * ProductInterceptor product Magento product instance
      */
     public function load($params)
     {
@@ -277,7 +281,7 @@ class Shipping
     /**
      * Get shipping rate request for a product
      *
-     * @return \Magento\Quote\Model\Quote\Address\RateRequest
+     * @return RateRequest
      */
     protected function _getShippingRateRequest()
     {

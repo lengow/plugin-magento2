@@ -21,39 +21,42 @@ namespace Lengow\Connector\Controller\Adminhtml\Product;
 
 use Magento\Backend\App\Action\Context;
 use Magento\Catalog\Controller\Adminhtml\Product;
+use Magento\Catalog\Controller\Adminhtml\Product\Builder as ProductBuilder;
 use Magento\Catalog\Model\Product\Action as ProductAction;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Backend\Model\View\Result\Redirect;
 use Magento\Store\Model\StoreManagerInterface;
 
 class MassPublish extends Product
 {
     /**
-     * @var \Magento\Backend\App\Action\Context Magento action context instance
+     * @var Context Magento action context instance
      */
     protected $_context;
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
+     * @var StoreManagerInterface Magento store manager instance
      */
     protected $_storeManager;
 
     /**
-     * @var \Magento\Catalog\Model\Product\Action Magento product action instance
+     * @var ProductAction Magento product action instance
      */
     protected $_productAction;
 
     /**
-     * @param \Magento\Backend\App\Action\Context $context Magento action context instance
-     * @param Product\Builder $productBuilder Magento product builder instance
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
-     * @param \Magento\Catalog\Model\Product\Action $productAction Magento product action instance
+     * @param Context $context Magento action context instance
+     * @param ProductBuilder $productBuilder Magento product builder instance
+     * @param StoreManagerInterface $storeManager Magento store manager instance
+     * @param ProductAction $productAction Magento product action instance
      */
     public function __construct(
         Context $context,
-        Product\Builder $productBuilder,
+        ProductBuilder $productBuilder,
         StoreManagerInterface $storeManager,
         ProductAction $productAction
-    ) {
+    )
+    {
         parent::__construct($context, $productBuilder);
         $this->_context = $context;
         $this->productBuilder = $productBuilder;
@@ -77,7 +80,7 @@ class MassPublish extends Product
                 __('Something went wrong while updating the lengow product(s) attribute.')
             );
         }
-        /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
+        /** @var Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         return $resultRedirect->setPath('lengow/*/', ['store' => $storeId]);
     }

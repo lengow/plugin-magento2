@@ -21,70 +21,72 @@ namespace Lengow\Connector\Block\Adminhtml\Toolbox;
 
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
-use Magento\Framework\Module\Dir\Reader;
 use Magento\Cron\Model\ResourceModel\Schedule\CollectionFactory as ScheduleCollection;
-use Lengow\Connector\Helper\Data as DataHelper;
-use Lengow\Connector\Helper\Security as SecurityHelper;
+use Magento\Framework\Module\Dir\Reader;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
+use Lengow\Connector\Helper\Security as SecurityHelper;
+use Lengow\Connector\Model\Export as LengowExport;
 use Lengow\Connector\Model\Import as LengowImport;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
-use Lengow\Connector\Model\Export as LengowExport;
 
 class Content extends Template
 {
     /**
-     * @var \Magento\Framework\Module\Dir\Reader Magento module reader instance
-     */
-    protected $_moduleReader;
-
-    /**
-     * @var \Magento\Cron\Model\ResourceModel\Schedule\CollectionFactory Magento schedule collection factory
+     * @var ScheduleCollection Magento schedule collection factory
      */
     protected $_scheduleCollection;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var Reader Magento module reader instance
      */
-    protected $_dataHelper;
+    protected $_moduleReader;
 
     /**
-     * @var \Lengow\Connector\Helper\Security Lengow security helper instance
-     */
-    protected $_securityHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Import Lengow import helper instance
+     * @var DataHelper Lengow data helper instance
+     */
+    protected $_dataHelper;
+
+    /**
+     * @var ImportHelper Lengow import helper instance
      */
     protected $_importHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Order Lengow order instance
+     * @var SecurityHelper Lengow security helper instance
      */
-    protected $_lengowOrder;
+    protected $_securityHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Export Lengow export instance
+     * @var LengowExport Lengow export instance
      */
     protected $_export;
 
     /**
+     * @var LengowOrder Lengow order instance
+     */
+    protected $_lengowOrder;
+
+    /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param \Magento\Framework\Module\Dir\Reader $moduleReader Magento module reader instance
-     * @param \Magento\Cron\Model\ResourceModel\Schedule\CollectionFactory $scheduleCollection
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
-     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
-     * @param \Lengow\Connector\Model\Export $export Lengow export instance
+     * @param Context $context Magento block context instance
+     * @param Reader $moduleReader Magento module reader instance
+     * @param ScheduleCollection $scheduleCollection
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param SecurityHelper $securityHelper Lengow security helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param ImportHelper $importHelper Lengow import helper instance
+     * @param LengowOrder $lengowOrder Lengow order instance
+     * @param LengowExport $export Lengow export instance
      * @param array $data additional params
      */
     public function __construct(
@@ -98,7 +100,8 @@ class Content extends Template
         LengowOrder $lengowOrder,
         LengowExport $export,
         array $data = []
-    ) {
+    )
+    {
         $this->_moduleReader = $moduleReader;
         $this->_scheduleCollection = $scheduleCollection;
         $this->_dataHelper = $dataHelper;
@@ -113,7 +116,7 @@ class Content extends Template
     /**
      * Get all Magento stores
      *
-     * @return \Magento\Store\Model\ResourceModel\Store\Collection
+     * @return StoreCollection
      */
     public function getStores()
     {
@@ -252,7 +255,7 @@ class Content extends Template
     /**
      * Get array of export informations
      *
-     * @param \Magento\Store\Model\Store $store Magento store instance
+     * @param Store $store Magento store instance
      *
      * @return string
      */
@@ -269,7 +272,7 @@ class Content extends Template
         ];
         $checklist[] = [
             'title' => __('Lengow catalogs id synchronized'),
-            'message' =>  $this->_configHelper->get('catalog_id', $store->getId()),
+            'message' => $this->_configHelper->get('catalog_id', $store->getId()),
         ];
         $checklist[] = [
             'title' => __('Products available in the store'),
@@ -301,14 +304,14 @@ class Content extends Template
     /**
      * Get array of file informations
      *
-     * @param \Magento\Store\Model\Store $store Magento store instance
+     * @param Store $store Magento store instance
      *
      * @return string
      */
     public function getFileInformations($store)
     {
         $sep = DIRECTORY_SEPARATOR;
-        $storePath = DataHelper::LENGOW_FOLDER . $sep. $store->getCode() . $sep;
+        $storePath = DataHelper::LENGOW_FOLDER . $sep . $store->getCode() . $sep;
         $folderPath = $this->_dataHelper->getMediaPath() . $sep . $storePath;
         $folderUrl = $this->_dataHelper->getMediaUrl() . $storePath;
         try {
@@ -369,7 +372,7 @@ class Content extends Template
         if (file_exists($fileName)) {
             $fileErrors = [];
             $fileDeletes = [];
-            $base =  $this->_moduleReader->getModuleDir('', 'Lengow_Connector');
+            $base = $this->_moduleReader->getModuleDir('', 'Lengow_Connector');
             if (($file = fopen($fileName, 'r')) !== false) {
                 while (($data = fgetcsv($file, 1000, '|')) !== false) {
                     $fileCounter++;

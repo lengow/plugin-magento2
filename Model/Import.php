@@ -19,24 +19,25 @@
 
 namespace Lengow\Connector\Model;
 
-use Magento\Store\Model\Store;
-use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\Stdlib\DateTime\DateTime;
-use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Magento\Backend\Model\Session as BackendSession;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
-use Magento\Store\Model\WebsiteFactory;
-use Magento\Backend\Model\Session as BackendSession;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
-use Lengow\Connector\Helper\Data as DataHelper;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Store\Model\WebsiteFactory;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
-use Lengow\Connector\Model\Import\OrdererrorFactory;
+use Lengow\Connector\Model\Connector as LengowConnector;
 use Lengow\Connector\Model\Exception as LengowException;
-use Lengow\Connector\Model\Import\Action;
-use Lengow\Connector\Model\Import\ImportorderFactory;
-use Lengow\Connector\Model\Import\OrderFactory;
+use Lengow\Connector\Model\Import\Action as LengowAction;
+use Lengow\Connector\Model\Import\ImportorderFactory as LengowImportOrderFactory;
+use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
+use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
 
 /**
  * Lengow import
@@ -74,89 +75,89 @@ class Import
     const TYPE_MAGENTO_CRON = 'magento cron';
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
+     * @var StoreManagerInterface Magento store manager instance
      */
     protected $_storeManager;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     * @var DateTime Magento datetime instance
      */
     protected $_dateTime;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
+     * @var TimezoneInterface Magento datetime timezone instance
      */
     protected $_timezone;
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface Magento scope config instance
+     * @var ScopeConfigInterface Magento scope config instance
      */
     protected $_scopeConfig;
 
     /**
-     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
+     * @var JsonHelper Magento json helper instance
      */
     protected $_jsonHelper;
 
     /**
-     * @var \Magento\Store\Model\WebsiteFactory Magento website factory instance
+     * @var WebsiteFactory Magento website factory instance
      */
     protected $_websiteFactory;
 
     /**
-     * @var \Magento\Backend\Model\Session $_backendSession Backend session instance
+     * @var BackendSession $_backendSession Magento Backend session instance
      */
     protected $_backendSession;
 
     /**
-     * @var \Magento\Store\Api\StoreRepositoryInterface
+     * @var StoreRepositoryInterface Magento store repository instance
      */
     protected $_storeRepository;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order instance
-     */
-    protected $_lengowOrderFactory;
-
-    /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var DataHelper Lengow data helper instance
      */
     protected $_dataHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Import Lengow config helper instance
+     * @var ImportHelper Lengow config helper instance
      */
     protected $_importHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     * @var SyncHelper Lengow sync helper instance
      */
     protected $_syncHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Connector Lengow connector instance
+     * @var LengowAction Lengow action instance
+     */
+    protected $_action;
+
+    /**
+     * @var LengowConnector Lengow connector instance
      */
     protected $_connector;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow order error instance
+     * @var LengowOrderFactory Lengow order instance
+     */
+    protected $_lengowOrderFactory;
+
+    /**
+     * @var LengowOrderErrorFactory Lengow order error factory instance
      */
     protected $_orderErrorFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Import\ImportorderFactory Lengow import order factory instance
+     * @var LengowImportOrderFactory Lengow import order factory instance
      */
-    protected $_importorderFactory;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\Action Lengow action instance
-     */
-    protected $_action;
+    protected $_importOrderFactory;
 
     /**
      * @var integer Magento store id
@@ -261,23 +262,23 @@ class Import
     /**
      * Constructor
      *
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
-     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
-     * @param \Magento\Store\Model\WebsiteFactory $websiteFactory Magento website factory instance
-     * @param \Magento\Backend\Model\Session $backendSession Backend session instance
-     * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository Magento store repository instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Helper\Import $importHelper Lengow config helper instance
-     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
-     * @param \Lengow\Connector\Model\Import\OrdererrorFactory $orderErrorFactory Lengow orderError instance
-     * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
-     * @param \Lengow\Connector\Model\Import\ImportorderFactory $importorderFactory Lengow importorder instance
-     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
-     * @param \Lengow\Connector\Model\Import\Action $action Lengow action instance
+     * @param StoreManagerInterface $storeManager Magento store manager instance
+     * @param DateTime $dateTime Magento datetime instance
+     * @param TimezoneInterface $timezone Magento datetime timezone instance
+     * @param ScopeConfigInterface $scopeConfig Magento scope config instance
+     * @param JsonHelper $jsonHelper Magento json helper instance
+     * @param WebsiteFactory $websiteFactory Magento website factory instance
+     * @param BackendSession $backendSession Backend session instance
+     * @param StoreRepositoryInterface $storeRepository Magento store repository instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param ImportHelper $importHelper Lengow import helper instance
+     * @param SyncHelper $syncHelper Lengow sync helper instance
+     * @param LengowOrderErrorFactory $orderErrorFactory Lengow orderError factory instance
+     * @param LengowConnector $connector Lengow connector instance
+     * @param LengowImportOrderFactory $importOrderFactory Lengow importorder factory instance
+     * @param LengowOrderFactory $lengowOrderFactory Lengow order factory instance
+     * @param LengowAction $action Lengow action instance
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -292,11 +293,11 @@ class Import
         ConfigHelper $configHelper,
         ImportHelper $importHelper,
         SyncHelper $syncHelper,
-        OrdererrorFactory $orderErrorFactory,
-        Connector $connector,
-        ImportorderFactory $importorderFactory,
-        OrderFactory $lengowOrderFactory,
-        Action $action
+        LengowOrderErrorFactory $orderErrorFactory,
+        LengowConnector $connector,
+        LengowImportOrderFactory $importOrderFactory,
+        LengowOrderFactory $lengowOrderFactory,
+        LengowAction $action
     )
     {
         $this->_storeManager = $storeManager;
@@ -313,7 +314,7 @@ class Import
         $this->_syncHelper = $syncHelper;
         $this->_orderErrorFactory = $orderErrorFactory;
         $this->_connector = $connector;
-        $this->_importorderFactory = $importorderFactory;
+        $this->_importOrderFactory = $importOrderFactory;
         $this->_lengowOrderFactory = $lengowOrderFactory;
         $this->_action = $action;
     }
@@ -656,7 +657,7 @@ class Import
                 }
                 try {
                     // try to import or update order
-                    $importOrderFactory = $this->_importorderFactory->create();
+                    $importOrderFactory = $this->_importOrderFactory->create();
                     $importOrderFactory->init(
                         [
                             'store_id' => $storeId,
@@ -807,7 +808,7 @@ class Import
      *
      * @param Store $store Magento store instance
      *
-     * @throws LengowException no connection with webservices / credentials not valid
+     * @throws LengowException
      *
      * @return array
      */

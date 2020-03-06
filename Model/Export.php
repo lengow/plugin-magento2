@@ -19,21 +19,23 @@
 
 namespace Lengow\Connector\Model;
 
-use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\Stdlib\DateTime\DateTime;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
-use Magento\CatalogInventory\Model\Configuration as CatalogInventoryConfiguration;
+use Magento\Catalog\Model\ResourceModel\Product\Collection as ProductCollection;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
+use Magento\CatalogInventory\Model\Configuration as CatalogInventoryConfiguration;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Store\Model\Store\Interceptor as StoreInterceptor;
 use Magento\Store\Model\WebsiteFactory;
-use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
-use Lengow\Connector\Model\Export\Feed as LengowFeed;
-use Lengow\Connector\Model\Export\FeedFactory;
-use Lengow\Connector\Model\Export\ProductFactory;
+use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Exception as LengowException;
+use Lengow\Connector\Model\Export\Feed as LengowFeed;
+use Lengow\Connector\Model\Export\FeedFactory as LengowFeedFactory;
+use Lengow\Connector\Model\Export\ProductFactory as LengowProductFactory;
 
 /**
  * Lengow export
@@ -56,57 +58,57 @@ class Export
     const TYPE_MAGENTO_CRON = 'magento cron';
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
+     * @var StoreManagerInterface Magento store manager instance
      */
     protected $_storeManager;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     * @var DateTime Magento datetime instance
      */
     protected $_dateTime;
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface Magento scope config instance
+     * @var ScopeConfigInterface Magento scope config instance
      */
     protected $_scopeConfig;
 
     /**
-     * @var \Magento\Catalog\Model\Product\Attribute\Source\Status Magento product status instance
+     * @var ProductStatus Magento product status instance
      */
     protected $_productStatus;
 
     /**
-     * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory Magento product collection factory
+     * @var ProductCollectionFactory Magento product collection factory
      */
     protected $_productCollectionFactory;
 
     /**
-     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
+     * @var JsonHelper Magento json helper instance
      */
     protected $_jsonHelper;
 
     /**
-     * @var \Magento\Store\Model\WebsiteFactory Magento website factory instance
+     * @var WebsiteFactory Magento website factory instance
      */
     protected $_websiteFactory;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
-     */
-    protected $_dataHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Export\FeedFactory Lengow feed factory instance
+     * @var DataHelper Lengow data helper instance
+     */
+    protected $_dataHelper;
+
+    /**
+     * @var LengowFeedFactory Lengow feed factory instance
      */
     protected $_feedFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Export\ProductFactory Lengow product factory instance
+     * @var LengowProductFactory Lengow product factory instance
      */
     protected $_productFactory;
 
@@ -200,7 +202,7 @@ class Export
     ];
 
     /**
-     * @var \Magento\Store\Model\Store\Interceptor Magento store instance
+     * @var StoreInterceptor Magento store instance
      */
     protected $_store;
 
@@ -282,17 +284,17 @@ class Export
     /**
      * Constructor
      *
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
-     * @param \Magento\Catalog\Model\Product\Attribute\Source\Status $productStatus Magento product status instance
-     * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
-     * @param \Magento\Store\Model\WebsiteFactory $websiteFactory Magento website factory instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Model\Export\FeedFactory $feedFactory Lengow feed factory instance
-     * @param \Lengow\Connector\Model\Export\ProductFactory $productFactory Lengow product factory instance
+     * @param StoreManagerInterface $storeManager Magento store manager instance
+     * @param DateTime $dateTime Magento datetime instance
+     * @param ScopeConfigInterface $scopeConfig Magento scope config instance
+     * @param ProductStatus $productStatus Magento product status instance
+     * @param ProductCollectionFactory $productCollectionFactory
+     * @param JsonHelper $jsonHelper Magento json helper instance
+     * @param WebsiteFactory $websiteFactory Magento website factory instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param LengowFeedFactory $feedFactory Lengow feed factory instance
+     * @param LengowProductFactory $productFactory Lengow product factory instance
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -304,8 +306,8 @@ class Export
         WebsiteFactory $websiteFactory,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
-        FeedFactory $feedFactory,
-        ProductFactory $productFactory
+        LengowFeedFactory $feedFactory,
+        LengowProductFactory $productFactory
     ) {
         $this->_storeManager = $storeManager;
         $this->_dateTime = $dateTime;
@@ -473,7 +475,7 @@ class Export
      * @param array $products list of products to be exported
      * @param array $fields list of fields to export
      *
-     * @throws \Exception|LengowException Export folder not writable
+     * @throws \Exception|LengowException
      */
     protected function _export($products, $fields)
     {
@@ -497,7 +499,7 @@ class Export
         );
         $feed->write(LengowFeed::HEADER, $fields);
         foreach ($products as $product) {
-            $productDatas = [];
+            $productData = [];
             $lengowProduct->load(
                 [
                     'product_id' => (int)$product['entity_id'],
@@ -510,18 +512,18 @@ class Export
             }
             foreach ($fields as $field) {
                 if (isset($this->_defaultFields[$field])) {
-                    $productDatas[$field] = $lengowProduct->getData($this->_defaultFields[$field]);
+                    $productData[$field] = $lengowProduct->getData($this->_defaultFields[$field]);
                 } else {
-                    $productDatas[$field] = $lengowProduct->getData($field);
+                    $productData[$field] = $lengowProduct->getData($field);
                 }
             }
             // write product data
-            $feed->write(LengowFeed::BODY, $productDatas, $isFirst, $maxCharacter);
+            $feed->write(LengowFeed::BODY, $productData, $isFirst, $maxCharacter);
             $productCount++;
             $this->_setCounterLog($productModulo, $productCount);
             // clean data for next product
             $lengowProduct->clean();
-            unset($productDatas);
+            unset($productData);
             $isFirst = false;
         }
         $success = $feed->end();
@@ -859,7 +861,7 @@ class Export
     /**
      * Get products collection for export
      *
-     * @return \Magento\Catalog\Model\ResourceModel\Product\Collection
+     * @return ProductCollection
      */
     protected function _getQuery()
     {

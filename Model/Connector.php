@@ -19,8 +19,8 @@
 
 namespace Lengow\Connector\Model;
 
-use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Exception as LengowException;
 
 /**
@@ -178,20 +178,20 @@ class Connector
     ];
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var DataHelper Lengow data helper instance
      */
     protected $_dataHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
      * Constructor
      *
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
      */
     public function __construct(
         DataHelper $dataHelper,
@@ -495,7 +495,7 @@ class Connector
      * @param string $body body data for request
      * @param boolean $logOutput see log or not
      *
-     * @throws LengowException get Curl error
+     * @throws LengowException
      *
      * @return mixed
      */

@@ -19,20 +19,25 @@
 
 namespace Lengow\Connector\Model\Import;
 
-use Lengow\Connector\Model\Exception as LengowException;
+use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Sales\Model\OrderFactory as MagentoOrderFactory;
-use Magento\Framework\Json\Helper\Data as JsonHelper;
-use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
-use Lengow\Connector\Model\Connector;
-use Lengow\Connector\Model\ResourceModel\Action as ResourceAction;
-use Lengow\Connector\Model\ResourceModel\Action\CollectionFactory as ActionCollectionFactory;
+use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Model\Connector as LengowConnector;
+use Lengow\Connector\Model\Exception as LengowException;
+use Lengow\Connector\Model\Import\Action as LengowAction;
+use Lengow\Connector\Model\Import\ActionFactory as LengowActionFactory;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
+use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
+use Lengow\Connector\Model\ResourceModel\Action as LengowActionResource;
+use Lengow\Connector\Model\ResourceModel\Action\CollectionFactory as LengowActionCollectionFactory;
 
 /**
  * Model import action
@@ -128,59 +133,59 @@ class Action extends AbstractModel
     ];
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     * @var DateTime Magento datetime instance
      */
     protected $_dateTime;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
+     * @var TimezoneInterface Magento datetime timezone instance
      */
     protected $_timezone;
 
     /**
-     * @var \Magento\Sales\Model\OrderFactory Magento order factory instance
+     * @var MagentoOrderFactory Magento order factory instance
      */
     protected $_orderFactory;
 
     /**
-     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
+     * @var JsonHelper Magento json helper instance
      */
     protected $_jsonHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
-     */
-    protected $_dataHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Connector Lengow connector instance
+     * @var DataHelper Lengow data helper instance
+     */
+    protected $_dataHelper;
+
+    /**
+     * @var LengowConnector Lengow connector instance
      */
     protected $_connector;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order factory instance
+     * @var LengowActionFactory Lengow action factory instance
+     */
+    protected $_actionFactory;
+
+    /**
+     * @var LengowOrderFactory Lengow order factory instance
      */
     protected $_lengowOrderFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow order error factory instance
+     * @var LengowOrderErrorFactory Lengow order error factory instance
      */
     protected $_orderErrorFactory;
 
     /**
-     * @var \Lengow\Connector\Model\ResourceModel\Action\CollectionFactory Lengow action collection factory
+     * @var LengowActionCollectionFactory Lengow action collection factory
      */
     protected $_actionCollection;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\ActionFactory Lengow action factory instance
-     */
-    protected $_actionFactory;
 
     /**
      * @var array $_fieldList field list for the table lengow_order_line
@@ -200,19 +205,19 @@ class Action extends AbstractModel
     /**
      * Constructor
      *
-     * @param \Magento\Framework\Model\Context $context Magento context instance
-     * @param \Magento\Framework\Registry $registry Magento registry instance
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
-     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
-     * @param \Magento\Sales\Model\OrderFactory $orderFactory Magento order factory instance
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Model\Connector $connector Lengow connector instance
-     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order factory instance
-     * @param \Lengow\Connector\Model\Import\OrdererrorFactory $orderErrorFactory Lengow order error factory instance
-     * @param \Lengow\Connector\Model\ResourceModel\Action\CollectionFactory $actionCollection
-     * @param \Lengow\Connector\Model\Import\ActionFactory $actionFactory Lengow action factory instance
+     * @param Context $context Magento context instance
+     * @param Registry $registry Magento registry instance
+     * @param DateTime $dateTime Magento datetime instance
+     * @param TimezoneInterface $timezone Magento datetime timezone instance
+     * @param MagentoOrderFactory $orderFactory Magento order factory instance
+     * @param JsonHelper $jsonHelper Magento json helper instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param LengowConnector $connector Lengow connector instance
+     * @param LengowOrderFactory $lengowOrderFactory Lengow order factory instance
+     * @param LengowOrderErrorFactory $orderErrorFactory Lengow order error factory instance
+     * @param LengowActionCollectionFactory $actionCollection Lengow action collection factory
+     * @param LengowActionFactory $actionFactory Lengow action factory instance
      */
     public function __construct(
         Context $context,
@@ -223,11 +228,11 @@ class Action extends AbstractModel
         JsonHelper $jsonHelper,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
-        Connector $connector,
+        LengowConnector $connector,
         LengowOrderFactory $lengowOrderFactory,
-        OrdererrorFactory $orderErrorFactory,
-        ActionCollectionFactory $actionCollection,
-        ActionFactory $actionFactory
+        LengowOrderErrorFactory $orderErrorFactory,
+        LengowActionCollectionFactory $actionCollection,
+        LengowActionFactory $actionFactory
     )
     {
         $this->_dateTime = $dateTime;
@@ -251,7 +256,7 @@ class Action extends AbstractModel
      */
     protected function _construct()
     {
-        $this->_init(ResourceAction::class);
+        $this->_init(LengowActionResource::class);
     }
 
     /**
@@ -259,7 +264,7 @@ class Action extends AbstractModel
      *
      * @param array $params action parameters
      *
-     * @return \Lengow\Connector\Model\Import\Action|false
+     * @return LengowAction|false
      */
     public function createAction($params = [])
     {
@@ -285,7 +290,7 @@ class Action extends AbstractModel
      *
      * @param array $params action parameters
      *
-     * @return \Lengow\Connector\Model\Import\Action|false
+     * @return LengowAction|false
      */
     public function updateAction($params = [])
     {
@@ -380,8 +385,8 @@ class Action extends AbstractModel
             ->addFieldToFilter('order_id', $orderId)
             ->addFieldToFilter('state', self::STATE_NEW)
             ->addFieldToSelect('action_type');
-        if (!empty($results)) {
-            $lastAction = $results->getLastItem()->getData();
+        $lastAction = $results->getLastItem()->getData();
+        if (!empty($lastAction)) {
             return (string)$lastAction['action_type'];
         }
         return false;
@@ -407,7 +412,7 @@ class Action extends AbstractModel
      * Indicates whether an action can be created if it does not already exist
      *
      * @param array $params all available values
-     * @param \Magento\Sales\Model\Order $order Magento order instance
+     * @param MagentoOrder $order Magento order instance
      *
      * @throws LengowException
      *
@@ -424,7 +429,7 @@ class Action extends AbstractModel
                 unset($getParams[$param]);
             }
         }
-        $result = $this->_connector->queryApi(Connector::GET, Connector::API_ORDER_ACTION, $getParams);
+        $result = $this->_connector->queryApi(LengowConnector::GET, LengowConnector::API_ORDER_ACTION, $getParams);
         if (isset($result->error) && isset($result->error->message)) {
             throw new LengowException($result->error->message);
         }
@@ -462,15 +467,15 @@ class Action extends AbstractModel
      * Send a new action on the order via the Lengow API
      *
      * @param array $params all available values
-     * @param \Magento\Sales\Model\Order $order Magento order instance
-     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     * @param MagentoOrder $order Magento order instance
+     * @param LengowOrder $lengowOrder Lengow order instance
      *
      * @throws LengowException
      */
     public function sendAction($params, $order, $lengowOrder)
     {
         if (!$this->_configHelper->debugModeIsActive()) {
-            $result = $this->_connector->queryApi(Connector::POST, Connector::API_ORDER_ACTION, $params);
+            $result = $this->_connector->queryApi(LengowConnector::POST, LengowConnector::API_ORDER_ACTION, $params);
             if (isset($result->id)) {
                 $action = $this->_actionFactory->create();
                 $action->createAction(
@@ -582,8 +587,8 @@ class Action extends AbstractModel
         );
         do {
             $results = $this->_connector->queryApi(
-                Connector::GET,
-                Connector::API_ORDER_ACTION,
+                LengowConnector::GET,
+                LengowConnector::API_ORDER_ACTION,
                 [
                     'updated_from' => $dateFrom->format('c'),
                     'updated_to' => $dateTo->format('c'),

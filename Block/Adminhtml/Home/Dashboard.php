@@ -22,18 +22,18 @@ namespace Lengow\Connector\Block\Adminhtml\Home;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Lengow\Connector\Helper\Sync as SyncHelper;
-use Lengow\Connector\Model\Connector;
-use Lengow\Connector\Model\Import\Order;
+use Lengow\Connector\Model\Connector as LengowConnector;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class Dashboard extends Template
 {
     /**
-     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     * @var SyncHelper Lengow sync helper instance
      */
     protected $_syncHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Order Lengow order instance
+     * @var LengowOrder Lengow order instance
      */
     protected $_lengowOrder;
 
@@ -45,17 +45,18 @@ class Dashboard extends Template
     /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
-     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     * @param Context $context Magento block context instance
+     * @param SyncHelper $syncHelper Lengow sync helper instance
+     * @param LengowOrder $lengowOrder Lengow order instance
      * @param array $data additional params
      */
     public function __construct(
         Context $context,
         SyncHelper $syncHelper,
-        Order $lengowOrder,
+        LengowOrder $lengowOrder,
         array $data = []
-    ) {
+    )
+    {
         $this->_syncHelper = $syncHelper;
         $this->_lengowOrder = $lengowOrder;
         if (!$this->_syncHelper->pluginIsBlocked()) {
@@ -71,7 +72,7 @@ class Dashboard extends Template
      */
     public function getLengowSolutionUrl()
     {
-        return '//my.' . Connector::LENGOW_URL;
+        return '//my.' . LengowConnector::LENGOW_URL;
     }
 
     /**

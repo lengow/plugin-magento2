@@ -19,12 +19,11 @@
 
 namespace Lengow\Connector\Model;
 
-use Lengow\Connector\Model\ResourceModel\Log as ResourceLog;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
-use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Lengow\Connector\Model\ResourceModel\Log as LengowLogResource;
 
 class Log extends AbstractModel
 {
@@ -39,22 +38,23 @@ class Log extends AbstractModel
     ];
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     * @var DateTime Magento datetime instance
      */
     protected $_dateTime;
 
     /**
      * Constructor
      *
-     * @param \Magento\Framework\Model\Context $context Magento context instance
-     * @param \Magento\Framework\Registry $registry Magento registry instance
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
+     * @param Context $context Magento context instance
+     * @param Registry $registry Magento registry instance
+     * @param DateTime $dateTime Magento datetime instance
      */
     public function __construct(
         Context $context,
         Registry $registry,
         DateTime $dateTime
-    ) {
+    )
+    {
         $this->_dateTime = $dateTime;
         parent::__construct($context, $registry);
     }
@@ -66,7 +66,7 @@ class Log extends AbstractModel
      */
     protected function _construct()
     {
-        $this->_init(ResourceLog::class);
+        $this->_init(LengowLogResource::class);
     }
 
     /**

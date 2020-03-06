@@ -19,61 +19,63 @@
 
 namespace Lengow\Connector\Block;
 
+use Magento\Catalog\Model\ProductRepository;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
-use Magento\Checkout\Model\Session;
-use Magento\Sales\Model\OrderFactory;
-use Magento\Catalog\Model\ProductRepository;
-use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Sales\Model\Order as MagentoOrder;
+use Magento\Sales\Model\OrderFactory as MagentoOrderFactory;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
 class Tracker extends Template
 {
     /**
-     * @var \Magento\Checkout\Model\Session Magento checkout session instance
-     */
-    protected $_checkoutSession;
-
-    /**
-     * @var \Magento\Sales\Model\OrderFactory Magento order factory instance
-     */
-    protected $_orderFactory;
-
-    /**
-     * @var \Magento\Catalog\Model\ProductRepository Magento product repository instance
+     * @var ProductRepository Magento product repository instance
      */
     protected $_productRepository;
 
     /**
-     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
+     * @var Session Magento checkout session instance
+     */
+    protected $_checkoutSession;
+
+    /**
+     * @var JsonHelper Magento json helper instance
      */
     protected $_jsonHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var MagentoOrderFactory Magento order factory instance
+     */
+    protected $_orderFactory;
+
+    /**
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
      * Constructor
      *
-     * @param \Magento\Framework\View\Element\Template\Context $context Magento block context instance
-     * @param \Magento\Checkout\Model\Session $checkoutSession Magento checkout session instance
-     * @param \Magento\Sales\Model\OrderFactory $orderFactory Magento order factory instance
-     * @param \Magento\Catalog\Model\ProductRepository $productRepository Magento product repository instance
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param Context $context Magento block context instance
+     * @param Session $checkoutSession Magento checkout session instance
+     * @param MagentoOrderFactory $orderFactory Magento order factory instance
+     * @param ProductRepository $productRepository Magento product repository instance
+     * @param JsonHelper $jsonHelper Magento json helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
      * @param array $data
      */
     public function __construct(
         Context $context,
         Session $checkoutSession,
-        OrderFactory $orderFactory,
+        MagentoOrderFactory $orderFactory,
         ProductRepository $productRepository,
         JsonHelper $jsonHelper,
         ConfigHelper $configHelper,
         array $data = []
-    ) {
+    )
+    {
         parent::__construct($context, $data);
         $this->_checkoutSession = $checkoutSession;
         $this->_orderFactory = $orderFactory;
@@ -85,13 +87,12 @@ class Tracker extends Template
     /**
      * Get last order
      *
-     * @return \Magento\Sales\Model\Order|false
+     * @return MagentoOrder|false
      */
     public function getLastOrder()
     {
         if ($this->_checkoutSession->getLastRealOrderId()) {
-            $order = $this->_orderFactory->create()->loadByIncrementId($this->_checkoutSession->getLastRealOrderId());
-            return $order;
+            return $this->_orderFactory->create()->loadByIncrementId($this->_checkoutSession->getLastRealOrderId());
         }
         return false;
     }
@@ -99,7 +100,7 @@ class Tracker extends Template
     /**
      * Return list of order's items id
      *
-     * @param \Magento\Sales\Model\Order $order Magento order instance
+     * @param MagentoOrder $order Magento order instance
      *
      * @return string
      */

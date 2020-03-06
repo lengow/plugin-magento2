@@ -20,21 +20,21 @@
 namespace Lengow\Connector\Model\Config\Source;
 
 use Magento\Framework\Option\ArrayInterface;
-use Lengow\Connector\Helper\Config;
+use Lengow\Connector\Helper\Config as ConfigHelper;
 
 class Attribute implements ArrayInterface
 {
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
      * Constructor
      *
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
      */
-    public function __construct(Config $configHelper)
+    public function __construct(ConfigHelper $configHelper)
     {
         $this->_configHelper = $configHelper;
     }

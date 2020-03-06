@@ -23,8 +23,8 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Lengow\Connector\Helper\Data as DataHelper;
-use Lengow\Connector\Model\ResourceModel\Orderline\CollectionFactory as OrderlineCollectionFactory;
-use Lengow\Connector\Model\ResourceModel\Orderline as OrderlineResource;
+use Lengow\Connector\Model\ResourceModel\Orderline\CollectionFactory as LengowOrderLineCollectionFactory;
+use Lengow\Connector\Model\ResourceModel\Orderline as LengowOrderLineResource;
 
 /**
  * Model import orderline
@@ -32,14 +32,14 @@ use Lengow\Connector\Model\ResourceModel\Orderline as OrderlineResource;
 class Orderline extends AbstractModel
 {
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var DataHelper Lengow data helper instance
      */
     protected $_dataHelper;
 
     /**
-     * @var \Lengow\Connector\Model\ResourceModel\Orderline\CollectionFactory Lengow Orderline collection factory
+     * @var LengowOrderLineCollectionFactory Lengow orderline collection factory instance
      */
-    protected $_orderlineCollectionFactory;
+    protected $_orderLineCollectionFactory;
 
     /**
      * @var array $_fieldList field list for the table lengow_order_line
@@ -55,21 +55,21 @@ class Orderline extends AbstractModel
     /**
      * Constructor
      *
-     * @param \Magento\Framework\Model\Context $context Magento context instance
-     * @param \Magento\Framework\Registry $registry Magento registry instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Model\ResourceModel\Orderline\CollectionFactory $orderlineCollectionFactory
+     * @param Context $context Magento context instance
+     * @param Registry $registry Magento registry instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param LengowOrderLineCollectionFactory $orderLineCollectionFactory Lengow orderline collection factory instance
      */
     public function __construct(
         Context $context,
         Registry $registry,
         DataHelper $dataHelper,
-        OrderlineCollectionFactory $orderlineCollectionFactory
+        LengowOrderLineCollectionFactory $orderLineCollectionFactory
     )
     {
         parent::__construct($context, $registry);
         $this->_dataHelper = $dataHelper;
-        $this->_orderlineCollectionFactory = $orderlineCollectionFactory;
+        $this->_orderLineCollectionFactory = $orderLineCollectionFactory;
     }
 
     /**
@@ -79,7 +79,7 @@ class Orderline extends AbstractModel
      */
     protected function _construct()
     {
-        $this->_init(OrderlineResource::class);
+        $this->_init(LengowOrderLineResource::class);
     }
 
     /**
@@ -120,7 +120,7 @@ class Orderline extends AbstractModel
      */
     public function getOrderLineByOrderID($orderId)
     {
-        $results = $this->_orderlineCollectionFactory->create()
+        $results = $this->_orderLineCollectionFactory->create()
             ->addFieldToFilter('order_id', $orderId)
             ->addFieldToSelect('order_line_id')
             ->getData();

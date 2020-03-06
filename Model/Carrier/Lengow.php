@@ -21,15 +21,15 @@ namespace Lengow\Connector\Model\Carrier;
 
 use Magento\Backend\Model\Session as BackendSession;
 use Magento\Checkout\Model\Session as CheckoutSession;
-use Magento\Quote\Model\Quote\Address\RateRequest;
-use Magento\Shipping\Model\Rate\Result;
-use Magento\Shipping\Model\Rate\ResultFactory;
-use Magento\Quote\Model\Quote\Address\RateResult\MethodFactory;
-use Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Psr\Log\LoggerInterface;
+use Magento\Quote\Model\Quote\Address\RateRequest;
+use Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory;
+use Magento\Quote\Model\Quote\Address\RateResult\MethodFactory;
 use Magento\Shipping\Model\Carrier\AbstractCarrier;
 use Magento\Shipping\Model\Carrier\CarrierInterface;
+use Magento\Shipping\Model\Rate\Result;
+use Magento\Shipping\Model\Rate\ResultFactory;
+use Psr\Log\LoggerInterface;
 
 class Lengow extends AbstractCarrier implements CarrierInterface
 {
@@ -44,33 +44,33 @@ class Lengow extends AbstractCarrier implements CarrierInterface
     protected $_isFixed = true;
 
     /**
-     * @var \Magento\Backend\Model\Session Magento customer session instance
+     * @var BackendSession Magento customer session instance
      */
     protected $_backendSession;
 
     /**
-     * @var \Magento\Checkout\Model\Session Magento checkout session instance
+     * @var CheckoutSession Magento checkout session instance
      */
     protected $_checkoutSession;
 
     /**
-     * @var \Magento\Shipping\Model\Rate\ResultFactory Magento result factory instance
+     * @var ResultFactory Magento result factory instance
      */
     protected $_rateResultFactory;
 
     /**
-     * @var \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory Magento method factory instance
+     * @var MethodFactory Magento method factory instance
      */
     protected $_rateMethodFactory;
 
     /**
-     * @param \Magento\Backend\Model\Session $backendSession Magento customer session instance
-     * @param \Magento\Checkout\Model\Session $checkoutSession Magento checkout session instance
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
-     * @param \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory
-     * @param \Psr\Log\LoggerInterface $logger Psr Logger interface instance
-     * @param \Magento\Shipping\Model\Rate\ResultFactory $rateResultFactory Magento result factory instance
-     * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
+     * @param BackendSession $backendSession Magento customer session instance
+     * @param CheckoutSession $checkoutSession Magento checkout session instance
+     * @param ScopeConfigInterface $scopeConfig Magento scope config instance
+     * @param ErrorFactory $rateErrorFactory Magento rate error factory instance
+     * @param LoggerInterface $logger Psr Logger interface instance
+     * @param ResultFactory $rateResultFactory Magento rate result factory instance
+     * @param MethodFactory $rateMethodFactory Magento rate method factory
      * @param array $data
      */
     public function __construct(
@@ -82,7 +82,8 @@ class Lengow extends AbstractCarrier implements CarrierInterface
         ResultFactory $rateResultFactory,
         MethodFactory $rateMethodFactory,
         array $data = []
-    ) {
+    )
+    {
         $this->_backendSession = $backendSession;
         $this->_checkoutSession = $checkoutSession;
         $this->_rateResultFactory = $rateResultFactory;

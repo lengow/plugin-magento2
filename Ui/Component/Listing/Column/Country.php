@@ -19,31 +19,31 @@
 
 namespace Lengow\Connector\Ui\Component\Listing\Column;
 
-use Magento\Ui\Component\Listing\Columns\Column;
+use Magento\Directory\Model\CountryFactory;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Asset\Repository;
-use Magento\Directory\Model\CountryFactory;
+use Magento\Ui\Component\Listing\Columns\Column;
 
 class Country extends Column
 {
     /**
-     * @var \Magento\Framework\View\Asset\Repository Magento asset repository instance
+     * @var Repository Magento asset repository instance
      */
     protected $_assetRepo;
 
     /**
-     * @var \Magento\Directory\Model\CountryFactory Magento country factory instance
+     * @var CountryFactory Magento country factory instance
      */
     protected $_countryFactory;
 
     /**
      * Constructor
      *
-     * @param \Magento\Directory\Model\CountryFactory $countryFactory Magento country factory instance
-     * @param \Magento\Framework\View\Asset\Repository $assetRepo Magento asset repository instance
-     * @param \Magento\Framework\View\Element\UiComponent\ContextInterface $context Magento ui context instance
-     * @param \Magento\Framework\View\Element\UiComponentFactory $uiComponentFactory Magento ui factory instance
+     * @param CountryFactory $countryFactory Magento country factory instance
+     * @param Repository $assetRepo Magento asset repository instance
+     * @param ContextInterface $context Magento ui context instance
+     * @param UiComponentFactory $uiComponentFactory Magento ui factory instance
      * @param array $components component data
      * @param array $data additional params
      */
@@ -54,7 +54,8 @@ class Country extends Column
         UiComponentFactory $uiComponentFactory,
         array $components = [],
         array $data = []
-    ) {
+    )
+    {
         $this->_assetRepo = $assetRepo;
         $this->_countryFactory = $countryFactory;
         parent::__construct($context, $uiComponentFactory, $components, $data);

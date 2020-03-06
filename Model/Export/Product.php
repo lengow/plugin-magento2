@@ -19,16 +19,21 @@
 
 namespace Lengow\Connector\Model\Export;
 
-use Magento\Catalog\Model\ProductRepository;
-use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+use Magento\Catalog\Model\Product\Interceptor as ProductInterceptor;
+use Magento\Store\Model\Store\Interceptor as StoreInterceptor;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
+use Magento\Catalog\Model\ProductRepository;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
-use Magento\Framework\Locale\Resolver;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+use Magento\Framework\Locale\Resolver as Locale;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Model\Export\Price as LengowPrice;
+use Lengow\Connector\Model\Export\Shipping as LengowShipping;
+use Lengow\Connector\Model\Export\Category as LengowCategory;
 
 /**
  * Lengow export product
@@ -36,72 +41,72 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 class Product
 {
     /**
-     * @var \Magento\Catalog\Model\ProductRepository Magento product repository instance
+     * @var ProductRepository Magento product repository instance
      */
     protected $_productRepository;
 
     /**
-     * @var \Magento\ConfigurableProduct\Model\Product\Type\Configurable Magento product configurable instance
+     * @var Configurable Magento product configurable instance
      */
     protected $_configurableProduct;
 
     /**
-     * @var \Magento\CatalogInventory\Api\StockRegistryInterface Magento stock registry instance
+     * @var StockRegistryInterface Magento stock registry instance
      */
     protected $_stockRegistry;
 
     /**
-     * @var \Magento\Framework\Locale\Resolver Magento locale resolver instance
+     * @var Locale Magento locale resolver instance
      */
     protected $_locale;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     * @var DateTime Magento datetime instance
      */
     protected $_dateTime;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface Magento datetime timezone instance
+     * @var TimezoneInterface Magento datetime timezone instance
      */
     protected $_timezone;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
-     */
-    protected $_dataHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Export\Price Lengow export price instance
+     * @var DataHelper Lengow data helper instance
      */
-    protected $_price;
+    protected $_dataHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Export\Shipping Lengow export shipping instance
-     */
-    protected $_shipping;
-
-    /**
-     * @var \Lengow\Connector\Model\Export\Category Lengow export category instance
+     * @var LengowCategory Lengow export category instance
      */
     protected $_category;
 
     /**
-     * @var \Magento\Catalog\Model\Product\Interceptor Magento product instance
+     * @var LengowPrice Lengow export price instance
+     */
+    protected $_price;
+
+    /**
+     * @var LengowShipping Lengow export shipping instance
+     */
+    protected $_shipping;
+
+    /**
+     * @var ProductInterceptor Magento product instance
      */
     protected $_product;
 
     /**
-     * @var \Magento\Catalog\Model\Product\Interceptor Magento product instance
+     * @var ProductInterceptor Magento product instance
      */
     protected $_parentProduct;
 
     /**
-     * @var \Magento\Store\Model\Store\Interceptor Magento store instance
+     * @var StoreInterceptor Magento store instance
      */
     protected $_store;
 
@@ -204,31 +209,32 @@ class Product
     /**
      * Constructor
      *
-     * @param \Magento\Catalog\Model\ProductRepository $productRepository Magento product repository instance
-     * @param \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableProduct
-     * @param \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry Magento stock registry instance
-     * @param \Magento\Framework\Locale\Resolver $locale Magento locale resolver instance
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
-     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone Magento datetime timezone instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Model\Export\Price $price Lengow product price instance
-     * @param \Lengow\Connector\Model\Export\Shipping $shipping Lengow product shipping instance
-     * @param \Lengow\Connector\Model\Export\Category $category Lengow product category instance
+     * @param ProductRepository $productRepository Magento product repository instance
+     * @param Configurable $configurableProduct Magento configurable product instance
+     * @param StockRegistryInterface $stockRegistry Magento stock registry instance
+     * @param Locale $locale Magento locale resolver instance
+     * @param DateTime $dateTime Magento datetime instance
+     * @param TimezoneInterface $timezone Magento datetime timezone instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param LengowPrice $price Lengow product price instance
+     * @param LengowShipping $shipping Lengow product shipping instance
+     * @param LengowCategory $category Lengow product category instance
      */
     public function __construct(
         ProductRepository $productRepository,
         Configurable $configurableProduct,
         StockRegistryInterface $stockRegistry,
-        Resolver $locale,
+        Locale $locale,
         DateTime $dateTime,
         TimezoneInterface $timezone,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
-        Price $price,
-        Shipping $shipping,
-        Category $category
-    ) {
+        LengowPrice $price,
+        LengowShipping $shipping,
+        LengowCategory $category
+    )
+    {
         $this->_productRepository = $productRepository;
         $this->_configurableProduct = $configurableProduct;
         $this->_stockRegistry = $stockRegistry;
@@ -246,8 +252,8 @@ class Product
      * init a new product
      *
      * @param array $params optional options for load a specific product
-     * \Magento\Store\Model\Store\Interceptor store    Magento store instance
-     * string                                 currency Currency iso code for conversion
+     * StoreInterceptor store    Magento store instance
+     * string           currency Currency iso code for conversion
      */
     public function init($params)
     {
@@ -440,7 +446,7 @@ class Product
         $simpleTotal = $this->_simpleCounter - $this->_simpleDisabledCounter;
         $total = $simpleTotal + $this->_configurableCounter + $this->_groupedCounter
             + $this->_virtualCounter + $this->_downloadableCounter;
-        $counters = [
+        return [
             'total' => $total,
             'simple' => $this->_simpleCounter,
             'simple_enable' => $simpleTotal,
@@ -450,7 +456,6 @@ class Product
             'virtual' => $this->_virtualCounter,
             'downloadable' => $this->_downloadableCounter,
         ];
-        return $counters;
     }
 
     /**
@@ -487,7 +492,7 @@ class Product
      *
      * @throws \Exception
      *
-     * @return \Magento\Catalog\Model\Product\Interceptor
+     * @return ProductInterceptor
      */
     protected function _getProduct($productId, $forceReload = false)
     {
@@ -504,7 +509,7 @@ class Product
      *
      * @throws \Exception
      *
-     * @return \Magento\Catalog\Model\Product\Interceptor|null
+     * @return ProductInterceptor|null
      */
     protected function _getParentProduct()
     {
@@ -528,7 +533,7 @@ class Product
      *
      * @throws \Exception
      *
-     * @return \Magento\Catalog\Model\Product\Interceptor
+     * @return ProductInterceptor
      */
     protected function _getConfigurableProduct($parentId)
     {

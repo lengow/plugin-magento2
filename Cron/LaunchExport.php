@@ -20,40 +20,40 @@
 namespace Lengow\Connector\Cron;
 
 use Magento\Store\Model\StoreManagerInterface;
-use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Export as LengowExport;
 use Lengow\Connector\Model\ExportFactory as LengowExportFactory;
 
 class LaunchExport
 {
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
+     * @var StoreManagerInterface Magento store manager instance
      */
     protected $_storeManager;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
-     */
-    protected $_dataHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Export Lengow export instance
+     * @var DataHelper Lengow data helper instance
+     */
+    protected $_dataHelper;
+
+    /**
+     * @var LengowExportFactory Lengow export instance
      */
     protected $_exportFactory;
 
     /**
      * Constructor
      *
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Model\ExportFactory $exportFactory Lengow export factory instance
+     * @param StoreManagerInterface $storeManager Magento store manager instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param LengowExportFactory $exportFactory Lengow export factory instance
      */
     public function __construct(
         StoreManagerInterface $storeManager,

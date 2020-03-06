@@ -19,31 +19,31 @@
 
 namespace Lengow\Connector\Ui\Component\Listing\Column;
 
-use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Ui\Component\Listing\Columns\Column;
 use Lengow\Connector\Helper\Data as DataHelper;
 
 class OrderStatus extends Column
 {
     /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface Magento order repository instance
+     * @var OrderRepositoryInterface Magento order repository instance
      */
     protected $_orderRepository;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var DataHelper Lengow data helper instance
      */
     protected $_dataHelper;
 
     /**
      * Constructor
      *
-     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository Magento order repository instance
-     * @param \Magento\Framework\View\Element\UiComponent\ContextInterface $context Magento ui context instance
-     * @param \Magento\Framework\View\Element\UiComponentFactory $uiComponentFactory Magento ui factory instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param OrderRepositoryInterface $orderRepository Magento order repository instance
+     * @param ContextInterface $context Magento ui context instance
+     * @param UiComponentFactory $uiComponentFactory Magento ui factory instance
+     * @param DataHelper $dataHelper Lengow data helper instance
      * @param array $components component data
      * @param array $data additional params
      */
@@ -54,7 +54,8 @@ class OrderStatus extends Column
         DataHelper $dataHelper,
         array $components = [],
         array $data = []
-    ) {
+    )
+    {
         $this->_orderRepository = $orderRepository;
         $this->_dataHelper = $dataHelper;
         parent::__construct($context, $uiComponentFactory, $components, $data);

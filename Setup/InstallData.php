@@ -22,17 +22,17 @@ namespace Lengow\Connector\Setup;
 
 use Magento\Catalog\Model\Product;
 use Magento\Customer\Model\Customer;
-use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Customer\Setup\CustomerSetupFactory;
-use Magento\Sales\Model\Order;
-use Magento\Sales\Setup\SalesSetupFactory;
+use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
+use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Framework\Setup\InstallDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
-use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
-use Lengow\Connector\Helper\Config;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Setup\SalesSetupFactory;
+use Lengow\Connector\Helper\Config as ConfigHelper;
 
 /**
  * @codeCoverageIgnore
@@ -40,17 +40,17 @@ use Magento\Framework\ObjectManagerInterface;
 class InstallData implements InstallDataInterface
 {
     /**
-     * @var \Magento\Eav\Setup\EavSetupFactory Magento EAV setup factory instance
+     * @var EavSetupFactory Magento EAV setup factory instance
      */
     private $_eavSetupFactory;
 
     /**
-     * @var \Magento\Customer\Setup\CustomerSetupFactory Magento customer setup factory instance
+     * @var CustomerSetupFactory Magento customer setup factory instance
      */
     private $_customerSetupFactory;
 
     /**
-     * @var \Magento\Sales\Setup\SalesSetupFactory Magento sales setup factory instance
+     * @var SalesSetupFactory Magento sales setup factory instance
      */
     protected $_salesSetupFactory;
 
@@ -60,24 +60,24 @@ class InstallData implements InstallDataInterface
     private $_attributeSetFactory;
 
     /**
-     * @var \Magento\Framework\ObjectManagerInterface Magento object manager instance
+     * @var ObjectManagerInterface Magento object manager instance
      */
     protected $_objectManager;
 
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
      * Init
      *
-     * @param \Magento\Eav\Setup\EavSetupFactory $eavSetupFactory Magento EAV setup factory instance
-     * @param \Magento\Customer\Setup\CustomerSetupFactory $customerSetupFactory Magento customer setup factory instance
-     * @param \Magento\Sales\Setup\SalesSetupFactory $salesSetupFactory Magento sales setup factory instance
-     * @param \Magento\Eav\Model\Entity\Attribute\SetFactory Magento attribute set factory instance
-     * @param \Magento\Framework\ObjectManagerInterface $objectManager Magento object manager instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param EavSetupFactory $eavSetupFactory Magento EAV setup factory instance
+     * @param CustomerSetupFactory $customerSetupFactory Magento customer setup factory instance
+     * @param SalesSetupFactory $salesSetupFactory Magento sales setup factory instance
+     * @param AttributeSetFactory $attributeSetFactory Magento attribute set factory instance
+     * @param ObjectManagerInterface $objectManager Magento object manager instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
      */
     public function __construct(
         EavSetupFactory $eavSetupFactory,
@@ -85,8 +85,9 @@ class InstallData implements InstallDataInterface
         SalesSetupFactory $salesSetupFactory,
         AttributeSetFactory $attributeSetFactory,
         ObjectManagerInterface $objectManager,
-        Config $configHelper
-    ) {
+        ConfigHelper $configHelper
+    )
+    {
         $this->_eavSetupFactory = $eavSetupFactory;
         $this->_customerSetupFactory = $customerSetupFactory;
         $this->_salesSetupFactory = $salesSetupFactory;
@@ -98,17 +99,15 @@ class InstallData implements InstallDataInterface
     /**
      * Installs data for a module
      *
-     * @param \Magento\Framework\Setup\ModuleDataSetupInterface $setup Magento module data setup instance
-     * @param \Magento\Framework\Setup\ModuleContextInterface $context Magento module context instance
+     * @param ModuleDataSetupInterface $setup Magento module data setup instance
+     * @param ModuleContextInterface $context Magento module context instance
      *
      * @throws \Exception
      *
      * @return void
      */
-    public function install(
-        ModuleDataSetupInterface $setup,
-        ModuleContextInterface $context
-    ) {
+    public function install(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
+    {
         $setup->startSetup();
         $eavSetup = $this->_eavSetupFactory->create(['setup' => $setup]);
         $customerSetup = $this->_customerSetupFactory->create(['resourceName' => 'customer_setup', 'setup' => $setup]);

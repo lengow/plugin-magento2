@@ -20,7 +20,6 @@
 namespace Lengow\Connector\Model\Export;
 
 use Magento\Framework\Filesystem\Driver\File as DriverFile;
-use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Helper\Data as DataHelper;
 
 /**
@@ -29,12 +28,12 @@ use Lengow\Connector\Helper\Data as DataHelper;
 class File
 {
     /**
-     * @var \Magento\Framework\Filesystem\Driver\File Magento driver file instance
+     * @var DriverFile Magento driver file instance
      */
     protected $_driverFile;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var DataHelper Lengow data helper instance
      */
     protected $_dataHelper;
 
@@ -61,13 +60,14 @@ class File
     /**
      * Constructor
      *
-     * @param \Magento\Framework\Filesystem\Driver\File $driverFile Magento driver file instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param DriverFile $driverFile Magento driver file instance
+     * @param DataHelper $dataHelper Lengow data helper instance
      */
     public function __construct(
         DriverFile $driverFile,
         DataHelper $dataHelper
-    ) {
+    )
+    {
         $this->_driverFile = $driverFile;
         $this->_dataHelper = $dataHelper;
     }

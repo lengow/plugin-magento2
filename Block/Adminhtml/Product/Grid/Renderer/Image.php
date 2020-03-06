@@ -19,32 +19,31 @@
 
 namespace Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer;
 
+use Magento\Backend\Block\Context;
 use Magento\Backend\Block\Widget\Grid\Column\Renderer\AbstractRenderer;
 use Magento\Framework\DataObject;
-use Magento\Backend\Block\Context;
-use Magento\Catalog\Helper\Image as HelperImage;
+use Magento\Catalog\Helper\Image as ImageHelper;
 
 class Image extends AbstractRenderer
 {
     /**
-     * Image Helper
-     *
-     * @var \Magento\Catalog\Helper\Image Magento image helper instance
+     * @var ImageHelper Magento image helper instance
      */
     protected $imageHelper;
 
     /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Context $context Magento block context instance
-     * @param \Magento\Catalog\Helper\Image $imageHelper Magento image helper instance
+     * @param Context $context Magento block context instance
+     * @param ImageHelper $imageHelper Magento image helper instance
      * @param array $data additional params
      */
     public function __construct(
         Context $context,
-        HelperImage $imageHelper,
+        ImageHelper $imageHelper,
         array $data = []
-    ) {
+    )
+    {
         $this->imageHelper = $imageHelper;
         $this->_authorization = $context->getAuthorization();
         parent::__construct($context, $data);
@@ -53,7 +52,7 @@ class Image extends AbstractRenderer
     /**
      * Renders grid column
      *
-     * @param \Magento\Framework\DataObject $row Magento data object instance
+     * @param DataObject $row Magento data object instance
      *
      * @return  string
      */
