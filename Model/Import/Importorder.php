@@ -44,6 +44,7 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Model\Exception as LengowException;
+use Lengow\Connector\Model\Import as LengowImport;
 use Lengow\Connector\Model\Import\Customer as LengowCustomer;
 use Lengow\Connector\Model\Import\Marketplace as LengowMarketplace;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
@@ -238,6 +239,11 @@ class Importorder extends AbstractModel
     protected $_firstPackage;
 
     /**
+     * @var boolean import one order var from lengow import
+     */
+    protected $_importOneOrder;
+
+    /**
      * @var LengowMarketplace Lengow marketplace instance
      */
     protected $_marketplace;
@@ -412,6 +418,7 @@ class Importorder extends AbstractModel
         $this->_orderData = $params['order_data'];
         $this->_packageData = $params['package_data'];
         $this->_firstPackage = $params['first_package'];
+        $this->_importOneOrder = $params['import_one_order'];
         $this->_marketplace = $this->_importHelper->getMarketplaceSingleton((string)$this->_orderData->marketplace);
         $this->_marketplaceLabel = $this->_marketplace->labelName;
         $this->_orderStateMarketplace = (string)$this->_orderData->marketplace_status;
@@ -465,15 +472,30 @@ class Importorder extends AbstractModel
                 return false;
             }
         }
-        // skip import if the order is anonymized
-        if ($this->_orderData->anonymized) {
-            $this->_dataHelper->log(
-                DataHelper::CODE_IMPORT,
-                $this->_dataHelper->setLogMessage('Order is anonymized and has not been imported'),
-                $this->_logOutput,
-                $this->_marketplaceSku
-            );
-            return false;
+        if (!$this->_importOneOrder) {
+            // skip import if the order is anonymized
+            if ($this->_orderData->anonymized) {
+                $this->_dataHelper->log(
+                    DataHelper::CODE_IMPORT,
+                    $this->_dataHelper->setLogMessage('Order is anonymized and has not been imported'),
+                    $this->_logOutput,
+                    $this->_marketplaceSku
+                );
+                return false;
+            }
+            // skip import if the order is older than 3 months
+            $dateTimeOrder = new \DateTime($this->_orderData->marketplace_order_date);
+            $interval = $dateTimeOrder->diff(new \DateTime());
+            $monthInterval = $interval->m + ($interval->y * 12);
+            if ($monthInterval >= LengowImport::MONTH_INTERVAL_TIME) {
+                $this->_dataHelper->log(
+                    DataHelper::CODE_IMPORT,
+                    $this->_dataHelper->setLogMessage('Order is older than 3 months and has not been imported'),
+                    $this->_logOutput,
+                    $this->_marketplaceSku
+                );
+                return false;
+            }
         }
         // checks if an external id already exists
         $orderMagentoId = $this->_checkExternalIds($this->_orderData->merchant_order_id);

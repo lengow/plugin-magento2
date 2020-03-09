@@ -60,6 +60,7 @@ en:
       order_synchronized_with_lengow: "order successfully synchronised with Lengow webservice (ORDER ID %1)"
       order_not_synchronized_with_lengow: "WARNING! Order could NOT be synchronised with Lengow webservice (ORDER ID %1)"
       anonymized_order: "Order is anonymized and has not been imported"
+      old_order: "Order is older than 3 months and has not been imported"
     order_action:
       check_completed_action: "check completed actions"
       check_old_action: "check and finish old actions"
