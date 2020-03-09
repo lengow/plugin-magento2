@@ -19,7 +19,6 @@
 
 namespace Lengow\Connector\Model\Import;
 
-use Lengow\Connector\Model\Import;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Catalog\Model\ProductFactory;
@@ -45,6 +44,7 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Model\Exception as LengowException;
+use Lengow\Connector\Model\Import as LengowImport;
 use Lengow\Connector\Model\Import\Customer as LengowCustomer;
 use Lengow\Connector\Model\Import\Marketplace as LengowMarketplace;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
@@ -487,7 +487,7 @@ class Importorder extends AbstractModel
             $dateTimeOrder = new \DateTime($this->_orderData->marketplace_order_date);
             $interval = $dateTimeOrder->diff(new \DateTime());
             $monthInterval = $interval->m + ($interval->y * 12);
-            if ($monthInterval >= Import::MONTH_INTERVAL_TIME) {
+            if ($monthInterval >= LengowImport::MONTH_INTERVAL_TIME) {
                 $this->_dataHelper->log(
                     DataHelper::CODE_IMPORT,
                     $this->_dataHelper->setLogMessage('Order is older than 3 months and has not been imported'),
