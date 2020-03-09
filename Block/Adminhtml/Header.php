@@ -22,17 +22,24 @@ namespace Lengow\Connector\Block\Adminhtml;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
+use Lengow\Connector\Model\Connector as LengowConnector;
 
 class Header extends Template
 {
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     * @var SecurityHelper Lengow security helper instance
+     */
+    protected $_securityHelper;
+
+    /**
+     * @var SyncHelper Lengow sync helper instance
      */
     protected $_syncHelper;
 
@@ -42,33 +49,53 @@ class Header extends Template
     protected $_statusAccount = [];
 
     /**
+     * @var array Lengow plugin data
+     */
+    protected $_pluginData = [];
+
+    /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
+     * @param Context $context Magento block context instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param SecurityHelper $securityHelper Lengow security helper instance
+     * @param SyncHelper $syncHelper Lengow sync helper instance
      * @param array $data additional params
      */
     public function __construct(
         Context $context,
         ConfigHelper $configHelper,
+        SecurityHelper $securityHelper,
         SyncHelper $syncHelper,
         array $data = []
-    ) {
+    )
+    {
         $this->_configHelper = $configHelper;
+        $this->_securityHelper = $securityHelper;
         $this->_syncHelper = $syncHelper;
         $this->_statusAccount = $this->_syncHelper->getStatusAccount();
+        $this->_pluginData = $this->_syncHelper->getPluginData();
         parent::__construct($context, $data);
     }
 
     /**
-     * Preprod mode is enabled
+     * Debug Mode is enabled
      *
      * @return boolean
      */
-    public function preprodModeIsEnabled()
+    public function debugModeIsEnabled()
     {
-        return (bool)$this->_configHelper->get('preprod_mode_enable');
+        return $this->_configHelper->debugModeIsActive();
+    }
+
+    /**
+     * Get Lengow solution url
+     *
+     * @return string
+     */
+    public function getLengowSolutionUrl()
+    {
+        return '//my.' . LengowConnector::LENGOW_URL;
     }
 
     /**
@@ -93,6 +120,43 @@ class Header extends Template
      */
     public function getFreeTrialDays()
     {
-        return isset($this->_statusAccount['day']) ? (int)$this->_statusAccount['day']  : 0;
+        return isset($this->_statusAccount['day']) ? (int)$this->_statusAccount['day'] : 0;
+    }
+
+    /**
+     * New plugin version is available
+     *
+     * @return boolean
+     */
+    public function newPluginVersionIsAvailable()
+    {
+        if (($this->_pluginData && isset($this->_pluginData['version']))
+            && version_compare($this->_securityHelper->getPluginVersion(), $this->_pluginData['version'], '<')
+        ) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get new plugin version
+     *
+     * @return string
+     */
+    public function getNewPluginVersion()
+    {
+        return ($this->_pluginData && isset($this->_pluginData['version'])) ? $this->_pluginData['version'] : '';
+    }
+
+    /**
+     * Get new plugin download link
+     *
+     * @return string
+     */
+    public function getNewPluginDownloadLink()
+    {
+        return ($this->_pluginData && isset($this->_pluginData['download_link']))
+            ? $this->getLengowSolutionUrl() . $this->_pluginData['download_link']
+            : '';
     }
 }

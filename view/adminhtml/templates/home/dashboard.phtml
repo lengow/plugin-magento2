@@ -11,7 +11,7 @@
     <div class="lgw-box lgw-home-header text-center">
         <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/lengow-white-big.png') ?>" alt="lengow">
         <h1><?= $block->escapeHtml(__('Hi! Welcome back!')) ?></h1>
-        <a href="http://my.lengow.io/" class="lgw-btn" target="_blank" title="<?= $block->escapeHtml(__('Go to Lengow')) ?>">
+        <a href="<?= $block->getLengowSolutionUrl() ?>" class="lgw-btn" target="_blank" title="<?= $block->escapeHtml(__('Go to Lengow')) ?>">
             <?= $block->escapeHtml(__('Go to Lengow')) ?>
         </a>
     </div>
@@ -49,27 +49,6 @@
             </a>
         </div>
     </div>
-    <?php if($block->statIsAvailable()): ?>
-        <div class="lgw-box text-center">
-            <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/picto-stats.png') ?>" class="img-responsive">
-            <h2><?= $block->escapeHtml(__('Lengow, your business partner')) ?></h2>
-            <div class="lgw-row lgw-home-stats">
-                <div class="lgw-col-4 lgw-col-offset-2">
-                    <h5><?= $block->escapeHtml(__('Turnover')) ?></h5>
-                    <span class="stats-big-value"><?= $block->getTurnover() ?></span>
-                </div>
-                <div class="lgw-col-4">
-                    <h5><?= $block->escapeHtml(__('Orders')) ?></h5>
-                    <span class="stats-big-value"><?= $block->getNumberOrder() ?></span>
-                </div>
-            </div>
-            <p>
-                <a href="http://my.lengow.io/" target="_blank" title="<?= $block->escapeHtml(__('Want more stats?')) ?>" class="lgw-btn lgw-btn-white">
-                    <?= $block->escapeHtml(__('Want more stats?')) ?>
-                </a>
-            </p>
-        </div>
-    <?php endif; ?>
     <div class="lgw-box">
         <h2><?= $block->escapeHtml(__('Need some help?')) ?></h2>
         <p>

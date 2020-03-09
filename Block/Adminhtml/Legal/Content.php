@@ -27,13 +27,14 @@ class Content extends Template
     /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
+     * @param Context $context Magento block context instance
      * @param array $data additional params
      */
     public function __construct(
         Context $context,
         array $data = []
-    ) {
+    )
+    {
         parent::__construct($context, $data);
     }
 }

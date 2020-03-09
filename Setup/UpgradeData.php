@@ -20,23 +20,23 @@
 
 namespace Lengow\Connector\Setup;
 
-use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
+use Magento\Framework\Setup\UpgradeDataInterface;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
 
-class UpgradeData implements UpgradeDataInterface {
-
+class UpgradeData implements UpgradeDataInterface
+{
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
      * Constructor
      *
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
      */
     public function __construct(ConfigHelper $configHelper)
     {
@@ -63,6 +63,23 @@ class UpgradeData implements UpgradeDataInterface {
                 $this->_configHelper->cleanConfigCache();
             }
         }
+
+        if (version_compare($context->getVersion(), '1.2.0', '<')) {
+
+            // **********************************************************
+            // Delete statistic configurations for versions 1.0.0 - 1.1.5
+            // **********************************************************
+
+            $this->_configHelper->delete('lengow_global_options/advanced/order_statistic');
+            $this->_configHelper->delete('lengow_global_options/advanced/last_statistic_update');
+
+            // *************************************************************
+            // Delete preprod mode configuration for versions 1.0.0 - 1.1.5
+            // *************************************************************
+
+            $this->_configHelper->delete('lengow_import_options/advanced/import_preprod_mode_enable');
+        }
+
 
         $setup->endSetup();
     }

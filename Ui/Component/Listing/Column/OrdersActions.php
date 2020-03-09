@@ -19,53 +19,52 @@
 
 namespace Lengow\Connector\Ui\Component\Listing\Column;
 
-use Magento\Ui\Component\Listing\Columns\Column;
+use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Framework\UrlInterface;
+use Magento\Ui\Component\Listing\Columns\Column;
 use Lengow\Connector\Helper\Data as DataHelper;
-use Lengow\Connector\Model\Import\OrdererrorFactory;
-use Lengow\Connector\Model\Import\Action as ImportAction;
+use Lengow\Connector\Model\Import\Action as LengowAction;
+use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
 
 class OrdersActions extends Column
 {
-
     /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface Magento order repository instance
+     * @var OrderRepositoryInterface Magento order repository instance
      */
     protected $_orderRepository;
 
     /**
-     * @var \Magento\Framework\UrlInterface Magento url interface
+     * @var UrlInterface Magento url interface
      */
     protected $urlBuilder;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var DataHelper Lengow data helper instance
      */
     protected $_dataHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow order error factory instance
-     */
-    protected $_orderErrorFactory;
-
-    /**
-     * @var \Lengow\Connector\Model\Import\Action Lengow action instance
+     * @var LengowAction Lengow action instance
      */
     protected $_action;
 
     /**
+     * @var LengowOrderErrorFactory Lengow order error factory instance
+     */
+    protected $_orderErrorFactory;
+
+    /**
      * Constructor
      *
-     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository Magento order repository instance
-     * @param \Magento\Framework\View\Element\UiComponent\ContextInterface $context Magento ui context instance
-     * @param \Magento\Framework\View\Element\UiComponentFactory $uiComponentFactory Magento ui factory instance
-     * @param \Magento\Framework\UrlInterface $urlBuilder
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Model\Import\OrdererrorFactory $orderErrorFactory Lengow order factory instance
-     * @param \Lengow\Connector\Model\Import\Action $action Lengow action instance
+     * @param OrderRepositoryInterface $orderRepository Magento order repository instance
+     * @param ContextInterface $context Magento ui context instance
+     * @param UiComponentFactory $uiComponentFactory Magento ui factory instance
+     * @param UrlInterface $urlBuilder
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param LengowOrderErrorFactory $orderErrorFactory Lengow order factory instance
+     * @param LengowAction $action Lengow action instance
      * @param array $components component data
      * @param array $data additional params
      */
@@ -75,8 +74,8 @@ class OrdersActions extends Column
         UiComponentFactory $uiComponentFactory,
         UrlInterface $urlBuilder,
         DataHelper $dataHelper,
-        OrdererrorFactory $orderErrorFactory,
-        ImportAction $action,
+        LengowOrderErrorFactory $orderErrorFactory,
+        LengowAction $action,
         array $components = [],
         array $data = []
     )
@@ -138,7 +137,7 @@ class OrdersActions extends Column
                     }
                 } else {
                     //check if order actions in progress
-                    if (!is_null($item['order_id']) && (int)$item['order_process_state'] === 1) {
+                    if ($item['order_id'] !== null && (int)$item['order_process_state'] === 1) {
                         $lastActionType = $this->_action->getLastOrderActionType($item['order_id']);
                         if ($lastActionType) {
                             $item['is_in_error'] = '<a class="lengow_action lengow_tooltip lgw-btn lgw-btn-white">'

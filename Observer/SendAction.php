@@ -19,20 +19,21 @@
 
 namespace Lengow\Connector\Observer;
 
-use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Event\Observer;
 use Magento\Backend\Model\Session as BackendSession;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Lengow\Connector\Model\Import\Action as LengowAction;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class SendAction implements ObserverInterface
 {
     /**
-     * @var \Magento\Backend\Model\Session $_backendSession Backend session instance
+     * @var BackendSession $_backendSession Backend session instance
      */
     protected $_backendSession;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Order Lengow order instance
+     * @var LengowOrder Lengow order instance
      */
     protected $_lengowOrder;
 
@@ -44,8 +45,8 @@ class SendAction implements ObserverInterface
     /**
      * Constructor
      *
-     * @param \Magento\Backend\Model\Session $backendSession Backend session instance
-     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     * @param BackendSession $backendSession Backend session instance
+     * @param LengowOrder $lengowOrder Lengow order instance
      */
     public function __construct(
         BackendSession $backendSession,
@@ -59,14 +60,14 @@ class SendAction implements ObserverInterface
     /**
      * Sending a call WSDL for a new order shipment, a new tracking or a cancellation of order
      *
-     * @param \Magento\Framework\Event\Observer $observer Magento observer instance
+     * @param Observer $observer Magento observer instance
      * @return void
      */
     public function execute(Observer $observer)
     {
         $order = null;
         $shipment = null;
-        $action = 'ship';
+        $action = LengowAction::TYPE_SHIP;
         $eventName = $observer->getEvent()->getName();
         switch ($eventName) {
             case 'sales_order_shipment_save_after':
@@ -79,7 +80,7 @@ class SendAction implements ObserverInterface
                 $order = $shipment->getOrder();
                 break;
             case 'sales_order_payment_cancel':
-                $action = 'cancel';
+                $action = LengowAction::TYPE_CANCEL;
                 $payment = $observer->getEvent()->getPayment();
                 $order = $payment->getOrder();
                 break;

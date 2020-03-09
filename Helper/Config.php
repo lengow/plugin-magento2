@@ -19,56 +19,58 @@
 
 namespace Lengow\Connector\Helper;
 
-use Magento\Framework\App\Helper\AbstractHelper;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Catalog\Model\Product;
-use Magento\Store\Model\ScopeInterface;
+use Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory as ConfigDataCollectionFactory;
+use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as CustomerGroupCollectionFactory;
+use Magento\Eav\Model\Config as EavConfig;
+use Magento\Eav\Model\Entity\Attribute\Set as AttributeSet;
+use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as AttributeCollectionFactory;
 use Magento\Framework\App\Cache\Manager as CacheManager;
 use Magento\Framework\App\Cache\Type\Config as CacheTypeConfig;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use Magento\Eav\Model\Config as EavConfig;
-use Magento\Eav\Model\Entity\Attribute\Set as AttibuteSet;
-use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as AttributeCollectionFactory;
-use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as CustomerGroupCollectionFactory;
-use Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory as ConfigDataCollectionFactory;
+use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
 use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollectionFactory;
 
 class Config extends AbstractHelper
 {
 
     /**
-     * @var \Magento\Framework\App\Config\Storage\WriterInterface Magento writer instance
+     * @var WriterInterface Magento writer instance
      */
     protected $_writerInterface;
 
     /**
-     * @var \Magento\Framework\App\Cache\Manager Magento cache manager instance
+     * @var CacheManager Magento cache manager instance
      */
     protected $_cacheManager;
 
     /**
-     * @var \Magento\Customer\Model\ResourceModel\Group\CollectionFactory Magento customer group collection factory
+     * @var CustomerGroupCollectionFactory Magento customer group collection factory
      */
     protected $_customerGroupCollectionFactory;
 
     /**
-     * @var \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory Magento attribute collection factory
+     * @var AttributeCollectionFactory Magento attribute collection factory
      */
     protected $_attributeCollectionFactory;
 
     /**
-     * @var \Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory Magento config data collection factory
+     * @var ConfigDataCollectionFactory Magento config data collection factory
      */
     protected $_configDataCollectionFactory;
 
     /**
-     * @var \Magento\Store\Model\ResourceModel\Store\CollectionFactory Magento store collection factory
+     * @var StoreCollectionFactory Magento store collection factory
      */
     protected $_storeCollectionFactory;
 
     /**
-     * @var \Magento\Eav\Model\Config Magento eav config
+     * @var EavConfig Magento eav config
      */
     protected $_eavConfig;
 
@@ -94,6 +96,18 @@ class Config extends AbstractHelper
         'secret_token' => [
             'path' => 'lengow_global_options/store_credential/global_secret_token',
             'global' => true,
+            'no_cache' => true,
+        ],
+        'authorization_token' => [
+            'path' => 'lengow_global_options/store_credential/authorization_token',
+            'global' => true,
+            'export' => false,
+            'no_cache' => true,
+        ],
+        'last_authorization_token_update' => [
+            'path' => 'lengow_global_options/store_credential/last_authorization_token_update',
+            'global' => true,
+            'export' => false,
             'no_cache' => true,
         ],
         'store_enable' => [
@@ -126,16 +140,6 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => false,
         ],
-        'last_statistic_update' => [
-            'path' => 'lengow_global_options/advanced/last_statistic_update',
-            'global' => true,
-            'no_cache' => true,
-        ],
-        'order_statistic' => [
-            'path' => 'lengow_global_options/advanced/order_statistic',
-            'export' => false,
-            'no_cache' => true,
-        ],
         'last_status_update' => [
             'path' => 'lengow_global_options/advanced/last_status_update',
             'global' => true,
@@ -166,6 +170,18 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => true,
         ],
+        'last_plugin_data_update' => array(
+            'path' => 'lengow_global_options/advanced/last_plugin_data_update',
+            'global' => true,
+            'export' => false,
+            'no_cache' => true,
+        ),
+        'plugin_data' => array(
+            'path' => 'lengow_global_options/advanced/plugin_data',
+            'global' => true,
+            'export' => false,
+            'no_cache' => true,
+        ),
         'selection_enable' => [
             'path' => 'lengow_export_options/simple/export_selection_enable',
             'store' => true,
@@ -261,8 +277,8 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => false,
         ],
-        'preprod_mode_enable' => [
-            'path' => 'lengow_import_options/advanced/import_preprod_mode_enable',
+        'debug_mode_enable' => [
+            'path' => 'lengow_import_options/advanced/import_debug_mode_enable',
             'global' => true,
             'no_cache' => false,
         ],
@@ -286,6 +302,11 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => true,
         ],
+        'last_action_sync' => array(
+            'path' => 'lengow_import_options/advanced/last_action_sync',
+            'global' => true,
+            'no_cache' => true,
+        ),
     ];
 
     /**
@@ -307,14 +328,14 @@ class Config extends AbstractHelper
     /**
      * Constructor
      *
-     * @param \Magento\Framework\App\Helper\Context $context Magento context instance
-     * @param \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface Magento writer instance
-     * @param \Magento\Framework\App\Cache\Manager $cacheManager Magento Cache manager instance
-     * @param \Magento\Customer\Model\ResourceModel\Group\CollectionFactory $customerGroupCollectionFactory
-     * @param \Magento\Eav\Model\Config $eavConfig Magento eav config
-     * @param \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory $attributeCollectionFactory
-     * @param \Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory $configDataCollectionFactory
-     * @param \Magento\Store\Model\ResourceModel\Store\CollectionFactory $storeCollectionFactory
+     * @param Context $context Magento context instance
+     * @param WriterInterface $writerInterface Magento writer instance
+     * @param CacheManager $cacheManager Magento Cache manager instance
+     * @param CustomerGroupCollectionFactory $customerGroupCollectionFactory Magento Customer group factory instance
+     * @param EavConfig $eavConfig Magento eav config instance
+     * @param AttributeCollectionFactory $attributeCollectionFactory Magento Attribute factory instance
+     * @param ConfigDataCollectionFactory $configDataCollectionFactory Magento config data factory instance
+     * @param StoreCollectionFactory $storeCollectionFactory Magento store factory instance
      */
     public function __construct(
         Context $context,
@@ -356,7 +377,7 @@ class Config extends AbstractHelper
                 ->addFieldToFilter('scope_id', $storeId)
                 ->load()
                 ->getData();
-            $value = count($results) > 0 ? $results[0]['value'] : '';
+            $value = !empty($results) ? $results[0]['value'] : '';
         } else {
             $scope = (int)$storeId === 0 ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES;
             $value = $this->scopeConfig->getValue($this->_options[$key]['path'], $scope, $storeId);
@@ -374,10 +395,7 @@ class Config extends AbstractHelper
     public function set($key, $value, $storeId = 0)
     {
         if ((int)$storeId === 0) {
-            $this->_writerInterface->save(
-                $this->_options[$key]['path'],
-                $value
-            );
+            $this->_writerInterface->save($this->_options[$key]['path'], $value);
         } else {
             $this->_writerInterface->save(
                 $this->_options[$key]['path'],
@@ -385,6 +403,21 @@ class Config extends AbstractHelper
                 ScopeInterface::SCOPE_STORES,
                 $storeId
             );
+        }
+    }
+
+    /**
+     * Delete configuration key
+     *
+     * @param string $path Magento setting path
+     * @param integer $storeId Magento store id
+     */
+    public function delete($path, $storeId = 0)
+    {
+        if ((int)$storeId === 0) {
+            $this->_writerInterface->delete($path);
+        } else {
+            $this->_writerInterface->delete($path, ScopeInterface::SCOPE_STORES, $storeId);
         }
     }
 
@@ -403,11 +436,11 @@ class Config extends AbstractHelper
      */
     public function getAccessIds()
     {
-        $accountId = (int)$this->get('account_id');
+        $accountId = $this->get('account_id');
         $accessToken = $this->get('access_token');
         $secretToken = $this->get('secret_token');
         if (strlen($accountId) > 0 && strlen($accessToken) > 0 && strlen($secretToken) > 0) {
-            return [$accountId, $accessToken, $secretToken];
+            return [(int)$accountId, $accessToken, $secretToken];
         } else {
             return [null, null, null];
         }
@@ -498,9 +531,20 @@ class Config extends AbstractHelper
     public function setActiveStore($storeId)
     {
         $storeIsActive = $this->storeIsActive($storeId);
-        $storeHasCatalog = count(self::getCatalogIds($storeId)) > 0;
+        $catalogIds = self::getCatalogIds($storeId);
+        $storeHasCatalog = !empty($catalogIds);
         $this->set('store_enable', $storeHasCatalog, $storeId);
         return $storeIsActive !== $storeHasCatalog ? true : false;
+    }
+
+    /**
+     * Recovers if a store is active or not
+     *
+     * @return boolean
+     */
+    public function debugModeIsActive()
+    {
+        return (bool)$this->get('debug_mode_enable');
     }
 
     /**
@@ -510,14 +554,13 @@ class Config extends AbstractHelper
      */
     public function getAllCustomerGroup()
     {
-        $allCustomerGroups = $this->_customerGroupCollectionFactory->create()->toOptionArray();
-        return $allCustomerGroups;
+        return $this->_customerGroupCollectionFactory->create()->toOptionArray();
     }
 
     /**
      * Get all stores
      *
-     * @return \Magento\Store\Model\ResourceModel\Store\Collection
+     * @return StoreCollection
      */
     public function getAllStore()
     {
@@ -555,29 +598,6 @@ class Config extends AbstractHelper
     }
 
     /**
-     * Get all available currency codes
-     *
-     * @return array
-     */
-    public function getAllAvailableCurrencyCodes()
-    {
-        $storeCollection = $this->_storeCollectionFactory->create();
-        $allCurrencies = [];
-        foreach ($storeCollection as $store) {
-            // get store currencies
-            $storeCurrencies = $store->getAvailableCurrencyCodes();
-            if (is_array($storeCurrencies)) {
-                foreach ($storeCurrencies as $currency) {
-                    if (!in_array($currency, $allCurrencies)) {
-                        $allCurrencies[] = $currency;
-                    }
-                }
-            }
-        }
-        return $allCurrencies;
-    }
-
-    /**
      * Check if is a new merchant
      *
      * @return boolean
@@ -585,7 +605,7 @@ class Config extends AbstractHelper
     public function isNewMerchant()
     {
         list($accountId, $accessToken, $secretToken) = $this->getAccessIds();
-        if (!is_null($accountId) && !is_null($accessToken) && !is_null($secretToken)) {
+        if ($accountId !== null && $accessToken !== null && $secretToken !== null) {
             return false;
         }
         return true;
@@ -602,7 +622,7 @@ class Config extends AbstractHelper
     {
         $selectedAttributes = [];
         $attributes = $this->get('export_attribute', $storeId);
-        if (!is_null($attributes)) {
+        if ($attributes !== null) {
             $attributes = explode(',', $attributes);
             foreach ($attributes as $attribute) {
                 $selectedAttributes[] = $attribute;
@@ -622,7 +642,7 @@ class Config extends AbstractHelper
             // add filter by entity type to get product attributes only
             $productEntityId = (int)$this->_eavConfig->getEntityType(Product::ENTITY)->getEntityTypeId();
             $attributes = $this->_attributeCollectionFactory->create()
-                ->addFieldToFilter(AttibuteSet::KEY_ENTITY_TYPE_ID, $productEntityId)
+                ->addFieldToFilter(AttributeSet::KEY_ENTITY_TYPE_ID, $productEntityId)
                 ->load()
                 ->getData();
             $allAttributes = [
@@ -636,7 +656,7 @@ class Config extends AbstractHelper
                     ];
                 }
             }
-        }  catch (\Exception $e) {
+        } catch (\Exception $e) {
             $allAttributes = [];
         }
         return $allAttributes;
@@ -666,7 +686,7 @@ class Config extends AbstractHelper
      *
      * @param string $token Lengow store token
      *
-     * @return \Magento\Store\Api\Data\StoreInterface|false
+     * @return StoreInterface|false
      */
     public function getStoreByToken($token)
     {
@@ -687,7 +707,7 @@ class Config extends AbstractHelper
      */
     public function setDefaultAttributes()
     {
-        if (is_null($this->get('export_attribute'))) {
+        if ($this->get('export_attribute') === null) {
             $attributeList = '';
             $attributes = $this->getAllAttributes();
             foreach ($attributes as $attribute) {

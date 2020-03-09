@@ -19,17 +19,19 @@
 
 namespace Lengow\Connector\Model\Import\Quote;
 
+use Magento\Quote\Model\Quote\Item as QuoteItem;
+
 /**
  * Model import quote item
  */
-class Item extends \Magento\Quote\Model\Quote\Item
+class Item extends QuoteItem
 {
     /**
      * Specify item price (base calculation price and converted price will be refreshed too)
      *
      * @param float $value price value
      *
-     * @return \Magento\Quote\Model\Quote\Item
+     * @return QuoteItem
      */
     public function setPrice($value)
     {

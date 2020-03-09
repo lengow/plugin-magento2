@@ -20,37 +20,39 @@
 namespace Lengow\Connector\Block\Widget\Grid\Massaction;
 
 use Magento\Backend\Block\Template\Context;
+use Magento\Backend\Block\Widget\Grid\Massaction\Extended as MagentoMassactionExtended;
+use Magento\Backend\Helper\Data as BackendHelper;
+use Magento\Framework\Data\Collection;
 use Magento\Framework\Json\EncoderInterface;
-use Magento\Backend\Helper\Data;
 
 /**
  * Class Extended
  * @package Lengow\Connector\Block\Widget\Grid\Massaction
  */
-class Extended extends \Magento\Backend\Block\Widget\Grid\Massaction\Extended
+class Extended extends MagentoMassactionExtended
 {
     /**
      * Backend data
      *
-     * @var \Magento\Backend\Helper\Data
+     * @var BackendHelper Magento backend helper instance
      */
     protected $_backendData = null;
 
     /**
-     * @var \Magento\Framework\Json\EncoderInterface
+     * @var EncoderInterface Magento json encoder interface instance
      */
     protected $_jsonEncoder;
 
     /**
-     * @param \Magento\Backend\Block\Template\Context $context
-     * @param \Magento\Framework\Json\EncoderInterface $jsonEncoder
-     * @param \Magento\Backend\Helper\Data $backendData
+     * @param Context $context Magento context instance
+     * @param EncoderInterface $jsonEncoder Magento json encoder interface instance
+     * @param BackendHelper $backendData Magento backend helper instance
      * @param array $data
      */
     public function __construct(
         Context $context,
         EncoderInterface $jsonEncoder,
-        Data $backendData,
+        BackendHelper $backendData,
         array $data = []
     ) {
         $this->_jsonEncoder = $jsonEncoder;
@@ -67,7 +69,7 @@ class Extended extends \Magento\Backend\Block\Widget\Grid\Massaction\Extended
             return '';
         }
 
-        /** @var \Magento\Framework\Data\Collection $allIdsCollection */
+        /** @var Collection $allIdsCollection */
         $allIdsCollection = clone $this->getParentBlock()->getCollection();
         $gridIds = $allIdsCollection->clear()->setPageSize(0)->getAllIds();
 

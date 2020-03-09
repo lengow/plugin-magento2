@@ -21,72 +21,72 @@ namespace Lengow\Connector\Controller\Export;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\Locale\Resolver;
+use Magento\Framework\Locale\Resolver as Locale;
 use Magento\Framework\TranslateInterface;
-use Lengow\Connector\Helper\Security as SecurityHelper;
-use Lengow\Connector\Helper\Data as DataHelper;
+use Magento\Store\Model\StoreManagerInterface;
 use Lengow\Connector\Helper\Config as ConfigHelper;
-use Lengow\Connector\Model\Export;
+use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Helper\Security as SecurityHelper;
+use Lengow\Connector\Model\Export as LengowExport;
 
 class Index extends Action
 {
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
-     */
-    protected $_storeManager;
-
-    /**
-     * @var \Magento\Framework\Locale\Resolver Magento locale resolver instance
+     * @var Locale Magento locale resolver instance
      */
     protected $_locale;
 
     /**
-     * @var \Magento\Framework\TranslateInterface Magento translate instance
+     * @var TranslateInterface Magento translate instance
      */
     protected $_translate;
 
     /**
-     * @var \Lengow\Connector\Helper\Security Lengow security helper instance
+     * @var StoreManagerInterface Magento store manager instance
      */
-    protected $_securityHelper;
+    protected $_storeManager;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
-     */
-    protected $_dataHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Export Lengow export instance
+     * @var DataHelper Lengow data helper instance
+     */
+    protected $_dataHelper;
+
+    /**
+     * @var SecurityHelper Lengow security helper instance
+     */
+    protected $_securityHelper;
+
+    /**
+     * @var LengowExport Lengow export instance
      */
     protected $_export;
 
     /**
      * Constructor
      *
-     * @param \Magento\Framework\App\Action\Context $context Magento action context instance
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
-     * @param \Magento\Framework\Locale\Resolver $locale Magento locale resolver instance
-     * @param \Magento\Framework\TranslateInterface $translate Magento translate instance
-     * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Model\Export $export Lengow export instance
+     * @param Context $context Magento action context instance
+     * @param StoreManagerInterface $storeManager Magento store manager instance
+     * @param Locale $locale Magento locale resolver instance
+     * @param TranslateInterface $translate Magento translate instance
+     * @param SecurityHelper $securityHelper Lengow security helper instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param LengowExport $export Lengow export instance
      */
     public function __construct(
         Context $context,
         StoreManagerInterface $storeManager,
-        Resolver $locale,
+        Locale $locale,
         TranslateInterface $translate,
         SecurityHelper $securityHelper,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
-        Export $export
+        LengowExport $export
     ) {
         $this->_storeManager = $storeManager;
         $this->_locale = $locale;
@@ -188,7 +188,7 @@ class Index extends Action
                 }
             } catch (\Exception $e) {
                 $errorMessage = 'Magento error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
-                $this->_dataHelper->log('Export', $errorMessage);
+                $this->_dataHelper->log(DataHelper::CODE_EXPORT, $errorMessage);
                 $this->getResponse()->setStatusHeader(500, '1.1', 'Internal Server Error');
                 $this->getResponse()->setBody($errorMessage);
             }
@@ -201,7 +201,7 @@ class Index extends Action
                     : __('unauthorised access: token parameter is empty');
             }
             $this->getResponse()->setStatusHeader(403, '1.1', 'Forbidden');
-            $this->getResponse()->setBody($errorMessage);
+            $this->getResponse()->setBody($errorMessage->__toString());
         }
     }
 }

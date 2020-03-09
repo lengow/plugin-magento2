@@ -20,20 +20,26 @@
 namespace Lengow\Connector\Plugin;
 
 use Magento\Config\Model\Config;
-use Lengow\Connector\Helper\Data as DataHelper;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Data as DataHelper;
 
 class SaveConfig
 {
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var DateTime Magento datetime instance
      */
-    protected $_dataHelper;
+    protected $_dateTime;
 
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
+
+    /**
+     * @var DataHelper Lengow data helper instance
+     */
+    protected $_dataHelper;
 
     /**
      * @var array path for Lengow options
@@ -63,13 +69,17 @@ class SaveConfig
     /**
      * Constructor
      *
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param DateTime $dateTime Magento datetime instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
      */
     public function __construct(
+        DateTime $dateTime,
         DataHelper $dataHelper,
         ConfigHelper $configHelper
-    ) {
+    )
+    {
+        $this->_dateTime = $dateTime;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
     }
@@ -77,7 +87,7 @@ class SaveConfig
     /**
      * Check and log changes on lengow data configuration
      *
-     * @param \Magento\Config\Model\Config $subject Magento Config instance
+     * @param Config $subject Magento Config instance
      * @param \Closure $proceed
      */
     public function aroundSave(Config $subject, \Closure $proceed)
@@ -107,10 +117,13 @@ class SaveConfig
                             $message = '%1 - old value %2 replaced with %3';
                             $params = [$path, $oldValue, $value];
                         }
-                        $this->_dataHelper->log('Config', $this->_dataHelper->setLogMessage($message, $params));
+                        $this->_dataHelper->log(
+                            DataHelper::CODE_SETTING,
+                            $this->_dataHelper->setLogMessage($message, $params)
+                        );
                         // save last update date for a specific settings (change synchronisation interval time)
                         if (in_array($fieldId, $this->_updatedSettings)) {
-                            $this->_configHelper->set('last_setting_update', date('Y-m-d H:i:s'));
+                            $this->_configHelper->set('last_setting_update', time());
                         }
                     }
                 }

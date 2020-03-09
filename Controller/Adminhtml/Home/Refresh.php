@@ -21,26 +21,28 @@ namespace Lengow\Connector\Controller\Adminhtml\Home;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Backend\Model\View\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
 use Lengow\Connector\Helper\Sync as SyncHelper;
 
 class Refresh extends Action
 {
     /**
-     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     * @var SyncHelper Lengow sync helper instance
      */
     protected $_syncHelper;
 
     /**
      * Constructor
      *
-     * @param \Magento\Backend\App\Action\Context $context Magento action context instance
-     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
+     * @param Context $context Magento action context instance
+     * @param SyncHelper $syncHelper Lengow sync helper instance
      */
     public function __construct(
         Context $context,
         SyncHelper $syncHelper
-    ) {
+    )
+    {
         $this->_syncHelper = $syncHelper;
         parent::__construct($context);
     }
@@ -51,7 +53,7 @@ class Refresh extends Action
     public function execute()
     {
         $this->_syncHelper->getStatusAccount(true);
-        /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
+        /** @var Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         return $resultRedirect->setPath('lengow/*/');
     }

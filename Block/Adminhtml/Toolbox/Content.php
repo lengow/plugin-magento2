@@ -21,69 +21,72 @@ namespace Lengow\Connector\Block\Adminhtml\Toolbox;
 
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
-use Magento\Framework\Module\Dir\Reader;
 use Magento\Cron\Model\ResourceModel\Schedule\CollectionFactory as ScheduleCollection;
-use Lengow\Connector\Helper\Data as DataHelper;
-use Lengow\Connector\Helper\Security as SecurityHelper;
+use Magento\Framework\Module\Dir\Reader;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
+use Lengow\Connector\Helper\Security as SecurityHelper;
+use Lengow\Connector\Model\Export as LengowExport;
+use Lengow\Connector\Model\Import as LengowImport;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
-use Lengow\Connector\Model\Export;
 
 class Content extends Template
 {
     /**
-     * @var \Magento\Framework\Module\Dir\Reader Magento module reader instance
-     */
-    protected $_moduleReader;
-
-    /**
-     * @var \Magento\Cron\Model\ResourceModel\Schedule\CollectionFactory Magento schedule collection factory
+     * @var ScheduleCollection Magento schedule collection factory
      */
     protected $_scheduleCollection;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var Reader Magento module reader instance
      */
-    protected $_dataHelper;
+    protected $_moduleReader;
 
     /**
-     * @var \Lengow\Connector\Helper\Security Lengow security helper instance
-     */
-    protected $_securityHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Import Lengow import helper instance
+     * @var DataHelper Lengow data helper instance
+     */
+    protected $_dataHelper;
+
+    /**
+     * @var ImportHelper Lengow import helper instance
      */
     protected $_importHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Order Lengow order instance
+     * @var SecurityHelper Lengow security helper instance
      */
-    protected $_lengowOrder;
+    protected $_securityHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Export Lengow export instance
+     * @var LengowExport Lengow export instance
      */
     protected $_export;
 
     /**
+     * @var LengowOrder Lengow order instance
+     */
+    protected $_lengowOrder;
+
+    /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param \Magento\Framework\Module\Dir\Reader $moduleReader Magento module reader instance
-     * @param \Magento\Cron\Model\ResourceModel\Schedule\CollectionFactory $scheduleCollection
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Security $securityHelper Lengow security helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Helper\Import $importHelper Lengow import helper instance
-     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
-     * @param \Lengow\Connector\Model\Export $export Lengow export instance
+     * @param Context $context Magento block context instance
+     * @param Reader $moduleReader Magento module reader instance
+     * @param ScheduleCollection $scheduleCollection
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param SecurityHelper $securityHelper Lengow security helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param ImportHelper $importHelper Lengow import helper instance
+     * @param LengowOrder $lengowOrder Lengow order instance
+     * @param LengowExport $export Lengow export instance
      * @param array $data additional params
      */
     public function __construct(
@@ -95,9 +98,10 @@ class Content extends Template
         ConfigHelper $configHelper,
         ImportHelper $importHelper,
         LengowOrder $lengowOrder,
-        Export $export,
+        LengowExport $export,
         array $data = []
-    ) {
+    )
+    {
         $this->_moduleReader = $moduleReader;
         $this->_scheduleCollection = $scheduleCollection;
         $this->_dataHelper = $dataHelper;
@@ -112,7 +116,7 @@ class Content extends Template
     /**
      * Get all Magento stores
      *
-     * @return \Magento\Store\Model\ResourceModel\Store\Collection
+     * @return StoreCollection
      */
     public function getStores()
     {
@@ -156,11 +160,11 @@ class Content extends Template
             'state' => (bool)$this->_configHelper->get('export_cron_enable'),
         ];
         $checklist[] = [
-            'title' => __('Pre-production mode disabled'),
-            'state' => !(bool)$this->_configHelper->get('preprod_mode_enable'),
+            'title' => __('Debug Mode disabled'),
+            'state' => !$this->_configHelper->debugModeIsActive(),
         ];
         $sep = DIRECTORY_SEPARATOR;
-        $filePath = $this->_dataHelper->getMediaPath() . $sep . 'lengow' . $sep . 'test.txt';
+        $filePath = $this->_dataHelper->getMediaPath() . $sep . DataHelper::LENGOW_FOLDER . $sep . 'test.txt';
         try {
             $file = fopen($filePath, 'w+');
             if (!$file) {
@@ -220,7 +224,7 @@ class Content extends Template
             : $this->_dataHelper->getDateInCorrectFormat($lastImport['timestamp'], true);
         if ($lastImport['type'] === 'none') {
             $lastImportType = __('none');
-        } elseif ($lastImport['type'] === 'cron') {
+        } elseif ($lastImport['type'] === LengowImport::TYPE_CRON) {
             $lastImportType = __('cron');
         } else {
             $lastImportType = __('manual');
@@ -251,7 +255,7 @@ class Content extends Template
     /**
      * Get array of export informations
      *
-     * @param \Magento\Store\Model\Store $store Magento store instance
+     * @param Store $store Magento store instance
      *
      * @return string
      */
@@ -268,7 +272,7 @@ class Content extends Template
         ];
         $checklist[] = [
             'title' => __('Lengow catalogs id synchronized'),
-            'message' =>  $this->_configHelper->get('catalog_id', $store->getId()),
+            'message' => $this->_configHelper->get('catalog_id', $store->getId()),
         ];
         $checklist[] = [
             'title' => __('Products available in the store'),
@@ -300,15 +304,16 @@ class Content extends Template
     /**
      * Get array of file informations
      *
-     * @param \Magento\Store\Model\Store $store Magento store instance
+     * @param Store $store Magento store instance
      *
      * @return string
      */
     public function getFileInformations($store)
     {
         $sep = DIRECTORY_SEPARATOR;
-        $folderPath = $this->_dataHelper->getMediaPath() . $sep . 'lengow' . $sep . $store->getCode() . $sep;
-        $folderUrl = $this->_dataHelper->getMediaUrl() . 'lengow' . $sep . $store->getCode() . $sep;
+        $storePath = DataHelper::LENGOW_FOLDER . $sep . $store->getCode() . $sep;
+        $folderPath = $this->_dataHelper->getMediaPath() . $sep . $storePath;
+        $folderUrl = $this->_dataHelper->getMediaUrl() . $storePath;
         try {
             $files = array_diff(scandir($folderPath), ['..', '.']);
         } catch (\Exception $e) {
@@ -319,7 +324,7 @@ class Content extends Template
             'header' => $store->getName() . ' (' . $store->getId() . ') ' . $store->getBaseUrl(),
         ];
         $checklist[] = ['title' => __('Folder path'), 'message' => $folderPath];
-        if (count($files) > 0) {
+        if (!empty($files)) {
             $checklist[] = ['simple' => __('File list')];
             foreach ($files as $file) {
                 $fileTimestamp = filectime($folderPath . $file);
@@ -367,7 +372,7 @@ class Content extends Template
         if (file_exists($fileName)) {
             $fileErrors = [];
             $fileDeletes = [];
-            $base =  $this->_moduleReader->getModuleDir('', 'Lengow_Connector');
+            $base = $this->_moduleReader->getModuleDir('', 'Lengow_Connector');
             if (($file = fopen($fileName, 'r')) !== false) {
                 while (($data = fgetcsv($file, 1000, '|')) !== false) {
                     $fileCounter++;
@@ -395,18 +400,18 @@ class Content extends Template
             ];
             $checklist[] = [
                 'title' => __('%1 files changed', [count($fileErrors)]),
-                'state' => count($fileErrors) > 0 ? false : true,
+                'state' => !empty($fileErrors) ? false : true,
             ];
             $checklist[] = [
                 'title' => __('%1 files deleted', [count($fileDeletes)]),
-                'state' => count($fileDeletes) > 0 ? false : true,
+                'state' => !empty($fileDeletes) ? false : true,
             ];
             $html .= $this->_getContent($checklist);
-            if (count($fileErrors) > 0) {
+            if (!empty($fileErrors)) {
                 $html .= '<h3><i class="fa fa-list"></i> ' . __('List of changed files') . '</h3>';
                 $html .= $this->_getContent($fileErrors);
             }
-            if (count($fileDeletes) > 0) {
+            if (!empty($fileDeletes)) {
                 $html .= '<h3><i class="fa fa-list"></i> ' . __('List of deleted files') . '</h3>';
                 $html .= $this->_getContent($fileDeletes);
             }
@@ -488,15 +493,15 @@ class Content extends Template
                 } else {
                     $out .= '<td></td>';
                 }
-                $scheduledAt = !is_null($lengowCronJob['scheduled_at'])
+                $scheduledAt = $lengowCronJob['scheduled_at'] !== null
                     ? $this->_dataHelper->getDateInCorrectFormat(strtotime($lengowCronJob['scheduled_at'], true))
                     : '';
                 $out .= '<td>' . $scheduledAt . '</td>';
-                $executedAt = !is_null($lengowCronJob['executed_at'])
+                $executedAt = $lengowCronJob['executed_at'] !== null
                     ? $this->_dataHelper->getDateInCorrectFormat(strtotime($lengowCronJob['executed_at'], true))
                     : '';
                 $out .= '<td>' . $executedAt . '</td>';
-                $finishedAt = !is_null($lengowCronJob['finished_at'])
+                $finishedAt = $lengowCronJob['finished_at'] !== null
                     ? $this->_dataHelper->getDateInCorrectFormat(strtotime($lengowCronJob['finished_at'], true))
                     : '';
                 $out .= '<td>' . $finishedAt . '</td>';

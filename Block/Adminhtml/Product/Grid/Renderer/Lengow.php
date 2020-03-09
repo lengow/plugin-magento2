@@ -20,47 +20,48 @@
 
 namespace Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer;
 
+use Magento\Backend\Block\Context;
+use Magento\Backend\Helper\Data as BackendHelper;
 use Magento\Backend\Block\Widget\Grid\Column\Renderer\AbstractRenderer;
 use Magento\Framework\DataObject;
 use Lengow\Connector\Helper\Data as DataHelper;
-use Magento\Backend\Helper\Data;
-use Magento\Backend\Block\Context;
 
 class Lengow extends AbstractRenderer
 {
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
-     */
-    protected $_dataHelper;
-
-    /**
-     * @var \Magento\Backend\Helper\Data backend helper instance
+     * @var BackendHelper backend helper instance
      */
     protected $_backendHelper;
 
     /**
+     * @var DataHelper Lengow data helper instance
+     */
+    protected $_dataHelper;
+
+    /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Context $context Magento block context instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Magento\Backend\Helper\Data $backendHelper Magento backend helper instance
+     * @param Context $context Magento block context instance
+     * @param BackendHelper $backendHelper Magento backend helper instance
+     * @param DataHelper $dataHelper Lengow data helper instance
      * @param array $data additional params
      */
     public function __construct(
         Context $context,
+        BackendHelper $backendHelper,
         DataHelper $dataHelper,
-        Data $backendHelper,
         array $data = []
-    ) {
-        $this->_dataHelper = $dataHelper;
+    )
+    {
         $this->_backendHelper = $backendHelper;
+        $this->_dataHelper = $dataHelper;
         parent::__construct($context, $data);
     }
 
     /**
      * Decorate lengow publication values
      *
-     * @param \Magento\Framework\DataObject $row Magento data object instance
+     * @param DataObject $row Magento data object instance
      *
      * @return string
      */

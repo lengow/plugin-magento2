@@ -21,10 +21,10 @@
 namespace Lengow\Connector\Setup;
 
 use Magento\Framework\DB\Adapter\AdapterInterface;
+use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
-use Magento\Framework\DB\Ddl\Table;
 
 /**
  * @codeCoverageIgnore
@@ -34,17 +34,15 @@ class InstallSchema implements InstallSchemaInterface
     /**
      * Installs DB schema for a module
      *
-     * @param \Magento\Framework\Setup\SchemaSetupInterface $setup Magento schema setup instance
-     * @param \Magento\Framework\Setup\ModuleContextInterface $context Magento module context instance
+     * @param SchemaSetupInterface $setup Magento schema setup instance
+     * @param ModuleContextInterface $context Magento module context instance
      *
      * @throws \Exception
      *
      * @return void
      */
-    public function install(
-        SchemaSetupInterface $setup,
-        ModuleContextInterface $context
-    ) {
+    public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
+    {
         $installer = $setup;
         $installer->startSetup();
 
@@ -158,7 +156,8 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false,
+                        'nullable' => true,
+                        'default' => null,
                     ],
                     'Order Date'
                 )->addColumn(
@@ -299,7 +298,8 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false,
+                        'nullable' => true,
+                        'default' => null,
                     ],
                     'Created At'
                 )->addColumn(
@@ -332,9 +332,6 @@ class InstallSchema implements InstallSchemaInterface
                 )->addIndex(
                     $installer->getIdxName('lengow_order', ['order_lengow_state']),
                     ['order_lengow_state']
-                )->addIndex(
-                    $installer->getIdxName('lengow_order', ['order_date']),
-                    ['order_date']
                 )->addIndex(
                     $installer->getIdxName('lengow_order', ['total_paid']),
                     ['total_paid']
@@ -479,7 +476,8 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false,
+                        'nullable' => true,
+                        'default' => null,
                     ],
                     'Created At'
                 )->addColumn(
@@ -578,7 +576,8 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false,
+                        'nullable' => true,
+                        'default' => null,
                     ],
                     'Created At'
                 )->addColumn(
@@ -629,7 +628,8 @@ class InstallSchema implements InstallSchemaInterface
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
-                        'nullable' => false,
+                        'nullable' => true,
+                        'default' => null,
                     ],
                     'Date'
                 )->addColumn(
@@ -648,9 +648,6 @@ class InstallSchema implements InstallSchemaInterface
                         'nullable' => false,
                     ],
                     'Message'
-                )->addIndex(
-                    $installer->getIdxName('lengow_log', ['date']),
-                    ['date']
                 )->addIndex(
                     $installer->getIdxName('lengow_log', ['category']),
                     ['category']

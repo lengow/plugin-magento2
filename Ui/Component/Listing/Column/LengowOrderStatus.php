@@ -19,17 +19,18 @@
 
 namespace Lengow\Connector\Ui\Component\Listing\Column;
 
-use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
+use Magento\Ui\Component\Listing\Columns\Column;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class LengowOrderStatus extends Column
 {
     /**
      * Constructor
      *
-     * @param \Magento\Framework\View\Element\UiComponent\ContextInterface $context Magento ui context instance
-     * @param \Magento\Framework\View\Element\UiComponentFactory $uiComponentFactory Magento ui factory instance
+     * @param ContextInterface $context Magento ui context instance
+     * @param UiComponentFactory $uiComponentFactory Magento ui factory instance
      * @param array $components component data
      * @param array $data additional params
      */
@@ -54,25 +55,25 @@ class LengowOrderStatus extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if (!is_null($item['order_lengow_state'])) {
+                if ($item['order_lengow_state'] !== null) {
                     $status = $item['order_lengow_state'];
                     switch ($status) {
-                        case 'accepted':
+                        case LengowOrder::STATE_ACCEPTED:
                             $translation = 'Accepted';
                             break;
-                        case 'waiting_shipment':
+                        case LengowOrder::STATE_WAITING_SHIPMENT:
                             $translation = 'Awaiting shipment';
                             break;
-                        case 'shipped':
+                        case LengowOrder::STATE_SHIPPED:
                             $translation = 'Shipped';
                             break;
-                        case 'refunded':
+                        case LengowOrder::STATE_REFUNDED:
                             $translation = 'Refunded';
                             break;
-                        case 'closed':
+                        case LengowOrder::STATE_CLOSED:
                             $translation = 'Closed';
                             break;
-                        case 'canceled':
+                        case LengowOrder::STATE_CANCELED:
                             $translation = 'Canceled';
                             break;
                         default:

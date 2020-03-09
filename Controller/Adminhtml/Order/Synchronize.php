@@ -22,6 +22,7 @@ namespace Lengow\Connector\Controller\Adminhtml\Order;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\Result\Redirect;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
@@ -29,27 +30,27 @@ use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 class Synchronize extends Action
 {
     /**
-     * @var \Lengow\Connector\Model\Import\Order Lengow order instance
-     */
-    protected $_lengowOrder;
-
-    /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var DataHelper Lengow data helper instance
      */
     protected $_dataHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrderFactory Lengow order instance
+     * @var LengowOrder Lengow order instance
+     */
+    protected $_lengowOrder;
+
+    /**
+     * @var LengowOrderFactory Lengow order instance
      */
     protected $_lengowOrderFactory;
 
     /**
      * Constructor
      *
-     * @param \Magento\Framework\App\Action\Context $context Magento action context instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
-     * @param \Lengow\Connector\Model\Import\OrderFactory $lengowOrderFactory Lengow order instance
+     * @param Context $context Magento action context instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param LengowOrder $lengowOrder Lengow order instance
+     * @param LengowOrderFactory $lengowOrderFactory Lengow order instance
      */
     public function __construct(
         Context $context,
@@ -67,7 +68,7 @@ class Synchronize extends Action
     /**
      * Synchronize action
      *
-     * @return \Magento\Framework\Controller\Result\Redirect
+     * @return Redirect
      */
     public function execute()
     {
@@ -87,9 +88,14 @@ class Synchronize extends Action
                     [$lengowOrder->getData('order_sku')]
                 );
             }
-            $this->_dataHelper->log('Import', $synchroMessage, false, $lengowOrder->getData('marketplace_sku'));
+            $this->_dataHelper->log(
+                DataHelper::CODE_IMPORT,
+                $synchroMessage,
+                false,
+                $lengowOrder->getData('marketplace_sku')
+            );
         }
-        /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
+        /** @var Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         return $resultRedirect->setPath('sales/order/view', ['order_id' => $orderId]);
     }

@@ -20,10 +20,12 @@
 namespace Lengow\Connector\Model\Export;
 
 use Magento\Framework\Filesystem\Driver\File as DriverFile;
-use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Exception as LengowException;
+use Lengow\Connector\Model\Export\File as LengowFile;
+use Lengow\Connector\Model\Export\FileFactory as LengowFileFactory;
 
 /**
  * Lengow export feed
@@ -46,32 +48,67 @@ class Feed
     const EOL = "\r\n";
 
     /**
-     * @var \Magento\Framework\Filesystem\Driver\File Magento driver file instance
+     * @var string csv format.
+     */
+    const FORMAT_CSV = 'csv';
+
+    /**
+     * @var string yaml format.
+     */
+    const FORMAT_YAML = 'yaml';
+
+    /**
+     * @var string xml format.
+     */
+    const FORMAT_XML = 'xml';
+
+    /**
+     * @var string json format.
+     */
+    const FORMAT_JSON = 'json';
+
+    /**
+     * @var string header content.
+     */
+    const HEADER = 'header';
+
+    /**
+     * @var string body content.
+     */
+    const BODY = 'body';
+
+    /**
+     * @var string footer content.
+     */
+    const FOOTER = 'footer';
+
+    /**
+     * @var DriverFile Magento driver file instance
      */
     protected $_driverFile;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     * @var DateTime Magento datetime instance
      */
     protected $_dateTime;
 
     /**
-     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
+     * @var JsonHelper Magento json helper instance
      */
     protected $_jsonHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Export\FileFactory Lengow file factory instance
+     * @var LengowFileFactory Lengow file factory instance
      */
     protected $_fileFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Export\File Lengow file instance
+     * @var LengowFile Lengow file instance
      */
     protected $_file;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var DataHelper Lengow data helper instance
      */
     protected $_dataHelper;
 
@@ -96,11 +133,6 @@ class Feed
     protected $_yamlSpaces = [];
 
     /**
-     * @var string Lengow export folder
-     */
-    protected $_lengowExportFolder = 'lengow';
-
-    /**
      * @var string folder name that contains the file
      */
     protected $_folderName;
@@ -118,19 +150,20 @@ class Feed
     /**
      * Constructor
      *
-     * @param \Magento\Framework\Filesystem\Driver\File $driverFile Magento driver file instance
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
-     * @param \Lengow\Connector\Model\Export\FileFactory $fileFactory Lengow file factory instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param DriverFile $driverFile Magento driver file instance
+     * @param DateTime $dateTime Magento datetime instance
+     * @param JsonHelper $jsonHelper Magento json helper instance
+     * @param LengowFileFactory $fileFactory Lengow file factory instance
+     * @param DataHelper $dataHelper Lengow data helper instance
      */
     public function __construct(
         DriverFile $driverFile,
         DateTime $dateTime,
         JsonHelper $jsonHelper,
-        FileFactory $fileFactory,
+        LengowFileFactory $fileFactory,
         DataHelper $dataHelper
-    ) {
+    )
+    {
         $this->_driverFile = $driverFile;
         $this->_dateTime = $dateTime;
         $this->_jsonHelper = $jsonHelper;
@@ -146,7 +179,7 @@ class Feed
      * string  format     feed format
      * string  store_code Magento store code
      *
-     * @throws \Exception|LengowException unable to create folder
+     * @throws \Exception|LengowException
      */
     public function init($params)
     {
@@ -155,7 +188,7 @@ class Feed
         $this->_file = $this->_fileFactory->create();
         if (!$this->_stream) {
             $sep = DIRECTORY_SEPARATOR;
-            $this->_folderName = $this->_lengowExportFolder . $sep . $params['store_code'];
+            $this->_folderName = DataHelper::LENGOW_FOLDER . $sep . $params['store_code'];
             $this->_folderPath = $this->_dataHelper->getMediaPath() . $sep . $this->_folderName;
             $this->_initExportFile();
         }
@@ -174,21 +207,21 @@ class Feed
     public function write($type, $data = [], $isFirst = null, $maxCharacter = null)
     {
         switch ($type) {
-            case 'header':
+            case self::HEADER:
                 if ($this->_stream) {
                     header($this->_getHtmlHeader());
-                    if ($this->_format === 'csv') {
+                    if ($this->_format === self::FORMAT_CSV) {
                         header('Content-Disposition: attachment; filename=feed.csv');
                     }
                 }
                 $header = $this->_getHeader($data);
                 $this->_flush($header);
                 break;
-            case 'body':
+            case self::BODY:
                 $body = $this->_getBody($data, $isFirst, $maxCharacter);
                 $this->_flush($body);
                 break;
-            case 'footer':
+            case self::FOOTER:
                 $footer = $this->_getFooter();
                 $this->_flush($footer);
                 break;
@@ -204,7 +237,7 @@ class Feed
      */
     public function end()
     {
-        $this->write('footer');
+        $this->write(self::FOOTER);
         if (!$this->_stream) {
             $this->_file->close();
             $newFileName = 'lengow_feed.' . $this->_format;
@@ -243,14 +276,14 @@ class Feed
     protected function _getHtmlHeader()
     {
         switch ($this->_format) {
-            case 'csv':
+            case self::FORMAT_CSV:
             default:
                 return 'Content-Type: text/csv; charset=UTF-8';
-            case 'xml':
+            case self::FORMAT_XML:
                 return 'Content-Type: application/xml; charset=UTF-8';
-            case 'json':
+            case self::FORMAT_JSON:
                 return 'Content-Type: application/json; charset=UTF-8';
-            case 'yaml':
+            case self::FORMAT_YAML:
                 return 'Content-Type: text/x-yaml; charset=UTF-8';
         }
     }
@@ -265,18 +298,18 @@ class Feed
     protected function _getHeader($data)
     {
         switch ($this->_format) {
-            case 'csv':
+            case self::FORMAT_CSV:
             default:
                 $header = '';
                 foreach ($data as $field) {
                     $header .= self::PROTECTION . $this->_formatFields($field) . self::PROTECTION . self::CSV_SEPARATOR;
                 }
                 return rtrim($header, self::CSV_SEPARATOR) . self::EOL;
-            case 'xml':
+            case self::FORMAT_XML:
                 return '<?xml version="1.0" encoding="UTF-8"?>' . self::EOL . '<catalog>' . self::EOL;
-            case 'json':
+            case self::FORMAT_JSON:
                 return '{"catalog":[';
-            case 'yaml':
+            case self::FORMAT_YAML:
                 return '"catalog":' . self::EOL;
         }
     }
@@ -293,14 +326,14 @@ class Feed
     protected function _getBody($data, $isFirst, $maxCharacter)
     {
         switch ($this->_format) {
-            case 'csv':
+            case self::FORMAT_CSV:
             default:
                 $content = '';
                 foreach ($data as $value) {
                     $content .= self::PROTECTION . $value . self::PROTECTION . self::CSV_SEPARATOR;
                 }
                 return rtrim($content, self::CSV_SEPARATOR) . self::EOL;
-            case 'xml':
+            case self::FORMAT_XML:
                 $content = '<product>';
                 foreach ($data as $field => $value) {
                     $field = isset($this->_formattedFields[$field])
@@ -310,7 +343,7 @@ class Feed
                 }
                 $content .= '</product>' . self::EOL;
                 return $content;
-            case 'json':
+            case self::FORMAT_JSON:
                 $content = $isFirst ? '' : ',';
                 $jsonArray = [];
                 foreach ($data as $field => $value) {
@@ -321,7 +354,7 @@ class Feed
                 }
                 $content .= $this->_jsonHelper->jsonEncode($jsonArray);
                 return $content;
-            case 'yaml':
+            case self::FORMAT_YAML:
                 if ($maxCharacter % 2 === 1) {
                     $maxCharacter = $maxCharacter + 1;
                 } else {
@@ -350,9 +383,9 @@ class Feed
     protected function _getFooter()
     {
         switch ($this->_format) {
-            case 'xml':
+            case self::FORMAT_XML:
                 return '</catalog>';
-            case 'json':
+            case self::FORMAT_JSON:
                 return ']}';
             default:
                 return '';
@@ -362,7 +395,7 @@ class Feed
     /**
      * Create export file
      *
-     * @throws \Exception|LengowException unable to create folder
+     * @throws \Exception|LengowException
      */
     protected function _initExportFile()
     {
@@ -390,19 +423,19 @@ class Feed
     protected function _isAlreadyLaunch()
     {
         $listFiles = $this->_driverFile->readDirectory($this->_folderPath);
-        if (count($listFiles) > 0) {
+        if (!empty($listFiles)) {
             foreach ($listFiles as $filePath) {
                 $fileName = str_replace($this->_folderPath . '/', '', $filePath);
                 if (preg_match('/^' . $this->_fileName . '\.[\d]{10}/', $fileName)) {
-                    $fileModified = $this->_dateTime->date('Y-m-d H:i:s', filemtime($filePath));
+                    $fileModified = $this->_dateTime->gmtDate('Y-m-d H:i:s', filemtime($filePath));
                     $fileModifiedDatetime = new \DateTime($fileModified);
                     $fileModifiedDatetime->add(new \DateInterval('P5D'));
-                    if ($this->_dateTime->date('Y-m-d') > $fileModifiedDatetime->format('Y-m-d')) {
+                    if ($this->_dateTime->gmtDate('Y-m-d') > $fileModifiedDatetime->format('Y-m-d')) {
                         $this->_driverFile->deleteFile($filePath);
                     }
                     $fileModifiedDatetime = new \DateTime($fileModified);
                     $fileModifiedDatetime->add(new \DateInterval('PT20S'));
-                    if ($this->_dateTime->date('Y-m-d H:i:s') < $fileModifiedDatetime->format('Y-m-d H:i:s')) {
+                    if ($this->_dateTime->gmtDate('Y-m-d H:i:s') < $fileModifiedDatetime->format('Y-m-d H:i:s')) {
                         return true;
                     }
                 }
@@ -414,9 +447,9 @@ class Feed
     /**
      * Flush feed content
      *
+     * @param string $content feed content to be flushed
      * @throws \Exception
      *
-     * @param string $content feed content to be flushed
      */
     protected function _flush($content)
     {
@@ -438,7 +471,7 @@ class Feed
     protected function _formatFields($field)
     {
         switch ($this->_format) {
-            case 'csv':
+            case self::FORMAT_CSV:
                 $formatField = substr(
                     strtolower(
                         preg_replace(

@@ -22,24 +22,20 @@ namespace Lengow\Connector\Block\Adminhtml\Home;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Lengow\Connector\Helper\Sync as SyncHelper;
-use Lengow\Connector\Model\Import\Order;
+use Lengow\Connector\Model\Connector as LengowConnector;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class Dashboard extends Template
 {
     /**
-     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     * @var SyncHelper Lengow sync helper instance
      */
     protected $_syncHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Import\Order Lengow order instance
+     * @var LengowOrder Lengow order instance
      */
     protected $_lengowOrder;
-
-    /**
-     * @var array Lengow statistics
-     */
-    protected $_stats = [];
 
     /**
      * @var integer number of Lengow order to be sent
@@ -49,54 +45,34 @@ class Dashboard extends Template
     /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
-     * @param \Lengow\Connector\Model\Import\Order $lengowOrder Lengow order instance
+     * @param Context $context Magento block context instance
+     * @param SyncHelper $syncHelper Lengow sync helper instance
+     * @param LengowOrder $lengowOrder Lengow order instance
      * @param array $data additional params
      */
     public function __construct(
         Context $context,
         SyncHelper $syncHelper,
-        Order $lengowOrder,
+        LengowOrder $lengowOrder,
         array $data = []
-    ) {
+    )
+    {
         $this->_syncHelper = $syncHelper;
         $this->_lengowOrder = $lengowOrder;
         if (!$this->_syncHelper->pluginIsBlocked()) {
-            $this->_stats = $this->_syncHelper->getStatistic();
             $this->_numberOrderToBeSent = $this->_lengowOrder->countOrderToBeSent();
         }
         parent::__construct($context, $data);
     }
 
     /**
-     * Get total order
-     *
-     * @return integer
-     */
-    public function getNumberOrder()
-    {
-        return isset($this->_stats['nb_order']) ? (int)$this->_stats['nb_order']  : 0;
-    }
-
-    /**
-     * Get turnover
+     * Get Lengow solution url
      *
      * @return string
      */
-    public function getTurnover()
+    public function getLengowSolutionUrl()
     {
-        return isset($this->_stats['total_order']) ? $this->_stats['total_order'] : '';
-    }
-
-    /**
-     * Get statistics is available
-     *
-     * @return boolean
-     */
-    public function statIsAvailable()
-    {
-        return isset($this->_stats['available']) ? (bool)$this->_stats['available'] : false;
+        return '//my.' . LengowConnector::LENGOW_URL;
     }
 
     /**

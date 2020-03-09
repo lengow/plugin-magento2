@@ -19,66 +19,69 @@
 
 namespace Lengow\Connector\Block\Adminhtml\Product;
 
-use Lengow\Connector\Model\Config\Source\Type as SourceType;
-use Lengow\Connector\Block\Widget\Grid\Extended;
+use Magento\Backend\Helper\Data as BackendHelper;
+use Magento\Backend\Block\Template\Context;
+use Magento\Backend\Block\Widget\Grid as MagentoGrid;
+use Magento\Backend\Block\Widget\Grid\Extended as MagentoGridExtended;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
+use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 use Magento\Catalog\Model\Product\AttributeSet\Options as AttributeSetOptions;
 use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
-use Magento\Backend\Block\Template\Context;
-use Magento\Backend\Helper\Data as BackendHelper;
-use Lengow\Connector\Helper\Data as DataHelper;
-use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
+use Magento\Framework\DataObject;
 use Magento\Store\Model\WebsiteFactory;
-use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
+use Lengow\Connector\Block\Widget\Grid\Extended;
+use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Model\Config\Source\Type as SourceType;
 
 class Grid extends Extended
 {
     /**
-     * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory Magento product collection factory instance
+     * @var ProductCollectionFactory Magento product collection factory instance
      */
     protected $_collectionFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Config\Source\Type Lengow config source type instance
-     */
-    protected $_sourceType;
-
-    /**
-     * @var \Magento\Catalog\Model\Product\AttributeSet\Options Magento attribute set options instance
+     * @var AttributeSetOptions Magento attribute set options instance
      */
     protected $_attributeSetOptions;
 
     /**
-     * @var \Magento\Catalog\Model\Product\Visibility Magento product visibility instance
+     * @var ProductVisibility Magento product visibility instance
      */
     protected $_productVisibility;
 
     /**
-     * @var \Magento\Store\Model\WebsiteFactory Magento website factory instance
+     * @var WebsiteFactory Magento website factory instance
      */
     protected $_websiteFactory;
 
     /**
-     * @var \Magento\Catalog\Model\Product\Attribute\Source\Status Magento product attribute status instance
+     * @var ProductStatus Magento product attribute status instance
      */
     protected $_status;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
+     * @var SourceType Lengow config source type instance
+     */
+    protected $_sourceType;
+
+    /**
+     * @var DataHelper Lengow data helper instance
      */
     protected $_dataHelper;
 
     /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param \Magento\Backend\Helper\Data $backendHelper Magento backend helper instance
-     * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $collectionFactory
-     * @param \Magento\Catalog\Model\Product\AttributeSet\Options $attributeSetOptions Magento attribute option instance
-     * @param \Magento\Store\Model\WebsiteFactory $websiteFactory Magento website factory instance
-     * @param \Magento\Catalog\Model\Product\Attribute\Source\Status $status Magento attribute status instance
-     * @param \Magento\Catalog\Model\Product\Visibility $productVisibility Magento product visibility instance
-     * @param \Lengow\Connector\Model\Config\Source\Type $sourceType Magento source type instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
+     * @param Context $context Magento block context instance
+     * @param BackendHelper $backendHelper Magento backend helper instance
+     * @param ProductCollectionFactory $collectionFactory
+     * @param AttributeSetOptions $attributeSetOptions Magento attribute option instance
+     * @param WebsiteFactory $websiteFactory Magento website factory instance
+     * @param ProductStatus $status Magento attribute status instance
+     * @param ProductVisibility $productVisibility Magento product visibility instance
+     * @param SourceType $sourceType Magento source type instance
+     * @param DataHelper $dataHelper Lengow data helper instance
      * @param array $data additional params
      */
     public function __construct(
@@ -92,7 +95,8 @@ class Grid extends Extended
         SourceType $sourceType,
         DataHelper $dataHelper,
         array $data = []
-    ) {
+    )
+    {
         $this->_collectionFactory = $collectionFactory;
         $this->_sourceType = $sourceType;
         $this->_attributeSetOptions = $attributeSetOptions;
@@ -121,7 +125,7 @@ class Grid extends Extended
      *
      * @throws \Exception
      *
-     * @return \Magento\Backend\Block\Widget\Grid
+     * @return MagentoGrid
      */
     protected function _prepareCollection()
     {
@@ -183,7 +187,7 @@ class Grid extends Extended
      *
      * @throws \Exception
      *
-     * @return \Magento\Backend\Block\Widget\Grid\Extended
+     * @return MagentoGridExtended
      */
     protected function _prepareColumns()
     {
@@ -362,7 +366,7 @@ class Grid extends Extended
     /**
      * Inline editing action
      *
-     * @param \Magento\Framework\DataObject $row Magento data object instance
+     * @param DataObject $row Magento data object instance
      *
      * @return string
      */

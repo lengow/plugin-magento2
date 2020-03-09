@@ -23,8 +23,9 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\DateTime;
-use Lengow\Connector\Model\ResourceModel\Ordererror as OrderResourceerror;
-use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory;
+use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
+use Lengow\Connector\Model\ResourceModel\Ordererror as LengowOrderErrorResource;
+use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory as LengowOrderErrorCollectionFactory;
 
 /**
  * Model import ordererror
@@ -42,19 +43,19 @@ class Ordererror extends AbstractModel
     const TYPE_ERROR_SEND = 2;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime $_dateTime Magento datetime instance
+     * @var DateTime $_dateTime Magento datetime instance
      */
     protected $_dateTime;
 
     /**
-     * @var \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory Lengow order error collection factory
+     * @var LengowOrderErrorCollectionFactory Lengow order error collection factory
      */
-    protected $_ordererrorCollection;
+    protected $_orderErrorCollection;
 
     /**
-     * @var \Lengow\Connector\Model\Import\OrdererrorFactory Lengow order error factory
+     * @var LengowOrderErrorFactory Lengow order error factory
      */
-    protected $_ordererrorFactory;
+    protected $_orderErrorFactory;
 
     /**
      * @var array $_fieldList field list for the table lengow_order_line
@@ -72,23 +73,23 @@ class Ordererror extends AbstractModel
     /**
      * Constructor
      *
-     * @param \Magento\Framework\Model\Context $context Magento context instance
-     * @param \Magento\Framework\Registry $registry Magento registry instance
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
-     * @param \Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory $ordererrorCollection
-     * @param \Lengow\Connector\Model\Import\OrdererrorFactory $ordererrorFactory
+     * @param Context $context Magento context instance
+     * @param Registry $registry Magento registry instance
+     * @param DateTime $dateTime Magento datetime instance
+     * @param LengowOrderErrorCollectionFactory $orderErrorCollection
+     * @param LengowOrderErrorFactory $orderErrorFactory
      */
     public function __construct(
         Context $context,
         Registry $registry,
         DateTime $dateTime,
-        CollectionFactory $ordererrorCollection,
-        OrdererrorFactory $ordererrorFactory
+        LengowOrderErrorCollectionFactory $orderErrorCollection,
+        LengowOrderErrorFactory $orderErrorFactory
     )
     {
         $this->_dateTime = $dateTime;
-        $this->_ordererrorCollection = $ordererrorCollection;
-        $this->_ordererrorFactory = $ordererrorFactory;
+        $this->_orderErrorCollection = $orderErrorCollection;
+        $this->_orderErrorFactory = $orderErrorFactory;
         parent::__construct($context, $registry);
     }
 
@@ -99,7 +100,7 @@ class Ordererror extends AbstractModel
      */
     protected function _construct()
     {
-        $this->_init(OrderResourceerror::class);
+        $this->_init(LengowOrderErrorResource::class);
     }
 
     /**
@@ -204,15 +205,15 @@ class Ordererror extends AbstractModel
     {
         $errorType = $this->getOrderErrorType($type);
         // get all order errors
-        $results = $this->_ordererrorCollection->create()->load()
+        $results = $this->_orderErrorCollection->create()->load()
             ->addFieldToFilter('order_lengow_id', $orderLengowId)
             ->addFieldToFilter('is_finished', 0)
             ->addFieldToFilter('type', $errorType)
             ->addFieldToSelect('id')
             ->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             foreach ($results as $result) {
-                $orderError = $this->_ordererrorFactory->create()->load((int)$result['id']);
+                $orderError = $this->_orderErrorFactory->create()->load((int)$result['id']);
                 $orderError->updateOrderError(['is_finished' => 1]);
                 unset($orderError);
             }
@@ -233,18 +234,18 @@ class Ordererror extends AbstractModel
      */
     public function getOrderErrors($orderLengowId, $type = null, $finished = null)
     {
-        $collection = $this->_ordererrorCollection->create()->load()
+        $collection = $this->_orderErrorCollection->create()->load()
             ->addFieldToFilter('order_lengow_id', $orderLengowId);
-        if (!is_null($type)) {
+        if ($type !== null) {
             $errorType = $this->getOrderErrorType($type);
             $collection->addFieldToFilter('type', $errorType);
         }
-        if (!is_null($finished)) {
+        if ($finished !== null) {
             $errorFinished = $finished ? 1 : 0;
             $collection->addFieldToFilter('is_finished', $errorFinished);
         }
         $results = $collection->getData();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return $results;
         }
         return false;
@@ -257,7 +258,7 @@ class Ordererror extends AbstractModel
      */
     public function getOrderErrorsNotSent()
     {
-        $results = $this->_ordererrorCollection->create()->load()
+        $results = $this->_orderErrorCollection->create()->load()
             ->join(
                 'lengow_order',
                 '`lengow_order`.id=main_table.order_lengow_id',

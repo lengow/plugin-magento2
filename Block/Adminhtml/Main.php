@@ -24,21 +24,22 @@ use Magento\Backend\Block\Template\Context;
 use Magento\Framework\Locale\Resolver as Locale;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
+use Lengow\Connector\Model\Connector as LengowConnector;
 
 class Main extends Template
 {
     /**
-     * @var \Magento\Framework\Locale\Resolver Magento locale resolver instance
+     * @var Locale Magento locale resolver instance
      */
     protected $_locale;
 
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Helper\Sync Lengow sync helper instance
+     * @var SyncHelper Lengow sync helper instance
      */
     protected $_syncHelper;
 
@@ -50,10 +51,10 @@ class Main extends Template
     /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Template\Context $context Magento block context instance
-     * @param \Magento\Framework\Locale\Resolver $locale Magento locale resolver instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Helper\Sync $syncHelper Lengow sync helper instance
+     * @param Context $context Magento block context instance
+     * @param Locale $locale Magento locale resolver instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param SyncHelper $syncHelper Lengow sync helper instance
      * @param array $data additional params
      */
     public function __construct(
@@ -62,7 +63,8 @@ class Main extends Template
         ConfigHelper $configHelper,
         SyncHelper $syncHelper,
         array $data = []
-    ) {
+    )
+    {
         $this->_locale = $locale;
         $this->_configHelper = $configHelper;
         $this->_syncHelper = $syncHelper;
@@ -106,19 +108,6 @@ class Main extends Template
     }
 
     /**
-     * Check is customer is a bad payer
-     *
-     * @return boolean
-     */
-    public function isBadPayer()
-    {
-        if ((isset($this->_statusAccount['type']) && $this->_statusAccount['type'] === 'bad_payer')) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * Get current locale
      *
      * @return string
@@ -126,5 +115,25 @@ class Main extends Template
     public function getIsoCode()
     {
         return strtolower(substr($this->_locale->getLocale(), 0, 2));
+    }
+
+    /**
+     * Get Lengow url
+     *
+     * @return string
+     */
+    public function getLengowUrl()
+    {
+        return LengowConnector::LENGOW_URL;
+    }
+
+    /**
+     * Get Lengow solution url
+     *
+     * @return string
+     */
+    public function getLengowSolutionUrl()
+    {
+        return '//my.' . LengowConnector::LENGOW_URL;
     }
 }

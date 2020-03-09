@@ -19,31 +19,31 @@
 
 namespace Lengow\Connector\Ui\Component\Listing\Column;
 
-use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
-use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Framework\UrlInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Ui\Component\Listing\Columns\Column;
 
 class OrderSku extends Column
 {
     /**
-     * @var \Magento\Framework\UrlInterface Magento framework url instance
+     * @var UrlInterface Magento framework url instance
      */
     protected $_urlBuilder;
 
     /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface Magento order repository instance
+     * @var OrderRepositoryInterface Magento order repository instance
      */
     protected $_orderRepository;
 
     /**
      * Constructor
      *
-     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository Magento order repository instance
-     * @param \Magento\Framework\UrlInterface $urlBuilder Magento framework url instance
-     * @param \Magento\Framework\View\Element\UiComponent\ContextInterface $context Magento ui context instance
-     * @param \Magento\Framework\View\Element\UiComponentFactory $uiComponentFactory Magento ui factory instance
+     * @param OrderRepositoryInterface $orderRepository Magento order repository instance
+     * @param UrlInterface $urlBuilder Magento framework url instance
+     * @param ContextInterface $context Magento ui context instance
+     * @param UiComponentFactory $uiComponentFactory Magento ui factory instance
      * @param array $components component data
      * @param array $data additional params
      */
@@ -54,7 +54,8 @@ class OrderSku extends Column
         UiComponentFactory $uiComponentFactory,
         array $components = [],
         array $data = []
-    ) {
+    )
+    {
         $this->_urlBuilder = $urlBuilder;
         $this->_orderRepository = $orderRepository;
         parent::__construct($context, $uiComponentFactory, $components, $data);
@@ -72,10 +73,10 @@ class OrderSku extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if (!is_null($item['order_sku'])) {
-                    $item['order_sku'] = '<a href="'.
-                        $this->_urlBuilder->getUrl('sales/order/view',['order_id' => $item['order_id']]). '">
-                        '. $item['order_sku'] .'</a>';
+                if ($item['order_sku'] !== null) {
+                    $item['order_sku'] = '<a href="' .
+                        $this->_urlBuilder->getUrl('sales/order/view', ['order_id' => $item['order_id']]) . '">
+                        ' . $item['order_sku'] . '</a>';
                 }
             }
         }

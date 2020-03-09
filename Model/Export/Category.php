@@ -20,6 +20,8 @@
 namespace Lengow\Connector\Model\Export;
 
 use Magento\Catalog\Model\CategoryRepository;
+use Magento\Catalog\Model\Product\Interceptor as ProductInterceptor;
+use Magento\Store\Model\Store\Interceptor as StoreInterceptor;
 
 /**
  * Lengow export category
@@ -27,17 +29,17 @@ use Magento\Catalog\Model\CategoryRepository;
 class Category
 {
     /**
-     * @var \Magento\Catalog\Model\CategoryRepository Magento category repository instance
+     * @var CategoryRepository Magento category repository instance
      */
     protected $_categoryRepository;
 
     /**
-     * @var \Magento\Catalog\Model\Product\Interceptor Magento product instance
+     * @var ProductInterceptor Magento product instance
      */
     protected $_product;
 
     /**
-     * @var \Magento\Store\Model\Store\Interceptor Magento store instance
+     * @var StoreInterceptor Magento store instance
      */
     protected $_store;
 
@@ -59,7 +61,7 @@ class Category
     /**
      * Constructor
      *
-     * @param \Magento\Catalog\Model\CategoryRepository $categoryRepository Magento category repository instance
+     * @param CategoryRepository $categoryRepository Magento category repository instance
      */
     public function __construct(CategoryRepository $categoryRepository)
     {
@@ -70,7 +72,7 @@ class Category
      * init a new category
      *
      * @param array $params optional options for load a specific product
-     * \Magento\Store\Model\Store\Interceptor store Magento store instance
+     * StoreInterceptor store Magento store instance
      */
     public function init($params)
     {
@@ -81,7 +83,7 @@ class Category
      * Load a new category with a specific params
      *
      * @param array $params optional options for load a specific category
-     * \Magento\Catalog\Model\Product\Interceptor product Magento product instance
+     * ProductInterceptor product Magento product instance
      *
      * @throws \Exception
      */
@@ -116,6 +118,8 @@ class Category
     /**
      * Get default category id and path
      *
+     * @throws \Exception
+     *
      * @return array
      */
     protected function _getDefaultCategory()
@@ -126,7 +130,7 @@ class Category
         $categoryCollection = $this->_product->getCategoryCollection()
             ->addPathsFilter('1/' . $this->_store->getRootCategoryId() . '/')
             ->exportToArray();
-        if (count($categoryCollection) > 0) {
+        if (!empty($categoryCollection)) {
             // select category with max level by default
             foreach ($categoryCollection as $categoryArray) {
                 if ($categoryArray['level'] > $currentLevel) {
@@ -135,11 +139,10 @@ class Category
                 }
             }
         }
-        $category = [
+        return [
             'id' => isset($defaultCategory['entity_id']) ? (int)$defaultCategory['entity_id'] : 0,
             'path' => isset($defaultCategory['path']) ? $defaultCategory['path'] : '',
         ];
-        return $category;
     }
 
     /**

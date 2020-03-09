@@ -19,31 +19,31 @@
 
 namespace Lengow\Connector\Ui\Component\Listing\Column;
 
-use Magento\Ui\Component\Listing\Columns\Column;
+use Magento\Directory\Model\CurrencyFactory;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Directory\Model\CurrencyFactory;
+use Magento\Ui\Component\Listing\Columns\Column;
 
 class TotalPaid extends Column
 {
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
+     * @var StoreManagerInterface Magento store manager instance
      */
     protected $_storeManager;
 
     /**
-     * @var \Magento\Directory\Model\CurrencyFactory Magento currency factory instance
+     * @var CurrencyFactory Magento currency factory instance
      */
     protected $_currencyFactory;
 
     /**
      * Constructor
      *
-     * @param \Magento\Directory\Model\CurrencyFactory $currencyFactory Magento currency factory instance
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
-     * @param \Magento\Framework\View\Element\UiComponent\ContextInterface $context Magento ui context instance
-     * @param \Magento\Framework\View\Element\UiComponentFactory $uiComponentFactory Magento ui factory instance
+     * @param CurrencyFactory $currencyFactory Magento currency factory instance
+     * @param StoreManagerInterface $storeManager Magento store manager instance
+     * @param ContextInterface $context Magento ui context instance
+     * @param UiComponentFactory $uiComponentFactory Magento ui factory instance
      * @param array $components component data
      * @param array $data additional params
      */
@@ -54,7 +54,8 @@ class TotalPaid extends Column
         UiComponentFactory $uiComponentFactory,
         array $components = [],
         array $data = []
-    ) {
+    )
+    {
         $this->_storeManager = $storeManager;
         $this->_currencyFactory = $currencyFactory;
         parent::__construct($context, $uiComponentFactory, $components, $data);
@@ -72,7 +73,7 @@ class TotalPaid extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if (!is_null($item['total_paid'])) {
+                if ($item['total_paid'] !== null) {
                     $currencyFactory = $this->_currencyFactory->create()->load($item['currency']);
                     $currencySymbol = $currencyFactory->getCurrencySymbol();
                     $item['total_paid'] = $currencySymbol . $item['total_paid'];

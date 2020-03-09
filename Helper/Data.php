@@ -21,12 +21,13 @@ namespace Lengow\Connector\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Framework\UrlInterface;
-use Magento\Framework\Stdlib\DateTime\DateTime;
-use Lengow\Connector\Model\LogFactory as LogFactory;
+use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Lengow\Connector\Model\LogFactory as LengowLogFactory;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
 class Data extends AbstractHelper
@@ -37,59 +38,100 @@ class Data extends AbstractHelper
     const LOG_LIFE = 20;
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
+     * @var string setting log code
      */
-    protected $_storeManager;
+    const CODE_SETTING = 'Setting';
 
     /**
-     * @var \Magento\Framework\App\Filesystem\DirectoryList Magento directory list instance
+     * @var string Lengow media folder
+     */
+    const LENGOW_FOLDER = 'lengow';
+
+    /**
+     * @var string connector log code
+     */
+    const CODE_CONNECTOR = 'Connector';
+
+    /**
+     * @var string export log code
+     */
+    const CODE_EXPORT = 'Export';
+
+    /**
+     * @var string import log code
+     */
+    const CODE_IMPORT = 'Import';
+
+    /**
+     * @var string action log code
+     */
+    const CODE_ACTION = 'Action';
+
+    /**
+     * @var string mail report code
+     */
+    const CODE_MAIL_REPORT = 'Mail Report';
+
+    /**
+     * @var string orm code
+     */
+    const CODE_ORM = 'Orm';
+
+    /**
+     * @var DirectoryList Magento directory list instance
      */
     protected $_directoryList;
 
     /**
-     * @var \Magento\Framework\App\ResourceConnection Magento resource connection instance
+     * @var ResourceConnection Magento resource connection instance
      */
     protected $_resource;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     * @var storeManagerInterface Magento store manager instance
      */
-    protected $_date;
+    protected $_storeManager;
 
     /**
-     * @var \Lengow\Connector\Model\LogFactory Lengow log factory instance
+     * @var TimezoneInterface Magento datetime timezone instance
      */
-    protected $_logFactory;
+    protected $_timezone;
 
     /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
+     * @var LengowLogFactory Lengow log factory instance
+     */
+    protected $_logFactory;
+
+    /**
      * Constructor
      *
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
-     * @param \Magento\Framework\App\Helper\Context $context Magento context instance
-     * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList Magento directory list instance
-     * @param \Magento\Framework\App\ResourceConnection $resource Magento resource connection instance
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $date Magento datetime instance
-     * @param \Lengow\Connector\Model\LogFactory $logFactory Lengow log factory instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
+     * @param StoreManagerInterface $storeManager Magento store manager instance
+     * @param Context $context Magento context instance
+     * @param DirectoryList $directoryList Magento directory list instance
+     * @param ResourceConnection $resource Magento resource connection instance
+     * @param TimezoneInterface $timezone Magento datetime timezone instance
+     * @param LengowLogFactory $logFactory Lengow log factory instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
      */
     public function __construct(
         StoreManagerInterface $storeManager,
         Context $context,
         DirectoryList $directoryList,
         ResourceConnection $resource,
-        DateTime $date,
-        LogFactory $logFactory,
+        TimezoneInterface $timezone,
+        LengowLogFactory $logFactory,
         ConfigHelper $configHelper
-    ) {
+    )
+    {
         $this->_storeManager = $storeManager;
         $this->_directoryList = $directoryList;
         $this->_resource = $resource;
-        $this->_date = $date;
+        $this->_timezone = $timezone;
         $this->_logFactory = $logFactory;
         $this->_configHelper = $configHelper;
         parent::__construct($context);
@@ -114,7 +156,8 @@ class Data extends AbstractHelper
         $finalMessage = '' . (empty($marketplaceSku) ? '' : 'order ' . $marketplaceSku . ' : ');
         $finalMessage .= $decodedMessage;
         if ($display) {
-            print_r('[' . $category . '] ' . $finalMessage . '<br />');
+            $date = $this->_timezone->date()->format('Y-m-d H:i:s');
+            print_r($date . ' - [' . $category . '] ' . $finalMessage . '<br />');
             flush();
         }
         $log = $this->_logFactory->create();
@@ -131,7 +174,7 @@ class Data extends AbstractHelper
      */
     public function setLogMessage($key, $params = null)
     {
-        if (is_null($params) || (is_array($params) && empty($params))) {
+        if ($params === null || (is_array($params) && empty($params))) {
             return $key;
         }
         $allParams = [];
@@ -139,8 +182,7 @@ class Data extends AbstractHelper
             $value = str_replace('|', '', $value);
             $allParams[] = $value;
         }
-        $message = $key . '[' . join('|', $allParams) . ']';
-        return $message;
+        return $key . '[' . join('|', $allParams) . ']';
     }
 
     /**
@@ -167,7 +209,7 @@ class Data extends AbstractHelper
                     $phrase = __($key, $params);
                     $message = $phrase->__toString();
                 } else {
-                    if (count($params) > 0) {
+                    if (!empty($params)) {
                         $ii = 1;
                         foreach ($params as $param) {
                             $key = str_replace('%' . $ii, $param, $key);
@@ -213,7 +255,7 @@ class Data extends AbstractHelper
             '_nosid' => true,
             '_store_to_url' => false,
         ];
-        if (count($additionalParams) > 0) {
+        if (!empty($additionalParams)) {
             $defaultParams = array_merge($defaultParams, $additionalParams);
         }
         $this->_urlBuilder->setScope($storeId);
@@ -234,7 +276,7 @@ class Data extends AbstractHelper
             '_nosid' => true,
             '_store_to_url' => false,
         ];
-        if (count($additionalParams) > 0) {
+        if (!empty($additionalParams)) {
             $defaultParams = array_merge($defaultParams, $additionalParams);
         }
         $this->_urlBuilder->setScope($this->_storeManager->getDefaultStoreView()->getId());
@@ -251,18 +293,21 @@ class Data extends AbstractHelper
      */
     public function getDateInCorrectFormat($timestamp, $second = false)
     {
-        if ($second) {
-            $format = 'l d F Y @ H:i:s';
-        } else {
-            $format = 'l d F Y @ H:i';
-        }
-        return $this->_date->date($format, $timestamp);
+        $date = $this->_timezone->date($timestamp);
+        $pattern = $second ? 'EEEE d MMMM y @ HH:mm:ss' : 'EEEE d MMMM y @ HH:mm';
+        return $this->_timezone->formatDateTime($date,
+            \IntlDateFormatter::FULL,
+            \IntlDateFormatter::FULL,
+            null,
+            null,
+            $pattern
+        );
     }
 
     /**
      * Get store
      *
-     * @return \Magento\Store\Api\Data\StoreInterface
+     * @return StoreInterface
      */
     public function getStore()
     {

@@ -19,72 +19,74 @@
 
 namespace Lengow\Connector\Model\Import;
 
-use Magento\Framework\Math\Random;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Model\Customer as MagentoCustomer;
+use Magento\Customer\Model\CustomerFactory as MagentoCustomerFactory;
+use Magento\Customer\Model\Address;
+use Magento\Customer\Model\AddressFactory;
+use Magento\Customer\Model\ResourceModel\Customer as MagentoResourceCustomer;
+use Magento\Directory\Model\ResourceModel\Region\Collection as RegionCollection;
 use Magento\Eav\Model\Entity\Context;
-use Magento\Framework\Registry;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Encryption\EncryptorInterface;
+use Magento\Framework\Math\Random;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Validator\Factory as ValidatorFactory;
 use Magento\Framework\Stdlib\DateTime;
-use Lengow\Connector\Helper\Data as DataHelper;
-use Lengow\Connector\Helper\Config as ConfigHelper;
+use Magento\Framework\Validator\Factory as ValidatorFactory;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Customer\Model\CustomerFactory;
-use Magento\Customer\Model\AddressFactory;
-use Magento\Directory\Model\ResourceModel\Region\Collection as RegionCollection;
-use Magento\Customer\Api\CustomerRepositoryInterface;
-use Magento\Framework\Encryption\EncryptorInterface;
+use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Data as DataHelper;
 
 /**
  * Model import customer
  */
-class Customer extends \Magento\Customer\Model\ResourceModel\Customer
+class Customer extends MagentoResourceCustomer
 {
+    /**
+     * @var CustomerRepositoryInterface Magento customer repository
+     */
+    protected $_customerRepository;
+
+    /**
+     * @var MagentoCustomerFactory Magento customer factory
+     */
+    protected $_customerFactory;
+
+    /**
+     * @var AddressFactory Magento address factory
+     */
+    protected $_addressFactory;
+
+    /**
+     * @var RegionCollection Magento region collection
+     */
+    protected $_regionCollection;
+
     /**
      * @var EncryptorInterface
      */
     protected $_encryptor;
 
     /**
-     * @var \Magento\Framework\Math\Random Magento math random
+     * @var Random Magento math random
      */
     protected $_mathRandom;
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager
+     * @var StoreManagerInterface Magento store manager
      */
     protected $_storeManager;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
-     */
-    protected $_dataHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Magento\Directory\Model\ResourceModel\Region\Collection Magento region collection
+     * @var DataHelper Lengow data helper instance
      */
-    protected $_regionCollection;
-
-    /**
-     * @var \Magento\Customer\Model\AddressFactory Magento address factory
-     */
-    protected $_addressFactory;
-
-    /**
-     * @var \Magento\Customer\Model\CustomerFactory Magento customer factory
-     */
-    protected $_customerFactory;
-
-    /**
-     * @var \Magento\Customer\Api\CustomerRepositoryInterface Magento customer repository
-     */
-    protected $_customerRepository;
+    protected $_dataHelper;
 
     /**
      * @var array API fields for an address
@@ -110,26 +112,24 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
     /**
      * Constructor
      *
-     * @param \Magento\Eav\Model\Entity\Context $context Magento context instance
-     * @param \Magento\Framework\Registry $registry Magento registry instance
-     * @param \Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot $entitySnapshot
-     * @param \Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite $entityRelationComposite
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
-     * @param \Magento\Framework\Validator\Factory $validatorFactory Magento validator factory instance
-     * @param \Magento\Framework\Stdlib\DateTime $dateTime Magento date time instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager
-     * @param \Magento\Customer\Model\CustomerFactory $customerFactory Magento customer factory
-     * @param \Magento\Customer\Model\AddressFactory $addressFactory Magento address factory
-     * @param \Magento\Customer\Api\CustomerRepositoryInterface Magento customer repository
-     * @param \Magento\Directory\Model\ResourceModel\Region\Collection $regionCollection Magento region collection
-     * @param \Magento\Framework\Math\Random $mathRandom Magento math random
-     * @param \Magento\Framework\Encryption\EncryptorInterface $encryptor encryption interface
+     * @param Context $context Magento context instance
+     * @param Snapshot $entitySnapshot Magento entity snapshot instance
+     * @param RelationComposite $entityRelationComposite Magento entity relation composite instance
+     * @param ScopeConfigInterface $scopeConfig Magento scope config instance
+     * @param ValidatorFactory $validatorFactory Magento validator factory instance
+     * @param DateTime $dateTime Magento date time instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param StoreManagerInterface $storeManager Magento store manager
+     * @param MagentoCustomerFactory $customerFactory Magento customer factory
+     * @param AddressFactory $addressFactory Magento address factory
+     * @param CustomerRepositoryInterface $customerRepository Magento customer repository
+     * @param RegionCollection $regionCollection Magento region collection
+     * @param Random $mathRandom Magento math random
+     * @param EncryptorInterface $encryptor encryption interface
      */
     public function __construct(
         Context $context,
-        Registry $registry,
         Snapshot $entitySnapshot,
         RelationComposite $entityRelationComposite,
         ScopeConfigInterface $scopeConfig,
@@ -138,7 +138,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         ConfigHelper $configHelper,
         DataHelper $dataHelper,
         StoreManagerInterface $storeManager,
-        CustomerFactory $customerFactory,
+        MagentoCustomerFactory $customerFactory,
         AddressFactory $addressFactory,
         CustomerRepositoryInterface $customerRepository,
         RegionCollection $regionCollection,
@@ -177,7 +177,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
      *
      * @throws \Exception
      *
-     * @return \Magento\Customer\Model\Customer
+     * @return MagentoCustomer
      */
     public function createCustomer($orderData, $shippingAddress, $storeId, $marketplaceSku, $logOutput)
     {
@@ -189,7 +189,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         // generation of fictitious email
         $array['billing_address']['email'] = $marketplaceSku . '-' . $orderData->marketplace . '@lengow.com';
         $this->_dataHelper->log(
-            'Import',
+            DataHelper::CODE_IMPORT,
             $this->_dataHelper->setLogMessage(
                 'generate a unique email %1',
                 [$array['billing_address']['email']]
@@ -236,9 +236,9 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
         $array['delivery_address']['first_name'] = $shippingNames['firstname'];
         $array['delivery_address']['last_name'] = $shippingNames['lastname'];
         // get relay id if exist
-        if (count($shippingAddress->trackings) > 0
+        if (!empty($shippingAddress->trackings)
             && isset($shippingAddress->trackings[0]->relay)
-            && !is_null($shippingAddress->trackings[0]->relay->id)
+            && $shippingAddress->trackings[0]->relay->id !== null
         ) {
             $array['delivery_address']['tracking_relay'] = $shippingAddress->trackings[0]->relay->id;
         }
@@ -348,7 +348,7 @@ class Customer extends \Magento\Customer\Model\ResourceModel\Customer
      * @param array $data address data
      * @param string $type address type (billing or shipping)
      *
-     * @return \Magento\Customer\Model\Address
+     * @return Address
      */
     protected function _convertAddress(array $data, $type = 'billing')
     {

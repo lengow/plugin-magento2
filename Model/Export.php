@@ -19,20 +19,23 @@
 
 namespace Lengow\Connector\Model;
 
-use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\Stdlib\DateTime\DateTime;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
-use Magento\CatalogInventory\Model\Configuration as CatalogInventoryConfiguration;
+use Magento\Catalog\Model\ResourceModel\Product\Collection as ProductCollection;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
+use Magento\CatalogInventory\Model\Configuration as CatalogInventoryConfiguration;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Store\Model\Store\Interceptor as StoreInterceptor;
 use Magento\Store\Model\WebsiteFactory;
-use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
-use Lengow\Connector\Model\Export\FeedFactory;
-use Lengow\Connector\Model\Export\ProductFactory;
+use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Exception as LengowException;
+use Lengow\Connector\Model\Export\Feed as LengowFeed;
+use Lengow\Connector\Model\Export\FeedFactory as LengowFeedFactory;
+use Lengow\Connector\Model\Export\ProductFactory as LengowProductFactory;
 
 /**
  * Lengow export
@@ -40,57 +43,72 @@ use Lengow\Connector\Model\Exception as LengowException;
 class Export
 {
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface Magento store manager instance
+     * @var string manual export type
+     */
+    const TYPE_MANUAL = 'manual';
+
+    /**
+     * @var string cron export type
+     */
+    const TYPE_CRON = 'cron';
+
+    /**
+     * @var string Magento cron export type
+     */
+    const TYPE_MAGENTO_CRON = 'magento cron';
+
+    /**
+     * @var StoreManagerInterface Magento store manager instance
      */
     protected $_storeManager;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime Magento datetime instance
+     * @var DateTime Magento datetime instance
      */
     protected $_dateTime;
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface Magento scope config instance
+     * @var ScopeConfigInterface Magento scope config instance
      */
     protected $_scopeConfig;
 
     /**
-     * @var \Magento\Catalog\Model\Product\Attribute\Source\Status Magento product status instance
+     * @var ProductStatus Magento product status instance
      */
     protected $_productStatus;
 
     /**
-     * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory Magento product collection factory
+     * @var ProductCollectionFactory Magento product collection factory
      */
     protected $_productCollectionFactory;
 
     /**
-     * @var \Magento\Framework\Json\Helper\Data Magento json helper instance
+     * @var JsonHelper Magento json helper instance
      */
     protected $_jsonHelper;
 
     /**
-     * @var \Magento\Store\Model\WebsiteFactory Magento website factory instance
+     * @var WebsiteFactory Magento website factory instance
      */
     protected $_websiteFactory;
 
     /**
-     * @var \Lengow\Connector\Helper\Data Lengow data helper instance
-     */
-    protected $_dataHelper;
-
-    /**
-     * @var \Lengow\Connector\Helper\Config Lengow config helper instance
+     * @var ConfigHelper Lengow config helper instance
      */
     protected $_configHelper;
 
     /**
-     * @var \Lengow\Connector\Model\Export\FeedFactory Lengow feed factory instance
+     * @var DataHelper Lengow data helper instance
+     */
+    protected $_dataHelper;
+
+    /**
+     * @var LengowFeedFactory Lengow feed factory instance
      */
     protected $_feedFactory;
 
     /**
-     * @var \Lengow\Connector\Model\Export\ProductFactory Lengow product factory instance
+     * @var LengowProductFactory Lengow product factory instance
      */
     protected $_productFactory;
 
@@ -122,10 +140,10 @@ class Export
      * @var array available formats for export
      */
     protected $_availableFormats = [
-        'csv',
-        'json',
-        'yaml',
-        'xml',
+        LengowFeed::FORMAT_CSV,
+        LengowFeed::FORMAT_YAML,
+        LengowFeed::FORMAT_XML,
+        LengowFeed::FORMAT_JSON,
     ];
 
     /**
@@ -184,7 +202,7 @@ class Export
     ];
 
     /**
-     * @var \Magento\Store\Model\Store\Interceptor Magento store instance
+     * @var StoreInterceptor Magento store instance
      */
     protected $_store;
 
@@ -266,17 +284,17 @@ class Export
     /**
      * Constructor
      *
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager Magento store manager instance
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime Magento datetime instance
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig Magento scope config instance
-     * @param \Magento\Catalog\Model\Product\Attribute\Source\Status $productStatus Magento product status instance
-     * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper Magento json helper instance
-     * @param \Magento\Store\Model\WebsiteFactory $websiteFactory Magento website factory instance
-     * @param \Lengow\Connector\Helper\Data $dataHelper Lengow data helper instance
-     * @param \Lengow\Connector\Helper\Config $configHelper Lengow config helper instance
-     * @param \Lengow\Connector\Model\Export\FeedFactory $feedFactory Lengow feed factory instance
-     * @param \Lengow\Connector\Model\Export\ProductFactory $productFactory Lengow product factory instance
+     * @param StoreManagerInterface $storeManager Magento store manager instance
+     * @param DateTime $dateTime Magento datetime instance
+     * @param ScopeConfigInterface $scopeConfig Magento scope config instance
+     * @param ProductStatus $productStatus Magento product status instance
+     * @param ProductCollectionFactory $productCollectionFactory
+     * @param JsonHelper $jsonHelper Magento json helper instance
+     * @param WebsiteFactory $websiteFactory Magento website factory instance
+     * @param DataHelper $dataHelper Lengow data helper instance
+     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param LengowFeedFactory $feedFactory Lengow feed factory instance
+     * @param LengowProductFactory $productFactory Lengow product factory instance
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -288,8 +306,8 @@ class Export
         WebsiteFactory $websiteFactory,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
-        FeedFactory $feedFactory,
-        ProductFactory $productFactory
+        LengowFeedFactory $feedFactory,
+        LengowProductFactory $productFactory
     ) {
         $this->_storeManager = $storeManager;
         $this->_dateTime = $dateTime;
@@ -344,7 +362,7 @@ class Export
             : (bool)$this->_configHelper->get('product_status', $this->_storeId);
         $this->_outOfStock = isset($params['out_of_stock']) ? $params['out_of_stock'] : true;
         $this->_updateExportDate = isset($params['update_export_date']) ? (bool)$params['update_export_date'] : true;
-        $this->_format = $this->_setFormat(isset($params['format']) ? $params['format'] : 'csv');
+        $this->_format = $this->_setFormat(isset($params['format']) ? $params['format'] : LengowFeed::FORMAT_CSV);
         $this->_productIds = $this->_setProductIds(isset($params['product_ids']) ? $params['product_ids'] : false);
         $this->_productTypes = $this->_setProductTypes(
             isset($params['product_types']) ? $params['product_types'] : false
@@ -391,15 +409,18 @@ class Export
             // clean logs
             $this->_dataHelper->cleanLog();
             $this->_dataHelper->log(
-                'Export',
+                DataHelper::CODE_EXPORT,
                 $this->_dataHelper->setLogMessage('## start %1 export ##', [$this->_exportType]),
                 $this->_logOutput
             );
             $this->_dataHelper->log(
-                'Export',
+                DataHelper::CODE_EXPORT,
                 $this->_dataHelper->setLogMessage(
                     'start export in store %1 (%2)',
-                    [$this->_store->getName(), $this->_storeId]
+                    [
+                        $this->_store->getName(),
+                        $this->_storeId,
+                    ]
                 ),
                 $this->_logOutput
             );
@@ -409,7 +430,7 @@ class Export
             $productCollection = $this->_getQuery();
             $products = $productCollection->getData();
             $this->_dataHelper->log(
-                'Export',
+                DataHelper::CODE_EXPORT,
                 $this->_dataHelper->setLogMessage('%1 product(s) found', [count($products)]),
                 $this->_logOutput
             );
@@ -419,17 +440,17 @@ class Export
             }
             $timeEnd = $this->_microtimeFloat();
             $this->_dataHelper->log(
-                'Export',
+                DataHelper::CODE_EXPORT,
                 $this->_dataHelper->setLogMessage('memory usage: %1 Mb', [round(memory_get_usage() / 1000000, 2)]),
                 $this->_logOutput
             );
             $this->_dataHelper->log(
-                'Export',
+                DataHelper::CODE_EXPORT,
                 $this->_dataHelper->setLogMessage('execution time: %1 seconds', [round($timeEnd - $timeStart, 4)]),
                 $this->_logOutput
             );
             $this->_dataHelper->log(
-                'Export',
+                DataHelper::CODE_EXPORT,
                 $this->_dataHelper->setLogMessage('## end %1 export ##', [$this->_exportType]),
                 $this->_logOutput
             );
@@ -441,7 +462,7 @@ class Export
         if (isset($errorMessage)) {
             $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
             $this->_dataHelper->log(
-                'Export',
+                DataHelper::CODE_EXPORT,
                 $this->_dataHelper->setLogMessage('export failed - %1', [$decodedMessage]),
                 $this->_logOutput
             );
@@ -454,7 +475,7 @@ class Export
      * @param array $products list of products to be exported
      * @param array $fields list of fields to export
      *
-     * @throws \Exception|LengowException Export folder not writable
+     * @throws \Exception|LengowException
      */
     protected function _export($products, $fields)
     {
@@ -476,9 +497,9 @@ class Export
                 'store_code' => $this->_store->getCode(),
             ]
         );
-        $feed->write('header', $fields);
+        $feed->write(LengowFeed::HEADER, $fields);
         foreach ($products as $product) {
-            $productDatas = [];
+            $productData = [];
             $lengowProduct->load(
                 [
                     'product_id' => (int)$product['entity_id'],
@@ -491,18 +512,18 @@ class Export
             }
             foreach ($fields as $field) {
                 if (isset($this->_defaultFields[$field])) {
-                    $productDatas[$field] = $lengowProduct->getData($this->_defaultFields[$field]);
+                    $productData[$field] = $lengowProduct->getData($this->_defaultFields[$field]);
                 } else {
-                    $productDatas[$field] = $lengowProduct->getData($field);
+                    $productData[$field] = $lengowProduct->getData($field);
                 }
             }
             // write product data
-            $feed->write('body', $productDatas, $isFirst, $maxCharacter);
+            $feed->write(LengowFeed::BODY, $productData, $isFirst, $maxCharacter);
             $productCount++;
             $this->_setCounterLog($productModulo, $productCount);
             // clean data for next product
             $lengowProduct->clean();
-            unset($productDatas);
+            unset($productData);
             $isFirst = false;
         }
         $success = $feed->end();
@@ -514,7 +535,7 @@ class Export
         // product counter
         $counters = $lengowProduct->getCounters();
         $this->_dataHelper->log(
-            'Export',
+            DataHelper::CODE_EXPORT,
             $this->_dataHelper->setLogMessage(
                 '%1 product(s) exported, %2 simple product(s), %3 configurable product(s),
                 %4 grouped product(s), %5 virtual product(s), %6 downloadable product(s)',
@@ -532,7 +553,7 @@ class Export
         // warning for simple product associated with configurable products disabled
         if ($counters['simple_disabled'] > 0) {
             $this->_dataHelper->log(
-                'Export',
+                DataHelper::CODE_EXPORT,
                 $this->_dataHelper->setLogMessage(
                     'WARNING! %1 simple product(s) associated with configurable products are disabled',
                     [$counters['simple_disabled']]
@@ -545,10 +566,14 @@ class Export
             $feedUrl = $feed->getUrl();
             if ($feedUrl) {
                 $this->_dataHelper->log(
-                    'Export',
+                    DataHelper::CODE_EXPORT,
                     $this->_dataHelper->setLogMessage(
                         'the export for the store %1 (%2) generated the following file: %3',
-                        [$this->_store->getName(), $this->_storeId, $feedUrl]
+                        [
+                            $this->_store->getName(),
+                            $this->_storeId,
+                            $feedUrl,
+                        ]
                     ),
                     $this->_logOutput
                 );
@@ -602,7 +627,7 @@ class Export
                 case 'format':
                     $authorizedValue = $this->_availableFormats;
                     $type = 'string';
-                    $example = 'csv';
+                    $example = LengowFeed::FORMAT_CSV;
                     break;
                 case 'store':
                     $authorizedValue = $availableStores;
@@ -679,7 +704,7 @@ class Export
      */
     protected function _setFormat($format)
     {
-        return !in_array($format, $this->_availableFormats) ? 'csv' : $format;
+        return !in_array($format, $this->_availableFormats) ? LengowFeed::FORMAT_CSV : $format;
     }
 
     /**
@@ -765,7 +790,7 @@ class Export
     protected function _setType($type)
     {
         if (!$type) {
-            $type = $this->_updateExportDate ? 'cron' : 'manual';
+            $type = $this->_updateExportDate ? self::TYPE_CRON : self::TYPE_MANUAL;
         }
         return $type;
     }
@@ -782,7 +807,7 @@ class Export
         $logMessage = $this->_dataHelper->setLogMessage('%1 product(s) exported', [$productCount]);
         // save 10 logs maximum in database
         if ($productCount % $productModulo === 0) {
-            $this->_dataHelper->log('Export', $logMessage);
+            $this->_dataHelper->log(DataHelper::CODE_EXPORT, $logMessage);
         }
         if (!$this->_stream && $this->_logOutput) {
             if ($productCount % 50 === 0) {
@@ -836,7 +861,7 @@ class Export
     /**
      * Get products collection for export
      *
-     * @return \Magento\Catalog\Model\ResourceModel\Product\Collection
+     * @return ProductCollection
      */
     protected function _getQuery()
     {
@@ -867,7 +892,7 @@ class Export
                 );
             } catch (\Exception $e) {
                 $this->_dataHelper->log(
-                    'Export',
+                    DataHelper::CODE_EXPORT,
                     $this->_dataHelper->setLogMessage(
                         'the junction with the %1 table did not work',
                         ['cataloginventory_stock_item']
@@ -877,7 +902,7 @@ class Export
             }
         }
         // export specific products with id
-        if (count($this->_productIds) > 0) {
+        if (!empty($this->_productIds)) {
             $productCollection->addAttributeToFilter('entity_id', ['in' => $this->_productIds]);
         }
         // export with limit & offset
