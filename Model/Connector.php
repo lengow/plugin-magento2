@@ -120,6 +120,11 @@ class Connector
     const CODE_200 = 200;
 
     /**
+     * @var string success create code
+     */
+    const CODE_201 = 201;
+
+    /**
      * @var string forbidden access code
      */
     const CODE_403 = 403;
@@ -133,6 +138,14 @@ class Connector
      * @var string timeout server code
      */
     const CODE_504 = 504;
+
+    /**
+     * @var array success HTTP codes for request
+     */
+    protected $_successCodes = [
+        self::CODE_200,
+        self::CODE_201,
+    ];
 
     /**
      * @var integer Authorization token lifetime
@@ -599,7 +612,7 @@ class Connector
                 );
             }
         } else {
-            if ($httpCode !== self::CODE_200) {
+            if (!in_array($httpCode, $this->_successCodes)) {
                 $result = $this->_format($result);
                 // recovery of Lengow Api errors
                 if (isset($result['error'])) {

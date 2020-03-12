@@ -489,7 +489,7 @@ class Action extends AbstractModel
                 );
                 unset($orderAction);
             } else {
-                if ($result !== null) {
+                if ($result && $result !== null) {
                     $message = $this->_dataHelper->setLogMessage(
                         "can't create action: %1",
                         [$this->_jsonHelper->jsonEncode($result)]
