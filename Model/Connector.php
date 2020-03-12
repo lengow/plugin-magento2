@@ -142,10 +142,10 @@ class Connector
     /**
      * @var array success HTTP codes for request
      */
-    protected $_successCodes = array(
+    protected $_successCodes = [
         self::CODE_200,
         self::CODE_201,
-    );
+    ];
 
     /**
      * @var integer Authorization token lifetime

@@ -54,7 +54,7 @@
 /i18n/en_GB.csv|a5f2eb17db11553025f906541ba2469c
 /i18n/fr_FR.csv|63aeb8474c9fc6040756c451844fe87d
 /i18n/de_DE.csv|8e95ce2fa0aca6f4fca65f23455db418
-/Model/Connector.php|c80bf538be03c81707ac1744dd0261da
+/Model/Connector.php|0e2483352be38ff060cf322e901769b6
 /Model/Log.php|8713710a7e644c53618cc9bba5017ee6
 /Model/Import/Action.php|a34a5d472be76ad4d6a7318724bd03ca
 /Model/Import/Quote/Item.php|deea2328f2b0109b4bfe412c7edc90a5
