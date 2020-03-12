@@ -31,17 +31,17 @@ class Connector
     /**
      * @var string url of Lengow solution
      */
-    const LENGOW_URL = 'lengow.io';
+    // const LENGOW_URL = 'lengow.io';
     // const LENGOW_URL = 'lengow.net';
-    // const LENGOW_URL = 'rec.lengow.hom';
+    const LENGOW_URL = 'rec.lengow.hom';
     // const LENGOW_URL = 'dev.lengow.hom';
 
     /**
      * @var string url of the Lengow API
      */
-    const LENGOW_API_URL = 'https://api.lengow.io';
+    // const LENGOW_API_URL = 'https://api.lengow.io';
     // const LENGOW_API_URL = 'https://api.lengow.net';
-    // const LENGOW_API_URL = 'http://api.lengow.rec';
+    const LENGOW_API_URL = 'http://api.lengow.rec';
     // const LENGOW_API_URL = 'http://10.100.1.82:8081';
 
     /**
