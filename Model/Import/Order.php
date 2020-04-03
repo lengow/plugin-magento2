@@ -446,7 +446,7 @@ class Order extends AbstractModel
     public function isExpress()
     {
         $orderTypes = (string)$this->getData('order_types');
-        $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : array();
+        $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : [];
         if (array_key_exists(self::TYPE_EXPRESS, $orderTypes) || array_key_exists(self::TYPE_PRIME, $orderTypes)) {
             return true;
         }
@@ -461,7 +461,7 @@ class Order extends AbstractModel
     public function isBusiness()
     {
         $orderTypes = (string)$this->getData('order_types');
-        $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : array();
+        $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : [];
         if (array_key_exists(self::TYPE_BUSINESS, $orderTypes)) {
             return true;
         }
@@ -476,7 +476,7 @@ class Order extends AbstractModel
     public function isDeliveredByMarketplace()
     {
         $orderTypes = (string)$this->getData('order_types');
-        $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : array();
+        $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : [];
         if (array_key_exists(self::TYPE_DELIVERED_BY_MARKETPLACE, $orderTypes)
             || (bool)$this->getData('sent_marketplace')
         ) {

@@ -51,7 +51,7 @@
 /Helper/Data.php|326a78f0605741684a7664e430b39284
 /Helper/Sync.php|69b4b9baa8c78479b117c752cac331a7
 /Helper/Security.php|27ff81b3c660b458c669e0ee4b40e182
-/i18n/fr_FR.csv|61659e77dd72a4735297fe2d93fa874b
+/i18n/fr_FR.csv|89bc50f6799ad0ed799dc00753a54a45
 /i18n/de_DE.csv|e5930f6fc8a2218ef241977a0aebdc28
 /i18n/en_GB.csv|f03c78108eb8d2004e63bc599b5f5bbb
 /Model/Import.php|43cded27704dbc20d889f08d5bf40354
@@ -76,7 +76,7 @@
 /Model/Carrier/Lengow.php|21fe2987f1e821dafa1c60e3111f50d2
 /Model/Import/Orderline.php|2dea1e0026eb3eef58c16b991393a00b
 /Model/Import/Importorder.php|b3abf9963acd469dfbfa649f62ea9ae8
-/Model/Import/Order.php|702901b9f491af9f12a102055c0ebaee
+/Model/Import/Order.php|edcae0a4b25a1843b6a777444f0d4fb3
 /Model/Import/Action.php|a34a5d472be76ad4d6a7318724bd03ca
 /Model/Import/Quote/Item.php|deea2328f2b0109b4bfe412c7edc90a5
 /Model/Import/Ordererror.php|b3e77281dda7a783df37ae49d74325c1
@@ -96,7 +96,7 @@
 /Model/ResourceModel/Ordererror/Collection.php|797c0e562c39a3506a12aa175ee14311
 /Observer/SendAction.php|f8f12dc60410c15bd9e5e16a158e70a2
 /Plugin/SaveConfig.php|35aa41946a435f3365943b9d2e9f9226
-/Setup/UpgradeSchema.php|80def2f5c1b80a85d9e2939590ccad37
+/Setup/UpgradeSchema.php|d8723951de28fb2bf316e006be03d808
 /Setup/InstallData.php|0faaa603ad7a9e8f337963bf8eb895cc
 /Setup/InstallSchema.php|fb7f314ff5ba20592cf282814e8979dc
 /Setup/UpgradeData.php|a7df8ebac44eef7ba24d02eeb9fd7aa7
@@ -109,7 +109,7 @@
 /Ui/Component/Listing/Column/LengowOrderStatus.php|10eb3d14039491a15550af679a1323b4
 /Ui/Component/Listing/Column/OrdersActions.php|3e06a4f1435f5ff831857bfc04d04fb5
 /Ui/Component/Listing/Column/TotalPaid.php|c586b96e013a3bc6c5a6d418311b06c1
-/Ui/Component/Listing/Column/OrderType.php|88b9416ca703848d3724f8148c7dec00
+/Ui/Component/Listing/Column/OrderType.php|1b56925ea76c6b2d4b57b7064565ef0b
 /view/frontend/layout/default.xml|52691c169f2e1e870cb418313f2ec063
 /view/frontend/templates/tracker.phtml|d67e14527799d4b93f9de1777e3d84e9
 /view/adminhtml/web/css/font-awesome.css|bf4b58c946c9234e4a6b9f7a70d38006

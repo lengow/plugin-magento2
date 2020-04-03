@@ -145,13 +145,13 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         ->addColumn(
                             $tableName,
                             $columnName,
-                            array(
+                            [
                                 'type' => Table::TYPE_TEXT,
                                 'nullable' => true,
                                 'default' => null,
                                 'after' => 'order_item',
-                                'comment' => 'Order Types'
-                            ));
+                                'comment' => 'Order Types',
+                            ]);
                 }
 
             }

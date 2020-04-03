@@ -58,7 +58,7 @@ class OrderType extends Column
                 if ($item['order_types'] !== null) {
                     $return = '<div>';
                     $orderTypes = (string)$item['order_types'];
-                    $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : array();
+                    $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : [];
                     if (array_key_exists(LengowOrder::TYPE_EXPRESS, $orderTypes)
                         || array_key_exists(LengowOrder::TYPE_PRIME, $orderTypes)
                     ) {
