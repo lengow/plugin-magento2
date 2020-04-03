@@ -24,7 +24,7 @@ use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Ui\Component\Listing\Columns\Column;
 
-class OrderTypes extends Column
+class OrderType extends Column
 {
     /**
      * Constructor
@@ -55,36 +55,55 @@ class OrderTypes extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if ($item['order_lengow_state'] !== null) {
-                    $status = $item['order_lengow_state'];
-                    switch ($status) {
-                        case LengowOrder::STATE_ACCEPTED:
-                            $translation = 'Accepted';
-                            break;
-                        case LengowOrder::STATE_WAITING_SHIPMENT:
-                            $translation = 'Awaiting shipment';
-                            break;
-                        case LengowOrder::STATE_SHIPPED:
-                            $translation = 'Shipped';
-                            break;
-                        case LengowOrder::STATE_REFUNDED:
-                            $translation = 'Refunded';
-                            break;
-                        case LengowOrder::STATE_CLOSED:
-                            $translation = 'Closed';
-                            break;
-                        case LengowOrder::STATE_CANCELED:
-                            $translation = 'Canceled';
-                            break;
-                        default:
-                            $translation = $status;
-                            break;
+                if ($item['order_types'] !== null) {
+                    $return = '<div>';
+                    $orderTypes = (string)$item['order_types'];
+                    $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : array();
+                    if (array_key_exists(LengowOrder::TYPE_EXPRESS, $orderTypes)
+                        || array_key_exists(LengowOrder::TYPE_PRIME, $orderTypes)
+                    ) {
+                        $iconLabel = isset($orderTypes[LengowOrder::TYPE_PRIME])
+                            ? $orderTypes[LengowOrder::TYPE_PRIME]
+                            : $orderTypes[LengowOrder::TYPE_EXPRESS];
+                        $return .= $this->_generateOrderTypeIcon($iconLabel, 'orange-light', 'mod-chrono');
                     }
-                    $item['order_lengow_state'] = '<span class="lgw-label lgw-label-' . $status . '">'
-                        . __($translation) . '</span>';
+                    if (array_key_exists(LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE, $orderTypes)
+                        || (bool)$item['sent_marketplace']
+                    ) {
+                        $iconLabel = isset($orderTypes[LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE])
+                            ? $orderTypes[LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE]
+                            : LengowOrder::LABEL_FULFILLMENT;
+                        $return .= $this->_generateOrderTypeIcon($iconLabel, 'green-light', 'mod-delivery');
+                    }
+                    if (array_key_exists(LengowOrder::TYPE_BUSINESS, $orderTypes)) {
+                        $iconLabel = $orderTypes[LengowOrder::TYPE_BUSINESS];
+                        $return .= $this->_generateOrderTypeIcon($iconLabel, 'blue-light', 'mod-pro');
+                    }
+                    $return .= '</div>';
+                    $item['order_types'] = $return;
                 }
             }
         }
         return $dataSource;
+    }
+
+    /**
+     * Generate order type icon
+     *
+     * @param string $iconLabel icon label for tooltip
+     * @param string $iconColor icon background color
+     * @param string $iconMod icon mod for image
+     *
+     * @return string
+     */
+    private function _generateOrderTypeIcon($iconLabel, $iconColor, $iconMod)
+    {
+        return '
+            <div class="lgw-label ' . $iconColor . ' icon-solo lengow_tooltip">
+                <a class="lgw-icon ' . $iconMod . '">
+                    <span class="lengow_order_types">' . $iconLabel . '</span>
+                </a>
+            </div>
+        ';
     }
 }
