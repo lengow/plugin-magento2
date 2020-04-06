@@ -26,7 +26,7 @@
   display: block;
   border-radius: 3px;
   padding: 45px 60px 45px;
-  box-shadow: 0 3px 0 0 rgba(0,0,0,.05);
+  box-shadow: 0 3px 0 0 rgba(0, 0, 0, .05);
   margin-bottom: 30px;
   position: relative;
   top: 0;
@@ -50,8 +50,8 @@ a.lgw-box-link:hover {
 }
 
 .lgw-box-link:hover .lgw-box {
-  top:-6px;
-  box-shadow: 0 10px 10px 0 rgba(0,0,0,.05);
+  top: -6px;
+  box-shadow: 0 10px 10px 0 rgba(0, 0, 0, .05);
 }
 
 .img-circle {
@@ -70,12 +70,12 @@ body.lengow-connector .blue_frame,
 
 body.lengow-connector .red_frame,
 .red-frame {
-    border-radius: 3px;
-    margin-bottom: 15px;
-    padding: 30px;
-    background: #f2dede;
-    border: 1px solid #d4929d;
-    color: #a94442;
+  border-radius: 3px;
+  margin-bottom: 15px;
+  padding: 30px;
+  background: #f2dede;
+  border: 1px solid #d4929d;
+  color: #a94442;
 }
 
 body.lengow-connector .grey_frame {
@@ -106,8 +106,8 @@ body.lengow-connector .grey_frame input[type="text"] {
 /*************************************************/
 
 td.lengow_table_center {
-    line-height: 35px;
-    padding-bottom: 0px;
+  line-height: 35px;
+  padding-bottom: 0px;
 }
 
 /*************************************************/
@@ -141,7 +141,7 @@ td.lengow_table_center {
   line-height: 21px;
 }
 
-.lgw-label.orange{
+.lgw-label.orange {
   color: white;
   background: #fbb829;
 }
@@ -167,6 +167,30 @@ td.lengow_table_center {
   line-height: 21px;
 }
 
+.lgw-label.blue-light {
+  background: #d6f4ff;
+  color: #00b0f0;
+}
+
+.lgw-label.orange-light {
+  background: #fef2d7;
+  color: #d59202;
+}
+
+.lgw-label.green-light {
+  background: #e3f2e3;
+  color: #6aba69;
+}
+
+.lgw-label.icon-solo {
+  align-items: center;
+  height: 25px;
+  display: inline-flex;
+  padding: 0px;
+  width: 25px;
+  position: relative;
+}
+
 .lgw-label-preprod {
   color: white;
   background: #0e1425;
@@ -189,12 +213,6 @@ td.lengow_table_center {
   position: relative;
   color: #000;
   text-decoration: none;
-  font-weight: bold;
-}
-
-.lengow_tooltip:hover {
-  z-index: 1070;
-  background-color: #FFF
 }
 
 .lengow_tooltip span {
@@ -217,6 +235,7 @@ td.lengow_table_center {
   text-align: center;
   max-width: 200px;
   opacity: .9;
+  z-index: 100;
 }
 
 span.lengow_specific_product_support,
@@ -244,12 +263,25 @@ span.lengow_order_action {
   bottom: 40px;
   left: -20px;
   width: 180px;
+  white-space: normal;
+}
+
+span.lengow_order_types {
+  bottom: 25px;
+  left: -10px;
 }
 
 span.lengow_order_country {
   bottom: 20px;
   left: -25px;
   width: 70px;
+}
+
+span.lengow_order_amount {
+  top: -15px;
+  left: -15px;
+  white-space: nowrap;
+  max-width: 65px;
 }
 
 span.lengow_toolbox_message {
@@ -275,19 +307,19 @@ span.last_indexation {
 /*************************************************/
 
 .lgw-btn {
-    border-radius: 3px;
-    padding: 10px 20px;
-    margin: 15px 0;
-    color: white;
-    text-decoration: none !important;
-    background: #00aeef;
-    position: relative;
-    transition: all 100ms ease;
-    border: 0;
-    display: inline-block;
-    cursor: pointer;
-    outline: none !important;
-    white-space: nowrap;
+  border-radius: 3px;
+  padding: 10px 20px;
+  margin: 15px 0;
+  color: white;
+  text-decoration: none !important;
+  background: #00aeef;
+  position: relative;
+  transition: all 100ms ease;
+  border: 0;
+  display: inline-block;
+  cursor: pointer;
+  outline: none !important;
+  white-space: nowrap;
 }
 
 .lgw-btn a {
@@ -296,47 +328,48 @@ span.last_indexation {
 
 .lgw-btn:hover,
 .lgw-btn:active {
-    background: #019ce2;
-    color: white;
+  background: #019ce2;
+  color: white;
 }
 
 /* RED */
 .lgw-btn-red {
-    background: #e55a4d;
+  background: #e55a4d;
 }
 
 .lgw-btn-red:hover,
 .lgw-btn-red:focus {
-    background: #da493b;
+  background: #da493b;
 }
 
 /* WHITE */
 
 .lgw-btn-white {
-    background-color: #fff;
-    border: 1px solid #d7d7d7;
-    color: #828282;
+  background-color: #fff;
+  border: 1px solid #d7d7d7;
+  color: #828282;
+  font-weight: bold;
 }
 
 .lgw-btn-white:hover,
 .lgw-btn-white:focus {
-    background-color: #f7f7f7;
-    color: #555 !important;
+  background-color: #f7f7f7;
+  color: #555 !important;
 }
 
 /* GREEN */
 
 .lgw-btn-green {
-    background-color: #7ac279;
+  background-color: #7ac279;
 }
 
 .lgw-btn-green:hover,
 .lgw_btn_green:focus {
-    background-color: #66b165;
+  background-color: #66b165;
 }
 
-.lengow_toolbar .lengow_btn{
-    margin-right: 15px;
+.lengow_toolbar .lengow_btn {
+  margin-right: 15px;
 }
 
 /*************************************************/
@@ -345,76 +378,121 @@ span.last_indexation {
 
 
 .lgw-switch {
-    display: inline-block;
-    padding-left: 0;
-    margin-bottom: 5px;
+  display: inline-block;
+  padding-left: 0;
+  margin-bottom: 5px;
 }
 
 .lgw-switch input[type="checkbox"] {
-    display: block;
-    margin: 0;
-    padding: 0;
-    opacity: .01;
-    position: absolute;
+  display: block;
+  margin: 0;
+  padding: 0;
+  opacity: .01;
+  position: absolute;
 }
 
 .lgw-switch label {
-    padding-left: 0;
-    font-weight: 400;
-    cursor: pointer;
-    line-height: 22px;
-    font-size: 15px;
-    color: #828282;
-    transition: all 100ms ease;
+  padding-left: 0;
+  font-weight: 400;
+  cursor: pointer;
+  line-height: 22px;
+  font-size: 15px;
+  color: #828282;
+  transition: all 100ms ease;
 }
 
 .lgw-switch div {
-    width: 46px;
-    float: left;
-    padding: 2px;
-    border-radius: 50px;
-    margin-right: 7px;
-    border: 0;
-    background: #d7d7d7;
-    transition: all 100ms ease;
+  width: 46px;
+  float: left;
+  padding: 2px;
+  border-radius: 50px;
+  margin-right: 7px;
+  border: 0;
+  background: #d7d7d7;
+  transition: all 100ms ease;
 }
 
 .lgw-switch span {
-    display: block;
-    height: 18px;
-    width: 18px;
-    background: white;
-    border-radius: 50%;
-    left: 0;
-    top: 0;
-    position: relative;
-    transition: all 100ms ease;
+  display: block;
+  height: 18px;
+  width: 18px;
+  background: white;
+  border-radius: 50%;
+  left: 0;
+  top: 0;
+  position: relative;
+  transition: all 100ms ease;
 }
 
 .lgw-switch .lengow_switch_export_product {
-    width: 100%;
-    height: 100%;
-    display: block;
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .lgw-switch:hover div,
 .lgw-switch:focus div {
-    background-color: #c0c0c0;
+  background-color: #c0c0c0;
 }
 
 .lgw-switch.checked label {
-    color: #555;
+  color: #555;
 }
 
 .lgw-switch.checked div {
-    background: #7ac279;
+  background: #7ac279;
 }
 
 .lgw-switch.checked span {
-    left: 24px;
+  left: 24px;
 }
 
 .lgw-switch.checked:hover div,
 .lgw-switch.checked:focus div {
-    background: #66b165;
+  background: #66b165;
+}
+
+/*************************************************/
+/*                     ICON                      */
+/*************************************************/
+
+.lgw-icon {
+  speak: none;
+  font-style: normal;
+  font-weight: 400;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  letter-spacing: 0;
+  background-repeat: no-repeat;
+  height: 18px;
+  width: 25px;
+
+}
+
+.lgw-icon.mod-chrono {
+  background-image: url(../images/clock.png);
+  margin: 0 4px 2px 4px;
+}
+
+.lgw-icon.mod-chrono:after {
+  font-size: 20px;
+}
+
+.lgw-icon.mod-delivery {
+  background-image: url(../images/plane.png);
+  margin: 1px 0 0 2px;
+}
+
+.lgw-icon.mod-delivery:after {
+  font-size: 20px;
+}
+
+.lgw-icon.mod-pro {
+  background-image: url(../images/bag.png);
+  margin: -1px 0 0 3px;
+}
+
+.lgw-icon.mod-pro:after {
+  font-size: 20px;
 }

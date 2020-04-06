@@ -304,8 +304,16 @@ class Info extends Template implements TabInterface
                 'value' => $this->_lengowOrder->getData('carrier_id_relay'),
             ];
             $fields[] = [
-                'label' => __('Shipped by marketplace'),
-                'value' => $this->_lengowOrder->getData('sent_marketplace') == 1 ? __('Yes') : __('No'),
+                'label' => __('Express delivery'),
+                'value' => $this->_lengowOrder->isExpress() ? __('Yes') : __('No'),
+            ];
+            $fields[] = [
+                'label' => __('Shipped by Marketplace'),
+                'value' => $this->_lengowOrder->isDeliveredByMarketplace() ? __('Yes') : __('No'),
+            ];
+            $fields[] = [
+                'label' => __('Business'),
+                'value' => $this->_lengowOrder->isBusiness() ? __('Yes') : __('No'),
             ];
             $fields[] = [
                 'label' => __('Message'),

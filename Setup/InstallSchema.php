@@ -171,6 +171,15 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Order Item'
                 )->addColumn(
+                    'order_types',
+                    Table::TYPE_TEXT,
+                    null,
+                    [
+                        'nullable' => true,
+                        'default' => null,
+                    ],
+                    'Order Types'
+                )->addColumn(
                     'currency',
                     Table::TYPE_TEXT,
                     3,

@@ -289,6 +289,11 @@ class Importorder extends AbstractModel
     protected $_orderAmount;
 
     /**
+     * @var array order types (is_express, is_prime...)
+     */
+    protected $_orderTypes;
+
+    /**
      * @var string|null carrier name
      */
     protected $_carrierName = null;
@@ -429,6 +434,8 @@ class Importorder extends AbstractModel
     /**
      * Create or update order
      *
+     * @throws \Exception
+     *
      * @return array|false
      */
     public function importOrder()
@@ -547,6 +554,8 @@ class Importorder extends AbstractModel
             );
             return false;
         }
+        // load order types data
+        $this->_loadOrderTypesData();
         // create a new record in lengow order table if not exist
         if (!$this->_orderLengowId) {
             // created a record in the lengow order table
@@ -583,7 +592,7 @@ class Importorder extends AbstractModel
         $customerEmail = $this->_orderData->billing_address->email !== null
             ? (string)$this->_orderData->billing_address->email
             : (string)$this->_packageData->delivery->email;
-        // update Lengow order with new informations
+        // update Lengow order with new data
         $orderLengow->updateOrder(
             [
                 'currency' => $this->_orderData->currency->iso_a3,
@@ -739,6 +748,23 @@ class Importorder extends AbstractModel
     }
 
     /**
+     * Get order types data and update Lengow order record
+     */
+    protected function _loadOrderTypesData()
+    {
+        $orderTypes = [];
+        if ($this->_orderData->order_types !== null && !empty($this->_orderData->order_types)) {
+            foreach ($this->_orderData->order_types as $orderType) {
+                $orderTypes[$orderType->type] = $orderType->label;
+                if ($orderType->type === LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE) {
+                    $this->_shippedByMp = true;
+                }
+            }
+        }
+        $this->_orderTypes = $orderTypes;
+    }
+
+    /**
      * Get tracking data and update Lengow order record
      */
     protected function _loadTrackingData()
@@ -750,9 +776,6 @@ class Importorder extends AbstractModel
             $this->_carrierMethod = $tracking->method !== null ? (string)$tracking->method : null;
             $this->_trackingNumber = $tracking->number !== null ? (string)$tracking->number : null;
             $this->_relayId = $tracking->relay->id !== null ? (string)$tracking->relay->id : null;
-            if ($tracking->is_delivered_by_marketplace !== null && $tracking->is_delivered_by_marketplace) {
-                $this->_shippedByMp = true;
-            }
         }
     }
 
@@ -1226,6 +1249,7 @@ class Importorder extends AbstractModel
             'marketplace_label' => (string)$this->_marketplaceLabel,
             'delivery_address_id' => (int)$this->_deliveryAddressId,
             'order_lengow_state' => $this->_orderStateLengow,
+            'order_types' => json_encode($this->_orderTypes),
             'order_date' => $this->_dateTime->gmtDate('Y-m-d H:i:s', strtotime($orderDate)),
             'message' => $message,
             'is_in_error' => 1,

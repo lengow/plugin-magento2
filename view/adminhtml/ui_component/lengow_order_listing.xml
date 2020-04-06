@@ -135,8 +135,26 @@
                     <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
                     <item name="filter" xsi:type="string">select</item>
                     <item name="dataType" xsi:type="string">select</item>
-                    <item name="label" xsi:type="string" translate="true">Lengow status</item>
-                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
+                    <item name="label" xsi:type="string" translate="true">Status</item>
+                    <item name="fieldClass" xsi:type="string">a-center</item>
+                </item>
+            </argument>
+        </column>
+        <column name="order_types" class="Lengow\Connector\Ui\Component\Listing\Column\OrderType">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
+                    <item name="filter" xsi:type="string">text</item>
+                    <item name="label" xsi:type="string" translate="true">Types</item>
+                    <item name="fieldClass" xsi:type="string">a-center lgw-order-types lengowOverflowBox</item>
+                </item>
+            </argument>
+        </column>
+        <column name="marketplace_sku">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Order ID</item>
+                    <item name="filter" xsi:type="string">text</item>
                 </item>
             </argument>
         </column>
@@ -145,7 +163,6 @@
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Marketplace</item>
                     <item name="filter" xsi:type="string">text</item>
-                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -156,16 +173,6 @@
                     <item name="label" xsi:type="string" translate="true">Store</item>
                     <item name="filter" xsi:type="string">select</item>
                     <item name="dataType" xsi:type="string">select</item>
-                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
-                </item>
-            </argument>
-        </column>
-        <column name="marketplace_sku">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="label" xsi:type="string" translate="true">Marketplace SKU</item>
-                    <item name="filter" xsi:type="string">text</item>
-                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -173,9 +180,8 @@
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
-                    <item name="label" xsi:type="string" translate="true">Magento SKU</item>
+                    <item name="label" xsi:type="string" translate="true">Magento reference</item>
                     <item name="filter" xsi:type="string">text</item>
-                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
@@ -187,28 +193,25 @@
                     <item name="sortable" xsi:type="boolean">false</item>
                     <item name="label" xsi:type="string" translate="true">Magento status</item>
                     <item name="dataType" xsi:type="string">text</item>
-                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
-                </item>
-            </argument>
-        </column>
-        <column name="order_date" class="Magento\Ui\Component\Listing\Columns\Date">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="label" xsi:type="string" translate="true">Order Date</item>
-                    <item name="filter" xsi:type="string">dateRange</item>
-                    <item name="dataType" xsi:type="string">date</item>
-                    <item name="sorting" xsi:type="string">desc</item>
-                    <item name="component" xsi:type="string">Magento_Ui/js/grid/columns/date</item>
-                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
                 </item>
             </argument>
         </column>
         <column name="customer_name">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
-                    <item name="label" xsi:type="string" translate="true">Customer name</item>
+                    <item name="label" xsi:type="string" translate="true">Customer Name</item>
                     <item name="filter" xsi:type="string">text</item>
-                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
+                </item>
+            </argument>
+        </column>
+        <column name="order_date" class="Magento\Ui\Component\Listing\Columns\Date">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Date</item>
+                    <item name="filter" xsi:type="string">dateRange</item>
+                    <item name="dataType" xsi:type="string">date</item>
+                    <item name="sorting" xsi:type="string">desc</item>
+                    <item name="component" xsi:type="string">Magento_Ui/js/grid/columns/date</item>
                 </item>
             </argument>
         </column>
@@ -219,25 +222,17 @@
                     <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
                     <item name="label" xsi:type="string" translate="true">Country</item>
                     <item name="filter" xsi:type="string">text</item>
-                    <item name="fieldClass" xsi:type="string">lengow_table_center lengowOverflowBox</item>
-                </item>
-            </argument>
-        </column>
-        <column name="order_item">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="label" xsi:type="string" translate="true">Items</item>
-                    <item name="filter" xsi:type="string">text</item>
-                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
+                    <item name="fieldClass" xsi:type="string">a-center lengowOverflowBox</item>
                 </item>
             </argument>
         </column>
         <column name="total_paid" class="Lengow\Connector\Ui\Component\Listing\Column\TotalPaid">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
-                    <item name="label" xsi:type="string" translate="true">Total Paid</item>
+                    <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
+                    <item name="label" xsi:type="string" translate="true">Amount</item>
                     <item name="filter" xsi:type="string">text</item>
-                    <item name="fieldClass" xsi:type="string">lengow_table_center</item>
+                    <item name="fieldClass" xsi:type="string">lengow_table_center lengowOverflowBox</item>
                 </item>
             </argument>
         </column>

@@ -143,7 +143,7 @@ class OrdersActions extends Column
                             $item['is_in_error'] = '<a class="lengow_action lengow_tooltip lgw-btn lgw-btn-white">'
                                 . $this->_dataHelper->decodeLogMessage(
                                     'action %1 sent',
-                                    null,
+                                    true,
                                     [$lastActionType]
                                 )
                                 . '<span class="lengow_order_action">'
