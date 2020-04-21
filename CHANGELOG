@@ -3,6 +3,7 @@ Version 1.2.2
 =============================================================
 
     - Feature: [import] Addition of order types in the order management screen
+    - Bugfix: [import] Refactoring of the creation of delivery and billing addresses
 
 =============================================================
 Version 1.2.1
