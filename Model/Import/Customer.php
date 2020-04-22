@@ -102,6 +102,7 @@ class Customer extends MagentoResourceCustomer
         'mister',
         'm.',
         'mr ',
+        'sir',
     ];
 
     /**
@@ -217,7 +218,7 @@ class Customer extends MagentoResourceCustomer
         }
         // create or load default shipping address if not exist
         $shippingAddress = $this->getOrCreateAddress($customer, $shippingAddress, true);
-        if (!$billingAddress->getId()) {
+        if (!$shippingAddress->getId()) {
             $customer->addAddress($shippingAddress);
         }
         $customer->save();
@@ -513,7 +514,7 @@ class Customer extends MagentoResourceCustomer
         if (!$phoneNumber) {
             return '';
         }
-        return str_replace(['.', ' ', '-', '/'], '', preg_replace('/[^0-9]*/', '', $phoneNumber));
+        return preg_replace('/[^0-9]*/', '', $phoneNumber);
     }
 
     /**
