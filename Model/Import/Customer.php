@@ -337,7 +337,7 @@ class Customer extends MagentoResourceCustomer
         $firstName = isset($names['firstName']) ? $names['firstName'] : '';
         $lastName = isset($names['lastName']) ? $names['lastName'] : '';
         $defaultAddressStreet = is_array($defaultAddress->getStreet())
-            ? implode(' ', $defaultAddress->getStreet())
+            ? implode("\n", $defaultAddress->getStreet())
             : $defaultAddress->getStreet();
         if ($defaultAddress->getFirstname() === $firstName
             && $defaultAddress->getLastname() === $lastName
@@ -456,14 +456,14 @@ class Customer extends MagentoResourceCustomer
             && isset($addressData->trackings[0]->relay)
             && $addressData->trackings[0]->relay->id !== null
         ) {
-            $relayId = $addressData->trackings[0]->relay->id;
+            $relayId = 'Relay id: ' . $addressData->trackings[0]->relay->id;
             $complement .= !empty($complement) ? ' - ' . $relayId : $relayId;
         }
         if (!empty($secondLine)) {
-            $street .= ' ' . $secondLine;
+            $street .= "\n" . $secondLine;
         }
         if (!empty($complement)) {
-            $street .= ' ' . $complement;
+            $street .= "\n" . $complement;
         }
         return strtolower($street);
     }
