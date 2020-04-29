@@ -65,7 +65,7 @@
 /Model/Config/Source/Actiontype.php|ac606eded36dbd53cac0d60da5991661
 /Model/Payment/Lengow.php|dd4f2d120fe6faa2d731cbf9eed66408
 /Model/Export.php|c5057b3b0b838f9054e35f8a9d1e96d9
-/Model/Connector.php|0e2483352be38ff060cf322e901769b6
+/Model/Connector.php|16136cec261113fc2d897bb0965c9e63
 /Model/Log.php|8713710a7e644c53618cc9bba5017ee6
 /Model/Export/Category.php|b30f506e58103979c49e9bead2ab528a
 /Model/Export/Feed.php|87c18d20e583a8b5b866ba2f35864a32
