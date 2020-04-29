@@ -29,20 +29,20 @@ A Lengow account is created during the extension installation and you will have 
 
 Follow the instruction below if you want to install Lengow for Magento 2 using Git.
 
-2.) Clone the git repository in the Magento 2 `app/code` folder using:
+1.) Clone the git repository in the Magento 2 `app/code` folder using:
 
     git clone git@github.com:lengow/plugin-magento2.git Lengow/Connector
 
 In case you wish to contribute to the plugin, fork the `dev` branch rather than cloning it, and create a pull request via Github. For further information please read the section "Become a contributor" of this document.
 
-3.) Set the correct directory permissions:
+2.) Set the correct directory permissions:
 
     chmod -R 755 app/code/Lengow/Connector
 
 Depending on your server configuration, it might be necessary to set whole write permissions (777) to the files and folders above.
 You can also start testing with lower permissions due to security reasons (644 for example) as long as your php process can write to those files.
 
-4.) Connect via SSH and run the following commands (make sure to run them as the user who owns the Magento files!)
+3.) Connect via SSH and run the following commands (make sure to run them as the user who owns the Magento files!)
 
     php bin/magento module:enable Lengow_Connector
     php bin/magento maintenance:enable
@@ -50,9 +50,9 @@ You can also start testing with lower permissions due to security reasons (644 f
     php bin/magento setup:static-content:deploy
     php bin/magento maintenance:disable
     
-5.) Go to "System" > "Cache Management" and click both the "Flush Magento Cache" as well as the "Flush Cache Storage" button. This is required to activate the extension.
+4.) Go to "System" > "Cache Management" and click both the "Flush Magento Cache" as well as the "Flush Cache Storage" button. This is required to activate the extension.
 
-6.) Log in with your Lengow credentials and configure the plugin
+5.) Log in with your Lengow credentials and configure the plugin
 
 ## Frequently Asked Questions
 
