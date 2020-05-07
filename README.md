@@ -9,7 +9,9 @@
 
 ## Overview
 
-![Lengow logo](https://my.lengow.io/images/pages/launching/channels.gif)
+<p align="center">
+  <img src="https://my.lengow.io/images/pages/launching/orders.png">
+</p>
 
 Lengow is the e-commerce automation solution that helps brands and distributors improve their performance, automate their business processes, and grow internationally. The Lengow platform is the key to strong profitability and visibility for products sold by online retailers around the world on all distribution channels: marketplaces, comparison shopping engines, affiliate platforms and display/retargeting platforms. Since 2009, Lengow has integrated more than 1,600 partners into its solution to provide a powerful platform to its 4,600 retailers and brands in 42 countries around the world.
 
