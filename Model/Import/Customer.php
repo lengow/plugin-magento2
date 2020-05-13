@@ -863,6 +863,7 @@ class Customer extends MagentoResourceCustomer
                 $regionCodeCleaned = $this->cleanString($region['code']);
                 if ($stateRegionCleaned === $regionCodeCleaned) {
                     $regionId = $region['region_id'];
+                    break;
                 }
             }
             // approximate search on the default region name
