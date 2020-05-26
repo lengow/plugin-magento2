@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2017 Lengow SAS
+ * Copyright 2020 Lengow SAS
  *
  * NOTICE OF LICENSE
  *
@@ -11,18 +11,19 @@
  *
  * @category    Lengow
  * @package     Lengow_Connector
- * @subpackage  Model
+ * @subpackage  Plugin
  * @author      Team module <team-module@lengow.com>
- * @copyright   2017 Lengow SAS
+ * @copyright   2020 Lengow SAS
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 namespace Lengow\Connector\Plugin;
 
-use Magento\Framework\Session\SessionManager;
+use Closure;
 use Magento\Backend\Model\Session as BackendSession;
-use Magento\SalesRule\Model\ResourceModel\Rule\CollectionFactory;
-
+use Magento\Quote\Model\Quote\Item\AbstractItem;
+use Magento\SalesRule\Model\ResourceModel\Rule\CollectionFactory as RuleCollectionFactory;
+use Magento\SalesRule\Model\ResourceModel\Rule\Collection as RuleCollection;
 
 /*
  * Class RulesApplier
@@ -32,47 +33,47 @@ use Magento\SalesRule\Model\ResourceModel\Rule\CollectionFactory;
 class RulesApplier
 {
     /**
-     * @var \Magento\SalesRule\Model\ResourceModel\Rule\Collection
-     */
-    private $rules;
-
-    /**
      * @var BackendSession $_backendSession Backend session instance
      */
-    protected $_backendSession;
+    protected $backendSession;
+
+    /**
+     * @var RuleCollectionFactory Magento Rule Factory
+     */
+    protected $ruleFactory;
 
     /**
      * @param BackendSession $backendSession Backend session instance
-     * @param CollectionFactory $rulesFactory Magento Rules Factory
+     * @param RuleCollectionFactory $rulesFactory Magento Rules Factory
      */
     public function __construct(
-        CollectionFactory $rulesFactory,
+        RuleCollectionFactory $rulesFactory,
         BackendSession $backendSession
     ) {
-        $this->ruleCollection = $rulesFactory;
-        $this->_backendSession = $backendSession;
+        $this->ruleFactory = $rulesFactory;
+        $this->backendSession = $backendSession;
     }
 
     /**
      * @param \Magento\SalesRule\Model\RulesApplier $subject
-     * @param \Closure $proceed
-     * @param $item
-     * @param $rules
-     * @param $skipValidation
-     * @param $couponCode
+     * @param Closure $proceed
+     * @param AbstractItem $item
+     * @param RuleCollection $rules
+     * @param bool $skipValidation
+     * @param mixed $couponCode
      *
      * @return mixed
      */
     public function aroundApplyRules(
         \Magento\SalesRule\Model\RulesApplier $subject,
-        \Closure $proceed,
+        Closure $proceed,
         $item,
         $rules,
         $skipValidation,
         $couponCode
     ) {
-        if ((bool)$this->_backendSession->getIsFromlengow()) {
-            $nRules = $this->ruleCollection->create()->addFieldToFilter('rule_id', ['eq'=>0]);
+        if ((bool)$this->backendSession->getIsFromlengow()) {
+            $nRules = $this->ruleFactory->create()->addFieldToFilter('rule_id', ['eq' => 0]);
             return $proceed($item, $nRules, $skipValidation, $couponCode);
         }
         return $proceed($item, $rules, $skipValidation, $couponCode);

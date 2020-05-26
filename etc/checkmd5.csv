@@ -96,7 +96,7 @@
 /Model/Export.php|c5057b3b0b838f9054e35f8a9d1e96d9
 /Observer/SendAction.php|f8f12dc60410c15bd9e5e16a158e70a2
 /Plugin/SaveConfig.php|35aa41946a435f3365943b9d2e9f9226
-/Plugin/RulesApplier.php|85b6a1a7be17f70c9727839cb2c4a823
+/Plugin/RulesApplier.php|c1a0e50cf95ed72f403eb299745d21ee
 /Setup/InstallSchema.php|fb7f314ff5ba20592cf282814e8979dc
 /Setup/InstallData.php|0faaa603ad7a9e8f337963bf8eb895cc
 /Setup/UpgradeSchema.php|d8723951de28fb2bf316e006be03d808
