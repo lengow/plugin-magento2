@@ -59,7 +59,7 @@ class RulesApplier
      * It allow lengow orders to be imported without any Cart Rules
      *
      * @param \Magento\SalesRule\Model\RulesApplier $subject Magento RulesApplier base class
-     * @param Closure $proceed Callable (this param have to be called otherwise magento prevent the execution of the next plugins)
+     * @param Closure $proceed Callable (have to be called otherwise magento prevent the execution of the next plugins)
      * @param AbstractItem $item Magento Abstract Item representing a Quote
      * @param RuleCollection $rules Magento RuleColletion assigned to the Quote
      * @param bool $skipValidation Magento option to skip rule validation
