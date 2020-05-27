@@ -3,6 +3,9 @@
     <type name="Magento\Config\Model\Config">
         <plugin name="admin_system_config_save_plugin" type="Lengow\Connector\Plugin\SaveConfig" sortOrder="1"/>
     </type>
+    <type name="Magento\SalesRule\Model\RulesApplier">
+        <plugin name="remove_discount_on_order" type="Lengow\Connector\Plugin\RulesApplier" sortOrder="2" disabled="false"/>
+    </type>
     <virtualType name="LengowGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
         <arguments>
             <argument name="collection" xsi:type="object" shared="false">Lengow\Connector\Model\ResourceModel\Log\Collection</argument>
