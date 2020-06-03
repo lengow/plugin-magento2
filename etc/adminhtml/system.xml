@@ -107,12 +107,17 @@
                     <label>Merge images with parent products if available</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="export_file_enable" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="export_link_parent_attribute_to_child" translate="label" type="multiselect" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>(child product)Select attributes to export from parent</label>
+                    <comment>Select Attribute from parent product that should be assigned to child product</comment>
+                    <source_model>Lengow\Connector\Model\Config\Source\Attribute</source_model>
+                </field>
+                <field id="export_file_enable" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Save feed on file</label>
                     <comment>Save the feed on a file</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="export_cron_enable" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="1">
+                <field id="export_cron_enable" translate="label comment" type="select" sortOrder="80" showInDefault="1" showInWebsite="0" showInStore="1">
                     <label>Enable Magento cron</label>
                     <comment>Enable the scheduled task to export your feed every 4 hours</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

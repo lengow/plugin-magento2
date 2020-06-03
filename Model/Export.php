@@ -426,6 +426,8 @@ class Export
             );
             // get fields to export
             $fields = $this->_getFields();
+            // get fields to export from parents data
+            $fieldsFromParent = $this->getParentFields();
             // get products to be exported
             $productCollection = $this->_getQuery();
             $products = $productCollection->getData();
@@ -434,7 +436,7 @@ class Export
                 $this->_dataHelper->setLogMessage('%1 product(s) found', [count($products)]),
                 $this->_logOutput
             );
-            $this->_export($products, $fields);
+            $this->_export($products, $fields, $fieldsFromParent);
             if ($this->_updateExportDate) {
                 $this->_configHelper->set('last_export', $this->_dateTime->gmtTimestamp(), $this->_storeId);
             }
@@ -474,10 +476,11 @@ class Export
      *
      * @param array $products list of products to be exported
      * @param array $fields list of fields to export
+     * @param array $fieldsFromParent list of parent fields that should over child data
      *
      * @throws \Exception|LengowException
      */
-    protected function _export($products, $fields)
+    protected function _export($products, $fields, $fieldsFromParent)
     {
         $isFirst = true;
         $productCount = 0;
@@ -488,6 +491,9 @@ class Export
         // init product to export
         $lengowProduct = $this->_productFactory->create();
         $lengowProduct->init(['store' => $this->_store, 'currency' => $this->_currency]);
+        // init parent product
+        $lengowParentProduct = $this->_productFactory->create();
+        $lengowParentProduct->init(['store' => $this->_store, 'currency' => $this->_currency]);
         // init feed to export
         $feed = $this->_feedFactory->create();
         $feed->init(
@@ -506,13 +512,32 @@ class Export
                     'product_type' => $product['type_id'],
                 ]
             );
+
+            $isChildProduct = $lengowProduct->isChildProduct();
+            // if product is a child and $fieldParent is not empty, also load the parent product
+            if ($isChildProduct && !empty($fieldsFromParent)) {
+                $lengowParentProduct->load(
+                    [
+                        'product_id' => $lengowProduct->getParentProduct()->getId(),
+                        'product_type' => 'configurable',
+                    ]
+                );
+            }
+
             if (!$this->_inactive && !$lengowProduct->isEnableForExport()) {
                 $lengowProduct->clean();
                 continue;
             }
+
             foreach ($fields as $field) {
                 if (isset($this->_defaultFields[$field])) {
-                    $productData[$field] = $lengowProduct->getData($this->_defaultFields[$field]);
+                    if ($isChildProduct && in_array($field, $fieldsFromParent, true)) {
+                        $productData[$field] = $lengowParentProduct->getData($this->_defaultFields[$field]);
+                    } else {
+                        $productData[$field] = $lengowProduct->getData($this->_defaultFields[$field]);
+                    }
+                } else if ($isChildProduct && in_array($field, $fieldsFromParent, true)) {
+                    $productData[$field] = $lengowParentProduct->getData($field);
                 } else {
                     $productData[$field] = $lengowProduct->getData($field);
                 }
@@ -522,6 +547,9 @@ class Export
             $productCount++;
             $this->_setCounterLog($productModulo, $productCount);
             // clean data for next product
+            if ($isChildProduct) {
+                $lengowParentProduct->clean();
+            }
             $lengowProduct->clean();
             unset($productData);
             $isFirst = false;
@@ -693,6 +721,23 @@ class Export
             }
         }
         return $fields;
+    }
+
+    /**
+     * Get parent field to export instead of child datas
+     *
+     * @return array
+     */
+    protected function getParentFields()
+    {
+        $parentFields = [];
+        $selectedParentAttributes = $this->_configHelper->getParentSelectedAttributes($this->_storeId);
+        foreach ($selectedParentAttributes as $selectedAttribute) {
+            if (!in_array($selectedAttribute, $parentFields, true)) {
+                $parentFields[] = $selectedAttribute;
+            }
+        }
+        return $parentFields;
     }
 
     /**

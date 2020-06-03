@@ -397,6 +397,26 @@ class Product
     }
 
     /**
+     * Get if this product is the child of another
+     *
+     * @return bool
+     */
+    public function isChildProduct()
+    {
+        return $this->_parentProduct ? true : false;
+    }
+
+    /**
+     * Getter for Magento Parent Product
+     *
+     * @return ProductInterceptor
+     */
+    public function getParentProduct()
+    {
+        return $this->_parentProduct;
+    }
+
+    /**
      * Check if a simple product is enable
      *
      * @return boolean
