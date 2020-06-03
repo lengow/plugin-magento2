@@ -208,7 +208,7 @@ class Product
     /**
      * @var array Parent field to select parents attributes to export instead of child's one
      */
-    protected $_parentField = [];
+    protected $_parentFields = [];
 
 
     /**
@@ -269,7 +269,7 @@ class Product
         $this->_price->init(['store' => $this->_store, 'currency' => $this->_currency]);
         $this->_category->init(['store' => $this->_store]);
         $this->_shipping->init(['store' => $this->_store, 'currency' => $this->_currency]);
-        $this->_parentField = $params['parentFields'];
+        $this->_parentFields = $params['parentFields'];
     }
 
     /**
@@ -678,7 +678,7 @@ class Product
     protected function _getAttributeValue($field)
     {
         $attributeValue = '';
-        $fromParent = ($this->_parentProduct && in_array($field, $this->_parentField, true));
+        $fromParent = ($this->_parentProduct && in_array($field, $this->_parentFields, true));
         if ($fromParent) {
             $attribute = $this->_parentProduct->getData($field);
         } else {

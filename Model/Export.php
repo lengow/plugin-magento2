@@ -490,7 +490,7 @@ class Export
         $lengowProduct->init([
             'store' => $this->_store,
             'currency' => $this->_currency,
-            'parentFields' => $this->getParentFields()
+            'parentFields' => $this->_configHelper->getParentSelectedAttributes($this->_storeId)
         ]);
         // init feed to export
         $feed = $this->_feedFactory->create();
@@ -699,23 +699,6 @@ class Export
             }
         }
         return $fields;
-    }
-
-    /**
-     * Get parent field to export instead of child datas
-     *
-     * @return array
-     */
-    protected function getParentFields()
-    {
-        $parentFields = [];
-        $selectedParentAttributes = $this->_configHelper->getParentSelectedAttributes($this->_storeId);
-        foreach ($selectedParentAttributes as $selectedAttribute) {
-            if (!in_array($selectedAttribute, $parentFields, true)) {
-                $parentFields[] = $selectedAttribute;
-            }
-        }
-        return $parentFields;
     }
 
     /**
