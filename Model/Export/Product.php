@@ -678,12 +678,12 @@ class Product
     protected function _getAttributeValue($field)
     {
         $attributeValue = '';
-        $fromParent = ($this->_parentProduct && in_array($field, $this->_parentFields, true));
-        if ($fromParent) {
-            $attribute = $this->_parentProduct->getData($field);
+        if ($this->_parentProduct && in_array($field, $this->_parentFields, true)) {
+            $product = $this->_parentProduct;
         } else {
-            $attribute = $this->_product->getData($field);
+            $product = $this->_product;
         }
+        $attribute = $product->getData($field);
         if ($attribute !== null) {
             if (is_array($attribute)) {
                 $attributeValue = '';
@@ -699,17 +699,10 @@ class Product
                 }
                 $attributeValue = rtrim($attributeValue, ', ');
             } else {
-                if ($fromParent) {
-                    $attributeValue = $this->_parentProduct->getResource()
-                        ->getAttribute($field)
-                        ->getFrontend()
-                        ->getValue($this->_parentProduct);
-                } else {
-                    $attributeValue = $this->_product->getResource()
-                        ->getAttribute($field)
-                        ->getFrontend()
-                        ->getValue($this->_product);
-                }
+                $attributeValue = $product->getResource()
+                    ->getAttribute($field)
+                    ->getFrontend()
+                    ->getValue($product);
             }
         }
         return $attributeValue;
