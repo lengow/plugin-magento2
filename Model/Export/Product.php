@@ -205,6 +205,11 @@ class Product
      */
     protected $_downloadableCounter = 0;
 
+    /**
+     * @var array Parent field to select parents attributes to export instead of child's one
+     */
+    protected $_parentFields = [];
+
 
     /**
      * Constructor
@@ -264,6 +269,7 @@ class Product
         $this->_price->init(['store' => $this->_store, 'currency' => $this->_currency]);
         $this->_category->init(['store' => $this->_store]);
         $this->_shipping->init(['store' => $this->_store, 'currency' => $this->_currency]);
+        $this->_parentFields = $params['parentFields'];
     }
 
     /**
@@ -672,7 +678,12 @@ class Product
     protected function _getAttributeValue($field)
     {
         $attributeValue = '';
-        $attribute = $this->_product->getData($field);
+        if ($this->_parentProduct && in_array($field, $this->_parentFields, true)) {
+            $product = $this->_parentProduct;
+        } else {
+            $product = $this->_product;
+        }
+        $attribute = $product->getData($field);
         if ($attribute !== null) {
             if (is_array($attribute)) {
                 $attributeValue = '';
@@ -688,10 +699,10 @@ class Product
                 }
                 $attributeValue = rtrim($attributeValue, ', ');
             } else {
-                $attributeValue = $this->_product->getResource()
+                $attributeValue = $product->getResource()
                     ->getAttribute($field)
                     ->getFrontend()
-                    ->getValue($this->_product);
+                    ->getValue($product);
             }
         }
         return $attributeValue;

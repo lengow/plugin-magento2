@@ -288,6 +288,8 @@ de:
     export_default_shipping_price_label: "Versandkosten"
     export_default_shipping_price_comment: "Versandkosten per default wenn Übereinstimmung gefunden"
     export_parent_image_label: "Feed auf Datei sichern"
+    export_link_parent_attribute_to_child_label: "Wählen Sie die Attribute aus, die aus den übergeordneten Produkten für die untergeordneten Produkte exportiert werden sollen."
+    export_link_parent_attribute_to_child_comment: "Wählen Sie ein Attribut aus dem übergeordneten Produkt, das dem untergeordneten Produkt zugeordnet werden soll"
     export_file_enable_label: "Feed auf Datei sichern"
     export_file_enable_comment: "Feed auf Datei sichern"
     export_cron_enable_lable: "Magentocron aktivieren"

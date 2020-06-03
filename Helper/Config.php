@@ -222,6 +222,11 @@ class Config extends AbstractHelper
             'store' => true,
             'no_cache' => false,
         ],
+        'parent_attribute' => [
+            'path' => 'lengow_export_options/advanced/export_link_parent_attribute_to_child',
+            'store' => true,
+            'no_cache' => false,
+        ],
         'file_enable' => [
             'path' => 'lengow_export_options/advanced/export_file_enable',
             'global' => true,
@@ -622,6 +627,26 @@ class Config extends AbstractHelper
     {
         $selectedAttributes = [];
         $attributes = $this->get('export_attribute', $storeId);
+        if ($attributes !== null) {
+            $attributes = explode(',', $attributes);
+            foreach ($attributes as $attribute) {
+                $selectedAttributes[] = $attribute;
+            }
+        }
+        return $selectedAttributes;
+    }
+
+    /**
+     * Get parent selected attributes to export instead of child data
+     *
+     * @param integer $storeId Magento store id
+     *
+     * @return array
+     */
+    public function getParentSelectedAttributes($storeId = 0)
+    {
+        $selectedAttributes = [];
+        $attributes = $this->get('parent_attribute', $storeId);
         if ($attributes !== null) {
             $attributes = explode(',', $attributes);
             foreach ($attributes as $attribute) {

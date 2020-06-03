@@ -287,6 +287,8 @@ en:
     export_default_shipping_price_label: "Shipping cost"
     export_default_shipping_price_comment: "Default shipping cost if matching found"
     export_parent_image_label: "Merge images with parent products if available"
+    export_link_parent_attribute_to_child_label: "Select attributes to export from parent for the child product"
+    export_link_parent_attribute_to_child_comment: "Select attributes from parent product that should be assigned to child product"
     export_file_enable_label: "Save feed on file"
     export_file_enable_comment: "Save the feed on a file"
     export_cron_enable_lable: "Enable Magento cron"
