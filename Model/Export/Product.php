@@ -678,7 +678,6 @@ class Product
     protected function _getAttributeValue($field)
     {
         $attributeValue = '';
-        /** var  */
         $fromParent = ($this->_parentProduct && in_array($field, $this->_parentField, true));
         if ($fromParent) {
             $attribute = $this->_parentProduct->getData($field);
