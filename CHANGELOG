@@ -4,6 +4,7 @@ Version 1.2.2
 
     - Feature: [import] Addition of order types in the order management screen
     - Feature: [import] Integration of the region code in the delivery and billing addresses
+    - Feature: [export] Add option to select which field should be taken from parent products
     - Bugfix: [import] Refactoring of the creation of delivery and billing addresses
     - Bugfix: [import] prevent magento from applying discount in imported orders
 
