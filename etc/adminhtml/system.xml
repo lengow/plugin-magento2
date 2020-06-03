@@ -108,8 +108,8 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="export_link_parent_attribute_to_child" translate="label" type="multiselect" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="1">
-                    <label>(child product)Select attributes to export from parent</label>
-                    <comment>Select Attribute from parent product that should be assigned to child product</comment>
+                    <label>(child product) Select attributes to export from parent</label>
+                    <comment>Select attributes from parent product that should be assigned to child product</comment>
                     <source_model>Lengow\Connector\Model\Config\Source\Attribute</source_model>
                 </field>
                 <field id="export_file_enable" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">

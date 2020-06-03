@@ -426,8 +426,6 @@ class Export
             );
             // get fields to export
             $fields = $this->_getFields();
-            // get fields to export from parents data
-            $fieldsFromParent = $this->getParentFields();
             // get products to be exported
             $productCollection = $this->_getQuery();
             $products = $productCollection->getData();
@@ -436,7 +434,7 @@ class Export
                 $this->_dataHelper->setLogMessage('%1 product(s) found', [count($products)]),
                 $this->_logOutput
             );
-            $this->_export($products, $fields, $fieldsFromParent);
+            $this->_export($products, $fields);
             if ($this->_updateExportDate) {
                 $this->_configHelper->set('last_export', $this->_dateTime->gmtTimestamp(), $this->_storeId);
             }
@@ -476,11 +474,10 @@ class Export
      *
      * @param array $products list of products to be exported
      * @param array $fields list of fields to export
-     * @param array $fieldsFromParent list of parent fields that should over child data
      *
      * @throws \Exception|LengowException
      */
-    protected function _export($products, $fields, $fieldsFromParent)
+    protected function _export($products, $fields)
     {
         $isFirst = true;
         $productCount = 0;
@@ -490,10 +487,11 @@ class Export
         $maxCharacter = $this->_getMaxCharacterSize($fields);
         // init product to export
         $lengowProduct = $this->_productFactory->create();
-        $lengowProduct->init(['store' => $this->_store, 'currency' => $this->_currency]);
-        // init parent product
-        $lengowParentProduct = $this->_productFactory->create();
-        $lengowParentProduct->init(['store' => $this->_store, 'currency' => $this->_currency]);
+        $lengowProduct->init([
+            'store' => $this->_store,
+            'currency' => $this->_currency,
+            'parentFields' => $this->getParentFields()
+        ]);
         // init feed to export
         $feed = $this->_feedFactory->create();
         $feed->init(
@@ -513,17 +511,6 @@ class Export
                 ]
             );
 
-            $isChildProduct = $lengowProduct->isChildProduct();
-            // if product is a child and $fieldParent is not empty, also load the parent product
-            if ($isChildProduct && !empty($fieldsFromParent)) {
-                $lengowParentProduct->load(
-                    [
-                        'product_id' => $lengowProduct->getParentProduct()->getId(),
-                        'product_type' => 'configurable',
-                    ]
-                );
-            }
-
             if (!$this->_inactive && !$lengowProduct->isEnableForExport()) {
                 $lengowProduct->clean();
                 continue;
@@ -531,13 +518,7 @@ class Export
 
             foreach ($fields as $field) {
                 if (isset($this->_defaultFields[$field])) {
-                    if ($isChildProduct && in_array($field, $fieldsFromParent, true)) {
-                        $productData[$field] = $lengowParentProduct->getData($this->_defaultFields[$field]);
-                    } else {
-                        $productData[$field] = $lengowProduct->getData($this->_defaultFields[$field]);
-                    }
-                } else if ($isChildProduct && in_array($field, $fieldsFromParent, true)) {
-                    $productData[$field] = $lengowParentProduct->getData($field);
+                    $productData[$field] = $lengowProduct->getData($this->_defaultFields[$field]);
                 } else {
                     $productData[$field] = $lengowProduct->getData($field);
                 }
@@ -547,9 +528,6 @@ class Export
             $productCount++;
             $this->_setCounterLog($productModulo, $productCount);
             // clean data for next product
-            if ($isChildProduct) {
-                $lengowParentProduct->clean();
-            }
             $lengowProduct->clean();
             unset($productData);
             $isFirst = false;

@@ -287,6 +287,8 @@ fr:
     export_default_shipping_price_label: "Frais d'expédition"
     export_default_shipping_price_comment: "Frais d'expédition à appliquer par défaut si il y a une correspondance de trouvée"
     export_parent_image_label: "Fusionnez les images avec les produits parents"
+    export_link_parent_attribute_to_child_label: "(produit enfant) Sélectionnez les attributs à exporter depuis les produits parents"
+    export_link_parent_attribute_to_child_comment: "Sélectionnez les attributs des produits parent qui devrait être assignés aux produits enfant"
     export_file_enable_label: "Sauvegardez les flux dans un fichier"
     export_file_enable_comment: "Sauvegardez les flux dans un fichier"
     export_cron_enable_lable: "Autorisez le process Cron de Magento"

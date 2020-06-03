@@ -205,6 +205,11 @@ class Product
      */
     protected $_downloadableCounter = 0;
 
+    /**
+     * @var array Parent field to select parents attributes to export instead of child's one
+     */
+    protected $_parentField = [];
+
 
     /**
      * Constructor
@@ -264,6 +269,7 @@ class Product
         $this->_price->init(['store' => $this->_store, 'currency' => $this->_currency]);
         $this->_category->init(['store' => $this->_store]);
         $this->_shipping->init(['store' => $this->_store, 'currency' => $this->_currency]);
+        $this->_parentField = $params['parentFields'];
     }
 
     /**
@@ -394,26 +400,6 @@ class Product
             default:
                 return $this->_dataHelper->cleanData($this->_getAttributeValue($field));
         }
-    }
-
-    /**
-     * Get if this product is the child of another
-     *
-     * @return bool
-     */
-    public function isChildProduct()
-    {
-        return $this->_parentProduct ? true : false;
-    }
-
-    /**
-     * Getter for Magento Parent Product
-     *
-     * @return ProductInterceptor
-     */
-    public function getParentProduct()
-    {
-        return $this->_parentProduct;
     }
 
     /**
@@ -692,7 +678,13 @@ class Product
     protected function _getAttributeValue($field)
     {
         $attributeValue = '';
-        $attribute = $this->_product->getData($field);
+        /** var  */
+        $fromParent = ($this->_parentProduct && in_array($field, $this->_parentField, true));
+        if ($fromParent) {
+            $attribute = $this->_parentProduct->getData($field);
+        } else {
+            $attribute = $this->_product->getData($field);
+        }
         if ($attribute !== null) {
             if (is_array($attribute)) {
                 $attributeValue = '';
@@ -708,10 +700,17 @@ class Product
                 }
                 $attributeValue = rtrim($attributeValue, ', ');
             } else {
-                $attributeValue = $this->_product->getResource()
-                    ->getAttribute($field)
-                    ->getFrontend()
-                    ->getValue($this->_product);
+                if ($fromParent) {
+                    $attributeValue = $this->_parentProduct->getResource()
+                        ->getAttribute($field)
+                        ->getFrontend()
+                        ->getValue($this->_parentProduct);
+                } else {
+                    $attributeValue = $this->_product->getResource()
+                        ->getAttribute($field)
+                        ->getFrontend()
+                        ->getValue($this->_product);
+                }
             }
         }
         return $attributeValue;
