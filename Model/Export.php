@@ -510,12 +510,10 @@ class Export
                     'product_type' => $product['type_id'],
                 ]
             );
-
             if (!$this->_inactive && !$lengowProduct->isEnableForExport()) {
                 $lengowProduct->clean();
                 continue;
             }
-
             foreach ($fields as $field) {
                 if (isset($this->_defaultFields[$field])) {
                     $productData[$field] = $lengowProduct->getData($this->_defaultFields[$field]);
