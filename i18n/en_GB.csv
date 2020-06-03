@@ -260,7 +260,7 @@
 "Shipping cost","Shipping cost"
 "Default shipping cost if matching found","Default shipping cost if matching found"
 "Merge images with parent products if available","Merge images with parent products if available"
-"(child product) Select attributes to export from parent","(child product) Select attributes to export from parent"
+"Select attributes to export from parent for the child product","Select attributes to export from parent for the child product"
 "Select attributes from parent product that should be assigned to child product","Select attributes from parent product that should be assigned to child product"
 "Save feed on file","Save feed on file"
 "Save the feed on a file","Save the feed on a file"
