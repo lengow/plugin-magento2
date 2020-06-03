@@ -71,7 +71,7 @@
 /Model/Config/Source/Actiontype.php|ac606eded36dbd53cac0d60da5991661
 /Model/Config/Source/Group.php|b3b3a620484ace6a52ab05c7b116cd9a
 /Model/Config/Source/Action.php|57bcf9c9cd861f9c1db4fd641ab9a5a1
-/Model/Connector.php|16136cec261113fc2d897bb0965c9e63
+/Model/Connector.php|1225d82ea04e12f4ace2c2abda4134ca
 /Model/Log.php|8713710a7e644c53618cc9bba5017ee6
 /Model/Import.php|43cded27704dbc20d889f08d5bf40354
 /Model/Import/Marketplace.php|79e082f9d8f70735051a599341f2dc96
