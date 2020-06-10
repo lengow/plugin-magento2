@@ -1,4 +1,4 @@
-body.lengow-connector .middle, 
+body.lengow-connector .middle,
 .lengow_body {
   background: #f7f7f7;
 }
@@ -19,7 +19,7 @@ body.lengow-connector .middle,
 /* GRID */
 
 .lengow-order-index .admin__data-grid-wrap {
-    overflow-x: visible;
+  overflow-x: visible;
 }
 
 .lgw-row {
@@ -29,10 +29,10 @@ body.lengow-connector .middle,
 }
 
 .lgw-row:after {
- clear: both;
- content: " ";
- display: block;
- width: 100%;
+  clear: both;
+  content: " ";
+  display: block;
+  width: 100%;
 }
 
 .lgw-col-9,
@@ -63,7 +63,7 @@ body.lengow-connector .middle,
 }
 
 .lgw-col-5 {
-width: 41.67%;
+  width: 41.67%;
 }
 
 .lgw-col-4 {
@@ -83,7 +83,7 @@ width: 41.67%;
 }
 
 .lengowOverflowBox .data-grid-cell-content {
-    overflow: visible;
+  overflow: visible;
 }
 
 /* SECTIONS */
@@ -101,9 +101,11 @@ width: 41.67%;
 .no-margin {
   margin: 0 !important;
 }
+
 .no-margin-top {
   margin-top: 0 !important;
 }
+
 .vertical-center {
   margin-top: 50%;
 }
@@ -136,7 +138,7 @@ b,
 /*                     LISTS                     */
 /*************************************************/
 
-ul,li {
+ul, li {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -222,13 +224,13 @@ ul,li {
 }
 
 .lgw-box a:hover {
-  color:#019ce2;
+  color: #019ce2;
   text-decoration: underline;
 }
 
 .sub-link
 .lgw-container .sub-link {
-  color:#464646;
+  color: #464646;
   text-decoration: underline;
 }
 

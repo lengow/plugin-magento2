@@ -8,7 +8,7 @@ body.lengow-connector .middle {
 }
 
 .lgw-footer {
-  padding: 40px 0 60px 0; 
+  padding: 40px 0 60px 0;
 }
 
 .lgw-footer a {
@@ -109,7 +109,7 @@ body:not(.lengow-home-index) #lgw-plugin-available {
 
 
 .lengow-home-index .lgw-label.red {
-  padding:0 8px;
+  padding: 0 8px;
 }
 
 .lgw-home-header {
@@ -167,7 +167,7 @@ span.publish-lgw {
   display: inline-block;
 }
 
-#parent_exported_products{
+#parent_exported_products {
   font-weight: bold;
 }
 
@@ -201,10 +201,11 @@ body.lengow-product-index .lengow_total {
 
 body.lengow-order-index a.lengow_action {
   cursor: pointer;
+  white-space: nowrap;
 }
 
 body.lengow-order-index .lgw-col-8,
-body.lengow-order-index .lgw-col-4{
+body.lengow-order-index .lgw-col-4 {
   padding: 0;
 }
 
@@ -215,6 +216,21 @@ body.lengow-order-index .lgw-label {
 
 body.lengow-order-index td.data-grid-checkbox-cell {
   line-height: 40px;
+}
+
+body.lengow-order-index  td {
+  vertical-align: inherit;
+}
+
+body.lengow-order-index td.lgw-order-types {
+  width: 75px;
+}
+
+body.lengow-order-index .lgw-order-status {
+  padding: 0 7px;
+  height: auto;
+  text-align: center;
+  border-radius: 10px;
 }
 
 /*************************************************/
@@ -276,7 +292,7 @@ body.lengow-order-index td.data-grid-checkbox-cell {
 }
 
 .lengow-block table .value,
-.lengow-block-full table .value  {
+.lengow-block-full table .value {
   text-align: right;
 }
 
@@ -307,7 +323,7 @@ body.lengow-toolbox-index .lgw-label {
 /*                SALES ORDER                     */
 /*************************************************/
 
-body.sales-order-view #sales_order_view_tabs_TAB_NAME_content  button,
+body.sales-order-view #sales_order_view_tabs_TAB_NAME_content button,
 body.sales-order-view #sales_order_view_tabs_TAB_NAME_content button a {
   color: #fff;
   text-decoration: none;

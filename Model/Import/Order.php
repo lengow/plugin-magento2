@@ -117,6 +117,31 @@ class Order extends AbstractModel
     const STATE_REFUNDED = 'refunded';
 
     /**
+     * @var string order type prime
+     */
+    const TYPE_PRIME = 'is_prime';
+
+    /**
+     * @var string order type express
+     */
+    const TYPE_EXPRESS = 'is_express';
+
+    /**
+     * @var string order type business
+     */
+    const TYPE_BUSINESS = 'is_business';
+
+    /**
+     * @var string order type delivered by marketplace
+     */
+    const TYPE_DELIVERED_BY_MARKETPLACE = 'is_delivered_by_marketplace';
+
+    /**
+     * @var string label fulfillment for old orders without order type
+     */
+    const LABEL_FULFILLMENT = 'Fulfillment';
+
+    /**
      * @var MagentoOrderFactory Magento order factory instance
      */
     protected $_orderFactory;
@@ -229,6 +254,7 @@ class Order extends AbstractModel
         'order_process_state' => ['required' => false, 'updated' => true],
         'order_date' => ['required' => true, 'updated' => false],
         'order_item' => ['required' => false, 'updated' => true],
+        'order_types' => ['required' => true, 'updated' => false],
         'currency' => ['required' => false, 'updated' => true],
         'total_paid' => ['required' => false, 'updated' => true],
         'commission' => ['required' => false, 'updated' => true],
@@ -410,6 +436,51 @@ class Order extends AbstractModel
             }
         }
         return $updatedFields;
+    }
+
+    /**
+     * Check if order is express
+     *
+     * @return boolean
+     */
+    public function isExpress()
+    {
+        $orderTypes = (string)$this->getData('order_types');
+        $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : [];
+        if (isset($orderTypes[self::TYPE_EXPRESS]) || isset($orderTypes[self::TYPE_PRIME])) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if order is B2B
+     *
+     * @return boolean
+     */
+    public function isBusiness()
+    {
+        $orderTypes = (string)$this->getData('order_types');
+        $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : [];
+        if (isset($orderTypes[self::TYPE_BUSINESS])) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if order is delivered by marketplace
+     *
+     * @return boolean
+     */
+    public function isDeliveredByMarketplace()
+    {
+        $orderTypes = (string)$this->getData('order_types');
+        $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : [];
+        if (isset($orderTypes[self::TYPE_DELIVERED_BY_MARKETPLACE]) || (bool)$this->getData('sent_marketplace')) {
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -80,7 +80,7 @@ class LengowOrderStatus extends Column
                             $translation = $status;
                             break;
                     }
-                    $item['order_lengow_state'] = '<span class="lgw-label lgw-label-' . $status . '">'
+                    $item['order_lengow_state'] = '<span class="lgw-label lgw-label-' . $status . ' lgw-order-status">'
                         . __($translation) . '</span>';
                 }
             }

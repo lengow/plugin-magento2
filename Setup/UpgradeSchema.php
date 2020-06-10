@@ -135,6 +135,28 @@ class UpgradeSchema implements UpgradeSchemaInterface
             }
         }
 
+        if (version_compare($context->getVersion(), '1.2.2', '<')) {
+            $tableName = $setup->getTable('lengow_order');
+            if ((bool)$setup->getConnection()->showTableStatus($tableName)) {
+                // add order_types attribute in table lengow_order
+                $columnName = 'order_types';
+                if (!$setup->getConnection()->tableColumnExists($tableName, $columnName)) {
+                    $setup->getConnection()
+                        ->addColumn(
+                            $tableName,
+                            $columnName,
+                            [
+                                'type' => Table::TYPE_TEXT,
+                                'nullable' => true,
+                                'default' => null,
+                                'after' => 'order_item',
+                                'comment' => 'Order Types',
+                            ]);
+                }
+
+            }
+        }
+
         $setup->endSetup();
     }
 }

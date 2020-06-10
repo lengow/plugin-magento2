@@ -487,7 +487,11 @@ class Export
         $maxCharacter = $this->_getMaxCharacterSize($fields);
         // init product to export
         $lengowProduct = $this->_productFactory->create();
-        $lengowProduct->init(['store' => $this->_store, 'currency' => $this->_currency]);
+        $lengowProduct->init([
+            'store' => $this->_store,
+            'currency' => $this->_currency,
+            'parentFields' => $this->_configHelper->getParentSelectedAttributes($this->_storeId)
+        ]);
         // init feed to export
         $feed = $this->_feedFactory->create();
         $feed->init(

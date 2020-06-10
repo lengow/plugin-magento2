@@ -24,6 +24,7 @@ use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Ui\Component\Listing\Columns\Column;
+use Lengow\Connector\Helper\Data as DataHelper;
 
 class TotalPaid extends Column
 {
@@ -38,12 +39,18 @@ class TotalPaid extends Column
     protected $_currencyFactory;
 
     /**
+     * @var DataHelper Lengow data helper instance
+     */
+    protected $_dataHelper;
+
+    /**
      * Constructor
      *
      * @param CurrencyFactory $currencyFactory Magento currency factory instance
      * @param StoreManagerInterface $storeManager Magento store manager instance
      * @param ContextInterface $context Magento ui context instance
      * @param UiComponentFactory $uiComponentFactory Magento ui factory instance
+     * @param DataHelper $dataHelper Lengow data helper instance
      * @param array $components component data
      * @param array $data additional params
      */
@@ -52,12 +59,14 @@ class TotalPaid extends Column
         StoreManagerInterface $storeManager,
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
+        DataHelper $dataHelper,
         array $components = [],
         array $data = []
     )
     {
         $this->_storeManager = $storeManager;
         $this->_currencyFactory = $currencyFactory;
+        $this->_dataHelper = $dataHelper;
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
@@ -76,7 +85,13 @@ class TotalPaid extends Column
                 if ($item['total_paid'] !== null) {
                     $currencyFactory = $this->_currencyFactory->create()->load($item['currency']);
                     $currencySymbol = $currencyFactory->getCurrencySymbol();
-                    $item['total_paid'] = $currencySymbol . $item['total_paid'];
+                    $nbProduct = $this->_dataHelper->decodeLogMessage('%1 product(s)', true, [$item['order_item']]);
+                    $item['total_paid'] = '
+                        <div class="lengow_tooltip">'
+                            . $currencySymbol . $item['total_paid'] .
+                            '<span class="lengow_order_amount">' . $nbProduct . '</span>
+                        </div>
+                    ';
                 }
             }
         }

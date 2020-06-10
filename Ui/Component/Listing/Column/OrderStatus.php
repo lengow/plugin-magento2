@@ -73,10 +73,7 @@ class OrderStatus extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if ((bool)$item['sent_marketplace']) {
-                    $item['order_status'] = '<span class="lgw-label">'
-                        . $this->_dataHelper->decodeLogMessage('Shipped by Marketplace') . '</span>';
-                } elseif ($item['order_id'] !== null) {
+                if ($item['order_id'] !== null) {
                     $item['order_status'] = $this->_orderRepository->get($item['order_id'])->getStatus();
                 }
             }

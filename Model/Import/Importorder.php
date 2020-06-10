@@ -22,7 +22,10 @@ namespace Lengow\Connector\Model\Import;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Catalog\Model\ProductFactory;
+use Magento\Catalog\Model\Product\Attribute\Repository as ProductAttribute;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 use Magento\CatalogInventory\Api\StockManagementInterface;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
@@ -147,6 +150,16 @@ class Importorder extends AbstractModel
      * @var StockManagementInterface Magento stock management instance
      */
     protected $_stockManagement;
+
+    /**
+     * @var ProductCollectionFactory Magento product collection factory instance
+     */
+    protected $_productCollection;
+
+    /**
+     * @var ProductAttribute Magento product attribute instance
+     */
+    protected $_productAttribute;
 
     /**
      * @var LengowOrder Lengow order instance
@@ -289,6 +302,11 @@ class Importorder extends AbstractModel
     protected $_orderAmount;
 
     /**
+     * @var array order types (is_express, is_prime...)
+     */
+    protected $_orderTypes;
+
+    /**
      * @var string|null carrier name
      */
     protected $_carrierName = null;
@@ -333,6 +351,8 @@ class Importorder extends AbstractModel
      * @param ProductFactory $productFactory Magento product factory
      * @param StockManagementInterface $stockManagement Magento stock management instance
      * @param MagentoQuoteFactory $quoteMagentoFactory Magento quote factory instance
+     * @param ProductAttribute $productAttribute Magento product attribute instance
+     * @param ProductCollectionFactory $productCollection Magento product collection factory instance
      * @param LengowOrder $lengowOrder Lengow order instance
      * @param LengowOrderFactory $lengowOrderFactory Lengow order instance
      * @param LengowOrderErrorFactory $orderErrorFactory Lengow orderErrorFactory instance
@@ -361,6 +381,8 @@ class Importorder extends AbstractModel
         ProductFactory $productFactory,
         StockManagementInterface $stockManagement,
         MagentoQuoteFactory $quoteMagentoFactory,
+        ProductAttribute $productAttribute,
+        ProductCollectionFactory $productCollection,
         LengowOrder $lengowOrder,
         LengowOrderFactory $lengowOrderFactory,
         LengowOrderErrorFactory $orderErrorFactory,
@@ -387,6 +409,8 @@ class Importorder extends AbstractModel
         $this->_productFactory = $productFactory;
         $this->_stockManagement = $stockManagement;
         $this->_quoteMagentoFactory = $quoteMagentoFactory;
+        $this->_productAttribute = $productAttribute;
+        $this->_productCollection = $productCollection;
         $this->_lengowOrder = $lengowOrder;
         $this->_lengowOrderFactory = $lengowOrderFactory;
         $this->_orderErrorFactory = $orderErrorFactory;
@@ -428,6 +452,8 @@ class Importorder extends AbstractModel
 
     /**
      * Create or update order
+     *
+     * @throws \Exception
      *
      * @return array|false
      */
@@ -547,6 +573,8 @@ class Importorder extends AbstractModel
             );
             return false;
         }
+        // load order types data
+        $this->_loadOrderTypesData();
         // create a new record in lengow order table if not exist
         if (!$this->_orderLengowId) {
             // created a record in the lengow order table
@@ -583,7 +611,7 @@ class Importorder extends AbstractModel
         $customerEmail = $this->_orderData->billing_address->email !== null
             ? (string)$this->_orderData->billing_address->email
             : (string)$this->_packageData->delivery->email;
-        // update Lengow order with new informations
+        // update Lengow order with new data
         $orderLengow->updateOrder(
             [
                 'currency' => $this->_orderData->currency->iso_a3,
@@ -622,6 +650,8 @@ class Importorder extends AbstractModel
                     return false;
                 }
             }
+            // get products from Api
+            $products = $this->getProducts();
             // create or update customer with addresses
             $customer = $this->_lengowCustomer->createCustomer(
                 $this->_orderData,
@@ -631,13 +661,13 @@ class Importorder extends AbstractModel
                 $this->_logOutput
             );
             // create Magento Quote
-            $quote = $this->_createQuote($customer);
+            $quote = $this->_createQuote($customer, $products);
             // create Magento order
             $order = $this->_makeOrder($quote, $orderLengow);
             // if order is successfully imported
             if ($order) {
                 // save order line id in lengow_order_line table
-                $orderLineSaved = $this->_saveLengowOrderLine($order, $quote);
+                $orderLineSaved = $this->_saveLengowOrderLine($order, $products);
                 $this->_dataHelper->log(
                     DataHelper::CODE_IMPORT,
                     $this->_dataHelper->setLogMessage(
@@ -698,7 +728,7 @@ class Importorder extends AbstractModel
                     $this->_logOutput,
                     $this->_marketplaceSku
                 );
-                $this->_addQuantityBack($quote);
+                $this->_addQuantityBack($products);
             }
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
@@ -739,6 +769,23 @@ class Importorder extends AbstractModel
     }
 
     /**
+     * Get order types data and update Lengow order record
+     */
+    protected function _loadOrderTypesData()
+    {
+        $orderTypes = [];
+        if ($this->_orderData->order_types !== null && !empty($this->_orderData->order_types)) {
+            foreach ($this->_orderData->order_types as $orderType) {
+                $orderTypes[$orderType->type] = $orderType->label;
+                if ($orderType->type === LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE) {
+                    $this->_shippedByMp = true;
+                }
+            }
+        }
+        $this->_orderTypes = $orderTypes;
+    }
+
+    /**
      * Get tracking data and update Lengow order record
      */
     protected function _loadTrackingData()
@@ -750,9 +797,6 @@ class Importorder extends AbstractModel
             $this->_carrierMethod = $tracking->method !== null ? (string)$tracking->method : null;
             $this->_trackingNumber = $tracking->number !== null ? (string)$tracking->number : null;
             $this->_relayId = $tracking->relay->id !== null ? (string)$tracking->relay->id : null;
-            if ($tracking->is_delivered_by_marketplace !== null && $tracking->is_delivered_by_marketplace) {
-                $this->_shippedByMp = true;
-            }
         }
     }
 
@@ -803,14 +847,13 @@ class Importorder extends AbstractModel
     /**
      * Add quantity back to stock
      *
-     * @param Quote $quote Lengow quote instance
+     * @param array $products Lengow products from Api
      *
      * @return Importorder
      */
-    protected function _addQuantityBack($quote)
+    protected function _addQuantityBack($products)
     {
-        $lengowProducts = $quote->getLengowProducts();
-        foreach ($lengowProducts as $productId => $product) {
+        foreach ($products as $productId => $product) {
             $this->_stockManagement->backItemQty($productId, $product['quantity'], $this->_storeId);
         }
         return $this;
@@ -995,15 +1038,151 @@ class Importorder extends AbstractModel
     }
 
     /**
+     * Get products from API data
+     *
+     * @throws LengowException
+     *
+     * @return array
+     */
+    protected function getProducts()
+    {
+        $lengowProducts = [];
+        foreach ($this->_packageData->cart as $product) {
+            $found = false;
+            $magentoProduct = false;
+            $orderLineId = (string)$product->marketplace_order_line_id;
+            // check whether the product is canceled
+            if ($product->marketplace_status != null) {
+                $stateProduct = $this->_marketplace->getStateLengow((string)$product->marketplace_status);
+                if ($stateProduct === LengowOrder::STATE_CANCELED || $stateProduct === LengowOrder::STATE_REFUSED) {
+                    $productId = $product->merchant_product_id->id !== null
+                        ? (string)$product->merchant_product_id->id
+                        : (string)$product->marketplace_product_id;
+                    $this->_dataHelper->log(
+                        DataHelper::CODE_IMPORT,
+                        $this->_dataHelper->setLogMessage(
+                            'product %1 could not be added to cart - status: %2',
+                            [
+                                $productId,
+                                $stateProduct,
+                            ]
+                        ),
+                        $this->_logOutput,
+                        $this->_marketplaceSku
+                    );
+                    continue;
+                }
+            }
+            $productIds = [
+                'merchant_product_id' => $product->merchant_product_id->id,
+                'marketplace_product_id' => $product->marketplace_product_id,
+            ];
+            $productField = $product->merchant_product_id->field != null
+                ? strtolower((string)$product->merchant_product_id->field)
+                : false;
+            // search product foreach value
+            foreach ($productIds as $attributeName => $attributeValue) {
+                // remove _FBA from product id
+                $attributeValue = preg_replace('/_FBA$/', '', $attributeValue);
+                if (empty($attributeValue)) {
+                    continue;
+                }
+                // search by field if exists
+                if ($productField) {
+                    try {
+                        $attributeModel = $this->_productAttribute->get($productField);
+                    } catch (\Exception $e) {
+                        $attributeModel = false;
+                    }
+                    if ($attributeModel) {
+                        $collection = $this->_productCollection->create()
+                            ->setStoreId($this->_storeId)
+                            ->addAttributeToSelect($productField)
+                            ->addAttributeToFilter($productField, $attributeValue)
+                            ->setPage(1, 1)
+                            ->getData();
+                        if (is_array($collection) && !empty($collection)) {
+                            $magentoProduct = $this->_productFactory->create()->load($collection[0]['entity_id']);
+                        }
+                    }
+                }
+                // search by id or sku
+                if (!$magentoProduct || !$magentoProduct->getId()) {
+                    if (preg_match('/^[0-9]*$/', $attributeValue)) {
+                        $magentoProduct = $this->_productFactory->create()->load((integer)$attributeValue);
+                    }
+                    if (!$magentoProduct || !$magentoProduct->getId()) {
+                        $attributeValue = str_replace('\_', '_', $attributeValue);
+                        $magentoProduct = $this->_productFactory->create()->load(
+                            $this->_productFactory->create()->getIdBySku($attributeValue)
+                        );
+                    }
+                }
+                if ($magentoProduct && $magentoProduct->getId()) {
+                    $magentoProductId = $magentoProduct->getId();
+                    // save total row Lengow for each product
+                    if (array_key_exists($magentoProductId, $lengowProducts)) {
+                        $lengowProducts[$magentoProductId]['quantity'] += (int)$product->quantity;
+                        $lengowProducts[$magentoProductId]['amount'] += (float)$product->amount;
+                        $lengowProducts[$magentoProductId]['order_line_ids'][] = $orderLineId;
+                    } else {
+                        $lengowProducts[$magentoProductId] = [
+                            'magento_product' => $magentoProduct,
+                            'sku' => (string)$magentoProduct->getSku(),
+                            'title' => (string)$product->title,
+                            'amount' => (float)$product->amount,
+                            'price_unit' => (float)($product->amount / $product->quantity),
+                            'quantity' => (int)$product->quantity,
+                            'order_line_ids' => [$orderLineId],
+                        ];
+                    }
+                    $this->_dataHelper->log(
+                        DataHelper::CODE_IMPORT,
+                        $this->_dataHelper->setLogMessage(
+                            'product id %1 found with field %2 (%3)',
+                            [
+                                $magentoProduct->getId(),
+                                $attributeName,
+                                $attributeValue,
+                            ]
+                        ),
+                        $this->_logOutput,
+                        $this->_marketplaceSku
+                    );
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                $productId = $product->merchant_product_id->id !== null
+                    ? (string)$product->merchant_product_id->id
+                    : (string)$product->marketplace_product_id;
+                throw new LengowException(
+                    $this->_dataHelper->setLogMessage('product %1 could not be found', [$productId])
+                );
+            } elseif ($magentoProduct->getTypeId() === Configurable::TYPE_CODE) {
+                throw new LengowException(
+                    $this->_dataHelper->setLogMessage(
+                        'product %1 is a parent ID. Product variation is needed',
+                        [$magentoProduct->getId()]
+                    )
+                );
+            }
+        }
+        return $lengowProducts;
+    }
+
+    /**
      * Create quote
      *
-     * @param MagentoCustomer $customer
+     * @param MagentoCustomer $customer Magento customer instance
+     * @param array $products Lengow products from Api
      *
      * @throws \Exception
      *
      * @return LengowQuoteFactory
      */
-    protected function _createQuote(MagentoCustomer $customer)
+    protected function _createQuote(MagentoCustomer $customer, $products)
     {
         $customerRepo = $this->_customerRepository->getById($customer->getId());
         $quote = $this->_lengowQuoteFactory->create()
@@ -1028,13 +1207,7 @@ class Importorder extends AbstractModel
         $priceIncludeTax = $this->_taxConfig->priceIncludesTax($quote->getStore());
         $shippingIncludeTax = $this->_taxConfig->shippingPriceIncludesTax($quote->getStore());
         // add product in quote
-        $quote->addLengowProducts(
-            $this->_packageData->cart,
-            $this->_marketplace,
-            $this->_marketplaceSku,
-            $this->_logOutput,
-            $priceIncludeTax
-        );
+        $quote->addLengowProducts($products, $priceIncludeTax);
         // get shipping cost with tax
         $shippingCost = $this->_processingFee + $this->_shippingCost;
         // if shipping cost not include tax -> get shipping cost without tax
@@ -1226,6 +1399,7 @@ class Importorder extends AbstractModel
             'marketplace_label' => (string)$this->_marketplaceLabel,
             'delivery_address_id' => (int)$this->_deliveryAddressId,
             'order_lengow_state' => $this->_orderStateLengow,
+            'order_types' => json_encode($this->_orderTypes),
             'order_date' => $this->_dateTime->gmtDate('Y-m-d H:i:s', strtotime($orderDate)),
             'message' => $message,
             'is_in_error' => 1,
@@ -1249,15 +1423,14 @@ class Importorder extends AbstractModel
      * Save order line in lengow orders line table
      *
      * @param MagentoOrder $order Magento order instance
-     * @param Quote $quote Lengow quote instance
+     * @param array $products Lengow products from Api
      *
      * @return string
      */
-    protected function _saveLengowOrderLine($order, $quote)
+    protected function _saveLengowOrderLine($order, $products)
     {
         $orderLineSaved = false;
-        $lengowProducts = $quote->getLengowProducts();
-        foreach ($lengowProducts as $productId => $product) {
+        foreach ($products as $productId => $product) {
             foreach ($product['order_line_ids'] as $idOrderLine) {
                 $orderLine = $this->_lengowOrderLineFactory->create();
                 $orderLine->createOrderLine(
