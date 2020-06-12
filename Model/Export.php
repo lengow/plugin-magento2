@@ -710,7 +710,7 @@ class Export
             // if multi-stock
             if (count($sources) > 1) {
                 foreach ($sources as $source) {
-                    $fields[] = 'quantity_' . $source;
+                    $fields[] = 'quantity_multistock_' . $source;
                 }
             }
         }

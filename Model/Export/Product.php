@@ -359,49 +359,6 @@ class Product
     }
 
     /**
-     * Compare $field to list of source available
-     *
-     * @param $field field to compare
-     * @param $sources source list
-     *
-     * @return bool
-     */
-    protected function compareSource($field) {
-        if (empty($this->sources)) {
-            return false;
-        }
-        foreach ($this->sources as $source) {
-            if (strcmp($field, 'quantity_' . $source) === 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Handle multi stock custom quantity field
-     *
-     * @param $field
-     *
-     * @return int|null
-     */
-    protected function handleMultiStock($field) {
-        if (!version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')) {
-            return null;
-        }
-        if ($this->compareSource($field)) {
-            foreach ($this->quantities as $source) {
-                // if source is enabled & is the one
-                if (('quantity_' . $source['source_code']) === $field && $source['status']) {
-                    return $source['quantity'];
-                }
-            }
-            return 0;
-        }
-        return null;
-    }
-
-    /**
      * Get data of current product
      *
      * @param string $field field to export
@@ -410,11 +367,6 @@ class Product
      */
     public function getData($field)
     {
-        // if field is custom multi-stock field
-        $res = $this->handleMultiStock($field);
-        if (!is_null($res)) {
-            return $res;
-        }
         switch ($field) {
             case 'id':
                 return $this->_product->getId();
@@ -499,6 +451,10 @@ class Product
                     ? $this->_parentProduct->getShortDescription()
                     : $this->_product->getShortDescription();
                 return $this->_dataHelper->cleanData($descriptionShort);
+            case (preg_match('`quantity_multistock_.+`', $field) ? true : false):
+                return (isset($this->quantities[$field]) && $this->quantities[$field]['status'])
+                    ? $this->quantities[$field]['quantity']
+                    : 0;
             default:
                 return $this->_dataHelper->cleanData($this->_getAttributeValue($field));
         }
@@ -765,7 +721,7 @@ class Product
                 $total = 0;
                 foreach ($res as $item) {
                     $dataSource = $item->getData();
-                    $this->quantities[] = $dataSource;
+                    $this->quantities['quantity_multistock_' . $dataSource['source_code']] = $dataSource;
                     if ($dataSource['status']) {
                         $total += $dataSource['quantity'];
                     }
