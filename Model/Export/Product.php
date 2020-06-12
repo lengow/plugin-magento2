@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Export;
 
+use Lengow\Connector\Helper\Security as SecurityHelper;
 use Magento\Catalog\Model\Product\Interceptor as ProductInterceptor;
 use Magento\InventoryApi\Api\GetSourceItemsBySkuInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
@@ -227,13 +228,18 @@ class Product
     protected $sourceItemRepository;
 
     /**
+     * @var SecurityHelper Lengow security helper instance
+     */
+    protected $securityHelper;
+
+    /**
      * Constructor
      *
      * @param ProductRepository $productRepository Magento product repository instance
      * @param Configurable $configurableProduct Magento configurable product instance
      * @param StockRegistryInterface $stockRegistry Magento stock registry instance
-     * @param SearchCriteriaBuilder
-     * @param SourceItemRepositoryInterface
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder Magento search criteria builder instance
+     * @param SourceItemRepositoryInterface $sourceItemRepository Magneto sourceItem repository instance
      * @param Locale $locale Magento locale resolver instance
      * @param DateTime $dateTime Magento datetime instance
      * @param TimezoneInterface $timezone Magento datetime timezone instance
@@ -242,6 +248,7 @@ class Product
      * @param LengowPrice $price Lengow product price instance
      * @param LengowShipping $shipping Lengow product shipping instance
      * @param LengowCategory $category Lengow product category instance
+     * @param SecurityHelper $securityHelper Lengow security helper instance
      */
     public function __construct(
         ProductRepository $productRepository,
@@ -256,7 +263,8 @@ class Product
         ConfigHelper $configHelper,
         LengowPrice $price,
         LengowShipping $shipping,
-        LengowCategory $category
+        LengowCategory $category,
+        SecurityHelper $securityHelper
     )
     {
         $this->_productRepository = $productRepository;
@@ -272,6 +280,7 @@ class Product
         $this->_price = $price;
         $this->_shipping = $shipping;
         $this->_category = $category;
+        $this->securityHelper = $securityHelper;
     }
 
     /**
@@ -359,7 +368,9 @@ class Product
             case 'child_name':
                 return $this->_dataHelper->cleanData($this->_product->getName());
             case 'quantity':
-                if (is_array($this->_quantity)) {
+                if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=') &&
+                    is_array($this->_quantity))
+                {
                     $quantityTotal = 0;
                     foreach ($this->_quantity as $source) {
                         // if source is enabled add it to total
@@ -698,15 +709,18 @@ class Product
      */
     protected function _getQuantity()
     {
-        // Check if product is multi-stock
-        $res = $this->getSourceItemDetailBySKU($this->_product->getSku());
-        // if multi-stock, return array of all stock quantities
-        if (count($res) > 1) {
-            $quantities = [];
-            foreach ($res as $item) {
-                $quantities[] = $item->getData();
+        if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')) {
+            // Check if product is multi-stock
+            $res = $this->getSourceItemDetailBySKU($this->_product->getSku());
+            // if multi-stock, return array of all stock quantities
+            if (count($res) > 1) {
+                $quantities = [];
+                foreach ($res as $item) {
+                    $quantities[] = $item->getData();
+                }
+
+                return $quantities;
             }
-            return $quantities;
         }
         if ($this->_type === 'grouped' && !empty($this->_childrenIds)) {
             $quantities = [];
