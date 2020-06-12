@@ -1,4 +1,4 @@
-/composer.json|4746c4edc6f91cdc853cf804b4c41d7f
+/composer.json|e5fc9157efa11a8070465f2041330389
 /registration.php|dc6e50502663d362b5efdf9c829985c6
 /Block/Widget/Grid/Massaction/Extended.php|7de345d6585b4465afc49d1b52218df0
 /Block/Widget/Grid/Extended.php|b8412068888884d16062c0cc6878ad57
@@ -43,7 +43,7 @@
 /etc/adminhtml/system.xml|5a3e53500c3e3d03921e747f68991ec5
 /etc/acl.xml|9b7ef12d777d5f9bed984c600c04477c
 /etc/events.xml|2d87b77011008cec0c76349d0cb48ff1
-/etc/module.xml|6043c0b53b22b36c2f9ba04df83e0742
+/etc/module.xml|37165aadd37af1760a6dee3a16658d88
 /etc/crontab.xml|ca97f746162b6bd4441d34475c9b0103
 /etc/frontend/routes.xml|fd7926ca314017e32250b7e108d09d75
 /Helper/Config.php|3ce02d6349fe4ae02d9b396ad2842000
