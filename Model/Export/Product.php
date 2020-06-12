@@ -21,6 +21,9 @@ namespace Lengow\Connector\Model\Export;
 
 use Magento\Catalog\Model\Product\Interceptor as ProductInterceptor;
 use Magento\InventoryApi\Api\GetSourceItemsBySkuInterface;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\InventoryApi\Api\Data\SourceItemInterface;
+use Magento\InventoryApi\Api\SourceItemRepositoryInterface;
 use Magento\Store\Model\Store\Interceptor as StoreInterceptor;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
@@ -35,9 +38,7 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Export\Price as LengowPrice;
 use Lengow\Connector\Model\Export\Shipping as LengowShipping;
 use Lengow\Connector\Model\Export\Category as LengowCategory;
-use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\InventoryApi\Api\Data\SourceItemInterface;
-use Magento\InventoryApi\Api\SourceItemRepositoryInterface;
+
 
 /**
  * Lengow export product
@@ -58,11 +59,6 @@ class Product
      * @var StockRegistryInterface Magento stock registry instance
      */
     protected $_stockRegistry;
-
-    /**
-     * @var GetSourceItemsBySkuInterface Magento product source access interface
-     */
-    protected $_productSource;
 
     /**
      * @var Locale Magento locale resolver instance

@@ -26,6 +26,8 @@ use Magento\CatalogInventory\Model\Configuration as CatalogInventoryConfiguratio
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Api\SearchCriteriaBuilderFactory;
+use Magento\InventoryApi\Api\SourceRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\Store\Interceptor as StoreInterceptor;
@@ -36,9 +38,6 @@ use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Model\Export\Feed as LengowFeed;
 use Lengow\Connector\Model\Export\FeedFactory as LengowFeedFactory;
 use Lengow\Connector\Model\Export\ProductFactory as LengowProductFactory;
-
-use Magento\Framework\Api\SearchCriteriaBuilderFactory;
-use Magento\InventoryApi\Api\SourceRepositoryInterface;
 
 /**
  * Lengow export
@@ -543,10 +542,10 @@ class Export
         if (count($sources) > 1) {
             foreach ($sources as $source) {
                 $fields[] = 'quantity_' . $source;
-            } // TODO ATTENTION AU BUG POUR LES PRODUIT NAYANT PAS DE MULTISOURCE
+            }
         }
         // get the maximum of character for yaml format
-        $maxCharacter = $this->_getMaxCharacterSize($fields); // TODO HERE PUT NEW HEADER QQUANTITY
+        $maxCharacter = $this->_getMaxCharacterSize($fields);
         // init product to export
         $lengowProduct = $this->_productFactory->create();
         $lengowProduct->init([
