@@ -231,11 +231,6 @@ class Product
     protected $securityHelper;
 
     /**
-     * @var Array All stock sources
-     */
-    protected $sources;
-
-    /**
      * @var Array All stock sources for this specific product
      */
     protected $quantities;
@@ -308,7 +303,6 @@ class Product
         $this->_category->init(['store' => $this->_store]);
         $this->_shipping->init(['store' => $this->_store, 'currency' => $this->_currency]);
         $this->_parentFields = $params['parentFields'];
-        $this->sources = $this->_configHelper->getAllSources();
     }
 
     /**
