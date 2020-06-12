@@ -19,7 +19,6 @@
 
 namespace Lengow\Connector\Model;
 
-use Lengow\Connector\Helper\Security as SecurityHelper;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 use Magento\Catalog\Model\ResourceModel\Product\Collection as ProductCollection;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
@@ -27,8 +26,6 @@ use Magento\CatalogInventory\Model\Configuration as CatalogInventoryConfiguratio
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Stdlib\DateTime\DateTime;
-use Magento\Framework\Api\SearchCriteriaBuilderFactory;
-use Magento\InventoryApi\Api\SourceRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\Store\Interceptor as StoreInterceptor;
@@ -39,6 +36,7 @@ use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Model\Export\Feed as LengowFeed;
 use Lengow\Connector\Model\Export\FeedFactory as LengowFeedFactory;
 use Lengow\Connector\Model\Export\ProductFactory as LengowProductFactory;
+use Lengow\Connector\Helper\Security as SecurityHelper;
 
 /**
  * Lengow export
@@ -285,16 +283,6 @@ class Export
     protected $_getParams;
 
     /**
-     * @var SourceRepositoryInterface
-     */
-    protected $sourceRepository;
-
-    /**
-     * @var SearchCriteriaBuilderFactory
-     */
-    protected $searchCriteriaBuilderFactory;
-
-    /**
      * @var SecurityHelper Lengow security helper instance
      */
     protected $securityHelper;
@@ -313,8 +301,6 @@ class Export
      * @param ConfigHelper $configHelper Lengow config helper instance
      * @param LengowFeedFactory $feedFactory Lengow feed factory instance
      * @param LengowProductFactory $productFactory Lengow product factory instance
-     * @param SourceRepositoryInterface $sourceRepository Magento source repository instance
-     * @param SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory Magento search criteria builder instance
      * @param SecurityHelper $securityHelper Lengow security helper instance
      */
     public function __construct(
@@ -329,8 +315,6 @@ class Export
         ConfigHelper $configHelper,
         LengowFeedFactory $feedFactory,
         LengowProductFactory $productFactory,
-        SourceRepositoryInterface $sourceRepository,
-        SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory,
         SecurityHelper $securityHelper
     ) {
         $this->_storeManager = $storeManager;
@@ -344,8 +328,6 @@ class Export
         $this->_configHelper = $configHelper;
         $this->_feedFactory = $feedFactory;
         $this->_productFactory = $productFactory;
-        $this->sourceRepository = $sourceRepository;
-        $this->searchCriteriaBuilderFactory = $searchCriteriaBuilderFactory;
         $this->securityHelper = $securityHelper;
     }
 
@@ -497,41 +479,6 @@ class Export
     }
 
     /**
-     * Get all sources options
-     *
-     * @return mixed
-     */
-    public function getAllSources()
-    {
-        $options = [];
-        /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
-        $searchCriteriaBuilder = $this->searchCriteriaBuilderFactory->create();
-        $searchCriteria = $searchCriteriaBuilder->create();
-        $sources = $this->sourceRepository->getList($searchCriteria)->getItems();
-        foreach ($sources as $source) {
-            $options[] = $source->getSourceCode();
-        }
-        return $options;
-    }
-
-    /**
-     * Check if $field is a custom multi-stock field
-     *
-     * @param $field  field to compare
-     * @param $sources source list
-     *
-     * @return bool
-     */
-    protected function compareSource($field, $sources) {
-        foreach ($sources as $source) {
-            if (strcmp($field, 'quantity_' . $source) === 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Export products
      *
      * @param array $products list of products to be exported
@@ -545,18 +492,6 @@ class Export
         $productCount = 0;
         // get modulo for export counter
         $productModulo = $this->_getProductModulo(count($products));
-        // get all stock sources
-        if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')) {
-            $sources = $this->getAllSources();
-        } else {
-            $sources = [];
-        }
-        // if multi-stock
-        if (count($sources) > 1) {
-            foreach ($sources as $source) {
-                $fields[] = 'quantity_' . $source;
-            }
-        }
         // get the maximum of character for yaml format
         $maxCharacter = $this->_getMaxCharacterSize($fields);
         // init product to export
@@ -592,25 +527,7 @@ class Export
                 if (isset($this->_defaultFields[$field])) {
                     $productData[$field] = $lengowProduct->getData($this->_defaultFields[$field]);
                 } else {
-                    // case multi-stock
-                    if (!empty($sources) &&
-                        $this->compareSource($field, $sources))
-                    {
-                        $quantities = $lengowProduct->getSourceItemDetailBySKU($lengowProduct->getData('sku'));
-                        foreach ($quantities as $source) {
-                            // if source is enabled & is the one
-                            if (('quantity_' . $source['source_code']) === $field && $source['status']) {
-                                $productData[$field] = $source['quantity'];
-                                break;
-                            }
-                        }
-                        if (empty($productData[$field])) {
-                            $productData[$field] = 0;
-                        }
-                    } else {
-                        // Default
-                        $productData[$field] = $lengowProduct->getData($field);
-                    }
+                    $productData[$field] = $lengowProduct->getData($field);
                 }
             }
             // write product data
@@ -786,6 +703,17 @@ class Export
         foreach ($selectedAttributes as $selectedAttribute) {
             if (!in_array($selectedAttribute, $fields)) {
                 $fields[] = $selectedAttribute;
+            }
+        }
+        if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')) {
+            $sources = $this->_configHelper->getAllSources();
+        } else {
+            $sources = [];
+        }
+        // if multi-stock
+        if (count($sources) > 1) {
+            foreach ($sources as $source) {
+                $fields[] = 'quantity_' . $source;
             }
         }
         return $fields;

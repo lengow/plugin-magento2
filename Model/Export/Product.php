@@ -19,17 +19,16 @@
 
 namespace Lengow\Connector\Model\Export;
 
-use Lengow\Connector\Helper\Security as SecurityHelper;
-use Magento\Catalog\Model\Product\Interceptor as ProductInterceptor;
 use Magento\InventoryApi\Api\GetSourceItemsBySkuInterface;
-use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\InventoryApi\Api\Data\SourceItemInterface;
-use Magento\InventoryApi\Api\SourceItemRepositoryInterface;
+use Magento\Catalog\Model\Product\Interceptor as ProductInterceptor;
 use Magento\Store\Model\Store\Interceptor as StoreInterceptor;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\InventoryApi\Api\Data\SourceItemInterface;
+use Magento\InventoryApi\Api\SourceItemRepositoryInterface;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Framework\Locale\Resolver as Locale;
 use Magento\Framework\Stdlib\DateTime\DateTime;
@@ -39,7 +38,7 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Export\Price as LengowPrice;
 use Lengow\Connector\Model\Export\Shipping as LengowShipping;
 use Lengow\Connector\Model\Export\Category as LengowCategory;
-
+use Lengow\Connector\Helper\Security as SecurityHelper;
 
 /**
  * Lengow export product
@@ -233,6 +232,16 @@ class Product
     protected $securityHelper;
 
     /**
+     * @var Array All stock sources
+     */
+    protected $sources;
+
+    /**
+     * @var Array All stock sources for this specific product
+     */
+    protected $quantities;
+
+    /**
      * Constructor
      *
      * @param ProductRepository $productRepository Magento product repository instance
@@ -300,6 +309,7 @@ class Product
         $this->_category->init(['store' => $this->_store]);
         $this->_shipping->init(['store' => $this->_store, 'currency' => $this->_currency]);
         $this->_parentFields = $params['parentFields'];
+        $this->sources = $this->_configHelper->getAllSources();
     }
 
     /**
@@ -319,6 +329,7 @@ class Product
         $this->_childrenIds = $this->_getChildrenIds();
         $this->_images = $this->_getImages();
         $this->_variationList = $this->_getVariationList();
+        $this->quantities = []; // reset sources
         $this->_quantity = $this->_getQuantity();
         if ($this->_type === 'grouped') {
             $groupedPrices = $this->_getGroupedPricesAndDiscounts();
@@ -349,6 +360,49 @@ class Product
     }
 
     /**
+     * Compare $field to list of source available
+     *
+     * @param $field field to compare
+     * @param $sources source list
+     *
+     * @return bool
+     */
+    protected function compareSource($field) {
+        if (empty($this->sources)) {
+            return false;
+        }
+        foreach ($this->sources as $source) {
+            if (strcmp($field, 'quantity_' . $source) === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Handle multi stock custom quantity field
+     *
+     * @param $field
+     *
+     * @return int|null
+     */
+    protected function handleMultiStock($field) {
+        if (!version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')) {
+            return null;
+        }
+        if ($this->compareSource($field)) {
+            foreach ($this->quantities as $source) {
+                // if source is enabled & is the one
+                if (('quantity_' . $source['source_code']) === $field && $source['status']) {
+                    return $source['quantity'];
+                }
+            }
+            return 0;
+        }
+        return null;
+    }
+
+    /**
      * Get data of current product
      *
      * @param string $field field to export
@@ -357,6 +411,11 @@ class Product
      */
     public function getData($field)
     {
+        // if field is custom multi-stock field
+        $res = $this->handleMultiStock($field);
+        if (!is_null($res)) {
+            return $res;
+        }
         switch ($field) {
             case 'id':
                 return $this->_product->getId();
@@ -368,16 +427,6 @@ class Product
             case 'child_name':
                 return $this->_dataHelper->cleanData($this->_product->getName());
             case 'quantity':
-                if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=') &&
-                    is_array($this->_quantity))
-                {
-                    $quantityTotal = 0;
-                    foreach ($this->_quantity as $source) {
-                        // if source is enabled add it to total
-                        $quantityTotal += $source['status'] ? $source['quantity'] : 0;
-                    }
-                    return $quantityTotal;
-                }
                 return $this->_quantity;
             case 'status':
                 return (int)$this->_product->getStatus() === ProductStatus::STATUS_DISABLED ? 'Disabled' : 'Enabled';
@@ -705,21 +754,24 @@ class Product
     /**
      * Get quantity for grouped products
      *
-     * @return integer|array
+     * @return integer
      */
     protected function _getQuantity()
     {
         if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')) {
             // Check if product is multi-stock
             $res = $this->getSourceItemDetailBySKU($this->_product->getSku());
-            // if multi-stock, return array of all stock quantities
-            if (count($res) > 1) {
-                $quantities = [];
+            // if multi-stock, return total of all stock quantities
+            if (count($res) >= 1) {
+                $total = 0;
                 foreach ($res as $item) {
-                    $quantities[] = $item->getData();
+                    $dataSource = $item->getData();
+                    $this->quantities[] = $dataSource;
+                    if ($dataSource['status']) {
+                        $total += $dataSource['quantity'];
+                    }
                 }
-
-                return $quantities;
+                return $total;
             }
         }
         if ($this->_type === 'grouped' && !empty($this->_childrenIds)) {
