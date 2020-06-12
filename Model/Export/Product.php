@@ -20,6 +20,7 @@
 namespace Lengow\Connector\Model\Export;
 
 use Magento\Catalog\Model\Product\Interceptor as ProductInterceptor;
+use Magento\InventoryApi\Api\GetSourceItemsBySkuInterface;
 use Magento\Store\Model\Store\Interceptor as StoreInterceptor;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
@@ -34,6 +35,9 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Export\Price as LengowPrice;
 use Lengow\Connector\Model\Export\Shipping as LengowShipping;
 use Lengow\Connector\Model\Export\Category as LengowCategory;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\InventoryApi\Api\Data\SourceItemInterface;
+use Magento\InventoryApi\Api\SourceItemRepositoryInterface;
 
 /**
  * Lengow export product
@@ -54,6 +58,11 @@ class Product
      * @var StockRegistryInterface Magento stock registry instance
      */
     protected $_stockRegistry;
+
+    /**
+     * @var GetSourceItemsBySkuInterface Magento product source access interface
+     */
+    protected $_productSource;
 
     /**
      * @var Locale Magento locale resolver instance
@@ -156,7 +165,7 @@ class Product
     protected $_variationList;
 
     /**
-     * @var integer product quantity
+     * @var integer|array product quantity
      */
     protected $_quantity;
 
@@ -212,11 +221,23 @@ class Product
 
 
     /**
+     * @var SearchCriteriaBuilder
+     */
+    protected $searchCriteriaBuilder;
+
+    /**
+     * @var SourceItemRepositoryInterface
+     */
+    protected $sourceItemRepository;
+
+    /**
      * Constructor
      *
      * @param ProductRepository $productRepository Magento product repository instance
      * @param Configurable $configurableProduct Magento configurable product instance
      * @param StockRegistryInterface $stockRegistry Magento stock registry instance
+     * @param SearchCriteriaBuilder
+     * @param SourceItemRepositoryInterface
      * @param Locale $locale Magento locale resolver instance
      * @param DateTime $dateTime Magento datetime instance
      * @param TimezoneInterface $timezone Magento datetime timezone instance
@@ -230,6 +251,8 @@ class Product
         ProductRepository $productRepository,
         Configurable $configurableProduct,
         StockRegistryInterface $stockRegistry,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        SourceItemRepositoryInterface $sourceItemRepository,
         Locale $locale,
         DateTime $dateTime,
         TimezoneInterface $timezone,
@@ -243,6 +266,8 @@ class Product
         $this->_productRepository = $productRepository;
         $this->_configurableProduct = $configurableProduct;
         $this->_stockRegistry = $stockRegistry;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->sourceItemRepository = $sourceItemRepository;
         $this->_locale = $locale;
         $this->_dateTime = $dateTime;
         $this->_timezone = $timezone;
@@ -305,6 +330,20 @@ class Product
     }
 
     /**
+     * Retrieves stock sources that are assigned to product sku
+     *
+     * @param string $sku
+     * @return SourceItemInterface[]
+     */
+    public function getSourceItemDetailBySKU(string $sku)
+    {
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilter(SourceItemInterface::SKU, $sku)
+            ->create();
+        return $this->sourceItemRepository->getList($searchCriteria)->getItems();
+    }
+
+    /**
      * Get data of current product
      *
      * @param string $field field to export
@@ -324,6 +363,14 @@ class Product
             case 'child_name':
                 return $this->_dataHelper->cleanData($this->_product->getName());
             case 'quantity':
+                if (is_array($this->_quantity)) {
+                    $quantityTotal = 0;
+                    foreach ($this->_quantity as $source) {
+                        // if source is enabled add it to total
+                        $quantityTotal += $source['status'] ? $source['quantity'] : 0;
+                    }
+                    return $quantityTotal;
+                }
                 return $this->_quantity;
             case 'status':
                 return (int)$this->_product->getStatus() === ProductStatus::STATUS_DISABLED ? 'Disabled' : 'Enabled';
@@ -651,10 +698,20 @@ class Product
     /**
      * Get quantity for grouped products
      *
-     * @return integer
+     * @return integer|array
      */
     protected function _getQuantity()
     {
+        // Check if product is multi-stock
+        $res = $this->getSourceItemDetailBySKU($this->_product->getSku());
+        // if multi-stock, return array of all stock quantities
+        if (count($res) > 1) {
+            $quantities = [];
+            foreach ($res as $item) {
+                $quantities[] = $item->getData();
+            }
+            return $quantities;
+        }
         if ($this->_type === 'grouped' && !empty($this->_childrenIds)) {
             $quantities = [];
             foreach ($this->_childrenIds as $childrenId) {

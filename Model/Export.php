@@ -37,6 +37,9 @@ use Lengow\Connector\Model\Export\Feed as LengowFeed;
 use Lengow\Connector\Model\Export\FeedFactory as LengowFeedFactory;
 use Lengow\Connector\Model\Export\ProductFactory as LengowProductFactory;
 
+use Magento\Framework\Api\SearchCriteriaBuilderFactory;
+use Magento\InventoryApi\Api\SourceRepositoryInterface;
+
 /**
  * Lengow export
  */
@@ -282,6 +285,16 @@ class Export
     protected $_getParams;
 
     /**
+     * @var SourceRepositoryInterface
+     */
+    protected $sourceRepository;
+
+    /**
+     * @var SearchCriteriaBuilderFactory
+     */
+    protected $searchCriteriaBuilderFactory;
+
+    /**
      * Constructor
      *
      * @param StoreManagerInterface $storeManager Magento store manager instance
@@ -295,6 +308,8 @@ class Export
      * @param ConfigHelper $configHelper Lengow config helper instance
      * @param LengowFeedFactory $feedFactory Lengow feed factory instance
      * @param LengowProductFactory $productFactory Lengow product factory instance
+     * @param SourceRepositoryInterface $sourceRepository
+     * @param SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -307,7 +322,9 @@ class Export
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         LengowFeedFactory $feedFactory,
-        LengowProductFactory $productFactory
+        LengowProductFactory $productFactory,
+        SourceRepositoryInterface $sourceRepository,
+        SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory
     ) {
         $this->_storeManager = $storeManager;
         $this->_dateTime = $dateTime;
@@ -320,6 +337,8 @@ class Export
         $this->_configHelper = $configHelper;
         $this->_feedFactory = $feedFactory;
         $this->_productFactory = $productFactory;
+        $this->sourceRepository = $sourceRepository;
+        $this->searchCriteriaBuilderFactory = $searchCriteriaBuilderFactory;
     }
 
     /**
@@ -470,6 +489,41 @@ class Export
     }
 
     /**
+     * Get all sources options
+     *
+     * @return mixed
+     */
+    public function getAllSources()
+    {
+        $options = [];
+        /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
+        $searchCriteriaBuilder = $this->searchCriteriaBuilderFactory->create();
+        $searchCriteria = $searchCriteriaBuilder->create();
+        $sources = $this->sourceRepository->getList($searchCriteria)->getItems();
+        foreach ($sources as $source) {
+            $options[] = $source->getSourceCode();
+        }
+        return $options;
+    }
+
+    /**
+     * Check if $field is a custom multi-stock field
+     *
+     * @param $field  field to compare
+     * @param $sources source list
+     *
+     * @return bool
+     */
+    protected function compareSource($field, $sources) {
+        foreach ($sources as $source) {
+            if (strcmp($field, 'quantity_' . $source) === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Export products
      *
      * @param array $products list of products to be exported
@@ -483,8 +537,16 @@ class Export
         $productCount = 0;
         // get modulo for export counter
         $productModulo = $this->_getProductModulo(count($products));
+        // get all stock sources
+        $sources = $this->getAllSources();
+        // if multi-stock
+        if (count($sources) > 1) {
+            foreach ($sources as $source) {
+                $fields[] = 'quantity_' . $source;
+            } // TODO ATTENTION AU BUG POUR LES PRODUIT NAYANT PAS DE MULTISOURCE
+        }
         // get the maximum of character for yaml format
-        $maxCharacter = $this->_getMaxCharacterSize($fields);
+        $maxCharacter = $this->_getMaxCharacterSize($fields); // TODO HERE PUT NEW HEADER QQUANTITY
         // init product to export
         $lengowProduct = $this->_productFactory->create();
         $lengowProduct->init([
@@ -518,7 +580,23 @@ class Export
                 if (isset($this->_defaultFields[$field])) {
                     $productData[$field] = $lengowProduct->getData($this->_defaultFields[$field]);
                 } else {
-                    $productData[$field] = $lengowProduct->getData($field);
+                    // case multi-stock
+                    if ($this->compareSource($field, $sources)) {
+                        $quantities = $lengowProduct->getSourceItemDetailBySKU($lengowProduct->getData('sku'));
+                        foreach ($quantities as $source) {
+                            // if source is enabled & is the one
+                            if (('quantity_' . $source['source_code']) === $field && $source['status']) {
+                                $productData[$field] = $source['quantity'];
+                                break;
+                            }
+                        }
+                        if (empty($productData[$field])) {
+                            $productData[$field] = 0;
+                        }
+                    } else {
+                        // Default
+                        $productData[$field] = $lengowProduct->getData($field);
+                    }
                 }
             }
             // write product data
