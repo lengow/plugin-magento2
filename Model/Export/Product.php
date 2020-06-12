@@ -348,7 +348,7 @@ class Product
     /**
      * Retrieves stock sources that are assigned to product sku
      *
-     * @param string $sku
+     * @param string $sku product sku
      * @return SourceItemInterface[]
      */
     public function getSourceItemDetailBySKU(string $sku)
