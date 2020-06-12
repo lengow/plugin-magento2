@@ -707,13 +707,11 @@ class Export
         }
         if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')) {
             $sources = $this->_configHelper->getAllSources();
-        } else {
-            $sources = [];
-        }
-        // if multi-stock
-        if (count($sources) > 1) {
-            foreach ($sources as $source) {
-                $fields[] = 'quantity_' . $source;
+            // if multi-stock
+            if (count($sources) > 1) {
+                foreach ($sources as $source) {
+                    $fields[] = 'quantity_' . $source;
+                }
             }
         }
         return $fields;
