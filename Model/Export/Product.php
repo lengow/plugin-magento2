@@ -161,7 +161,7 @@ class Product
     protected $_variationList;
 
     /**
-     * @var integer|array product quantity
+     * @var integer product quantity
      */
     protected $_quantity;
 
@@ -214,7 +214,6 @@ class Product
      * @var array Parent field to select parents attributes to export instead of child's one
      */
     protected $_parentFields = [];
-
 
     /**
      * @var SearchCriteriaBuilder
