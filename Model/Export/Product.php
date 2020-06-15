@@ -19,12 +19,16 @@
 
 namespace Lengow\Connector\Model\Export;
 
+use Magento\InventoryApi\Api\GetSourceItemsBySkuInterface;
 use Magento\Catalog\Model\Product\Interceptor as ProductInterceptor;
 use Magento\Store\Model\Store\Interceptor as StoreInterceptor;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\InventoryApi\Api\Data\SourceItemInterface;
+use Magento\InventoryApi\Api\SourceItemRepositoryInterface;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Framework\Locale\Resolver as Locale;
 use Magento\Framework\Stdlib\DateTime\DateTime;
@@ -34,6 +38,7 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Export\Price as LengowPrice;
 use Lengow\Connector\Model\Export\Shipping as LengowShipping;
 use Lengow\Connector\Model\Export\Category as LengowCategory;
+use Lengow\Connector\Helper\Security as SecurityHelper;
 
 /**
  * Lengow export product
@@ -210,6 +215,25 @@ class Product
      */
     protected $_parentFields = [];
 
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    protected $searchCriteriaBuilder;
+
+    /**
+     * @var SourceItemRepositoryInterface
+     */
+    protected $sourceItemRepository;
+
+    /**
+     * @var SecurityHelper Lengow security helper instance
+     */
+    protected $securityHelper;
+
+    /**
+     * @var Array All stock sources for this specific product
+     */
+    protected $quantities;
 
     /**
      * Constructor
@@ -217,6 +241,8 @@ class Product
      * @param ProductRepository $productRepository Magento product repository instance
      * @param Configurable $configurableProduct Magento configurable product instance
      * @param StockRegistryInterface $stockRegistry Magento stock registry instance
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder Magento search criteria builder instance
+     * @param SourceItemRepositoryInterface $sourceItemRepository Magneto sourceItem repository instance
      * @param Locale $locale Magento locale resolver instance
      * @param DateTime $dateTime Magento datetime instance
      * @param TimezoneInterface $timezone Magento datetime timezone instance
@@ -225,11 +251,14 @@ class Product
      * @param LengowPrice $price Lengow product price instance
      * @param LengowShipping $shipping Lengow product shipping instance
      * @param LengowCategory $category Lengow product category instance
+     * @param SecurityHelper $securityHelper Lengow security helper instance
      */
     public function __construct(
         ProductRepository $productRepository,
         Configurable $configurableProduct,
         StockRegistryInterface $stockRegistry,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        SourceItemRepositoryInterface $sourceItemRepository,
         Locale $locale,
         DateTime $dateTime,
         TimezoneInterface $timezone,
@@ -237,12 +266,15 @@ class Product
         ConfigHelper $configHelper,
         LengowPrice $price,
         LengowShipping $shipping,
-        LengowCategory $category
+        LengowCategory $category,
+        SecurityHelper $securityHelper
     )
     {
         $this->_productRepository = $productRepository;
         $this->_configurableProduct = $configurableProduct;
         $this->_stockRegistry = $stockRegistry;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->sourceItemRepository = $sourceItemRepository;
         $this->_locale = $locale;
         $this->_dateTime = $dateTime;
         $this->_timezone = $timezone;
@@ -251,6 +283,7 @@ class Product
         $this->_price = $price;
         $this->_shipping = $shipping;
         $this->_category = $category;
+        $this->securityHelper = $securityHelper;
     }
 
     /**
@@ -289,6 +322,7 @@ class Product
         $this->_childrenIds = $this->_getChildrenIds();
         $this->_images = $this->_getImages();
         $this->_variationList = $this->_getVariationList();
+        $this->quantities = []; // reset sources
         $this->_quantity = $this->_getQuantity();
         if ($this->_type === 'grouped') {
             $groupedPrices = $this->_getGroupedPricesAndDiscounts();
@@ -302,6 +336,20 @@ class Product
         $this->_category->load(['product' => $this->_getParentData ? $this->_parentProduct : $this->_product]);
         $this->_shipping->load(['product' => $this->_product]);
         $this->_setCounter();
+    }
+
+    /**
+     * Retrieves stock sources that are assigned to product sku
+     *
+     * @param string $sku product sku
+     * @return SourceItemInterface[]
+     */
+    public function getSourceItemDetailBySKU(string $sku)
+    {
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilter(SourceItemInterface::SKU, $sku)
+            ->create();
+        return $this->sourceItemRepository->getList($searchCriteria)->getItems();
     }
 
     /**
@@ -397,6 +445,10 @@ class Product
                     ? $this->_parentProduct->getShortDescription()
                     : $this->_product->getShortDescription();
                 return $this->_dataHelper->cleanData($descriptionShort);
+            case (preg_match('`quantity_multistock_.+`', $field) ? true : false):
+                return (isset($this->quantities[$field]) && $this->quantities[$field]['status'])
+                    ? (int) $this->quantities[$field]['quantity']
+                    : 0;
             default:
                 return $this->_dataHelper->cleanData($this->_getAttributeValue($field));
         }
@@ -655,6 +707,22 @@ class Product
      */
     protected function _getQuantity()
     {
+        if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')) {
+            // Check if product is multi-stock
+            $res = $this->getSourceItemDetailBySKU($this->_product->getSku());
+            // if multi-stock, return total of all stock quantities
+            if (count($res) >= 1) {
+                $total = 0;
+                foreach ($res as $item) {
+                    $dataSource = $item->getData();
+                    $this->quantities['quantity_multistock_' . $dataSource['source_code']] = $dataSource;
+                    if ($dataSource['status']) {
+                        $total += (int) $dataSource['quantity'];
+                    }
+                }
+                return $total;
+            }
+        }
         if ($this->_type === 'grouped' && !empty($this->_childrenIds)) {
             $quantities = [];
             foreach ($this->_childrenIds as $childrenId) {

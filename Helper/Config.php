@@ -32,6 +32,8 @@ use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Store\Api\Data\StoreInterface;
+use Magento\Framework\Api\SearchCriteriaBuilderFactory;
+use Magento\InventoryApi\Api\SourceRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
 use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollectionFactory;
@@ -73,6 +75,16 @@ class Config extends AbstractHelper
      * @var EavConfig Magento eav config
      */
     protected $_eavConfig;
+
+    /**
+     * @var SourceRepositoryInterface Magento source repository interface
+     */
+    protected $sourceRepository;
+
+    /**
+     * @var SearchCriteriaBuilderFactory Magento criteria builder factory
+     */
+    protected $searchCriteriaBuilderFactory;
 
     /**
      * @var array all Lengow options path
@@ -341,6 +353,8 @@ class Config extends AbstractHelper
      * @param AttributeCollectionFactory $attributeCollectionFactory Magento Attribute factory instance
      * @param ConfigDataCollectionFactory $configDataCollectionFactory Magento config data factory instance
      * @param StoreCollectionFactory $storeCollectionFactory Magento store factory instance
+     * @param SourceRepositoryInterface $sourceRepository Magento source repository instance
+     * @param SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory Magento search criteria builder instance
      */
     public function __construct(
         Context $context,
@@ -350,7 +364,9 @@ class Config extends AbstractHelper
         EavConfig $eavConfig,
         AttributeCollectionFactory $attributeCollectionFactory,
         ConfigDataCollectionFactory $configDataCollectionFactory,
-        StoreCollectionFactory $storeCollectionFactory
+        StoreCollectionFactory $storeCollectionFactory,
+        SourceRepositoryInterface $sourceRepository,
+        SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory
     )
     {
         $this->_writerInterface = $writerInterface;
@@ -360,6 +376,8 @@ class Config extends AbstractHelper
         $this->_attributeCollectionFactory = $attributeCollectionFactory;
         $this->_configDataCollectionFactory = $configDataCollectionFactory;
         $this->_storeCollectionFactory = $storeCollectionFactory;
+        $this->sourceRepository = $sourceRepository;
+        $this->searchCriteriaBuilderFactory = $searchCriteriaBuilderFactory;
         parent::__construct($context);
     }
 
@@ -600,6 +618,24 @@ class Config extends AbstractHelper
             $storeIds[] = $store->getId();
         }
         return $storeIds;
+    }
+
+    /**
+     * Get all sources options
+     *
+     * @return mixed
+     */
+    public function getAllSources()
+    {
+        $options = [];
+        /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
+        $searchCriteriaBuilder = $this->searchCriteriaBuilderFactory->create();
+        $searchCriteria = $searchCriteriaBuilder->create();
+        $sources = $this->sourceRepository->getList($searchCriteria)->getItems();
+        foreach ($sources as $source) {
+            $options[] = $source->getSourceCode();
+        }
+        return $options;
     }
 
     /**
