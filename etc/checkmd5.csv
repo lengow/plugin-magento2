@@ -56,7 +56,7 @@
 /i18n/en_GB.csv|2ddc09a977209f6a73308a35aeb1ea88
 /Model/Exception.php|54edeb8720951a9e4cdc0011f8e2572f
 /Model/Payment/Lengow.php|dd4f2d120fe6faa2d731cbf9eed66408
-/Model/Export/Product.php|1bd513bcfbe07500a6bbd1e19c46b14f
+/Model/Export/Product.php|cc67894954a45d904c0d60363b1f246b
 /Model/Export/Shipping.php|896dd1a7e87798cc98800f99f4fbaa3c
 /Model/Export/Category.php|b30f506e58103979c49e9bead2ab528a
 /Model/Export/File.php|7e847f4a8a354235a9990e46675b85bf

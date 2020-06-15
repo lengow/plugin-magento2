@@ -447,7 +447,7 @@ class Product
                 return $this->_dataHelper->cleanData($descriptionShort);
             case (preg_match('`quantity_multistock_.+`', $field) ? true : false):
                 return (isset($this->quantities[$field]) && $this->quantities[$field]['status'])
-                    ? $this->quantities[$field]['quantity']
+                    ? (int) $this->quantities[$field]['quantity']
                     : 0;
             default:
                 return $this->_dataHelper->cleanData($this->_getAttributeValue($field));
@@ -717,7 +717,7 @@ class Product
                     $dataSource = $item->getData();
                     $this->quantities['quantity_multistock_' . $dataSource['source_code']] = $dataSource;
                     if ($dataSource['status']) {
-                        $total += $dataSource['quantity'];
+                        $total += (int) $dataSource['quantity'];
                     }
                 }
                 return $total;
