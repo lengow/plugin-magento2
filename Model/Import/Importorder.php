@@ -670,7 +670,7 @@ class Importorder extends AbstractModel
                 $this->_logOutput
             );
             // if this order is B2B activate B2bTaxesApplicator
-            if ($this->_configHelper->get('import_b2b_without_tax')
+            if ((bool)$this->_configHelper->get('import_b2b_without_tax')
                 && $orderLengow->isBusiness()) {
                     $this->backendSession->setIsLengowB2b(1);
             }
