@@ -287,6 +287,8 @@
 "Use Debug Mode for testing and to simulate fictitious orders. Please note that you have to activate this setting on your pre-production server ONLY","Use Debug Mode for testing and to simulate fictitious orders. Please note that you have to activate this setting on your pre-production server ONLY"
 "Enable Magento cron","Enable Magento cron"
 "Enable the scheduled task to import your orders every 30 minutes","Enable the scheduled task to import your orders every 30 minutes"
+"Enable import of B2B orders without tax","Enable import of B2B orders without tax"
+"Activate this option to import B2B orders without tax","Activate this option to import B2B orders without tax"
 "connection didn't work with Lengow's webservice in store %1 (%2)","connection didn't work with Lengow's webservice in store %1 (%2)"
 "Lengow webservice : %1 - "%2" in store %3 (%4)","Lengow webservice : %1 - "%2" in store %3 (%4)"
 "Lengow error: %1 does not feature in the marketplace list","Lengow error: %1 does not feature in the marketplace list"

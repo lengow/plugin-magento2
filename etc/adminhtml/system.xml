@@ -187,8 +187,8 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="import_b2b_without_tax" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="1">
-                    <label>Enable import of b2b command without tax</label>
-                    <comment>Activate this option to import "is_business" command without tax</comment>
+                    <label>Enable import of b2b orders without tax</label>
+                    <comment>Activate this option to import B2B orders without tax</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
             </group>
