@@ -201,6 +201,15 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Total Paid'
                 )->addColumn(
+                    'customer_vat_number',
+                    Table::TYPE_DECIMAL,
+                    null,
+                    [
+                        'nullable' => true,
+                        'default' => null,
+                    ],
+                    'Customer Vat Number'
+                )->addColumn(
                     'commission',
                     Table::TYPE_DECIMAL,
                     null,

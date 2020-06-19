@@ -324,6 +324,11 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => true,
         ),
+        'import_b2b_without_tax' => array(
+            'path' => 'lengow_import_options/advanced/import_b2b_without_tax',
+            'global' => true,
+            'no_cache' => true,
+        ),
     ];
 
     /**

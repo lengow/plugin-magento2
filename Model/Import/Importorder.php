@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Magento\Backend\Model\Session as BackendSession;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Catalog\Model\ProductFactory;
@@ -160,6 +161,11 @@ class Importorder extends AbstractModel
      * @var ProductAttribute Magento product attribute instance
      */
     protected $_productAttribute;
+
+    /**
+     * @var BackendSession $_backendSession Magento Backend session instance
+     */
+    protected $_backendSession;
 
     /**
      * @var LengowOrder Lengow order instance
@@ -352,6 +358,7 @@ class Importorder extends AbstractModel
      * @param StockManagementInterface $stockManagement Magento stock management instance
      * @param MagentoQuoteFactory $quoteMagentoFactory Magento quote factory instance
      * @param ProductAttribute $productAttribute Magento product attribute instance
+     * @param BackendSession $backendSession Backend session instance
      * @param ProductCollectionFactory $productCollection Magento product collection factory instance
      * @param LengowOrder $lengowOrder Lengow order instance
      * @param LengowOrderFactory $lengowOrderFactory Lengow order instance
@@ -382,6 +389,7 @@ class Importorder extends AbstractModel
         StockManagementInterface $stockManagement,
         MagentoQuoteFactory $quoteMagentoFactory,
         ProductAttribute $productAttribute,
+        BackendSession $backendSession,
         ProductCollectionFactory $productCollection,
         LengowOrder $lengowOrder,
         LengowOrderFactory $lengowOrderFactory,
@@ -410,6 +418,7 @@ class Importorder extends AbstractModel
         $this->_stockManagement = $stockManagement;
         $this->_quoteMagentoFactory = $quoteMagentoFactory;
         $this->_productAttribute = $productAttribute;
+        $this->_backendSession = $backendSession;
         $this->_productCollection = $productCollection;
         $this->_lengowOrder = $lengowOrder;
         $this->_lengowOrderFactory = $lengowOrderFactory;
@@ -660,6 +669,11 @@ class Importorder extends AbstractModel
                 $this->_marketplaceSku,
                 $this->_logOutput
             );
+            // if this order is B2B activate B2bTaxesApplicator
+            if ($this->_configHelper->get('import_b2b_without_tax')
+                && $orderLengow->isBusiness()) {
+                    $this->_backendSession->setIsB2b(1);
+            }
             // create Magento Quote
             $quote = $this->_createQuote($customer, $products);
             // create Magento order
@@ -1206,6 +1220,10 @@ class Importorder extends AbstractModel
         // check if store include tax (Product and shipping cost)
         $priceIncludeTax = $this->_taxConfig->priceIncludesTax($quote->getStore());
         $shippingIncludeTax = $this->_taxConfig->shippingPriceIncludesTax($quote->getStore());
+        // if this order is b2b
+        if ($this->_backendSession->getIsB2b() === 1) {
+            $priceIncludeTax = true;
+        }
         // add product in quote
         $quote->addLengowProducts($products, $priceIncludeTax);
         // get shipping cost with tax
@@ -1400,6 +1418,7 @@ class Importorder extends AbstractModel
             'delivery_address_id' => (int)$this->_deliveryAddressId,
             'order_lengow_state' => $this->_orderStateLengow,
             'order_types' => json_encode($this->_orderTypes),
+            'customer_vat_number' => $this->_orderData->billing_address->vat_number,
             'order_date' => $this->_dateTime->gmtDate('Y-m-d H:i:s', strtotime($orderDate)),
             'message' => $message,
             'is_in_error' => 1,
