@@ -257,7 +257,7 @@ class Order extends AbstractModel
         'order_types' => ['required' => true, 'updated' => false],
         'currency' => ['required' => false, 'updated' => true],
         'total_paid' => ['required' => false, 'updated' => true],
-        'customer_vat_number' => ['required' => false, 'updated' => true],
+        'customer_vat_number' => ['required' => true, 'updated' => true],
         'commission' => ['required' => false, 'updated' => true],
         'customer_name' => ['required' => false, 'updated' => true],
         'customer_email' => ['required' => false, 'updated' => true],

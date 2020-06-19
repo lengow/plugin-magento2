@@ -202,7 +202,7 @@ class InstallSchema implements InstallSchemaInterface
                     'Total Paid'
                 )->addColumn(
                     'customer_vat_number',
-                    Table::TYPE_DECIMAL,
+                    Table::TYPE_TEXT,
                     null,
                     [
                         'nullable' => true,

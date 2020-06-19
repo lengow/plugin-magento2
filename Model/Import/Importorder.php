@@ -19,8 +19,8 @@
 
 namespace Lengow\Connector\Model\Import;
 
-use Magento\Backend\Model\Session as BackendSession;
 use Magento\Customer\Api\AddressRepositoryInterface;
+use Magento\Backend\Model\Session as BackendSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Catalog\Model\ProductFactory;
 use Magento\Catalog\Model\Product\Attribute\Repository as ProductAttribute;
@@ -163,9 +163,9 @@ class Importorder extends AbstractModel
     protected $_productAttribute;
 
     /**
-     * @var BackendSession $_backendSession Magento Backend session instance
+     * @var BackendSession $backendSession Magento Backend session instance
      */
-    protected $_backendSession;
+    protected $backendSession;
 
     /**
      * @var LengowOrder Lengow order instance
@@ -418,7 +418,7 @@ class Importorder extends AbstractModel
         $this->_stockManagement = $stockManagement;
         $this->_quoteMagentoFactory = $quoteMagentoFactory;
         $this->_productAttribute = $productAttribute;
-        $this->_backendSession = $backendSession;
+        $this->backendSession = $backendSession;
         $this->_productCollection = $productCollection;
         $this->_lengowOrder = $lengowOrder;
         $this->_lengowOrderFactory = $lengowOrderFactory;
@@ -672,7 +672,7 @@ class Importorder extends AbstractModel
             // if this order is B2B activate B2bTaxesApplicator
             if ($this->_configHelper->get('import_b2b_without_tax')
                 && $orderLengow->isBusiness()) {
-                    $this->_backendSession->setIsB2b(1);
+                    $this->backendSession->setIsLengowB2b(1);
             }
             // create Magento Quote
             $quote = $this->_createQuote($customer, $products);
@@ -1221,7 +1221,7 @@ class Importorder extends AbstractModel
         $priceIncludeTax = $this->_taxConfig->priceIncludesTax($quote->getStore());
         $shippingIncludeTax = $this->_taxConfig->shippingPriceIncludesTax($quote->getStore());
         // if this order is b2b
-        if ($this->_backendSession->getIsB2b() === 1) {
+        if ($this->backendSession->getIsLengowB2b() === 1) {
             $priceIncludeTax = true;
         }
         // add product in quote
@@ -1418,7 +1418,7 @@ class Importorder extends AbstractModel
             'delivery_address_id' => (int)$this->_deliveryAddressId,
             'order_lengow_state' => $this->_orderStateLengow,
             'order_types' => json_encode($this->_orderTypes),
-            'customer_vat_number' => $this->_orderData->billing_address->vat_number,
+            'customer_vat_number' => $this->getVatNumberFromOrderData(),
             'order_date' => $this->_dateTime->gmtDate('Y-m-d H:i:s', strtotime($orderDate)),
             'message' => $message,
             'is_in_error' => 1,
@@ -1436,6 +1436,20 @@ class Importorder extends AbstractModel
             return false;
         }
         return true;
+    }
+
+    /**
+     * Get vat_number from lengow order data
+     *
+     * @return string|null
+     */
+    protected function getVatNumberFromOrderData() {
+        if (isset($this->_orderData->billing_address->vat_number)) {
+            return $this->_orderData->billing_address->vat_number;
+        } else if (isset($this->_packageData->delivery->vat_number)) {
+            return $this->_packageData->delivery->vat_number;
+        }
+        return null;
     }
 
     /**

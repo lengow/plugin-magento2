@@ -28,17 +28,17 @@ class B2bTaxesApllicator implements ObserverInterface
     /**
      * @var BackendSession $_backendSession Backend session instance
      */
-    protected $_backendSession;
+    protected $backendSession;
 
     /**
-     * B2bTaxesApllicator constructor.
+     * B2bTaxesApllicator constructor
      *
      * @param BackendSession $backendSession Backend session instance
      */
     public function __construct(
         BackendSession $backendSession
     ) {
-        $this->_backendSession = $backendSession;
+        $this->backendSession = $backendSession;
     }
 
     /**
@@ -48,11 +48,12 @@ class B2bTaxesApllicator implements ObserverInterface
      * @return void
      */
     public function execute(Observer $observer) {
-        if ($this->_backendSession->getIsB2b() === 1) {
+        if ((bool)$this->backendSession->getIsFromlengow() && $this->backendSession->getIsLengowB2b() === 1) {
             $items = $observer->getEvent()->getQuote()->getAllVisibleItems();
             foreach ($items as $item) {
                 $item->getProduct()->setTaxClassId(0);
             }
         }
+        $this->backendSession->setIsLengowB2b(0);
     }
 }
