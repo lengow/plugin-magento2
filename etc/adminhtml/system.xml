@@ -176,17 +176,17 @@
                         <field id="*/*/import_ship_mp_enabled">1</field>
                     </depends>
                 </field>
-                <field id="import_b2b_without_tax" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="import_b2b_without_tax" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Enable import of B2B orders without tax</label>
                     <comment>Activate this option to import B2B orders without tax</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="import_debug_mode_enable" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="import_debug_mode_enable" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Activate Debug Mode</label>
                     <comment>Use Debug Mode for testing and to simulate fictitious orders. Please note that you have to activate this setting on your pre-production server ONLY</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="import_cron_enable" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="import_cron_enable" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Enable Magento cron</label>
                     <comment>Enable the scheduled task to import your orders every 30 minutes</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
