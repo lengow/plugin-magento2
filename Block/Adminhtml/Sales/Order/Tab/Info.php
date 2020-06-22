@@ -320,6 +320,10 @@ class Info extends Template implements TabInterface
                 'value' => $this->_lengowOrder->getData('message'),
             ];
             $fields[] = [
+                'label' => ('Vat number'),
+                'value' => $this->_lengowOrder->getData('customer_vat_number'),
+            ];
+            $fields[] = [
                 'label' => __('Imported at'),
                 'value' => $this->_dataHelper->getDateInCorrectFormat(
                     strtotime($this->_lengowOrder->getData('created_at'))

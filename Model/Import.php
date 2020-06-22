@@ -684,6 +684,8 @@ class Import
                     $errorMessage = 'Magento error: "' . $e->getMessage()
                         . '" ' . $e->getFile() . ' line ' . $e->getLine();
                 }
+                // reset backend session b2b attribute
+                $this->_backendSession->setIsLengowB2b(0);
                 if (isset($errorMessage)) {
                     $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
                     $this->_dataHelper->log(

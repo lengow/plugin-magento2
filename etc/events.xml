@@ -10,4 +10,7 @@
     <event name="sales_order_payment_cancel">
         <observer name="lengow_connector_send_action" instance="Lengow\Connector\Observer\SendAction"/>
     </event>
+    <event name="sales_quote_collect_totals_before">
+        <observer name="lengow_connector_b2b_taxes_applicator" instance="Lengow\Connector\Observer\B2bTaxesApllicator"/>
+    </event>
 </config>
