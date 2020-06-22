@@ -117,7 +117,6 @@ de:
       status_shipped: "Versandt"
       status_refunded: "Erstattet"
       status_closed: " Abgeschlossen"
-      status_shipped_by_mkp: "Durch Marktplatz versandt"
       status_canceled: "Abgebrochen"
       order_types: "Typen"
       marketplace_name: "Marktplatz"
@@ -150,12 +149,12 @@ de:
       title: "Lassen Sie sich etwas von Ihrem Support-Team unterstützen"
       contain_text_support: "Kontaktieren Sie uns bei Fragen und teilen Sie uns Ihr Feedback mit über den"
       title_lengow_support: "Lengow Support."
-      link_lengow_support: "https://supportlengow.zendesk.com/hc/en-us/requests/new"
+      link_lengow_support: "https://www.lengow.com/support/"
       need_some_help: "Brauchen Sie Hilfe?"
       contain_text_support_hour: "Wir werden alles tun, um Sie während der normalen Geschäftszeiten (Montag - Freitag von 09:00 - 18:00 (MEZ+1)) zurückzurufen."
       find_answer: "Sie können Antworten auch in unserem"
       link_magento_guide: "Magentos 2 Begleithandbuch finden"
-      knowledge_link_url: "https://supportlengow.zendesk.com/hc/en-us/articles/360012204551"
+      knowledge_link_url: "https://support.lengow.com/kb/guide/en/zIKNDzKdKk"
   log:
     screen:
       title: "Logs"
