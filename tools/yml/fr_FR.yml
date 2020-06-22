@@ -149,12 +149,12 @@ fr:
       title: "Demandez de l'aide à notre équipe Support !"
       contain_text_support: "Des questions, un feedback sur Lengow... transmettez vos demandes au"
       title_lengow_support: "support Lengow."
-      link_lengow_support: "https://supportlengow.zendesk.com/hc/fr/requests/new"
+      link_lengow_support: "https://www.lengow.com/fr/support/"
       need_some_help: "Besoin d'aide ?"
       contain_text_support_hour: "Nous ferons notre maximum pour revenir vers vous au plus vite (Notre équipe Support est disponible du lundi au vendredi, de 9h à 18h)."
       find_answer: "Vous pouvez aussi consulter"
       link_magento_guide: "notre guide dédié à Magento 2"
-      knowledge_link_url: "https://supportlengow.zendesk.com/hc/fr/articles/360012204551"
+      knowledge_link_url: "https://support.lengow.com/kb/guide/fr/zIKNDzKdKk"
   log:
     screen:
       title: "Logs"
