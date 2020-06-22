@@ -94,7 +94,7 @@
 /Model/ResourceModel/Log/Collection.php|5e4a18933b7f6ecebf482be80308519d
 /Model/ResourceModel/Action.php|7fc9a81dd0327b44d3f843cc4b374f03
 /Model/Export.php|fa8ebc0700362cc5ab72865052d26e13
-/Observer/B2bTaxesApllicator.php|26b942d3931a9288e3afce6f39c31424
+/Observer/B2bTaxesApllicator.php|a93d526a185bea63c8f5927f22ad2d26
 /Observer/SendAction.php|f8f12dc60410c15bd9e5e16a158e70a2
 /Plugin/SaveConfig.php|35aa41946a435f3365943b9d2e9f9226
 /Plugin/RulesApplier.php|bac47064370c7012154177bab39351e6
