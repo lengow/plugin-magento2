@@ -73,7 +73,7 @@
 /Model/Config/Source/Action.php|57bcf9c9cd861f9c1db4fd641ab9a5a1
 /Model/Connector.php|1225d82ea04e12f4ace2c2abda4134ca
 /Model/Log.php|8713710a7e644c53618cc9bba5017ee6
-/Model/Import.php|1873bceac8888183bbb5c3cd6643de1a
+/Model/Import.php|a70a00e1d6bf2c169033657964600502
 /Model/Import/Marketplace.php|79e082f9d8f70735051a599341f2dc96
 /Model/Import/Order.php|d3523bfe17ad6778287295013c17b8aa
 /Model/Import/Orderline.php|2dea1e0026eb3eef58c16b991393a00b
