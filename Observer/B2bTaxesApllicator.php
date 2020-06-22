@@ -53,7 +53,7 @@ class B2bTaxesApllicator implements ObserverInterface
             foreach ($items as $item) {
                 $item->getProduct()->setTaxClassId(0);
             }
+            $this->backendSession->setIsLengowB2b(0);
         }
-        $this->backendSession->setIsLengowB2b(0);
     }
 }
