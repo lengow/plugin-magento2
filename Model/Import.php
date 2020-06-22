@@ -677,7 +677,6 @@ class Import
                         ]
                     );
                     $order = $importOrderFactory->importOrder();
-                    // reset backend session b2b attribute
                     unset($importOrderFactory);
                 } catch (LengowException $e) {
                     $errorMessage = $e->getMessage();
