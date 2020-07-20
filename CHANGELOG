@@ -5,6 +5,7 @@ Version 1.2.3
     - Feature: [export] Multi-stock available with new 'quantity_' field
     - Feature: [import] B2B orders can now be imported without taxes (optionnal)
     - Feature: Adding new links to the Lengow Help Center and Support
+    - BugFix: Correction of Customer::getName behavior
 
 =============================================================
 Version 1.2.2

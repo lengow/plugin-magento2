@@ -627,9 +627,9 @@ class Customer extends MagentoResourceCustomer
         if (empty($names['lastName']) && empty($names['firstName'])) {
             $names = $this->splitNames($names['fullName']);
         } else {
-            if (empty($names['lastName'])) {
+            if (empty($names['firstName'])) {
                 $names = $this->splitNames($names['lastName']);
-            } elseif (empty($names['firstName'])) {
+            } elseif (empty($names['lastName'])) {
                 $names = $this->splitNames($names['firstName']);
             }
         }
