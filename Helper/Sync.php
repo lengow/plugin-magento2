@@ -215,10 +215,7 @@ class Sync extends AbstractHelper
             return true;
         }
         $statusAccount = $this->getStatusAccount();
-        if (($statusAccount['type'] === 'free_trial' && $statusAccount['expired'])) {
-            return true;
-        }
-        return false;
+        return ($statusAccount && ($statusAccount['type'] === 'free_trial' && $statusAccount['expired']));
     }
 
     /**

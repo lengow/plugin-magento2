@@ -6,6 +6,7 @@ Version 1.2.3
     - Feature: [import] B2B orders can now be imported without taxes (optionnal)
     - Feature: Adding new links to the Lengow Help Center and Support
     - BugFix: Correction of Customer::getName behavior
+    - BugFix: New security on pluginIsBlocked() function for php 7.4
 
 =============================================================
 Version 1.2.2
