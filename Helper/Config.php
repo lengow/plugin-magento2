@@ -33,7 +33,6 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Framework\Api\SearchCriteriaBuilderFactory;
-use Magento\InventoryApi\Api\SourceRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
 use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollectionFactory;
@@ -75,11 +74,6 @@ class Config extends AbstractHelper
      * @var EavConfig Magento eav config
      */
     protected $_eavConfig;
-
-    /**
-     * @var SourceRepositoryInterface Magento source repository interface
-     */
-    protected $sourceRepository;
 
     /**
      * @var SearchCriteriaBuilderFactory Magento criteria builder factory
@@ -358,7 +352,6 @@ class Config extends AbstractHelper
      * @param AttributeCollectionFactory $attributeCollectionFactory Magento Attribute factory instance
      * @param ConfigDataCollectionFactory $configDataCollectionFactory Magento config data factory instance
      * @param StoreCollectionFactory $storeCollectionFactory Magento store factory instance
-     * @param SourceRepositoryInterface $sourceRepository Magento source repository instance
      * @param SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory Magento search criteria builder instance
      */
     public function __construct(
@@ -370,7 +363,6 @@ class Config extends AbstractHelper
         AttributeCollectionFactory $attributeCollectionFactory,
         ConfigDataCollectionFactory $configDataCollectionFactory,
         StoreCollectionFactory $storeCollectionFactory,
-        SourceRepositoryInterface $sourceRepository,
         SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory
     )
     {
@@ -381,7 +373,6 @@ class Config extends AbstractHelper
         $this->_attributeCollectionFactory = $attributeCollectionFactory;
         $this->_configDataCollectionFactory = $configDataCollectionFactory;
         $this->_storeCollectionFactory = $storeCollectionFactory;
-        $this->sourceRepository = $sourceRepository;
         $this->searchCriteriaBuilderFactory = $searchCriteriaBuilderFactory;
         parent::__construct($context);
     }
@@ -636,7 +627,10 @@ class Config extends AbstractHelper
         /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
         $searchCriteriaBuilder = $this->searchCriteriaBuilderFactory->create();
         $searchCriteria = $searchCriteriaBuilder->create();
-        $sources = $this->sourceRepository->getList($searchCriteria)->getItems();
+        // We use object manager here because SourceRepositoryInterface is only available for version >= 2.3
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $sourceRepository = $objectManager->create('Magento\InventoryApi\Api\SourceRepositoryInterface');
+        $sources = $sourceRepository->getList($searchCriteria)->getItems();
         foreach ($sources as $source) {
             $options[] = $source->getSourceCode();
         }

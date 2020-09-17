@@ -28,7 +28,6 @@ use Magento\Catalog\Model\ProductRepository;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\InventoryApi\Api\Data\SourceItemInterface;
-use Magento\InventoryApi\Api\SourceItemRepositoryInterface;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Framework\Locale\Resolver as Locale;
 use Magento\Framework\Stdlib\DateTime\DateTime;
@@ -221,11 +220,6 @@ class Product
     protected $searchCriteriaBuilder;
 
     /**
-     * @var SourceItemRepositoryInterface
-     */
-    protected $sourceItemRepository;
-
-    /**
      * @var SecurityHelper Lengow security helper instance
      */
     protected $securityHelper;
@@ -242,7 +236,6 @@ class Product
      * @param Configurable $configurableProduct Magento configurable product instance
      * @param StockRegistryInterface $stockRegistry Magento stock registry instance
      * @param SearchCriteriaBuilder $searchCriteriaBuilder Magento search criteria builder instance
-     * @param SourceItemRepositoryInterface $sourceItemRepository Magneto sourceItem repository instance
      * @param Locale $locale Magento locale resolver instance
      * @param DateTime $dateTime Magento datetime instance
      * @param TimezoneInterface $timezone Magento datetime timezone instance
@@ -258,7 +251,6 @@ class Product
         Configurable $configurableProduct,
         StockRegistryInterface $stockRegistry,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        SourceItemRepositoryInterface $sourceItemRepository,
         Locale $locale,
         DateTime $dateTime,
         TimezoneInterface $timezone,
@@ -274,7 +266,6 @@ class Product
         $this->_configurableProduct = $configurableProduct;
         $this->_stockRegistry = $stockRegistry;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->sourceItemRepository = $sourceItemRepository;
         $this->_locale = $locale;
         $this->_dateTime = $dateTime;
         $this->_timezone = $timezone;
@@ -349,7 +340,10 @@ class Product
         $searchCriteria = $this->searchCriteriaBuilder
             ->addFilter(SourceItemInterface::SKU, $sku)
             ->create();
-        return $this->sourceItemRepository->getList($searchCriteria)->getItems();
+        // We use object manager here because SourceRepositoryInterface is only available for version >= 2.3
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $sourceItemRepository = $objectManager->create('Magento\InventoryApi\Api\SourceItemRepositoryInterface');
+        return $sourceItemRepository->getList($searchCriteria)->getItems();
     }
 
     /**
