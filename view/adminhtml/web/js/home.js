@@ -29,8 +29,8 @@ require(['jquery'], function( $ ) {
                     }
                 });
             };
-            syncIframe.src = syncLink ? '//cms.'+lengowUrl+'/sync/' : '//cms.'+lengowUrl+'/';
-            syncIframe.src = syncIframe.src+'?lang='+isoCode+'&clientType=magento';
+            syncIframe.src = (syncLink ? 'https://cms.' + lengowUrl + '/sync/' : 'https://cms.' + lengowUrl + '/')
+                + '?lang=' + isoCode + '&clientType=magento';
             $('#lengow-iframe').show();
         }
 
