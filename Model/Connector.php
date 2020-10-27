@@ -218,8 +218,7 @@ class Connector
     public function __construct(
         DataHelper $dataHelper,
         ConfigHelper $configHelper
-    )
-    {
+    ) {
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
     }

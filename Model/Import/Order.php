@@ -323,8 +323,7 @@ class Order extends AbstractModel
         LengowImportFactory $importFactory,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null
-    )
-    {
+    ) {
         $this->_orderFactory = $orderFactory;
         $this->_invoiceService = $invoiceService;
         $this->_transaction = $transaction;
@@ -349,7 +348,7 @@ class Order extends AbstractModel
 
     /**
      * Initialize order model
-     **
+     *
      * @return void
      */
     protected function _construct()
@@ -756,7 +755,7 @@ class Order extends AbstractModel
         if ($order->canShip()) {
             $shipment = $this->_convertOrder->toShipment($order);
             if ($shipment) {
-                foreach ($order->getAllItems() AS $orderItem) {
+                foreach ($order->getAllItems() as $orderItem) {
                     if (!$orderItem->getQtyToShip() || $orderItem->getIsVirtual()) {
                         continue;
                     }

@@ -178,8 +178,7 @@ class Sync extends AbstractHelper
         SecurityHelper $securityHelper,
         LengowConnector $connector,
         LengowExport $export
-    )
-    {
+    ) {
         $this->_jsonHelper = $jsonHelper;
         $this->_driverFile = $driverFile;
         $this->_moduleReader = $moduleReader;
@@ -516,7 +515,7 @@ class Sync extends AbstractHelper
         $plugins = $this->_connector->queryApi(
             LengowConnector::GET,
             LengowConnector::API_PLUGIN,
-            array(),
+            [],
             '',
             $logOutput
         );
@@ -524,10 +523,10 @@ class Sync extends AbstractHelper
             $pluginData = false;
             foreach ($plugins as $plugin) {
                 if ($plugin->type === self::CMS_TYPE . '2') {
-                    $pluginData = array(
+                    $pluginData = [
                         'version' => $plugin->version,
                         'download_link' => $plugin->archive,
-                    );
+                    ];
                     break;
                 }
             }

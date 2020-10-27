@@ -55,8 +55,7 @@ class Dashboard extends Template
         SyncHelper $syncHelper,
         LengowOrder $lengowOrder,
         array $data = []
-    )
-    {
+    ) {
         $this->_syncHelper = $syncHelper;
         $this->_lengowOrder = $lengowOrder;
         if (!$this->_syncHelper->pluginIsBlocked()) {

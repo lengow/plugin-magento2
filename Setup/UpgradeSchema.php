@@ -151,7 +151,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
                                 'default' => null,
                                 'after' => 'order_item',
                                 'comment' => 'Order Types',
-                            ]);
+                            ]
+                        );
                 }
 
             }
@@ -172,7 +173,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
                                 'default' => null,
                                 'after' => 'total_paid',
                                 'comment' => 'Customer Vat Number'
-                            ]);
+                            ]
+                        );
                 }
             }
         }

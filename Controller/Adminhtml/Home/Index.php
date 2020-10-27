@@ -47,8 +47,7 @@ class Index extends Action
         Context $context,
         JsonFactory $resultJsonFactory,
         SyncHelper $syncHelper
-    )
-    {
+    ) {
         $this->_resultJsonFactory = $resultJsonFactory;
         $this->_syncHelper = $syncHelper;
         parent::__construct($context);

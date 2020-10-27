@@ -66,8 +66,7 @@ class File
     public function __construct(
         DriverFile $driverFile,
         DataHelper $dataHelper
-    )
-    {
+    ) {
         $this->_driverFile = $driverFile;
         $this->_dataHelper = $dataHelper;
     }
@@ -196,5 +195,4 @@ class File
         $filePath = $filePath !== null ? $filePath : $this->getPath();
         return $this->_driverFile->isExists($filePath);
     }
-
 }

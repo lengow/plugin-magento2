@@ -69,7 +69,7 @@ class FeedTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetHtmlHeader()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_feed, ['_format' ], ['csv']);
         $this->assertInternalType(
             'string',
@@ -112,7 +112,7 @@ class FeedTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetHeader()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $dataMock = ['id', 'sku', 'name', 'child_name', 'quantity', 'status'];
         $fixture->setPrivatePropertyValue($this->_feed, ['_dataHelper'], [$this->_dataHelper]);
         $fixture->setPrivatePropertyValue($this->_feed, ['_format'], ['csv']);
@@ -157,7 +157,7 @@ class FeedTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetFooter()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_feed, ['_format'], ['csv']);
         $this->assertInternalType(
             'string',
@@ -201,7 +201,7 @@ class FeedTest extends \PHPUnit_Framework_TestCase
     public function testGetBody()
     {
         $dataMock = ['id' => '110', 'sku' => 'my sku', 'name' => 'my product'];
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_feed, ['_dataHelper'], [$this->_dataHelper]);
         $fixture->setPrivatePropertyValue($this->_feed, ['_format'], ['csv']);
         $this->assertInternalType(
@@ -262,7 +262,7 @@ class FeedTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormatFields()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_feed, ['_dataHelper'], [$this->_dataHelper]);
         $fixture->setPrivatePropertyValue($this->_feed, ['_format'], ['csv']);
         $string = "price_before_DISCOUNT_excl_tax for_test'with_more_58_characters";
@@ -307,7 +307,8 @@ class FeedTest extends \PHPUnit_Framework_TestCase
      */
     public function testIndentYaml()
     {
-        $fixture = New Fixture();;
+        $fixture = new Fixture();
+        ;
         $this->assertInternalType(
             'string',
             $fixture->invokeMethod($this->_feed, '_indentYaml', ['test', 10]),

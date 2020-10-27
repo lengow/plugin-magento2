@@ -55,7 +55,7 @@ class ShippingTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetShippingMethod()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_shipping, ['_shippingMethod'], ['ups']);
         $this->assertInternalType(
             'string',
@@ -74,7 +74,7 @@ class ShippingTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetShippingCost()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_shipping, ['_shippingCost'], [4.99]);
         $this->assertInternalType(
             'float',
@@ -93,7 +93,7 @@ class ShippingTest extends \PHPUnit_Framework_TestCase
      */
     public function testClean()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_shipping, ['_product', '_shippingCost'], ['product', 5]);
         $this->_shipping->clean();
         $this->assertNull(
@@ -111,7 +111,7 @@ class ShippingTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetShippingData()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
         $storeMock = $fixture->mockFunctions($classMock, ['getId'], [1]);
         $configHelperMock = $fixture->mockFunctions($classMock, ['get'], [null]);
@@ -177,7 +177,7 @@ class ShippingTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetProductShippingCost()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
         $carrierRateMock = $fixture->mockFunctions($classMock, ['getResult'], [null]);
         $magentoShippingMock = $fixture->mockFunctions($classMock, ['collectCarrierRates'], [$carrierRateMock]);

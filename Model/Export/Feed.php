@@ -162,8 +162,7 @@ class Feed
         JsonHelper $jsonHelper,
         LengowFileFactory $fileFactory,
         DataHelper $dataHelper
-    )
-    {
+    ) {
         $this->_driverFile = $driverFile;
         $this->_dateTime = $dateTime;
         $this->_jsonHelper = $jsonHelper;

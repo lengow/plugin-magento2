@@ -33,8 +33,7 @@ class Content extends Template
     public function __construct(
         Context $context,
         array $data = []
-    )
-    {
+    ) {
         parent::__construct($context, $data);
     }
 }

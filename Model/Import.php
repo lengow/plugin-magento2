@@ -303,8 +303,7 @@ class Import
         LengowImportOrderFactory $importOrderFactory,
         LengowOrderFactory $lengowOrderFactory,
         LengowAction $action
-    )
-    {
+    ) {
         $this->_storeManager = $storeManager;
         $this->_dateTime = $dateTime;
         $this->_timezone = $timezone;

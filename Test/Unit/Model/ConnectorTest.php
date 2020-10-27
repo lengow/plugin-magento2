@@ -69,7 +69,7 @@ class ConnectorTest extends \PHPUnit_Framework_TestCase
      */
     public function testConnect()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $mockConnect = ['token' => '123TEST', 'account_id' => '123', 'user_id' => '123'];
         $connectorMock = $fixture->mockFunctions($this->_connector, ['callAction'], [$mockConnect]);
         $this->assertEquals(
@@ -90,7 +90,7 @@ class ConnectorTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormat()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $this->assertEquals(
             ['id' => 1, 'name' => 'A green door', 'price' => '12.5', 'tags' => ['home', 'green']],
             $fixture->invokeMethod(
@@ -138,7 +138,7 @@ class ConnectorTest extends \PHPUnit_Framework_TestCase
      */
     public function testQueryApi()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
         $configHelperMock = $fixture->mockFunctions(
             $classMock,
@@ -168,7 +168,7 @@ class ConnectorTest extends \PHPUnit_Framework_TestCase
      */
     public function testIsValidAuth()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
         $connectorMock = $fixture->mockFunctions($this->_connector, ['isCurlActivated'], [false]);
         $this->assertNotTrue(

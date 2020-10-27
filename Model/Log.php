@@ -53,15 +53,14 @@ class Log extends AbstractModel
         Context $context,
         Registry $registry,
         DateTime $dateTime
-    )
-    {
+    ) {
         $this->_dateTime = $dateTime;
         parent::__construct($context, $registry);
     }
 
     /**
      * Initialize logs model
-     **
+     *
      * @return void
      */
     protected function _construct()

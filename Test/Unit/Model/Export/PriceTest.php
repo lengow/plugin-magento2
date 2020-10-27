@@ -55,7 +55,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetPrices()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue(
             $this->_price,
             ['_priceExclTax', '_priceInclTax', '_priceBeforeDiscountExclTax', '_priceBeforeDiscountInclTax'],
@@ -83,7 +83,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetDiscounts()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue(
             $this->_price,
             ['_discountAmount', '_discountPercent', '_discountStartDate', '_discountEndDate'],
@@ -111,7 +111,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      */
     public function testClean()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue(
             $this->_price,
             [
@@ -171,7 +171,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetAllDiscounts()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
         $fixture->setPrivatePropertyValue($this->_price, ['_priceBeforeDiscountInclTax', '_priceInclTax'], [120, 120]);
         $this->assertInternalType(
@@ -214,7 +214,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetAllDiscountDates()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
         $productMock = $fixture->mockFunctions(
             $classMock,

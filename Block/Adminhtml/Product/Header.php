@@ -63,8 +63,7 @@ class Header extends Template
         ConfigHelper $configHelper,
         LengowExport $export,
         array $data = []
-    )
-    {
+    ) {
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_export = $export;

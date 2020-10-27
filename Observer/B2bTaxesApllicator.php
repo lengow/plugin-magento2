@@ -47,7 +47,8 @@ class B2bTaxesApllicator implements ObserverInterface
      * @param Observer $observer
      * @return void
      */
-    public function execute(Observer $observer) {
+    public function execute(Observer $observer)
+    {
         if ((bool)$this->backendSession->getIsFromlengow() && $this->backendSession->getIsLengowB2b() === 1) {
             $items = $observer->getEvent()->getQuote()->getAllVisibleItems();
             foreach ($items as $item) {

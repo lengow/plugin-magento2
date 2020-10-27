@@ -55,8 +55,7 @@ class MassPublish extends Product
         ProductBuilder $productBuilder,
         StoreManagerInterface $storeManager,
         ProductAction $productAction
-    )
-    {
+    ) {
         parent::__construct($context, $productBuilder);
         $this->_context = $context;
         $this->productBuilder = $productBuilder;

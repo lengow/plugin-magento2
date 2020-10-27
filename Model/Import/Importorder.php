@@ -400,8 +400,7 @@ class Importorder extends AbstractModel
         ImportHelper $importHelper,
         DataHelper $dataHelper,
         ConfigHelper $configHelper
-    )
-    {
+    ) {
         $this->_orderRepository = $orderRepository;
         $this->_addressRepository = $addressRepository;
         $this->_customerRepository = $customerRepository;
@@ -1443,10 +1442,11 @@ class Importorder extends AbstractModel
      *
      * @return string|null
      */
-    protected function getVatNumberFromOrderData() {
+    protected function getVatNumberFromOrderData()
+    {
         if (isset($this->_orderData->billing_address->vat_number)) {
             return $this->_orderData->billing_address->vat_number;
-        } else if (isset($this->_packageData->delivery->vat_number)) {
+        } elseif (isset($this->_packageData->delivery->vat_number)) {
             return $this->_packageData->delivery->vat_number;
         }
         return null;

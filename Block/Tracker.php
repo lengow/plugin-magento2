@@ -74,8 +74,7 @@ class Tracker extends Template
         JsonHelper $jsonHelper,
         ConfigHelper $configHelper,
         array $data = []
-    )
-    {
+    ) {
         parent::__construct($context, $data);
         $this->_checkoutSession = $checkoutSession;
         $this->_orderFactory = $orderFactory;

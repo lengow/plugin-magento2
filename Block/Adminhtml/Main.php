@@ -63,8 +63,7 @@ class Main extends Template
         ConfigHelper $configHelper,
         SyncHelper $syncHelper,
         array $data = []
-    )
-    {
+    ) {
         $this->_locale = $locale;
         $this->_configHelper = $configHelper;
         $this->_syncHelper = $syncHelper;

@@ -77,8 +77,7 @@ class SaveConfig
         DateTime $dateTime,
         DataHelper $dataHelper,
         ConfigHelper $configHelper
-    )
-    {
+    ) {
         $this->_dateTime = $dateTime;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;

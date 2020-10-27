@@ -181,8 +181,7 @@ class Quote extends MagentoQuote
         ProductFactory $productFactory,
         DataHelper $dataHelper,
         SecurityHelper $securityHelper
-    )
-    {
+    ) {
         $this->_taxCalculation = $taxCalculation;
         $this->_calculation = $calculation;
         $this->_productFactory = $productFactory;

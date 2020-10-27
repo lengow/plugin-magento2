@@ -46,8 +46,7 @@ class Store extends Column
         UiComponentFactory $uiComponentFactory,
         array $components = [],
         array $data = []
-    )
-    {
+    ) {
         $this->_storeManager = $storeManager;
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }

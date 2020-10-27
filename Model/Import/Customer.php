@@ -417,8 +417,7 @@ class Customer extends MagentoResourceCustomer
         RegionCollectionFactory $regionCollectionFactory,
         Random $mathRandom,
         EncryptorInterface $encryptor
-    )
-    {
+    ) {
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_storeManager = $storeManager;

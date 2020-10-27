@@ -56,7 +56,7 @@ class MainTest extends \PHPUnit_Framework_TestCase
      */
     public function testFreeTrialIsExpired()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $this->assertInternalType(
             'boolean',
             $this->_main->freeTrialIsExpired(),

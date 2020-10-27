@@ -260,8 +260,7 @@ class Product
         LengowShipping $shipping,
         LengowCategory $category,
         SecurityHelper $securityHelper
-    )
-    {
+    ) {
         $this->_productRepository = $productRepository;
         $this->_configurableProduct = $configurableProduct;
         $this->_stockRegistry = $stockRegistry;

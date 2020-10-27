@@ -56,7 +56,7 @@ class DashboardTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetNumberOrderToBeSent()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $this->assertFalse(
             $this->_dashboard->getNumberOrderToBeSent(),
             '[Test Get Number Order To Be Sent] Check if return is valid when statistics is empty'

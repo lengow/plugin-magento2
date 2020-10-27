@@ -25,7 +25,6 @@ use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
-
 class UpgradeData implements UpgradeDataInterface
 {
     /**

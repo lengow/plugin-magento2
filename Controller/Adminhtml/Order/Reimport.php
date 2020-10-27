@@ -49,8 +49,7 @@ class Reimport extends Action
         Context $context,
         MagentoOrderFactory $orderFactory,
         LengowOrderFactory $lengowOrderFactory
-    )
-    {
+    ) {
         $this->_orderFactory = $orderFactory;
         $this->_lengowOrderFactory = $lengowOrderFactory;
         parent::__construct($context);

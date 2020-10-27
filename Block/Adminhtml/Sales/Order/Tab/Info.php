@@ -91,8 +91,7 @@ class Info extends Template implements TabInterface
         LengowOrderFactory $lengowOrderFactory,
         LengowAction $action,
         array $data = []
-    )
-    {
+    ) {
         $this->_coreRegistry = $coreRegistry;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;

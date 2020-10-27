@@ -124,8 +124,7 @@ class Price
         CatalogueRule $catalogueRule,
         DateTime $dateTime,
         TimezoneInterface $timezone
-    )
-    {
+    ) {
         $this->_priceCurrency = $priceCurrency;
         $this->_catalogueRule = $catalogueRule;
         $this->_dateTime = $dateTime;

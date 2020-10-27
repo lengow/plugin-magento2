@@ -62,7 +62,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
      */
     public function testCheckWebserviceAccess()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $securityHelperMock = $fixture->mockFunctions($this->_securityHelper, ['checkToken', 'checkIp'], [true, false]);
         $configHelperMock = $fixture->mockFunctions($this->_configHelper, ['get'], [0]);
         $fixture->setPrivatePropertyValue($securityHelperMock, ['_configHelper'], [$configHelperMock]);
@@ -119,7 +119,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
      */
     public function testCheckToken()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $configHelperMock = $fixture->mockFunctions(
             $this->_configHelper,
             ['getToken'],
@@ -146,7 +146,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
      */
     public function testCheckIP()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $securityHelperMock = $fixture->mockFunctions(
             $this->_securityHelper,
             ['getAuthorizedIps', 'getRemoteIp'],
@@ -178,7 +178,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetAuthorizedIps()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $ipsLengow = $fixture->getPrivatePropertyValue($this->_securityHelper, '_ipsLengow');
         $configHelperMock = $this->getMockBuilder(get_class($this->_configHelper))
             ->setMethods(['get'])

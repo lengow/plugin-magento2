@@ -82,8 +82,7 @@ class Lengow extends AbstractCarrier implements CarrierInterface
         ResultFactory $rateResultFactory,
         MethodFactory $rateMethodFactory,
         array $data = []
-    )
-    {
+    ) {
         $this->_backendSession = $backendSession;
         $this->_checkoutSession = $checkoutSession;
         $this->_rateResultFactory = $rateResultFactory;

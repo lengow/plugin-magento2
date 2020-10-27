@@ -97,7 +97,7 @@ class OrderTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetOrderLineByApi()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
         $connectorMock = $fixture->mockFunctions($classMock, ['queryApi'], [null]);
         $fixture->setPrivatePropertyValue($this->_order, ['_connector'], [$connectorMock]);

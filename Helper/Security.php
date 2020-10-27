@@ -102,8 +102,7 @@ class Security extends AbstractHelper
         ModuleList $moduleList,
         ProductMetadata $productMetadata,
         ConfigHelper $configHelper
-    )
-    {
+    ) {
         $this->_serverAddress = $serverAddress;
         $this->_moduleList = $moduleList;
         $this->_productMetadata = $productMetadata;

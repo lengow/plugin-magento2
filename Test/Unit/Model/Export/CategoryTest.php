@@ -55,7 +55,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetCategoryBreadcrumb()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue(
             $this->_category,
             ['_categoryBreadcrumb'],
@@ -78,7 +78,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testClean()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue(
             $this->_category,
             ['_product', '_categoryBreadcrumb'],
@@ -100,7 +100,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetDefaultCategory()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
         $pathFilterMock = $fixture->mockFunctions($classMock, ['exportToArray'], [[]]);
         $categoryCollectionMock = $fixture->mockFunctions($classMock, ['addPathsFilter'], [$pathFilterMock]);
@@ -144,7 +144,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetBreadcrumb()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $categoryMock = $this->getMockBuilder(get_class($this->_category))
             ->setMethods(['_getName'])
             ->disableOriginalConstructor()
@@ -202,7 +202,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetName()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
         $storeMock = $fixture->mockFunctions($classMock, ['getId'], [1]);
         $categoryMock = $fixture->mockFunctions($classMock, ['getName'], ['Hoodies & Sweatshirts']);

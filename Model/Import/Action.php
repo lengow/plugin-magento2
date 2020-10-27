@@ -233,8 +233,7 @@ class Action extends AbstractModel
         LengowOrderErrorFactory $orderErrorFactory,
         LengowActionCollectionFactory $actionCollection,
         LengowActionFactory $actionFactory
-    )
-    {
+    ) {
         $this->_dateTime = $dateTime;
         $this->_timezone = $timezone;
         $this->_orderFactory = $orderFactory;
@@ -251,7 +250,7 @@ class Action extends AbstractModel
 
     /**
      * Initialize action model
-     **
+     *
      * @return void
      */
     protected function _construct()

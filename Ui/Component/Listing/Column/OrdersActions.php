@@ -78,8 +78,7 @@ class OrdersActions extends Column
         LengowAction $action,
         array $components = [],
         array $data = []
-    )
-    {
+    ) {
         $this->urlBuilder = $urlBuilder;
         $this->_orderRepository = $orderRepository;
         $this->_dataHelper = $dataHelper;

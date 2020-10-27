@@ -176,18 +176,18 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => true,
         ],
-        'last_plugin_data_update' => array(
+        'last_plugin_data_update' => [
             'path' => 'lengow_global_options/advanced/last_plugin_data_update',
             'global' => true,
             'export' => false,
             'no_cache' => true,
-        ),
-        'plugin_data' => array(
+        ],
+        'plugin_data' => [
             'path' => 'lengow_global_options/advanced/plugin_data',
             'global' => true,
             'export' => false,
             'no_cache' => true,
-        ),
+        ],
         'selection_enable' => [
             'path' => 'lengow_export_options/simple/export_selection_enable',
             'store' => true,
@@ -288,11 +288,11 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => false,
         ],
-        'import_b2b_without_tax' => array(
+        'import_b2b_without_tax' => [
             'path' => 'lengow_import_options/advanced/import_b2b_without_tax',
             'global' => true,
             'no_cache' => false,
-        ),
+        ],
         'debug_mode_enable' => [
             'path' => 'lengow_import_options/advanced/import_debug_mode_enable',
             'global' => true,
@@ -318,11 +318,11 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => true,
         ],
-        'last_action_sync' => array(
+        'last_action_sync' => [
             'path' => 'lengow_import_options/advanced/last_action_sync',
             'global' => true,
             'no_cache' => true,
-        ),
+        ],
     ];
 
     /**
@@ -364,8 +364,7 @@ class Config extends AbstractHelper
         ConfigDataCollectionFactory $configDataCollectionFactory,
         StoreCollectionFactory $storeCollectionFactory,
         SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory
-    )
-    {
+    ) {
         $this->_writerInterface = $writerInterface;
         $this->_cacheManager = $cacheManager;
         $this->_customerGroupCollectionFactory = $customerGroupCollectionFactory;
