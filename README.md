@@ -1,7 +1,7 @@
 # Lengow for Magento 2
 
 - **Requires at least:** 2.O
-- **Tested up to:** 2.3
+- **Tested up to:** 2.4
 - **Requires PHP:** 7.0
 - **Stable tag:** 1.2.3
 - **License:** OSL-3.0
