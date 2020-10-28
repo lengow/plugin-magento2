@@ -136,8 +136,7 @@ class Shipping
         ItemFactory $quoteItemFactory,
         PriceCurrency $priceCurrency,
         ConfigHelper $configHelper
-    )
-    {
+    ) {
         $this->_shippingFactory = $shippingFactory;
         $this->_carrierFactory = $carrierFactory;
         $this->_rateRequestFactory = $rateRequestFactory;

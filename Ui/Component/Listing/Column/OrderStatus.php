@@ -54,8 +54,7 @@ class OrderStatus extends Column
         DataHelper $dataHelper,
         array $components = [],
         array $data = []
-    )
-    {
+    ) {
         $this->_orderRepository = $orderRepository;
         $this->_dataHelper = $dataHelper;
         parent::__construct($context, $uiComponentFactory, $components, $data);

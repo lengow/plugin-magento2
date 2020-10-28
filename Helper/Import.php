@@ -106,8 +106,7 @@ class Import extends AbstractHelper
         DateTime $dateTime,
         LengowMarketplaceFactory $marketplaceFactory,
         LengowOrderFactory $lengowOrder
-    )
-    {
+    ) {
         $this->_urlBackend = $urlBackend;
         $this->_configHelper = $configHelper;
         $this->_dataHelper = $dataHelper;

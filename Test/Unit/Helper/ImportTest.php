@@ -76,7 +76,7 @@ class ImportTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetLastImport()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
 
         $configHelperMock = $this->getMockBuilder(get_class($classMock))
@@ -84,11 +84,16 @@ class ImportTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $configHelperMock->expects($this->any())->method('get')->willReturnOnConsecutiveCalls(
-            '1507715696', '',
-            '', '1507715696',
-            '', '',
-            '1507715696', '1507715697',
-            '1507715697', '1507715696'
+            '1507715696',
+            '',
+            '',
+            '1507715696',
+            '',
+            '',
+            '1507715696',
+            '1507715697',
+            '1507715697',
+            '1507715696'
         );
         $fixture->setPrivatePropertyValue($this->_importHelper, ['_configHelper'], [$configHelperMock]);
 
@@ -124,7 +129,7 @@ class ImportTest extends \PHPUnit_Framework_TestCase
      */
     public function testImportIsInProcess()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
 
         $configHelperMock = $this->getMockBuilder(get_class($classMock))
@@ -164,5 +169,4 @@ class ImportTest extends \PHPUnit_Framework_TestCase
             '[Test Get Last Import] Check if return import is in process or not 4'
         );
     }
-
 }

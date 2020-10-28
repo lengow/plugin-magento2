@@ -417,8 +417,7 @@ class Customer extends MagentoResourceCustomer
         RegionCollectionFactory $regionCollectionFactory,
         Random $mathRandom,
         EncryptorInterface $encryptor
-    )
-    {
+    ) {
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
         $this->_storeManager = $storeManager;
@@ -627,9 +626,9 @@ class Customer extends MagentoResourceCustomer
         if (empty($names['lastName']) && empty($names['firstName'])) {
             $names = $this->splitNames($names['fullName']);
         } else {
-            if (empty($names['lastName'])) {
+            if (empty($names['firstName'])) {
                 $names = $this->splitNames($names['lastName']);
-            } elseif (empty($names['firstName'])) {
+            } elseif (empty($names['lastName'])) {
                 $names = $this->splitNames($names['firstName']);
             }
         }

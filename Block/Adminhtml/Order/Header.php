@@ -49,8 +49,7 @@ class Header extends Template
         ConfigHelper $configHelper,
         ImportHelper $importHelper,
         array $data = []
-    )
-    {
+    ) {
         $this->_configHelper = $configHelper;
         $this->_importHelper = $importHelper;
         parent::__construct($context, $data);
@@ -75,5 +74,4 @@ class Header extends Template
     {
         return $this->_importHelper;
     }
-
 }

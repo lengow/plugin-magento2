@@ -79,8 +79,7 @@ class Index extends Action
         DataHelper $dataHelper,
         SyncHelper $syncHelper,
         LengowExport $export
-    )
-    {
+    ) {
         $this->_productAction = $productAction;
         $this->_resultJsonFactory = $resultJsonFactory;
         $this->_configHelper = $configHelper;

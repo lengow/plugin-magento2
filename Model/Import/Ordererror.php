@@ -85,8 +85,7 @@ class Ordererror extends AbstractModel
         DateTime $dateTime,
         LengowOrderErrorCollectionFactory $orderErrorCollection,
         LengowOrderErrorFactory $orderErrorFactory
-    )
-    {
+    ) {
         $this->_dateTime = $dateTime;
         $this->_orderErrorCollection = $orderErrorCollection;
         $this->_orderErrorFactory = $orderErrorFactory;
@@ -95,7 +94,7 @@ class Ordererror extends AbstractModel
 
     /**
      * Initialize ordererror model
-     **
+     *
      * @return void
      */
     protected function _construct()

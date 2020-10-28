@@ -151,9 +151,31 @@ class UpgradeSchema implements UpgradeSchemaInterface
                                 'default' => null,
                                 'after' => 'order_item',
                                 'comment' => 'Order Types',
-                            ]);
+                            ]
+                        );
                 }
 
+            }
+        }
+
+        if (version_compare($context->getVersion(), '1.2.3', '<')) {
+            $tableName = $setup->getTable('lengow_order');
+            if ((bool)$setup->getConnection()->showTableStatus($tableName)) {
+                $columnName = 'customer_vat_number';
+                if (!$setup->getConnection()->tableColumnExists($tableName, $columnName)) {
+                    $setup->getConnection()
+                        ->addColumn(
+                            $tableName,
+                            $columnName,
+                            [
+                                'type' => Table::TYPE_TEXT,
+                                'nullable' => true,
+                                'default' => null,
+                                'after' => 'total_paid',
+                                'comment' => 'Customer Vat Number'
+                            ]
+                        );
+                }
             }
         }
 

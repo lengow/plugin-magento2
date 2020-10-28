@@ -36,6 +36,7 @@ use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Model\Export\Feed as LengowFeed;
 use Lengow\Connector\Model\Export\FeedFactory as LengowFeedFactory;
 use Lengow\Connector\Model\Export\ProductFactory as LengowProductFactory;
+use Lengow\Connector\Helper\Security as SecurityHelper;
 
 /**
  * Lengow export
@@ -282,6 +283,11 @@ class Export
     protected $_getParams;
 
     /**
+     * @var SecurityHelper Lengow security helper instance
+     */
+    protected $securityHelper;
+
+    /**
      * Constructor
      *
      * @param StoreManagerInterface $storeManager Magento store manager instance
@@ -295,6 +301,7 @@ class Export
      * @param ConfigHelper $configHelper Lengow config helper instance
      * @param LengowFeedFactory $feedFactory Lengow feed factory instance
      * @param LengowProductFactory $productFactory Lengow product factory instance
+     * @param SecurityHelper $securityHelper Lengow security helper instance
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -307,7 +314,8 @@ class Export
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         LengowFeedFactory $feedFactory,
-        LengowProductFactory $productFactory
+        LengowProductFactory $productFactory,
+        SecurityHelper $securityHelper
     ) {
         $this->_storeManager = $storeManager;
         $this->_dateTime = $dateTime;
@@ -320,6 +328,7 @@ class Export
         $this->_configHelper = $configHelper;
         $this->_feedFactory = $feedFactory;
         $this->_productFactory = $productFactory;
+        $this->securityHelper = $securityHelper;
     }
 
     /**
@@ -694,6 +703,15 @@ class Export
         foreach ($selectedAttributes as $selectedAttribute) {
             if (!in_array($selectedAttribute, $fields)) {
                 $fields[] = $selectedAttribute;
+            }
+        }
+        if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')) {
+            $sources = $this->_configHelper->getAllSources();
+            // if multi-stock
+            if (count($sources) > 1) {
+                foreach ($sources as $source) {
+                    $fields[] = 'quantity_multistock_' . $source;
+                }
             }
         }
         return $fields;

@@ -100,8 +100,7 @@ class Content extends Template
         LengowOrder $lengowOrder,
         LengowExport $export,
         array $data = []
-    )
-    {
+    ) {
         $this->_moduleReader = $moduleReader;
         $this->_scheduleCollection = $scheduleCollection;
         $this->_dataHelper = $dataHelper;

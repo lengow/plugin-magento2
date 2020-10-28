@@ -153,8 +153,7 @@ class Marketplace extends AbstractModel
         SyncHelper $syncHelper,
         LengowAction $orderAction,
         LengowOrderErrorFactory $orderErrorFactory
-    )
-    {
+    ) {
         $this->_timezone = $timezone;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
@@ -588,7 +587,7 @@ class Marketplace extends AbstractModel
      */
     private function _cleanString($string)
     {
-        $cleanFilters = array(' ', '-', '_', '.');
+        $cleanFilters = [' ', '-', '_', '.'];
         return strtolower(str_replace($cleanFilters, '', trim($string)));
     }
 

@@ -257,6 +257,7 @@ class Order extends AbstractModel
         'order_types' => ['required' => true, 'updated' => false],
         'currency' => ['required' => false, 'updated' => true],
         'total_paid' => ['required' => false, 'updated' => true],
+        'customer_vat_number' => ['required' => true, 'updated' => true],
         'commission' => ['required' => false, 'updated' => true],
         'customer_name' => ['required' => false, 'updated' => true],
         'customer_email' => ['required' => false, 'updated' => true],
@@ -322,8 +323,7 @@ class Order extends AbstractModel
         LengowImportFactory $importFactory,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null
-    )
-    {
+    ) {
         $this->_orderFactory = $orderFactory;
         $this->_invoiceService = $invoiceService;
         $this->_transaction = $transaction;
@@ -348,7 +348,7 @@ class Order extends AbstractModel
 
     /**
      * Initialize order model
-     **
+     *
      * @return void
      */
     protected function _construct()
@@ -755,7 +755,7 @@ class Order extends AbstractModel
         if ($order->canShip()) {
             $shipment = $this->_convertOrder->toShipment($order);
             if ($shipment) {
-                foreach ($order->getAllItems() AS $orderItem) {
+                foreach ($order->getAllItems() as $orderItem) {
                     if (!$orderItem->getQtyToShip() || $orderItem->getIsVirtual()) {
                         continue;
                     }

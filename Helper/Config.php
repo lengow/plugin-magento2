@@ -32,6 +32,7 @@ use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Store\Api\Data\StoreInterface;
+use Magento\Framework\Api\SearchCriteriaBuilderFactory;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
 use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollectionFactory;
@@ -73,6 +74,11 @@ class Config extends AbstractHelper
      * @var EavConfig Magento eav config
      */
     protected $_eavConfig;
+
+    /**
+     * @var SearchCriteriaBuilderFactory Magento criteria builder factory
+     */
+    protected $searchCriteriaBuilderFactory;
 
     /**
      * @var array all Lengow options path
@@ -170,18 +176,18 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => true,
         ],
-        'last_plugin_data_update' => array(
+        'last_plugin_data_update' => [
             'path' => 'lengow_global_options/advanced/last_plugin_data_update',
             'global' => true,
             'export' => false,
             'no_cache' => true,
-        ),
-        'plugin_data' => array(
+        ],
+        'plugin_data' => [
             'path' => 'lengow_global_options/advanced/plugin_data',
             'global' => true,
             'export' => false,
             'no_cache' => true,
-        ),
+        ],
         'selection_enable' => [
             'path' => 'lengow_export_options/simple/export_selection_enable',
             'store' => true,
@@ -282,6 +288,11 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => false,
         ],
+        'import_b2b_without_tax' => [
+            'path' => 'lengow_import_options/advanced/import_b2b_without_tax',
+            'global' => true,
+            'no_cache' => false,
+        ],
         'debug_mode_enable' => [
             'path' => 'lengow_import_options/advanced/import_debug_mode_enable',
             'global' => true,
@@ -307,11 +318,11 @@ class Config extends AbstractHelper
             'global' => true,
             'no_cache' => true,
         ],
-        'last_action_sync' => array(
+        'last_action_sync' => [
             'path' => 'lengow_import_options/advanced/last_action_sync',
             'global' => true,
             'no_cache' => true,
-        ),
+        ],
     ];
 
     /**
@@ -341,6 +352,7 @@ class Config extends AbstractHelper
      * @param AttributeCollectionFactory $attributeCollectionFactory Magento Attribute factory instance
      * @param ConfigDataCollectionFactory $configDataCollectionFactory Magento config data factory instance
      * @param StoreCollectionFactory $storeCollectionFactory Magento store factory instance
+     * @param SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory Magento search criteria builder instance
      */
     public function __construct(
         Context $context,
@@ -350,9 +362,9 @@ class Config extends AbstractHelper
         EavConfig $eavConfig,
         AttributeCollectionFactory $attributeCollectionFactory,
         ConfigDataCollectionFactory $configDataCollectionFactory,
-        StoreCollectionFactory $storeCollectionFactory
-    )
-    {
+        StoreCollectionFactory $storeCollectionFactory,
+        SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory
+    ) {
         $this->_writerInterface = $writerInterface;
         $this->_cacheManager = $cacheManager;
         $this->_customerGroupCollectionFactory = $customerGroupCollectionFactory;
@@ -360,6 +372,7 @@ class Config extends AbstractHelper
         $this->_attributeCollectionFactory = $attributeCollectionFactory;
         $this->_configDataCollectionFactory = $configDataCollectionFactory;
         $this->_storeCollectionFactory = $storeCollectionFactory;
+        $this->searchCriteriaBuilderFactory = $searchCriteriaBuilderFactory;
         parent::__construct($context);
     }
 
@@ -600,6 +613,27 @@ class Config extends AbstractHelper
             $storeIds[] = $store->getId();
         }
         return $storeIds;
+    }
+
+    /**
+     * Get all sources options
+     *
+     * @return mixed
+     */
+    public function getAllSources()
+    {
+        $options = [];
+        /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
+        $searchCriteriaBuilder = $this->searchCriteriaBuilderFactory->create();
+        $searchCriteria = $searchCriteriaBuilder->create();
+        // We use object manager here because SourceRepositoryInterface is only available for version >= 2.3
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $sourceRepository = $objectManager->create('Magento\InventoryApi\Api\SourceRepositoryInterface');
+        $sources = $sourceRepository->getList($searchCriteria)->getItems();
+        foreach ($sources as $source) {
+            $options[] = $source->getSourceCode();
+        }
+        return $options;
     }
 
     /**

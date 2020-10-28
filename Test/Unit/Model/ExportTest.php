@@ -69,7 +69,7 @@ class ExportTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetFields()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $selectedAttributes = ['meta_description', 'meta_keyword', 'meta_title', 'minimal_price', 'size'];
         $defaultFields = $fixture->getPrivatePropertyValue($this->_export, '_defaultFields');
         $fieldsMock = [];
@@ -100,7 +100,7 @@ class ExportTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetFormat()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $this->assertEquals(
             'csv',
             $fixture->invokeMethod($this->_export, '_setFormat', ['csv']),
@@ -133,7 +133,7 @@ class ExportTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetProductIds()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $this->assertEquals(
             [],
             $fixture->invokeMethod($this->_export, '_setProductIds', [false]),
@@ -156,7 +156,7 @@ class ExportTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetProductTypes()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $configHelperMock = $fixture->mockFunctions(
             $this->_configHelper,
             ['get'],
@@ -185,7 +185,7 @@ class ExportTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetLogOutput()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_export, ['_stream'], [false]);
         $this->assertTrue(
             $fixture->invokeMethod($this->_export, '_setLogOutput', [true]),
@@ -211,7 +211,7 @@ class ExportTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetCurrency()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $storeMock = $fixture->mockFunctions(
             $this->_store,
             ['getAvailableCurrencyCodes', 'getCurrentCurrencyCode'],
@@ -240,7 +240,7 @@ class ExportTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetType()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $this->assertEquals(
             'manual',
             $fixture->invokeMethod($this->_export, '_setType', ['manual']),
@@ -275,7 +275,7 @@ class ExportTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetProductModulo()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $this->assertInternalType(
             'integer',
             $fixture->invokeMethod($this->_export, '_getProductModulo', [1000]),
@@ -298,7 +298,7 @@ class ExportTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetMaxCharacterSize()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fields = ['id', 'name', 'child_name', 'active', 'price_before_discount_excl_tax', 'shipping_method', 'type'];
         $this->assertInternalType(
             'integer',
@@ -317,7 +317,7 @@ class ExportTest extends \PHPUnit_Framework_TestCase
      */
     public function testMicrotimeFloat()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $this->assertInternalType(
             'float',
             $fixture->invokeMethod($this->_export, '_microtimeFloat'),

@@ -95,8 +95,7 @@ class Grid extends Extended
         SourceType $sourceType,
         DataHelper $dataHelper,
         array $data = []
-    )
-    {
+    ) {
         $this->_collectionFactory = $collectionFactory;
         $this->_sourceType = $sourceType;
         $this->_attributeSetOptions = $attributeSetOptions;

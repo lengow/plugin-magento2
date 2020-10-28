@@ -55,7 +55,7 @@ class MarketplaceTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetStateLengow()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_marketplace, ['statesLengow'], [['Shipped' => 'shipped']]);
         $this->assertInternalType(
             'string',
@@ -80,7 +80,7 @@ class MarketplaceTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetDefaultValue()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $this->assertFalse(
             $this->_marketplace->getDefaultValue('carrier'),
             '[Test Get Default Value] Check if return is a false when argument is empty'
@@ -114,7 +114,7 @@ class MarketplaceTest extends \PHPUnit_Framework_TestCase
      */
     public function testContainOrderLine()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $actions = [
             'ship' => [
                 'args' => ['carrier' => 'carrier', 'line' => 'line'],
@@ -160,7 +160,7 @@ class MarketplaceTest extends \PHPUnit_Framework_TestCase
      */
     public function testMatchCarrier()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $this->assertInternalType(
             'string',
             $fixture->invokeMethod($this->_marketplace, '_matchCarrier', ['custom', 'my carrier']),
@@ -210,7 +210,7 @@ class MarketplaceTest extends \PHPUnit_Framework_TestCase
      */
     public function testCleanString()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $this->assertInternalType(
             'string',
             $fixture->invokeMethod($this->_marketplace, '_cleanString', ['custom']),
@@ -228,7 +228,7 @@ class MarketplaceTest extends \PHPUnit_Framework_TestCase
      */
     public function testSearchValue()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $this->assertInternalType(
             'boolean',
             $fixture->invokeMethod($this->_marketplace, '_searchValue', ['custom', 'custom']),

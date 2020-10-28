@@ -68,8 +68,7 @@ class Header extends Template
         SecurityHelper $securityHelper,
         SyncHelper $syncHelper,
         array $data = []
-    )
-    {
+    ) {
         $this->_configHelper = $configHelper;
         $this->_securityHelper = $securityHelper;
         $this->_syncHelper = $syncHelper;

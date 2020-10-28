@@ -57,8 +57,7 @@ class Synchronize extends Action
         DataHelper $dataHelper,
         LengowOrder $lengowOrder,
         LengowOrderFactory $lengowOrderFactory
-    )
-    {
+    ) {
         $this->_dataHelper = $dataHelper;
         $this->_lengowOrder = $lengowOrder;
         $this->_lengowOrderFactory = $lengowOrderFactory;

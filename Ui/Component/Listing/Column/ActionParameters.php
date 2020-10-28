@@ -39,8 +39,7 @@ class ActionParameters extends Column
         UiComponentFactory $uiComponentFactory,
         array $components = [],
         array $data = []
-    )
-    {
+    ) {
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 

@@ -126,8 +126,7 @@ class Data extends AbstractHelper
         TimezoneInterface $timezone,
         LengowLogFactory $logFactory,
         ConfigHelper $configHelper
-    )
-    {
+    ) {
         $this->_storeManager = $storeManager;
         $this->_directoryList = $directoryList;
         $this->_resource = $resource;
@@ -295,7 +294,8 @@ class Data extends AbstractHelper
     {
         $date = $this->_timezone->date($timestamp);
         $pattern = $second ? 'EEEE d MMMM y @ HH:mm:ss' : 'EEEE d MMMM y @ HH:mm';
-        return $this->_timezone->formatDateTime($date,
+        return $this->_timezone->formatDateTime(
+            $date,
             \IntlDateFormatter::FULL,
             \IntlDateFormatter::FULL,
             null,

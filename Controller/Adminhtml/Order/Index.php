@@ -87,8 +87,7 @@ class Index extends Action
         DataHelper $dataHelper,
         LengowImport $import,
         LengowOrderFactory $lengowOrderFactory
-    )
-    {
+    ) {
         $this->_storeManager = $storeManager;
         $this->_resultJsonFactory = $resultJsonFactory;
         $this->_syncHelper = $syncHelper;

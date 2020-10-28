@@ -82,8 +82,7 @@ class Index extends Action
         SyncHelper $syncHelper,
         LengowImport $import,
         LengowAction $action
-    )
-    {
+    ) {
         $this->_jsonHelper = $jsonHelper;
         $this->_securityHelper = $securityHelper;
         $this->_configHelper = $configHelper;

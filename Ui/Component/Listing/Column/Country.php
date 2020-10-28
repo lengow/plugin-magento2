@@ -54,8 +54,7 @@ class Country extends Column
         UiComponentFactory $uiComponentFactory,
         array $components = [],
         array $data = []
-    )
-    {
+    ) {
         $this->_assetRepo = $assetRepo;
         $this->_countryFactory = $countryFactory;
         parent::__construct($context, $uiComponentFactory, $components, $data);

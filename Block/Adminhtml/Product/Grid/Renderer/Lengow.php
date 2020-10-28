@@ -51,8 +51,7 @@ class Lengow extends AbstractRenderer
         BackendHelper $backendHelper,
         DataHelper $dataHelper,
         array $data = []
-    )
-    {
+    ) {
         $this->_backendHelper = $backendHelper;
         $this->_dataHelper = $dataHelper;
         parent::__construct($context, $data);

@@ -86,8 +86,7 @@ class InstallData implements InstallDataInterface
         AttributeSetFactory $attributeSetFactory,
         ObjectManagerInterface $objectManager,
         ConfigHelper $configHelper
-    )
-    {
+    ) {
         $this->_eavSetupFactory = $eavSetupFactory;
         $this->_customerSetupFactory = $customerSetupFactory;
         $this->_salesSetupFactory = $salesSetupFactory;

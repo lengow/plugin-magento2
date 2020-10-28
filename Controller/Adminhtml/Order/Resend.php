@@ -50,8 +50,7 @@ class Resend extends Action
         Context $context,
         MagentoOrderFactory $orderFactory,
         LengowOrder $lengowOrder
-    )
-    {
+    ) {
         $this->_orderFactory = $orderFactory;
         $this->_lengowOrder = $lengowOrder;
         parent::__construct($context);

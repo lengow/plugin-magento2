@@ -69,7 +69,7 @@ class SyncTest extends \PHPUnit_Framework_TestCase
      */
     public function testIsSyncAction()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue(
             $this->_syncHelper,
             ['_syncActions'],
@@ -95,7 +95,7 @@ class SyncTest extends \PHPUnit_Framework_TestCase
      */
     public function testPluginIsBlocked()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
         $configHelperMock = $fixture->mockFunctions($classMock, ['isNewMerchant'], [true]);
         $fixture->setPrivatePropertyValue($this->_syncHelper, ['_configHelper'], [$configHelperMock]);
@@ -138,7 +138,7 @@ class SyncTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetStatusAccount()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
         $configHelperMock = $fixture->mockFunctions($classMock, ['isNewMerchant'], [true]);
         $fixture->setPrivatePropertyValue(

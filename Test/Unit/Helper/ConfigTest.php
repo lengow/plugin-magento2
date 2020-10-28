@@ -179,7 +179,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
      */
     public function testIsNewMerchant()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $configHelperMock = $fixture->mockFunctions($this->_configHelper, ['getAccessIds'], [[null, null, null]]);
         $this->assertInternalType(
             'boolean',

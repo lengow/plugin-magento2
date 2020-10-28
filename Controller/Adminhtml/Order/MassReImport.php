@@ -47,8 +47,7 @@ class MassReImport extends Action
         Context $context,
         DataHelper $dataHelper,
         LengowOrderFactory $orderFactory
-    )
-    {
+    ) {
         $this->_dataHelper = $dataHelper;
         $this->_orderFactory = $orderFactory;
         parent::__construct($context);

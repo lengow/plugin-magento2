@@ -91,8 +91,7 @@ class Info extends Template implements TabInterface
         LengowOrderFactory $lengowOrderFactory,
         LengowAction $action,
         array $data = []
-    )
-    {
+    ) {
         $this->_coreRegistry = $coreRegistry;
         $this->_dataHelper = $dataHelper;
         $this->_configHelper = $configHelper;
@@ -318,6 +317,10 @@ class Info extends Template implements TabInterface
             $fields[] = [
                 'label' => __('Message'),
                 'value' => $this->_lengowOrder->getData('message'),
+            ];
+            $fields[] = [
+                'label' => ('Vat number'),
+                'value' => $this->_lengowOrder->getData('customer_vat_number'),
             ];
             $fields[] = [
                 'label' => __('Imported at'),

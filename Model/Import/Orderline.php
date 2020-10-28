@@ -65,8 +65,7 @@ class Orderline extends AbstractModel
         Registry $registry,
         DataHelper $dataHelper,
         LengowOrderLineCollectionFactory $orderLineCollectionFactory
-    )
-    {
+    ) {
         parent::__construct($context, $registry);
         $this->_dataHelper = $dataHelper;
         $this->_orderLineCollectionFactory = $orderLineCollectionFactory;
@@ -74,7 +73,7 @@ class Orderline extends AbstractModel
 
     /**
      * Initialize orderline model
-     **
+     *
      * @return void
      */
     protected function _construct()

@@ -41,8 +41,7 @@ class Refresh extends Action
     public function __construct(
         Context $context,
         SyncHelper $syncHelper
-    )
-    {
+    ) {
         $this->_syncHelper = $syncHelper;
         parent::__construct($context);
     }

@@ -29,7 +29,6 @@ use Lengow\Connector\Model\Export\Product;
 use Lengow\Connector\Test\Unit\Fixture;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
-
 class ProductTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -98,7 +97,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
      */
     public function testIsEnableForExport()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['configurable']);
         $this->assertTrue(
             $this->_product->isEnableForExport(),
@@ -140,7 +139,6 @@ class ProductTest extends \PHPUnit_Framework_TestCase
             $this->_product->isEnableForExport(),
             '[Test Is Enable For Export] Check if return is valid for a child product with disable parent'
         );
-
     }
 
     /**
@@ -148,7 +146,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetCounters()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue(
             $this->_product,
             [
@@ -187,7 +185,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
      */
     public function testClean()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
         $priceMock = $fixture->mockFunctions($classMock, ['clean'], [true]);
         $shippingMock = $fixture->mockFunctions($classMock, ['clean'], [true]);
@@ -273,7 +271,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetCounter()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['simple']);
         $fixture->invokeMethod($this->_product, '_setCounter');
         $this->assertEquals(
@@ -316,7 +314,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetParentProduct()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['virtual']);
         $this->assertEquals(
             null,
@@ -389,7 +387,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetConfigurableProduct()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_product, ['_cacheConfigurableProducts'], [[123 => 'plop']]);
         $this->assertEquals(
             'plop',
@@ -445,7 +443,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetImages()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $storeMock = $fixture->mockFunctions($this->_store, ['getId'], [1]);
         $configHelperMock = $fixture->mockFunctions($this->_configHelper, ['get'], [null]);
         $collectionMock = $fixture->mockFunctions(
@@ -689,7 +687,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetVariationList()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $collectionMock = $fixture->mockFunctions(
             $this->_collection,
             ['getConfigurableAttributesAsArray'],
@@ -765,7 +763,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetChildrenIds()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $collectionMock = $fixture->mockFunctions(
             $this->_collection,
             ['getChildrenIds'],
@@ -818,7 +816,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetQuantity()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
         $storeMock = $fixture->mockFunctions($this->_store, ['getId'], [1]);
         $productMock = $fixture->mockFunctions($this->_product, ['getId'], [5]);
@@ -880,7 +878,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetAttributeValue()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $productMock = $fixture->mockFunctions($this->_product, ['getData'], [null]);
         $fixture->setPrivatePropertyValue($this->_product, ['_product'], [$productMock]);
         $this->assertEquals(
@@ -913,7 +911,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetGroupedPricesAndDiscounts()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
         $fixture->setPrivatePropertyValue($this->_product, ['_childrenIds'], [[]]);
         $this->assertEquals(

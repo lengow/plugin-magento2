@@ -42,8 +42,7 @@ class Footer extends Template
         Context $context,
         SecurityHelper $securityHelper,
         array $data = []
-    )
-    {
+    ) {
         $this->_securityHelper = $securityHelper;
         parent::__construct($context, $data);
     }

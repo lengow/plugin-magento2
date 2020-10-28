@@ -62,8 +62,7 @@ class TotalPaid extends Column
         DataHelper $dataHelper,
         array $components = [],
         array $data = []
-    )
-    {
+    ) {
         $this->_storeManager = $storeManager;
         $this->_currencyFactory = $currencyFactory;
         $this->_dataHelper = $dataHelper;

@@ -56,7 +56,7 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testFreeTrialIsEnabled()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $this->assertInternalType(
             'boolean',
             $this->_header->freeTrialIsEnabled(),
@@ -109,7 +109,7 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetFreeTrialDays()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
         $this->assertInternalType(
             'integer',
             $this->_header->getFreeTrialDays(),

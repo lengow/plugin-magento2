@@ -76,7 +76,7 @@ class CustomerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetNames()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
 
         $values = ['firstname' => 'first_name', 'lastname' => 'last_name', 'fullname' => 'full_name'];
         $this->assertEquals(
@@ -126,7 +126,7 @@ class CustomerTest extends \PHPUnit_Framework_TestCase
      */
     public function testSplitNames()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
 
         $this->assertEquals(
             ['firstname' => 'hihi', 'lastname' => ''],
@@ -152,7 +152,7 @@ class CustomerTest extends \PHPUnit_Framework_TestCase
      */
     public function testConvertAddress()
     {
-        $fixture = New Fixture();
+        $fixture = new Fixture();
 
         $address = $this->_objectManager->getObject(Address::class);
         $region = $this->_objectManager->getObject(Region::class);
@@ -174,7 +174,9 @@ class CustomerTest extends \PHPUnit_Framework_TestCase
             ->method('getFirstItem')
             ->will($this->returnValue($regionMock));
         $fixture->setPrivatePropertyValue(
-            $this->_customer, ['_addressFactory', '_regionCollection'], [$addressFactoryMock, $regionCollectionMock]
+            $this->_customer,
+            ['_addressFactory', '_regionCollection'],
+            [$addressFactoryMock, $regionCollectionMock]
         );
 
         $address1 = [
@@ -200,7 +202,5 @@ class CustomerTest extends \PHPUnit_Framework_TestCase
             $fixture->invokeMethod($this->_customer, '_convertAddress', [$address1]),
             '[Test _convertAddress] @return \Magento\Customer\Model\Address'
         );
-
     }
-
 }
