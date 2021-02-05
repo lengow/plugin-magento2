@@ -32,7 +32,6 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use Magento\Framework\Module\Manager as ModuleManager;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
@@ -80,11 +79,6 @@ class Config extends AbstractHelper
      * @var SearchCriteriaBuilderFactory Magento criteria builder factory
      */
     protected $searchCriteriaBuilderFactory;
-
-    /**
-     * @var ModuleManager Magento module manager instance
-     */
-    protected $moduleManager;
 
     /**
      * @var array all Lengow options path
@@ -359,7 +353,6 @@ class Config extends AbstractHelper
      * @param ConfigDataCollectionFactory $configDataCollectionFactory Magento config data factory instance
      * @param StoreCollectionFactory $storeCollectionFactory Magento store factory instance
      * @param SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory Magento search criteria builder instance
-     * @param ModuleManager $moduleManager Magento module manager instance
      */
     public function __construct(
         Context $context,
@@ -370,8 +363,7 @@ class Config extends AbstractHelper
         AttributeCollectionFactory $attributeCollectionFactory,
         ConfigDataCollectionFactory $configDataCollectionFactory,
         StoreCollectionFactory $storeCollectionFactory,
-        SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory,
-        ModuleManager $moduleManager
+        SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory
     ) {
         $this->_writerInterface = $writerInterface;
         $this->_cacheManager = $cacheManager;
@@ -381,7 +373,6 @@ class Config extends AbstractHelper
         $this->_configDataCollectionFactory = $configDataCollectionFactory;
         $this->_storeCollectionFactory = $storeCollectionFactory;
         $this->searchCriteriaBuilderFactory = $searchCriteriaBuilderFactory;
-        $this->moduleManager = $moduleManager;
         parent::__construct($context);
     }
 
@@ -854,6 +845,6 @@ class Config extends AbstractHelper
      */
     public function moduleIsEnabled($moduleName)
     {
-        return $this->moduleManager->isEnabled($moduleName);
+        return $this->_moduleManager->isEnabled($moduleName);
     }
 }

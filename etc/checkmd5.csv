@@ -46,7 +46,7 @@
 /etc/adminhtml/system.xml|4df9a438bc75a573ce07fc74a09e436f
 /etc/adminhtml/routes.xml|b37d51a18bc54f5a872c9797ed06ed5d
 /etc/crontab.xml|ca97f746162b6bd4441d34475c9b0103
-/Helper/Config.php|56856927a4e82fc09c568e1ad7abcc6c
+/Helper/Config.php|0d607608e206d775b29edfae07f63b6b
 /Helper/Data.php|b068e4192619bf0da333d20ffdb90d48
 /Helper/Sync.php|fe4d6c999ad60e9cc51f5e32562611f1
 /Helper/Security.php|a7b001b5728cb2e4e113281edf8b8227
