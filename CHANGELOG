@@ -2,7 +2,7 @@
 Version 1.2.4
 =============================================================
 
-
+    - BugFix: [export] Adding a check on the configurable product type
 
 =============================================================
 Version 1.2.3

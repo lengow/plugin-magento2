@@ -66,7 +66,7 @@
 /Model/Export/Feed.php|1b564f9da84d99292a19c7f436a7a175
 /Model/Export/Category.php|b30f506e58103979c49e9bead2ab528a
 /Model/Export/Shipping.php|732fc8f84b1920b824754ea91294ee16
-/Model/Export/Product.php|8913d1cb843c55d6ad61c2a20d48f94c
+/Model/Export/Product.php|0dc8929d6d602cb8215ce2b3cf22b8bf
 /Model/Export/File.php|10a690ba3237fc3c6cd4be7d57db888e
 /Model/ResourceModel/Orderline.php|3f668e6e192780a17847a5ecb354374e
 /Model/ResourceModel/Ordererror.php|1d8ded0f9c697219c95c3922d8ad00ed
