@@ -704,7 +704,9 @@ class Product
      */
     protected function _getQuantity()
     {
-        if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')) {
+        if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')
+            && $this->_configHelper->moduleIsEnabled('Magento_Inventory')
+        ) {
             // Check if product is multi-stock
             $res = $this->getSourceItemDetailBySKU($this->_product->getSku());
             // if multi-stock, return total of all stock quantities
