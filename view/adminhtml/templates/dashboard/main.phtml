@@ -1,0 +1,17 @@
+<?php
+/**
+ * Copyright 2017 Lengow SAS
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+/** @var Lengow\Connector\Block\Adminhtml\Main $block */
+?>
+<input type="hidden" id="lengow_url" value="<?= $block->getLengowUrl() ?>">
+<?= $block->getChildHtml('lengow_header') ?>
+<?php if ($block->freeTrialIsExpired()): ?>
+    <?= $block->getChildHtml('lengow_home_free_trial') ?>
+<?php else:?>
+    <?= $block->getChildHtml('lengow_dashboard_content') ?>
+<?php endif ?>
+<?= $block->getChildHtml('lengow_footer') ?>

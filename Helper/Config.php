@@ -468,17 +468,48 @@ class Config extends AbstractHelper
      * Set Valid Account id / Access token / Secret token
      *
      * @param array $accessIds Account id / Access token / Secret token
+     *
+     * @return bool
      */
     public function setAccessIds($accessIds)
     {
+        $count = 0;
         $listKey = ['account_id', 'access_token', 'secret_token'];
         foreach ($accessIds as $key => $value) {
-            if (!in_array($key, array_keys($listKey))) {
+            if (!in_array($key, $listKey, true)) {
                 continue;
             }
-            if (strlen($value) > 0) {
+            if ($value !== '') {
+                $count++;
                 $this->set($key, $value);
             }
+        }
+        return $count === count($listKey);
+    }
+
+    /**
+     * Reset access ids
+     */
+    public function resetAccessIds()
+    {
+        $accessIds = ['account_id', 'access_token', 'secret_token'];
+        foreach ($accessIds as $accessId) {
+            $value = $this->get($accessId);
+            if ($value !== '') {
+                $this->set($accessId, '');
+            }
+        }
+    }
+
+    /**
+     * Delete catalog ID and disable store
+     */
+    public function resetCatalogIds()
+    {
+        $lengowActiveStores = $this->getLengowActiveStores();
+        foreach ($lengowActiveStores as $store) {
+            $this->set('catalog_id', '', $store->getId());
+            $this->set('store_enable', false, $store->getId());
         }
     }
 
@@ -503,6 +534,24 @@ class Config extends AbstractHelper
             }
         }
         return $catalogIds;
+    }
+
+    /**
+     * Get list of Magento stores that have been activated in Lengow
+     *
+     * @return array
+     */
+    public function getLengowActiveStores()
+    {
+        $lengowActiveStores = [];
+        $storeCollection = $this->_storeCollectionFactory->create()->load()->addFieldToFilter('is_active', 1);
+        foreach ($storeCollection as $store) {
+            // get Lengow config for this store
+            if ($this->storeIsActive((int)$store->getId())) {
+                $lengowActiveStores[] = $store;
+            }
+        }
+        return $lengowActiveStores;
     }
 
     /**
@@ -731,7 +780,7 @@ class Config extends AbstractHelper
     public function getToken($storeId = 0)
     {
         $token = $this->get('token', $storeId);
-        if ($token && strlen($token) > 0) {
+        if ($token && $token !== '') {
             return $token;
         } else {
             $token = bin2hex(openssl_random_pseudo_bytes(16));

@@ -26,6 +26,7 @@ use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Serialize\Serializer\Json as JsonHelper;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Convert\Order as ConvertOrder;
 use Magento\Sales\Model\Order as MagentoOrder;
@@ -167,6 +168,11 @@ class Order extends AbstractModel
     protected $_convertOrder;
 
     /**
+     * @var JsonHelper Magento json helper
+     */
+    protected $jsonHelper;
+
+    /**
      * @var TrackFactory Magento shipment track instance
      */
     protected $_trackFactory;
@@ -283,6 +289,7 @@ class Order extends AbstractModel
      * @param DateTime $dateTime Magento datetime instance
      * @param ConvertOrder $convertOrder Magento convert order instance
      * @param TrackFactory $trackFactory Magento shipment track factory instance
+     * @param JsonHelper $jsonHelper Magento json helper
      * @param DataHelper $dataHelper Lengow data helper instance
      * @param ImportHelper $importHelper Lengow import helper instance
      * @param ConfigHelper $configHelper Lengow config helper instance
@@ -308,6 +315,7 @@ class Order extends AbstractModel
         DateTime $dateTime,
         ConvertOrder $convertOrder,
         TrackFactory $trackFactory,
+        JsonHelper $jsonHelper,
         DataHelper $dataHelper,
         ImportHelper $importHelper,
         ConfigHelper $configHelper,
@@ -330,6 +338,7 @@ class Order extends AbstractModel
         $this->_dateTime = $dateTime;
         $this->_convertOrder = $convertOrder;
         $this->_trackFactory = $trackFactory;
+        $this->jsonHelper = $jsonHelper;
         $this->_dataHelper = $dataHelper;
         $this->_importHelper = $importHelper;
         $this->_configHelper = $configHelper;
@@ -1202,16 +1211,17 @@ class Order extends AbstractModel
                 $magentoIds[] = (int)$orderId['order_id'];
             }
             try {
+                $body = [
+                    'account_id' => $accountId,
+                    'marketplace_order_id' => $lengowOrder->getData('marketplace_sku'),
+                    'marketplace' => $lengowOrder->getData('marketplace_name'),
+                    'merchant_order_id' => $magentoIds,
+                ];
                 $result = $this->_connector->patch(
                     LengowConnector::API_ORDER_MOI,
-                    [
-                        'account_id' => $accountId,
-                        'marketplace_order_id' => $lengowOrder->getData('marketplace_sku'),
-                        'marketplace' => $lengowOrder->getData('marketplace_name'),
-                        'merchant_order_id' => $magentoIds,
-                    ],
+                    [],
                     LengowConnector::FORMAT_JSON,
-                    '',
+                    $this->jsonHelper->serialize($body, true),
                     $logOutput
                 );
             } catch (\Exception $e) {

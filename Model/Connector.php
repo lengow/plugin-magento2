@@ -81,6 +81,16 @@ class Connector
     const API_PLUGIN = '/v3.0/plugins';
 
     /**
+     * @var string url of cms catalog API
+     */
+    const API_CMS_CATALOG = '/v3.1/cms/catalogs/';
+
+    /**
+     * @var string url of cms mapping API
+     */
+    const API_CMS_MAPPING = '/v3.1/cms/mapping/';
+
+    /**
      * @var string request GET
      */
     const GET = 'GET';
@@ -197,6 +207,17 @@ class Connector
         self::API_PLAN => 5,
         self::API_CMS => 5,
         self::API_PLUGIN => 5,
+        self::API_CMS_CATALOG => 10,
+        self::API_CMS_MAPPING => 10,
+    ];
+
+    /**
+     * @var array API requiring no arguments in the call url
+     */
+    protected $apiWithoutUrlArgs = [
+        self::API_ACCESS_TOKEN,
+        self::API_ORDER_ACTION,
+        self::API_ORDER_MOI,
     ];
 
     /**
@@ -542,43 +563,30 @@ class Connector
         }
         $opts[CURLOPT_HEADER] = false;
         $opts[CURLOPT_VERBOSE] = false;
-        if (isset($token)) {
+        if (!empty($token)) {
             $opts[CURLOPT_HTTPHEADER] = ['Authorization: ' . $token];
         }
-        $url = $url['scheme'] . '://' . $url['host'] . $url['path'];
-        switch ($type) {
-            case self::GET:
-                $opts[CURLOPT_URL] = $url . (!empty($args) ? '?' . http_build_query($args) : '');
-                break;
-            case self::PUT:
-                if (isset($token)) {
-                    $opts[CURLOPT_HTTPHEADER] = array_merge(
-                        $opts[CURLOPT_HTTPHEADER],
-                        [
-                            'Content-Type: application/json',
-                            'Content-Length: ' . strlen($body),
-                        ]
-                    );
-                }
-                $opts[CURLOPT_URL] = $url . '?' . http_build_query($args);
+        // get call url with the mandatory parameters
+        $opts[CURLOPT_URL] = $url['scheme'] . '://' . $url['host'] . $url['path'];
+        if (!empty($args) && ($type === self::GET || !in_array($api, $this->apiWithoutUrlArgs, true))) {
+            $opts[CURLOPT_URL] .= '?' . http_build_query($args);
+        }
+        if ($type !== self::GET) {
+            if (!empty($body)) {
+                // sending data in json format for new APIs
+                $opts[CURLOPT_HTTPHEADER] = array_merge(
+                    $opts[CURLOPT_HTTPHEADER],
+                    [
+                        'Content-Type: application/json',
+                        'Content-Length: ' . strlen($body),
+                    ]
+                );
                 $opts[CURLOPT_POSTFIELDS] = $body;
-                break;
-            case self::PATCH:
-                if (isset($token)) {
-                    $opts[CURLOPT_HTTPHEADER] = array_merge(
-                        $opts[CURLOPT_HTTPHEADER],
-                        ['Content-Type: application/json']
-                    );
-                }
-                $opts[CURLOPT_URL] = $url;
-                $opts[CURLOPT_POST] = count($args);
-                $opts[CURLOPT_POSTFIELDS] = json_encode($args);
-                break;
-            default:
-                $opts[CURLOPT_URL] = $url;
+            } else {
+                // sending data in string format for legacy APIs
                 $opts[CURLOPT_POST] = count($args);
                 $opts[CURLOPT_POSTFIELDS] = http_build_query($args);
-                break;
+            }
         }
         $this->_dataHelper->log(
             DataHelper::CODE_CONNECTOR,
@@ -625,7 +633,7 @@ class Connector
             if (!in_array($httpCode, $this->_successCodes)) {
                 $result = $this->_format($result);
                 // recovery of Lengow Api errors
-                if (isset($result['error'])) {
+                if (isset($result['error']['message'])) {
                     throw new LengowException($result['error']['message'], $httpCode);
                 } else {
                     throw new LengowException(
@@ -654,5 +662,38 @@ class Connector
             case self::FORMAT_JSON:
                 return json_decode($data, true);
         }
+    }
+
+    /**
+     * Get the account id from the API
+     *
+     * @param string $accessToken Lengow api access token
+     * @param string $secret Lengow api secret token
+     * @param false $logOutput should log ouput
+     *
+     * @return int|null
+     */
+    public function getAccountIdByCredentials($accessToken, $secret, $logOutput = false)
+    {
+        $this->init(['access_token' => $accessToken, 'secret' => $secret]);
+        try {
+            $data = $this->_callAction(
+                self::API_ACCESS_TOKEN,
+                [
+                    'access_token' => $accessToken,
+                    'secret' => $secret,
+                ],
+                self::POST,
+                self::FORMAT_JSON,
+                '',
+                $logOutput
+            );
+        } catch (LengowException $e) {
+            $message = $this->_dataHelper->decodeLogMessage($e->getMessage(), false);
+            $error = $this->_dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
+            $this->_dataHelper->log(DataHelper::CODE_CONNECTION, $error, $logOutput);
+            return null;
+        }
+        return $data['account_id'] ? (int) $data['account_id'] : null;
     }
 }

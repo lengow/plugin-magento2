@@ -1,7 +1,8 @@
 =============================================================
-Version 1.2.4
+Version 1.3.0
 =============================================================
 
+    - Feature: Integration of the new connection process
     - BugFix: [export] Adding a check on the configurable product type
     - BugFix: [export] Unlocking the mass actions of the product grid for Magento 2.4.x versions
     - BugFix: [export] Added security on multi-stock export if the Magento module is disabled

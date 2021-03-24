@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <title>Dashboard</title>
+        <css src="Lengow_Connector::css/lengow-components.css"/>
+        <css src="Lengow_Connector::css/lengow-layout.css"/>
+        <css src="Lengow_Connector::css/lengow-pages.css"/>
+        <css src="Lengow_Connector::css/font-awesome.css"/>
+    </head>
+    <body>
+        <referenceBlock name="menu">
+            <action method="setActive">
+                <argument name="itemId" xsi:type="string">Lengow_Connector::dashboard</argument>
+            </action>
+        </referenceBlock>
+        <attribute name="class" value="lengow-connector"/>
+        <referenceBlock name="root">
+            <action method="setHeaderTitle">
+                <argument translate="true" name="title" xsi:type="string">Dashboard</argument>
+            </action>
+        </referenceBlock>
+        <referenceContainer name="content">
+            <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_dashboard_main" template="Lengow_Connector::dashboard/main.phtml">
+                <block class="Lengow\Connector\Block\Adminhtml\Header" name="lengow_header" as="lengow_header" template="Lengow_Connector::header.phtml"/>
+                <block class="Lengow\Connector\Block\Adminhtml\Dashboard\Content" name="lengow_dashboard_content" as="lengow_dashboard_content" template="Lengow_Connector::dashboard/content.phtml"/>
+                <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_home_free_trial" as="lengow_home_free_trial" template="Lengow_Connector::dashboard/free_trial.phtml"/>
+                <block class="Lengow\Connector\Block\Adminhtml\Footer" name="lengow_footer" as="lengow_footer" template="Lengow_Connector::footer.phtml"/>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

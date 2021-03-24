@@ -71,6 +71,13 @@ en:
       call_tracking: "call tracking with parameters: %1"
       call_action_failed: "order action failed - %1"
       connector_get_all_action: "get order actions between %1 and %2"
+    connection:
+      cms_creation_success: "CMS successfully created with Lengow webservice (CMS token %1)"
+      cms_creation_failed: "WARNING! CMS could NOT be created with Lengow webservice (CMS token %1)"
+      cms_already_exist: "CMS already created in Lengow (CMS token %1)"
+      try_link_catalog: "try to associate catalogue IDs %1 to the shop (SHOP token %2) for the Magento store ID %3"
+      link_catalog_success: "catalogues successfully linked with Lengow webservice"
+      link_catalog_failed: "WARNING! catalogues could NOT be linked with Lengow webservice"
     mail_report:
       send_mail_to: "report email sent to %1"
       unable_send_mail_to: "unable to send report email to %1"

@@ -1,0 +1,47 @@
+<?php
+$cmsData = $block->getData();
+$catalogList = $cmsData['data']['catalogList'];
+$stores = $block->getStores();
+?>
+
+<div class="lgw-content-section">
+    <h2><?= $block->escapeHtml(__('Link your stores with Lengow')) ?></h2>
+    <p><?= $block->escapeHtml(__('To retrieve all your existing configuration (orders, products...) directly link the following Magento stores with your Lengow catalogue(s).')) ?></p>
+    <p>
+        <span><?php echo count($catalogList); ?></span>
+        <?= $block->escapeHtml(__('catalogues are available and not linked to a cms in Lengow.')) ?>
+    </p>
+</div>
+<div>
+    <?php foreach ($stores as $store) { ?>
+        <div class="lgw-catalog-select">
+            <label class="control-label" for="select_catalog<?php echo $store->getId(); ?>">
+                <?php echo $store->getName(); ?>
+            </label>
+            <select class="form-control lengow_select js-catalog-linked"
+                    id="select_catalog"
+                    name="<?php echo $store->getId(); ?>"
+                    multiple="multiple"
+                    data-placeholder=" <?= $block->escapeHtml(__('Select a catalogue')) ?>"
+                    data-allow-clear="true">
+                <?php foreach ( $catalogList as $catalog ) : ?>
+                    <option value="<?php echo $catalog['value']; ?>">
+                        <?php echo $catalog['label']; ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+    <?php } ?>
+</div>
+<div>
+    <button class="lgw-btn lgw-btn-green lgw-btn-progression js-link-catalog" data-href="<?= /** @noEscape */ $block->getUrl('lengow/home/linkCatalog')?>">
+        <div class="btn-inner">
+            <div class="btn-step default">
+                <?= $block->escapeHtml(__('Save and go to the dashboard')) ?>
+            </div>
+            <div class="btn-step loading">
+                <?= $block->escapeHtml(__('Saving...')) ?>
+            </div>
+        </div>
+    </button>
+</div>
