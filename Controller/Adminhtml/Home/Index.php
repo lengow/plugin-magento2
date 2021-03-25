@@ -21,22 +21,10 @@ namespace Lengow\Connector\Controller\Adminhtml\Home;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\Controller\Result\JsonFactory;
 use Lengow\Connector\Helper\Config as ConfigHelper;
-use Lengow\Connector\Helper\Sync as SyncHelper;
 
 class Index extends Action
 {
-    /**
-     * @var JsonFactory Magento json factory instance
-     */
-    protected $resultJsonFactory;
-
-    /**
-     * @var SyncHelper Lengow sync helper instance
-     */
-    protected $syncHelper;
-
     /**
      * @var ConfigHelper Lengow config helper instance
      */
@@ -46,18 +34,10 @@ class Index extends Action
      * Constructor
      *
      * @param Context $context Magento action context instance
-     * @param JsonFactory $resultJsonFactory Magento json factory instance
      * @param ConfigHelper $configHelper Lengow config helper instance
-     * @param SyncHelper $syncHelper Lengow sync helper instance
      */
-    public function __construct(
-        Context $context,
-        JsonFactory $resultJsonFactory,
-        ConfigHelper $configHelper,
-        SyncHelper $syncHelper
-    ) {
-        $this->resultJsonFactory = $resultJsonFactory;
-        $this->syncHelper = $syncHelper;
+    public function __construct(Context $context, ConfigHelper $configHelper)
+    {
         $this->configHelper = $configHelper;
         parent::__construct($context);
     }
@@ -67,7 +47,7 @@ class Index extends Action
      */
     public function execute()
     {
-        if ($this->syncHelper->pluginIsBlocked()) {
+        if ($this->configHelper->isNewMerchant()) {
             $this->_view->loadLayout();
             $this->_view->renderLayout();
         } else {
