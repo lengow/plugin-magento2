@@ -22,11 +22,10 @@
 /*************************************************/
 
 .lgw-box {
-  background: white;
+  border: 1px solid #e3e3e3;
+  background: #f8f8f8;
   display: block;
-  border-radius: 3px;
   padding: 45px 60px 45px;
-  box-shadow: 0 3px 0 0 rgba(0, 0, 0, .05);
   margin-bottom: 30px;
   position: relative;
   top: 0;

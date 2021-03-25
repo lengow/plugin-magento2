@@ -30,8 +30,8 @@
 /Controller/Adminhtml/Home/Catalog.php|501c3ac1e6edc6027703f9451ed8c835
 /Controller/Adminhtml/Home/Refresh.php|6b5761622040ea622550c652ea9116e1
 /Controller/Adminhtml/Toolbox/Index.php|42d46b89745652d398e81462280f6697
-/Controller/Adminhtml/Help/Index.php|e55057d659a276729360eddd084b6f5a
-/Controller/Adminhtml/Log/Index.php|14806c828171db570ea9b52aed7cee25
+/Controller/Adminhtml/Help/Index.php|9d63d9bb903905d5faf9b31c96beb6b0
+/Controller/Adminhtml/Log/Index.php|d2bad2ff479d73be83d11c449248aca3
 /Controller/Adminhtml/Order/Synchronize.php|0af93d1c8dff2ad77beb4eae23cdf38c
 /Controller/Adminhtml/Order/Reimport.php|5e915e1e9d80bf4484e9ff3145ae4f47
 /Controller/Adminhtml/Order/Resend.php|738da647a8453f69d28d2ddad70ef3d5
@@ -85,7 +85,7 @@
 /Model/ResourceModel/Log/Collection.php|5e4a18933b7f6ecebf482be80308519d
 /Model/ResourceModel/Order/Collection.php|5850f4e58408a583f995723fd3e51a7f
 /Model/Payment/Lengow.php|dd4f2d120fe6faa2d731cbf9eed66408
-/Model/Connector.php|e21dffa23a03347bd346405891347486
+/Model/Connector.php|dbca68662310e04e4880ce3a1c0b9da8
 /Model/Log.php|56147efda2a1584aa860f2b835148979
 /Model/Exception.php|54edeb8720951a9e4cdc0011f8e2572f
 /Model/Export.php|fc78af95cd597d6f84eb0ec072577cd8
@@ -126,7 +126,7 @@
 /view/adminhtml/templates/dashboard/content.phtml|49311ab5ae2941e14893af8b7058c447
 /view/adminhtml/templates/header.phtml|1c6c56a53cf9d776044d2a138d2cb7c4
 /view/adminhtml/templates/help/main.phtml|725f74753d014d0300f6614b36168035
-/view/adminhtml/templates/help/content.phtml|976736f6306fdc5960e4a10d1e50a366
+/view/adminhtml/templates/help/content.phtml|ba149d2bdd17b5e04fb44d76a563a5ae
 /view/adminhtml/templates/sales/order/tab/info.phtml|977c569a5eb89e1fd7c751959946e776
 /view/adminhtml/templates/product/header.phtml|e6e158288e6e3390a328074fe6779190
 /view/adminhtml/templates/product/main.phtml|47500de3d150d182d59b5be0e7ad757e
@@ -134,15 +134,15 @@
 /view/adminhtml/templates/toolbox/main.phtml|8f5641ad17206c7c2c52f72e8500b3d8
 /view/adminhtml/templates/toolbox/content.phtml|749c12d826a13175c26a2d3400609adc
 /view/adminhtml/templates/legal/main.phtml|606a3bf257c131e8781f93078d321079
-/view/adminhtml/templates/legal/content.phtml|cade706265d9c4fcf3a006ef22c44e6a
+/view/adminhtml/templates/legal/content.phtml|6917aeb67ca29f33d86c2635930614c0
 /view/adminhtml/templates/log/main.phtml|ee2236823cdcf3d8d05c8bdfdce1d0cc
 /view/adminhtml/templates/order/header.phtml|f6dc1ba155d092ca46c81ad3ce80001b
 /view/adminhtml/templates/order/main.phtml|c9797fff64fed3885c179acae9901290
 /view/adminhtml/templates/home/cms.phtml|567419c55e3a0226b60dd1994d224456
 /view/adminhtml/templates/home/main.phtml|13f0baac9941e8b42988c3d221541b81
-/view/adminhtml/templates/home/catalog_failed.phtml|8aede8f769ae200d9ebd2ecdf4956967
+/view/adminhtml/templates/home/catalog_failed.phtml|d18cd701bfe8e0ab0048f5708009fa32
 /view/adminhtml/templates/home/catalog.phtml|3ca115e2c509f6635dfbce1dc9043fde
-/view/adminhtml/templates/home/cms_result.phtml|152bfc3fb9fa357bfb336b2ad53fcf6d
+/view/adminhtml/templates/home/cms_result.phtml|a709aade028464873837c228f3518800
 /view/adminhtml/templates/home/new.phtml|9fdb64a0de4b44d71f7b46f70f651f15
 /view/adminhtml/layout/lengow_help_index.xml|cff665ee8fbe478fbf87d11a7a245871
 /view/adminhtml/layout/lengow_log_index.xml|b440b764d7a94bfc0995751bc0d8094b
@@ -165,7 +165,7 @@
 /view/adminhtml/web/js/select2.js|d233ad76d6c3d96dc37f184264e73b27
 /view/adminhtml/web/css/lengow-layout.css|60066cc7dd276d54dea475d56ffe70f0
 /view/adminhtml/web/css/select2.css|8969ac4614d64a13dfc32e1eb4e731f7
-/view/adminhtml/web/css/lengow-components.css|7c9727558803cd6282bb539943ec24d7
+/view/adminhtml/web/css/lengow-components.css|da7f727e360ebdbd3988eced9a521491
 /view/adminhtml/web/css/lengow-pages.css|607bc73c3c264c7757a0dc1a92c49188
 /view/adminhtml/web/css/font-awesome.css|bf4b58c946c9234e4a6b9f7a70d38006
 /view/adminhtml/web/images/lengow-white-big.png|6e6178f2db21104a157aebb27f9a5ca2

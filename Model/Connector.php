@@ -76,11 +76,6 @@ class Connector
     const API_CMS = '/v3.1/cms';
 
     /**
-     * @var string url of plugin API
-     */
-    const API_PLUGIN = '/v3.0/plugins';
-
-    /**
      * @var string url of cms catalog API
      */
     const API_CMS_CATALOG = '/v3.1/cms/catalogs/';
@@ -89,6 +84,11 @@ class Connector
      * @var string url of cms mapping API
      */
     const API_CMS_MAPPING = '/v3.1/cms/mapping/';
+
+    /**
+     * @var string url of plugin API
+     */
+    const API_PLUGIN = '/v3.0/plugins';
 
     /**
      * @var string request GET
@@ -206,9 +206,9 @@ class Connector
         self::API_MARKETPLACE => 15,
         self::API_PLAN => 5,
         self::API_CMS => 5,
-        self::API_PLUGIN => 5,
         self::API_CMS_CATALOG => 10,
         self::API_CMS_MAPPING => 10,
+        self::API_PLUGIN => 5,
     ];
 
     /**
@@ -279,12 +279,12 @@ class Connector
         if (!$this->isCurlActivated()) {
             return false;
         }
-        list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessIds();
+        list($accountId, $accessToken, $secret) = $this->_configHelper->getAccessIds();
         if ($accountId === null || (int)$accountId === 0 || !is_numeric($accountId)) {
             return false;
         }
         try {
-            $this->init(['access_token' => $accessToken, 'secret' => $secretToken]);
+            $this->init(['access_token' => $accessToken, 'secret' => $secret]);
             $this->connect(false, $logOutput);
         } catch (LengowException $e) {
             $message = $this->_dataHelper->decodeLogMessage($e->getMessage(), false);
@@ -312,11 +312,11 @@ class Connector
             return false;
         }
         try {
-            list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessIds();
+            list($accountId, $accessToken, $secret) = $this->_configHelper->getAccessIds();
             if ($accountId === null) {
                 return false;
             }
-            $this->init(['access_token' => $accessToken, 'secret' => $secretToken]);
+            $this->init(['access_token' => $accessToken, 'secret' => $secret]);
             $type = strtolower($type);
             $results = $this->$type(
                 $api,
@@ -335,6 +335,39 @@ class Connector
     }
 
     /**
+     * Get the account id from the API
+     *
+     * @param string $accessToken Lengow api access token
+     * @param string $secret Lengow api secret token
+     * @param false $logOutput should log ouput
+     *
+     * @return int|null
+     */
+    public function getAccountIdByCredentials($accessToken, $secret, $logOutput = false)
+    {
+        $this->init(['access_token' => $accessToken, 'secret' => $secret]);
+        try {
+            $data = $this->_callAction(
+                self::API_ACCESS_TOKEN,
+                [
+                    'access_token' => $accessToken,
+                    'secret' => $secret,
+                ],
+                self::POST,
+                self::FORMAT_JSON,
+                '',
+                $logOutput
+            );
+        } catch (LengowException $e) {
+            $message = $this->_dataHelper->decodeLogMessage($e->getMessage(), false);
+            $error = $this->_dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
+            $this->_dataHelper->log(DataHelper::CODE_CONNECTION, $error, $logOutput);
+            return null;
+        }
+        return $data['account_id'] ? (int) $data['account_id'] : null;
+    }
+
+    /**
      * Connection to the API
      *
      * @param boolean $force Force cache Update
@@ -348,8 +381,8 @@ class Connector
         $updatedAt = $this->_configHelper->get('last_authorization_token_update');
         if (!$force
             && $token !== null
-            && strlen($token) > 0
             && $updatedAt !== null
+            && $token !== ''
             && (time() - $updatedAt) < $this->_tokenLifetime
         ) {
             $authorizationToken = $token;
@@ -453,7 +486,7 @@ class Connector
             $this->connect(false, $logOutput);
             $data = $this->_callAction($api, $args, $type, $format, $body, $logOutput);
         } catch (LengowException $e) {
-            if (in_array($e->getCode(), $this->authorizationCodes)) {
+            if (in_array($e->getCode(), $this->authorizationCodes, true)) {
                 $this->_dataHelper->log(
                     DataHelper::CODE_CONNECTOR,
                     $this->_dataHelper->setLogMessage(
@@ -465,7 +498,7 @@ class Connector
                 $data = $this->_callAction($api, $args, $type, $format, $body, $logOutput);
             } else {
                 throw new LengowException($e->getMessage(), $e->getCode());
-            };
+            }
         }
         return $data;
     }
@@ -520,7 +553,8 @@ class Connector
                 $this->_dataHelper->setLogMessage('no authorization token returned'),
                 self::CODE_500
             );
-        } elseif (strlen($data['token']) === 0) {
+        }
+        if ($data['token'] === '') {
             throw new LengowException(
                 $this->_dataHelper->setLogMessage('the returned authorization token is empty'),
                 self::CODE_500
@@ -548,13 +582,13 @@ class Connector
         // Define CURLE_OPERATION_TIMEDOUT for old php versions
         defined('CURLE_OPERATION_TIMEDOUT') || define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);
         $ch = curl_init();
-        // Default curl Options
+        // get default curl options
         $opts = $this->_curlOpts;
         // get special timeout for specific Lengow API
         if (array_key_exists($api, $this->_lengowUrls)) {
             $opts[CURLOPT_TIMEOUT] = $this->_lengowUrls[$api];
         }
-        // get url for a specific environment
+        // get base url for a specific environment
         $url = self::LENGOW_API_URL . $api;
         $opts[CURLOPT_CUSTOMREQUEST] = strtoupper($type);
         $url = parse_url($url);
@@ -618,30 +652,24 @@ class Connector
     {
         if ($result === false) {
             // recovery of Curl errors
-            if (in_array($curlErrorNumber, [CURLE_OPERATION_TIMEDOUT, CURLE_OPERATION_TIMEOUTED])) {
+            if (in_array($curlErrorNumber, [CURLE_OPERATION_TIMEDOUT, CURLE_OPERATION_TIMEOUTED], true)) {
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage('API call blocked due to a timeout'),
                     self::CODE_504
                 );
-            } else {
-                throw new LengowException(
-                    $this->_dataHelper->setLogMessage('Curl error %1 - %2', [$curlErrorNumber, $curlError]),
-                    self::CODE_500
-                );
             }
-        } else {
-            if (!in_array($httpCode, $this->_successCodes)) {
-                $result = $this->_format($result);
-                // recovery of Lengow Api errors
-                if (isset($result['error']['message'])) {
-                    throw new LengowException($result['error']['message'], $httpCode);
-                } else {
-                    throw new LengowException(
-                        $this->_dataHelper->setLogMessage('Lengow APIs are not available'),
-                        $httpCode
-                    );
-                }
+            throw new LengowException(
+                $this->_dataHelper->setLogMessage('Curl error %1 - %2', [$curlErrorNumber, $curlError]),
+                self::CODE_500
+            );
+        }
+        if (!in_array($httpCode, $this->_successCodes, true)) {
+            $result = $this->_format($result);
+            // recovery of Lengow Api errors
+            if (isset($result['error']['message'])) {
+                throw new LengowException($result['error']['message'], $httpCode);
             }
+            throw new LengowException($this->_dataHelper->setLogMessage('Lengow APIs are not available'), $httpCode);
         }
     }
 
@@ -662,38 +690,5 @@ class Connector
             case self::FORMAT_JSON:
                 return json_decode($data, true);
         }
-    }
-
-    /**
-     * Get the account id from the API
-     *
-     * @param string $accessToken Lengow api access token
-     * @param string $secret Lengow api secret token
-     * @param false $logOutput should log ouput
-     *
-     * @return int|null
-     */
-    public function getAccountIdByCredentials($accessToken, $secret, $logOutput = false)
-    {
-        $this->init(['access_token' => $accessToken, 'secret' => $secret]);
-        try {
-            $data = $this->_callAction(
-                self::API_ACCESS_TOKEN,
-                [
-                    'access_token' => $accessToken,
-                    'secret' => $secret,
-                ],
-                self::POST,
-                self::FORMAT_JSON,
-                '',
-                $logOutput
-            );
-        } catch (LengowException $e) {
-            $message = $this->_dataHelper->decodeLogMessage($e->getMessage(), false);
-            $error = $this->_dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
-            $this->_dataHelper->log(DataHelper::CODE_CONNECTION, $error, $logOutput);
-            return null;
-        }
-        return $data['account_id'] ? (int) $data['account_id'] : null;
     }
 }
