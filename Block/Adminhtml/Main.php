@@ -31,22 +31,22 @@ class Main extends Template
     /**
      * @var Locale Magento locale resolver instance
      */
-    protected $_locale;
+    protected $locale;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    protected $configHelper;
 
     /**
      * @var SyncHelper Lengow sync helper instance
      */
-    protected $_syncHelper;
+    protected $syncHelper;
 
     /**
      * @var array Lengow status account
      */
-    protected $_statusAccount = [];
+    protected $statusAccount = [];
 
     /**
      * Constructor
@@ -64,10 +64,10 @@ class Main extends Template
         SyncHelper $syncHelper,
         array $data = []
     ) {
-        $this->_locale = $locale;
-        $this->_configHelper = $configHelper;
-        $this->_syncHelper = $syncHelper;
-        $this->_statusAccount = $this->_syncHelper->getStatusAccount();
+        $this->locale = $locale;
+        $this->configHelper = $configHelper;
+        $this->syncHelper = $syncHelper;
+        $this->statusAccount = $this->syncHelper->getStatusAccount();
         parent::__construct($context, $data);
     }
 
@@ -78,7 +78,7 @@ class Main extends Template
      */
     public function isNewMerchant()
     {
-        return $this->_configHelper->isNewMerchant();
+        return $this->configHelper->isNewMerchant();
     }
 
     /**
@@ -98,22 +98,9 @@ class Main extends Template
      */
     public function freeTrialIsExpired()
     {
-        if ((isset($this->_statusAccount['type']) && $this->_statusAccount['type'] === 'free_trial')
-            && (isset($this->_statusAccount['expired']) && $this->_statusAccount['expired'])
-        ) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Get current locale
-     *
-     * @return string
-     */
-    public function getIsoCode()
-    {
-        return strtolower(substr($this->_locale->getLocale(), 0, 2));
+        return isset($this->statusAccount['type'], $this->statusAccount['expired'])
+            && $this->statusAccount['type'] === 'free_trial'
+            && $this->statusAccount['expired'];
     }
 
     /**

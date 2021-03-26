@@ -17,7 +17,7 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-namespace Lengow\Connector\Controller\Adminhtml\Home;
+namespace Lengow\Connector\Controller\Adminhtml\Dashboard;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
@@ -36,8 +36,10 @@ class Index extends Action
      * @param Context $context Magento action context instance
      * @param ConfigHelper $configHelper Lengow config helper instance
      */
-    public function __construct(Context $context, ConfigHelper $configHelper)
-    {
+    public function __construct(
+        Context $context,
+        ConfigHelper $configHelper
+    ) {
         $this->configHelper = $configHelper;
         parent::__construct($context);
     }
@@ -48,10 +50,10 @@ class Index extends Action
     public function execute()
     {
         if ($this->configHelper->isNewMerchant()) {
+            $this->_redirect('lengow/home/index');
+        } else {
             $this->_view->loadLayout();
             $this->_view->renderLayout();
-        } else {
-            $this->_redirect('lengow/dashboard/index');
         }
     }
 }

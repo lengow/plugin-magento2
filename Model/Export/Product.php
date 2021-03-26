@@ -569,7 +569,7 @@ class Product
             $parentIds = $this->_configurableProduct->getParentIdsByChild($this->_product->getId());
             if (!empty($parentIds)) {
                 $parentProduct = $this->_getConfigurableProduct((int)$parentIds[0]);
-                if ((int)$this->_product->getVisibility() === ProductVisibility::VISIBILITY_NOT_VISIBLE) {
+                if ($parentProduct && (int)$this->_product->getVisibility() === ProductVisibility::VISIBILITY_NOT_VISIBLE) {
                     $this->_getParentData = true;
                 }
             }
@@ -584,7 +584,7 @@ class Product
      *
      * @throws \Exception
      *
-     * @return ProductInterceptor
+     * @return ProductInterceptor|null
      */
     protected function _getConfigurableProduct($parentId)
     {
@@ -594,8 +594,12 @@ class Product
                 $this->_cacheConfigurableProducts = [];
             }
             $parentProduct = $this->_productRepository->getById($parentId, false, $this->_store->getId());
-            $this->_cacheConfigurableProducts[$parentId] = $parentProduct;
-            $this->_clearCacheConfigurable++;
+            if ($parentProduct && $parentProduct->getTypeId() === 'configurable') {
+                $this->_cacheConfigurableProducts[$parentId] = $parentProduct;
+                $this->_clearCacheConfigurable++;
+            } else {
+                return null;
+            }
         }
         return $this->_cacheConfigurableProducts[$parentId];
     }
@@ -700,7 +704,9 @@ class Product
      */
     protected function _getQuantity()
     {
-        if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')) {
+        if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')
+            && $this->_configHelper->moduleIsEnabled('Magento_Inventory')
+        ) {
             // Check if product is multi-stock
             $res = $this->getSourceItemDetailBySKU($this->_product->getSku());
             // if multi-stock, return total of all stock quantities

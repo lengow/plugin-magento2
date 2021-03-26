@@ -17,7 +17,7 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-namespace Lengow\Connector\Block\Adminhtml\Home;
+namespace Lengow\Connector\Block\Adminhtml\Dashboard;
 
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
@@ -25,7 +25,7 @@ use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Connector as LengowConnector;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 
-class Dashboard extends Template
+class Content extends Template
 {
     /**
      * @var SyncHelper Lengow sync helper instance

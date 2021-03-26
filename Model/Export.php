@@ -705,7 +705,9 @@ class Export
                 $fields[] = $selectedAttribute;
             }
         }
-        if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')) {
+        if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')
+            && $this->_configHelper->moduleIsEnabled('Magento_Inventory')
+        ) {
             $sources = $this->_configHelper->getAllSources();
             // if multi-stock
             if (count($sources) > 1) {

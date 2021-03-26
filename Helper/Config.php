@@ -25,6 +25,7 @@ use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as CustomerGrou
 use Magento\Eav\Model\Config as EavConfig;
 use Magento\Eav\Model\Entity\Attribute\Set as AttributeSet;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as AttributeCollectionFactory;
+use Magento\Framework\Api\SearchCriteriaBuilderFactory;
 use Magento\Framework\App\Cache\Manager as CacheManager;
 use Magento\Framework\App\Cache\Type\Config as CacheTypeConfig;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -32,7 +33,6 @@ use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Store\Api\Data\StoreInterface;
-use Magento\Framework\Api\SearchCriteriaBuilderFactory;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
 use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollectionFactory;
@@ -468,17 +468,48 @@ class Config extends AbstractHelper
      * Set Valid Account id / Access token / Secret token
      *
      * @param array $accessIds Account id / Access token / Secret token
+     *
+     * @return bool
      */
     public function setAccessIds($accessIds)
     {
+        $count = 0;
         $listKey = ['account_id', 'access_token', 'secret_token'];
         foreach ($accessIds as $key => $value) {
-            if (!in_array($key, array_keys($listKey))) {
+            if (!in_array($key, $listKey, true)) {
                 continue;
             }
-            if (strlen($value) > 0) {
+            if ($value !== '') {
+                $count++;
                 $this->set($key, $value);
             }
+        }
+        return $count === count($listKey);
+    }
+
+    /**
+     * Reset access ids
+     */
+    public function resetAccessIds()
+    {
+        $accessIds = ['account_id', 'access_token', 'secret_token'];
+        foreach ($accessIds as $accessId) {
+            $value = $this->get($accessId);
+            if ($value !== '') {
+                $this->set($accessId, '');
+            }
+        }
+    }
+
+    /**
+     * Delete catalog ID and disable store
+     */
+    public function resetCatalogIds()
+    {
+        $lengowActiveStores = $this->getLengowActiveStores();
+        foreach ($lengowActiveStores as $store) {
+            $this->set('catalog_id', '', $store->getId());
+            $this->set('store_enable', false, $store->getId());
         }
     }
 
@@ -503,6 +534,24 @@ class Config extends AbstractHelper
             }
         }
         return $catalogIds;
+    }
+
+    /**
+     * Get list of Magento stores that have been activated in Lengow
+     *
+     * @return array
+     */
+    public function getLengowActiveStores()
+    {
+        $lengowActiveStores = [];
+        $storeCollection = $this->_storeCollectionFactory->create()->load()->addFieldToFilter('is_active', 1);
+        foreach ($storeCollection as $store) {
+            // get Lengow config for this store
+            if ($this->storeIsActive((int)$store->getId())) {
+                $lengowActiveStores[] = $store;
+            }
+        }
+        return $lengowActiveStores;
     }
 
     /**
@@ -731,7 +780,7 @@ class Config extends AbstractHelper
     public function getToken($storeId = 0)
     {
         $token = $this->get('token', $storeId);
-        if ($token && strlen($token) > 0) {
+        if ($token && $token !== '') {
             return $token;
         } else {
             $token = bin2hex(openssl_random_pseudo_bytes(16));
@@ -834,5 +883,17 @@ class Config extends AbstractHelper
             }
         }
         return $rows;
+    }
+
+    /**
+     * Check if a specific module is enabled
+     *
+     * @param string $moduleName module name [Vendor]_[Module]
+     *
+     * @return boolean
+     */
+    public function moduleIsEnabled($moduleName)
+    {
+        return $this->_moduleManager->isEnabled($moduleName);
     }
 }

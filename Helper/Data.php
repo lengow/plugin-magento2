@@ -68,6 +68,11 @@ class Data extends AbstractHelper
     const CODE_ACTION = 'Action';
 
     /**
+     * @var string connection log code
+     */
+    const CODE_CONNECTION = 'Connection';
+
+    /**
      * @var string mail report code
      */
     const CODE_MAIL_REPORT = 'Mail Report';

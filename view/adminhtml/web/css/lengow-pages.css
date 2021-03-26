@@ -63,6 +63,160 @@ body:not(.lengow-home-index) #lgw-plugin-available {
 }
 
 /*************************************************/
+/*                    CONNECT                    */
+/*************************************************/
+
+.lgw-connection {
+    max-width: 800px;
+    position: relative;
+    color: #52667a;
+    padding: 30px;
+    background: #fff;
+    background-clip: padding-box;
+    border-radius: 4px;
+    border: 1px solid #d1d9e0;
+}
+
+.lgw-connection p {
+    line-height: 1.5;
+    margin: 0 0 10px;
+    overflow-wrap: break-word;
+}
+
+.lgw-connection .lgw-margin-top-small {
+    margin-top: 15px!important;
+}
+
+.lgw-connection .lgw-logo {
+    margin-top: 30px!important;
+    margin-bottom: 45px!important;
+}
+
+.lgw-connection .lgw-content-section {
+    margin-bottom: 30px;
+}
+
+.lgw-connection .lgw-btn {
+    font-weight: 600;
+    margin: 15px 5px;
+}
+
+.lgw-connection .lgw-module-illu {
+    display: block;
+    height: 114px;
+    margin: 60px auto 45px;
+    position: relative;
+    width: 426px;
+}
+
+.lgw-connection .lgw-module-illu.mod-connected {
+    margin-top: 0px;
+}
+
+.lgw-connection .lgw-module-illu.mod-disconnected {
+    margin: 60px auto 50px;
+}
+
+.lgw-connection .lgw-module-illu-lengow {
+    position: absolute;
+    right: 63px;
+    top: 22px;
+    z-index: 1;
+}
+
+.lgw-connection .lgw-module-illu-module {
+    left: 50px;
+    position: absolute;
+    top: 12px;
+    z-index: 1;
+}
+
+.lgw-connection .lgw-module-illu-module.mod-connected {
+    left: 65px;
+}
+
+.lgw-connection .lgw-module-illu-plug {
+    left: 128px;
+    position: absolute;
+    top: 21px;
+    z-index: 0;
+}
+
+.lgw-connection .lgw-module-illu-plug.mod-connected {
+    left: 158px;
+    top: 0px;
+}
+
+.lgw-connection .lgw-module-illu-plug.mod-disconnected {
+    left: 129px;
+    top: -3px;
+}
+
+.lgw-connection h2 {
+    font-size: 22px;
+    color: #52667a;
+    margin: 0 0 20px;
+    font-weight: 400;
+}
+
+.lgw-connection input[type="text"] {
+    margin-bottom: 32px;
+    background: #fff;
+    font-size: 12px;
+    line-height: 22px;
+    color: #52667a;
+    padding: 12px 16px;
+    border: 1px solid #d1d9e0;
+    border-radius: 4px;
+    overflow: hidden;
+    width: 100%;
+}
+.lgw-connection .lgw-content-input {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.lgw-connection input[type="text"]:disabled {
+    background: #f0f2f5;
+    border-color: #d1d9e0;
+    cursor: default!important;
+}
+
+.lgw-connection .lgw-catalog-select {
+    border-radius: 4px;
+    border: 1px solid #d1d9e0;
+    display: block;
+    position: relative;
+    margin-bottom: 20px;
+    padding: 20px 20px 40px;
+    text-align: left;
+}
+
+.lgw-connection .lgw-catalog-select label {
+    font-weight: 400;
+    color: #52667a;
+    margin: 0 0 10px;
+}
+
+.lgw-connection .lgw-catalog-select .select2-search  {
+    z-index: auto;
+}
+
+.lgw-connection .select2-container {
+    max-width: none;
+    width: 100% !important;
+    margin: 0 auto;
+}
+
+.lgw-connection .select2-search__field {
+    padding: 0 15px !important;
+    font-size: 12px !important;
+    font-weight: normal;
+    width: 100% !important;
+    line-height: 22px;
+}
+
+/*************************************************/
 /*                     HOME                     */
 /*************************************************/
 
@@ -119,7 +273,7 @@ body:not(.lengow-home-index) #lgw-plugin-available {
   background: #2E3340;
 }
 
-.lengow-home-index .lgw-home-header a {
+.lgw-home-header a:hover {
   color: inherit;
   text-decoration: none;
 }

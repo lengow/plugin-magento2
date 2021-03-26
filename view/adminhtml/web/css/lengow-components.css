@@ -22,11 +22,10 @@
 /*************************************************/
 
 .lgw-box {
-  background: white;
+  border: 1px solid #e3e3e3;
+  background: #f8f8f8;
   display: block;
-  border-radius: 3px;
   padding: 45px 60px 45px;
-  box-shadow: 0 3px 0 0 rgba(0, 0, 0, .05);
   margin-bottom: 30px;
   position: relative;
   top: 0;
@@ -88,17 +87,6 @@ body.lengow-connector .grey_frame {
 
 body.lengow-connector .grey_frame input[type="text"] {
   background: white;
-}
-
-/*************************************************/
-/*                    IFRAME                     */
-/*************************************************/
-
-#lengow-iframe {
-  width: 100%;
-  min-height: 830px;
-  border: 0px;
-  overflow-y: hidden;
 }
 
 /*************************************************/
@@ -305,6 +293,107 @@ span.last_indexation {
 /*************************************************/
 /*                    BUTTONS                    */
 /*************************************************/
+
+/* DISABLED */
+.lgw-btn-disabled {
+    background: #c0c0c0 !important;
+    top: 0;
+    color: #828282;
+    pointer-events: none;
+}
+
+/* BTN PROGRESSION */
+.lgw-container .lgw-btn-progression {
+    height: 36px;
+    overflow: hidden;
+    padding: 0;
+}
+
+.lgw-container .lgw-btn-progression .btn-inner {
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+.lgw-container .lgw-btn-progression .btn-step {
+    height: 36px;
+    line-height: 36px;
+    padding: 0 15px;
+}
+
+.lgw-container .lgw-btn-progression.loading {
+    pointer-events: none;
+    padding-right: 30px;
+    background: #c0c0c0;
+    color: #828282;
+}
+
+.lgw-container .lgw-btn-progression.loading .btn-inner {
+    top: -36px;
+}
+
+.lgw-container .lgw-btn-progression.loading::after {
+    content: '';
+    position: absolute;
+    height: 24px;
+    width: 24px;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    right: 10px;
+    opacity: .66;
+    background: #ebebeb;
+    border-radius: 50%;
+    -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
+    animation: sk-bounce 2.0s infinite ease-in-out;
+}
+
+.lgw-container .lgw-btn-progression.loading::before {
+    content: '';
+    position: absolute;
+    height: 24px;
+    width: 24px;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    right: 10px;
+    opacity: .66;
+    background: #ebebeb;
+    border-radius: 50%;
+    -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
+    animation: sk-bounce 2.0s infinite ease-in-out;
+    -webkit-animation-delay: -1.0s;
+    animation-delay: -1.0s;
+}
+
+.lgw-container .lgw-btn-progression.success,
+.lgw-container .lgw-btn-progression.error {
+    pointer-events: none;
+}
+
+.lgw-container .lgw-btn-progression.success{
+    background-color: #7ac279;
+}
+
+.lgw-container .lgw-btn-progression.success .btn-inner,
+.lgw-container .lgw-btn-progression.error .btn-inner {
+    top: -72px;
+}
+
+@-webkit-keyframes sk-bounce {
+    0%, 100% { -webkit-transform: scale(0.0) }
+    50% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes sk-bounce {
+    0%, 100% {
+        transform: scale(0.0);
+        -webkit-transform: scale(0.0);
+    } 50% {
+          transform: scale(1.0);
+          -webkit-transform: scale(1.0);
+      }
+}
 
 .lgw-btn {
   border-radius: 3px;

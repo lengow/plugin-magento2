@@ -232,14 +232,13 @@ class Sync extends AbstractHelper
             'plugin_version' => $this->_securityHelper->getPluginVersion(),
             'email' => $this->scopeConfig->getValue('trans_email/ident_general/email'),
             'cron_url' => $this->_dataHelper->getCronUrl(),
-            'return_url' => 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'],
             'shops' => [],
         ];
         $stores = $this->_configHelper->getAllStore();
         foreach ($stores as $store) {
             $storeId = (int)$store->getId();
             $this->_export->init(['store_id' => $storeId]);
-            $data['shops'][$storeId] = [
+            $data['shops'][] = [
                 'token' => $this->_configHelper->getToken($storeId),
                 'shop_name' => $store->getName(),
                 'domain_url' => $store->getBaseUrl(),
@@ -253,35 +252,6 @@ class Sync extends AbstractHelper
     }
 
     /**
-     * Set store configuration key from Lengow
-     *
-     * @param array $params Lengow API credentials
-     */
-    public function sync($params)
-    {
-        $this->_configHelper->setAccessIds(
-            [
-                'account_id' => $params['account_id'],
-                'access_token' => $params['access_token'],
-                'secret_token' => $params['secret_token'],
-            ]
-        );
-        if (isset($params['shops'])) {
-            foreach ($params['shops'] as $storeToken => $storeCatalogIds) {
-                $store = $this->_configHelper->getStoreByToken($storeToken);
-                if ($store) {
-                    $this->_configHelper->setCatalogIds($storeCatalogIds['catalog_ids'], (int)$store->getId());
-                    $this->_configHelper->setActiveStore((int)$store->getId());
-                }
-            }
-        }
-        // save last update date for a specific settings (change synchronisation interval time)
-        $this->_configHelper->set('last_setting_update', time());
-        // clean config cache to valid configuration
-        $this->_configHelper->cleanConfigCache();
-    }
-
-    /**
      * Sync Lengow catalogs for order synchronisation
      *
      * @param boolean $force force cache update
@@ -291,14 +261,15 @@ class Sync extends AbstractHelper
      */
     public function syncCatalog($force = false, $logOutput = false)
     {
+        $success = false;
         $cleanCache = false;
         if ($this->_configHelper->isNewMerchant()) {
-            return false;
+            return $success;
         }
         if (!$force) {
             $updatedAt = $this->_configHelper->get('last_catalog_update');
             if ($updatedAt !== null && (time() - (int)$updatedAt) < $this->_cacheTimes[self::SYNC_CATALOG]) {
-                return false;
+                return $success;
             }
         }
         $result = $this->_connector->queryApi(LengowConnector::GET, LengowConnector::API_CMS, [], '', $logOutput);
@@ -319,6 +290,7 @@ class Sync extends AbstractHelper
                             }
                         }
                     }
+                    $success = true;
                     break;
                 }
             }
@@ -330,7 +302,7 @@ class Sync extends AbstractHelper
             $this->_configHelper->cleanConfigCache();
         }
         $this->_configHelper->set('last_catalog_update', time());
-        return true;
+        return $success;
     }
 
     /**
