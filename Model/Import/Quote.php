@@ -261,6 +261,8 @@ class Quote extends MagentoQuote
                 $magentoProduct->setPrice($price);
                 $magentoProduct->setSpecialPrice($price);
                 $magentoProduct->setFinalPrice($price);
+                // Warning Deprec after magento 2.4.xx !
+                $magentoProduct->setPriceCalculation(false);
                 // option "import with product's title from Lengow"
                 $magentoProduct->setName($product['title']);
                 // add item to quote

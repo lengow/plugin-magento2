@@ -90,7 +90,7 @@
 /Model/Exception.php|54edeb8720951a9e4cdc0011f8e2572f
 /Model/Export.php|fc78af95cd597d6f84eb0ec072577cd8
 /Model/Import/Orderline.php|478aca1f7475ea4740cddb683b187fae
-/Model/Import/Quote.php|e0a097944dc81116c662c689edb972e7
+/Model/Import/Quote.php|1ff98bdbd8a91a83c0cf4f067e915050
 /Model/Import/Ordererror.php|f2637f079456f5a94a90ca809d0d3d56
 /Model/Import/Quote/Item.php|deea2328f2b0109b4bfe412c7edc90a5
 /Model/Import/Importorder.php|83d589daace16054470a940c3b4092dc
