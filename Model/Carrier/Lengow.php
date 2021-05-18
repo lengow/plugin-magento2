@@ -117,7 +117,7 @@ class Lengow extends AbstractCarrier implements CarrierInterface
      */
     public function isActive()
     {
-        return (bool)$this->_backendSession->getIsFromlengow();
+        return (bool) $this->_backendSession->getIsFromlengow();
     }
 
     /**

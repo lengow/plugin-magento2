@@ -256,12 +256,12 @@ class Quote extends MagentoQuote
                         $this->getStore()
                     );
                     $tax = $this->_calculation->calcTaxAmount($price, $taxRate, true);
-                    $price = $price - $tax;
+                    $price -= $tax;
                 }
                 $magentoProduct->setPrice($price);
                 $magentoProduct->setSpecialPrice($price);
                 $magentoProduct->setFinalPrice($price);
-                // Warning Deprec after magento 2.4.xx !
+                // Warning Deprecated after magento 2.4.xx !
                 $magentoProduct->setPriceCalculation(false);
                 // option "import with product's title from Lengow"
                 $magentoProduct->setName($product['title']);
@@ -286,8 +286,8 @@ class Quote extends MagentoQuote
      */
     public function checkProductStatus($product)
     {
-        if (version_compare($this->_securityHelper->getMagentoVersion(), '2.2.0', '>=')
-            && (int)$product->getStatus() === Status::STATUS_DISABLED
+        if ($product->getStatus() === Status::STATUS_DISABLED
+            && version_compare($this->_securityHelper->getMagentoVersion(), '2.2.0', '>=')
         ) {
             throw new LengowException(
                 $this->_dataHelper->setLogMessage(
@@ -315,7 +315,7 @@ class Quote extends MagentoQuote
                 $product->getId(),
                 $product->getStore()->getWebsiteId()
             );
-            if ($stockStatus && $quantity > (float)$stockStatus->getQty()) {
+            if ($stockStatus && $quantity > (float) $stockStatus->getQty()) {
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage(
                         'product id %1 can not be added to the quote because the stock is insufficient',

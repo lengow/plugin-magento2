@@ -223,7 +223,7 @@ class Price
      */
     protected function _getAllPrices()
     {
-        $conversion = $this->_currency !== $this->_storeCurrency ? true : false;
+        $conversion = $this->_currency !== $this->_storeCurrency;
         return [
             'price_excl_tax' => $this->_getSpecificPrice('final_price', $conversion),
             'price_incl_tax' => $this->_getSpecificPrice('final_price', $conversion, true),
@@ -284,14 +284,14 @@ class Price
         $discountEndDate = $this->_product->getSpecialToDate();
         // get discount date from a catalogue rule if exist
         $catalogueRules = $this->_catalogueRule->getResource()->getRulesFromProduct(
-            (int)$this->_dateTime->gmtTimestamp(),
+            (int) $this->_dateTime->gmtTimestamp(),
             $this->_store->getWebsiteId(),
             1,
             $this->_product->getId()
         );
         if (!empty($catalogueRules)) {
-            $startTimestamp = (int)$catalogueRules[0]['from_time'];
-            $endTimestamp = (int)$catalogueRules[0]['to_time'];
+            $startTimestamp = (int) $catalogueRules[0]['from_time'];
+            $endTimestamp = (int) $catalogueRules[0]['to_time'];
             $discountStartDate = $startTimestamp !== 0
                 ? $this->_timezone->date($startTimestamp)->format('Y-m-d H:i:s')
                 : '';

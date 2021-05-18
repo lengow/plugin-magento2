@@ -67,7 +67,7 @@ class Resend extends Action
         $action = $this->getRequest()->getParam('status') === LengowOrder::STATE_CANCELED
             ? LengowAction::TYPE_CANCEL
             : LengowAction::TYPE_SHIP;
-        $order = $this->_orderFactory->create()->load((int)$orderId);
+        $order = $this->_orderFactory->create()->load((int) $orderId);
         $shipment = $action === LengowAction::TYPE_SHIP ? $order->getShipmentsCollection()->getFirstItem() : null;
         $this->_lengowOrder->callAction($action, $order, $shipment);
         /** @var Redirect $resultRedirect */

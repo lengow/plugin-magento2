@@ -77,8 +77,8 @@ class LaunchExport
         $storeCollection = $this->_storeManager->getStores();
         foreach ($storeCollection as $store) {
             if ($store->isActive()) {
-                $storeId = (int)$store->getId();
-                if ($this->_configHelper->get('export_cron_enable', $storeId)) {
+                $storeId = $store->getId();
+                if ($this->_configHelper->get(ConfigHelper::EXPORT_MAGENTO_CRON_ENABLED, $storeId)) {
                     try {
                         // config store
                         $this->_storeManager->setCurrentStore($storeId);
@@ -86,11 +86,11 @@ class LaunchExport
                         $export = $this->_exportFactory->create();
                         $export->init(
                             [
-                                'store_id' => $storeId,
-                                'stream' => false,
-                                'update_export_date' => false,
-                                'log_output' => false,
-                                'type' => LengowExport::TYPE_MAGENTO_CRON,
+                                LengowExport::PARAM_STORE_ID => $storeId,
+                                LengowExport::PARAM_STREAM => false,
+                                LengowExport::PARAM_UPDATE_EXPORT_DATE => false,
+                                LengowExport::PARAM_LOG_OUTPUT => false,
+                                LengowExport::PARAM_TYPE => LengowExport::TYPE_MAGENTO_CRON,
                             ]
                         );
                         $export->exec();

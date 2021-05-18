@@ -71,11 +71,11 @@ class LaunchSynchronization
      */
     public function execute()
     {
-        if ((bool)$this->_configHelper->get('import_cron_enable')) {
+        if ($this->_configHelper->get(ConfigHelper::SYNCHRONISATION_MAGENTO_CRON_ENABLED)) {
             // sync catalogs id between Lengow and Magento
             $this->_syncHelper->syncCatalog();
             // sync orders between Lengow and Magento
-            $this->_import->init(['type' => LengowImport::TYPE_MAGENTO_CRON]);
+            $this->_import->init([LengowImport::PARAM_TYPE => LengowImport::TYPE_MAGENTO_CRON]);
             $this->_import->exec();
             // sync action between Lengow and Magento
             $this->_action->checkFinishAction();

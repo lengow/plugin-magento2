@@ -122,9 +122,9 @@ class Import extends AbstractHelper
      *
      * @return boolean
      */
-    public function importIsInProcess()
+    public function isInProcess()
     {
-        $timestamp = $this->_configHelper->get('import_in_progress');
+        $timestamp = $this->_configHelper->get(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS);
         if ($timestamp > 0) {
             // security check : if last import is more than 60 seconds old => authorize new import to be launched
             if (($timestamp + (60 * 1)) < time()) {
@@ -143,7 +143,7 @@ class Import extends AbstractHelper
      */
     public function restTimeToImport()
     {
-        $timestamp = $this->_configHelper->get('import_in_progress');
+        $timestamp = $this->_configHelper->get(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS);
         if ($timestamp > 0) {
             return $timestamp + (60 * 1) - time();
         }
@@ -155,7 +155,7 @@ class Import extends AbstractHelper
      */
     public function setImportInProcess()
     {
-        $this->_configHelper->set('import_in_progress', time());
+        $this->_configHelper->set(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS, time());
     }
 
     /**
@@ -163,7 +163,7 @@ class Import extends AbstractHelper
      */
     public function setImportEnd()
     {
-        $this->_configHelper->set('import_in_progress', -1);
+        $this->_configHelper->set(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS, -1);
     }
 
     /**
@@ -176,9 +176,15 @@ class Import extends AbstractHelper
     public function updateDateImport($type)
     {
         if ($type === LengowImport::TYPE_CRON || $type === LengowImport::TYPE_MAGENTO_CRON) {
-            $this->_configHelper->set('last_import_cron', $this->_dateTime->gmtTimestamp());
+            $this->_configHelper->set(
+                ConfigHelper::LAST_UPDATE_CRON_SYNCHRONIZATION,
+                $this->_dateTime->gmtTimestamp()
+            );
         } else {
-            $this->_configHelper->set('last_import_manual', $this->_dateTime->gmtTimestamp());
+            $this->_configHelper->set(
+                ConfigHelper::LAST_UPDATE_MANUAL_SYNCHRONIZATION,
+                $this->_dateTime->gmtTimestamp()
+            );
         }
         return true;
     }
@@ -190,18 +196,20 @@ class Import extends AbstractHelper
      */
     public function getLastImport()
     {
-        $timestampCron = $this->_configHelper->get('last_import_cron');
-        $timestampManual = $this->_configHelper->get('last_import_manual');
+        $timestampCron = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_CRON_SYNCHRONIZATION);
+        $timestampManual = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_MANUAL_SYNCHRONIZATION);
         if ($timestampCron && $timestampManual) {
-            if ((int)$timestampCron > (int)$timestampManual) {
-                return ['type' => LengowImport::TYPE_CRON, 'timestamp' => (int)$timestampCron];
-            } else {
-                return ['type' => LengowImport::TYPE_MANUAL, 'timestamp' => (int)$timestampManual];
+            if ((int) $timestampCron > (int) $timestampManual) {
+                return ['type' => LengowImport::TYPE_CRON, 'timestamp' => (int) $timestampCron];
             }
-        } elseif ($timestampCron && !$timestampManual) {
-            return ['type' => LengowImport::TYPE_CRON, 'timestamp' => (int)$timestampCron];
-        } elseif ($timestampManual && !$timestampCron) {
-            return ['type' => LengowImport::TYPE_MANUAL, 'timestamp' => (int)$timestampManual];
+            return ['type' => LengowImport::TYPE_MANUAL, 'timestamp' => (int) $timestampManual];
+
+        }
+        if ($timestampCron && !$timestampManual) {
+            return ['type' => LengowImport::TYPE_CRON, 'timestamp' => (int) $timestampCron];
+        }
+        if ($timestampManual && !$timestampCron) {
+            return ['type' => LengowImport::TYPE_MANUAL, 'timestamp' => (int) $timestampManual];
         }
         return ['type' => 'none', 'timestamp' => 'none'];
     }
@@ -219,11 +227,8 @@ class Import extends AbstractHelper
             return $this->_dataHelper->decodeLogMessage(
                 $this->_dataHelper->setLogMessage('Last synchronisation : %1', ['<b>' . $lastImportDate . '</b>'])
             );
-        } else {
-            return $this->_dataHelper->decodeLogMessage(
-                $this->_dataHelper->setLogMessage('No synchronisation for now')
-            );
         }
+        return $this->_dataHelper->decodeLogMessage($this->_dataHelper->setLogMessage('No synchronisation for now'));
     }
 
     /**
@@ -264,7 +269,7 @@ class Import extends AbstractHelper
     public function getReportMailPrint()
     {
         $reportMailPrint = '';
-        $reportMailActive = (bool)$this->_configHelper->get('report_mail_enable');
+        $reportMailActive = (bool) $this->_configHelper->get(ConfigHelper::REPORT_MAIL_ENABLED);
         $reportMailLink = $this->_urlBackend->getUrl('adminhtml/system_config/edit/section/lengow_import_options/');
         $reportMails = $this->_configHelper->getReportEmailAddress();
         if ($reportMailActive) {
@@ -315,7 +320,7 @@ class Import extends AbstractHelper
         if (empty($orderStateMarketplace)) {
             return false;
         }
-        if (!in_array($marketplace->getStateLengow($orderStateMarketplace), $this->_lengowStates)) {
+        if (!in_array($marketplace->getStateLengow($orderStateMarketplace), $this->_lengowStates, true)) {
             return false;
         }
         return true;
@@ -343,7 +348,7 @@ class Import extends AbstractHelper
                     ? $this->_dataHelper->decodeLogMessage($error['message'])
                     : $support;
                 $mailBody .= '<li>' . $order . ' - ' . $message . '</li>';
-                $orderError = $this->_orderErrorFactory->create()->load((int)$error['id']);
+                $orderError = $this->_orderErrorFactory->create()->load((int) $error['id']);
                 $orderError->updateOrderError(['mail' => 1]);
                 unset($orderError, $order, $message);
             }
@@ -351,7 +356,7 @@ class Import extends AbstractHelper
             // send an email foreach email address
             $emails = $this->_configHelper->getReportEmailAddress();
             foreach ($emails as $email) {
-                if (strlen($email) > 0) {
+                if ($email !== '') {
                     try {
                         $mail = new \Zend_Mail();
                         $mail->setSubject($subject);

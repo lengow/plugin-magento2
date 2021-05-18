@@ -81,6 +81,6 @@ class Content extends Template
      */
     public function getNumberOrderToBeSent()
     {
-        return $this->_numberOrderToBeSent > 0 ? (int)$this->_numberOrderToBeSent : false;
+        return $this->_numberOrderToBeSent > 0 ? $this->_numberOrderToBeSent : false;
     }
 }

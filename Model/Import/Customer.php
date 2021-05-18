@@ -494,18 +494,18 @@ class Customer extends MagentoResourceCustomer
         // first get by email
         $customer = $this->_customerFactory->create();
         $customer->setWebsiteId($idWebsite);
-        $customer->setGroupId($this->_configHelper->get('customer_group', $storeId));
+        $customer->setGroupId($this->_configHelper->get(ConfigHelper::SYNCHRONISATION_CUSTOMER_GROUP, $storeId));
         $customer->loadByEmail($customerEmail);
         // create new subscriber without send a confirmation email
         if (!$customer->getId()) {
             $customerNames = $this->getNames($billingData);
             $customer->setImportMode(true);
             $customer->setWebsiteId($idWebsite);
-            $customer->setCompany((string)$billingData->company);
+            $customer->setCompany((string) $billingData->company);
             $customer->setLastname($customerNames['lastName']);
             $customer->setFirstname($customerNames['firstName']);
             $customer->setEmail($customerEmail);
-            $customer->setTaxvat((string)$billingData->vat_number);
+            $customer->setTaxvat((string) $billingData->vat_number);
             $customer->setConfirmation(null);
             $customer->setForceConfirmed(true);
             $customer->setPasswordHash($this->_encryptor->getHash($this->generatePassword(), true));
@@ -526,7 +526,7 @@ class Customer extends MagentoResourceCustomer
     private function generatePassword($length = 8)
     {
         $chars = Random::CHARS_LOWERS . Random::CHARS_UPPERS . Random::CHARS_DIGITS;
-        return $password = $this->_mathRandom->getRandomString($length, $chars);
+        return $this->_mathRandom->getRandomString($length, $chars);
     }
 
     /**
@@ -542,7 +542,7 @@ class Customer extends MagentoResourceCustomer
     {
         $names = $this->getNames($addressData);
         $street = $this->getAddressStreet($addressData, $isShippingAddress);
-        $postcode = (string)$addressData->zipcode;
+        $postcode = (string) $addressData->zipcode;
         $city = ucfirst(strtolower(preg_replace('/[!<>?=+@{}_$%]/sim', '', $addressData->city)));
         $defaultAddress = $isShippingAddress
             ? $customer->getDefaultShippingAddress()
@@ -553,17 +553,17 @@ class Customer extends MagentoResourceCustomer
             $address->setCustomer($customer);
             $address->setIsDefaultBilling(!$isShippingAddress);
             $address->setIsDefaultShipping($isShippingAddress);
-            $address->setCompany((string)$addressData->company);
+            $address->setCompany((string) $addressData->company);
             $address->setFirstname($names['firstName']);
             $address->setLastname($names['lastName']);
             $address->setStreet($street);
             $address->setPostcode($postcode);
             $address->setCity($city);
-            $address->setCountryId((string)$addressData->common_country_iso_a2);
+            $address->setCountryId((string) $addressData->common_country_iso_a2);
             $phoneNumbers = $this->getPhoneNumbers($addressData);
             $address->setTelephone($phoneNumbers['phone']);
             $address->setFax($phoneNumbers['secondPhone']);
-            $address->setVatId((string)$addressData->vat_number);
+            $address->setVatId((string) $addressData->vat_number);
             // get region id by postcode or state region
             $regionId = false;
             if (in_array($address->getCountry(), [self::ISO_A2_FR, self::ISO_A2_ES, self::ISO_A2_IT])) {
@@ -598,15 +598,11 @@ class Customer extends MagentoResourceCustomer
         $defaultAddressStreet = is_array($defaultAddress->getStreet())
             ? implode("\n", $defaultAddress->getStreet())
             : $defaultAddress->getStreet();
-        if ($defaultAddress->getFirstname() === $firstName
+        return $defaultAddressStreet === $street
+            && $defaultAddress->getFirstname() === $firstName
             && $defaultAddress->getLastname() === $lastName
-            && $defaultAddressStreet === $street
             && $defaultAddress->getPostcode() === $postcode
-            && $defaultAddress->getCity() === $city
-        ) {
-            return true;
-        }
-        return false;
+            && $defaultAddress->getCity() === $city;
     }
 
     /**
@@ -648,11 +644,12 @@ class Customer extends MagentoResourceCustomer
     private function cleanFullName($fullName)
     {
         $split = explode(' ', $fullName);
-        if ($split && !empty($split)) {
-            $fullName = (in_array($split[0], $this->currentMale) || in_array($split[0], $this->currentFemale))
-                ? ''
-                : $split[0];
-            for ($i = 1; $i < count($split); $i++) {
+        if (!empty($split)) {
+            $fullName = (in_array($split[0], $this->currentMale, true)
+                || in_array($split[0], $this->currentFemale, true)
+            ) ? '' : $split[0];
+            $countSplit = count($split);
+            for ($i = 1; $i < $countSplit; $i++) {
                 if (!empty($fullName)) {
                     $fullName .= ' ';
                 }
@@ -672,10 +669,11 @@ class Customer extends MagentoResourceCustomer
     private function splitNames($fullName)
     {
         $split = explode(' ', $fullName);
-        if ($split && !empty($split)) {
+        if (!empty($split)) {
             $names['firstName'] = $split[0];
             $names['lastName'] = '';
-            for ($i = 1; $i < count($split); $i++) {
+            $countSplit = count($split);
+            for ($i = 1; $i < $countSplit; $i++) {
                 if (!empty($names['lastName'])) {
                     $names['lastName'] .= ' ';
                 }
@@ -742,7 +740,7 @@ class Customer extends MagentoResourceCustomer
         if (empty($phoneHome)) {
             if (!empty($phoneMobile)) {
                 $phoneHome = $phoneMobile;
-                $phoneMobile = $phoneOffice ? $phoneOffice : '';
+                $phoneMobile = $phoneOffice ?: '';
             } elseif (!empty($phoneOffice)) {
                 $phoneHome = $phoneOffice;
             }
@@ -801,7 +799,7 @@ class Customer extends MagentoResourceCustomer
                     ? $this->regionCodes[$countryIsoA2][$postcodeSubstr]
                     : false;
                 if ($regionCode && is_array($regionCode) && !empty($regionCode)) {
-                    $regionCode = $this->getRegionCodeFromIntervalPostcodes((int)$postcode, $regionCode);
+                    $regionCode = $this->getRegionCodeFromIntervalPostcodes((int) $postcode, $regionCode);
                 }
                 break;
             default:
@@ -831,8 +829,8 @@ class Customer extends MagentoResourceCustomer
         foreach ($intervalPostcodes as $intervalPostcode => $regionCode) {
             $intervalPostcodes = explode('-', $intervalPostcode);
             if (!empty($intervalPostcodes) && count($intervalPostcodes) === 2) {
-                $minPostcode = is_numeric($intervalPostcodes[0]) ? (int)$intervalPostcodes[0] : false;
-                $maxPostcode = is_numeric($intervalPostcodes[1]) ? (int)$intervalPostcodes[1] : false;
+                $minPostcode = is_numeric($intervalPostcodes[0]) ? (int) $intervalPostcodes[0] : false;
+                $maxPostcode = is_numeric($intervalPostcodes[1]) ? (int) $intervalPostcodes[1] : false;
                 if (($minPostcode && $maxPostcode) && ($postcode >= $minPostcode && $postcode <= $maxPostcode)) {
                     return $regionCode;
                 }
@@ -872,7 +870,7 @@ class Customer extends MagentoResourceCustomer
                     $nameCleaned = $this->cleanString($region['default_name']);
                     similar_text($stateRegionCleaned, $nameCleaned, $percent);
                     if ($percent > 70) {
-                        $results[(int)$percent] = $region['region_id'];
+                        $results[(int) $percent] = $region['region_id'];
                     }
                 }
                 if (!empty($results)) {
@@ -894,7 +892,6 @@ class Customer extends MagentoResourceCustomer
     private function cleanString($string)
     {
         $string = strtolower(str_replace([' ', '-', '_', '.'], '', trim($string)));
-        $string = $this->_dataHelper->replaceAccentedChars(html_entity_decode($string));
-        return $string;
+        return $this->_dataHelper->replaceAccentedChars(html_entity_decode($string));
     }
 }

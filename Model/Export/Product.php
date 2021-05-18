@@ -367,15 +367,14 @@ class Product
             case 'quantity':
                 return $this->_quantity;
             case 'status':
-                return (int)$this->_product->getStatus() === ProductStatus::STATUS_DISABLED ? 'Disabled' : 'Enabled';
+                return (int) $this->_product->getStatus() === ProductStatus::STATUS_DISABLED ? 'Disabled' : 'Enabled';
             case 'category':
                 return $this->_category->getCategoryBreadcrumb();
             case 'url':
                 $routeParams = ['_nosid' => true, '_query' => ['___store' => $this->_store->getCode()]];
-                $url = $this->_getParentData
+                return $this->_getParentData
                     ? $this->_parentProduct->getUrlInStore($routeParams)
                     : $this->_product->getUrlInStore($routeParams);
-                return $url;
             case 'price_excl_tax':
             case 'price_incl_tax':
             case 'price_before_discount_excl_tax':
@@ -456,7 +455,7 @@ class Product
     {
         if ($this->_type === 'simple'
             && $this->_parentProduct
-            && (int)$this->_parentProduct->getStatus() === ProductStatus::STATUS_DISABLED
+            && (int) $this->_parentProduct->getStatus() === ProductStatus::STATUS_DISABLED
         ) {
             $this->_simpleDisabledCounter++;
             return false;
@@ -568,8 +567,10 @@ class Product
         if ($this->_type === 'simple') {
             $parentIds = $this->_configurableProduct->getParentIdsByChild($this->_product->getId());
             if (!empty($parentIds)) {
-                $parentProduct = $this->_getConfigurableProduct((int)$parentIds[0]);
-                if ($parentProduct && (int)$this->_product->getVisibility() === ProductVisibility::VISIBILITY_NOT_VISIBLE) {
+                $parentProduct = $this->_getConfigurableProduct((int) $parentIds[0]);
+                if ($parentProduct
+                    && $this->_product->getVisibility() === ProductVisibility::VISIBILITY_NOT_VISIBLE
+                ) {
                     $this->_getParentData = true;
                 }
             }
@@ -620,10 +621,11 @@ class Product
             $imageUrls['image_url_' . $i] = '';
         }
         // get product and parent images
-        if ((bool)$this->_configHelper->get('parent_image', $this->_store->getId()) && $this->_parentProduct) {
-            if ($this->_parentProduct->getMediaGalleryImages() !== null) {
-                $parentImages = $this->_parentProduct->getMediaGalleryImages()->toArray();
-            }
+        if ($this->_parentProduct
+            && $this->_parentProduct->getMediaGalleryImages() !== null
+            && $this->_configHelper->get(ConfigHelper::EXPORT_PARENT_IMAGE_ENABLED, $this->_store->getId())
+        ) {
+            $parentImages = $this->_parentProduct->getMediaGalleryImages()->toArray();
         }
         if ($this->_product->getMediaGalleryImages() !== null) {
             $images = $this->_product->getMediaGalleryImages()->toArray();
@@ -632,7 +634,7 @@ class Product
         $images = $parentImages ? array_merge($parentImages['items'], $images) : $images;
         // cleans the array of images to avoid duplicates
         foreach ($images as $image) {
-            if (!in_array($image['url'], $urls)) {
+            if (!in_array($image['url'], $urls, true)) {
                 $urls[] = $image['url'];
             }
         }
@@ -688,7 +690,7 @@ class Product
         if ($this->_type === 'grouped') {
             $childrenIds = array_reduce(
                 $this->_product->getTypeInstance()->getChildrenIds($this->_product->getId()),
-                function (array $reduce, $value) {
+                static function (array $reduce, $value) {
                     return array_merge($reduce, $value);
                 },
                 []
@@ -704,8 +706,8 @@ class Product
      */
     protected function _getQuantity()
     {
-        if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')
-            && $this->_configHelper->moduleIsEnabled('Magento_Inventory')
+        if ($this->_configHelper->moduleIsEnabled('Magento_Inventory')
+            && version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')
         ) {
             // Check if product is multi-stock
             $res = $this->getSourceItemDetailBySKU($this->_product->getSku());
@@ -727,9 +729,9 @@ class Product
             foreach ($this->_childrenIds as $childrenId) {
                 $quantities[] = $this->_stockRegistry->getStockItem($childrenId, $this->_store->getId())->getQty();
             }
-            $quantity = min($quantities) > 0 ? (int)min($quantities) : 0;
+            $quantity = min($quantities) > 0 ? (int) min($quantities) : 0;
         } else {
-            $quantity = (int)$this->_stockRegistry->getStockItem($this->_product->getId(), $this->_store->getId())
+            $quantity = (int) $this->_stockRegistry->getStockItem($this->_product->getId(), $this->_store->getId())
                 ->getQty();
         }
         return $quantity;
@@ -800,13 +802,13 @@ class Product
                 $this->_price->load(['product' => $children]);
                 $childrenPrices = $this->_price->getPrices();
                 foreach ($childrenPrices as $key => $value) {
-                    $prices[$key] = $prices[$key] + $value;
+                    $prices[$key] += $value;
                 }
                 $childrenDiscount = $this->_price->getDiscounts();
-                if (strlen($childrenDiscount['discount_start_date']) > 0) {
+                if ($childrenDiscount['discount_start_date'] !== '') {
                     $startTimestamps[] = $this->_dateTime->gmtTimestamp($childrenDiscount['discount_start_date']);
                 }
-                if (strlen($childrenDiscount['discount_end_date']) > 0) {
+                if ($childrenDiscount['discount_end_date'] !== '') {
                     $endTimestamps[] = $this->_dateTime->gmtTimestamp($childrenDiscount['discount_end_date']);
                 }
                 $this->_price->clean();

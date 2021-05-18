@@ -355,9 +355,9 @@ class Feed
                 return $content;
             case self::FORMAT_YAML:
                 if ($maxCharacter % 2 === 1) {
-                    $maxCharacter = $maxCharacter + 1;
+                    $maxCharacter++;
                 } else {
-                    $maxCharacter = $maxCharacter + 2;
+                    $maxCharacter += 2;
                 }
                 $content = '  ' . self::PROTECTION . 'product' . self::PROTECTION . ':' . self::EOL;
                 foreach ($data as $field => $value) {
@@ -368,7 +368,7 @@ class Feed
                     $yamlSpace = isset($this->_yamlSpaces[$field])
                         ? $this->_yamlSpaces[$field]
                         : $this->_indentYaml($field, $maxCharacter);
-                    $content .= $yamlSpace . (string)$value . self::EOL;
+                    $content .= $yamlSpace . $value . self::EOL;
                 }
                 return $content;
         }
@@ -471,16 +471,16 @@ class Feed
     {
         switch ($this->_format) {
             case self::FORMAT_CSV:
-                $formatField = substr(
-                    strtolower(
+                $formatField = strtolower(
+                    substr(
                         preg_replace(
                             '/[^a-zA-Z0-9_]+/',
                             '',
                             str_replace([' ', '\''], '_', $this->_dataHelper->replaceAccentedChars($field))
-                        )
-                    ),
-                    0,
-                    58
+                        ),
+                        0,
+                        58
+                    )
                 );
                 break;
             default:

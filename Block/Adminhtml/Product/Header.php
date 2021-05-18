@@ -78,7 +78,7 @@ class Header extends Template
      */
     public function selectionIsEnabled()
     {
-        return (bool)$this->_configHelper->get('selection_enable', $this->_store->getId());
+        return (bool) $this->_configHelper->get(ConfigHelper::SELECTION_ENABLED, $this->_store->getId());
     }
 
     /**
@@ -98,7 +98,7 @@ class Header extends Template
      */
     public function getExport()
     {
-        $this->_export->init(['store_id' => $this->_store->getId()]);
+        $this->_export->init([LengowExport::PARAM_STORE_ID => $this->_store->getId()]);
         return $this->_export;
     }
 
@@ -109,6 +109,12 @@ class Header extends Template
      */
     public function getExportUrl()
     {
-        return $this->_dataHelper->getExportUrl($this->_store->getId(), ['stream' => 1, 'update_export_date' => 0]);
+        return $this->_dataHelper->getExportUrl(
+            $this->_store->getId(),
+            [
+                LengowExport::PARAM_STREAM => 1,
+                LengowExport::PARAM_UPDATE_EXPORT_DATE => 0,
+            ]
+        );
     }
 }

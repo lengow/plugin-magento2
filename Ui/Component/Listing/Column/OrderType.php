@@ -57,7 +57,7 @@ class OrderType extends Column
             foreach ($dataSource['data']['items'] as &$item) {
                 if ($item['order_types'] !== null) {
                     $return = '<div>';
-                    $orderTypes = (string)$item['order_types'];
+                    $orderTypes = (string) $item['order_types'];
                     $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : [];
                     if (isset($orderTypes[LengowOrder::TYPE_EXPRESS]) || isset($orderTypes[LengowOrder::TYPE_PRIME])) {
                         $iconLabel = isset($orderTypes[LengowOrder::TYPE_PRIME])
@@ -66,7 +66,7 @@ class OrderType extends Column
                         $return .= $this->_generateOrderTypeIcon($iconLabel, 'orange-light', 'mod-chrono');
                     }
                     if (isset($orderTypes[LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE])
-                        || (bool)$item['sent_marketplace']
+                        || (bool) $item['sent_marketplace']
                     ) {
                         $iconLabel = isset($orderTypes[LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE])
                             ? $orderTypes[LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE]

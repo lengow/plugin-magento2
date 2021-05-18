@@ -83,7 +83,9 @@ class LinkCatalog extends Action
         $result = $this->resultJsonFactory->create();
         $resultPage = $this->resultPageFactory->create();
         $catalogsLinked = true;
-        $catalogSelected = $this->getRequest()->getParam('catalogSelected') ?? [];
+        $catalogSelected = $this->getRequest()->getParam('catalogSelected') !== null
+            ? $this->getRequest()->getParam('catalogSelected')
+            : [];
         if (!empty($catalogSelected)) {
             $catalogsLinked = $this->catalog->saveCatalogsLinked($catalogSelected);
         }

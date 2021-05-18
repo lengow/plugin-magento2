@@ -144,7 +144,7 @@ class Ordererror extends AbstractModel
         }
         $updatedFields = $this->getUpdatedFields();
         foreach ($params as $key => $value) {
-            if (in_array($key, $updatedFields)) {
+            if (in_array($key, $updatedFields, true)) {
                 $this->setData($key, $value);
             }
         }
@@ -212,7 +212,7 @@ class Ordererror extends AbstractModel
             ->getData();
         if (!empty($results)) {
             foreach ($results as $result) {
-                $orderError = $this->_orderErrorFactory->create()->load((int)$result['id']);
+                $orderError = $this->_orderErrorFactory->create()->load((int) $result['id']);
                 $orderError->updateOrderError(['is_finished' => 1]);
                 unset($orderError);
             }

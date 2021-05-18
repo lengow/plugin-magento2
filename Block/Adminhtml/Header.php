@@ -104,12 +104,8 @@ class Header extends Template
      */
     public function freeTrialIsEnabled()
     {
-        if ((isset($this->_statusAccount['type']) && $this->_statusAccount['type'] === 'free_trial')
-            && (isset($this->_statusAccount['expired']) && !$this->_statusAccount['expired'])
-        ) {
-            return true;
-        }
-        return false;
+        return (isset($this->_statusAccount['type']) && $this->_statusAccount['type'] === 'free_trial')
+            && (isset($this->_statusAccount['expired']) && !$this->_statusAccount['expired']);
     }
 
     /**
@@ -119,7 +115,7 @@ class Header extends Template
      */
     public function getFreeTrialDays()
     {
-        return isset($this->_statusAccount['day']) ? (int)$this->_statusAccount['day'] : 0;
+        return isset($this->_statusAccount['day']) ? (int) $this->_statusAccount['day'] : 0;
     }
 
     /**
@@ -129,12 +125,8 @@ class Header extends Template
      */
     public function newPluginVersionIsAvailable()
     {
-        if (($this->_pluginData && isset($this->_pluginData['version']))
-            && version_compare($this->_securityHelper->getPluginVersion(), $this->_pluginData['version'], '<')
-        ) {
-            return true;
-        }
-        return false;
+        return ($this->_pluginData && isset($this->_pluginData['version']))
+            && version_compare($this->_securityHelper->getPluginVersion(), $this->_pluginData['version'], '<');
     }
 
     /**

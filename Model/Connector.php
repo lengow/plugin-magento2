@@ -280,7 +280,7 @@ class Connector
             return false;
         }
         list($accountId, $accessToken, $secret) = $this->_configHelper->getAccessIds();
-        if ($accountId === null || (int)$accountId === 0 || !is_numeric($accountId)) {
+        if ($accountId === null) {
             return false;
         }
         try {
@@ -377,8 +377,8 @@ class Connector
      */
     public function connect($force = false, $logOutput = false)
     {
-        $token = $this->_configHelper->get('authorization_token');
-        $updatedAt = $this->_configHelper->get('last_authorization_token_update');
+        $token = $this->_configHelper->get(ConfigHelper::AUTHORIZATION_TOKEN);
+        $updatedAt = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_AUTHORIZATION_TOKEN);
         if (!$force
             && $token !== null
             && $updatedAt !== null
@@ -388,8 +388,8 @@ class Connector
             $authorizationToken = $token;
         } else {
             $authorizationToken = $this->_getAuthorizationToken($logOutput);
-            $this->_configHelper->set('authorization_token', $authorizationToken);
-            $this->_configHelper->set('last_authorization_token_update', time());
+            $this->_configHelper->set(ConfigHelper::AUTHORIZATION_TOKEN, $authorizationToken);
+            $this->_configHelper->set(ConfigHelper::LAST_UPDATE_AUTHORIZATION_TOKEN, time());
         }
         $this->_token = $authorizationToken;
     }

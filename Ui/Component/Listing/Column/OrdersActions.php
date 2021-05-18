@@ -100,9 +100,9 @@ class OrdersActions extends Column
 
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if ((bool)$item['is_in_error'] && (int)$item['order_process_state'] !== 2) {
-                    $orderLengowId = (int)$item['id'];
-                    $errorType = (int)$item['order_process_state'] === 0 ? 'import' : 'send';
+                if ((bool) $item['is_in_error'] && (int) $item['order_process_state'] !== 2) {
+                    $orderLengowId = (int) $item['id'];
+                    $errorType = (int) $item['order_process_state'] === 0 ? 'import' : 'send';
                     $url = $this->urlBuilder->getUrl('lengow/order/index') . '?isAjax=true';
                     $errorOrders = $this->_orderErrorFactory->create()->getOrderErrors($orderLengowId, $errorType, false);
                     $errorMessages = [];
@@ -136,7 +136,7 @@ class OrdersActions extends Column
                     }
                 } else {
                     //check if order actions in progress
-                    if ($item['order_id'] !== null && (int)$item['order_process_state'] === 1) {
+                    if ($item['order_id'] !== null && (int) $item['order_process_state'] === 1) {
                         $lastActionType = $this->_action->getLastOrderActionType($item['order_id']);
                         if ($lastActionType) {
                             $item['is_in_error'] = '<a class="lengow_action lengow_tooltip lgw-btn lgw-btn-white">'

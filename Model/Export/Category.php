@@ -92,7 +92,7 @@ class Category
         $this->_product = $params['product'];
         $defaultCategory = $this->_getDefaultCategory();
         $this->_categoryBreadcrumb = $defaultCategory['id'] > 0
-            ? $this->_getBreadcrumb((int)$defaultCategory['id'], $defaultCategory['path'])
+            ? $this->_getBreadcrumb((int) $defaultCategory['id'], $defaultCategory['path'])
             : '';
     }
 
@@ -140,7 +140,7 @@ class Category
             }
         }
         return [
-            'id' => isset($defaultCategory['entity_id']) ? (int)$defaultCategory['entity_id'] : 0,
+            'id' => isset($defaultCategory['entity_id']) ? (int) $defaultCategory['entity_id'] : 0,
             'path' => isset($defaultCategory['path']) ? $defaultCategory['path'] : '',
         ];
     }
@@ -168,8 +168,8 @@ class Category
         $categoryIds = explode('/', $categoryPath);
         foreach ($categoryIds as $id) {
             // no root category in breadcrumb
-            if ((int)$id !== 1) {
-                $categoryNames[] = $this->_getName((int)$id);
+            if ((int) $id !== 1) {
+                $categoryNames[] = $this->_getName((int) $id);
             }
         }
         $categoryBreadcrumb = implode(' > ', $categoryNames);

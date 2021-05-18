@@ -64,8 +64,8 @@ class Reimport extends Action
     {
         $orderId = $this->getRequest()->getParam('order_id');
         $lengowOrderId = $this->getRequest()->getParam('lengow_order_id');
-        $order = $this->_orderFactory->create()->load((int)$orderId);
-        $lengowOrder = $this->_lengowOrderFactory->create()->load((int)$lengowOrderId);
+        $order = $this->_orderFactory->create()->load((int) $orderId);
+        $lengowOrder = $this->_lengowOrderFactory->create()->load((int) $lengowOrderId);
         $newOrderId = $this->_lengowOrderFactory->create()->cancelAndReImportOrder($order, $lengowOrder);
         $newOrderId = !$newOrderId ? $orderId : $newOrderId;
         /** @var Redirect $resultRedirect */

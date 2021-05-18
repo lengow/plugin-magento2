@@ -173,7 +173,7 @@ class Info extends Template implements TabInterface
      */
     public function getOrderId()
     {
-        return (int)$this->_order->getId();
+        return (int) $this->_order->getId();
     }
 
     /**
@@ -193,7 +193,7 @@ class Info extends Template implements TabInterface
      */
     public function getLengowOrderId()
     {
-        return $this->_lengowOrder ? (int)$this->_lengowOrder->getId() : false;
+        return $this->_lengowOrder ? (int) $this->_lengowOrder->getId() : false;
     }
 
     /**
@@ -213,7 +213,7 @@ class Info extends Template implements TabInterface
      */
     public function isOrderImportedByLengow()
     {
-        return (bool)$this->_order->getData('from_lengow');
+        return (bool) $this->_order->getData('from_lengow');
     }
 
     /**
@@ -223,7 +223,7 @@ class Info extends Template implements TabInterface
      */
     public function isOrderFollowedByLengow()
     {
-        return $this->_lengowOrder ? true : false;
+        return (bool) $this->_lengowOrder;
     }
 
     /**
@@ -237,7 +237,7 @@ class Info extends Template implements TabInterface
             $orderStatus = $this->getOrderStatus();
             if (($orderStatus === 'complete' || $orderStatus === 'canceled') && $this->_lengowOrder) {
                 $finishProcessState = $this->_lengowOrder->getOrderProcessState('closed');
-                if ($this->_lengowOrder->getData('order_process_state') != $finishProcessState) {
+                if ((int) $this->_lengowOrder->getData('order_process_state') !== $finishProcessState) {
                     return true;
                 }
             }

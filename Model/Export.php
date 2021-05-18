@@ -43,6 +43,31 @@ use Lengow\Connector\Helper\Security as SecurityHelper;
  */
 class Export
 {
+    /* Export GET params */
+    const PARAM_TOKEN = 'token';
+    const PARAM_MODE = 'mode';
+    const PARAM_FORMAT = 'format';
+    const PARAM_STREAM = 'stream';
+    const PARAM_OFFSET = 'offset';
+    const PARAM_LIMIT = 'limit';
+    const PARAM_TYPE = 'type';
+    const PARAM_SELECTION = 'selection';
+    const PARAM_OUT_OF_STOCK = 'out_of_stock';
+    const PARAM_PRODUCT_IDS = 'product_ids';
+    const PARAM_PRODUCT_TYPES = 'product_types';
+    const PARAM_INACTIVE = 'inactive';
+    const PARAM_STORE = 'store';
+    const PARAM_STORE_ID = 'store_id';
+    const PARAM_CODE = 'code';
+    const PARAM_CURRENCY = 'currency';
+    const PARAM_LANGUAGE = 'language';
+    const PARAM_LOG_OUTPUT = 'log_output';
+    const PARAM_UPDATE_EXPORT_DATE = 'update_export_date';
+    const PARAM_GET_PARAMS = 'get_params';
+
+    /* Legacy export GET params for old versions */
+    const PARAM_LEGACY_LANGUAGE = 'locale';
+
     /**
      * @var string manual export type
      */
@@ -117,24 +142,23 @@ class Export
      * @var array all available params for export
      */
     protected $_exportParams = [
-        'mode',
-        'format',
-        'stream',
-        'offset',
-        'limit',
-        'selection',
-        'out_of_stock',
-        'product_ids',
-        'product_types',
-        'product_status',
-        'store',
-        'code',
-        'currency',
-        'locale',
-        'legacy_fields',
-        'log_output',
-        'update_export_date',
-        'get_params',
+        self::PARAM_MODE,
+        self::PARAM_FORMAT,
+        self::PARAM_STREAM,
+        self::PARAM_OFFSET,
+        self::PARAM_LIMIT,
+        self::PARAM_SELECTION,
+        self::PARAM_OUT_OF_STOCK,
+        self::PARAM_PRODUCT_IDS,
+        self::PARAM_PRODUCT_TYPES,
+        self::PARAM_INACTIVE,
+        self::PARAM_STORE,
+        self::PARAM_CODE,
+        self::PARAM_CURRENCY,
+        self::PARAM_LANGUAGE,
+        self::PARAM_LOG_OUTPUT,
+        self::PARAM_UPDATE_EXPORT_DATE,
+        self::PARAM_GET_PARAMS,
     ];
 
     /**
@@ -278,11 +302,6 @@ class Export
     protected $_exportType;
 
     /**
-     * @var boolean get params available.
-     */
-    protected $_getParams;
-
-    /**
      * @var SecurityHelper Lengow security helper instance
      */
     protected $securityHelper;
@@ -352,34 +371,44 @@ class Export
      */
     public function init($params)
     {
-        $this->_storeId = isset($params['store_id']) ? (int)$params['store_id'] : 0;
+        $this->_storeId = isset($params[self::PARAM_STORE_ID]) ? (int) $params[self::PARAM_STORE_ID] : 0;
         try {
             $this->_store = $this->_storeManager->getStore($this->_storeId);
         } catch (\Exception $e) {
             $this->_store = $this->_storeManager->getDefaultStoreView();
         }
-        $this->_limit = isset($params['limit']) ? (int)$params['limit'] : 0;
-        $this->_offset = isset($params['offset']) ? (int)$params['offset'] : 0;
-        $this->_stream = isset($params['stream'])
-            ? (bool)$params['stream']
-            : !(bool)$this->_configHelper->get('file_enable', $this->_storeId);
-        $this->_selection = isset($params['selection'])
-            ? (bool)$params['selection']
-            : (bool)$this->_configHelper->get('selection_enable', $this->_storeId);
-        $this->_inactive = isset($params['inactive'])
-            ? (bool)$params['inactive']
-            : (bool)$this->_configHelper->get('product_status', $this->_storeId);
-        $this->_outOfStock = isset($params['out_of_stock']) ? $params['out_of_stock'] : true;
-        $this->_updateExportDate = isset($params['update_export_date']) ? (bool)$params['update_export_date'] : true;
-        $this->_format = $this->_setFormat(isset($params['format']) ? $params['format'] : LengowFeed::FORMAT_CSV);
-        $this->_productIds = $this->_setProductIds(isset($params['product_ids']) ? $params['product_ids'] : false);
-        $this->_productTypes = $this->_setProductTypes(
-            isset($params['product_types']) ? $params['product_types'] : false
+        $this->_limit = isset($params[self::PARAM_LIMIT]) ? (int) $params[self::PARAM_LIMIT] : 0;
+        $this->_offset = isset($params[self::PARAM_OFFSET]) ? (int) $params[self::PARAM_OFFSET] : 0;
+        $this->_stream = isset($params[self::PARAM_STREAM])
+            ? (bool) $params[self::PARAM_STREAM]
+            : !(bool) $this->_configHelper->get(ConfigHelper::EXPORT_FILE_ENABLED, $this->_storeId);
+        $this->_selection = isset($params[self::PARAM_SELECTION])
+            ? (bool) $params[self::PARAM_SELECTION]
+            : (bool) $this->_configHelper->get(ConfigHelper::SELECTION_ENABLED, $this->_storeId);
+        $this->_inactive = isset($params[self::PARAM_INACTIVE])
+            ? (bool) $params[self::PARAM_INACTIVE]
+            : (bool) $this->_configHelper->get(ConfigHelper::INACTIVE_ENABLED, $this->_storeId);
+        $this->_outOfStock = isset($params[self::PARAM_OUT_OF_STOCK]) ? $params[self::PARAM_OUT_OF_STOCK] : true;
+        $this->_updateExportDate = !isset($params[self::PARAM_UPDATE_EXPORT_DATE])
+            || $params[self::PARAM_UPDATE_EXPORT_DATE];
+        $this->_format = $this->_setFormat(
+            isset($params[self::PARAM_FORMAT]) ? $params[self::PARAM_FORMAT] : LengowFeed::FORMAT_CSV
         );
-        $this->_logOutput = $this->_setLogOutput(isset($params['log_output']) ? $params['log_output'] : true);
-        $this->_currency = $this->_setCurrency(isset($params['currency']) ? $params['currency'] : false);
-        $this->_exportType = $this->_setType(isset($params['type']) ? $params['type'] : false);
-        $this->_getParams = isset($params['get_params']) ? (bool)$params['get_params'] : false;
+        $this->_productIds = $this->_setProductIds(
+            isset($params[self::PARAM_PRODUCT_IDS]) ? $params[self::PARAM_PRODUCT_IDS] : false
+        );
+        $this->_productTypes = $this->_setProductTypes(
+            isset($params[self::PARAM_PRODUCT_TYPES]) ? $params[self::PARAM_PRODUCT_TYPES] : false
+        );
+        $this->_logOutput = $this->_setLogOutput(
+            isset($params[self::PARAM_LOG_OUTPUT]) ? $params[self::PARAM_LOG_OUTPUT] : true
+        );
+        $this->_currency = $this->_setCurrency(
+            isset($params[self::PARAM_CURRENCY]) ? $params[self::PARAM_CURRENCY] : false
+        );
+        $this->_exportType = $this->_setType(
+            isset($params[self::PARAM_TYPE]) ? $params[self::PARAM_TYPE] : false
+        );
     }
 
     /**
@@ -401,7 +430,7 @@ class Export
      *
      * @return integer
      **/
-    public function getTotalExportedProduct()
+    public function getTotalExportProduct()
     {
         $productCollection = $this->_getQuery();
         return $productCollection->getSize();
@@ -445,7 +474,11 @@ class Export
             );
             $this->_export($products, $fields);
             if ($this->_updateExportDate) {
-                $this->_configHelper->set('last_export', $this->_dateTime->gmtTimestamp(), $this->_storeId);
+                $this->_configHelper->set(
+                    ConfigHelper::LAST_UPDATE_EXPORT,
+                    $this->_dateTime->gmtTimestamp(),
+                    $this->_storeId
+                );
             }
             $timeEnd = $this->_microtimeFloat();
             $this->_dataHelper->log(
@@ -515,7 +548,7 @@ class Export
             $productData = [];
             $lengowProduct->load(
                 [
-                    'product_id' => (int)$product['entity_id'],
+                    'product_id' => (int) $product['entity_id'],
                     'product_type' => $product['type_id'],
                 ]
             );
@@ -615,7 +648,7 @@ class Export
                     $availableCodes[] = $store->getCode();
                     $currencyCodes = $store->getAvailableCurrencyCodes();
                     foreach ($currencyCodes as $currencyCode) {
-                        if (!in_array($currencyCode, $availableCurrencies)) {
+                        if (!in_array($currencyCode, $availableCurrencies, true)) {
                             $availableCurrencies[] = $currencyCode;
                         }
                     }
@@ -624,7 +657,7 @@ class Export
                         ScopeInterface::SCOPE_STORE,
                         $store->getId()
                     );
-                    if (!in_array($storeLanguage, $availableLanguages)) {
+                    if (!in_array($storeLanguage, $availableLanguages, true)) {
                         $availableLanguages[] = $storeLanguage;
                     }
                 }
@@ -632,46 +665,51 @@ class Export
         }
         foreach ($this->_exportParams as $param) {
             switch ($param) {
-                case 'mode':
+                case self::PARAM_MODE:
                     $authorizedValue = ['size', 'total'];
                     $type = 'string';
                     $example = 'size';
                     break;
-                case 'format':
+                case self::PARAM_FORMAT:
                     $authorizedValue = $this->_availableFormats;
                     $type = 'string';
                     $example = LengowFeed::FORMAT_CSV;
                     break;
-                case 'store':
+                case self::PARAM_STORE:
                     $authorizedValue = $availableStores;
                     $type = 'integer';
                     $example = 1;
                     break;
-                case 'code':
+                case self::PARAM_CODE:
                     $authorizedValue = $availableCodes;
                     $type = 'string';
                     $example = 'french';
                     break;
-                case 'currency':
+                case self::PARAM_CURRENCY:
                     $authorizedValue = $availableCurrencies;
                     $type = 'string';
                     $example = 'EUR';
                     break;
-                case 'locale':
+                case self::PARAM_LANGUAGE:
                     $authorizedValue = $availableLanguages;
                     $type = 'string';
                     $example = 'fr_FR';
                     break;
-                case 'offset':
-                case 'limit':
+                case self::PARAM_OFFSET:
+                case self::PARAM_LIMIT:
                     $authorizedValue = 'all integers';
                     $type = 'integer';
                     $example = 100;
                     break;
-                case 'product_ids':
+                case self::PARAM_PRODUCT_IDS:
                     $authorizedValue = 'all integers';
                     $type = 'string';
                     $example = '101,108,215';
+                    break;
+                case self::PARAM_PRODUCT_TYPES:
+                    $authorizedValue = $this->_availableProductTypes;
+                    $type = 'string';
+                    $example = 'configurable,simple,grouped';
                     break;
                 default:
                     $authorizedValue = [0, 1];
@@ -701,12 +739,12 @@ class Export
         }
         $selectedAttributes = $this->_configHelper->getSelectedAttributes($this->_storeId);
         foreach ($selectedAttributes as $selectedAttribute) {
-            if (!in_array($selectedAttribute, $fields)) {
+            if (!in_array($selectedAttribute, $fields, true)) {
                 $fields[] = $selectedAttribute;
             }
         }
-        if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')
-            && $this->_configHelper->moduleIsEnabled('Magento_Inventory')
+        if ($this->_configHelper->moduleIsEnabled('Magento_Inventory')
+            && version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')
         ) {
             $sources = $this->_configHelper->getAllSources();
             // if multi-stock
@@ -728,7 +766,7 @@ class Export
      */
     protected function _setFormat($format)
     {
-        return !in_array($format, $this->_availableFormats) ? LengowFeed::FORMAT_CSV : $format;
+        return !in_array($format, $this->_availableFormats, true) ? LengowFeed::FORMAT_CSV : $format;
     }
 
     /**
@@ -745,7 +783,7 @@ class Export
             $exportedIds = explode(',', $productIds);
             foreach ($exportedIds as $id) {
                 if (is_numeric($id) && $id > 0) {
-                    $ids[] = (int)$id;
+                    $ids[] = (int) $id;
                 }
             }
         }
@@ -765,13 +803,13 @@ class Export
         if ($productTypes) {
             $exportedTypes = explode(',', $productTypes);
             foreach ($exportedTypes as $type) {
-                if (in_array($type, $this->_availableProductTypes)) {
+                if (in_array($type, $this->_availableProductTypes, true)) {
                     $types[] = $type;
                 }
             }
         }
         if (empty($types)) {
-            $types = explode(',', $this->_configHelper->get('product_type', $this->_storeId));
+            $types = explode(',', $this->_configHelper->get(ConfigHelper::EXPORT_PRODUCT_TYPES, $this->_storeId));
         }
         return $types;
     }
@@ -798,7 +836,7 @@ class Export
     protected function _setCurrency($currency)
     {
         $availableCurrencies = $this->_store->getAvailableCurrencyCodes();
-        if (!$currency || !in_array($currency, $availableCurrencies)) {
+        if (!$currency || !in_array($currency, $availableCurrencies, true)) {
             $currency = $this->_store->getCurrentCurrencyCode();
         }
         return $currency;
@@ -879,7 +917,7 @@ class Export
     protected function _microtimeFloat()
     {
         list($usec, $sec) = explode(' ', microtime());
-        return ((float)$usec + (float)$sec);
+        return ((float) $usec + (float) $sec);
     }
 
     /**
@@ -905,7 +943,7 @@ class Export
         // export out of stock products
         if (!$this->_outOfStock) {
             try {
-                $config = (int)$this->_scopeConfig->isSetFlag(CatalogInventoryConfiguration::XML_PATH_MANAGE_STOCK);
+                $config = (int) $this->_scopeConfig->isSetFlag(CatalogInventoryConfiguration::XML_PATH_MANAGE_STOCK);
                 $condition = '({{table}}.`is_in_stock` = 1) '
                     . ' OR IF({{table}}.`use_config_manage_stock` = 1, ' . $config . ', {{table}}.`manage_stock`) = 0';
                 $productCollection->joinTable(

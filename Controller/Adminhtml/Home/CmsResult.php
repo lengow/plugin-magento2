@@ -23,7 +23,7 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\Json as MagentoJsonResult;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\Serialize\Serializer\Json as JsonHelper;
+use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\View\Result\PageFactory;
 use Lengow\Connector\Block\Adminhtml\Home\Content;
 use Lengow\Connector\Helper\Config as ConfigHelper;
@@ -160,9 +160,9 @@ class CmsResult extends Action
         if ($accountId) {
             return $this->configHelper->setAccessIds(
                 [
-                    'account_id' => $accountId,
-                    'access_token' => $accessToken,
-                    'secret_token' => $secret,
+                    ConfigHelper::ACCOUNT_ID => $accountId,
+                    ConfigHelper::ACCESS_TOKEN => $accessToken,
+                    ConfigHelper::SECRET => $secret,
                 ]
             );
         }
@@ -178,7 +178,7 @@ class CmsResult extends Action
         $cmsToken = $this->configHelper->getToken();
         $cmsConnected = $this->syncHelper->syncCatalog(true);
         if (!$cmsConnected) {
-            $syncData = $this->jsonHelper->serialize($this->syncHelper->getSyncData(), true);
+            $syncData = $this->jsonHelper->jsonEncode($this->syncHelper->getSyncData());
             $result = $this->connector->queryApi(
                 LengowConnector::POST,
                 LengowConnector::API_CMS,

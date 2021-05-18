@@ -117,9 +117,9 @@ class Tracker extends Template
                     continue;
                 }
             }
-            $quantity = (int)$item->getQtyOrdered();
-            $price = round((float)$item->getRowTotalInclTax() / $quantity, 2);
-            $identifier = $this->_configHelper->get('tracking_id');
+            $quantity = (int) $item->getQtyOrdered();
+            $price = round((float) $item->getRowTotalInclTax() / $quantity, 2);
+            $identifier = $this->_configHelper->get(ConfigHelper::TRACKING_ID);
             $productDatas = [
                 'product_id' => $product->getData($identifier),
                 'price' => $price,
@@ -137,7 +137,9 @@ class Tracker extends Template
      */
     protected function _prepareLayout()
     {
-        if ((bool)$this->_configHelper->get('tracking_enable') && $this->getRequest()->getActionName() === 'success') {
+        if ((bool) $this->_configHelper->get(ConfigHelper::TRACKING_ENABLED)
+            && $this->getRequest()->getActionName() === 'success'
+        ) {
             $order = $this->getLastOrder();
             if ($order) {
                 $this->setData('account_id', $this->_configHelper->get('account_id'));
@@ -161,7 +163,9 @@ class Tracker extends Template
      */
     protected function _toHtml()
     {
-        if (!(bool)$this->_configHelper->get('tracking_enable') || $this->getRequest()->getActionName() !== 'success') {
+        if (!(bool) $this->_configHelper->get(ConfigHelper::TRACKING_ENABLED)
+            || $this->getRequest()->getActionName() !== 'success'
+        ) {
             return '';
         }
         return parent::_toHtml();

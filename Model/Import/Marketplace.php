@@ -189,36 +189,36 @@ class Marketplace extends AbstractModel
             $this->labelName = $this->marketplace->name;
             foreach ($this->marketplace->orders->status as $key => $state) {
                 foreach ($state as $value) {
-                    $this->statesLengow[(string)$value] = (string)$key;
-                    $this->states[(string)$key][(string)$value] = (string)$value;
+                    $this->statesLengow[(string) $value] = (string) $key;
+                    $this->states[(string) $key][(string) $value] = (string) $value;
                 }
             }
             foreach ($this->marketplace->orders->actions as $key => $action) {
                 foreach ($action->status as $state) {
-                    $this->actions[(string)$key]['status'][(string)$state] = (string)$state;
+                    $this->actions[(string) $key]['status'][(string) $state] = (string) $state;
                 }
                 foreach ($action->args as $arg) {
-                    $this->actions[(string)$key]['args'][(string)$arg] = (string)$arg;
+                    $this->actions[(string) $key]['args'][(string) $arg] = (string) $arg;
                 }
                 foreach ($action->optional_args as $optional_arg) {
-                    $this->actions[(string)$key]['optional_args'][(string)$optional_arg] = $optional_arg;
+                    $this->actions[(string) $key]['optional_args'][(string) $optional_arg] = $optional_arg;
                 }
                 foreach ($action->args_description as $argKey => $argDescription) {
                     $validValues = [];
                     if (isset($argDescription->valid_values)) {
                         foreach ($argDescription->valid_values as $code => $validValue) {
-                            $validValues[(string)$code] = isset($validValue->label)
-                                ? (string)$validValue->label
-                                : (string)$validValue;
+                            $validValues[(string) $code] = isset($validValue->label)
+                                ? (string) $validValue->label
+                                : (string) $validValue;
                         }
                     }
                     $defaultValue = isset($argDescription->default_value)
-                        ? (string)$argDescription->default_value
+                        ? (string) $argDescription->default_value
                         : '';
                     $acceptFreeValue = isset($argDescription->accept_free_values)
-                        ? (bool)$argDescription->accept_free_values
+                        ? (bool) $argDescription->accept_free_values
                         : true;
-                    $this->argValues[(string)$argKey] = [
+                    $this->argValues[(string) $argKey] = [
                         'default_value' => $defaultValue,
                         'accept_free_values' => $acceptFreeValue,
                         'valid_values' => $validValues,
@@ -227,7 +227,7 @@ class Marketplace extends AbstractModel
             }
             if (isset($this->marketplace->orders->carriers)) {
                 foreach ($this->marketplace->orders->carriers as $key => $carrier) {
-                    $this->carriers[(string)$key] = (string)$carrier->label;
+                    $this->carriers[(string) $key] = (string) $carrier->label;
                 }
             }
             $this->isLoaded = true;
@@ -304,15 +304,17 @@ class Marketplace extends AbstractModel
     {
         if (isset($this->actions[$action])) {
             $actions = $this->actions[$action];
-            if (isset($actions['args']) && is_array($actions['args'])) {
-                if (in_array(LengowAction::ARG_LINE, $actions['args'])) {
-                    return true;
-                }
+            if (isset($actions['args'])
+                && is_array($actions['args'])
+                && in_array(LengowAction::ARG_LINE, $actions['args'], true)
+            ) {
+                return true;
             }
-            if (isset($actions['optional_args']) && is_array($actions['optional_args'])) {
-                if (in_array(LengowAction::ARG_LINE, $actions['optional_args'])) {
-                    return true;
-                }
+            if (isset($actions['optional_args'])
+                && is_array($actions['optional_args'])
+                && in_array(LengowAction::ARG_LINE, $actions['optional_args'], true)
+            ) {
+                return true;
             }
         }
         return false;
@@ -360,7 +362,7 @@ class Marketplace extends AbstractModel
             $errorMessage = 'Magento error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
         }
         if (isset($errorMessage)) {
-            if ((int)$lengowOrder->getData('order_process_state') != $lengowOrder->getOrderProcessState('closed')) {
+            if ((int) $lengowOrder->getData('order_process_state') !== $lengowOrder->getOrderProcessState('closed')) {
                 $lengowOrder->updateOrder(['is_in_error' => 1]);
                 $orderError = $this->_orderErrorFactory->create();
                 $orderError->createOrderError(
@@ -393,7 +395,7 @@ class Marketplace extends AbstractModel
      */
     protected function _checkAction($action)
     {
-        if (!in_array($action, self::$validActions)) {
+        if (!in_array($action, self::$validActions, true)) {
             throw new LengowException($this->_dataHelper->setLogMessage('action %1 is not valid', [$action]));
         }
         if (!isset($this->actions[$action])) {
@@ -412,10 +414,10 @@ class Marketplace extends AbstractModel
      */
     protected function _checkOrderData($lengowOrder)
     {
-        if (strlen($lengowOrder->getData('marketplace_sku')) === 0) {
+        if ($lengowOrder->getData('marketplace_sku') === '') {
             throw new LengowException($this->_dataHelper->setLogMessage('marketplace order reference is required'));
         }
-        if (strlen($lengowOrder->getData('marketplace_name')) === 0) {
+        if ($lengowOrder->getData('marketplace_name') === '') {
             throw new LengowException($this->_dataHelper->setLogMessage('marketplace name is required'));
         }
     }
@@ -430,7 +432,7 @@ class Marketplace extends AbstractModel
     protected function _getMarketplaceArguments($action)
     {
         $actions = $this->getAction($action);
-        if (isset($actions['args']) && isset($actions['optional_args'])) {
+        if (isset($actions['args'], $actions['optional_args'])) {
             $marketplaceArguments = array_merge($actions['args'], $actions['optional_args']);
         } elseif (!isset($actions['args']) && isset($actions['optional_args'])) {
             $marketplaceArguments = $actions['optional_args'];
@@ -471,8 +473,8 @@ class Marketplace extends AbstractModel
                 case LengowAction::ARG_CARRIER_NAME:
                 case LengowAction::ARG_SHIPPING_METHOD:
                 case LengowAction::ARG_CUSTOM_CARRIER:
-                    if (strlen((string)$lengowOrder->getData('carrier')) > 0) {
-                        $carrierCode = (string)$lengowOrder->getData('carrier');
+                    if ((string) $lengowOrder->getData('carrier') !== '') {
+                        $carrierCode = (string) $lengowOrder->getData('carrier');
                     } else {
                         $tracks = $shipment->getAllTracks();
                         if (!empty($tracks)) {
@@ -492,11 +494,11 @@ class Marketplace extends AbstractModel
                     $params[$arg] = $this->_timezone->date()->format('c');
                     break;
                 default:
-                    if (isset($actions['optional_args']) && in_array($arg, $actions['optional_args'])) {
+                    if (isset($actions['optional_args']) && in_array($arg, $actions['optional_args'], true)) {
                         break;
                     }
-                    $defaultValue = $this->getDefaultValue((string)$arg);
-                    $paramValue = $defaultValue ? $defaultValue : $arg . ' not available';
+                    $defaultValue = $this->getDefaultValue((string) $arg);
+                    $paramValue = $defaultValue ?: $arg . ' not available';
                     $params[$arg] = $paramValue;
                     break;
             }
@@ -520,7 +522,7 @@ class Marketplace extends AbstractModel
         // check all required arguments
         if (isset($actions['args'])) {
             foreach ($actions['args'] as $arg) {
-                if (!isset($params[$arg]) || strlen($params[$arg]) === 0) {
+                if (!isset($params[$arg]) || $params[$arg] === '') {
                     throw new LengowException(
                         $this->_dataHelper->setLogMessage("can't send action: %1 is required", [$arg])
                     );
@@ -530,7 +532,7 @@ class Marketplace extends AbstractModel
         // clean empty optional arguments
         if (isset($actions['optional_args'])) {
             foreach ($actions['optional_args'] as $arg) {
-                if (isset($params[$arg]) && strlen($params[$arg]) === 0) {
+                if (isset($params[$arg]) && $params[$arg] === '') {
                     unset($params[$arg]);
                 }
             }
@@ -630,9 +632,9 @@ class Marketplace extends AbstractModel
     private function _searchValue($pattern, $subject, $strict = true)
     {
         if ($strict) {
-            $found = $pattern === $subject ? true : false;
+            $found = $pattern === $subject;
         } else {
-            $found = preg_match('`.*?' . $pattern . '.*?`i', $subject) ? true : false;
+            $found = (bool) preg_match('`.*?' . $pattern . '.*?`i', $subject);
         }
         return $found;
     }

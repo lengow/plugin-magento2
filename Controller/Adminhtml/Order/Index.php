@@ -113,33 +113,33 @@ class Index extends Action
                 if ($action) {
                     switch ($action) {
                         case 'import_all':
-                            $params = ['type' => LengowImport::TYPE_MANUAL];
+                            $params = [LengowImport::PARAM_TYPE => LengowImport::TYPE_MANUAL];
                             $this->_import->init($params);
                             $results = $this->_import->exec();
-                            $informations = $this->getInformations();
-                            $informations['messages'] = $this->getMessages($results);
-                            return $this->_resultJsonFactory->create()->setData(['informations' => $informations]);
+                            $information = $this->getInformation();
+                            $information['messages'] = $this->getMessages($results);
+                            return $this->_resultJsonFactory->create()->setData(['informations' => $information]);
                         case 're_import':
                             $orderLengowId = $this->getRequest()->getParam('order_lengow_id');
                             if ($orderLengowId !== null) {
-                                $result = $this->_lengowOrderFactory->create()->reImportOrder((int)$orderLengowId);
-                                $informations = $this->getInformations();
-                                $informations['messages'] = $result;
-                                return $this->_resultJsonFactory->create()->setData(['informations' => $informations]);
+                                $result = $this->_lengowOrderFactory->create()->reImportOrder((int) $orderLengowId);
+                                $information = $this->getInformation();
+                                $information['messages'] = $result;
+                                return $this->_resultJsonFactory->create()->setData(['informations' => $information]);
                             }
                             break;
                         case 're_send':
                             $orderLengowId = $this->getRequest()->getParam('order_lengow_id');
                             if ($orderLengowId !== null) {
-                                $result = $this->_lengowOrderFactory->create()->reSendOrder((int)$orderLengowId);
-                                $informations = $this->getInformations();
-                                $informations['messages'] = $result;
-                                return $this->_resultJsonFactory->create()->setData(['informations' => $informations]);
+                                $result = $this->_lengowOrderFactory->create()->reSendOrder((int) $orderLengowId);
+                                $information = $this->getInformation();
+                                $information['messages'] = $result;
+                                return $this->_resultJsonFactory->create()->setData(['informations' => $information]);
                             }
                             break;
                         case 'load_information':
-                            $informations = $this->getInformations();
-                            return $this->_resultJsonFactory->create()->setData(['informations' => $informations]);
+                            $information = $this->getInformation();
+                            return $this->_resultJsonFactory->create()->setData(['informations' => $information]);
                             break;
                     }
                 }
@@ -191,7 +191,7 @@ class Index extends Action
         }
         if (isset($results['error'])) {
             foreach ($results['error'] as $storeId => $values) {
-                if ((int)$storeId > 0) {
+                if ((int) $storeId > 0) {
                     try {
                         $store = $this->_storeManager->getStore($storeId);
                         $storeName = $store->getName() . ' (' . $store->getId() . ') : ';
@@ -206,28 +206,28 @@ class Index extends Action
     }
 
     /**
-     * Get all order informations
+     * Get all order information
      *
      * @return array
      */
-    public function getInformations()
+    public function getInformation()
     {
-        $informations = [];
+        $information = [];
         $order = $this->_lengowOrderFactory->create();
-        $informations['order_with_error'] = $this->_dataHelper->decodeLogMessage(
+        $information['order_with_error'] = $this->_dataHelper->decodeLogMessage(
             $this->_dataHelper->setLogMessage(
                 'You have %1 order(s) with errors',
                 [$order->countOrderWithError()]
             )
         );
-        $informations['order_to_be_sent'] = $this->_dataHelper->decodeLogMessage(
+        $information['order_to_be_sent'] = $this->_dataHelper->decodeLogMessage(
             $this->_dataHelper->setLogMessage(
                 'You have %1 order(s) waiting to be sent',
                 [$order->countOrderToBeSent()]
             )
         );
-        $informations['last_importation'] = $this->_importHelper->getLastImportDatePrint();
+        $information['last_importation'] = $this->_importHelper->getLastImportDatePrint();
 
-        return $informations;
+        return $information;
     }
 }
