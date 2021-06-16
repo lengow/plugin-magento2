@@ -1,3 +1,13 @@
+<?php
+/**
+ * Copyright 2021 Lengow SAS
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+/** @var Lengow\Connector\Block\Adminhtml\Main $block */
+?>
+
 <div class="lgw-content-section">
     <h2><?= $block->escapeHtml(__('Ooops! Unable to link your catalogues in Lengow')) ?></h2>
 </div>
@@ -17,11 +27,11 @@
     <p><?= $block->escapeHtml(__('You can try again or fill in the catalogues IDs directly in the plugin settings.')) ?></p>
     <p>
         <?= $block->escapeHtml(__('If the problem persists, you can take a look at')) ?>
-        <a href="<?= $block->escapeHtml(__('https://support.lengow.com/kb/guide/en/magento-2-zIKNDzKdKk/Steps/25861')) ?>" target="_blank">
+        <a href="<?= $block->escapeHtml($block->getHelpCenterLink()) ?>" target="_blank">
             "<?= $block->escapeHtml(__('Magento guide')) ?>"
         </a>
         <?= $block->escapeHtml(__('or contact our')) ?>
-        <a href="<?= $block->escapeHtml(__('https://supportlengow.zendesk.com/hc/en-us/requests/new')) ?>" target="_blank">
+        <a href="<?= $block->escapeHtml($block->getSupportLink()) ?>" target="_blank">
             "<?= $block->escapeHtml(__('Customer Success Team')) ?>"
         </a>
     </p>

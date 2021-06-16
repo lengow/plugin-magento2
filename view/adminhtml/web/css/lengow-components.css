@@ -296,93 +296,121 @@ span.last_indexation {
 
 /* DISABLED */
 .lgw-btn-disabled {
-    background: #c0c0c0 !important;
-    top: 0;
-    color: #828282;
-    pointer-events: none;
+  background: #c0c0c0 !important;
+  top: 0;
+  color: #828282;
+  pointer-events: none;
+}
+
+.lgw-btn-link {
+  border: 0;
+  color: #464646;
+  font-weight: normal;
+  padding: 8px 20px;
+  margin: 15px 0;
+  background: transparent;
+  outline: none;
+}
+
+.lgw-btn-link.mod-inline {
+  padding: 0;
+  font-size: 12px;
+  margin: 0 0 0 5px;
+  text-decoration: underline;
+}
+
+.lgw-btn-link.mod-blue {
+  color: #00aeef;
+  text-decoration: none;
+}
+
+.lgw-btn-link:hover {
+  text-decoration: underline;
+  color: #00aeef;
+  background: transparent;
 }
 
 /* BTN PROGRESSION */
 .lgw-container .lgw-btn-progression {
-    height: 36px;
-    overflow: hidden;
-    padding: 0;
+  height: 36px;
+  overflow: hidden;
+  padding: 0;
 }
 
 .lgw-container .lgw-btn-progression .btn-inner {
-    position: relative;
-    top: 0;
-    left: 0;
+  position: relative;
+  top: 0;
+  left: 0;
 }
 
 .lgw-container .lgw-btn-progression .btn-step {
-    height: 36px;
-    line-height: 36px;
-    padding: 0 15px;
+  height: 36px;
+  line-height: 36px;
+  padding: 0 15px;
 }
 
 .lgw-container .lgw-btn-progression.loading {
-    pointer-events: none;
-    padding-right: 30px;
-    background: #c0c0c0;
-    color: #828282;
+  pointer-events: none;
+  padding-right: 30px;
+  background: #c0c0c0;
+  color: #828282;
 }
 
 .lgw-container .lgw-btn-progression.loading .btn-inner {
-    top: -36px;
+  top: -36px;
 }
 
 .lgw-container .lgw-btn-progression.loading::after {
-    content: '';
-    position: absolute;
-    height: 24px;
-    width: 24px;
-    top: 0;
-    bottom: 0;
-    margin: auto;
-    right: 10px;
-    opacity: .66;
-    background: #ebebeb;
-    border-radius: 50%;
-    -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
-    animation: sk-bounce 2.0s infinite ease-in-out;
+  content: '';
+  position: absolute;
+  height: 24px;
+  width: 24px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  right: 10px;
+  opacity: .66;
+  background: #ebebeb;
+  border-radius: 50%;
+  -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
+  animation: sk-bounce 2.0s infinite ease-in-out;
 }
 
 .lgw-container .lgw-btn-progression.loading::before {
-    content: '';
-    position: absolute;
-    height: 24px;
-    width: 24px;
-    top: 0;
-    bottom: 0;
-    margin: auto;
-    right: 10px;
-    opacity: .66;
-    background: #ebebeb;
-    border-radius: 50%;
-    -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
-    animation: sk-bounce 2.0s infinite ease-in-out;
-    -webkit-animation-delay: -1.0s;
-    animation-delay: -1.0s;
+  content: '';
+  position: absolute;
+  height: 24px;
+  width: 24px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  right: 10px;
+  opacity: .66;
+  background: #ebebeb;
+  border-radius: 50%;
+  -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
+  animation: sk-bounce 2.0s infinite ease-in-out;
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
 }
 
 .lgw-container .lgw-btn-progression.success,
 .lgw-container .lgw-btn-progression.error {
-    pointer-events: none;
+  pointer-events: none;
 }
 
 .lgw-container .lgw-btn-progression.success{
-    background-color: #7ac279;
+  background-color: #7ac279;
 }
 
 .lgw-container .lgw-btn-progression.success .btn-inner,
 .lgw-container .lgw-btn-progression.error .btn-inner {
-    top: -72px;
+  top: -72px;
 }
 
 @-webkit-keyframes sk-bounce {
-    0%, 100% { -webkit-transform: scale(0.0) }
-    50% { -webkit-transform: scale(1.0) }
+  0%, 100% { -webkit-transform: scale(0.0) }
+  50% { -webkit-transform: scale(1.0) }
 }
 
 @keyframes sk-bounce {
@@ -539,6 +567,91 @@ span.last_indexation {
 .lgw-switch.checked:hover div,
 .lgw-switch.checked:focus div {
   background: #66b165;
+}
+
+/*************************************************/
+/*                    MODAL                      */
+/*************************************************/
+
+.lgw-modalbox {
+  background-color: rgba(7, 18, 71, .3);
+  display: none;
+  height: 100%;
+  left: 0;
+  position: fixed;
+  opacity: 0;
+  overflow: hidden;
+  top: 0;
+  transition: all 250ms ease;
+  width: 100%;
+  z-index: 1500;
+}
+
+.lgw-modalbox a {
+  color: #00aeef;
+  text-decoration: none;
+}
+
+.lgw-modalbox a:hover {
+  text-decoration: underline;
+}
+
+.lgw-modalbox-content {
+  background: white;
+  box-shadow: 0 0px 20px 0 rgba(0,0,0,0.15);
+  border: 1px solid #e1e1e1;
+  border-radius: 3px;
+  margin: 0 auto;
+  padding: 0;
+  position: relative;
+  transform: translate(0,calc(-45% + 0.5px));
+  transition: all 250ms ease;
+  width: 60%;
+  top: 50%;
+}
+
+.lgw-modalbox-close {
+  align-items: center;
+  background: url(../images/modal-close.png) no-repeat white center;
+  background-size: 40%;
+  box-shadow: 0 0 2px rgba(0, 0, 0, .2);
+  border-radius: 50%;
+  display: flex;
+  height: 33px;
+  justify-content: center;
+  position: absolute;
+  right: 20px;
+  top: 12px;
+  transition: all 250ms ease;
+  width: 33px;
+  z-index: 10;
+}
+
+.lgw-modalbox-close:hover,
+.lgw-modalbox-close:focus {
+  box-shadow: 0 0 2px rgba(95, 0, 0, .2);
+  cursor: pointer;
+}
+
+.lgw-modalbox-body {
+  margin: 0 0;
+  max-height: calc(100vh - 350px);
+  overflow-y: auto;
+  padding: 30px;
+}
+
+.lgw-modalbox.is-open .lgw-modalbox-content {
+  transform: translate(0,calc(-50% + .5px));
+}
+
+.lgw-modalbox.mod-size-medium .lgw-modalbox-content {
+  width: auto;
+  max-width: 990px;
+}
+
+.lgw-modalbox.is-open {
+  display: block;
+  opacity: 1;
 }
 
 /*************************************************/

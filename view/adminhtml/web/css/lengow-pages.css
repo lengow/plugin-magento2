@@ -11,13 +11,21 @@ body.lengow-connector .middle {
   padding: 40px 0 60px 0;
 }
 
-.lgw-footer a {
+.lgw-footer .nav-footer a {
   color: #464646;
   text-decoration: underline;
 }
 
-.lgw-footer a:hover {
+.lgw-footer a.lgw-modal-download {
+    color: white;
+}
+
+.lgw-footer .nav-footer a:hover {
   color: #00aeef;
+}
+
+.lgw-footer a.lgw-modal-download:hover {
+    color: white;
 }
 
 .clear {
@@ -39,8 +47,8 @@ body.lengow-connector .middle {
 
 /* COUNTER FREE TRIAL */
 
-body:not(.lengow-home-index) #lgw-counter,
-body:not(.lengow-home-index) #lgw-plugin-available {
+body:not(.lengow-dashboard-index) #lgw-counter,
+body:not(.lengow-dashboard-index) #lgw-plugin-available {
   background: #cdf1ff;
   border: 1px solid #00aeef;
   border-radius: 3px;
@@ -222,47 +230,56 @@ body:not(.lengow-home-index) #lgw-plugin-available {
 
 /*Dashboard*/
 
-.lengow-home-index .lengow-nav {
+.lengow-dashboard-index .lengow-nav {
   display: none;
+}
+
+.lengow-dashboard-index .lgw-header .lgw-btn-link {
+  color: #00aeef;
+  text-decoration: none;
+}
+
+.lengow-dashboard-index .lgw-header .lgw-btn-link:hover {
+  text-decoration: underline;
 }
 
 /*Counter*/
 
-.lengow-home-index #lgw-counter,
-.lengow-home-index #lgw-plugin-available {
+.lengow-dashboard-index #lgw-counter,
+.lengow-dashboard-index #lgw-plugin-available {
   color: #555;
   margin-top: 20px;
   font-size: 12px;
 }
 
-.lengow-home-index #lgw-counter a,
-.lengow-home-index #lgw-plugin-available a {
+.lengow-dashboard-index #lgw-counter a,
+.lengow-dashboard-index #lgw-plugin-available a {
   color: #00aeef;
   text-decoration: none;
 }
 
-.lengow-home-index #lgw-counter a:hover,
-.lengow-home-index #lgw-plugin-available a:hover {
+.lengow-dashboard-index #lgw-counter a:hover,
+.lengow-dashboard-index #lgw-plugin-available a:hover {
   text-decoration: underline;
 }
 
-.lengow-home-index #lgw-counter,
-.lengow-home-indexr #lgw-plugin-available {
+.lengow-dashboard-index #lgw-counter,
+.lengow-dashboard-indexr #lgw-plugin-available {
   margin-bottom: 10px;
 }
 
-.lengow-home-index #lgw-free-trial a:hover,
-.lengow-home-index #lgw-bad-payer a:hover {
+.lengow-dashboard-index #lgw-free-trial a:hover,
+.lengow-dashboard-index #lgw-bad-payer a:hover {
   text-decoration: none;
 }
 
-.lengow-home-index .lgw-col-4 a {
+.lengow-dashboard-index .lgw-col-4 a {
   color: #00aeef;
   text-decoration: none;
 }
 
 
-.lengow-home-index .lgw-label.red {
+.lengow-dashboard-index .lgw-label.red {
   padding: 0 8px;
 }
 
@@ -282,6 +299,15 @@ body:not(.lengow-home-index) #lgw-plugin-available {
   margin: 15px 0 5px;
   font-weight: 300;
   color: white;
+}
+
+.lgw-home-header .lgw-btn-link {
+    color: #00aeef;
+    text-decoration: none;
+}
+
+.lgw-home-header .lgw-btn-link:hover {
+    text-decoration: underline;
 }
 
 .lengow-home-index .lgw-row h5 {

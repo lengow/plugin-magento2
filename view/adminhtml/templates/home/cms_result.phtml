@@ -1,5 +1,14 @@
 <?php
-$isPreprod = $block->isPreprodPlugin();
+/**
+ * Copyright 2021 Lengow SAS
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+/** @var Lengow\Connector\Block\Adminhtml\Main $block */
+?>
+
+<?php
 $cmsData = $block->getData();
 $cmsConnected = $cmsData['data']['cmsConnected'];
 $hasCatalogToLink = $cmsData['data']['hasCatalogToLink'];
@@ -69,7 +78,7 @@ $credentialsValid = $cmsData['data']['isCredentialsValid'];
                 <p><?= $block->escapeHtml(__('We were unable to make the connection between your Magento and Lengow.')) ?></p>
             <?php else: ?>
                 <p><?= $block->escapeHtml(__('Unable to connect with credentials provided.')) ?></p>
-                <?php if($isPreprod): ?>
+                <?php if($block->isPreprodPlugin()): ?>
                     <p><?= $block->escapeHtml(__('Please verify that these credentials match Lengow\'s pre-production environment.')) ?></p>
                 <?php else: ?>
                     <p><?= $block->escapeHtml(__('Please verify that these credentials match Lengow\'s production environment.')) ?></p>
@@ -77,11 +86,11 @@ $credentialsValid = $cmsData['data']['isCredentialsValid'];
             <?php endif; ?>
             <p>
                 <?= $block->escapeHtml(__('If the problem persists, you can take a look at')) ?>
-                <a href="<?= $block->escapeHtml(__('https://support.lengow.com/kb/guide/en/magento-2-zIKNDzKdKk/Steps/25861')) ?>" target="_blank">
+                <a href="<?= $block->escapeHtml(__($block->getHelpCenterLink())) ?>" target="_blank">
                     "<?= $block->escapeHtml(__('Magento guide')) ?>"
                 </a>
                 <?= $block->escapeHtml(__('or contact our')) ?>
-                <a href="<?= $block->escapeHtml(__('https://supportlengow.zendesk.com/hc/en-us/requests/new')) ?>" target="_blank">
+                <a href="<?= $block->escapeHtml($block->getSupportLink()) ?>" target="_blank">
                     "<?= $block->escapeHtml(__('Customer Success Team')) ?>"
                 </a>
             </p>

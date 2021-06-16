@@ -5,11 +5,15 @@
  */
 
 // @codingStandardsIgnoreFile
-/** @var Lengow\Connector\Block\Adminhtml\Footer $block */
+/** @var Lengow\Connector\Block\Adminhtml\Main $block */
 ?>
 
-<div id="footer" class="lgw-footer">
-    <div class="text-center">
+<?php
+$showPluginUpgradeModal = $block->showPluginUpgradeModal();
+?>
+
+<div id="footer" class="lgw-footer lgw-container">
+    <div class="text-center nav-footer">
         <a href="<?= $block->getUrl('lengow/toolbox/index') ?>" class="sub-link" title="<?= $block->escapeHtml(__('Toolbox')) ?>">
             <?= $block->escapeHtml(__('Toolbox')) ?>
         </a> |
@@ -26,4 +30,82 @@
             Lengow
         </a>
     </div>
+    <?php if ($block->newPluginVersionIsAvailable()): ?>
+        <!-- Modal Update plugin -->
+        <div id="upgrade-plugin"
+             class="lgw-modalbox mod-size-medium <?php if ($showPluginUpgradeModal): ?>is-open<?php endif; ?>">
+            <div class="lgw-modalbox-content">
+                <span class="lgw-modalbox-close js-upgrade-plugin-modal-close"></span>
+                <div class="lgw-modalbox-body">
+                    <div class="lgw-row flexbox-vertical-center">
+                        <div class="lgw-col-5 text-center">
+                            <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/plugin-update.png') ?>" alt="">
+                        </div>
+                        <div class="lgw-col-7">
+                            <h1><?= $block->escapeHtml(__('New version available!')) ?></h1>
+                            <p>
+                                <?= $block->escapeHtml(__('Start now benefiting the new features, improvements and bug fixes summed up in our')) ?>
+                                <a href="<?= $block->escapeHtml($this->getChangelogLink()) ?>"
+                                   target="_blank">
+                                    <?= $block->escapeHtml(__('changelog.')) ?>
+                                </a>
+                            </p>
+                            <div class="lgw-content-section mod-small">
+                                <h2 class="no-margin-bottom"><?= $block->escapeHtml(__('Step 1')) ?></h2>
+                                <p class="no-margin-bottom">
+                                    <?= $block->escapeHtml(__('Download the latest plugin version below.')) ?>
+                                </p>
+                                <p class="text-lesser text-italic">
+                                    <?= $block->escapeHtml(__(
+                                        'Compatible with Magento %1 to %2',
+                                        [
+                                            $this->getCmsMinVersion(),
+                                            $this->getCmsMaxVersion(),
+                                        ]
+                                    )) ?>
+                                    <?php foreach ($this->getPluginExtensions() as $extension): ?>
+                                        <br />
+                                        <?= $block->escapeHtml(__(
+                                            'Requires %1 extension %2 to %3',
+                                            [
+                                                $extension['name'],
+                                                $extension['min_version'],
+                                                $extension['max_version'],
+                                            ]
+                                        )) ?>
+                                    <?php endforeach; ?>
+                                </p>
+                            </div>
+                            <div class="lgw-content-section mod-small">
+                                <h2 class="no-margin-bottom"><?= $block->escapeHtml(__('Step 2')) ?></h2>
+                                <p class="no-margin-bottom">
+                                    <a href="<?= $block->escapeHtml($block->getUpdateGuideLink()) ?>"
+                                       target="_blank"><?= $block->escapeHtml(__('Follow')) ?></a>
+                                    <?= $block->escapeHtml(__('the update procedure (easy and fast).')) ?>
+                                </p>
+                                <p class="text-lesser text-italic">
+                                    <?= $block->escapeHtml(__('Not working? Contact our')) ?>
+                                    <a href="<?= $block->escapeHtml($block->getSupportLink()) ?>"
+                                       target="_blank"><?= $block->escapeHtml(__('Customer Success team')) ?></a>
+                                </p>
+                            </div>
+                            <div class="flexbox-vertical-center margin-standard">
+                                <a class="lgw-btn lgw-modal-download no-margin-top"
+                                   href="<?= $block->escapeHtml($block->getNewPluginDownloadLink()) ?>"
+                                   target="_blank">
+                                    <?= $block->escapeHtml(__('Lengow Magento %1', [$this->getNewPluginVersion()])) ?>
+                                </a>
+                                <?php if($showPluginUpgradeModal): ?>
+                                    <button class="lgw-btn-link sub-link no-margin-top text-small js-upgrade-plugin-modal-remind-me"
+                                            data-href="<?= $block->getUrl('lengow/dashboard/index/action/remind_me_later/') ?>isAjax/true">
+                                        <?= $block->escapeHtml(__('Not now, remind me later')) ?>
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>

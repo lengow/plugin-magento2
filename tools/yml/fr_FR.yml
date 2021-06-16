@@ -11,6 +11,21 @@ fr:
   global:
     just_yes: "Oui"
     just_no: "Non"
+  update:
+    version_available: "Nouvelle version disponible !"
+    start_now: "Commencez dès maintenant à profiter des nouvelles fonctionnalités, améliorations et corrections de bugs résumées sur notre"
+    link_changelog: "journal des modifications."
+    step_one: "Étape 1"
+    download_last_version: "Téléchargez la dernière version du plugin ci-dessous."
+    plugin_compatibility: "Compatible avec Magento %1 à %2"
+    extension_required: "Nécessite l'extension %1 %2 à %3"
+    step_two: "Étape 2"
+    link_follow: "Suivez"
+    update_procedure: "la procédure de mise à jour (simple et rapide)."
+    not_working: "Ça ne fonctionne pas ? Contactez notre"
+    customer_success_team: "équipe Customer Success"
+    button_download_version: "Lengow Magento %1"
+    button_remind_me_later: "Pas maintenant, rappelez-moi plus tard"
   header:
     debug_active: "Debug Mode"
     counter: "Période d'essai :  %1  jour(s) restant(s)."
@@ -36,7 +51,6 @@ fr:
       credentials_description: "Vous trouverez ces informations dans les paramètres de votre compte, section A.P.I"
       credentials_help: "Besoin d'aide ?"
       credentials_help_center: "Consultez notre centre d'aide"
-      credentials_help_center_url: "https://support.lengow.com/kb/fr"
       credentials_button: "Se connecter à Lengow"
       credentials_button_loading: "Connexion..."
       credentials_placeholder_access_token: "Entrez votre jeton d'accès"
@@ -196,12 +210,10 @@ fr:
       title: "Demandez de l'aide à notre équipe Support !"
       contain_text_support: "Des questions, un feedback sur Lengow... transmettez vos demandes au"
       title_lengow_support: "support Lengow."
-      link_lengow_support: "https://supportlengow.zendesk.com/hc/fr/requests/new"
       need_some_help: "Besoin d'aide ?"
       contain_text_support_hour: "Nous ferons notre maximum pour revenir vers vous au plus vite (Notre équipe Support est disponible du lundi au vendredi, de 9h à 18h)."
       find_answer: "Vous pouvez aussi consulter"
       link_magento_guide: "notre guide dédié à Magento 2"
-      knowledge_link_url: "https://support.lengow.com/kb/guide/fr/magento-2-zIKNDzKdKk/Steps/25861"
   log:
     screen:
       title: "Logs"
@@ -424,7 +436,7 @@ fr:
     mail_report:
       subject_report_mail: "Erreur de l'import Lengow"
       order: "commande %1"
-      no_error_in_report_mail: "Pas de message d'erreur, contacter le support via https://supportlengow.zendesk.com/hc/fr/requests/new"
+      no_error_in_report_mail: "Pas de message d'erreur, contacter le support via %1"
     connection:
       status_draft: "Incomplet"
       status_active: "Actif"

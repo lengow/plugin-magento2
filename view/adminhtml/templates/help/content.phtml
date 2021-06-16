@@ -5,7 +5,7 @@
  */
 
 // @codingStandardsIgnoreFile
-/** @var Lengow\Connector\Block\Adminhtml\Help\Content $block */
+/** @var Lengow\Connector\Block\Adminhtml\Main $block */
 ?>
 
 <div class="lgw-container">
@@ -14,7 +14,7 @@
             <h2><?= $block->escapeHtml(__('Get a little help from your support team!')) ?></h2>
             <p>
                 <?= $block->escapeHtml(__('Ask us anything about Lengow or share your feedback with')) ?>
-                <a href="<?= $block->escapeHtml(__('https://www.lengow.com/support/')) ?>"
+                <a href="<?= $block->escapeHtml($block->getSupportLink()) ?>"
                    target="_blank"
                    title="Lengow Support">
                     <?= $block->escapeHtml(__('Lengow Support.')) ?>
@@ -22,8 +22,8 @@
             </p>
             <p><?= $block->escapeHtml(__('We’ll do our best to get back to you during regular business hours (Monday to Friday – 9am to 6pm GMT+1).')) ?></p>
             <p><?= $block->escapeHtml(__('You can also find answers in our')) ?>
-                <a href="<?= $block->escapeHtml(__('https://support.lengow.com/kb/guide/en/zIKNDzKdKk')) ?>"
-                   class="sub-link" target="_blank"
+                <a href="<?= $block->escapeHtml($block->getHelpCenterLink()) ?>"
+                   target="_blank"
                    title="Help Center">
                     <?= $block->escapeHtml(__('Magento 2 dedicated guide')) ?>
                 </a>

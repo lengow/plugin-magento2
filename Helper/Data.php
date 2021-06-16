@@ -46,6 +46,16 @@ class Data extends AbstractHelper
     const CODE_MAIL_REPORT = 'Mail Report';
     const CODE_ORM = 'Orm';
 
+    /* Plugin translation iso codes */
+    const ISO_CODE_EN = 'en_GB';
+    const ISO_CODE_FR = 'fr_FR';
+    const ISO_CODE_DE = 'de_DE';
+
+    /**
+     * @var string default iso code
+     */
+    const DEFAULT_ISO_CODE = self::ISO_CODE_EN;
+
     /**
      * @var string Lengow media folder
      */

@@ -24,7 +24,7 @@ use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\Json as MagentoJsonResult;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\View\Result\PageFactory;
-use Lengow\Connector\Block\Adminhtml\Home\Content;
+use Lengow\Connector\Block\Adminhtml\Main;
 
 class Cms extends Action
 {
@@ -62,7 +62,7 @@ class Cms extends Action
         $result = $this->resultJsonFactory->create();
         $resultPage = $this->resultPageFactory->create();
         $block = $resultPage->getLayout()
-            ->createBlock(Content::class)
+            ->createBlock(Main::class)
             ->setTemplate('Lengow_Connector::home/cms.phtml')
             ->toHtml();
         $result->setData(['output' => $block]);

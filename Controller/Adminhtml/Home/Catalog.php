@@ -24,7 +24,7 @@ use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\Json as MagentoJsonResult;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\View\Result\PageFactory;
-use Lengow\Connector\Block\Adminhtml\Home\Content;
+use Lengow\Connector\Block\Adminhtml\Main;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Catalog as LengowCatalog;
 
@@ -92,7 +92,7 @@ class Catalog extends Action
         }
         $data = ['catalogList' => $this->getCatalogList()];
         $block = $resultPage->getLayout()
-            ->createBlock(Content::class)
+            ->createBlock(Main::class)
             ->setTemplate('Lengow_Connector::home/catalog.phtml')
             ->setData('data', $data)
             ->toHtml();

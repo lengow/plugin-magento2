@@ -7,8 +7,9 @@
 // @codingStandardsIgnoreFile
 /** @var Lengow\Connector\Block\Adminhtml\Main $block */
 ?>
-<input type="hidden" id="lengow_url" value="<?= $block->getLengowUrl() ?>">
+<?= '<div class="lgw-container">' ?>
 <?= $block->getChildHtml('lengow_header') ?>
+<?= '</div>' ?>
 <?php if ($block->freeTrialIsExpired()): ?>
     <?= $block->getChildHtml('lengow_home_free_trial') ?>
 <?php else:?>

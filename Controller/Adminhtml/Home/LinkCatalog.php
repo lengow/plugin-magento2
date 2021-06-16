@@ -26,7 +26,7 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\View\Result\PageFactory;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Catalog as LengowCatalog;
-use Lengow\Connector\Block\Adminhtml\Home\Content;
+use Lengow\Connector\Block\Adminhtml\Main;
 
 class LinkCatalog extends Action
 {
@@ -91,7 +91,7 @@ class LinkCatalog extends Action
         }
         $this->configHelper->cleanConfigCache();
         $block = $resultPage->getLayout()
-            ->createBlock(Content::class)
+            ->createBlock(Main::class)
             ->setTemplate('Lengow_Connector::home/catalog_failed.phtml')
             ->toHtml();
         $result->setData(['output' => $block, 'success' => $catalogsLinked]);

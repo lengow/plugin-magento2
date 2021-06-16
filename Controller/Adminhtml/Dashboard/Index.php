@@ -21,10 +21,16 @@ namespace Lengow\Connector\Controller\Adminhtml\Dashboard;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\Result\JsonFactory;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
 class Index extends Action
 {
+    /**
+     * @var JsonFactory Magento json factory instance
+     */
+    protected $resultJsonFactory;
+
     /**
      * @var ConfigHelper Lengow config helper instance
      */
@@ -34,13 +40,16 @@ class Index extends Action
      * Constructor
      *
      * @param Context $context Magento action context instance
+     * @param JsonFactory $resultJsonFactory Magento json factory instance
      * @param ConfigHelper $configHelper Lengow config helper instance
      */
     public function __construct(
         Context $context,
+        JsonFactory $resultJsonFactory,
         ConfigHelper $configHelper
     ) {
         $this->configHelper = $configHelper;
+        $this->resultJsonFactory = $resultJsonFactory;
         parent::__construct($context);
     }
 
@@ -52,8 +61,20 @@ class Index extends Action
         if ($this->configHelper->isNewMerchant()) {
             $this->_redirect('lengow/home/index');
         } else {
-            $this->_view->loadLayout();
-            $this->_view->renderLayout();
+            if ($this->getRequest()->getParam('isAjax')) {
+                $action = $this->getRequest()->getParam('action');
+                if ($action) {
+                    switch ($action) {
+                        case 'remind_me_later':
+                            $timestamp = time() + (7 * 86400);
+                            $this->configHelper->set(ConfigHelper::LAST_UPDATE_PLUGIN_MODAL, $timestamp);
+                            return $this->resultJsonFactory->create()->setData(['success' => true]);
+                    }
+                }
+            } else {
+                $this->_view->loadLayout();
+                $this->_view->renderLayout();
+            }
         }
     }
 }

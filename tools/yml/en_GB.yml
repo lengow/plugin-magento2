@@ -11,6 +11,21 @@ en:
   global:
     just_yes: "Yes"
     just_no: "No"
+  update:
+    version_available: "New version available!"
+    start_now: "Start now benefiting the new features, improvements and bug fixes summed up in our"
+    link_changelog: "changelog."
+    step_one: "Step 1"
+    download_last_version: "Download the latest plugin version below."
+    plugin_compatibility: "Compatible with Magento %1 to %2"
+    extension_required: "Requires %1 extension %2 to %3"
+    step_two: "Step 2"
+    link_follow: "Follow"
+    update_procedure: "the update procedure (easy and fast)."
+    not_working: "Not working? Contact our"
+    customer_success_team: "Customer Success team"
+    button_download_version: "Lengow Magento %1"
+    button_remind_me_later: "Not now, remind me later"
   header:
     debug_active: "Debug Mode"
     counter: "Trial period: %1 day(s) left."
@@ -36,7 +51,6 @@ en:
       credentials_description: "Find these credentials in your account settings, section A.P.I"
       credentials_help: "Need help?"
       credentials_help_center: "Check out our Help Center"
-      credentials_help_center_url: "https://support.lengow.com/kb/en"
       credentials_button: "Connect to Lengow"
       credentials_button_loading: "Connecting..."
       credentials_placeholder_access_token: "Enter your access token"
@@ -196,12 +210,10 @@ en:
       title: "Get a little help from your support team!"
       contain_text_support: "Ask us anything about Lengow or share your feedback with"
       title_lengow_support: "Lengow Support."
-      link_lengow_support: "https://supportlengow.zendesk.com/hc/en-us/requests/new"
       need_some_help: "Need some help?"
       contain_text_support_hour: "We’ll do our best to get back to you during regular business hours (Monday to Friday – 9am to 6pm GMT+1)."
       find_answer: "You can also find answers in our"
       link_magento_guide: "Magento 2 dedicated guide"
-      knowledge_link_url: "https://support.lengow.com/kb/guide/en/magento-2-zIKNDzKdKk/Steps/25861"
   log:
     screen:
       title: "Logs"
@@ -424,7 +436,7 @@ en:
     mail_report:
       subject_report_mail: "Lengow imports errors"
       order: "Order %1"
-      no_error_in_report_mail: "no error message, contact support via https://supportlengow.zendesk.com/hc/en-us/requests/new"
+      no_error_in_report_mail: "no error message, contact support via %1"
     connection:
       status_draft: "Draft"
       status_active: "Active"

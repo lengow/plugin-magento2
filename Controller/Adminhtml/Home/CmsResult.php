@@ -25,7 +25,7 @@ use Magento\Framework\Controller\Result\Json as MagentoJsonResult;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\View\Result\PageFactory;
-use Lengow\Connector\Block\Adminhtml\Home\Content;
+use Lengow\Connector\Block\Adminhtml\Main;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
@@ -138,7 +138,7 @@ class CmsResult extends Action
             'hasCatalogToLink' => $hasCatalogToLink,
         ];
         $block = $resultPage->getLayout()
-            ->createBlock(Content::class)
+            ->createBlock(Main::class)
             ->setTemplate('Lengow_Connector::home/cms_result.phtml')
             ->setData('data', $data)
             ->toHtml();
