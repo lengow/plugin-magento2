@@ -44,7 +44,7 @@
 /etc/frontend/routes.xml|fd7926ca314017e32250b7e108d09d75
 /etc/acl.xml|238cdf00e292e74243e5a67e59729436
 /etc/events.xml|b3cda32e21e9f92795365636d99f703d
-/etc/di.xml|1831fecb0edfdb9ab92fdd4bf46c91a2
+/etc/di.xml|0150289c46bb653bfbf8eb33519beb4a
 /etc/adminhtml/menu.xml|b77fedabb5e2fa4ac1e16faa8b07add4
 /etc/adminhtml/system.xml|4df9a438bc75a573ce07fc74a09e436f
 /etc/adminhtml/routes.xml|b37d51a18bc54f5a872c9797ed06ed5d
@@ -102,7 +102,8 @@
 /Observer/SendAction.php|3c49484b6a85538c29d4c6c9549523a1
 /Observer/B2bTaxesApllicator.php|a8504b6af86d01ecd90e919482d5ddba
 /Plugin/RulesApplier.php|db0d628fedb58f908c3e7745ff5fd818
-/Plugin/SaveConfig.php|b2c4596395a327cab9ce90345fde9c8c
+/Plugin/WeeeConfig.php|2409bed63dce14cfd993424015826a41
+/Plugin/SaveConfig.php|2b13322a543b0b0edf4f49d64e592cdc
 /Setup/UpgradeData.php|ef057d554f62673ab98246b866fcbfc9
 /Setup/UpgradeSchema.php|3e28b1b214fdc4e79b6653a24aff71e4
 /Setup/InstallData.php|899897acc27e3c0e064f07bb084cc5c9

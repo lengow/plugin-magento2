@@ -5,6 +5,7 @@ Version 1.3.1
     - Feature: Outsourcing of the toolbox via webservice
     - Feature: Setting up a modal for the plugin update
     - BugFix: [Import] Some catalog rule where still applied on product price when importing order
+    - BugFix: [Import] Removal of FPT (Fixed Product Taxes) for Lengow orders
 
 =============================================================
 Version 1.3.0
