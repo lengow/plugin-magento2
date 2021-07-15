@@ -51,7 +51,7 @@
 /etc/crontab.xml|ca97f746162b6bd4441d34475c9b0103
 /Helper/Config.php|888b5d8586e98f6bef22f21b1fdc7093
 /Helper/Data.php|603b2c75f662ac4a7c5e428576f7be68
-/Helper/Sync.php|b6f2909a2ed50e22737f17d0289e7b91
+/Helper/Sync.php|2f3bb0aff0fb73814d0420b3b70379cf
 /Helper/Security.php|805ba2e45c57c5cf00c2b475cbd8d3e6
 /Helper/Import.php|2094276aaf4b16ebff55029d0f1e1719
 /Helper/Toolbox.php|19fc2aea68cdb572ed8adf7e60eccfe9
