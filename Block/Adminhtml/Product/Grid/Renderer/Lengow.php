@@ -66,7 +66,7 @@ class Lengow extends AbstractRenderer
      */
     public function render(DataObject $row)
     {
-        $value = (int)$row->getData($this->getColumn()->getIndex());
+        $value = (int) $row->getData($this->getColumn()->getIndex());
         return '<div class="lgw-switch ' . ($value === 1 ? 'checked' : '') . '">
         <label>
             <div>

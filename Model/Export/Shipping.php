@@ -161,9 +161,15 @@ class Shipping
         $this->_shippingCarrier = isset($shippingData['shipping_carrier']) ? $shippingData['shipping_carrier'] : null;
         $this->_shippingMethod = isset($shippingData['shipping_method']) ? $shippingData['shipping_method'] : null;
         $this->_shippingIsFixed = isset($shippingData['shipping_is_fixed']) ? $shippingData['shipping_is_fixed'] : null;
-        $this->_shippingCountryCode = $this->_configHelper->get('shipping_country', $this->_store->getId());
-        $conversion = $this->_currency !== $this->_storeCurrency ? true : false;
-        $this->_defaultShippingPrice = $this->_configHelper->get('shipping_price', $this->_store->getId());
+        $this->_shippingCountryCode = $this->_configHelper->get(
+            ConfigHelper::DEFAULT_EXPORT_SHIPPING_COUNTRY,
+            $this->_store->getId()
+        );
+        $conversion = $this->_currency !== $this->_storeCurrency;
+        $this->_defaultShippingPrice = $this->_configHelper->get(
+            ConfigHelper::DEFAULT_EXPORT_SHIPPING_PRICE,
+            $this->_store->getId()
+        );
         if ($this->_defaultShippingPrice !== null && $conversion) {
             $this->_defaultShippingPrice = $this->_priceCurrency->convertAndRound(
                 $this->_defaultShippingPrice,
@@ -228,12 +234,12 @@ class Shipping
     protected function _getShippingData()
     {
         $shippingData = [];
-        $shippingMethod = $this->_configHelper->get('shipping_method', $this->_store->getId());
+        $shippingMethod = $this->_configHelper->get(ConfigHelper::DEFAULT_EXPORT_CARRIER_ID, $this->_store->getId());
         if ($shippingMethod !== null) {
             $shippingMethod = explode('_', $shippingMethod);
             $carrier = $this->_carrierFactory->get($shippingMethod[0]);
             $shippingData['shipping_carrier'] = $carrier ? $carrier->getCarrierCode() : '';
-            $shippingData['shipping_is_fixed'] = $carrier ? $carrier->isFixed() : false;
+            $shippingData['shipping_is_fixed'] = $carrier && $carrier->isFixed();
             $shippingData['shipping_method'] = ucfirst($shippingMethod[1]);
         }
         return $shippingData;
@@ -247,7 +253,7 @@ class Shipping
     protected function _getProductShippingCost()
     {
         $shippingCost = 0;
-        $conversion = $this->_currency !== $this->_storeCurrency ? true : false;
+        $conversion = $this->_currency !== $this->_storeCurrency;
         $shippingRateRequest = $this->_getShippingRateRequest();
         $shippingFactory = $this->_shippingFactory->create();
         $result = $shippingFactory->collectCarrierRates($this->_shippingCarrier, $shippingRateRequest)

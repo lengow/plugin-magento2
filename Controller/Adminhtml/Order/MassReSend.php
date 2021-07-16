@@ -55,7 +55,7 @@ class MassReSend extends Action
 
     public function execute()
     {
-        $selectedIds = $this->getRequest()->getParam('selected', null);
+        $selectedIds = $this->getRequest()->getParam('selected');
         $excludedIds = $this->getRequest()->getParam('excluded', []);
         $excludedIds = $excludedIds === 'false' ? [] : $excludedIds;
         if (empty($selectedIds)) {
@@ -63,7 +63,7 @@ class MassReSend extends Action
             $allLengowOrderIds = $this->_orderFactory->create()->getAllLengowOrderIds();
             if ($allLengowOrderIds) {
                 foreach ($allLengowOrderIds as $lengowOrderId) {
-                    if (!in_array($lengowOrderId['id'], $excludedIds)) {
+                    if (!in_array($lengowOrderId['id'], $excludedIds, true)) {
                         $ids[] = $lengowOrderId['id'];
                     }
                 }
@@ -79,9 +79,9 @@ class MassReSend extends Action
         // resend all selected orders
         $totalReSent = 0;
         foreach ($ids as $orderLengowId) {
-            if ($this->_orderFactory->create()->reSendOrder((int)$orderLengowId)) {
+            if ($this->_orderFactory->create()->reSendOrder((int) $orderLengowId)) {
                 $totalReSent++;
-            };
+            }
         }
         // get the number of orders correctly resent
         $this->messageManager->addSuccessMessage(

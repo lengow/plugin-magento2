@@ -230,7 +230,7 @@ class Importorder extends AbstractModel
     /**
      * @var integer|null Magento store id
      */
-    protected $_storeId = null;
+    protected $_storeId;
 
     /**
      * @var boolean use debug mode
@@ -315,12 +315,12 @@ class Importorder extends AbstractModel
     /**
      * @var string|null carrier name
      */
-    protected $_carrierName = null;
+    protected $_carrierName;
 
     /**
      * @var string|null carrier method
      */
-    protected $_carrierMethod = null;
+    protected $_carrierMethod;
 
     /**
      * @var boolean order shipped by marketplace
@@ -330,12 +330,12 @@ class Importorder extends AbstractModel
     /**
      * @var string|null carrier tracking number
      */
-    protected $_trackingNumber = null;
+    protected $_trackingNumber;
 
     /**
      * @var string|null carrier relay id
      */
-    protected $_relayId = null;
+    protected $_relayId;
 
     /**
      * Constructor
@@ -451,9 +451,9 @@ class Importorder extends AbstractModel
         $this->_packageData = $params['package_data'];
         $this->_firstPackage = $params['first_package'];
         $this->_importOneOrder = $params['import_one_order'];
-        $this->_marketplace = $this->_importHelper->getMarketplaceSingleton((string)$this->_orderData->marketplace);
+        $this->_marketplace = $this->_importHelper->getMarketplaceSingleton((string) $this->_orderData->marketplace);
         $this->_marketplaceLabel = $this->_marketplace->labelName;
-        $this->_orderStateMarketplace = (string)$this->_orderData->marketplace_status;
+        $this->_orderStateMarketplace = (string) $this->_orderData->marketplace_status;
         $this->_orderStateLengow = $this->_marketplace->getStateLengow($this->_orderStateMarketplace);
         return $this;
     }
@@ -468,11 +468,7 @@ class Importorder extends AbstractModel
     public function importOrder()
     {
         // if log import exist and not finished
-        $importLog = $this->_lengowOrder->orderIsInError(
-            $this->_marketplaceSku,
-            $this->_deliveryAddressId,
-            'import'
-        );
+        $importLog = $this->_lengowOrder->orderIsInError($this->_marketplaceSku, $this->_deliveryAddressId);
         if ($importLog) {
             $dateMessage = $this->_timezone->date(strtotime($importLog['created_at']))->format('Y-m-d H:i:s');
             $decodedMessage = $this->_dataHelper->decodeLogMessage($importLog['message'], false);
@@ -557,7 +553,7 @@ class Importorder extends AbstractModel
             // check and complete an order not imported if it is canceled or refunded
             if ($this->_orderLengowId && $orderProcessState === LengowOrder::PROCESS_STATE_FINISH) {
                 $this->_orderErrorFactory->create()->finishOrderErrors($this->_orderLengowId);
-                $orderLengow = $this->_lengowOrderFactory->create()->load((int)$this->_orderLengowId);
+                $orderLengow = $this->_lengowOrderFactory->create()->load((int) $this->_orderLengowId);
                 $orderLengow->updateOrder(
                     [
                         'is_in_error' => 0,
@@ -594,18 +590,17 @@ class Importorder extends AbstractModel
                     $this->_marketplaceSku
                 );
                 return false;
-            } else {
-                $this->_dataHelper->log(
-                    DataHelper::CODE_IMPORT,
-                    $this->_dataHelper->setLogMessage('order saved in Lengow orders table'),
-                    $this->_logOutput,
-                    $this->_marketplaceSku
-                );
             }
+            $this->_dataHelper->log(
+                DataHelper::CODE_IMPORT,
+                $this->_dataHelper->setLogMessage('order saved in Lengow orders table'),
+                $this->_logOutput,
+                $this->_marketplaceSku
+            );
         }
         // load lengow order
         $orderFactory = $this->_lengowOrderFactory->create();
-        $orderLengow = $orderFactory->load((int)$this->_orderLengowId);
+        $orderLengow = $orderFactory->load((int) $this->_orderLengowId);
         // checks if the required order data is present
         if (!$this->_checkOrderData()) {
             return $this->_returnResult(self::RESULT_ERROR, $this->_orderLengowId);
@@ -617,8 +612,8 @@ class Importorder extends AbstractModel
         // get customer name and email
         $customerName = $this->_getCustomerName();
         $customerEmail = $this->_orderData->billing_address->email !== null
-            ? (string)$this->_orderData->billing_address->email
-            : (string)$this->_packageData->delivery->email;
+            ? (string) $this->_orderData->billing_address->email
+            : (string) $this->_packageData->delivery->email;
         // update Lengow order with new data
         $orderLengow->updateOrder(
             [
@@ -627,7 +622,7 @@ class Importorder extends AbstractModel
                 'order_item' => $this->_orderItems,
                 'customer_name' => $customerName,
                 'customer_email' => $customerEmail,
-                'commission' => (float)$this->_orderData->commission,
+                'commission' => (float) $this->_orderData->commission,
                 'carrier' => $this->_carrierName,
                 'carrier_method' => $this->_carrierMethod,
                 'carrier_tracking' => $this->_trackingNumber,
@@ -648,7 +643,7 @@ class Importorder extends AbstractModel
                     $this->_logOutput,
                     $this->_marketplaceSku
                 );
-                if (!$this->_configHelper->get('import_ship_mp_enabled', $this->_storeId)) {
+                if (!$this->_configHelper->get(ConfigHelper::SHIPPED_BY_MARKETPLACE_ENABLED, $this->_storeId)) {
                     $orderLengow->updateOrder(
                         [
                             'is_in_error' => 0,
@@ -669,9 +664,8 @@ class Importorder extends AbstractModel
                 $this->_logOutput
             );
             // if this order is B2B activate B2bTaxesApplicator
-            if ((bool)$this->_configHelper->get('import_b2b_without_tax')
-                && $orderLengow->isBusiness()) {
-                    $this->backendSession->setIsLengowB2b(1);
+            if ($this->_configHelper->get(ConfigHelper::B2B_WITHOUT_TAX_ENABLED) && $orderLengow->isBusiness()) {
+                $this->backendSession->setIsLengowB2b(1);
             }
             // create Magento Quote
             $quote = $this->_createQuote($customer, $products);
@@ -722,9 +716,11 @@ class Importorder extends AbstractModel
             } else {
                 throw new LengowException($this->_dataHelper->setLogMessage('order could not be saved'));
             }
-            // add quantity back for re-import order and order shipped by marketplace
+            // add quantity back for re-imported order and order shipped by marketplace
             if ($this->_isReimported
-                || ($this->_shippedByMp && !$this->_configHelper->get('import_stock_ship_mp', $this->_storeId))
+                || ($this->_shippedByMp
+                    && !$this->_configHelper->get(ConfigHelper::SHIPPED_BY_MARKETPLACE_STOCK_ENABLED, $this->_storeId)
+                )
             ) {
                 if ($this->_isReimported) {
                     $logMessage = $this->_dataHelper->setLogMessage(
@@ -749,7 +745,7 @@ class Importorder extends AbstractModel
             $errorMessage = 'Magento error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
         }
         if (isset($errorMessage)) {
-            if ((bool)$orderLengow->getData('is_in_error')) {
+            if ((bool) $orderLengow->getData('is_in_error')) {
                 $orderError = $this->_orderErrorFactory->create();
                 $orderError->createOrderError(
                     [
@@ -806,10 +802,10 @@ class Importorder extends AbstractModel
         $tracks = $this->_packageData->delivery->trackings;
         if (!empty($tracks)) {
             $tracking = $tracks[0];
-            $this->_carrierName = $tracking->carrier !== null ? (string)$tracking->carrier : null;
-            $this->_carrierMethod = $tracking->method !== null ? (string)$tracking->method : null;
-            $this->_trackingNumber = $tracking->number !== null ? (string)$tracking->number : null;
-            $this->_relayId = $tracking->relay->id !== null ? (string)$tracking->relay->id : null;
+            $this->_carrierName = $tracking->carrier;
+            $this->_carrierMethod = $tracking->method;
+            $this->_trackingNumber = $tracking->number;
+            $this->_relayId = $tracking->relay->id;
         }
     }
 
@@ -820,8 +816,8 @@ class Importorder extends AbstractModel
      */
     protected function _getOrderAmount()
     {
-        $this->_processingFee = (float)$this->_orderData->processing_fee;
-        $this->_shippingCost = (float)$this->_orderData->shipping;
+        $this->_processingFee = (float) $this->_orderData->processing_fee;
+        $this->_shippingCost = (float) $this->_orderData->shipping;
         // rewrite processing fees and shipping cost
         if (!$this->_firstPackage) {
             $this->_processingFee = 0;
@@ -845,13 +841,13 @@ class Importorder extends AbstractModel
         foreach ($this->_packageData->cart as $product) {
             // check whether the product is canceled for amount
             if ($product->marketplace_status !== null) {
-                $stateProduct = $this->_marketplace->getStateLengow((string)$product->marketplace_status);
+                $stateProduct = $this->_marketplace->getStateLengow((string) $product->marketplace_status);
                 if ($stateProduct === LengowOrder::STATE_CANCELED || $stateProduct === LengowOrder::STATE_REFUSED) {
                     continue;
                 }
             }
-            $nbItems += (int)$product->quantity;
-            $totalAmount += (float)$product->amount;
+            $nbItems += (int) $product->quantity;
+            $totalAmount += (float) $product->amount;
         }
         $this->_orderItems = $nbItems;
         return $totalAmount + $this->_processingFee + $this->_shippingCost;
@@ -892,7 +888,7 @@ class Importorder extends AbstractModel
         $lengowOrder = $this->_lengowOrderFactory->create()->load($orderLengowId);
         $result = ['order_lengow_id' => $lengowOrder->getId()];
         // Lengow -> Cancel and reimport order
-        if ((bool)$lengowOrder->getData('is_reimported')) {
+        if ($lengowOrder->getData('is_reimported')) {
             $this->_dataHelper->log(
                 DataHelper::CODE_IMPORT,
                 $this->_dataHelper->setLogMessage(
@@ -904,23 +900,22 @@ class Importorder extends AbstractModel
             );
             $this->_isReimported = true;
             return false;
-        } else {
-            // try to update magento order, lengow order and finish actions if necessary
-            $orderUpdated = $this->_lengowOrder->updateState(
-                $order,
-                $lengowOrder,
-                $this->_orderStateLengow,
-                $this->_packageData
+        }
+        // try to update magento order, lengow order and finish actions if necessary
+        $orderUpdated = $this->_lengowOrder->updateState(
+            $order,
+            $lengowOrder,
+            $this->_orderStateLengow,
+            $this->_packageData
+        );
+        if ($orderUpdated) {
+            $result['update'] = true;
+            $this->_dataHelper->log(
+                DataHelper::CODE_IMPORT,
+                $this->_dataHelper->setLogMessage("order's status has been updated to %1", [$orderUpdated]),
+                $this->_logOutput,
+                $this->_marketplaceSku
             );
-            if ($orderUpdated) {
-                $result['update'] = true;
-                $this->_dataHelper->log(
-                    DataHelper::CODE_IMPORT,
-                    $this->_dataHelper->setLogMessage("order's status has been updated to %1", [$orderUpdated]),
-                    $this->_logOutput,
-                    $this->_marketplaceSku
-                );
-            }
         }
         unset($order, $lengowOrder);
         return $result;
@@ -939,8 +934,8 @@ class Importorder extends AbstractModel
         if ($externalIds !== null && !empty($externalIds)) {
             foreach ($externalIds as $externalId) {
                 $lineId = $this->_lengowOrder->getOrderIdWithDeliveryAddress(
-                    (int)$externalId,
-                    (int)$this->_deliveryAddressId
+                    (int) $externalId,
+                    (int) $this->_deliveryAddressId
                 );
                 if ($lineId) {
                     $orderMagentoId = $externalId;
@@ -1024,11 +1019,11 @@ class Importorder extends AbstractModel
             'order_id' => $orderId,
             'order_lengow_id' => $orderLengowId,
             'marketplace_sku' => $this->_marketplaceSku,
-            'marketplace_name' => (string)$this->_marketplace->name,
+            'marketplace_name' => $this->_marketplace->name,
             'lengow_state' => $this->_orderStateLengow,
-            'order_new' => $typeResult === self::RESULT_NEW ? true : false,
-            'order_update' => $typeResult === self::RESULT_UPDATE ? true : false,
-            'order_error' => $typeResult === self::RESULT_ERROR ? true : false,
+            'order_new' => $typeResult === self::RESULT_NEW,
+            'order_update' => $typeResult === self::RESULT_UPDATE,
+            'order_error' => $typeResult === self::RESULT_ERROR,
         ];
     }
 
@@ -1039,15 +1034,14 @@ class Importorder extends AbstractModel
      */
     protected function _getCustomerName()
     {
-        $firstname = (string)$this->_orderData->billing_address->first_name;
-        $lastname = (string)$this->_orderData->billing_address->last_name;
+        $firstname = (string) $this->_orderData->billing_address->first_name;
+        $lastname = (string) $this->_orderData->billing_address->last_name;
         $firstname = ucfirst(strtolower($firstname));
         $lastname = ucfirst(strtolower($lastname));
         if (empty($firstname) && empty($lastname)) {
-            return (string)$this->_orderData->billing_address->full_name;
-        } else {
-            return $firstname . ' ' . $lastname;
+            return (string) $this->_orderData->billing_address->full_name;
         }
+        return $firstname . ' ' . $lastname;
     }
 
     /**
@@ -1063,14 +1057,14 @@ class Importorder extends AbstractModel
         foreach ($this->_packageData->cart as $product) {
             $found = false;
             $magentoProduct = false;
-            $orderLineId = (string)$product->marketplace_order_line_id;
+            $orderLineId = (string) $product->marketplace_order_line_id;
             // check whether the product is canceled
-            if ($product->marketplace_status != null) {
-                $stateProduct = $this->_marketplace->getStateLengow((string)$product->marketplace_status);
+            if ($product->marketplace_status !== null) {
+                $stateProduct = $this->_marketplace->getStateLengow((string) $product->marketplace_status);
                 if ($stateProduct === LengowOrder::STATE_CANCELED || $stateProduct === LengowOrder::STATE_REFUSED) {
                     $productId = $product->merchant_product_id->id !== null
-                        ? (string)$product->merchant_product_id->id
-                        : (string)$product->marketplace_product_id;
+                        ? (string) $product->merchant_product_id->id
+                        : (string) $product->marketplace_product_id;
                     $this->_dataHelper->log(
                         DataHelper::CODE_IMPORT,
                         $this->_dataHelper->setLogMessage(
@@ -1090,8 +1084,8 @@ class Importorder extends AbstractModel
                 'merchant_product_id' => $product->merchant_product_id->id,
                 'marketplace_product_id' => $product->marketplace_product_id,
             ];
-            $productField = $product->merchant_product_id->field != null
-                ? strtolower((string)$product->merchant_product_id->field)
+            $productField = $product->merchant_product_id->field !== null
+                ? strtolower((string) $product->merchant_product_id->field)
                 : false;
             // search product foreach value
             foreach ($productIds as $attributeName => $attributeValue) {
@@ -1122,7 +1116,7 @@ class Importorder extends AbstractModel
                 // search by id or sku
                 if (!$magentoProduct || !$magentoProduct->getId()) {
                     if (preg_match('/^[0-9]*$/', $attributeValue)) {
-                        $magentoProduct = $this->_productFactory->create()->load((integer)$attributeValue);
+                        $magentoProduct = $this->_productFactory->create()->load((int) $attributeValue);
                     }
                     if (!$magentoProduct || !$magentoProduct->getId()) {
                         $attributeValue = str_replace('\_', '_', $attributeValue);
@@ -1135,17 +1129,17 @@ class Importorder extends AbstractModel
                     $magentoProductId = $magentoProduct->getId();
                     // save total row Lengow for each product
                     if (array_key_exists($magentoProductId, $lengowProducts)) {
-                        $lengowProducts[$magentoProductId]['quantity'] += (int)$product->quantity;
-                        $lengowProducts[$magentoProductId]['amount'] += (float)$product->amount;
+                        $lengowProducts[$magentoProductId]['quantity'] += (int) $product->quantity;
+                        $lengowProducts[$magentoProductId]['amount'] += (float) $product->amount;
                         $lengowProducts[$magentoProductId]['order_line_ids'][] = $orderLineId;
                     } else {
                         $lengowProducts[$magentoProductId] = [
                             'magento_product' => $magentoProduct,
-                            'sku' => (string)$magentoProduct->getSku(),
-                            'title' => (string)$product->title,
-                            'amount' => (float)$product->amount,
-                            'price_unit' => (float)($product->amount / $product->quantity),
-                            'quantity' => (int)$product->quantity,
+                            'sku' => (string) $magentoProduct->getSku(),
+                            'title' => (string) $product->title,
+                            'amount' => (float) $product->amount,
+                            'price_unit' => (float) ($product->amount / $product->quantity),
+                            'quantity' => (int) $product->quantity,
                             'order_line_ids' => [$orderLineId],
                         ];
                     }
@@ -1168,12 +1162,13 @@ class Importorder extends AbstractModel
             }
             if (!$found) {
                 $productId = $product->merchant_product_id->id !== null
-                    ? (string)$product->merchant_product_id->id
-                    : (string)$product->marketplace_product_id;
+                    ? (string) $product->merchant_product_id->id
+                    : (string) $product->marketplace_product_id;
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage('product %1 could not be found', [$productId])
                 );
-            } elseif ($magentoProduct->getTypeId() === Configurable::TYPE_CODE) {
+            }
+            if ($magentoProduct->getTypeId() === Configurable::TYPE_CODE) {
                 throw new LengowException(
                     $this->_dataHelper->setLogMessage(
                         'product %1 is a parent ID. Product variation is needed',
@@ -1240,7 +1235,7 @@ class Importorder extends AbstractModel
                 $quote->getStore()
             );
             $taxShippingCost = $this->_calculation->calcTaxAmount($shippingCost, $taxRate, true);
-            $shippingCost = $shippingCost - $taxShippingCost;
+            $shippingCost -= $taxShippingCost;
         }
         $quoteShippingAddress = $quote->getShippingAddress();
         // update shipping rates for current order
@@ -1256,15 +1251,15 @@ class Importorder extends AbstractModel
         $paymentInfo = '';
         if (!empty($this->_orderData->payments)) {
             $payment = $this->_orderData->payments[0];
-            $paymentInfo .= ' - ' . (string)$payment->type;
+            $paymentInfo .= ' - ' . $payment->type;
             if (isset($payment->payment_terms->external_transaction_id)) {
-                $paymentInfo .= ' - ' . (string)$payment->payment_terms->external_transaction_id;
+                $paymentInfo .= ' - ' . $payment->payment_terms->external_transaction_id;
             }
         }
         // set payment method lengow
-        $quote->getPayment()->setMethod('lengow')->setAdditionnalInformation(
-            ['marketplace' => (string)$this->_orderData->marketplace . $paymentInfo]
-        );
+        $quote->getPayment()->setMethod('lengow')->setAdditionnalInformation([
+            'marketplace' => $this->_orderData->marketplace . $paymentInfo,
+        ]);
         $quote->collectTotals()->save();
         // stop order creation when a quote is empty
         if (!$quote->getAllVisibleItems()) {
@@ -1291,10 +1286,10 @@ class Importorder extends AbstractModel
     {
         $additionalData = [
             'from_lengow' => true,
-            'global_currency_code' => (string)$this->_orderData->currency->iso_a3,
-            'base_currency_code' => (string)$this->_orderData->currency->iso_a3,
-            'store_currency_code' => (string)$this->_orderData->currency->iso_a3,
-            'order_currency_code' => (string)$this->_orderData->currency->iso_a3,
+            'global_currency_code' => (string) $this->_orderData->currency->iso_a3,
+            'base_currency_code' => (string) $this->_orderData->currency->iso_a3,
+            'store_currency_code' => (string) $this->_orderData->currency->iso_a3,
+            'order_currency_code' => (string) $this->_orderData->currency->iso_a3,
         ];
         try {
             $order = $this->_quoteManagement->submit($quote, $additionalData);
@@ -1312,9 +1307,9 @@ class Importorder extends AbstractModel
         // modify order dates to use actual dates
         // get all params to create order
         if ($this->_orderData->marketplace_order_date !== null) {
-            $orderDate = (string)$this->_orderData->marketplace_order_date;
+            $orderDate = (string) $this->_orderData->marketplace_order_date;
         } else {
-            $orderDate = (string)$this->_orderData->imported_at;
+            $orderDate = (string) $this->_orderData->imported_at;
         }
         $order->setCreatedAt($this->_dateTime->gmtDate('Y-m-d H:i:s', strtotime($orderDate)));
         $order->setUpdatedAt($this->_dateTime->gmtDate('Y-m-d H:i:s', strtotime($orderDate)));
@@ -1364,7 +1359,7 @@ class Importorder extends AbstractModel
     protected function _updateRates($rates, $shippingCost, $shippingMethod = null, $first = true)
     {
         if (!$shippingMethod) {
-            $shippingMethod = $this->_configHelper->get('import_shipping_method', $this->_storeId);
+            $shippingMethod = $this->_configHelper->get(ConfigHelper::DEFAULT_IMPORT_CARRIER_ID, $this->_storeId);
         }
         if (empty($shippingMethod)) {
             $shippingMethod = 'lengow_lengow';
@@ -1404,17 +1399,17 @@ class Importorder extends AbstractModel
     {
         // get all params to create order
         $orderDate = $this->_orderData->marketplace_order_date !== null
-            ? (string)$this->_orderData->marketplace_order_date
-            : (string)$this->_orderData->imported_at;
+            ? (string) $this->_orderData->marketplace_order_date
+            : (string) $this->_orderData->imported_at;
         $message = (isset($this->_orderData->comments) && is_array($this->_orderData->comments))
             ? join(',', $this->_orderData->comments)
-            : (string)$this->_orderData->comments;
+            : (string) $this->_orderData->comments;
         $params = [
-            'store_id' => (int)$this->_storeId,
+            'store_id' => (int) $this->_storeId,
             'marketplace_sku' => $this->_marketplaceSku,
             'marketplace_name' => $this->_marketplace->name,
-            'marketplace_label' => (string)$this->_marketplaceLabel,
-            'delivery_address_id' => (int)$this->_deliveryAddressId,
+            'marketplace_label' => (string) $this->_marketplaceLabel,
+            'delivery_address_id' => (int) $this->_deliveryAddressId,
             'order_lengow_state' => $this->_orderStateLengow,
             'order_types' => json_encode($this->_orderTypes),
             'customer_vat_number' => $this->getVatNumberFromOrderData(),
@@ -1446,7 +1441,8 @@ class Importorder extends AbstractModel
     {
         if (isset($this->_orderData->billing_address->vat_number)) {
             return $this->_orderData->billing_address->vat_number;
-        } elseif (isset($this->_packageData->delivery->vat_number)) {
+        }
+        if (isset($this->_packageData->delivery->vat_number)) {
             return $this->_packageData->delivery->vat_number;
         }
         return null;
@@ -1468,7 +1464,7 @@ class Importorder extends AbstractModel
                 $orderLine = $this->_lengowOrderLineFactory->create();
                 $orderLine->createOrderLine(
                     [
-                        'order_id' => (int)$order->getId(),
+                        'order_id' => (int) $order->getId(),
                         'product_id' => $productId,
                         'order_line_id' => $idOrderLine,
                     ]

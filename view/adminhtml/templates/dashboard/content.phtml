@@ -5,8 +5,13 @@
  */
 
 // @codingStandardsIgnoreFile
-/** @var Lengow\Connector\Block\Adminhtml\Dashboard\Content $block */
+/** @var Lengow\Connector\Block\Adminhtml\Main $block */
 ?>
+
+<?php
+$numberOrderToBeSent = $block->getNumberOrderToBeSent();
+?>
+
 <div class="lgw-container">
     <div class="lgw-box lgw-home-header text-center">
         <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/lengow-white-big.png') ?>" alt="lengow">
@@ -31,8 +36,8 @@
                     <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/home-orders.png') ?>" class="img-responsive">
                     <h2>
                         <?= $block->escapeHtml(__('Orders')) ?>
-                        <?php if($block->getNumberOrderToBeSent()): ?>
-                            <span class="lgw-label lgw-label red"><?= $block->getNumberOrderToBeSent() ?></span>
+                        <?php if($numberOrderToBeSent > 0): ?>
+                            <span class="lgw-label red"><?= $numberOrderToBeSent ?></span>
                         <?php endif; ?>
                     </h2>
                     <p><?= $block->escapeHtml(__('Manage your orders directly on your Magento dashboard')) ?></p>
@@ -57,7 +62,7 @@
             </a>
         </p>
         <p>
-            <a href="<?= $block->escapeHtml(__('https://support.lengow.com/kb/guide/en/zIKNDzKdKk')) ?>" target="_blank"
+            <a href="<?= $block->escapeHtml($block->getHelpCenterLink()) ?>" target="_blank"
                title="<?= $block->escapeHtml(__('Visit our Help Center')) ?>"><?= $block->escapeHtml(__('Visit our Help Center')) ?></a>
             <?= $block->escapeHtml(__('for detailed information on how to configure your Magento plugin properly')) ?>
         </p>

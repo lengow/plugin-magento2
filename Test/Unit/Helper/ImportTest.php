@@ -125,9 +125,9 @@ class ImportTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Helper\Import::importIsInProcess()
+     * @covers \Lengow\Connector\Helper\Import::isInProcess()
      */
-    public function testImportIsInProcess()
+    public function testIsInProcess()
     {
         $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
@@ -147,25 +147,25 @@ class ImportTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             false,
-            $importHelperMock->importIsInProcess(),
+            $importHelperMock->isInProcess(),
             '[Test Get Last Import] Check if return import is in process or not 1'
         );
 
         $this->assertEquals(
             false,
-            $importHelperMock->importIsInProcess(),
+            $importHelperMock->isInProcess(),
             '[Test Get Last Import] Check if return import is in process or not 2'
         );
 
         $this->assertEquals(
             false,
-            $importHelperMock->importIsInProcess(),
+            $importHelperMock->isInProcess(),
             '[Test Get Last Import] Check if return import is in process or not 3'
         );
 
         $this->assertEquals(
             true,
-            $importHelperMock->importIsInProcess(),
+            $importHelperMock->isInProcess(),
             '[Test Get Last Import] Check if return import is in process or not 4'
         );
     }

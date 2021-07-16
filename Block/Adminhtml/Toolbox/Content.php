@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2017 Lengow SAS
+ * Copyright 2021 Lengow SAS
  *
  * NOTICE OF LICENSE
  *
@@ -13,7 +13,7 @@
  * @package     Lengow_Connector
  * @subpackage  Block
  * @author      Team module <team-module@lengow.com>
- * @copyright   2017 Lengow SAS
+ * @copyright   2021 Lengow SAS
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -22,325 +22,333 @@ namespace Lengow\Connector\Block\Adminhtml\Toolbox;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Magento\Cron\Model\ResourceModel\Schedule\CollectionFactory as ScheduleCollection;
-use Magento\Framework\Module\Dir\Reader;
-use Magento\Store\Model\Store;
-use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
-use Lengow\Connector\Helper\Security as SecurityHelper;
-use Lengow\Connector\Model\Export as LengowExport;
+use Lengow\Connector\Helper\Toolbox as ToolboxHelper;
 use Lengow\Connector\Model\Import as LengowImport;
-use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class Content extends Template
 {
+    /* Array data for toolbox content creation */
+    const DATA_HEADER = 'header';
+    const DATA_TITLE = 'title';
+    const DATA_STATE = 'state';
+    const DATA_MESSAGE = 'message';
+    const DATA_SIMPLE = 'simple';
+    const DATA_HELP = 'help';
+    const DATA_HELP_LINK = 'help_link';
+    const DATA_HELP_LABEL = 'help_label';
+
+    /* Lengow cron jobs */
+    const CRON_JOB_EXPORT = 'lengow_connector_launch_export';
+    const CRON_JOB_IMPORT = 'lengow_connector_launch_synchronization';
+
     /**
      * @var ScheduleCollection Magento schedule collection factory
      */
-    protected $_scheduleCollection;
-
-    /**
-     * @var Reader Magento module reader instance
-     */
-    protected $_moduleReader;
+    protected $scheduleCollection;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    protected $configHelper;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    protected $dataHelper;
 
     /**
      * @var ImportHelper Lengow import helper instance
      */
-    protected $_importHelper;
+    protected $importHelper;
 
     /**
-     * @var SecurityHelper Lengow security helper instance
+     * @var ToolboxHelper Lengow toolbox helper instance
      */
-    protected $_securityHelper;
-
-    /**
-     * @var LengowExport Lengow export instance
-     */
-    protected $_export;
-
-    /**
-     * @var LengowOrder Lengow order instance
-     */
-    protected $_lengowOrder;
+    protected $toolboxHelper;
 
     /**
      * Constructor
      *
      * @param Context $context Magento block context instance
-     * @param Reader $moduleReader Magento module reader instance
      * @param ScheduleCollection $scheduleCollection
      * @param DataHelper $dataHelper Lengow data helper instance
-     * @param SecurityHelper $securityHelper Lengow security helper instance
      * @param ConfigHelper $configHelper Lengow config helper instance
      * @param ImportHelper $importHelper Lengow import helper instance
-     * @param LengowOrder $lengowOrder Lengow order instance
-     * @param LengowExport $export Lengow export instance
+     * @param ToolboxHelper $toolboxHelper Lengow toolbox helper instance
      * @param array $data additional params
      */
     public function __construct(
         Context $context,
-        Reader $moduleReader,
         ScheduleCollection $scheduleCollection,
         DataHelper $dataHelper,
-        SecurityHelper $securityHelper,
         ConfigHelper $configHelper,
         ImportHelper $importHelper,
-        LengowOrder $lengowOrder,
-        LengowExport $export,
+        ToolboxHelper $toolboxHelper,
         array $data = []
     ) {
-        $this->_moduleReader = $moduleReader;
-        $this->_scheduleCollection = $scheduleCollection;
-        $this->_dataHelper = $dataHelper;
-        $this->_securityHelper = $securityHelper;
-        $this->_configHelper = $configHelper;
-        $this->_importHelper = $importHelper;
-        $this->_lengowOrder = $lengowOrder;
-        $this->_export = $export;
+        $this->scheduleCollection = $scheduleCollection;
+        $this->dataHelper = $dataHelper;
+        $this->configHelper = $configHelper;
+        $this->importHelper = $importHelper;
+        $this->toolboxHelper = $toolboxHelper;
         parent::__construct($context, $data);
     }
 
     /**
-     * Get all Magento stores
-     *
-     * @return StoreCollection
-     */
-    public function getStores()
-    {
-        return $this->_configHelper->getAllStore();
-    }
-
-    /**
-     * Get array of plugin informations
+     * Get array of requirements for toolbox
      *
      * @return string
      */
-    public function getPluginInformations()
+    public function getCheckList()
     {
-        $checklist = [];
-        $checklist[] = [
-            'title' => __('Magento version'),
-            'message' => $this->_securityHelper->getMagentoVersion(),
+        $checklistData = $this->toolboxHelper->getData(ToolboxHelper::DATA_TYPE_CHECKLIST);
+        $checklist = [
+            [
+                self::DATA_TITLE => __('Lengow needs the CURL PHP extension'),
+                self::DATA_HELP => __('The CURL extension is not installed or enabled in your PHP installation'),
+                self::DATA_HELP_LINK => __('https://www.php.net/manual/en/curl.setup.php'),
+                self::DATA_HELP_LABEL => __('Go to Curl PHP extension manual'),
+                self::DATA_STATE => $checklistData[ToolboxHelper::CHECKLIST_CURL_ACTIVATED],
+            ],
+            [
+                self::DATA_TITLE => __('Lengow needs the SimpleXML PHP extension'),
+                self::DATA_HELP => __('The SimpleXML extension is not installed or enabled in your PHP installation'),
+                self::DATA_HELP_LINK => __('https://www.php.net/manual/en/book.simplexml.php'),
+                self::DATA_HELP_LABEL => __('Go to SimpleXML PHP extension manual'),
+                self::DATA_STATE => $checklistData[ToolboxHelper::CHECKLIST_SIMPLE_XML_ACTIVATED],
+            ],
+            [
+                self::DATA_TITLE => __('Lengow needs the JSON PHP extension'),
+                self::DATA_HELP =>  __('The JSON extension is not installed or enabled in your PHP installation'),
+                self::DATA_HELP_LINK => __('https://www.php.net/manual/en/book.json.php'),
+                self::DATA_HELP_LABEL => __('Go to JSON PHP extension manual'),
+                self::DATA_STATE => $checklistData[ToolboxHelper::CHECKLIST_JSON_ACTIVATED],
+            ],
+            [
+                self::DATA_TITLE => __('Plugin files check'),
+                self::DATA_HELP => __('Some files have been changed by the customer'),
+                self::DATA_STATE => $checklistData[ToolboxHelper::CHECKLIST_MD5_SUCCESS],
+            ],
         ];
-        $checklist[] = [
-            'title' => __('Plugin version'),
-            'message' => $this->_securityHelper->getPluginVersion(),
-        ];
-        $checklist[] = [
-            'title' => __('Server IP'),
-            'message' => $_SERVER['SERVER_ADDR'],
-        ];
-        $checklist[] = [
-            'title' => __('Authorisation by IP enabled'),
-            'state' => (bool)$this->_configHelper->get('ip_enable'),
-        ];
-        $checklist[] = [
-            'title' => __('Authorised IP'),
-            'message' => $this->_configHelper->get('authorized_ip'),
-        ];
-        $checklist[] = [
-            'title' => __('Export in a file enabled'),
-            'state' => (bool)$this->_configHelper->get('file_enable'),
-        ];
-        $checklist[] = [
-            'title' => __('Magento cron job enabled for export'),
-            'state' => (bool)$this->_configHelper->get('export_cron_enable'),
-        ];
-        $checklist[] = [
-            'title' => __('Debug Mode disabled'),
-            'state' => !$this->_configHelper->debugModeIsActive(),
-        ];
-        $sep = DIRECTORY_SEPARATOR;
-        $filePath = $this->_dataHelper->getMediaPath() . $sep . DataHelper::LENGOW_FOLDER . $sep . 'test.txt';
-        try {
-            $file = fopen($filePath, 'w+');
-            if (!$file) {
-                $state = false;
-            } else {
-                $state = true;
-                unlink($filePath);
-            }
-        } catch (\Exception $e) {
-            $state = false;
-        }
-        $checklist[] = [
-            'title' => __('Read and write permission from media folder'),
-            'state' => $state,
-        ];
-        return $this->_getContent($checklist);
+        return $this->getContent($checklist);
     }
 
     /**
-     * Get array of import information
+     * Get all global information for toolbox
      *
      * @return string
      */
-    public function getImportInformations()
+    public function getPluginInformation()
     {
-        $checklist = [];
-        $checklist[] = [
-            'title' => __('Import token'),
-            'message' => $this->_configHelper->getToken(),
+        $pluginData = $this->toolboxHelper->getData(ToolboxHelper::DATA_TYPE_PLUGIN);
+        $checklist = [
+            [
+                self::DATA_TITLE => __('Magento version'),
+                self::DATA_MESSAGE => $pluginData[ToolboxHelper::PLUGIN_CMS_VERSION],
+            ],
+            [
+                self::DATA_TITLE => __('Plugin version'),
+                self::DATA_MESSAGE => $pluginData[ToolboxHelper::PLUGIN_VERSION],
+            ],
+            [
+                self::DATA_TITLE => __('Server IP'),
+                self::DATA_MESSAGE => $pluginData[ToolboxHelper::PLUGIN_SERVER_IP],
+            ],
+            [
+                self::DATA_TITLE => __('Authorisation by IP enabled'),
+                self::DATA_STATE => $pluginData[ToolboxHelper::PLUGIN_AUTHORIZED_IP_ENABLE],
+            ],
+            [
+                self::DATA_TITLE => __('Authorised IP'),
+                self::DATA_MESSAGE => implode(', ', $pluginData[ToolboxHelper::PLUGIN_AUTHORIZED_IPS]),
+            ],
+            [
+                self::DATA_TITLE => __('Export in a file enabled'),
+                self::DATA_STATE => (bool) $this->configHelper->get(ConfigHelper::EXPORT_FILE_ENABLED),
+            ],
+            [
+                self::DATA_TITLE => __('Magento cron job enabled for export'),
+                self::DATA_STATE => (bool) $this->configHelper->get(ConfigHelper::EXPORT_MAGENTO_CRON_ENABLED),
+            ],
+            [
+                self::DATA_TITLE => __('Debug Mode disabled'),
+                self::DATA_STATE => $pluginData[ToolboxHelper::PLUGIN_DEBUG_MODE_DISABLE],
+            ],
+            [
+                self::DATA_TITLE => __('Read and write permission from media folder'),
+                self::DATA_STATE => $pluginData[ToolboxHelper::PLUGIN_WRITE_PERMISSION],
+            ],
+            [
+                self::DATA_TITLE => __('Toolbox URL'),
+                self::DATA_MESSAGE => $pluginData[ToolboxHelper::PLUGIN_TOOLBOX_URL],
+            ],
         ];
-        $checklist[] = [
-            'title' => __('Import URL'),
-            'message' => $this->_dataHelper->getCronUrl(),
-        ];
-        $checklist[] = [
-            'title' => __('Magento cron job enabled for import'),
-            'state' => (bool)$this->_configHelper->get('import_cron_enable'),
-        ];
-        $nbOrderImported = $this->_lengowOrder->countOrderImportedByLengow();
-        $orderWithError = $this->_lengowOrder->countOrderWithError();
-        $orderToBeSent = $this->_lengowOrder->countOrderToBeSent();
-        $checklist[] = [
-            'title' => __('Orders imported by Lengow'),
-            'message' => $nbOrderImported,
-        ];
-        $checklist[] = [
-            'title' => __('Orders waiting to be sent'),
-            'message' => $orderToBeSent,
-        ];
-        $checklist[] = [
-            'title' => __('Orders with errors'),
-            'message' => $orderWithError,
-        ];
-        $lastImport = $this->_importHelper->getLastImport();
-        $lastImportDate = $lastImport['timestamp'] === 'none'
-            ? __('none')
-            : $this->_dataHelper->getDateInCorrectFormat($lastImport['timestamp'], true);
-        if ($lastImport['type'] === 'none') {
+        return $this->getContent($checklist);
+    }
+
+    /**
+     * Get all import information for toolbox
+     *
+     * @return string
+     */
+    public function getImportInformation()
+    {
+        $synchronizationData = $this->toolboxHelper->getData(ToolboxHelper::DATA_TYPE_SYNCHRONIZATION);
+        $lastSynchronization = $synchronizationData[ToolboxHelper::SYNCHRONIZATION_LAST_SYNCHRONIZATION];
+        if ($lastSynchronization === 0) {
+            $lastImportDate = __('none');
             $lastImportType = __('none');
-        } elseif ($lastImport['type'] === LengowImport::TYPE_CRON) {
-            $lastImportType = __('cron');
         } else {
-            $lastImportType = __('manual');
+            $lastImportDate = $this->dataHelper->getDateInCorrectFormat($lastSynchronization, true);
+            $lastSynchronizationType = $synchronizationData[ToolboxHelper::SYNCHRONIZATION_LAST_SYNCHRONIZATION_TYPE];
+            $lastImportType = $lastSynchronizationType === LengowImport::TYPE_CRON ? __('cron') : __('manual');
         }
-        if ($this->_importHelper->importIsInProcess()) {
+        if ($synchronizationData[ToolboxHelper::SYNCHRONIZATION_SYNCHRONIZATION_IN_PROGRESS]) {
             $importInProgress = __(
                 'wait %1 seconds before the next import',
-                [$this->_importHelper->restTimeToImport()]
+                [$this->importHelper->restTimeToImport()]
             );
         } else {
             $importInProgress = __('No import in progress');
         }
-        $checklist[] = [
-            'title' => __('Import in progress'),
-            'message' => $importInProgress,
+        $checklist = [
+            [
+                self::DATA_TITLE => __('Import token'),
+                self::DATA_MESSAGE => $synchronizationData[ToolboxHelper::SYNCHRONIZATION_CMS_TOKEN],
+            ],
+            [
+                self::DATA_TITLE => __('Import URL'),
+                self::DATA_MESSAGE => $synchronizationData[ToolboxHelper::SYNCHRONIZATION_CRON_URL],
+            ],
+            [
+                self::DATA_TITLE => __('Magento cron job enabled for import'),
+                self::DATA_STATE => (bool) $this->configHelper->get(ConfigHelper::SYNCHRONISATION_MAGENTO_CRON_ENABLED),
+            ],
+            [
+                self::DATA_TITLE => __('Orders imported by Lengow'),
+                self::DATA_MESSAGE => $synchronizationData[ToolboxHelper::SYNCHRONIZATION_NUMBER_ORDERS_IMPORTED],
+            ],
+            [
+                self::DATA_TITLE => __('Orders waiting to be sent'),
+                self::DATA_MESSAGE => $synchronizationData[
+                    ToolboxHelper::SYNCHRONIZATION_NUMBER_ORDERS_WAITING_SHIPMENT
+                ],
+            ],
+            [
+                self::DATA_TITLE => __('Orders with errors'),
+                self::DATA_MESSAGE => $synchronizationData[ToolboxHelper::SYNCHRONIZATION_NUMBER_ORDERS_IN_ERROR],
+            ],
+            [
+                self::DATA_TITLE => __('Import in progress'),
+                self::DATA_MESSAGE => $importInProgress,
+            ],
+            [
+                self::DATA_TITLE => __('Last import'),
+                self::DATA_MESSAGE => $lastImportDate,
+            ],
+            [
+                self::DATA_TITLE => __('Last import type'),
+                self::DATA_MESSAGE => $lastImportType,
+            ],
         ];
-        $checklist[] = [
-            'title' => __('Last import'),
-            'message' => $lastImportDate,
-        ];
-        $checklist[] = [
-            'title' => __('Last import type'),
-            'message' => $lastImportType,
-        ];
-        return $this->_getContent($checklist);
+        return $this->getContent($checklist);
     }
 
     /**
-     * Get array of export informations
-     *
-     * @param Store $store Magento store instance
+     * Get all shop information for toolbox
      *
      * @return string
      */
-    public function getExportInformations($store)
+    public function getExportInformation()
     {
-        $this->_export->init(['store_id' => $store->getId()]);
-        $checklist = [];
-        $checklist[] = [
-            'header' => $store->getName() . ' (' . $store->getId() . ') ' . $store->getBaseUrl(),
-        ];
-        $checklist[] = [
-            'title' => __('Store followed by Lengow'),
-            'state' => (bool)$this->_configHelper->get('store_enable', $store->getId()),
-        ];
-        $checklist[] = [
-            'title' => __('Lengow catalogs id synchronized'),
-            'message' => $this->_configHelper->get('catalog_id', $store->getId()),
-        ];
-        $checklist[] = [
-            'title' => __('Products available in the store'),
-            'message' => $this->_export->getTotalProduct(),
-        ];
-        $checklist[] = [
-            'title' => __('Products exported in the store'),
-            'message' => $this->_export->getTotalExportedProduct(),
-        ];
-        $checklist[] = [
-            'title' => __('Export token'),
-            'message' => $this->_configHelper->getToken($store->getId()),
-        ];
-        $checklist[] = [
-            'title' => __('Export URL for this store'),
-            'message' => $this->_dataHelper->getExportUrl($store->getId()),
-        ];
-        $lastExportDate = $this->_configHelper->get('last_export', $store->getId());
-        $lastExportMessage = $lastExportDate === ''
-            ? __('none')
-            : $this->_dataHelper->getDateInCorrectFormat($lastExportDate, true);
-        $checklist[] = [
-            'title' => __('Last export'),
-            'message' => $lastExportMessage,
-        ];
-        return $this->_getContent($checklist);
-    }
-
-    /**
-     * Get array of file informations
-     *
-     * @param Store $store Magento store instance
-     *
-     * @return string
-     */
-    public function getFileInformations($store)
-    {
-        $sep = DIRECTORY_SEPARATOR;
-        $storePath = DataHelper::LENGOW_FOLDER . $sep . $store->getCode() . $sep;
-        $folderPath = $this->_dataHelper->getMediaPath() . $sep . $storePath;
-        $folderUrl = $this->_dataHelper->getMediaUrl() . $storePath;
-        try {
-            $files = array_diff(scandir($folderPath), ['..', '.']);
-        } catch (\Exception $e) {
-            $files = [];
+        $content = '';
+        $exportData = $this->toolboxHelper->getData(ToolboxHelper::DATA_TYPE_SHOP);
+        foreach ($exportData as $data) {
+            $lastExportMessage = $data[ToolboxHelper::SHOP_LAST_EXPORT] !== 0
+                ? $this->dataHelper->getDateInCorrectFormat($data[ToolboxHelper::SHOP_LAST_EXPORT], true)
+                : __('none');
+            $checklist = [
+                [
+                    self::DATA_HEADER => $data[ToolboxHelper::SHOP_NAME]
+                        . ' (' . $data[ToolboxHelper::SHOP_ID] . ') '
+                        . $data[ToolboxHelper::SHOP_DOMAIN_URL],
+                ],
+                [
+                    self::DATA_TITLE => __('Store followed by Lengow'),
+                    self::DATA_STATE => $data[ToolboxHelper::SHOP_ENABLED],
+                ],
+                [
+                    self::DATA_TITLE => __('Lengow catalogs id synchronized'),
+                    self::DATA_MESSAGE => implode (', ' , $data[ToolboxHelper::SHOP_CATALOG_IDS]),
+                ],
+                [
+                    self::DATA_TITLE => __('Products available in the store'),
+                    self::DATA_MESSAGE => $data[ToolboxHelper::SHOP_NUMBER_PRODUCTS_AVAILABLE],
+                ],
+                [
+                    self::DATA_TITLE => __('Products exported in the store'),
+                    self::DATA_MESSAGE => $data[ToolboxHelper::SHOP_NUMBER_PRODUCTS_EXPORTED],
+                ],
+                [
+                    self::DATA_TITLE => __('Export token'),
+                    self::DATA_MESSAGE => $data[ToolboxHelper::SHOP_TOKEN],
+                ],
+                [
+                    self::DATA_TITLE => __('Export URL for this store'),
+                    self::DATA_MESSAGE => $data[ToolboxHelper::SHOP_FEED_URL],
+                ],
+                [
+                    self::DATA_TITLE => __('Last export'),
+                    self::DATA_MESSAGE => $lastExportMessage,
+                ],
+            ];
+            $content .= $this->getContent($checklist);
         }
-        $checklist = [];
-        $checklist[] = [
-            'header' => $store->getName() . ' (' . $store->getId() . ') ' . $store->getBaseUrl(),
-        ];
-        $checklist[] = ['title' => __('Folder path'), 'message' => $folderPath];
-        if (!empty($files)) {
-            $checklist[] = ['simple' => __('File list')];
-            foreach ($files as $file) {
-                $fileTimestamp = filectime($folderPath . $file);
-                $fileLink = '<a href="' . $folderUrl . $file . '" target="_blank">' . $file . '</a>';
-                $checklist[] = [
-                    'title' => $fileLink,
-                    'message' => $this->_dataHelper->getDateInCorrectFormat($fileTimestamp, true),
-                ];
+        return $content;
+    }
+
+    /**
+     * Get all file information for toolbox
+     *
+     * @return string
+     */
+    public function getFileInformation()
+    {
+        $content = '';
+        $stores = $this->configHelper->getAllStore();
+        foreach ($stores as $store) {
+            $sep = DIRECTORY_SEPARATOR;
+            $storePath = DataHelper::LENGOW_FOLDER . $sep . $store->getCode() . $sep;
+            $folderPath = $this->dataHelper->getMediaPath() . $sep . $storePath;
+            $folderUrl = $this->dataHelper->getMediaUrl() . $storePath;
+            $files = file_exists($folderPath) ? array_diff(scandir($folderPath), ['..', '.']) : [];
+            $checklist = [
+                [self::DATA_HEADER => $store->getName() . ' (' . $store->getId() . ') ' . $store->getBaseUrl()]
+            ];
+            $checklist[] = [self::DATA_TITLE => __('Folder path'), self::DATA_MESSAGE => $folderPath];
+            if (!empty($files)) {
+                $checklist[] = [self::DATA_SIMPLE => __('File list')];
+                foreach ($files as $file) {
+                    $fileTimestamp = filectime($folderPath . $file);
+                    $fileLink = '<a href="' . $folderUrl . $file . '" target="_blank">' . $file . '</a>';
+                    $checklist[] = [
+                        self::DATA_TITLE => $fileLink,
+                        self::DATA_MESSAGE => $this->dataHelper->getDateInCorrectFormat($fileTimestamp, true),
+                    ];
+                }
+            } else {
+                $checklist[] = [self::DATA_SIMPLE => __('No file exported')];
             }
-        } else {
-            $checklist[] = ['simple' => __('No file exported')];
+            $content .= $this->getContent($checklist);
         }
-        return $this->_getContent($checklist);
+        return $content;
     }
 
     /**
-     * Get array of file informations
+     * Get array of file information
      *
      * @param string $type cron type (export or import)
      *
@@ -348,12 +356,12 @@ class Content extends Template
      */
     public function getCronInformation($type)
     {
-        $jobCode = $type === 'import' ? 'lengow_connector_launch_synchronization' : 'lengow_connector_launch_export';
-        $lengowCronJobs = $this->_scheduleCollection->create()
+        $jobCode = $type === 'import' ? self::CRON_JOB_IMPORT : self::CRON_JOB_EXPORT;
+        $lengowCronJobs = $this->scheduleCollection->create()
             ->addFieldToFilter('job_code', $jobCode)
             ->getData();
         $lengowCronJobs = array_slice(array_reverse($lengowCronJobs), 0, 20);
-        return $this->_getCronContent($lengowCronJobs);
+        return $this->getCronContent($lengowCronJobs);
     }
 
     /**
@@ -364,62 +372,59 @@ class Content extends Template
     public function checkFileMd5()
     {
         $checklist = [];
-        $sep = DIRECTORY_SEPARATOR;
-        $fileName = $this->_moduleReader->getModuleDir('etc', 'Lengow_Connector') . $sep . 'checkmd5.csv';
+        $checksumData = $this->toolboxHelper->getData(ToolboxHelper::DATA_TYPE_CHECKSUM);
         $html = '<h3><i class="fa fa-commenting"></i> ' . __('Summary') . '</h3>';
-        $fileCounter = 0;
-        if (file_exists($fileName)) {
-            $fileErrors = [];
-            $fileDeletes = [];
-            $base = $this->_moduleReader->getModuleDir('', 'Lengow_Connector');
-            if (($file = fopen($fileName, 'r')) !== false) {
-                while (($data = fgetcsv($file, 1000, '|')) !== false) {
-                    $fileCounter++;
-                    $filePath = $base . $data[0];
-                    if (file_exists($filePath)) {
-                        $fileMd = md5_file($filePath);
-                        if ($fileMd !== $data[1]) {
-                            $fileErrors[] = [
-                                'title' => $filePath,
-                                'state' => false,
-                            ];
-                        }
-                    } else {
-                        $fileDeletes[] = [
-                            'title' => $filePath,
-                            'state' => false,
-                        ];
-                    }
+        if ($checksumData[ToolboxHelper::CHECKSUM_AVAILABLE]) {
+            $checklist[] = [
+                self::DATA_TITLE => __(
+                    '%1 files checked',
+                    [$checksumData[ToolboxHelper::CHECKSUM_NUMBER_FILES_CHECKED]]
+                ),
+                self::DATA_STATE => true,
+            ];
+            $checklist[] = [
+                self::DATA_TITLE => __(
+                    '%1 files changed',
+                    [$checksumData[ToolboxHelper::CHECKSUM_NUMBER_FILES_MODIFIED]]
+                ),
+                self::DATA_STATE => $checksumData[ToolboxHelper::CHECKSUM_NUMBER_FILES_MODIFIED] === 0,
+            ];
+            $checklist[] = [
+                self::DATA_TITLE => __(
+                    '%1 files deleted',
+                    [$checksumData[ToolboxHelper::CHECKSUM_NUMBER_FILES_DELETED]]
+                ),
+                self::DATA_STATE => $checksumData[ToolboxHelper::CHECKSUM_NUMBER_FILES_DELETED] === 0,
+            ];
+            $html .= $this->getContent($checklist);
+            if (!empty($checksumData[ToolboxHelper::CHECKSUM_FILE_MODIFIED])) {
+                $fileModified = [];
+                foreach ($checksumData[ToolboxHelper::CHECKSUM_FILE_MODIFIED] as $file) {
+                    $fileModified[] = [
+                        self::DATA_TITLE => $file,
+                        self::DATA_STATE => 0,
+                    ];
                 }
-                fclose($file);
-            }
-            $checklist[] = [
-                'title' => __('%1 files checked', [$fileCounter]),
-                'state' => true,
-            ];
-            $checklist[] = [
-                'title' => __('%1 files changed', [count($fileErrors)]),
-                'state' => !empty($fileErrors) ? false : true,
-            ];
-            $checklist[] = [
-                'title' => __('%1 files deleted', [count($fileDeletes)]),
-                'state' => !empty($fileDeletes) ? false : true,
-            ];
-            $html .= $this->_getContent($checklist);
-            if (!empty($fileErrors)) {
                 $html .= '<h3><i class="fa fa-list"></i> ' . __('List of changed files') . '</h3>';
-                $html .= $this->_getContent($fileErrors);
+                $html .= $this->getContent($fileModified);
             }
-            if (!empty($fileDeletes)) {
+            if (!empty($checksumData[ToolboxHelper::CHECKSUM_FILE_DELETED])) {
+                $fileDeleted = [];
+                foreach ($checksumData[ToolboxHelper::CHECKSUM_FILE_DELETED] as $file) {
+                    $fileModified[] = [
+                        self::DATA_TITLE => $file,
+                        self::DATA_STATE => 0,
+                    ];
+                }
                 $html .= '<h3><i class="fa fa-list"></i> ' . __('List of deleted files') . '</h3>';
-                $html .= $this->_getContent($fileDeletes);
+                $html .= $this->getContent($fileDeleted);
             }
         } else {
             $checklist[] = [
-                'title' => __('checkmd5.csv file is not available. Checking is impossible!'),
-                'state' => false,
+                self::DATA_TITLE => __('checkmd5.csv file is not available. Checking is impossible!'),
+                self::DATA_STATE => false,
             ];
-            $html .= $this->_getContent($checklist);
+            $html .= $this->getContent($checklist);
         }
         return $html;
     }
@@ -431,7 +436,7 @@ class Content extends Template
      *
      * @return string
      */
-    protected function _getContent($checklist = [])
+    private function getContent($checklist = [])
     {
         if (empty($checklist)) {
             return null;
@@ -439,20 +444,29 @@ class Content extends Template
         $out = '<table cellpadding="0" cellspacing="0">';
         foreach ($checklist as $check) {
             $out .= '<tr>';
-            if (isset($check['header'])) {
-                $out .= '<td colspan="2" align="center" style="border:0"><h4>' . $check['header'] . '</h4></td>';
-            } elseif (isset($check['simple'])) {
-                $out .= '<td colspan="2" align="center"><h5>' . $check['simple'] . '</h5></td>';
+            if (isset($check[self::DATA_HEADER])) {
+                $out .= '<td colspan="2" align="center" style="border:0"><h4>'
+                    . $check[self::DATA_HEADER] . '</h4></td>';
+            } elseif (isset($check[self::DATA_SIMPLE])) {
+                $out .= '<td colspan="2" align="center"><h5>' . $check[self::DATA_SIMPLE] . '</h5></td>';
             } else {
-                $out .= '<td><b>' . $check['title'] . '</b></td>';
-                if (isset($check['state'])) {
-                    if ($check['state']) {
+                $out .= '<td><b>' . $check[self::DATA_TITLE] . '</b></td>';
+                if (isset($check[self::DATA_STATE])) {
+                    if ($check[self::DATA_STATE]) {
                         $out .= '<td align="right"><i class="fa fa-check lengow-green"></td>';
                     } else {
                         $out .= '<td align="right"><i class="fa fa-times lengow-red"></td>';
                     }
+                    if (!$check[self::DATA_STATE] && isset($check[self::DATA_HELP])) {
+                        $out .= '<tr><td colspan="2"><p>' . $check[self::DATA_HELP];
+                        if (array_key_exists(self::DATA_HELP_LINK, $check) && $check[self::DATA_HELP_LINK] !== '') {
+                            $out .= '<br /><a target="_blank" href="'
+                                . $check[self::DATA_HELP_LINK] . '">' . $check[self::DATA_HELP_LABEL] . '</a>';
+                        }
+                        $out .= '</p></td></tr>';
+                    }
                 } else {
-                    $out .= '<td align="right">' . $check['message'] . '</td>';
+                    $out .= '<td align="right">' . $check[self::DATA_MESSAGE] . '</td>';
                 }
             }
             $out .= '</tr>';
@@ -468,7 +482,7 @@ class Content extends Template
      *
      * @return string
      */
-    protected function _getCronContent($lengowCronJobs = [])
+    private function getCronContent($lengowCronJobs = [])
     {
         $out = '<table cellpadding="0" cellspacing="0" style="text-align: left">';
         if (empty($lengowCronJobs)) {
@@ -493,15 +507,15 @@ class Content extends Template
                     $out .= '<td></td>';
                 }
                 $scheduledAt = $lengowCronJob['scheduled_at'] !== null
-                    ? $this->_dataHelper->getDateInCorrectFormat(strtotime($lengowCronJob['scheduled_at'], true))
+                    ? $this->dataHelper->getDateInCorrectFormat(strtotime($lengowCronJob['scheduled_at'], true))
                     : '';
                 $out .= '<td>' . $scheduledAt . '</td>';
                 $executedAt = $lengowCronJob['executed_at'] !== null
-                    ? $this->_dataHelper->getDateInCorrectFormat(strtotime($lengowCronJob['executed_at'], true))
+                    ? $this->dataHelper->getDateInCorrectFormat(strtotime($lengowCronJob['executed_at'], true))
                     : '';
                 $out .= '<td>' . $executedAt . '</td>';
                 $finishedAt = $lengowCronJob['finished_at'] !== null
-                    ? $this->_dataHelper->getDateInCorrectFormat(strtotime($lengowCronJob['finished_at'], true))
+                    ? $this->dataHelper->getDateInCorrectFormat(strtotime($lengowCronJob['finished_at'], true))
                     : '';
                 $out .= '<td>' . $finishedAt . '</td>';
                 $out .= '</tr>';

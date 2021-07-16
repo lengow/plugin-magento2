@@ -32,6 +32,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
+use Magento\Framework\App\ObjectManager;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
@@ -39,6 +40,129 @@ use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollection
 
 class Config extends AbstractHelper
 {
+    /* Settings database key */
+    const ACCOUNT_ID = 'global_account_id';
+    const ACCESS_TOKEN = 'global_access_token';
+    const SECRET = 'global_secret_token';
+    const CMS_TOKEN = 'token';
+    const AUTHORIZED_IP_ENABLED = 'global_authorized_ip_enable';
+    const AUTHORIZED_IPS = 'global_authorized_ip';
+    const TRACKING_ENABLED = 'global_tracking_enable';
+    const TRACKING_ID = 'global_tracking_id';
+    const DEBUG_MODE_ENABLED = 'import_debug_mode_enable';
+    const REPORT_MAIL_ENABLED = 'import_report_mail_enable';
+    const REPORT_MAILS = 'import_report_mail_address';
+    const AUTHORIZATION_TOKEN = 'authorization_token';
+    const PLUGIN_DATA = 'plugin_data';
+    const ACCOUNT_STATUS_DATA = 'account_status';
+    const SHOP_TOKEN = 'global_shop_token';
+    const SHOP_ACTIVE = 'global_store_enable';
+    const CATALOG_IDS = 'global_catalog_id';
+    const SELECTION_ENABLED = 'export_selection_enable';
+    const INACTIVE_ENABLED = 'export_product_status';
+    const EXPORT_PRODUCT_TYPES = 'export_product_type';
+    const EXPORT_ATTRIBUTES = 'export_attribute';
+    const EXPORT_PARENT_ATTRIBUTES = 'export_link_parent_attribute_to_child';
+    const EXPORT_PARENT_IMAGE_ENABLED = 'export_parent_image';
+    const EXPORT_FILE_ENABLED = 'export_file_enable';
+    const EXPORT_MAGENTO_CRON_ENABLED = 'export_cron_enable';
+    const DEFAULT_EXPORT_SHIPPING_COUNTRY = 'export_default_shipping_country';
+    const DEFAULT_EXPORT_CARRIER_ID = 'export_default_shipping_method';
+    const DEFAULT_EXPORT_SHIPPING_PRICE = 'export_default_shipping_price';
+    const SYNCHRONIZATION_DAY_INTERVAL = 'import_days';
+    const DEFAULT_IMPORT_CARRIER_ID = 'import_default_shipping_method';
+    const CURRENCY_CONVERSION_ENABLED = 'import_currency_conversion_enable';
+    const B2B_WITHOUT_TAX_ENABLED = 'import_b2b_without_tax';
+    const SHIPPED_BY_MARKETPLACE_ENABLED = 'import_ship_mp_enabled';
+    const SHIPPED_BY_MARKETPLACE_STOCK_ENABLED = 'import_stock_ship_mp';
+    const SYNCHRONISATION_MAGENTO_CRON_ENABLED = 'import_cron_enable';
+    const SYNCHRONISATION_CUSTOMER_GROUP = 'import_customer_group';
+    const SYNCHRONIZATION_IN_PROGRESS = 'import_in_progress';
+    const LAST_UPDATE_EXPORT = 'export_last_export';
+    const LAST_UPDATE_CRON_SYNCHRONIZATION = 'last_import_cron';
+    const LAST_UPDATE_MANUAL_SYNCHRONIZATION = 'last_import_manual';
+    const LAST_UPDATE_ACTION_SYNCHRONIZATION = 'last_action_sync';
+    const LAST_UPDATE_CATALOG = 'last_catalog_update';
+    const LAST_UPDATE_MARKETPLACE = 'last_marketplace_update';
+    const LAST_UPDATE_ACCOUNT_STATUS_DATA = 'last_status_update';
+    const LAST_UPDATE_OPTION_CMS = 'last_option_cms_update';
+    const LAST_UPDATE_SETTING = 'last_setting_update';
+    const LAST_UPDATE_PLUGIN_DATA = 'last_plugin_data_update';
+    const LAST_UPDATE_AUTHORIZATION_TOKEN = 'last_authorization_token_update';
+    const LAST_UPDATE_PLUGIN_MODAL = 'last_plugin_modal_update';
+
+    /* Configuration parameters */
+    const PARAM_EXPORT = 'export';
+    const PARAM_EXPORT_TOOLBOX = 'export_toolbox';
+    const PARAM_GLOBAL = 'global';
+    const PARAM_LOG = 'log';
+    const PARAM_NO_CACHE = 'no_cache';
+    const PARAM_RETURN = 'return';
+    const PARAM_SECRET = 'secret';
+    const PARAM_SHOP = 'store';
+    const PARAM_PATH = 'path';
+    const PARAM_UPDATE = 'update';
+
+    /* Configuration value return type */
+    const RETURN_TYPE_BOOLEAN = 'boolean';
+    const RETURN_TYPE_INTEGER = 'integer';
+    const RETURN_TYPE_ARRAY = 'array';
+    const RETURN_TYPE_FLOAT = 'float';
+
+    /**
+     * @var array params correspondence keys for toolbox
+     */
+    public static $genericParamKeys = [
+        self::ACCOUNT_ID => 'account_id',
+        self::ACCESS_TOKEN => 'access_token',
+        self::SECRET => 'secret',
+        self::CMS_TOKEN => 'cms_token',
+        self::AUTHORIZED_IP_ENABLED => 'authorized_ip_enabled',
+        self::AUTHORIZED_IPS => 'authorized_ips',
+        self::TRACKING_ENABLED => 'tracking_enabled',
+        self::TRACKING_ID => 'tracking_id',
+        self::DEBUG_MODE_ENABLED => 'debug_mode_enabled',
+        self::REPORT_MAIL_ENABLED => 'report_mail_enabled',
+        self::REPORT_MAILS => 'report_mails',
+        self::AUTHORIZATION_TOKEN => 'authorization_token',
+        self::PLUGIN_DATA => 'plugin_data',
+        self::ACCOUNT_STATUS_DATA => 'account_status_data',
+        self::SHOP_TOKEN => 'shop_token',
+        self::SHOP_ACTIVE => 'shop_active',
+        self::CATALOG_IDS => 'catalog_ids',
+        self::SELECTION_ENABLED => 'selection_enabled',
+        self::INACTIVE_ENABLED => 'inactive_enabled',
+        self::EXPORT_PRODUCT_TYPES => 'export_product_types',
+        self::EXPORT_ATTRIBUTES => 'export_attributes',
+        self::EXPORT_PARENT_ATTRIBUTES => 'export_parent_attributes',
+        self::EXPORT_PARENT_IMAGE_ENABLED => 'export_parent_image_enabled',
+        self::EXPORT_FILE_ENABLED => 'export_file_enabled',
+        self::EXPORT_MAGENTO_CRON_ENABLED => 'export_magento_cron_enable',
+        self::DEFAULT_EXPORT_SHIPPING_COUNTRY => 'default_export_shipping_country',
+        self::DEFAULT_EXPORT_CARRIER_ID => 'default_export_carrier_id',
+        self::DEFAULT_EXPORT_SHIPPING_PRICE => 'default_export_shipping_price',
+        self::SYNCHRONIZATION_DAY_INTERVAL => 'synchronization_day_interval',
+        self::DEFAULT_IMPORT_CARRIER_ID => 'default_import_carrier_id',
+        self::CURRENCY_CONVERSION_ENABLED => 'currency_conversion_enabled',
+        self::B2B_WITHOUT_TAX_ENABLED => 'b2b_without_tax_enabled',
+        self::SHIPPED_BY_MARKETPLACE_ENABLED => 'shipped_by_marketplace_enabled',
+        self::SHIPPED_BY_MARKETPLACE_STOCK_ENABLED => 'shipped_by_marketplace_stock_enabled',
+        self::SYNCHRONISATION_MAGENTO_CRON_ENABLED => 'synchronization_magento_cron_enabled',
+        self::SYNCHRONISATION_CUSTOMER_GROUP => 'synchronization_customer_group',
+        self::SYNCHRONIZATION_IN_PROGRESS => 'synchronization_in_progress',
+        self::LAST_UPDATE_EXPORT => 'last_update_export',
+        self::LAST_UPDATE_CRON_SYNCHRONIZATION => 'last_update_cron_synchronization',
+        self::LAST_UPDATE_MANUAL_SYNCHRONIZATION => 'last_update_manual_synchronization',
+        self::LAST_UPDATE_ACTION_SYNCHRONIZATION => 'last_update_action_synchronization',
+        self::LAST_UPDATE_CATALOG => 'last_update_catalog',
+        self::LAST_UPDATE_MARKETPLACE => 'last_update_marketplace',
+        self::LAST_UPDATE_ACCOUNT_STATUS_DATA => 'last_update_account_status_data',
+        self::LAST_UPDATE_OPTION_CMS => 'last_update_option_cms',
+        self::LAST_UPDATE_SETTING => 'last_update_setting',
+        self::LAST_UPDATE_PLUGIN_DATA => 'last_update_plugin_data',
+        self::LAST_UPDATE_AUTHORIZATION_TOKEN => 'last_update_authorization_token',
+        self::LAST_UPDATE_PLUGIN_MODAL => 'last_update_plugin_modal',
+    ];
 
     /**
      * @var WriterInterface Magento writer instance
@@ -83,245 +207,318 @@ class Config extends AbstractHelper
     /**
      * @var array all Lengow options path
      */
-    protected $_options = [
-        'token' => [
-            'path' => 'lengow_global_options/store_credential/token',
-            'store' => true,
-            'no_cache' => true,
+    public static $lengowSettings = [
+        self::ACCOUNT_ID => [
+            self::PARAM_PATH => 'lengow_global_options/store_credential/global_account_id',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_EXPORT => false,
         ],
-        'account_id' => [
-            'path' => 'lengow_global_options/store_credential/global_account_id',
-            'global' => true,
-            'no_cache' => true,
+        self::ACCESS_TOKEN => [
+            self::PARAM_PATH => 'lengow_global_options/store_credential/global_access_token',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_EXPORT => false,
+            self::PARAM_SECRET => true,
         ],
-        'access_token' => [
-            'path' => 'lengow_global_options/store_credential/global_access_token',
-            'global' => true,
-            'no_cache' => true,
+        self::SECRET => [
+            self::PARAM_PATH => 'lengow_global_options/store_credential/global_secret_token',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_EXPORT => false,
+            self::PARAM_SECRET => true,
         ],
-        'secret_token' => [
-            'path' => 'lengow_global_options/store_credential/global_secret_token',
-            'global' => true,
-            'no_cache' => true,
+        self::CMS_TOKEN => [
+            self::PARAM_PATH => 'lengow_global_options/store_credential/token',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_EXPORT_TOOLBOX => false,
         ],
-        'authorization_token' => [
-            'path' => 'lengow_global_options/store_credential/authorization_token',
-            'global' => true,
-            'export' => false,
-            'no_cache' => true,
+        self::AUTHORIZED_IP_ENABLED => [
+            self::PARAM_PATH => 'lengow_global_options/advanced/global_authorized_ip_enable',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_EXPORT_TOOLBOX => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
-        'last_authorization_token_update' => [
-            'path' => 'lengow_global_options/store_credential/last_authorization_token_update',
-            'global' => true,
-            'export' => false,
-            'no_cache' => true,
+        self::AUTHORIZED_IPS => [
+            self::PARAM_PATH => 'lengow_global_options/advanced/global_authorized_ip',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_EXPORT_TOOLBOX => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_ARRAY,
         ],
-        'store_enable' => [
-            'path' => 'lengow_global_options/store_credential/global_store_enable',
-            'store' => true,
-            'no_cache' => true,
+        self::TRACKING_ENABLED => [
+            self::PARAM_PATH => 'lengow_global_options/advanced/global_tracking_enable',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
-        'catalog_id' => [
-            'path' => 'lengow_global_options/store_credential/global_catalog_id',
-            'store' => true,
-            'no_cache' => true,
+        self::TRACKING_ID => [
+            self::PARAM_PATH => 'lengow_global_options/advanced/global_tracking_id',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => false,
         ],
-        'tracking_enable' => [
-            'path' => 'lengow_global_options/advanced/global_tracking_enable',
-            'global' => true,
-            'no_cache' => false,
+        self::DEBUG_MODE_ENABLED => [
+            self::PARAM_PATH => 'lengow_import_options/advanced/import_debug_mode_enable',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_EXPORT_TOOLBOX => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
-        'tracking_id' => [
-            'path' => 'lengow_global_options/advanced/global_tracking_id',
-            'global' => true,
-            'no_cache' => false,
+        self::REPORT_MAIL_ENABLED => [
+            self::PARAM_PATH => 'lengow_import_options/advanced/import_report_mail_enable',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
-        'ip_enable' => [
-            'path' => 'lengow_global_options/advanced/global_authorized_ip_enable',
-            'global' => true,
-            'no_cache' => false,
+        self::REPORT_MAILS => [
+            self::PARAM_PATH => 'lengow_import_options/advanced/import_report_mail_address',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_ARRAY,
         ],
-        'authorized_ip' => [
-            'path' => 'lengow_global_options/advanced/global_authorized_ip',
-            'global' => true,
-            'no_cache' => false,
+        self::AUTHORIZATION_TOKEN => [
+            self::PARAM_PATH => 'lengow_global_options/store_credential/authorization_token',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_EXPORT => false,
+            self::PARAM_LOG => false,
         ],
-        'last_status_update' => [
-            'path' => 'lengow_global_options/advanced/last_status_update',
-            'global' => true,
-            'no_cache' => true,
+        self::PLUGIN_DATA => [
+            self::PARAM_PATH => 'lengow_global_options/advanced/plugin_data',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_EXPORT => false,
+            self::PARAM_LOG => false,
         ],
-        'account_status' => [
-            'path' => 'lengow_global_options/advanced/account_status',
-            'export' => false,
-            'no_cache' => true,
+        self::ACCOUNT_STATUS_DATA => [
+            self::PARAM_PATH => 'lengow_global_options/advanced/account_status',
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_EXPORT => false,
+            self::PARAM_LOG => false,
         ],
-        'last_option_cms_update' => [
-            'path' => 'lengow_global_options/advanced/last_option_cms_update',
-            'global' => true,
-            'no_cache' => true,
+        self::SHOP_ACTIVE => [
+            self::PARAM_PATH => 'lengow_global_options/store_credential/global_store_enable',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_EXPORT_TOOLBOX => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
-        'last_marketplace_update' => [
-            'path' => 'lengow_global_options/advanced/last_marketplace_update',
-            'global' => true,
-            'no_cache' => true,
+        self::CATALOG_IDS => [
+            self::PARAM_PATH => 'lengow_global_options/store_credential/global_catalog_id',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_EXPORT_TOOLBOX => false,
+            self::PARAM_UPDATE => true,
+            self::PARAM_RETURN => self::RETURN_TYPE_ARRAY,
         ],
-        'last_catalog_update' => [
-            'path' => 'lengow_global_options/advanced/last_catalog_update',
-            'global' => true,
-            'no_cache' => true,
+        self::SELECTION_ENABLED => [
+            self::PARAM_PATH => 'lengow_export_options/simple/export_selection_enable',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
-        'last_setting_update' => [
-            'path' => 'lengow_global_options/advanced/last_setting_update',
-            'global' => true,
-            'no_cache' => true,
+        self::INACTIVE_ENABLED => [
+            self::PARAM_PATH => 'lengow_export_options/simple/export_product_status',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
-        'last_plugin_data_update' => [
-            'path' => 'lengow_global_options/advanced/last_plugin_data_update',
-            'global' => true,
-            'export' => false,
-            'no_cache' => true,
+        self::EXPORT_PRODUCT_TYPES => [
+            self::PARAM_PATH => 'lengow_export_options/simple/export_product_type',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_ARRAY,
         ],
-        'plugin_data' => [
-            'path' => 'lengow_global_options/advanced/plugin_data',
-            'global' => true,
-            'export' => false,
-            'no_cache' => true,
+        self::EXPORT_ATTRIBUTES => [
+            self::PARAM_PATH => 'lengow_export_options/advanced/export_attribute',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_ARRAY,
         ],
-        'selection_enable' => [
-            'path' => 'lengow_export_options/simple/export_selection_enable',
-            'store' => true,
-            'no_cache' => false,
+        self::EXPORT_PARENT_ATTRIBUTES => [
+            self::PARAM_PATH => 'lengow_export_options/advanced/export_link_parent_attribute_to_child',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_ARRAY,
         ],
-        'product_type' => [
-            'path' => 'lengow_export_options/simple/export_product_type',
-            'store' => true,
-            'no_cache' => false,
+        self::EXPORT_PARENT_IMAGE_ENABLED => [
+            self::PARAM_PATH => 'lengow_export_options/advanced/export_parent_image',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
-        'product_status' => [
-            'path' => 'lengow_export_options/simple/export_product_status',
-            'store' => true,
-            'no_cache' => false,
+        self::EXPORT_FILE_ENABLED => [
+            self::PARAM_PATH => 'lengow_export_options/advanced/export_file_enable',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
-        'export_attribute' => [
-            'path' => 'lengow_export_options/advanced/export_attribute',
-            'export' => false,
-            'no_cache' => false,
+        self::EXPORT_MAGENTO_CRON_ENABLED => [
+            self::PARAM_PATH => 'lengow_export_options/advanced/export_cron_enable',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
-        'shipping_country' => [
-            'path' => 'lengow_export_options/advanced/export_default_shipping_country',
-            'store' => true,
-            'no_cache' => false,
+        self::DEFAULT_EXPORT_SHIPPING_COUNTRY => [
+            self::PARAM_PATH => 'lengow_export_options/advanced/export_default_shipping_country',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => false,
         ],
-        'shipping_method' => [
-            'path' => 'lengow_export_options/advanced/export_default_shipping_method',
-            'store' => true,
-            'no_cache' => false,
+        self::DEFAULT_EXPORT_CARRIER_ID => [
+            self::PARAM_PATH => 'lengow_export_options/advanced/export_default_shipping_method',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => false,
         ],
-        'shipping_price' => [
-            'path' => 'lengow_export_options/advanced/export_default_shipping_price',
-            'store' => true,
-            'no_cache' => false,
+        self::DEFAULT_EXPORT_SHIPPING_PRICE => [
+            self::PARAM_PATH => 'lengow_export_options/advanced/export_default_shipping_price',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_FLOAT,
         ],
-        'parent_image' => [
-            'path' => 'lengow_export_options/advanced/export_parent_image',
-            'store' => true,
-            'no_cache' => false,
+        self::SYNCHRONIZATION_DAY_INTERVAL => [
+            self::PARAM_PATH => 'lengow_import_options/simple/import_days',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_UPDATE => true,
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ],
-        'parent_attribute' => [
-            'path' => 'lengow_export_options/advanced/export_link_parent_attribute_to_child',
-            'store' => true,
-            'no_cache' => false,
+        self::DEFAULT_IMPORT_CARRIER_ID => [
+            self::PARAM_PATH => 'lengow_import_options/simple/import_default_shipping_method',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => false,
         ],
-        'file_enable' => [
-            'path' => 'lengow_export_options/advanced/export_file_enable',
-            'global' => true,
-            'no_cache' => false,
+        self::CURRENCY_CONVERSION_ENABLED => [
+            self::PARAM_PATH => 'lengow_import_options/simple/import_currency_conversion_enable',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
-        'export_cron_enable' => [
-            'path' => 'lengow_export_options/advanced/export_cron_enable',
-            'global' => true,
-            'no_cache' => false,
+        self::B2B_WITHOUT_TAX_ENABLED => [
+            self::PARAM_PATH => 'lengow_import_options/advanced/import_b2b_without_tax',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
-        'last_export' => [
-            'path' => 'lengow_export_options/advanced/export_last_export',
-            'store' => true,
-            'no_cache' => true,
+        self::SHIPPED_BY_MARKETPLACE_ENABLED => [
+            self::PARAM_PATH => 'lengow_import_options/advanced/import_ship_mp_enabled',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
-        'days' => [
-            'path' => 'lengow_import_options/simple/import_days',
-            'store' => true,
-            'no_cache' => false,
+        self::SHIPPED_BY_MARKETPLACE_STOCK_ENABLED => [
+            self::PARAM_PATH => 'lengow_import_options/advanced/import_stock_ship_mp',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
-        'customer_group' => [
-            'path' => 'lengow_import_options/simple/import_customer_group',
-            'store' => true,
-            'no_cache' => false,
+        self::SYNCHRONISATION_MAGENTO_CRON_ENABLED => [
+            self::PARAM_PATH => 'lengow_import_options/advanced/import_cron_enable',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
-        'import_shipping_method' => [
-            'path' => 'lengow_import_options/simple/import_default_shipping_method',
-            'store' => true,
-            'no_cache' => false,
+        self::SYNCHRONISATION_CUSTOMER_GROUP => [
+            self::PARAM_PATH => 'lengow_import_options/simple/import_customer_group',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ],
-        'currency_conversion_enabled' => [
-            'path' => 'lengow_import_options/simple/import_currency_conversion_enable',
-            'store' => true,
-            'no_cache' => false,
+        self::SYNCHRONIZATION_IN_PROGRESS => [
+            self::PARAM_PATH => 'lengow_import_options/advanced/import_in_progress',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_EXPORT => false,
+            self::PARAM_LOG => false,
         ],
-        'report_mail_enable' => [
-            'path' => 'lengow_import_options/advanced/import_report_mail_enable',
-            'global' => true,
-            'no_cache' => false,
+        self::LAST_UPDATE_EXPORT => [
+            self::PARAM_PATH => 'lengow_export_options/advanced/export_last_export',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_EXPORT_TOOLBOX => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
+            self::PARAM_LOG => false,
         ],
-        'report_mail_address' => [
-            'path' => 'lengow_import_options/advanced/import_report_mail_address',
-            'global' => true,
-            'no_cache' => false,
+        self::LAST_UPDATE_CRON_SYNCHRONIZATION => [
+            self::PARAM_PATH => 'lengow_import_options/advanced/last_import_cron',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_EXPORT_TOOLBOX => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
+            self::PARAM_LOG => false,
         ],
-        'import_ship_mp_enabled' => [
-            'path' => 'lengow_import_options/advanced/import_ship_mp_enabled',
-            'global' => true,
-            'no_cache' => false,
+        self::LAST_UPDATE_MANUAL_SYNCHRONIZATION => [
+            self::PARAM_PATH => 'lengow_import_options/advanced/last_import_manual',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_EXPORT_TOOLBOX => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
+            self::PARAM_LOG => false,
         ],
-        'import_stock_ship_mp' => [
-            'path' => 'lengow_import_options/advanced/import_stock_ship_mp',
-            'global' => true,
-            'no_cache' => false,
+        self::LAST_UPDATE_ACTION_SYNCHRONIZATION => [
+            self::PARAM_PATH => 'lengow_import_options/advanced/last_action_sync',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
+            self::PARAM_LOG => false,
         ],
-        'import_b2b_without_tax' => [
-            'path' => 'lengow_import_options/advanced/import_b2b_without_tax',
-            'global' => true,
-            'no_cache' => false,
+        self::LAST_UPDATE_CATALOG => [
+            self::PARAM_PATH => 'lengow_global_options/advanced/last_catalog_update',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
+            self::PARAM_LOG => false,
         ],
-        'debug_mode_enable' => [
-            'path' => 'lengow_import_options/advanced/import_debug_mode_enable',
-            'global' => true,
-            'no_cache' => false,
+        self::LAST_UPDATE_MARKETPLACE => [
+            self::PARAM_PATH => 'lengow_global_options/advanced/last_marketplace_update',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
+            self::PARAM_LOG => false,
         ],
-        'import_cron_enable' => [
-            'path' => 'lengow_import_options/advanced/import_cron_enable',
-            'global' => true,
-            'no_cache' => false,
+        self::LAST_UPDATE_ACCOUNT_STATUS_DATA => [
+            self::PARAM_PATH => 'lengow_global_options/advanced/last_status_update',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
+            self::PARAM_LOG => false,
         ],
-        'import_in_progress' => [
-            'path' => 'lengow_import_options/advanced/import_in_progress',
-            'global' => true,
-            'no_cache' => true,
+        self::LAST_UPDATE_OPTION_CMS => [
+            self::PARAM_PATH => 'lengow_global_options/advanced/last_option_cms_update',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
+            self::PARAM_LOG => false,
         ],
-        'last_import_manual' => [
-            'path' => 'lengow_import_options/advanced/last_import_manual',
-            'global' => true,
-            'no_cache' => true,
+        self::LAST_UPDATE_SETTING => [
+            self::PARAM_PATH => 'lengow_global_options/advanced/last_setting_update',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
+            self::PARAM_LOG => false,
         ],
-        'last_import_cron' => [
-            'path' => 'lengow_import_options/advanced/last_import_cron',
-            'global' => true,
-            'no_cache' => true,
+        self::LAST_UPDATE_PLUGIN_DATA => [
+            self::PARAM_PATH => 'lengow_global_options/advanced/last_plugin_data_update',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
+            self::PARAM_LOG => false,
         ],
-        'last_action_sync' => [
-            'path' => 'lengow_import_options/advanced/last_action_sync',
-            'global' => true,
-            'no_cache' => true,
+        self::LAST_UPDATE_AUTHORIZATION_TOKEN => [
+            self::PARAM_PATH => 'lengow_global_options/store_credential/last_authorization_token_update',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
+            self::PARAM_LOG => false,
+        ],
+        self::LAST_UPDATE_PLUGIN_MODAL => [
+            self::PARAM_PATH => 'lengow_global_options/store_credential/last_plugin_modal_update',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
+            self::PARAM_LOG => false,
         ],
     ];
 
@@ -386,19 +583,19 @@ class Config extends AbstractHelper
      */
     public function get($key, $storeId = 0)
     {
-        if (!array_key_exists($key, $this->_options)) {
+        if (!array_key_exists($key, self::$lengowSettings)) {
             return null;
         }
-        if ($this->_options[$key]['no_cache']) {
+        if (self::$lengowSettings[$key][self::PARAM_NO_CACHE]) {
             $results = $this->_configDataCollectionFactory->create()
-                ->addFieldToFilter('path', $this->_options[$key]['path'])
+                ->addFieldToFilter('path', self::$lengowSettings[$key]['path'])
                 ->addFieldToFilter('scope_id', $storeId)
                 ->load()
                 ->getData();
             $value = !empty($results) ? $results[0]['value'] : '';
         } else {
-            $scope = (int)$storeId === 0 ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES;
-            $value = $this->scopeConfig->getValue($this->_options[$key]['path'], $scope, $storeId);
+            $scope = (int) $storeId === 0 ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES;
+            $value = $this->scopeConfig->getValue(self::$lengowSettings[$key]['path'], $scope, $storeId);
         }
         return $value;
     }
@@ -412,11 +609,11 @@ class Config extends AbstractHelper
      */
     public function set($key, $value, $storeId = 0)
     {
-        if ((int)$storeId === 0) {
-            $this->_writerInterface->save($this->_options[$key]['path'], $value);
+        if ((int) $storeId === 0) {
+            $this->_writerInterface->save(self::$lengowSettings[$key]['path'], $value);
         } else {
             $this->_writerInterface->save(
-                $this->_options[$key]['path'],
+                self::$lengowSettings[$key]['path'],
                 $value,
                 ScopeInterface::SCOPE_STORES,
                 $storeId
@@ -432,7 +629,7 @@ class Config extends AbstractHelper
      */
     public function delete($path, $storeId = 0)
     {
-        if ((int)$storeId === 0) {
+        if ((int) $storeId === 0) {
             $this->_writerInterface->delete($path);
         } else {
             $this->_writerInterface->delete($path, ScopeInterface::SCOPE_STORES, $storeId);
@@ -454,14 +651,13 @@ class Config extends AbstractHelper
      */
     public function getAccessIds()
     {
-        $accountId = $this->get('account_id');
-        $accessToken = $this->get('access_token');
-        $secretToken = $this->get('secret_token');
-        if (strlen($accountId) > 0 && strlen($accessToken) > 0 && strlen($secretToken) > 0) {
-            return [(int)$accountId, $accessToken, $secretToken];
-        } else {
-            return [null, null, null];
+        $accountId = $this->get(self::ACCOUNT_ID);
+        $accessToken = $this->get(self::ACCESS_TOKEN);
+        $secretToken = $this->get(self::SECRET);
+        if ($accountId && $accessToken && $secretToken) {
+            return [(int) $accountId, $accessToken, $secretToken];
         }
+        return [null, null, null];
     }
 
     /**
@@ -474,7 +670,7 @@ class Config extends AbstractHelper
     public function setAccessIds($accessIds)
     {
         $count = 0;
-        $listKey = ['account_id', 'access_token', 'secret_token'];
+        $listKey = [self::ACCOUNT_ID, self::ACCESS_TOKEN, self::SECRET];
         foreach ($accessIds as $key => $value) {
             if (!in_array($key, $listKey, true)) {
                 continue;
@@ -492,7 +688,7 @@ class Config extends AbstractHelper
      */
     public function resetAccessIds()
     {
-        $accessIds = ['account_id', 'access_token', 'secret_token'];
+        $accessIds = [self::ACCOUNT_ID, self::ACCESS_TOKEN, self::SECRET];
         foreach ($accessIds as $accessId) {
             $value = $this->get($accessId);
             if ($value !== '') {
@@ -508,8 +704,8 @@ class Config extends AbstractHelper
     {
         $lengowActiveStores = $this->getLengowActiveStores();
         foreach ($lengowActiveStores as $store) {
-            $this->set('catalog_id', '', $store->getId());
-            $this->set('store_enable', false, $store->getId());
+            $this->set(self::CATALOG_IDS, '', $store->getId());
+            $this->set(self::SHOP_ACTIVE, false, $store->getId());
         }
     }
 
@@ -523,13 +719,13 @@ class Config extends AbstractHelper
     public function getCatalogIds($storeId)
     {
         $catalogIds = [];
-        $storeCatalogIds = $this->get('catalog_id', $storeId);
-        if (strlen($storeCatalogIds) > 0 && $storeCatalogIds != 0) {
+        $storeCatalogIds = $this->get(self::CATALOG_IDS, $storeId);
+        if (!empty($storeCatalogIds)) {
             $ids = trim(str_replace(["\r\n", ',', '-', '|', ' ', '/'], ';', $storeCatalogIds), ';');
             $ids = array_filter(explode(';', $ids));
             foreach ($ids as $id) {
                 if (is_numeric($id) && $id > 0) {
-                    $catalogIds[] = (int)$id;
+                    $catalogIds[] = (int) $id;
                 }
             }
         }
@@ -547,7 +743,7 @@ class Config extends AbstractHelper
         $storeCollection = $this->_storeCollectionFactory->create()->load()->addFieldToFilter('is_active', 1);
         foreach ($storeCollection as $store) {
             // get Lengow config for this store
-            if ($this->storeIsActive((int)$store->getId())) {
+            if ($this->storeIsActive((int) $store->getId())) {
                 $lengowActiveStores[] = $store;
             }
         }
@@ -565,14 +761,14 @@ class Config extends AbstractHelper
     public function setCatalogIds($catalogIds, $storeId)
     {
         $valueChange = false;
-        $storeCatalogIds = self::getCatalogIds($storeId);
+        $storeCatalogIds = $this->getCatalogIds($storeId);
         foreach ($catalogIds as $catalogId) {
-            if (!in_array($catalogId, $storeCatalogIds) && is_numeric($catalogId) && $catalogId > 0) {
-                $storeCatalogIds[] = (int)$catalogId;
+            if ($catalogId > 0 && is_numeric($catalogId) && !in_array($catalogId, $storeCatalogIds, true)) {
+                $storeCatalogIds[] = (int) $catalogId;
                 $valueChange = true;
             }
         }
-        $this->set('catalog_id', implode(';', $storeCatalogIds), $storeId);
+        $this->set(self::CATALOG_IDS, implode(';', $storeCatalogIds), $storeId);
         return $valueChange;
     }
 
@@ -585,7 +781,7 @@ class Config extends AbstractHelper
      */
     public function storeIsActive($storeId)
     {
-        return (bool)$this->get('store_enable', $storeId);
+        return (bool) $this->get(self::SHOP_ACTIVE, $storeId);
     }
 
     /**
@@ -598,10 +794,10 @@ class Config extends AbstractHelper
     public function setActiveStore($storeId)
     {
         $storeIsActive = $this->storeIsActive($storeId);
-        $catalogIds = self::getCatalogIds($storeId);
+        $catalogIds = $this->getCatalogIds($storeId);
         $storeHasCatalog = !empty($catalogIds);
-        $this->set('store_enable', $storeHasCatalog, $storeId);
-        return $storeIsActive !== $storeHasCatalog ? true : false;
+        $this->set(self::SHOP_ACTIVE, $storeHasCatalog, $storeId);
+        return $storeIsActive !== $storeHasCatalog;
     }
 
     /**
@@ -611,7 +807,7 @@ class Config extends AbstractHelper
      */
     public function debugModeIsActive()
     {
-        return (bool)$this->get('debug_mode_enable');
+        return (bool) $this->get(self::DEBUG_MODE_ENABLED);
     }
 
     /**
@@ -672,11 +868,10 @@ class Config extends AbstractHelper
     public function getAllSources()
     {
         $options = [];
-        /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
         $searchCriteriaBuilder = $this->searchCriteriaBuilderFactory->create();
         $searchCriteria = $searchCriteriaBuilder->create();
         // We use object manager here because SourceRepositoryInterface is only available for version >= 2.3
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $objectManager = ObjectManager::getInstance();
         $sourceRepository = $objectManager->create('Magento\InventoryApi\Api\SourceRepositoryInterface');
         $sources = $sourceRepository->getList($searchCriteria)->getItems();
         foreach ($sources as $source) {
@@ -693,10 +888,7 @@ class Config extends AbstractHelper
     public function isNewMerchant()
     {
         list($accountId, $accessToken, $secretToken) = $this->getAccessIds();
-        if ($accountId !== null && $accessToken !== null && $secretToken !== null) {
-            return false;
-        }
-        return true;
+        return !($accountId && $accessToken && $secretToken);
     }
 
     /**
@@ -709,7 +901,7 @@ class Config extends AbstractHelper
     public function getSelectedAttributes($storeId = 0)
     {
         $selectedAttributes = [];
-        $attributes = $this->get('export_attribute', $storeId);
+        $attributes = $this->get(self::EXPORT_ATTRIBUTES, $storeId);
         if ($attributes !== null) {
             $attributes = explode(',', $attributes);
             foreach ($attributes as $attribute) {
@@ -729,7 +921,7 @@ class Config extends AbstractHelper
     public function getParentSelectedAttributes($storeId = 0)
     {
         $selectedAttributes = [];
-        $attributes = $this->get('parent_attribute', $storeId);
+        $attributes = $this->get(self::EXPORT_PARENT_ATTRIBUTES, $storeId);
         if ($attributes !== null) {
             $attributes = explode(',', $attributes);
             foreach ($attributes as $attribute) {
@@ -748,7 +940,7 @@ class Config extends AbstractHelper
     {
         try {
             // add filter by entity type to get product attributes only
-            $productEntityId = (int)$this->_eavConfig->getEntityType(Product::ENTITY)->getEntityTypeId();
+            $productEntityId = (int) $this->_eavConfig->getEntityType(Product::ENTITY)->getEntityTypeId();
             $attributes = $this->_attributeCollectionFactory->create()
                 ->addFieldToFilter(AttributeSet::KEY_ENTITY_TYPE_ID, $productEntityId)
                 ->load()
@@ -757,7 +949,7 @@ class Config extends AbstractHelper
                 ['value' => 'none', 'label' => ''],
             ];
             foreach ($attributes as $attribute) {
-                if (!in_array($attribute['attribute_code'], $this->_excludeAttributes)) {
+                if (!in_array($attribute['attribute_code'], $this->_excludeAttributes, true)) {
                     $allAttributes[] = [
                         'value' => $attribute['attribute_code'],
                         'label' => $attribute['attribute_code'],
@@ -779,13 +971,12 @@ class Config extends AbstractHelper
      */
     public function getToken($storeId = 0)
     {
-        $token = $this->get('token', $storeId);
-        if ($token && $token !== '') {
+        $token = $this->get(self::CMS_TOKEN, $storeId);
+        if ($token) {
             return $token;
-        } else {
-            $token = bin2hex(openssl_random_pseudo_bytes(16));
-            $this->set('token', $token, $storeId);
         }
+        $token = bin2hex(openssl_random_pseudo_bytes(16));
+        $this->set(self::CMS_TOKEN, $token, $storeId);
         return $token;
     }
 
@@ -803,7 +994,7 @@ class Config extends AbstractHelper
         }
         $storeCollection = $this->_storeCollectionFactory->create();
         foreach ($storeCollection as $store) {
-            if ($token === $this->get('token', $store->getId())) {
+            if ($token === $this->get(self::CMS_TOKEN, $store->getId())) {
                 return $store;
             }
         }
@@ -815,7 +1006,7 @@ class Config extends AbstractHelper
      */
     public function setDefaultAttributes()
     {
-        if ($this->get('export_attribute') === null) {
+        if ($this->get(self::EXPORT_ATTRIBUTES) === null) {
             $attributeList = '';
             $attributes = $this->getAllAttributes();
             foreach ($attributes as $attribute) {
@@ -824,7 +1015,7 @@ class Config extends AbstractHelper
                 }
             }
             $attributeList = rtrim($attributeList, ',');
-            $this->set('export_attribute', $attributeList);
+            $this->set(self::EXPORT_ATTRIBUTES, $attributeList);
             $this->cleanConfigCache();
         }
     }
@@ -837,12 +1028,12 @@ class Config extends AbstractHelper
     public function getReportEmailAddress()
     {
         $reportEmailAddress = [];
-        $emails = $this->get('report_mail_address');
+        $emails = $this->get(self::REPORT_MAILS);
         $emails = trim(str_replace(["\r\n", ',', ' '], ';', $emails), ';');
         $emails = explode(';', $emails);
         foreach ($emails as $email) {
             try {
-                if (strlen($email) > 0 && \Zend_Validate::is($email, 'EmailAddress')) {
+                if ($email !== '' && \Zend_Validate::is($email, 'EmailAddress')) {
                     $reportEmailAddress[] = $email;
                 }
             } catch (\Exception $e) {
@@ -859,27 +1050,54 @@ class Config extends AbstractHelper
     }
 
     /**
-     * Get Values by store or global
-     *
-     * @param integer|null $storeId Magento store id
+     * Get authorized IPs
      *
      * @return array
      */
-    public function getAllValues($storeId = null)
+    public function getAuthorizedIps()
+    {
+        $authorizedIps = [];
+        $ips = $this->get(self::AUTHORIZED_IPS);
+        if (!empty($ips)) {
+            $authorizedIps = trim(str_replace(["\r\n", ',', '-', '|', ' '], ';', $ips), ';');
+            $authorizedIps = array_filter(explode(';', $authorizedIps));
+        }
+        return $authorizedIps;
+    }
+
+    /**
+     * Get Values by store or global
+     *
+     * @param integer|null $storeId Magento store id
+     * @param boolean $toolbox get all values for toolbox or not
+     *
+     * @return array
+     */
+    public function getAllValues($storeId = null, $toolbox = false)
     {
         $rows = [];
-        foreach ($this->_options as $key => $value) {
-            if (isset($value['export']) && !$value['export']) {
+        foreach (self::$lengowSettings as $key => $keyParams) {
+            $value = null;
+            if ((isset($keyParams[self::PARAM_EXPORT]) && !$keyParams[self::PARAM_EXPORT])
+                || ($toolbox
+                    && isset($keyParams[self::PARAM_EXPORT_TOOLBOX])
+                    && !$keyParams[self::PARAM_EXPORT_TOOLBOX]
+                )
+            ) {
                 continue;
             }
             if ($storeId) {
-                if (isset($value['store']) && $value['store']) {
-                    $rows[$key] = $this->get($key, $storeId);
+                if (isset($keyParams[self::PARAM_SHOP]) && $keyParams[self::PARAM_SHOP]) {
+                    $value = $this->get($key, $storeId);
+                    // added a check to differentiate the token shop from the cms token which are the same.
+                    $genericKey = self::CMS_TOKEN === $key
+                        ? self::$genericParamKeys[self::SHOP_TOKEN]
+                        : self::$genericParamKeys[$key];
+                    $rows[$genericKey] = $this->getValueWithCorrectType($key, $value);
                 }
-            } else {
-                if (isset($value['global']) && $value['global']) {
-                    $rows[$key] = $this->get($key);
-                }
+            } elseif (isset($keyParams[self::PARAM_GLOBAL]) && $keyParams[self::PARAM_GLOBAL]) {
+                $value = $this->get($key);
+                $rows[self::$genericParamKeys[$key]] = $this->getValueWithCorrectType($key, $value);
             }
         }
         return $rows;
@@ -895,5 +1113,33 @@ class Config extends AbstractHelper
     public function moduleIsEnabled($moduleName)
     {
         return $this->_moduleManager->isEnabled($moduleName);
+    }
+
+    /**
+     * Get configuration value in correct type
+     *
+     * @param string $key Lengow configuration key
+     * @param string|null $value configuration value for conversion
+     *
+     * @return array|boolean|integer|float|string|string[]|null
+     */
+    private function getValueWithCorrectType($key, $value = null)
+    {
+        $keyParams = self::$lengowSettings[$key];
+        if (isset($keyParams[self::PARAM_RETURN])) {
+            switch ($keyParams[self::PARAM_RETURN]) {
+                case self::RETURN_TYPE_BOOLEAN:
+                    return (bool) $value;
+                case self::RETURN_TYPE_INTEGER:
+                    return (int) $value;
+                case self::RETURN_TYPE_FLOAT:
+                    return (float) $value;
+                case self::RETURN_TYPE_ARRAY:
+                    return !empty($value)
+                        ? explode(';', trim(str_replace(["\r\n", ',', ' '], ';', $value), ';'))
+                        : array();
+            }
+        }
+        return $value;
     }
 }

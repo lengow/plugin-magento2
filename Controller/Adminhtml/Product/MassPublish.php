@@ -69,8 +69,8 @@ class MassPublish extends Product
     public function execute()
     {
         $productIds = $this->getRequest()->getParam('product');
-        $storeId = (int)$this->getRequest()->getParam('store', $this->_storeManager->getDefaultStoreView()->getId());
-        $publish = (int)$this->getRequest()->getParam('publish');
+        $storeId = (int) $this->getRequest()->getParam('store', $this->_storeManager->getDefaultStoreView()->getId());
+        $publish = (int) $this->getRequest()->getParam('publish');
         try {
             $this->_productAction->updateAttributes($productIds, ['lengow_product' => $publish], $storeId);
         } catch (\Exception $e) {

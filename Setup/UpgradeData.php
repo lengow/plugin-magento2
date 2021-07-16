@@ -55,9 +55,9 @@ class UpgradeData implements UpgradeDataInterface
             //    active Lengow tracker for versions 1.0.0 - 1.0.3
             // *********************************************************
 
-            $trackingEnable = (bool)$this->_configHelper->get('tracking_enable');
-            if (!$this->_configHelper->isNewMerchant() && !$trackingEnable) {
-                $this->_configHelper->set('tracking_enable', 1);
+            $trackingEnable = (bool) $this->_configHelper->get(ConfigHelper::TRACKING_ENABLED);
+            if (!$trackingEnable && !$this->_configHelper->isNewMerchant()) {
+                $this->_configHelper->set(ConfigHelper::TRACKING_ENABLED, 1);
                 // clean config cache to valid configuration
                 $this->_configHelper->cleanConfigCache();
             }

@@ -19,7 +19,7 @@
 
 namespace Lengow\Connector\Model;
 
-use Magento\Framework\Serialize\Serializer\Json as JsonHelper;
+use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Connector as LengowConnector;
@@ -162,7 +162,7 @@ class Catalog
                 $this->configHelper->setActiveStore($storeId);
             }
             // save last update date for a specific settings (change synchronisation interval time)
-            $this->configHelper->set('last_setting_update', time());
+            $this->configHelper->set(ConfigHelper::LAST_UPDATE_SETTING, time());
             // link all catalogs selected by API
             $catalogsLinked = $this->linkCatalogs($catalogsByStores);
             $messageKey = $catalogsLinked
@@ -216,7 +216,7 @@ class Catalog
                 LengowConnector::POST,
                 LengowConnector::API_CMS_MAPPING,
                 [],
-                $this->jsonHelper->serialize($linkCatalogData)
+                $this->jsonHelper->jsonEncode($linkCatalogData)
             );
             if (isset($result->cms_token)) {
                 $catalogsLinked = true;

@@ -115,7 +115,7 @@ class Index extends Action
          * string  code               Export a specific store with store code
          * integer store              Export a specific store with store id
          * string  currency           Convert prices with a specific currency
-         * string  locale             Translate content with a specific locale
+         * string  language           Translate content with a specific locale
          * boolean log_output         See logs (1) or not (0)
          * boolean update_export_date Change last export date in data base (1) or not (0)
          * boolean get_params         See export parameters and authorized values in json format (1) or not (0)
@@ -123,37 +123,39 @@ class Index extends Action
         set_time_limit(0);
         ini_set('memory_limit', '1G');
         // get params data
-        $mode = $this->getRequest()->getParam('mode');
-        $token = $this->getRequest()->getParam('token');
-        $getParams = $this->getRequest()->getParam('get_params');
-        $format = $this->getRequest()->getParam('format', null);
-        $stream = $this->getRequest()->getParam('stream', null);
-        $offset = $this->getRequest()->getParam('offset', null);
-        $limit = $this->getRequest()->getParam('limit', null);
-        $selection = $this->getRequest()->getParam('selection', null);
-        $outOfStock = $this->getRequest()->getParam('out_of_stock', null);
-        $productIds = $this->getRequest()->getParam('product_ids', null);
-        $productTypes = $this->getRequest()->getParam('product_types', null);
-        $inactive = $this->getRequest()->getParam('inactive', null);
-        $logOutput = $this->getRequest()->getParam('log_output', null);
-        $currency = $this->getRequest()->getParam('currency', null);
-        $updateExportDate = $this->getRequest()->getParam('update_export_date', null);
+        $mode = $this->getRequest()->getParam(LengowExport::PARAM_MODE);
+        $token = $this->getRequest()->getParam(LengowExport::PARAM_TOKEN);
+        $getParams = $this->getRequest()->getParam(LengowExport::PARAM_GET_PARAMS);
+        $format = $this->getRequest()->getParam(LengowExport::PARAM_FORMAT);
+        $stream = $this->getRequest()->getParam(LengowExport::PARAM_STREAM);
+        $offset = $this->getRequest()->getParam(LengowExport::PARAM_OFFSET);
+        $limit = $this->getRequest()->getParam(LengowExport::PARAM_LIMIT);
+        $selection = $this->getRequest()->getParam(LengowExport::PARAM_SELECTION);
+        $outOfStock = $this->getRequest()->getParam(LengowExport::PARAM_OUT_OF_STOCK);
+        $productIds = $this->getRequest()->getParam(LengowExport::PARAM_PRODUCT_IDS);
+        $productTypes = $this->getRequest()->getParam(LengowExport::PARAM_PRODUCT_TYPES);
+        $inactive = $this->getRequest()->getParam(LengowExport::PARAM_INACTIVE);
+        $logOutput = $this->getRequest()->getParam(LengowExport::PARAM_LOG_OUTPUT);
+        $currency = $this->getRequest()->getParam(LengowExport::PARAM_CURRENCY);
+        $updateExportDate = $this->getRequest()->getParam(LengowExport::PARAM_UPDATE_EXPORT_DATE);
         // get store data
-        $storeCode = $this->getRequest()->getParam('code', null);
-        if (in_array($storeCode, $this->_configHelper->getAllStoreCode())) {
-            $storeId = (int)$this->_storeManager->getStore($storeCode)->getId();
+        $storeCode = $this->getRequest()->getParam(LengowExport::PARAM_CODE);
+        if (in_array($storeCode, $this->_configHelper->getAllStoreCode(), true)) {
+            $storeId = $this->_storeManager->getStore($storeCode)->getId();
         } else {
-            $storeId = (int)$this->getRequest()->getParam('store', null);
-            if (!in_array($storeId, $this->_configHelper->getAllStoreId())) {
-                $storeId = (int)$this->_storeManager->getStore()->getId();
+            $storeId = (int) $this->getRequest()->getParam(LengowExport::PARAM_STORE);
+            if (!in_array($storeId, $this->_configHelper->getAllStoreId(), true)) {
+                $storeId = $this->_storeManager->getStore()->getId();
             }
         }
         // get locale data
-        if ($locale = $this->getRequest()->getParam('locale', null)) {
+        $language = $this->getRequest()->getParam(LengowExport::PARAM_LEGACY_LANGUAGE) ?: $this->getRequest()
+            ->getParam(LengowExport::PARAM_LANGUAGE);
+        if ($language) {
             // changing locale works!
-            $this->_locale->setLocale($locale);
+            $this->_locale->setLocale($language);
             // needed to add this
-            $this->_translate->setLocale($locale);
+            $this->_translate->setLocale($language);
             // translation now works
             $this->_translate->loadData('frontend', true);
         }
@@ -162,27 +164,27 @@ class Index extends Action
                 // config store
                 $this->_storeManager->setCurrentStore($storeId);
                 $params = [
-                    'store_id' => $storeId,
-                    'format' => $format,
-                    'product_types' => $productTypes,
-                    'inactive' => $inactive,
-                    'out_of_stock' => $outOfStock,
-                    'selection' => $selection,
-                    'stream' => $stream,
-                    'limit' => $limit,
-                    'offset' => $offset,
-                    'product_ids' => $productIds,
-                    'currency' => $currency,
-                    'update_export_date' => $updateExportDate,
-                    'log_output' => $logOutput,
+                    LengowExport::PARAM_STORE_ID => $storeId,
+                    LengowExport::PARAM_FORMAT => $format,
+                    LengowExport::PARAM_PRODUCT_TYPES => $productTypes,
+                    LengowExport::PARAM_INACTIVE => $inactive,
+                    LengowExport::PARAM_OUT_OF_STOCK => $outOfStock,
+                    LengowExport::PARAM_SELECTION => $selection,
+                    LengowExport::PARAM_STREAM => $stream,
+                    LengowExport::PARAM_LIMIT => $limit,
+                    LengowExport::PARAM_OFFSET => $offset,
+                    LengowExport::PARAM_PRODUCT_IDS => $productIds,
+                    LengowExport::PARAM_CURRENCY => $currency,
+                    LengowExport::PARAM_UPDATE_EXPORT_DATE => $updateExportDate,
+                    LengowExport::PARAM_LOG_OUTPUT => $logOutput,
                 ];
                 $this->_export->init($params);
                 if ($getParams) {
                     $this->getResponse()->setBody($this->_export->getExportParams());
                 } elseif ($mode === 'size') {
-                    $this->getResponse()->setBody((string)$this->_export->getTotalExportedProduct());
+                    $this->getResponse()->setBody((string) $this->_export->getTotalExportProduct());
                 } elseif ($mode === 'total') {
-                    $this->getResponse()->setBody((string)$this->_export->getTotalProduct());
+                    $this->getResponse()->setBody((string) $this->_export->getTotalProduct());
                 } else {
                     $this->_export->exec();
                 }
@@ -193,10 +195,10 @@ class Index extends Action
                 $this->getResponse()->setBody($errorMessage);
             }
         } else {
-            if ((bool)$this->_configHelper->get('ip_enable')) {
+            if ($this->_configHelper->get(ConfigHelper::AUTHORIZED_IP_ENABLED)) {
                 $errorMessage = __('unauthorised IP: %1', [$this->_securityHelper->getRemoteIp()]);
             } else {
-                $errorMessage = strlen($token) > 0
+                $errorMessage = $token !== ''
                     ? __('unauthorised access for this token: %1', [$token])
                     : __('unauthorised access: token parameter is empty');
             }

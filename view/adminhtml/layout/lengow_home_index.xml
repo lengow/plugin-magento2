@@ -2,6 +2,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
         <title>Home</title>
+        <link src="Lengow_Connector::js/admin.js"/>
         <link src="Lengow_Connector::js/home.js"/>
         <css src="Lengow_Connector::css/lengow-pages.css"/>
         <css src="Lengow_Connector::css/lengow-components.css"/>
@@ -23,13 +24,13 @@
         </referenceBlock>
         <referenceContainer name="content">
             <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_home_main" template="Lengow_Connector::home/main.phtml">
-                <block class="Lengow\Connector\Block\Adminhtml\Header" name="lengow_header" as="lengow_header" template="Lengow_Connector::header.phtml"/>
+                <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_header" as="lengow_header" template="Lengow_Connector::header.phtml"/>
                 <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_home_new" as="lengow_home_new" template="Lengow_Connector::home/new.phtml"/>
                 <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_home_catalog" as="lengow_home_catalog" template="Lengow_Connector::home/catalog.phtml"/>
                 <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_home_catalog_failed" as="lengow_home_catalog_failed" template="Lengow_Connector::home/catalog_failed.phtml"/>
                 <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_home_cms" as="lengow_home_cms" template="Lengow_Connector::home/cms.phtml"/>
                 <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_home_cms_result" as="lengow_home_cms_result" template="Lengow_Connector::home/cms_result.phtml"/>
-                <block class="Lengow\Connector\Block\Adminhtml\Footer" name="lengow_footer" as="lengow_footer" template="Lengow_Connector::footer.phtml"/>
+                <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_footer" as="lengow_footer" template="Lengow_Connector::footer.phtml"/>
             </block>
         </referenceContainer>
     </body>

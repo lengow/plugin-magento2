@@ -112,21 +112,17 @@ class Index extends Action
          * boolean log_output          See logs (1) or not (0)
          * boolean get_sync            See synchronisation parameters in json format (1) or not (0)
          */
-        $token = $this->getRequest()->getParam('token');
+        $token = $this->getRequest()->getParam(LengowImport::PARAM_TOKEN);
         if ($this->_securityHelper->checkWebserviceAccess($token)) {
             // get all store data for synchronisation with Lengow
-            if ($this->getRequest()->getParam('get_sync') == 1) {
+            if ($this->getRequest()->getParam(LengowImport::PARAM_GET_SYNC) === '1') {
                 $storeData = $this->_syncHelper->getSyncData();
                 $this->getResponse()->setBody($this->_jsonHelper->jsonEncode($storeData));
             } else {
-                $force = $this->getRequest()->getParam('force') !== null
-                    ? (bool)$this->getRequest()->getParam('force')
-                    : false;
-                $logOutput = $this->getRequest()->getParam('log_output') !== null
-                    ? (bool)$this->getRequest()->getParam('log_output')
-                    : false;
+                $force = $this->getRequest()->getParam(LengowImport::PARAM_FORCE) === '1';
+                $logOutput = $this->getRequest()->getParam(LengowImport::PARAM_LOG_OUTPUT) === '1';
                 // get sync action if exists
-                $sync = $this->getRequest()->getParam('sync');
+                $sync = $this->getRequest()->getParam(LengowImport::PARAM_SYNC);
                 // sync catalogs id between Lengow and Magento
                 if (!$sync || $sync === SyncHelper::SYNC_CATALOG) {
                     $this->_syncHelper->syncCatalog($force, $logOutput);
@@ -135,36 +131,45 @@ class Index extends Action
                 if ($sync === null || $sync === SyncHelper::SYNC_ORDER) {
                     // array of params for import order
                     $params = [
-                        'type' => LengowImport::TYPE_CRON,
-                        'log_output' => $logOutput,
+                        LengowImport::PARAM_TYPE => LengowImport::TYPE_CRON,
+                        LengowImport::PARAM_LOG_OUTPUT => $logOutput,
                     ];
                     // check if the GET parameters are available
-                    if ($this->getRequest()->getParam('debug_mode') !== null) {
-                        $params['debug_mode'] = (bool)$this->getRequest()->getParam('debug_mode');
+                    if ($this->getRequest()->getParam(LengowImport::PARAM_DEBUG_MODE) !== null) {
+                        $params[LengowImport::PARAM_DEBUG_MODE] = (bool) $this->getRequest()
+                            ->getParam(LengowImport::PARAM_DEBUG_MODE);
                     }
-                    if ($this->getRequest()->getParam('days') !== null) {
-                        $params['days'] = (int)$this->getRequest()->getParam('days');
+                    if ($this->getRequest()->getParam(LengowImport::PARAM_DAYS) !== null) {
+                        $params[LengowImport::PARAM_DAYS] = (int) $this->getRequest()
+                            ->getParam(LengowImport::PARAM_DAYS);
                     }
-                    if ($this->getRequest()->getParam('created_from') !== null) {
-                        $params['created_from'] = (string)$this->getRequest()->getParam('created_from');
+                    if ($this->getRequest()->getParam(LengowImport::PARAM_CREATED_FROM) !== null) {
+                        $params[LengowImport::PARAM_CREATED_FROM] = $this->getRequest()
+                            ->getParam(LengowImport::PARAM_CREATED_FROM);
                     }
-                    if ($this->getRequest()->getParam('created_to') !== null) {
-                        $params['created_to'] = (string)$this->getRequest()->getParam('created_to');
+                    if ($this->getRequest()->getParam(LengowImport::PARAM_CREATED_TO) !== null) {
+                        $params[LengowImport::PARAM_CREATED_TO] = $this->getRequest()
+                            ->getParam(LengowImport::PARAM_CREATED_TO);
                     }
-                    if ($this->getRequest()->getParam('limit') !== null) {
-                        $params['limit'] = (int)$this->getRequest()->getParam('limit');
+                    if ($this->getRequest()->getParam(LengowImport::PARAM_LIMIT) !== null) {
+                        $params[LengowImport::PARAM_LIMIT] = (int) $this->getRequest()
+                            ->getParam(LengowImport::PARAM_LIMIT);
                     }
-                    if ($this->getRequest()->getParam('marketplace_sku') !== null) {
-                        $params['marketplace_sku'] = (string)$this->getRequest()->getParam('marketplace_sku');
+                    if ($this->getRequest()->getParam(LengowImport::PARAM_MARKETPLACE_SKU) !== null) {
+                        $params[LengowImport::PARAM_MARKETPLACE_SKU] = $this->getRequest()
+                            ->getParam(LengowImport::PARAM_MARKETPLACE_SKU);
                     }
-                    if ($this->getRequest()->getParam('marketplace_name') !== null) {
-                        $params['marketplace_name'] = (string)$this->getRequest()->getParam('marketplace_name');
+                    if ($this->getRequest()->getParam(LengowImport::PARAM_MARKETPLACE_NAME) !== null) {
+                        $params[LengowImport::PARAM_MARKETPLACE_NAME] = $this->getRequest()
+                            ->getParam(LengowImport::PARAM_MARKETPLACE_NAME);
                     }
-                    if ($this->getRequest()->getParam('delivery_address_id') !== null) {
-                        $params['delivery_address_id'] = (int)$this->getRequest()->getParam('delivery_address_id');
+                    if ($this->getRequest()->getParam(LengowImport::PARAM_DELIVERY_ADDRESS_ID) !== null) {
+                        $params[LengowImport::PARAM_DELIVERY_ADDRESS_ID] = (int) $this->getRequest()
+                            ->getParam(LengowImport::PARAM_DELIVERY_ADDRESS_ID);
                     }
-                    if ($this->getRequest()->getParam('store_id') !== null) {
-                        $params['store_id'] = (int)$this->getRequest()->getParam('store_id');
+                    if ($this->getRequest()->getParam(LengowImport::PARAM_STORE_ID) !== null) {
+                        $params[LengowImport::PARAM_STORE_ID] = (int) $this->getRequest()
+                            ->getParam(LengowImport::PARAM_STORE_ID);
                     }
                     // synchronise orders
                     $this->_import->init($params);
@@ -200,10 +205,10 @@ class Index extends Action
                 }
             }
         } else {
-            if ((bool)$this->_configHelper->get('ip_enable')) {
+            if ($this->_configHelper->get(ConfigHelper::AUTHORIZED_IP_ENABLED)) {
                 $errorMessage = __('unauthorised IP: %1', [$this->_securityHelper->getRemoteIp()]);
             } else {
-                $errorMessage = strlen($token) > 0
+                $errorMessage = $token !== ''
                     ? __('unauthorised access for this token: %1', [$token])
                     : __('unauthorised access: token parameter is empty');
             }

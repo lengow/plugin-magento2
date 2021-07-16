@@ -107,8 +107,8 @@ class Index extends Action
                             $state = $this->getRequest()->getParam('state');
                             $storeId = $this->getRequest()->getParam('store_id');
                             if ($state !== null) {
-                                $oldValue = $this->_configHelper->get('selection_enable', $storeId);
-                                $this->_configHelper->set('selection_enable', $state, $storeId);
+                                $oldValue = $this->_configHelper->get(ConfigHelper::SELECTION_ENABLED, $storeId);
+                                $this->_configHelper->set(ConfigHelper::SELECTION_ENABLED, $state, $storeId);
                                 // clean config cache to valid configuration
                                 $this->_configHelper->cleanConfigCache();
                                 $this->_dataHelper->log(
@@ -123,11 +123,14 @@ class Index extends Action
                                         ]
                                     )
                                 );
-                                $this->_export->init(['store_id' => $storeId, 'selection' => $state]);
+                                $this->_export->init([
+                                    LengowExport::PARAM_STORE_ID => $storeId,
+                                    LengowExport::PARAM_SELECTION => $state,
+                                ]);
                                 return $this->_resultJsonFactory->create()->setData(
                                     [
                                         'state' => $state,
-                                        'exported' => $this->_export->getTotalExportedProduct(),
+                                        'exported' => $this->_export->getTotalExportProduct(),
                                         'total' => $this->_export->getTotalProduct(),
                                     ]
                                 );
@@ -143,10 +146,13 @@ class Index extends Action
                                     ['lengow_product' => $state],
                                     $storeId
                                 );
-                                $this->_export->init(['store_id' => $storeId, 'selection' => 1]);
+                                $this->_export->init([
+                                    LengowExport::PARAM_STORE_ID => $storeId,
+                                    LengowExport::PARAM_SELECTION => 1,
+                                ]);
                                 return $this->_resultJsonFactory->create()->setData(
                                     [
-                                        'exported' => $this->_export->getTotalExportedProduct(),
+                                        'exported' => $this->_export->getTotalExportProduct(),
                                         'total' => $this->_export->getTotalProduct(),
                                     ]
                                 );

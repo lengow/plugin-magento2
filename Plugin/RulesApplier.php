@@ -75,7 +75,7 @@ class RulesApplier
         $skipValidation,
         $couponCode
     ) {
-        if ((bool)$this->backendSession->getIsFromlengow()) {
+        if ($this->backendSession->getIsFromlengow()) {
             $nRules = $this->ruleFactory->create()->addFieldToFilter('rule_id', ['eq' => 0]);
             return $proceed($item, $nRules, $skipValidation, $couponCode);
         }

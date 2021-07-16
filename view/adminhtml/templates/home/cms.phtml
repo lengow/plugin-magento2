@@ -1,3 +1,13 @@
+<?php
+/**
+ * Copyright 2021 Lengow SAS
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+/** @var Lengow\Connector\Block\Adminhtml\Main $block */
+?>
+
 <div id="lgw-connection-cms" style="text-align: center">
     <div class="lgw-content-section">
         <h2><?= $block->escapeHtml(__('Please enter your API Lengow credentials')) ?></h2>
@@ -20,7 +30,7 @@
         <p><?= $block->escapeHtml(__('Find these credentials in your account settings, section A.P.I')) ?></p>
         <p>
             <?= $block->escapeHtml(__('Need help?')) ?>
-            <a href="<?= $block->escapeHtml(__('https://support.lengow.com/kb/en')) ?>" target="_blank">
+            <a href="<?= $block->escapeHtml($block->getHelpCenterLink()) ?>" target="_blank">
                 <?= $block->escapeHtml(__('Check out our Help Center')) ?>
             </a>
         </p>

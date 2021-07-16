@@ -221,6 +221,13 @@ class Connector
     ];
 
     /**
+     * @var array API requiring no authorization for the call url
+     */
+    protected $apiWithoutAuthorizations = [
+        self::API_PLUGIN,
+    ];
+
+    /**
      * @var DataHelper Lengow data helper instance
      */
     protected $_dataHelper;
@@ -280,7 +287,7 @@ class Connector
             return false;
         }
         list($accountId, $accessToken, $secret) = $this->_configHelper->getAccessIds();
-        if ($accountId === null || (int)$accountId === 0 || !is_numeric($accountId)) {
+        if ($accountId === null) {
             return false;
         }
         try {
@@ -312,19 +319,15 @@ class Connector
             return false;
         }
         try {
+            $authorizationRequired = !in_array($api, $this->apiWithoutAuthorizations, true);
             list($accountId, $accessToken, $secret) = $this->_configHelper->getAccessIds();
-            if ($accountId === null) {
+            if ($accountId === null && $authorizationRequired) {
                 return false;
             }
             $this->init(['access_token' => $accessToken, 'secret' => $secret]);
             $type = strtolower($type);
-            $results = $this->$type(
-                $api,
-                array_merge(['account_id' => $accountId], $args),
-                self::FORMAT_STREAM,
-                $body,
-                $logOutput
-            );
+            $args = $authorizationRequired ? array_merge(['account_id' => $accountId], $args) : $args;
+            $results = $this->$type($api, $args, self::FORMAT_STREAM, $body, $logOutput);
         } catch (LengowException $e) {
             $message = $this->_dataHelper->decodeLogMessage($e->getMessage(), false);
             $error = $this->_dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
@@ -377,8 +380,8 @@ class Connector
      */
     public function connect($force = false, $logOutput = false)
     {
-        $token = $this->_configHelper->get('authorization_token');
-        $updatedAt = $this->_configHelper->get('last_authorization_token_update');
+        $token = $this->_configHelper->get(ConfigHelper::AUTHORIZATION_TOKEN);
+        $updatedAt = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_AUTHORIZATION_TOKEN);
         if (!$force
             && $token !== null
             && $updatedAt !== null
@@ -388,8 +391,8 @@ class Connector
             $authorizationToken = $token;
         } else {
             $authorizationToken = $this->_getAuthorizationToken($logOutput);
-            $this->_configHelper->set('authorization_token', $authorizationToken);
-            $this->_configHelper->set('last_authorization_token_update', time());
+            $this->_configHelper->set(ConfigHelper::AUTHORIZATION_TOKEN, $authorizationToken);
+            $this->_configHelper->set(ConfigHelper::LAST_UPDATE_AUTHORIZATION_TOKEN, time());
         }
         $this->_token = $authorizationToken;
     }
@@ -483,7 +486,9 @@ class Connector
     private function _call($api, $args, $type, $format, $body, $logOutput)
     {
         try {
-            $this->connect(false, $logOutput);
+            if (!in_array($api, $this->apiWithoutAuthorizations, true)) {
+                $this->connect(false, $logOutput);
+            }
             $data = $this->_callAction($api, $args, $type, $format, $body, $logOutput);
         } catch (LengowException $e) {
             if (in_array($e->getCode(), $this->authorizationCodes, true)) {
@@ -494,7 +499,9 @@ class Connector
                     ),
                     $logOutput
                 );
-                $this->connect(true, $logOutput);
+                if (!in_array($api, $this->apiWithoutAuthorizations, true)) {
+                    $this->connect(true, $logOutput);
+                }
                 $data = $this->_callAction($api, $args, $type, $format, $body, $logOutput);
             } else {
                 throw new LengowException($e->getMessage(), $e->getCode());

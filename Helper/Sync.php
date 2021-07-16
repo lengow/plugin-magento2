@@ -39,40 +39,36 @@ class Sync extends AbstractHelper
      */
     const CMS_TYPE = 'magento';
 
-    /**
-     * @var string sync catalog action
-     */
+    /* Sync actions */
     const SYNC_CATALOG = 'catalog';
-
-    /**
-     * @var string sync cms option action
-     */
     const SYNC_CMS_OPTION = 'cms_option';
-
-    /**
-     * @var string sync status account action
-     */
     const SYNC_STATUS_ACCOUNT = 'status_account';
-
-    /**
-     * @var string sync marketplace action
-     */
     const SYNC_MARKETPLACE = 'marketplace';
-
-    /**
-     * @var string sync order action
-     */
     const SYNC_ORDER = 'order';
-
-    /**
-     * @var string sync action action
-     */
     const SYNC_ACTION = 'action';
+    const SYNC_PLUGIN_DATA = 'plugin';
 
     /**
-     * @var string sync plugin version action
+     * @var string marketplace file name
      */
-    const SYNC_PLUGIN_DATA = 'plugin';
+    const MARKETPLACE_FILE = 'marketplaces.json';
+
+    /* Plugin link types */
+    const LINK_TYPE_HELP_CENTER = 'help_center';
+    const LINK_TYPE_CHANGELOG = 'changelog';
+    const LINK_TYPE_UPDATE_GUIDE = 'update_guide';
+    const LINK_TYPE_SUPPORT = 'support';
+
+    /* Default plugin links */
+    const LINK_HELP_CENTER = 'https://support.lengow.com/kb/guide/en/magento-2-zIKNDzKdKk/Steps/25861';
+    const LINK_CHANGELOG = 'https://support.lengow.com/kb/guide/en/magento-2-zIKNDzKdKk/Steps/25861,113892,261840';
+    const LINK_UPDATE_GUIDE = 'https://support.lengow.com/kb/guide/en/magento-2-zIKNDzKdKk/Steps/25861,120332';
+    const LINK_SUPPORT = 'https://help-support.lengow.com/hc/en-us/requests/new';
+
+    /* Api iso codes */
+    const API_ISO_CODE_EN = 'en';
+    const API_ISO_CODE_FR = 'fr';
+    const API_ISO_CODE_DE = 'de';
 
     /**
      * @var mixed status account
@@ -149,9 +145,23 @@ class Sync extends AbstractHelper
     ];
 
     /**
-     * @var string marketplace file name
+     * @var array iso code correspondence for plugin links
      */
-    protected $_marketplaceJson = 'marketplaces.json';
+    protected $genericIsoCodes = [
+        self::API_ISO_CODE_EN => DataHelper::ISO_CODE_EN,
+        self::API_ISO_CODE_FR => DataHelper::ISO_CODE_FR,
+        self::API_ISO_CODE_DE => DataHelper::ISO_CODE_DE,
+    ];
+
+    /**
+     * @var array default plugin links when the API is not available
+     */
+    protected $defaultPluginLinks = [
+        self::LINK_TYPE_HELP_CENTER => self::LINK_HELP_CENTER,
+        self::LINK_TYPE_CHANGELOG => self::LINK_CHANGELOG,
+        self::LINK_TYPE_UPDATE_GUIDE => self::LINK_UPDATE_GUIDE,
+        self::LINK_TYPE_SUPPORT => self::LINK_SUPPORT,
+    ];
 
     /**
      * Constructor
@@ -200,7 +210,7 @@ class Sync extends AbstractHelper
      */
     public function isSyncAction($action)
     {
-        return in_array($action, $this->_syncActions);
+        return in_array($action, $this->_syncActions, true);
     }
 
     /**
@@ -232,19 +242,20 @@ class Sync extends AbstractHelper
             'plugin_version' => $this->_securityHelper->getPluginVersion(),
             'email' => $this->scopeConfig->getValue('trans_email/ident_general/email'),
             'cron_url' => $this->_dataHelper->getCronUrl(),
+            'toolbox_url' => $this->_dataHelper->getToolboxUrl(),
             'shops' => [],
         ];
         $stores = $this->_configHelper->getAllStore();
         foreach ($stores as $store) {
-            $storeId = (int)$store->getId();
-            $this->_export->init(['store_id' => $storeId]);
+            $storeId = (int) $store->getId();
+            $this->_export->init([LengowExport::PARAM_STORE_ID => $storeId]);
             $data['shops'][] = [
                 'token' => $this->_configHelper->getToken($storeId),
                 'shop_name' => $store->getName(),
                 'domain_url' => $store->getBaseUrl(),
                 'feed_url' => $this->_dataHelper->getExportUrl($storeId),
                 'total_product_number' => $this->_export->getTotalProduct(),
-                'exported_product_number' => $this->_export->getTotalExportedProduct(),
+                'exported_product_number' => $this->_export->getTotalExportProduct(),
                 'enabled' => $this->_configHelper->storeIsActive($storeId),
             ];
         }
@@ -267,8 +278,8 @@ class Sync extends AbstractHelper
             return $success;
         }
         if (!$force) {
-            $updatedAt = $this->_configHelper->get('last_catalog_update');
-            if ($updatedAt !== null && (time() - (int)$updatedAt) < $this->_cacheTimes[self::SYNC_CATALOG]) {
+            $updatedAt = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_CATALOG);
+            if ($updatedAt !== null && (time() - (int) $updatedAt) < $this->_cacheTimes[self::SYNC_CATALOG]) {
                 return $success;
             }
         }
@@ -282,9 +293,9 @@ class Sync extends AbstractHelper
                         if ($store) {
                             $catalogIdsChange = $this->_configHelper->setCatalogIds(
                                 $cmsShop->catalog_ids,
-                                (int)$store->getId()
+                                (int) $store->getId()
                             );
-                            $activeStoreChange = $this->_configHelper->setActiveStore((int)$store->getId());
+                            $activeStoreChange = $this->_configHelper->setActiveStore((int) $store->getId());
                             if (!$cleanCache && ($catalogIdsChange || $activeStoreChange)) {
                                 $cleanCache = true;
                             }
@@ -298,10 +309,10 @@ class Sync extends AbstractHelper
         // clean config cache to valid configuration
         if ($cleanCache) {
             // save last update date for a specific settings (change synchronisation interval time)
-            $this->_configHelper->set('last_setting_update', time());
+            $this->_configHelper->set(ConfigHelper::LAST_UPDATE_SETTING, time());
             $this->_configHelper->cleanConfigCache();
         }
-        $this->_configHelper->set('last_catalog_update', time());
+        $this->_configHelper->set(ConfigHelper::LAST_UPDATE_CATALOG, time());
         return $success;
     }
 
@@ -321,13 +332,13 @@ class Sync extends AbstractHelper
         ];
         $stores = $this->_configHelper->getAllStore();
         foreach ($stores as $store) {
-            $storeId = (int)$store->getId();
-            $this->_export->init(['store_id' => $storeId]);
+            $storeId = (int) $store->getId();
+            $this->_export->init([LengowExport::PARAM_STORE_ID => $storeId]);
             $data['shops'][] = [
                 'token' => $this->_configHelper->getToken($storeId),
                 'enabled' => $this->_configHelper->storeIsActive($storeId),
                 'total_product_number' => $this->_export->getTotalProduct(),
-                'exported_product_number' => $this->_export->getTotalExportedProduct(),
+                'exported_product_number' => $this->_export->getTotalExportProduct(),
                 'options' => $this->_configHelper->getAllValues($storeId),
             ];
         }
@@ -348,14 +359,14 @@ class Sync extends AbstractHelper
             return false;
         }
         if (!$force) {
-            $updatedAt = $this->_configHelper->get('last_option_cms_update');
-            if ($updatedAt !== null && (time() - (int)$updatedAt) < $this->_cacheTimes[self::SYNC_CMS_OPTION]) {
+            $updatedAt = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_OPTION_CMS);
+            if ($updatedAt !== null && (time() - (int) $updatedAt) < $this->_cacheTimes[self::SYNC_CMS_OPTION]) {
                 return false;
             }
         }
         $options = $this->_jsonHelper->jsonEncode($this->getOptionData());
         $this->_connector->queryApi(LengowConnector::PUT, LengowConnector::API_CMS, [], $options, $logOutput);
-        $this->_configHelper->set('last_option_cms_update', time());
+        $this->_configHelper->set(ConfigHelper::LAST_UPDATE_OPTION_CMS, time());
         return true;
     }
 
@@ -373,9 +384,9 @@ class Sync extends AbstractHelper
             return false;
         }
         if (!$force) {
-            $updatedAt = $this->_configHelper->get('last_status_update');
-            if ($updatedAt !== null && (time() - (int)$updatedAt) < $this->_cacheTimes[self::SYNC_STATUS_ACCOUNT]) {
-                return json_decode($this->_configHelper->get('account_status'), true);
+            $updatedAt = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_ACCOUNT_STATUS_DATA);
+            if ($updatedAt !== null && (time() - (int) $updatedAt) < $this->_cacheTimes[self::SYNC_STATUS_ACCOUNT]) {
+                return json_decode($this->_configHelper->get(ConfigHelper::ACCOUNT_STATUS_DATA), true);
             }
         }
         // use static cache for multiple call in same time (specific Magento 2)
@@ -387,15 +398,13 @@ class Sync extends AbstractHelper
         if (isset($result->isFreeTrial)) {
             $status = [
                 'type' => $result->isFreeTrial ? 'free_trial' : '',
-                'day' => (int)$result->leftDaysBeforeExpired < 0 ? 0 : (int)$result->leftDaysBeforeExpired,
-                'expired' => (bool)$result->isExpired,
+                'day' => (int) $result->leftDaysBeforeExpired < 0 ? 0 : (int) $result->leftDaysBeforeExpired,
+                'expired' => (bool) $result->isExpired,
             ];
-            $this->_configHelper->set('account_status', $this->_jsonHelper->jsonEncode($status));
-            $this->_configHelper->set('last_status_update', time());
-        } else {
-            if ($this->_configHelper->get('last_status_update')) {
-                $status = json_decode($this->_configHelper->get('account_status'), true);
-            }
+            $this->_configHelper->set(ConfigHelper::ACCOUNT_STATUS_DATA, $this->_jsonHelper->jsonEncode($status));
+            $this->_configHelper->set(ConfigHelper::LAST_UPDATE_ACCOUNT_STATUS_DATA, time());
+        } else if ($this->_configHelper->get(ConfigHelper::ACCOUNT_STATUS_DATA)) {
+            $status = json_decode($this->_configHelper->get(ConfigHelper::ACCOUNT_STATUS_DATA), true);
         }
         self::$statusAccount = $status;
         return $status;
@@ -413,11 +422,11 @@ class Sync extends AbstractHelper
     {
         $sep = DIRECTORY_SEPARATOR;
         $folderPath = $this->_dataHelper->getMediaPath() . $sep . DataHelper::LENGOW_FOLDER;
-        $filePath = $folderPath . $sep . $this->_marketplaceJson;
+        $filePath = $folderPath . $sep . self::MARKETPLACE_FILE;
         if (!$force) {
-            $updatedAt = $this->_configHelper->get('last_marketplace_update');
+            $updatedAt = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_MARKETPLACE);
             if ($updatedAt !== null
-                && (time() - (int)$updatedAt) < $this->_cacheTimes[self::SYNC_MARKETPLACE]
+                && (time() - (int) $updatedAt) < $this->_cacheTimes[self::SYNC_MARKETPLACE]
                 && file_exists($filePath)
             ) {
                 // recovering data with the marketplaces.json file
@@ -444,7 +453,7 @@ class Sync extends AbstractHelper
                 $this->_driverFile->fileWrite($file, $this->_jsonHelper->jsonEncode($result));
                 $this->_driverFile->fileUnlock($file);
                 $this->_driverFile->fileClose($file);
-                $this->_configHelper->set('last_marketplace_update', time());
+                $this->_configHelper->set(ConfigHelper::LAST_UPDATE_MARKETPLACE, time());
             } catch (FileSystemException $e) {
                 $this->_dataHelper->log(
                     DataHelper::CODE_IMPORT,
@@ -475,13 +484,10 @@ class Sync extends AbstractHelper
      */
     public function getPluginData($force = false, $logOutput = false)
     {
-        if ($this->_configHelper->isNewMerchant()) {
-            return false;
-        }
         if (!$force) {
-            $updatedAt = $this->_configHelper->get('last_plugin_data_update');
-            if ($updatedAt !== null && (time() - (int)$updatedAt) < $this->_cacheTimes[self::SYNC_PLUGIN_DATA]) {
-                return json_decode($this->_configHelper->get('plugin_data'), true);
+            $updatedAt = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_PLUGIN_DATA);
+            if ($updatedAt !== null && (time() - (int) $updatedAt) < $this->_cacheTimes[self::SYNC_PLUGIN_DATA]) {
+                return json_decode($this->_configHelper->get(ConfigHelper::PLUGIN_DATA), true);
             }
         }
         $plugins = $this->_connector->queryApi(
@@ -495,23 +501,82 @@ class Sync extends AbstractHelper
             $pluginData = false;
             foreach ($plugins as $plugin) {
                 if ($plugin->type === self::CMS_TYPE . '2') {
+                    $cmsMinVersion = '';
+                    $cmsMaxVersion = '';
+                    $pluginLinks = [];
+                    $currentVersion = $plugin->version;
+                    if (!empty($plugin->versions)) {
+                        foreach ($plugin->versions as $version) {
+                            if ($version->version === $currentVersion) {
+                                $cmsMinVersion = $version->cms_min_version;
+                                $cmsMaxVersion = $version->cms_max_version;
+                                break;
+                            }
+                        }
+                    }
+                    if (!empty($plugin->links)) {
+                        foreach ($plugin->links as $link) {
+                            if (array_key_exists($link->language->iso_a2, $this->genericIsoCodes)) {
+                                $genericIsoCode = $this->genericIsoCodes[$link->language->iso_a2];
+                                $pluginLinks[$genericIsoCode][$link->link_type] = $link->link;
+                            }
+                        }
+                    }
                     $pluginData = [
-                        'version' => $plugin->version,
+                        'version' => $currentVersion,
                         'download_link' => $plugin->archive,
+                        'cms_min_version' => $cmsMinVersion,
+                        'cms_max_version' => $cmsMaxVersion,
+                        'links' => $pluginLinks,
+                        'extensions' => $plugin->extensions,
                     ];
                     break;
                 }
             }
             if ($pluginData) {
-                $this->_configHelper->set('plugin_data', $this->_jsonHelper->jsonEncode($pluginData));
-                $this->_configHelper->set('last_plugin_data_update', time());
+                $this->_configHelper->set(ConfigHelper::PLUGIN_DATA, $this->_jsonHelper->jsonEncode($pluginData));
+                $this->_configHelper->set(ConfigHelper::LAST_UPDATE_PLUGIN_DATA, time());
                 return $pluginData;
             }
         } else {
-            if ($this->_configHelper->get('plugin_data')) {
-                return json_decode($this->_configHelper->get('plugin_data'), true);
+            if ($this->_configHelper->get(ConfigHelper::PLUGIN_DATA)) {
+                return json_decode($this->_configHelper->get(ConfigHelper::PLUGIN_DATA), true);
             }
         }
         return false;
+    }
+
+    /**
+     * Get an array of plugin links for a specific iso code
+     *
+     * @param string|null $isoCode
+     *
+     * @return array
+     */
+    public function getPluginLinks($isoCode = null)
+    {
+        $pluginData = $this->getPluginData();
+        if (!$pluginData) {
+            return $this->defaultPluginLinks;
+        }
+        // check if the links are available in the locale
+        $isoCode = $isoCode ?: DataHelper::DEFAULT_ISO_CODE;
+        $localeLinks = isset($pluginData['links'][$isoCode]) ? $pluginData['links'][$isoCode] : false;
+        $defaultLocaleLinks = isset($pluginData['links'][DataHelper::DEFAULT_ISO_CODE])
+            ? $pluginData['links'][DataHelper::DEFAULT_ISO_CODE]
+            : false;
+        // for each type of link, we check if the link is translated
+        $pluginLinks = [];
+        foreach ($this->defaultPluginLinks as $linkType => $defaultLink) {
+            if ($localeLinks && isset($localeLinks[$linkType])) {
+                $link = $localeLinks[$linkType];
+            } elseif ($defaultLocaleLinks && isset($defaultLocaleLinks[$linkType])) {
+                $link = $defaultLocaleLinks[$linkType];
+            } else {
+                $link = $defaultLink;
+            }
+            $pluginLinks[$linkType] = $link;
+        }
+        return $pluginLinks;
     }
 }

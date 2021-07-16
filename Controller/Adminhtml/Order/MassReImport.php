@@ -55,7 +55,7 @@ class MassReImport extends Action
 
     public function execute()
     {
-        $selectedIds = $this->getRequest()->getParam('selected', null);
+        $selectedIds = $this->getRequest()->getParam('selected');
         $excludedIds = $this->getRequest()->getParam('excluded', []);
         $excludedIds = $excludedIds === 'false' ? [] : $excludedIds;
         if (empty($selectedIds)) {
@@ -63,7 +63,7 @@ class MassReImport extends Action
             $allLengowOrderIds = $this->_orderFactory->create()->getAllLengowOrderIds();
             if ($allLengowOrderIds) {
                 foreach ($allLengowOrderIds as $lengowOrderId) {
-                    if (!in_array($lengowOrderId['id'], $excludedIds)) {
+                    if (!in_array($lengowOrderId['id'], $excludedIds, true)) {
                         $ids[] = $lengowOrderId['id'];
                     }
                 }
@@ -79,12 +79,12 @@ class MassReImport extends Action
         // reimport all selected orders
         $totalReSent = 0;
         foreach ($ids as $orderLengowId) {
-            $result = $this->_orderFactory->create()->reImportOrder((int)$orderLengowId);
+            $result = $this->_orderFactory->create()->reImportOrder((int) $orderLengowId);
             if ($result && isset($result['order_new']) && $result['order_new']) {
                 $totalReSent++;
             }
         }
-        // get the number of orders correctly reimported
+        // get the number of orders correctly re-imported
         $this->messageManager->addSuccessMessage(
             $this->_dataHelper->decodeLogMessage(
                 'A total of %1 order(s) in %2 selected have been imported.',

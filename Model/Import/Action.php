@@ -296,12 +296,12 @@ class Action extends AbstractModel
         if (!$this->getId()) {
             return false;
         }
-        if ((int)$this->getData('state') !== self::STATE_NEW) {
+        if ((int) $this->getData('state') !== self::STATE_NEW) {
             return false;
         }
         $updatedFields = $this->getUpdatedFields();
         foreach ($params as $key => $value) {
-            if (in_array($key, $updatedFields)) {
+            if (in_array($key, $updatedFields, true)) {
                 $this->setData($key, $value);
             }
         }
@@ -342,7 +342,7 @@ class Action extends AbstractModel
             ->addFieldToFilter('action_id', $actionId)
             ->getData();
         if (!empty($results)) {
-            return (int)$results[0]['id'];
+            return (int) $results[0]['id'];
         }
         return false;
     }
@@ -386,7 +386,7 @@ class Action extends AbstractModel
             ->addFieldToSelect('action_type');
         $lastAction = $results->getLastItem()->getData();
         if (!empty($lastAction)) {
-            return (string)$lastAction['action_type'];
+            return (string) $lastAction['action_type'];
         }
         return false;
     }
@@ -429,7 +429,7 @@ class Action extends AbstractModel
             }
         }
         $result = $this->_connector->queryApi(LengowConnector::GET, LengowConnector::API_ORDER_ACTION, $getParams);
-        if (isset($result->error) && isset($result->error->message)) {
+        if (isset($result->error, $result->error->message)) {
             throw new LengowException($result->error->message);
         }
         if (isset($result->count) && $result->count > 0) {
@@ -437,8 +437,8 @@ class Action extends AbstractModel
                 $actionId = $this->getActionByActionId($row->id);
                 if ($actionId) {
                     $action = $this->_actionFactory->create()->load($actionId);
-                    if ((int)$action->getData('state') === 0) {
-                        $retry = (int)$action->getData('retry') + 1;
+                    if ((int) $action->getData('state') === 0) {
+                        $retry = (int) $action->getData('retry') + 1;
                         $action->updateAction(['retry' => $retry]);
                         $sendAction = false;
                     }
@@ -456,7 +456,6 @@ class Action extends AbstractModel
                     );
                     $sendAction = false;
                 }
-                unset($orderAction);
             }
         }
         return $sendAction;
@@ -486,9 +485,8 @@ class Action extends AbstractModel
                         'parameters' => $this->_jsonHelper->jsonEncode($params),
                     ]
                 );
-                unset($orderAction);
             } else {
-                if ($result && $result !== null) {
+                if ($result) {
                     $message = $this->_dataHelper->setLogMessage(
                         "can't create action: %1",
                         [$this->_jsonHelper->jsonEncode($result)]
@@ -606,7 +604,7 @@ class Action extends AbstractModel
                 }
             }
             $page++;
-        } while ($results->next != null);
+        } while ($results->next !== null);
         if (empty($apiActions)) {
             return false;
         }
@@ -634,11 +632,11 @@ class Action extends AbstractModel
                     if ($lengowOrderId) {
                         $lengowOrder = $this->_lengowOrderFactory->create()->load($lengowOrderId);
                         $this->_orderErrorFactory->create()->finishOrderErrors($lengowOrder->getId(), 'send');
-                        if ((bool)$lengowOrder->getData('is_in_error')) {
+                        if ((bool) $lengowOrder->getData('is_in_error')) {
                             $lengowOrder->updateOrder(['is_in_error' => 0]);
                         }
                         $processStateFinish = $lengowOrder->getOrderProcessState('closed');
-                        if ((int)$lengowOrder->getData('order_process_state') !== $processStateFinish) {
+                        if ((int) $lengowOrder->getData('order_process_state') !== $processStateFinish) {
                             // if action is accepted -> close order and finish all order actions
                             if ($apiActions[$action['action_id']]->processed == true
                                 && empty($apiActions[$action['action_id']]->errors)
@@ -674,7 +672,7 @@ class Action extends AbstractModel
                 }
             }
         }
-        $this->_configHelper->set('last_action_sync', time());
+        $this->_configHelper->set(ConfigHelper::LAST_UPDATE_ACTION_SYNCHRONIZATION, time());
         return true;
     }
 
@@ -705,8 +703,8 @@ class Action extends AbstractModel
                 if ($lengowOrderId) {
                     $lengowOrder = $this->_lengowOrderFactory->create()->load($lengowOrderId);
                     $processStateFinish = $lengowOrder->getOrderProcessState('closed');
-                    if ((int)$lengowOrder->getData('order_process_state') != $processStateFinish
-                        && (bool)$lengowOrder->getData('is_in_error') === false
+                    if ((int) $lengowOrder->getData('order_process_state') !== $processStateFinish
+                        && (bool) $lengowOrder->getData('is_in_error') === false
                     ) {
                         // if action is denied -> create order error
                         $errorMessage = $this->_dataHelper->setLogMessage('order action is too old. Please retry');
@@ -779,9 +777,9 @@ class Action extends AbstractModel
         $unsentOrders = $lengowOrder->getUnsentOrders();
         if ($unsentOrders) {
             foreach ($unsentOrders as $unsentOrder) {
-                if (!$this->getActiveActionByOrderId((int)$unsentOrder['order_id'])) {
+                if (!$this->getActiveActionByOrderId((int) $unsentOrder['order_id'])) {
                     $action = $unsentOrder['state'] === self::TYPE_CANCEL ? self::TYPE_CANCEL : self::TYPE_SHIP;
-                    $order = $this->_orderFactory->create()->load((int)$unsentOrder['order_id']);
+                    $order = $this->_orderFactory->create()->load((int) $unsentOrder['order_id']);
                     $shipment = $action === self::TYPE_SHIP ? $order->getShipmentsCollection()->getFirstItem() : null;
                     $lengowOrder->callAction($action, $order, $shipment);
                 }
@@ -798,10 +796,10 @@ class Action extends AbstractModel
     protected function _getIntervalTime()
     {
         $intervalTime = self::MAX_INTERVAL_TIME;
-        $lastActionSynchronisation = $this->_configHelper->get('last_action_sync');
+        $lastActionSynchronisation = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_ACTION_SYNCHRONIZATION);
         if ($lastActionSynchronisation) {
-            $lastIntervalTime = time() - (int)$lastActionSynchronisation;
-            $lastIntervalTime = $lastIntervalTime + self::SECURITY_INTERVAL_TIME;
+            $lastIntervalTime = time() - (int) $lastActionSynchronisation;
+            $lastIntervalTime += self::SECURITY_INTERVAL_TIME;
             $intervalTime = $lastIntervalTime > $intervalTime ? $intervalTime : $lastIntervalTime;
         }
         return $intervalTime;

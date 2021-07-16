@@ -2,6 +2,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
         <title>Help</title>
+        <link src="Lengow_Connector::js/admin.js"/>
         <css src="Lengow_Connector::css/lengow-components.css"/>
         <css src="Lengow_Connector::css/lengow-layout.css"/>
         <css src="Lengow_Connector::css/lengow-pages.css"/>
@@ -21,9 +22,9 @@
         </referenceBlock>
         <referenceContainer name="content">
             <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_help_main" template="Lengow_Connector::help/main.phtml">
-                <block class="Lengow\Connector\Block\Adminhtml\Header" name="lengow_header" as="lengow_header" template="Lengow_Connector::header.phtml"/>
-                <block class="Lengow\Connector\Block\Adminhtml\Help\Content" name="lengow_help_content" as="lengow_help_content" template="Lengow_Connector::help/content.phtml"/>
-                <block class="Lengow\Connector\Block\Adminhtml\Footer" name="lengow_footer" as="lengow_footer" template="Lengow_Connector::footer.phtml"/>
+                <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_header" as="lengow_header" template="Lengow_Connector::header.phtml"/>
+                <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_help_content" as="lengow_help_content" template="Lengow_Connector::help/content.phtml"/>
+                <block class="Lengow\Connector\Block\Adminhtml\Main" name="lengow_footer" as="lengow_footer" template="Lengow_Connector::footer.phtml"/>
             </block>
         </referenceContainer>
     </body>

@@ -29,58 +29,37 @@ use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Lengow\Connector\Model\LogFactory as LengowLogFactory;
 use Lengow\Connector\Helper\Config as ConfigHelper;
+use Lengow\Connector\Helper\Toolbox as ToolboxHelper;
+use Lengow\Connector\Model\Export as LengowExport;
+use Lengow\Connector\Model\Import as LengowImport;
+use Lengow\Connector\Model\Log as LengowLog;
 
 class Data extends AbstractHelper
 {
-    /**
-     * @var integer life of log files in days
-     */
-    const LOG_LIFE = 20;
+    /* Log category codes */
+    const CODE_SETTING = 'Setting';
+    const CODE_CONNECTOR = 'Connector';
+    const CODE_EXPORT = 'Export';
+    const CODE_IMPORT = 'Import';
+    const CODE_ACTION = 'Action';
+    const CODE_CONNECTION = 'Connection';
+    const CODE_MAIL_REPORT = 'Mail Report';
+    const CODE_ORM = 'Orm';
+
+    /* Plugin translation iso codes */
+    const ISO_CODE_EN = 'en_GB';
+    const ISO_CODE_FR = 'fr_FR';
+    const ISO_CODE_DE = 'de_DE';
 
     /**
-     * @var string setting log code
+     * @var string default iso code
      */
-    const CODE_SETTING = 'Setting';
+    const DEFAULT_ISO_CODE = self::ISO_CODE_EN;
 
     /**
      * @var string Lengow media folder
      */
     const LENGOW_FOLDER = 'lengow';
-
-    /**
-     * @var string connector log code
-     */
-    const CODE_CONNECTOR = 'Connector';
-
-    /**
-     * @var string export log code
-     */
-    const CODE_EXPORT = 'Export';
-
-    /**
-     * @var string import log code
-     */
-    const CODE_IMPORT = 'Import';
-
-    /**
-     * @var string action log code
-     */
-    const CODE_ACTION = 'Action';
-
-    /**
-     * @var string connection log code
-     */
-    const CODE_CONNECTION = 'Connection';
-
-    /**
-     * @var string mail report code
-     */
-    const CODE_MAIL_REPORT = 'Mail Report';
-
-    /**
-     * @var string orm code
-     */
-    const CODE_ORM = 'Orm';
 
     /**
      * @var DirectoryList Magento directory list instance
@@ -153,7 +132,7 @@ class Data extends AbstractHelper
      */
     public function log($category, $message = '', $display = false, $marketplaceSku = null)
     {
-        if (strlen($message) === 0) {
+        if ($message === '') {
             return false;
         }
         $decodedMessage = $this->decodeLogMessage($message, false);
@@ -232,10 +211,10 @@ class Data extends AbstractHelper
      *
      * @param integer $nbDays
      */
-    public function cleanLog($nbDays = 20)
+    public function cleanLog($nbDays = LengowLog::LOG_LIFE)
     {
         if ($nbDays <= 0) {
-            $nbDays = self::LOG_LIFE;
+            $nbDays = LengowLog::LOG_LIFE;
         }
         $table = $this->_resource->getTableName('lengow_log');
         $query = 'DELETE FROM ' . $table . ' WHERE `date` < DATE_SUB(NOW(),INTERVAL ' . $nbDays . ' DAY)';
@@ -254,8 +233,8 @@ class Data extends AbstractHelper
     public function getExportUrl($storeId, $additionalParams = [])
     {
         $defaultParams = [
-            'store' => $storeId,
-            'token' => $this->_configHelper->getToken($storeId),
+            LengowExport::PARAM_STORE_ID => $storeId,
+            LengowExport::PARAM_TOKEN => $this->_configHelper->getToken($storeId),
             '_nosid' => true,
             '_store_to_url' => false,
         ];
@@ -276,7 +255,7 @@ class Data extends AbstractHelper
     public function getCronUrl($additionalParams = [])
     {
         $defaultParams = [
-            'token' => $this->_configHelper->getToken(),
+            LengowImport::PARAM_TOKEN => $this->_configHelper->getToken(),
             '_nosid' => true,
             '_store_to_url' => false,
         ];
@@ -285,6 +264,27 @@ class Data extends AbstractHelper
         }
         $this->_urlBuilder->setScope($this->_storeManager->getDefaultStoreView()->getId());
         return $this->_urlBuilder->getUrl('lengow/cron', $defaultParams);
+    }
+
+    /**
+     * Get toolbox Url
+     *
+     * @param array $additionalParams additional parameters for toolbox url
+     *
+     * @return string
+     */
+    public function getToolboxUrl($additionalParams = [])
+    {
+        $defaultParams = [
+            ToolboxHelper::PARAM_TOKEN => $this->_configHelper->getToken(),
+            '_nosid' => true,
+            '_store_to_url' => false,
+        ];
+        if (!empty($additionalParams)) {
+            $defaultParams = array_merge($defaultParams, $additionalParams);
+        }
+        $this->_urlBuilder->setScope($this->_storeManager->getDefaultStoreView()->getId());
+        return $this->_urlBuilder->getUrl('lengow/toolbox', $defaultParams);
     }
 
     /**
@@ -316,7 +316,7 @@ class Data extends AbstractHelper
      */
     public function getStore()
     {
-        $storeId = (int)$this->_getRequest()->getParam('store', 0);
+        $storeId = (int) $this->_getRequest()->getParam('store', 0);
         if ($storeId === 0) {
             $storeId = $this->_storeManager->getDefaultStoreView()->getId();
         }
@@ -383,7 +383,7 @@ class Data extends AbstractHelper
         );
         $str = preg_replace('/[\s]+/', ' ', $str);
         $str = trim($str);
-        $str = str_replace(
+        return str_replace(
             [
                 '&nbsp;',
                 '|',
@@ -420,7 +420,6 @@ class Data extends AbstractHelper
             ],
             $str
         );
-        return $str;
     }
 
     /**
@@ -449,8 +448,7 @@ class Data extends AbstractHelper
         $str = str_replace('&#150;', '-', $str);
         $str = str_replace(chr(9), ' ', $str);
         $str = str_replace(chr(10), ' ', $str);
-        $str = str_replace(chr(13), ' ', $str);
-        return $str;
+        return str_replace(chr(13), ' ', $str);
     }
 
     /**

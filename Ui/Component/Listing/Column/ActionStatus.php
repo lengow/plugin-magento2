@@ -54,7 +54,7 @@ class ActionStatus extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if ((int)$item['state'] === 0) {
+                if ((int) $item['state'] === 0) {
                     $item['state'] = '<span class="lgw-label orange">' . __('processing') . '</span>';
                 } else {
                     $item['state'] = '<span class="lgw-label">' . __('complete') . '</span>';
