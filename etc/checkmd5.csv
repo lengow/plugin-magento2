@@ -1,4 +1,4 @@
-/composer.json|715d8313b46a5a408eb5443e99b5c5dd
+/composer.json|b0cd6f1f98ce6fa90eabfceb43a1d354
 /registration.php|dc6e50502663d362b5efdf9c829985c6
 /Block/Tracker.php|38527fbaa40679226d063c08c7fdc28a
 /Block/Adminhtml/Header.php|52f50319ed3c5718568d164a27bdb148
@@ -39,7 +39,7 @@
 /Controller/Adminhtml/Product/MassPublish.php|bb4562efe07891f2ebf294dde12b3754
 /Cron/LaunchSynchronization.php|1cecf7f166d2c4dfdfab6fb064bcc303
 /Cron/LaunchExport.php|6572c95ed81145d3a2a8db749dbdad38
-/etc/module.xml|ae468f8f0a0dac696390390b35bc19ae
+/etc/module.xml|a11104d7f7162a27301e8184d5189442
 /etc/config.xml|0dac84e40ca5df82535f0ebd41d0d630
 /etc/frontend/routes.xml|fd7926ca314017e32250b7e108d09d75
 /etc/acl.xml|238cdf00e292e74243e5a67e59729436
