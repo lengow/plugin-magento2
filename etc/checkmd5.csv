@@ -84,7 +84,7 @@
 /Model/ResourceModel/Order/Collection.php|5850f4e58408a583f995723fd3e51a7f
 /Model/Payment/Lengow.php|dd4f2d120fe6faa2d731cbf9eed66408
 /Model/Connector.php|2e9c04937261901c2883b4a792e4bc6a
-/Model/Log.php|a1ab9ea5dd71a3846c9a96fdc31c9fd2
+/Model/Log.php|f439bb14db96ea3fed8886ccb2564be0
 /Model/Exception.php|54edeb8720951a9e4cdc0011f8e2572f
 /Model/Export.php|066c0e8fb86739582add7cdebc1d0edc
 /Model/Import/Orderline.php|478aca1f7475ea4740cddb683b187fae
@@ -140,7 +140,7 @@
 /view/adminhtml/templates/home/cms.phtml|1b0ed623df7ed1aae77bfb2b9bf3e798
 /view/adminhtml/templates/home/main.phtml|0cde0e9ade6bfd0f4c401f2a7dd90ef7
 /view/adminhtml/templates/home/catalog_failed.phtml|6d8e41e81a995fd770c8d603314ed7f7
-/view/adminhtml/templates/home/catalog.phtml|b79c71ff0b95270011c4c8414e0bb27b
+/view/adminhtml/templates/home/catalog.phtml|bd697ac65bffc59c3a263ab74601d4a8
 /view/adminhtml/templates/home/cms_result.phtml|5b2da43459a4fdc52dea7792d0171420
 /view/adminhtml/templates/home/new.phtml|183f9ddbebdfa45b59003fb4f40b09ef
 /view/adminhtml/layout/lengow_help_index.xml|3a512bf3a3b90154aa4fee68dcf0ae8e

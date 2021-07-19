@@ -18,25 +18,25 @@ $stores = $block->getStores();
     <h2><?= $block->escapeHtml(__('Link your stores with Lengow')) ?></h2>
     <p><?= $block->escapeHtml(__('To retrieve all your existing configuration (orders, products...) directly link the following Magento stores with your Lengow catalogue(s).')) ?></p>
     <p>
-        <span><?php echo count($catalogList); ?></span>
+        <span><?= count($catalogList) ?></span>
         <?= $block->escapeHtml(__('catalogues are available and not linked to a cms in Lengow.')) ?>
     </p>
 </div>
 <div>
     <?php foreach ($stores as $store) { ?>
         <div class="lgw-catalog-select">
-            <label class="control-label" for="select_catalog<?php echo $store->getId(); ?>">
-                <?php echo $store->getName(); ?>
+            <label class="control-label" for="select_catalog<?= $store->getId() ?>">
+                <?= $store->getName() ?>
             </label>
             <select class="form-control lengow_select js-catalog-linked"
                     id="select_catalog"
-                    name="<?php echo $store->getId(); ?>"
+                    name="<?= $store->getId() ?>"
                     multiple="multiple"
                     data-placeholder=" <?= $block->escapeHtml(__('Select a catalogue')) ?>"
                     data-allow-clear="true">
                 <?php foreach ( $catalogList as $catalog ) : ?>
-                    <option value="<?php echo $catalog['value']; ?>">
-                        <?php echo $catalog['label']; ?>
+                    <option value="<?= $catalog['value'] ?>">
+                        <?= $catalog['label'] ?>
                     </option>
                 <?php endforeach; ?>
             </select>
