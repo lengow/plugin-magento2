@@ -286,7 +286,7 @@ class Quote extends MagentoQuote
      */
     public function checkProductStatus($product)
     {
-        if ($product->getStatus() === Status::STATUS_DISABLED
+        if ((int) $product->getStatus() === Status::STATUS_DISABLED
             && version_compare($this->_securityHelper->getMagentoVersion(), '2.2.0', '>=')
         ) {
             throw new LengowException(

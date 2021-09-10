@@ -49,7 +49,7 @@ class B2bTaxesApllicator implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        if ($this->backendSession->getIsFromlengow() && $this->backendSession->getIsLengowB2b() === 1) {
+        if ($this->backendSession->getIsFromlengow() && (int) $this->backendSession->getIsLengowB2b() === 1) {
             $items = $observer->getEvent()->getQuote()->getAllVisibleItems();
             foreach ($items as $item) {
                 $item->getProduct()->setTaxClassId(0);

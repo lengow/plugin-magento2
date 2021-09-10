@@ -541,7 +541,7 @@ class Import
                             $this->_dataHelper->setLogMessage('import failed - %1', [$decodedMessage]),
                             $this->_logOutput
                         );
-                        $errors[$store->getId()] = $errorMessage;
+                        $errors[(int) $store->getId()] = $errorMessage;
                         unset($errorMessage);
                         continue;
                     }
