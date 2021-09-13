@@ -60,9 +60,9 @@ class Sync extends AbstractHelper
     const LINK_TYPE_SUPPORT = 'support';
 
     /* Default plugin links */
-    const LINK_HELP_CENTER = 'https://support.lengow.com/kb/guide/en/magento-2-zIKNDzKdKk/Steps/25861';
-    const LINK_CHANGELOG = 'https://support.lengow.com/kb/guide/en/magento-2-zIKNDzKdKk/Steps/25861,113892,261840';
-    const LINK_UPDATE_GUIDE = 'https://support.lengow.com/kb/guide/en/magento-2-zIKNDzKdKk/Steps/25861,120332';
+    const LINK_HELP_CENTER = 'https://support.lengow.com/kb/guide/en/zIKNDzKdKk';
+    const LINK_CHANGELOG = 'https://support.lengow.com/kb/guide/en/o153qbn91H';
+    const LINK_UPDATE_GUIDE = 'https://support.lengow.com/kb/guide/en/zIKNDzKdKk/Steps/25861,120332';
     const LINK_SUPPORT = 'https://help-support.lengow.com/hc/en-us/requests/new';
 
     /* Api iso codes */

@@ -1215,7 +1215,7 @@ class Importorder extends AbstractModel
         $priceIncludeTax = $this->_taxConfig->priceIncludesTax($quote->getStore());
         $shippingIncludeTax = $this->_taxConfig->shippingPriceIncludesTax($quote->getStore());
         // if this order is b2b
-        if ($this->backendSession->getIsLengowB2b() === 1) {
+        if ((int) $this->backendSession->getIsLengowB2b() === 1) {
             $priceIncludeTax = true;
         }
         // add product in quote

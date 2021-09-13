@@ -569,7 +569,7 @@ class Product
             if (!empty($parentIds)) {
                 $parentProduct = $this->_getConfigurableProduct((int) $parentIds[0]);
                 if ($parentProduct
-                    && $this->_product->getVisibility() === ProductVisibility::VISIBILITY_NOT_VISIBLE
+                    && (int) $this->_product->getVisibility() === ProductVisibility::VISIBILITY_NOT_VISIBLE
                 ) {
                     $this->_getParentData = true;
                 }
