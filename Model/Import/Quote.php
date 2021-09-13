@@ -261,6 +261,7 @@ class Quote extends MagentoQuote
                 $magentoProduct->setPrice($price);
                 $magentoProduct->setSpecialPrice($price);
                 $magentoProduct->setFinalPrice($price);
+                $magentoProduct->setIsSuperMode(true);
                 // Warning Deprecated after magento 2.4.xx !
                 $magentoProduct->setPriceCalculation(false);
                 // option "import with product's title from Lengow"
@@ -269,7 +270,8 @@ class Quote extends MagentoQuote
                 $quoteItem = $this->_quoteItemFactory->create()
                     ->setProduct($magentoProduct)
                     ->setQty($product['quantity'])
-                    ->setConvertedPrice($price);
+                    ->setCustomPrice($price)
+                    ->setOriginalCustomPrice($price);
                 $this->addItem($quoteItem);
             }
         }

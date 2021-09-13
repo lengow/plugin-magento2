@@ -3,6 +3,7 @@ Version 1.3.2
 =============================================================
 
     - BugFix: [Export] Fix retrieval of parent data on child products
+    - BugFix: [Import] Replacing the special price with a custom price when importing orders
 
 =============================================================
 Version 1.3.1
