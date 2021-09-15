@@ -79,19 +79,19 @@ class Synchronize extends Action
             if ($synchro) {
                 $synchroMessage = $this->_dataHelper->setLogMessage(
                     'order successfully synchronised with Lengow webservice (ORDER ID %1)',
-                    [$lengowOrder->getData('order_sku')]
+                    [$lengowOrder->getData(LengowOrder::FIELD_ORDER_SKU)]
                 );
             } else {
                 $synchroMessage = $this->_dataHelper->setLogMessage(
                     'WARNING! Order could NOT be synchronised with Lengow webservice (ORDER ID %1)',
-                    [$lengowOrder->getData('order_sku')]
+                    [$lengowOrder->getData(LengowOrder::FIELD_ORDER_SKU)]
                 );
             }
             $this->_dataHelper->log(
                 DataHelper::CODE_IMPORT,
                 $synchroMessage,
                 false,
-                $lengowOrder->getData('marketplace_sku')
+                $lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_SKU)
             );
         }
         /** @var Redirect $resultRedirect */

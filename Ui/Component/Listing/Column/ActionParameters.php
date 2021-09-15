@@ -55,9 +55,9 @@ class ActionParameters extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if ($item['parameters']) {
+                if ($item[LengowAction::FIELD_PARAMETERS]) {
                     $return = '';
-                    $parameters = json_decode($item['parameters'], true);
+                    $parameters = json_decode($item[LengowAction::FIELD_PARAMETERS], true);
                     foreach ($parameters as $key => $value) {
                         if ($key === LengowAction::ARG_LINE || $key === LengowAction::ARG_ACTION_TYPE) {
                             continue;
@@ -70,7 +70,7 @@ class ActionParameters extends Column
                             ? ucfirst($key) . ': ' . $value . ' '
                             : '- ' . ucfirst($key) . ': ' . $value . ' ';
                     }
-                    $item['parameters'] = $return;
+                    $item[LengowAction::FIELD_PARAMETERS] = $return;
                 }
             }
         }

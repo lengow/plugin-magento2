@@ -26,21 +26,32 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Security as SecurityHelper;
+use Lengow\Connector\Model\Connector as LengowConnector;
 use Lengow\Connector\Model\Export as LengowExport;
+use Lengow\Connector\Model\Import as LengowImport;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Log as LengowLog;
 
 class Toolbox extends AbstractHelper
 {
     /* Toolbox GET params */
+    const PARAM_CREATED_FROM = 'created_from';
+    const PARAM_CREATED_TO = 'created_to';
+    const PARAM_DATE = 'date';
+    const PARAM_DAYS = 'days';
+    const PARAM_FORCE = 'force';
+    const PARAM_MARKETPLACE_NAME = 'marketplace_name';
+    const PARAM_MARKETPLACE_SKU = 'marketplace_sku';
+    const PARAM_PROCESS = 'process';
+    const PARAM_SHOP_ID = 'shop_id';
     const PARAM_TOKEN = 'token';
     const PARAM_TOOLBOX_ACTION = 'toolbox_action';
-    const PARAM_DATE = 'date';
     const PARAM_TYPE = 'type';
 
     /* Toolbox Actions */
     const ACTION_DATA = 'data';
     const ACTION_LOG = 'log';
+    const ACTION_ORDER = 'order';
 
     /* Data type */
     const DATA_TYPE_ALL = 'all';
@@ -52,6 +63,9 @@ class Toolbox extends AbstractHelper
     const DATA_TYPE_OPTION = 'option';
     const DATA_TYPE_SHOP = 'shop';
     const DATA_TYPE_SYNCHRONIZATION = 'synchronization';
+
+    /* Process type */
+    const PROCESS_TYPE_SYNC = 'sync';
 
     /* Toolbox Data  */
     const CHECKLIST = 'checklist';
@@ -100,6 +114,16 @@ class Toolbox extends AbstractHelper
     const CHECKSUM_FILE_DELETED = 'file_deleted';
     const LOGS = 'logs';
 
+    /* Toolbox order data  */
+    const ERRORS = 'errors';
+    const ERROR_MESSAGE = 'message';
+    const ERROR_CODE = 'code';
+
+    /* PHP extensions */
+    const PHP_EXTENSION_CURL = 'curl_version';
+    const PHP_EXTENSION_SIMPLEXML = 'simplexml_load_file';
+    const PHP_EXTENSION_JSON = 'json_decode';
+
     /* Toolbox files  */
     const FILE_CHECKMD5 = 'checkmd5.csv';
     const FILE_TEST = 'test.txt';
@@ -110,6 +134,7 @@ class Toolbox extends AbstractHelper
     private $toolboxActions = [
         self::ACTION_DATA,
         self::ACTION_LOG,
+        self::ACTION_ORDER,
     ];
 
     /**
@@ -143,6 +168,11 @@ class Toolbox extends AbstractHelper
     protected $lengowExport;
 
     /**
+     * @var LengowImport Lengow import instance
+     */
+    protected $lengowImport;
+
+    /**
      * @var LengowLog Lengow log instance
      */
     protected $lengowLog;
@@ -162,6 +192,7 @@ class Toolbox extends AbstractHelper
      * @param ImportHelper $importHelper Lengow import helper instance
      * @param SecurityHelper $securityHelper Lengow security helper instance
      * @param LengowExport $lengowExport Lengow export instance
+     * @param LengowImport $lengowImport Lengow import instance
      * @param LengowLog $lengowLog Lengow log instance
      * @param LengowOrder $lengowOrder Lengow order instance
      */
@@ -173,6 +204,7 @@ class Toolbox extends AbstractHelper
         ImportHelper $importHelper,
         SecurityHelper $securityHelper,
         LengowExport $lengowExport,
+        LengowImport $lengowImport,
         LengowLog $lengowLog,
         LengowOrder $lengowOrder
     ) {
@@ -182,6 +214,7 @@ class Toolbox extends AbstractHelper
         $this->importHelper = $importHelper;
         $this->securityHelper = $securityHelper;
         $this->lengowExport = $lengowExport;
+        $this->lengowImport = $lengowImport;
         $this->lengowLog = $lengowLog;
         $this->lengowOrder = $lengowOrder;
         parent::__construct($context);
@@ -230,6 +263,27 @@ class Toolbox extends AbstractHelper
     }
 
     /**
+     * Start order synchronization based on specific parameters
+     *
+     * @param array $params synchronization parameters
+     *
+     * @return array
+     */
+    public function syncOrders($params = [])
+    {
+        // get all params for order synchronization
+        $params = $this->filterParamsForSync($params);
+        $this->lengowImport->init($params);
+        $result = $this->lengowImport->exec();
+        // if global error return error message and request http code
+        if (isset($result[LengowImport::ERRORS][0])) {
+            return $this->generateErrorReturn(LengowConnector::CODE_403, $result[LengowImport::ERRORS][0]);
+        }
+        unset($result[LengowImport::ERRORS]);
+        return $result;
+    }
+
+    /**
      * Is toolbox action
      *
      * @param string $action toolbox action
@@ -248,7 +302,7 @@ class Toolbox extends AbstractHelper
      */
     public static function isCurlActivated()
     {
-        return function_exists('curl_version');
+        return function_exists(self::PHP_EXTENSION_CURL);
     }
 
     /**
@@ -472,7 +526,7 @@ class Toolbox extends AbstractHelper
      */
     private function isSimpleXMLActivated()
     {
-        return function_exists('simplexml_load_file');
+        return function_exists(self::PHP_EXTENSION_SIMPLEXML);
     }
 
     /**
@@ -482,7 +536,7 @@ class Toolbox extends AbstractHelper
      */
     private function isJsonActivated()
     {
-        return function_exists('json_decode');
+        return function_exists(self::PHP_EXTENSION_JSON);
     }
 
     /**
@@ -504,5 +558,57 @@ class Toolbox extends AbstractHelper
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    /**
+     * Filter parameters for order synchronization
+     *
+     * @param array $params synchronization params
+     *
+     * @return array
+     */
+    private function filterParamsForSync($params = [])
+    {
+        $paramsFiltered = [LengowImport::PARAM_TYPE => LengowImport::TYPE_TOOLBOX];
+        if (isset(
+            $params[self::PARAM_MARKETPLACE_SKU],
+            $params[self::PARAM_MARKETPLACE_NAME],
+            $params[self::PARAM_SHOP_ID]
+        )) {
+            // get all parameters to synchronize a specific order
+            $paramsFiltered[LengowImport::PARAM_MARKETPLACE_SKU] = $params[self::PARAM_MARKETPLACE_SKU];
+            $paramsFiltered[LengowImport::PARAM_MARKETPLACE_NAME] = $params[self::PARAM_MARKETPLACE_NAME];
+            $paramsFiltered[LengowImport::PARAM_STORE_ID] = (int) $params[self::PARAM_SHOP_ID];
+        } elseif (isset($params[self::PARAM_CREATED_FROM], $params[self::PARAM_CREATED_TO])) {
+            // get all parameters to synchronize over a fixed period
+            $paramsFiltered[LengowImport::PARAM_CREATED_FROM] = $params[self::PARAM_CREATED_FROM];
+            $paramsFiltered[LengowImport::PARAM_CREATED_TO] = $params[self::PARAM_CREATED_TO];
+        } elseif (isset($params[self::PARAM_DAYS])) {
+            // get all parameters to synchronize over a time interval
+            $paramsFiltered[LengowImport::PARAM_DAYS] = (int) $params[self::PARAM_DAYS];
+        }
+        // force order synchronization by removing pending errors
+        if (isset($params[self::PARAM_FORCE])) {
+            $paramsFiltered[LengowImport::PARAM_FORCE_SYNC] = (bool) $params[self::PARAM_FORCE];
+        }
+        return $paramsFiltered;
+    }
+
+    /**
+     * Generates an error return for the Toolbox webservice
+     *
+     * @param integer $httpCode request http code
+     * @param string $error error message
+     *
+     * @return array
+     */
+    private function generateErrorReturn($httpCode, $error)
+    {
+        return [
+            self::ERRORS => [
+                self::ERROR_MESSAGE => $this->dataHelper->decodeLogMessage($error, false),
+                self::ERROR_CODE => $httpCode,
+            ],
+        ];
     }
 }

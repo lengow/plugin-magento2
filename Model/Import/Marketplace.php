@@ -30,8 +30,10 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Exception as LengowException;
+use Lengow\Connector\Model\Import as LengowImport;
 use Lengow\Connector\Model\Import\Action as LengowAction;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
+use Lengow\Connector\Model\Import\Ordererror as LengowOrderError;
 use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
 
 /**
@@ -347,8 +349,8 @@ class Marketplace extends AbstractModel
             if ($orderLineId !== null) {
                 $params[LengowAction::ARG_LINE] = $orderLineId;
             }
-            $params['marketplace_order_id'] = $lengowOrder->getData('marketplace_sku');
-            $params['marketplace'] = $lengowOrder->getData('marketplace_name');
+            $params[LengowImport::ARG_MARKETPLACE_ORDER_ID] = $lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_SKU);
+            $params[LengowImport::ARG_MARKETPLACE] = $lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_NAME);
             $params[LengowAction::ARG_ACTION_TYPE] = $action;
             // checks whether the action is already created to not return an action
             $canSendAction = $this->_orderAction->canSendAction($params, $order);
@@ -359,17 +361,18 @@ class Marketplace extends AbstractModel
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (\Exception $e) {
-            $errorMessage = 'Magento error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
+            $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
         }
         if (isset($errorMessage)) {
-            if ((int) $lengowOrder->getData('order_process_state') !== $lengowOrder->getOrderProcessState('closed')) {
-                $lengowOrder->updateOrder(['is_in_error' => 1]);
+            $orderProcessState = (int) $lengowOrder->getData(LengowOrder::FIELD_ORDER_PROCESS_STATE);
+            if ($orderProcessState !== $lengowOrder->getOrderProcessState(LengowOrder::STATE_CLOSED)) {
+                $lengowOrder->updateOrder([LengowOrder::FIELD_IS_IN_ERROR => 1]);
                 $orderError = $this->_orderErrorFactory->create();
                 $orderError->createOrderError(
                     [
-                        'order_lengow_id' => $lengowOrder->getId(),
-                        'message' => $errorMessage,
-                        'type' => 'send',
+                        LengowOrderError::FIELD_ORDER_LENGOW_ID => $lengowOrder->getId(),
+                        LengowOrderError::FIELD_MESSAGE => $errorMessage,
+                        LengowOrderError::FIELD_TYPE => LengowOrderError::TYPE_ERROR_SEND,
                     ]
                 );
                 unset($orderError);
@@ -379,7 +382,7 @@ class Marketplace extends AbstractModel
                 DataHelper::CODE_ACTION,
                 $this->_dataHelper->setLogMessage('order action failed - %1', [$decodedMessage]),
                 false,
-                $lengowOrder->getData('marketplace_sku')
+                $lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_SKU)
             );
             return false;
         }
@@ -414,10 +417,10 @@ class Marketplace extends AbstractModel
      */
     protected function _checkOrderData($lengowOrder)
     {
-        if ($lengowOrder->getData('marketplace_sku') === '') {
+        if ($lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_SKU) === '') {
             throw new LengowException($this->_dataHelper->setLogMessage('marketplace order reference is required'));
         }
-        if ($lengowOrder->getData('marketplace_name') === '') {
+        if ($lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_NAME) === '') {
             throw new LengowException($this->_dataHelper->setLogMessage('marketplace name is required'));
         }
     }
@@ -473,8 +476,8 @@ class Marketplace extends AbstractModel
                 case LengowAction::ARG_CARRIER_NAME:
                 case LengowAction::ARG_SHIPPING_METHOD:
                 case LengowAction::ARG_CUSTOM_CARRIER:
-                    if ((string) $lengowOrder->getData('carrier') !== '') {
-                        $carrierCode = (string) $lengowOrder->getData('carrier');
+                    if ((string) $lengowOrder->getData(LengowOrder::FIELD_CARRIER) !== '') {
+                        $carrierCode = (string) $lengowOrder->getData(LengowOrder::FIELD_CARRIER);
                     } else {
                         $tracks = $shipment->getAllTracks();
                         if (!empty($tracks)) {
@@ -491,7 +494,7 @@ class Marketplace extends AbstractModel
                     break;
                 case LengowAction::ARG_SHIPPING_DATE:
                 case LengowAction::ARG_DELIVERY_DATE:
-                    $params[$arg] = $this->_timezone->date()->format('c');
+                    $params[$arg] = $this->_timezone->date()->format(DataHelper::DATE_ISO_8601);
                     break;
                 default:
                     if (isset($actions['optional_args']) && in_array($arg, $actions['optional_args'], true)) {

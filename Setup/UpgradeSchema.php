@@ -24,6 +24,10 @@ use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UpgradeSchemaInterface;
+use Lengow\Connector\Model\Import\Action as LengowAction;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
+use Lengow\Connector\Model\Import\Ordererror as LengowOrderError;
+use Lengow\Connector\Model\Log as LengowLog;
 
 class UpgradeSchema implements UpgradeSchemaInterface
 {
@@ -59,8 +63,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
         // deletion of the attribute "on update CURRENT_TIMESTAMP" created automatically by Magento
         if (version_compare($context->getVersion(), '1.2.0', '<')) {
             // remove attribute for table lengow_action
-            $tableName = $setup->getTable('lengow_action');
-            $columnName = 'created_at';
+            $tableName = $setup->getTable(LengowAction::TABLE_ACTION);
+            $columnName = LengowAction::FIELD_CREATED_AT;
             if ($setup->getConnection()->tableColumnExists($tableName, $columnName)) {
                 $setup->getConnection()->modifyColumn(
                     $tableName,
@@ -74,8 +78,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 );
             }
             // remove attribute and index for table lengow_log
-            $tableName = $setup->getTable('lengow_log');
-            $columnName = 'date';
+            $tableName = $setup->getTable(LengowLog::TABLE_LOG);
+            $columnName = LengowLog::FIELD_DATE;
             if ($setup->getConnection()->tableColumnExists($tableName, $columnName)) {
                 $setup->getConnection()->dropIndex($tableName, $setup->getIdxName($tableName, [$columnName]));
                 $setup->getConnection()->modifyColumn(
@@ -90,8 +94,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 );
             }
             // remove attribute and index for table lengow_order
-            $tableName = $setup->getTable('lengow_order');
-            $columnName = 'order_date';
+            $tableName = $setup->getTable(LengowOrder::TABLE_ORDER);
+            $columnName = LengowOrder::FIELD_ORDER_DATE;
             if ($setup->getConnection()->tableColumnExists($tableName, $columnName)) {
                 $setup->getConnection()->dropIndex($tableName, $setup->getIdxName($tableName, [$columnName]));
                 $setup->getConnection()->modifyColumn(
@@ -105,7 +109,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     ]
                 );
             }
-            $columnName = 'created_at';
+            $columnName = LengowOrder::FIELD_CREATED_AT;
             if ($setup->getConnection()->tableColumnExists($tableName, $columnName)) {
                 $setup->getConnection()->modifyColumn(
                     $tableName,
@@ -119,8 +123,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 );
             }
             // remove attribute for table lengow_order_error
-            $tableName = $setup->getTable('lengow_order_error');
-            $columnName = 'created_at';
+            $tableName = $setup->getTable(LengowOrderError::TABLE_ORDER_ERROR);
+            $columnName = LengowOrderError::FIELD_CREATED_AT;
             if ($setup->getConnection()->tableColumnExists($tableName, $columnName)) {
                 $setup->getConnection()->modifyColumn(
                     $tableName,
@@ -136,10 +140,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
         }
 
         if (version_compare($context->getVersion(), '1.2.2', '<')) {
-            $tableName = $setup->getTable('lengow_order');
+            $tableName = $setup->getTable(LengowOrder::TABLE_ORDER);
             if ((bool) $setup->getConnection()->showTableStatus($tableName)) {
                 // add order_types attribute in table lengow_order
-                $columnName = 'order_types';
+                $columnName = LengowOrder::FIELD_ORDER_TYPES;
                 if (!$setup->getConnection()->tableColumnExists($tableName, $columnName)) {
                     $setup->getConnection()
                         ->addColumn(
@@ -149,7 +153,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                                 'type' => Table::TYPE_TEXT,
                                 'nullable' => true,
                                 'default' => null,
-                                'after' => 'order_item',
+                                'after' => LengowOrder::FIELD_ORDER_ITEM,
                                 'comment' => 'Order Types',
                             ]
                         );
@@ -159,9 +163,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
         }
 
         if (version_compare($context->getVersion(), '1.2.3', '<')) {
-            $tableName = $setup->getTable('lengow_order');
+            $tableName = $setup->getTable(LengowOrder::TABLE_ORDER);
             if ((bool) $setup->getConnection()->showTableStatus($tableName)) {
-                $columnName = 'customer_vat_number';
+                $columnName = LengowOrder::FIELD_CUSTOMER_VAT_NUMBER;
                 if (!$setup->getConnection()->tableColumnExists($tableName, $columnName)) {
                     $setup->getConnection()
                         ->addColumn(
@@ -171,7 +175,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                                 'type' => Table::TYPE_TEXT,
                                 'nullable' => true,
                                 'default' => null,
-                                'after' => 'total_paid',
+                                'after' => LengowOrder::FIELD_TOTAL_PAID,
                                 'comment' => 'Customer Vat Number'
                             ]
                         );

@@ -96,8 +96,8 @@ class LaunchExport
                         $export->exec();
                         unset($export);
                     } catch (\Exception $e) {
-                        $errorMessage = 'Magento error: "' . $e->getMessage()
-                            . '" ' . $e->getFile() . ' line ' . $e->getLine();
+                        $errorMessage = '[Magento error]: "' . $e->getMessage()
+                            . '" ' . $e->getFile() . ' | ' . $e->getLine();
                         $this->_dataHelper->log(DataHelper::CODE_EXPORT, $errorMessage);
                     }
                 }

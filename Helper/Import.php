@@ -32,6 +32,7 @@ use Lengow\Connector\Model\Import\Marketplace as LengowMarketplace;
 use Lengow\Connector\Model\Import\MarketplaceFactory as LengowMarketplaceFactory;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
+use Lengow\Connector\Model\Import\Ordererror as LengowOrderError;
 use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
 use Lengow\Connector\Model\Exception as LengowException;
 
@@ -355,13 +356,17 @@ class Import extends AbstractHelper
             );
             $mailBody = '<h2>' . $subject . '</h2><p><ul>';
             foreach ($errors as $error) {
-                $order = $this->_dataHelper->decodeLogMessage('Order %1', true, [$error['marketplace_sku']]);
-                $message = $error['message'] !== ''
-                    ? $this->_dataHelper->decodeLogMessage($error['message'])
+                $order = $this->_dataHelper->decodeLogMessage(
+                    'Order %1',
+                    true,
+                    [$error[LengowOrder::FIELD_MARKETPLACE_SKU]]
+                );
+                $message = $error[LengowOrderError::FIELD_MESSAGE] !== ''
+                    ? $this->_dataHelper->decodeLogMessage($error[LengowOrderError::FIELD_MESSAGE])
                     : $support;
                 $mailBody .= '<li>' . $order . ' - ' . $message . '</li>';
-                $orderError = $this->_orderErrorFactory->create()->load((int) $error['id']);
-                $orderError->updateOrderError(['mail' => 1]);
+                $orderError = $this->_orderErrorFactory->create()->load((int) $error[LengowOrderError::FIELD_ID]);
+                $orderError->updateOrderError([LengowOrderError::FIELD_MAIL => 1]);
                 unset($orderError, $order, $message);
             }
             $mailBody .= '</ul></p>';

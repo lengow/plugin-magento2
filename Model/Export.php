@@ -68,19 +68,9 @@ class Export
     /* Legacy export GET params for old versions */
     const PARAM_LEGACY_LANGUAGE = 'locale';
 
-    /**
-     * @var string manual export type
-     */
+    /* Export types */
     const TYPE_MANUAL = 'manual';
-
-    /**
-     * @var string cron export type
-     */
     const TYPE_CRON = 'cron';
-
-    /**
-     * @var string Magento cron export type
-     */
     const TYPE_MAGENTO_CRON = 'magento cron';
 
     /**
@@ -499,7 +489,7 @@ class Export
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (\Exception $e) {
-            $errorMessage = 'Magento error: "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
         }
         if (isset($errorMessage)) {
             $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);

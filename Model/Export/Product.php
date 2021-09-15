@@ -832,10 +832,10 @@ class Product
             }
         }
         $discountStartDate = $startTimestamp !== 0
-            ? $this->_timezone->date($startTimestamp)->format('Y-m-d H:i:s')
+            ? $this->_timezone->date($startTimestamp)->format(DataHelper::DATE_FULL)
             : '';
         $discountEndDate = $endTimestamp !== 0
-            ? $this->_timezone->date($endTimestamp)->format('Y-m-d H:i:s')
+            ? $this->_timezone->date($endTimestamp)->format(DataHelper::DATE_FULL)
             : '';
         $discounts = [
             'discount_amount' => $discountAmount,

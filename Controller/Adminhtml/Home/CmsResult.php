@@ -200,6 +200,7 @@ class CmsResult extends Action
         );
         if (!$cmsConnected) {
             $this->configHelper->resetAccessIds();
+            $this->configHelper->resetAuthorizationToken();
         }
         return $cmsConnected;
     }

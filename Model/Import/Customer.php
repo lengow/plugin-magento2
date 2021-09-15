@@ -43,19 +43,9 @@ use Lengow\Connector\Helper\Data as DataHelper;
  */
 class Customer extends MagentoResourceCustomer
 {
-    /**
-     * @var string code ISO A2 for France
-     */
+    /* Country iso codes */
     const ISO_A2_FR = 'FR';
-
-    /**
-     * @var string code ISO A2 for Spain
-     */
     const ISO_A2_ES = 'ES';
-
-    /**
-     * @var string code ISO A2 for Italy
-     */
     const ISO_A2_IT = 'IT';
 
     /**

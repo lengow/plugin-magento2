@@ -122,25 +122,22 @@ class Index extends Action
                         case 're_import':
                             $orderLengowId = $this->getRequest()->getParam('order_lengow_id');
                             if ($orderLengowId !== null) {
-                                $result = $this->_lengowOrderFactory->create()->reImportOrder((int) $orderLengowId);
+                                $this->_lengowOrderFactory->create()->reImportOrder((int) $orderLengowId);
                                 $information = $this->getInformation();
-                                $information['messages'] = $result;
                                 return $this->_resultJsonFactory->create()->setData(['informations' => $information]);
                             }
                             break;
                         case 're_send':
                             $orderLengowId = $this->getRequest()->getParam('order_lengow_id');
                             if ($orderLengowId !== null) {
-                                $result = $this->_lengowOrderFactory->create()->reSendOrder((int) $orderLengowId);
+                                $this->_lengowOrderFactory->create()->reSendOrder((int) $orderLengowId);
                                 $information = $this->getInformation();
-                                $information['messages'] = $result;
                                 return $this->_resultJsonFactory->create()->setData(['informations' => $information]);
                             }
                             break;
                         case 'load_information':
                             $information = $this->getInformation();
                             return $this->_resultJsonFactory->create()->setData(['informations' => $information]);
-                            break;
                     }
                 }
             } else {
@@ -161,36 +158,36 @@ class Index extends Action
     {
         $messages = [];
         // if global error return this
-        if (isset($results['error'][0])) {
-            $messages[] = $this->_dataHelper->decodeLogMessage($results['error'][0]);
+        if (isset($results[LengowImport::ERRORS][0])) {
+            $messages[] = $this->_dataHelper->decodeLogMessage($results[LengowImport::ERRORS][0]);
             return $messages;
         }
-        if (isset($results['order_new']) && $results['order_new'] > 0) {
+        if (isset($results[LengowImport::NUMBER_ORDERS_CREATED]) && $results[LengowImport::NUMBER_ORDERS_CREATED] > 0) {
             $messages[] = $this->_dataHelper->decodeLogMessage(
                 '%1 order(s) imported',
                 true,
-                [$results['order_new']]
+                [$results[LengowImport::NUMBER_ORDERS_CREATED]]
             );
         }
-        if (isset($results['order_update']) && $results['order_update'] > 0) {
+        if (isset($results[LengowImport::NUMBER_ORDERS_UPDATED]) && $results[LengowImport::NUMBER_ORDERS_UPDATED] > 0) {
             $messages[] = $this->_dataHelper->decodeLogMessage(
                 '%1 order(s) updated',
                 true,
-                [$results['order_update']]
+                [$results[LengowImport::NUMBER_ORDERS_UPDATED]]
             );
         }
-        if (isset($results['order_error']) && $results['order_error'] > 0) {
+        if (isset($results[LengowImport::NUMBER_ORDERS_FAILED]) && $results[LengowImport::NUMBER_ORDERS_FAILED] > 0) {
             $messages[] = $this->_dataHelper->decodeLogMessage(
                 '%1 order(s) with errors',
                 true,
-                [$results['order_error']]
+                [$results[LengowImport::NUMBER_ORDERS_FAILED]]
             );
         }
         if (empty($messages)) {
             $messages[] = $this->_dataHelper->decodeLogMessage('No new notification on order');
         }
-        if (isset($results['error'])) {
-            foreach ($results['error'] as $storeId => $values) {
+        if (isset($results[LengowImport::ERRORS])) {
+            foreach ($results[LengowImport::ERRORS] as $storeId => $values) {
                 if ((int) $storeId > 0) {
                     try {
                         $store = $this->_storeManager->getStore($storeId);

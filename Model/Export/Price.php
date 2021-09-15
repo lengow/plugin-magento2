@@ -25,6 +25,7 @@ use Magento\CatalogRule\Model\Rule as CatalogueRule;
 use Magento\Framework\Pricing\PriceCurrencyInterface as PriceCurrency;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Lengow\Connector\Helper\Data as DataHelper;
 
 /**
  * Lengow export price
@@ -293,10 +294,10 @@ class Price
             $startTimestamp = (int) $catalogueRules[0]['from_time'];
             $endTimestamp = (int) $catalogueRules[0]['to_time'];
             $discountStartDate = $startTimestamp !== 0
-                ? $this->_timezone->date($startTimestamp)->format('Y-m-d H:i:s')
+                ? $this->_timezone->date($startTimestamp)->format(DataHelper::DATE_FULL)
                 : '';
             $discountEndDate = $endTimestamp !== 0
-                ? $this->_timezone->date($endTimestamp)->format('Y-m-d H:i:s')
+                ? $this->_timezone->date($endTimestamp)->format(DataHelper::DATE_FULL)
                 : '';
         }
         return [

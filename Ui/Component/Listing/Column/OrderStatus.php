@@ -24,6 +24,7 @@ use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Ui\Component\Listing\Columns\Column;
 use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class OrderStatus extends Column
 {
@@ -72,8 +73,9 @@ class OrderStatus extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if ($item['order_id'] !== null) {
-                    $item['order_status'] = $this->_orderRepository->get($item['order_id'])->getStatus();
+                if ($item[LengowOrder::FIELD_ORDER_ID] !== null) {
+                    $item['order_status'] = $this->_orderRepository->get($item[LengowOrder::FIELD_ORDER_ID])
+                        ->getStatus();
                 }
             }
         }

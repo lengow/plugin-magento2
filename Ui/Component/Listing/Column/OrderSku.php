@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Ui\Component\Listing\Column;
 
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\UrlInterface;
@@ -72,10 +73,13 @@ class OrderSku extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if ($item['order_sku'] !== null) {
-                    $item['order_sku'] = '<a href="' .
-                        $this->_urlBuilder->getUrl('sales/order/view', ['order_id' => $item['order_id']]) . '">
-                        ' . $item['order_sku'] . '</a>';
+                if ($item[LengowOrder::FIELD_ORDER_SKU] !== null) {
+                    $href = $this->_urlBuilder->getUrl(
+                        'sales/order/view',
+                        ['order_id' => $item[LengowOrder::FIELD_ORDER_ID]]
+                    );
+                    $item[LengowOrder::FIELD_ORDER_SKU] = '<a href="' . $href . '">'
+                        . $item[LengowOrder::FIELD_ORDER_SKU] . '</a>';
                 }
             }
         }

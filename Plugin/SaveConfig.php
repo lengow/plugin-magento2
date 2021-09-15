@@ -102,6 +102,12 @@ class SaveConfig
                         if (isset($keyParams[ConfigHelper::PARAM_UPDATE]) && $keyParams[ConfigHelper::PARAM_UPDATE]) {
                             $this->configHelper->set(ConfigHelper::LAST_UPDATE_SETTING, time());
                         }
+                        // reset the authorization token when a configuration parameter is changed
+                        if (isset($keyParams[ConfigHelper::PARAM_RESET_TOKEN])
+                            && $keyParams[ConfigHelper::PARAM_RESET_TOKEN]
+                        ) {
+                            $this->configHelper->resetAuthorizationToken();
+                        }
                     }
                 }
             }

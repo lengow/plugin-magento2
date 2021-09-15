@@ -22,6 +22,7 @@ namespace Lengow\Connector\Controller\Adminhtml\Order;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 
 class MassReSend extends Action
@@ -63,8 +64,8 @@ class MassReSend extends Action
             $allLengowOrderIds = $this->_orderFactory->create()->getAllLengowOrderIds();
             if ($allLengowOrderIds) {
                 foreach ($allLengowOrderIds as $lengowOrderId) {
-                    if (!in_array($lengowOrderId['id'], $excludedIds, true)) {
-                        $ids[] = $lengowOrderId['id'];
+                    if (!in_array($lengowOrderId[LengowOrder::FIELD_ID], $excludedIds, true)) {
+                        $ids[] = $lengowOrderId[LengowOrder::FIELD_ID];
                     }
                 }
             }

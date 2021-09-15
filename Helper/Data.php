@@ -51,6 +51,15 @@ class Data extends AbstractHelper
     const ISO_CODE_FR = 'fr_FR';
     const ISO_CODE_DE = 'de_DE';
 
+    /* Field database actions */
+    const FIELD_REQUIRED = 'required';
+    const FIELD_CAN_BE_UPDATED = 'updated';
+
+    /* Date formats */
+    const DATE_FULL = 'Y-m-d H:i:s';
+    const DATE_DAY = 'Y-m-d';
+    const DATE_ISO_8601 = 'c';
+
     /**
      * @var string default iso code
      */
@@ -139,12 +148,17 @@ class Data extends AbstractHelper
         $finalMessage = '' . (empty($marketplaceSku) ? '' : 'order ' . $marketplaceSku . ' : ');
         $finalMessage .= $decodedMessage;
         if ($display) {
-            $date = $this->_timezone->date()->format('Y-m-d H:i:s');
+            $date = $this->_timezone->date()->format(self::DATE_FULL);
             print_r($date . ' - [' . $category . '] ' . $finalMessage . '<br />');
             flush();
         }
         $log = $this->_logFactory->create();
-        return $log->createLog(['message' => $finalMessage, 'category' => $category]);
+        return $log->createLog(
+            [
+                LengowLog::FIELD_MESSAGE => $finalMessage,
+                LengowLog::FIELD_CATEGORY => $category,
+            ]
+        );
     }
 
     /**
@@ -216,7 +230,7 @@ class Data extends AbstractHelper
         if ($nbDays <= 0) {
             $nbDays = LengowLog::LOG_LIFE;
         }
-        $table = $this->_resource->getTableName('lengow_log');
+        $table = $this->_resource->getTableName(LengowLog::TABLE_LOG);
         $query = 'DELETE FROM ' . $table . ' WHERE `date` < DATE_SUB(NOW(),INTERVAL ' . $nbDays . ' DAY)';
         $connection = $this->_resource->getConnection(ResourceConnection::DEFAULT_CONNECTION);
         $connection->query($query);

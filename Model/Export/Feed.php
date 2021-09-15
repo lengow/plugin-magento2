@@ -32,6 +32,17 @@ use Lengow\Connector\Model\Export\FileFactory as LengowFileFactory;
  */
 class Feed
 {
+    /* Feed formats */
+    const FORMAT_CSV = 'csv';
+    const FORMAT_YAML = 'yaml';
+    const FORMAT_XML = 'xml';
+    const FORMAT_JSON = 'json';
+
+    /* Content types */
+    const HEADER = 'header';
+    const BODY = 'body';
+    const FOOTER = 'footer';
+
     /**
      * @var string  CSV protection
      */
@@ -46,41 +57,6 @@ class Feed
      * @var string end of line
      */
     const EOL = "\r\n";
-
-    /**
-     * @var string csv format.
-     */
-    const FORMAT_CSV = 'csv';
-
-    /**
-     * @var string yaml format.
-     */
-    const FORMAT_YAML = 'yaml';
-
-    /**
-     * @var string xml format.
-     */
-    const FORMAT_XML = 'xml';
-
-    /**
-     * @var string json format.
-     */
-    const FORMAT_JSON = 'json';
-
-    /**
-     * @var string header content.
-     */
-    const HEADER = 'header';
-
-    /**
-     * @var string body content.
-     */
-    const BODY = 'body';
-
-    /**
-     * @var string footer content.
-     */
-    const FOOTER = 'footer';
 
     /**
      * @var DriverFile Magento driver file instance
@@ -426,15 +402,17 @@ class Feed
             foreach ($listFiles as $filePath) {
                 $fileName = str_replace($this->_folderPath . '/', '', $filePath);
                 if (preg_match('/^' . $this->_fileName . '\.[\d]{10}/', $fileName)) {
-                    $fileModified = $this->_dateTime->gmtDate('Y-m-d H:i:s', filemtime($filePath));
+                    $fileModified = $this->_dateTime->gmtDate(DataHelper::DATE_FULL, filemtime($filePath));
                     $fileModifiedDatetime = new \DateTime($fileModified);
                     $fileModifiedDatetime->add(new \DateInterval('P5D'));
-                    if ($this->_dateTime->gmtDate('Y-m-d') > $fileModifiedDatetime->format('Y-m-d')) {
+                    $fileModifiedDateDay = $fileModifiedDatetime->format(DataHelper::DATE_DAY);
+                    if ($this->_dateTime->gmtDate(DataHelper::DATE_DAY) > $fileModifiedDateDay) {
                         $this->_driverFile->deleteFile($filePath);
                     }
                     $fileModifiedDatetime = new \DateTime($fileModified);
                     $fileModifiedDatetime->add(new \DateInterval('PT20S'));
-                    if ($this->_dateTime->gmtDate('Y-m-d H:i:s') < $fileModifiedDatetime->format('Y-m-d H:i:s')) {
+                    $fileModifiedDateFull = $fileModifiedDatetime->format(DataHelper::DATE_FULL);
+                    if ($this->_dateTime->gmtDate(DataHelper::DATE_FULL) < $fileModifiedDateFull) {
                         return true;
                     }
                 }

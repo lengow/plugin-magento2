@@ -101,12 +101,12 @@ class Index extends Action
          * List params
          * string  sync                Number of products exported
          * integer days                Import period
-         * integer limit               Number of orders to import
+         * integer limit               Maximum number of new orders created
          * integer store_id            Store id to import
          * string  marketplace_sku     Lengow marketplace order id to import
          * string  marketplace_name    Lengow marketplace name to import
-         * string  created_from        import of orders since
-         * string  created_to          import of orders until
+         * string  created_from        Import of orders since
+         * string  created_to          Import of orders until
          * integer delivery_address_id Lengow delivery address id to import
          * boolean debug_mode          Activate debug mode
          * boolean log_output          See logs (1) or not (0)
@@ -135,6 +135,10 @@ class Index extends Action
                         LengowImport::PARAM_LOG_OUTPUT => $logOutput,
                     ];
                     // check if the GET parameters are available
+                    if ($this->getRequest()->getParam(LengowImport::PARAM_FORCE_SYNC) !== null) {
+                        $params[LengowImport::PARAM_FORCE_SYNC] = (bool) $this->getRequest()
+                            ->getParam(LengowImport::PARAM_FORCE_SYNC);
+                    }
                     if ($this->getRequest()->getParam(LengowImport::PARAM_DEBUG_MODE) !== null) {
                         $params[LengowImport::PARAM_DEBUG_MODE] = (bool) $this->getRequest()
                             ->getParam(LengowImport::PARAM_DEBUG_MODE);

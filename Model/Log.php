@@ -24,12 +24,23 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\DateTime;
-use Lengow\Connector\Helper\Toolbox as ToolboxHelper;
+use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\ResourceModel\Log as LengowLogResource;
 use Lengow\Connector\Model\ResourceModel\Log\CollectionFactory as LengowLogCollectionFactory;
 
 class Log extends AbstractModel
 {
+    /**
+     * @var string Lengow log table name
+     */
+    const TABLE_LOG = 'lengow_log';
+
+    /* Action fields */
+    const FIELD_ID = 'id';
+    const FIELD_DATE = 'date';
+    const FIELD_CATEGORY = 'category';
+    const FIELD_MESSAGE = 'message';
+
     /* Log params for export */
     const LOG_DATE = 'date';
     const LOG_LINK = 'link';
@@ -40,29 +51,35 @@ class Log extends AbstractModel
     const LOG_LIFE = 20;
 
     /**
-     * @var array $_fieldList field list for the table lengow_log
+     * @var array field list for the table lengow_log
      * required => Required fields when creating registration
      * update   => Fields allowed when updating registration
      */
-    protected $_fieldList = [
-        'message' => ['required' => true, 'updated' => false],
-        'category' => ['required' => true, 'updated' => false],
+    private $fieldList = [
+        self::FIELD_MESSAGE => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_CATEGORY => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
     ];
 
     /**
      * @var DateTime Magento datetime instance
      */
-    protected $_dateTime;
+    private $dateTime;
 
     /**
      * @var ResourceConnection Magento resource connection instance
      */
-    protected $resourceConnection;
+    private $resourceConnection;
 
     /**
      * @var LengowLogCollectionFactory Lengow log collection factory
      */
-    protected $logCollection;
+    private $lengowLogCollection;
 
     /**
      * Constructor
@@ -71,18 +88,18 @@ class Log extends AbstractModel
      * @param Registry $registry Magento registry instance
      * @param DateTime $dateTime Magento datetime instance
      * @param ResourceConnection $resourceConnection Magento resource connection instance
-     * @param LengowLogCollectionFactory $logCollection Lengow log collection factory
+     * @param LengowLogCollectionFactory $lengowLogCollection Lengow log collection factory
      */
     public function __construct(
         Context $context,
         Registry $registry,
         DateTime $dateTime,
         ResourceConnection $resourceConnection,
-        LengowLogCollectionFactory $logCollection
+        LengowLogCollectionFactory $lengowLogCollection
     ) {
-        $this->_dateTime = $dateTime;
+        $this->dateTime = $dateTime;
         $this->resourceConnection = $resourceConnection;
-        $this->logCollection = $logCollection;
+        $this->lengowLogCollection = $lengowLogCollection;
         parent::__construct($context, $registry);
     }
 
@@ -105,15 +122,15 @@ class Log extends AbstractModel
      */
     public function createLog($params = [])
     {
-        foreach ($this->_fieldList as $key => $value) {
-            if (!array_key_exists($key, $params) && $value['required']) {
+        foreach ($this->fieldList  as $key => $value) {
+            if (!array_key_exists($key, $params) && $value[DataHelper::FIELD_REQUIRED]) {
                 return false;
             }
         }
         foreach ($params as $key => $value) {
             $this->setData($key, $value);
         }
-        $this->setData('date', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
+        $this->setData(self::FIELD_DATE, $this->dateTime->gmtDate(DataHelper::DATE_FULL));
         try {
             return $this->save();
         } catch (\Exception $e) {
@@ -130,9 +147,9 @@ class Log extends AbstractModel
      */
     public function getLogsByDate($date)
     {
-        $collection = $this->logCollection->create()
+        $collection = $this->lengowLogCollection->create()
             ->addFieldToFilter(
-                'date',
+                self::FIELD_DATE,
                 [
                     'from' => date('Y-m-d 00:00:00', strtotime($date)),
                     'to' => date('Y-m-d 23:59:59', strtotime($date)),
@@ -151,7 +168,7 @@ class Log extends AbstractModel
      */
     public function logDateIsAvailable($date)
     {
-        $table = $this->resourceConnection->getTableName('lengow_log');
+        $table = $this->resourceConnection->getTableName(self::TABLE_LOG);
         $query = 'SELECT COUNT(*) FROM ' . $table . '
             WHERE `date` >= "' . date('Y-m-d 00:00:00', strtotime($date)) . '"
             AND `date` <= "' . date('Y-m-d 23:59:59', strtotime($date)) . '"';
@@ -169,7 +186,7 @@ class Log extends AbstractModel
         $logDates = [];
         for ($i = 0; $i <= self::LOG_LIFE; $i++) {
             $date = new \DateTime();
-            $logDate = $date->modify('-' . $i . ' day')->format('Y-m-d');
+            $logDate = $date->modify('-' . $i . ' day')->format(DataHelper::DATE_DAY);
             if ($this->logDateIsAvailable($logDate)) {
                 $logDates[] = $logDate;
             }
@@ -189,7 +206,7 @@ class Log extends AbstractModel
             $fileName = $date . '.txt';
             $logs = $this->getLogsByDate($date);
             foreach ($logs as $log) {
-                $contents .= $log['date'] . ' - ' . $log['message'] . "\r\n";
+                $contents .= $log[self::FIELD_DATE] . ' - ' . $log[self::FIELD_MESSAGE] . "\r\n";
             }
         } else {
             $fileName = 'logs.txt';
@@ -197,7 +214,7 @@ class Log extends AbstractModel
             foreach ($logDates as $logDate) {
                 $logs = $this->getLogsByDate($logDate);
                 foreach ($logs as $log) {
-                    $contents .= $log['date'] . ' - ' . $log['message'] . "\r\n";
+                    $contents .= $log[self::FIELD_DATE] . ' - ' . $log[self::FIELD_MESSAGE] . "\r\n";
                 }
             }
         }

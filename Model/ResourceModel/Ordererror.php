@@ -20,6 +20,7 @@
 namespace Lengow\Connector\Model\ResourceModel;
 
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+use Lengow\Connector\Model\Import\Ordererror as LengowOrderError;
 
 class Ordererror extends AbstractDb
 {
@@ -30,6 +31,6 @@ class Ordererror extends AbstractDb
      */
     protected function _construct()
     {
-        $this->_init('lengow_order_error', 'id');
+        $this->_init(LengowOrderError::TABLE_ORDER_ERROR, LengowOrderError::FIELD_ID);
     }
 }

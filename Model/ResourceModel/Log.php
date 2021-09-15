@@ -20,6 +20,7 @@
 namespace Lengow\Connector\Model\ResourceModel;
 
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+use Lengow\Connector\Model\Log as LengowLog;
 
 class Log extends AbstractDb
 {
@@ -30,6 +31,6 @@ class Log extends AbstractDb
      */
     protected function _construct()
     {
-        $this->_init('lengow_log', 'id');
+        $this->_init(LengowLog::TABLE_LOG, LengowLog::FIELD_ID);
     }
 }

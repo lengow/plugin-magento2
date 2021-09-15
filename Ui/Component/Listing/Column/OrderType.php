@@ -19,10 +19,10 @@
 
 namespace Lengow\Connector\Ui\Component\Listing\Column;
 
-use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Ui\Component\Listing\Columns\Column;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class OrderType extends Column
 {
@@ -55,9 +55,9 @@ class OrderType extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if ($item['order_types'] !== null) {
+                if ($item[LengowOrder::FIELD_ORDER_TYPES] !== null) {
                     $return = '<div>';
-                    $orderTypes = (string) $item['order_types'];
+                    $orderTypes = (string) $item[LengowOrder::FIELD_ORDER_TYPES];
                     $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : [];
                     if (isset($orderTypes[LengowOrder::TYPE_EXPRESS]) || isset($orderTypes[LengowOrder::TYPE_PRIME])) {
                         $iconLabel = isset($orderTypes[LengowOrder::TYPE_PRIME])
@@ -66,7 +66,7 @@ class OrderType extends Column
                         $return .= $this->_generateOrderTypeIcon($iconLabel, 'orange-light', 'mod-chrono');
                     }
                     if (isset($orderTypes[LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE])
-                        || (bool) $item['sent_marketplace']
+                        || (bool) $item[LengowOrder::FIELD_SENT_MARKETPLACE]
                     ) {
                         $iconLabel = isset($orderTypes[LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE])
                             ? $orderTypes[LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE]
@@ -78,7 +78,7 @@ class OrderType extends Column
                         $return .= $this->_generateOrderTypeIcon($iconLabel, 'blue-light', 'mod-pro');
                     }
                     $return .= '</div>';
-                    $item['order_types'] = $return;
+                    $item[LengowOrder::FIELD_ORDER_TYPES] = $return;
                 }
             }
         }

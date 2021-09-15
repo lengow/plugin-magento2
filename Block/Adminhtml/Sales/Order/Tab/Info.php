@@ -236,8 +236,9 @@ class Info extends Template implements TabInterface
         if (!$this->_action->getActiveActionByOrderId($this->getOrderId())) {
             $orderStatus = $this->getOrderStatus();
             if (($orderStatus === 'complete' || $orderStatus === 'canceled') && $this->_lengowOrder) {
-                $finishProcessState = $this->_lengowOrder->getOrderProcessState('closed');
-                if ((int) $this->_lengowOrder->getData('order_process_state') !== $finishProcessState) {
+                $finishProcessState = $this->_lengowOrder->getOrderProcessState(LengowOrder::STATE_CLOSED);
+                $lengowOrderProcessState = (int) $this->_lengowOrder->getData(LengowOrder::FIELD_ORDER_PROCESS_STATE);
+                if ($lengowOrderProcessState !== $finishProcessState) {
                     return true;
                 }
             }
@@ -256,51 +257,51 @@ class Info extends Template implements TabInterface
         if ($this->_lengowOrder) {
             $fields[] = [
                 'label' => __('Marketplace SKU'),
-                'value' => $this->_lengowOrder->getData('marketplace_sku'),
+                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_SKU),
             ];
             $fields[] = [
                 'label' => __('Marketplace'),
-                'value' => $this->_lengowOrder->getData('marketplace_label'),
+                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_LABEL),
             ];
             $fields[] = [
                 'label' => __('Delivery Address ID'),
-                'value' => $this->_lengowOrder->getData('delivery_address_id'),
+                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_DELIVERY_ADDRESS_ID),
             ];
             $fields[] = [
                 'label' => __('Currency'),
-                'value' => $this->_lengowOrder->getData('currency'),
+                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_CURRENCY),
             ];
             $fields[] = [
                 'label' => __('Total Paid'),
-                'value' => $this->_lengowOrder->getData('total_paid'),
+                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_TOTAL_PAID),
             ];
             $fields[] = [
                 'label' => __('Commission'),
-                'value' => $this->_lengowOrder->getData('commission'),
+                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_COMMISSION),
             ];
             $fields[] = [
                 'label' => __('Customer name'),
-                'value' => $this->_lengowOrder->getData('customer_name'),
+                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_CUSTOMER_NAME),
             ];
             $fields[] = [
                 'label' => __('Customer email'),
-                'value' => $this->_lengowOrder->getData('customer_email'),
+                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_CUSTOMER_EMAIL),
             ];
             $fields[] = [
                 'label' => __('Carrier from marketplace'),
-                'value' => $this->_lengowOrder->getData('carrier'),
+                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_CARRIER),
             ];
             $fields[] = [
                 'label' => __('Shipping method from marketplace'),
-                'value' => $this->_lengowOrder->getData('carrier_method'),
+                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_CARRIER_METHOD),
             ];
             $fields[] = [
                 'label' => __('Tracking number'),
-                'value' => $this->_lengowOrder->getData('carrier_tracking'),
+                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_CARRIER_TRACKING),
             ];
             $fields[] = [
                 'label' => __('ID relay'),
-                'value' => $this->_lengowOrder->getData('carrier_id_relay'),
+                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_CARRIER_RELAY_ID),
             ];
             $fields[] = [
                 'label' => __('Express delivery'),
@@ -316,21 +317,22 @@ class Info extends Template implements TabInterface
             ];
             $fields[] = [
                 'label' => __('Message'),
-                'value' => $this->_lengowOrder->getData('message'),
+                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_MESSAGE),
             ];
             $fields[] = [
                 'label' => ('Vat number'),
-                'value' => $this->_lengowOrder->getData('customer_vat_number'),
+                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_CUSTOMER_VAT_NUMBER),
             ];
             $fields[] = [
                 'label' => __('Imported at'),
                 'value' => $this->_dataHelper->getDateInCorrectFormat(
-                    strtotime($this->_lengowOrder->getData('created_at'))
+                    strtotime($this->_lengowOrder->getData(LengowOrder::FIELD_CREATED_AT))
                 ),
             ];
             $fields[] = [
                 'label' => __('JSON format'),
-                'value' => '<textarea disabled="disabled">' . $this->_lengowOrder->getData('extra') . '</textarea>',
+                'value' => '<textarea disabled="disabled">'
+                    . $this->_lengowOrder->getData(LengowOrder::FIELD_EXTRA) . '</textarea>',
             ];
         }
         return $fields;

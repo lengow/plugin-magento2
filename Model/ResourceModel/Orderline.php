@@ -20,6 +20,7 @@
 namespace Lengow\Connector\Model\ResourceModel;
 
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+use Lengow\Connector\Model\Import\Orderline as LengowOrderLine;
 
 class Orderline extends AbstractDb
 {
@@ -30,6 +31,6 @@ class Orderline extends AbstractDb
      */
     protected function _construct()
     {
-        $this->_init('lengow_order_line', 'id');
+        $this->_init(LengowOrderline::TABLE_ORDER_LINE, LengowOrderline::FIELD_ID);
     }
 }

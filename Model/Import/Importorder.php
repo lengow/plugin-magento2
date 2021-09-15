@@ -53,7 +53,9 @@ use Lengow\Connector\Model\Import\Customer as LengowCustomer;
 use Lengow\Connector\Model\Import\Marketplace as LengowMarketplace;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
+use Lengow\Connector\Model\Import\Ordererror as LengowOrderError;
 use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
+use Lengow\Connector\Model\Import\Orderline as LengowOrderLine;
 use Lengow\Connector\Model\Import\OrderlineFactory as LengowOrderLineFactory;
 use Lengow\Connector\Model\Import\QuoteFactory as LengowQuoteFactory;
 
@@ -62,280 +64,321 @@ use Lengow\Connector\Model\Import\QuoteFactory as LengowQuoteFactory;
  */
 class Importorder extends AbstractModel
 {
-    /**
-     * @var string result for order imported
-     */
-    const RESULT_NEW = 'new';
+    /* Import Order construct params */
+    const PARAM_STORE_ID = 'store_id';
+    const PARAM_FORCE_SYNC = 'force_sync';
+    const PARAM_DEBUG_MODE = 'debug_mode';
+    const PARAM_LOG_OUTPUT = 'log_output';
+    const PARAM_MARKETPLACE_SKU = 'marketplace_sku';
+    const PARAM_DELIVERY_ADDRESS_ID = 'delivery_address_id';
+    const PARAM_ORDER_DATA = 'order_data';
+    const PARAM_PACKAGE_DATA = 'package_data';
+    const PARAM_FIRST_PACKAGE = 'first_package';
+    const PARAM_IMPORT_ONE_ORDER = 'import_one_order';
 
-    /**
-     * @var string result for order updated
-     */
-    const RESULT_UPDATE = 'update';
+    /* Import Order data */
+    const MERCHANT_ORDER_ID = 'merchant_order_id';
+    const MERCHANT_ORDER_REFERENCE = 'merchant_order_reference';
+    const LENGOW_ORDER_ID = 'lengow_order_id';
+    const MARKETPLACE_SKU = 'marketplace_sku';
+    const MARKETPLACE_NAME = 'marketplace_name';
+    const DELIVERY_ADDRESS_ID = 'delivery_address_id';
+    const SHOP_ID = 'shop_id';
+    const CURRENT_ORDER_STATUS = 'current_order_status';
+    const PREVIOUS_ORDER_STATUS = 'previous_order_status';
+    const ERRORS = 'errors';
+    const RESULT_TYPE = 'result_type';
 
-    /**
-     * @var string result for order in error
-     */
-    const RESULT_ERROR = 'error';
+    /* Synchronisation results */
+    const RESULT_CREATED = 'created';
+    const RESULT_UPDATED = 'updated';
+    const RESULT_FAILED = 'failed';
+    const RESULT_IGNORED = 'ignored';
 
     /**
      * @var QuoteFactory Magento quote factory instance
      */
-    protected $_quoteMagentoFactory;
+    private $quoteMagentoFactory;
 
     /**
      * @var OrderRepositoryInterface Magento order repository instance
      */
-    protected $_orderRepository;
+    private $orderRepository;
 
     /**
      * @var AddressRepositoryInterface Magento address repository instance
      */
-    protected $_addressRepository;
+    private $addressRepository;
 
     /**
      * @var CustomerRepositoryInterface Magento customer repository instance
      */
-    protected $_customerRepository;
+    private $customerRepository;
 
     /**
      * @var TaxConfig Magento Tax configuration instance
      */
-    protected $_taxConfig;
+    private $taxConfig;
 
     /**
      * @var ScopeConfigInterface Magento cope config instance
      */
-    protected $_scopeConfig;
+    private $scopeConfig;
 
     /**
      * @var StoreManagerInterface Magento store manager instance
      */
-    protected $_storeManager;
+    private $storeManager;
 
     /**
      * @var QuoteAddressFactory Magento quote address factory instance
      */
-    protected $_quoteAddressFactory;
+    private $quoteAddressFactory;
 
     /**
      * @var TaxCalculation Magento tax calculation instance
      */
-    protected $_taxCalculation;
+    private $taxCalculation;
 
     /**
      * @var Calculation Magento calculation instance
      */
-    protected $_calculation;
+    private $calculation;
 
     /**
      * @var QuoteManagement Magento quote management instance
      */
-    protected $_quoteManagement;
+    private $quoteManagement;
 
     /**
      * @var DateTime Magento datetime instance
      */
-    protected $_dateTime;
+    private $dateTime;
 
     /**
      * @var TimezoneInterface Magento datetime timezone instance
      */
-    protected $_timezone;
+    private $timezone;
 
     /**
      * @var ProductFactory Magento product factory instance
      */
-    protected $_productFactory;
+    private $productFactory;
 
     /**
      * @var StockManagementInterface Magento stock management instance
      */
-    protected $_stockManagement;
+    private $stockManagement;
 
     /**
      * @var ProductCollectionFactory Magento product collection factory instance
      */
-    protected $_productCollection;
+    private $productCollection;
 
     /**
      * @var ProductAttribute Magento product attribute instance
      */
-    protected $_productAttribute;
+    private $productAttribute;
 
     /**
      * @var BackendSession $backendSession Magento Backend session instance
      */
-    protected $backendSession;
+    private $backendSession;
 
     /**
      * @var LengowOrder Lengow order instance
      */
-    protected $_lengowOrder;
+    private $lengowOrder;
 
     /**
      * @var LengowOrderFactory Lengow order factory instance
      */
-    protected $_lengowOrderFactory;
+    private $lengowOrderFactory;
 
     /**
-     * @var LengowOrderErrorFactory Lengow ordererror Factory instance
+     * @var LengowOrderErrorFactory Lengow order error Factory instance
      */
-    protected $_orderErrorFactory;
+    private $lengowOrderErrorFactory;
 
     /**
      * @var LengowCustomer Lengow customer instance
      */
-    protected $_lengowCustomer;
+    private $lengowCustomer;
 
     /**
      * @var LengowQuoteFactory Lengow quote instance
      */
-    protected $_lengowQuoteFactory;
+    private $lengowQuoteFactory;
 
     /**
-     * @var LengowOrderLineFactory Lengow orderline factory instance
+     * @var LengowOrderLineFactory Lengow order line factory instance
      */
-    protected $_lengowOrderLineFactory;
+    private $lengowOrderLineFactory;
 
     /**
      * @var ImportHelper Lengow import helper instance
      */
-    protected $_importHelper;
+    private $importHelper;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * @var integer order items
      */
-    protected $_orderItems;
+    private $orderItems;
 
     /**
      * @var string id lengow of current order
      */
-    protected $_marketplaceSku;
+    private $marketplaceSku;
 
     /**
      * @var integer id of delivery address for current order
      */
-    protected $_deliveryAddressId;
+    private $deliveryAddressId;
 
     /**
      * @var integer|null Magento store id
      */
-    protected $_storeId;
+    private $storeId;
+
+    /**
+     * @var boolean force import order even if there are errors
+     */
+    private $forceSync;
 
     /**
      * @var boolean use debug mode
      */
-    protected $_debugMode = false;
+    private $debugMode = false;
 
     /**
      * @var boolean display log messages
      */
-    protected $_logOutput = false;
+    private $logOutput = false;
 
     /**
      * @var mixed order data
      */
-    protected $_orderData;
+    private $orderData;
 
     /**
      * @var mixed package data
      */
-    protected $_packageData;
+    private $packageData;
 
     /**
      * @var boolean is first package
      */
-    protected $_firstPackage;
+    private $firstPackage;
 
     /**
      * @var boolean import one order var from lengow import
      */
-    protected $_importOneOrder;
+    private $importOneOrder;
 
     /**
      * @var LengowMarketplace Lengow marketplace instance
      */
-    protected $_marketplace;
+    private $marketplace;
 
     /**
      * @var string marketplace label
      */
-    protected $_marketplaceLabel;
+    private $marketplaceLabel;
 
     /**
      * @var boolean re-import order
      */
-    protected $_isReimported = false;
+    private $isReimported = false;
 
     /**
      * @var string Lengow order state
      */
-    protected $_orderStateLengow;
+    private $orderStateLengow;
+
+    /**
+     * @var string Previous Lengow order state
+     */
+    private $previousOrderStateLengow;
 
     /**
      * @var string marketplace order state
      */
-    protected $_orderStateMarketplace;
+    private $orderStateMarketplace;
 
     /**
      * @var integer id of the record Lengow order table
      */
-    protected $_orderLengowId;
+    private $orderLengowId;
+
+    /**
+     * @var integer id of the record Magento order table
+     */
+    private $orderId;
+
+    /**
+     * @var integer Magento order reference
+     */
+    private $orderReference;
+
+    /**
+     * @var string order date in GMT format
+     */
+    private $orderDate;
 
     /**
      * @var float order processing fees
      */
-    protected $_processingFee;
+    private $processingFee;
 
     /**
      * @var float order shipping costs
      */
-    protected $_shippingCost;
+    private $shippingCost;
 
     /**
      * @var float order amount
      */
-    protected $_orderAmount;
-
-    /**
-     * @var array order types (is_express, is_prime...)
-     */
-    protected $_orderTypes;
+    private $orderAmount;
 
     /**
      * @var string|null carrier name
      */
-    protected $_carrierName;
+    private $carrierName;
 
     /**
      * @var string|null carrier method
      */
-    protected $_carrierMethod;
+    private $carrierMethod;
 
     /**
      * @var boolean order shipped by marketplace
      */
-    protected $_shippedByMp = false;
+    private $shippedByMp = false;
 
     /**
      * @var string|null carrier tracking number
      */
-    protected $_trackingNumber;
+    private $trackingNumber;
 
     /**
      * @var string|null carrier relay id
      */
-    protected $_relayId;
+    private $relayId;
+
+    /**
+     * @var array order errors
+     */
+    private $errors = [];
 
     /**
      * Constructor
@@ -351,7 +394,7 @@ class Importorder extends AbstractModel
      * @param QuoteAddressFactory $quoteAddressFactory Magento quote factory address instance
      * @param TaxCalculation $taxCalculation tax calculation interface
      * @param Calculation $calculation calculation
-     * @param QuoteManagement $quoteManagement Magen
+     * @param QuoteManagement $quoteManagement Magento quote management instance
      * @param DateTime $dateTime Magento datetime instance
      * @param TimezoneInterface $timezone Magento datetime timezone instance
      * @param ProductFactory $productFactory Magento product factory
@@ -362,10 +405,10 @@ class Importorder extends AbstractModel
      * @param ProductCollectionFactory $productCollection Magento product collection factory instance
      * @param LengowOrder $lengowOrder Lengow order instance
      * @param LengowOrderFactory $lengowOrderFactory Lengow order instance
-     * @param LengowOrderErrorFactory $orderErrorFactory Lengow orderErrorFactory instance
+     * @param LengowOrderErrorFactory $lengowOrderErrorFactory Lengow order error factory instance
      * @param LengowCustomer $lengowCustomer Lengow customer instance
      * @param LengowQuoteFactory $lengowQuoteFactory Lengow quote instance
-     * @param LengowOrderLineFactory $lengowOrderLineFactory Lengow orderline factory instance
+     * @param LengowOrderLineFactory $lengowOrderLineFactory Lengow order line factory instance
      * @param ImportHelper $importHelper Lengow import helper instance
      * @param DataHelper $dataHelper Lengow data helper instance
      * @param ConfigHelper $configHelper Lengow config helper instance
@@ -393,7 +436,7 @@ class Importorder extends AbstractModel
         ProductCollectionFactory $productCollection,
         LengowOrder $lengowOrder,
         LengowOrderFactory $lengowOrderFactory,
-        LengowOrderErrorFactory $orderErrorFactory,
+        LengowOrderErrorFactory $lengowOrderErrorFactory,
         LengowCustomer $lengowCustomer,
         LengowQuoteFactory $lengowQuoteFactory,
         LengowOrderLineFactory $lengowOrderLineFactory,
@@ -401,60 +444,66 @@ class Importorder extends AbstractModel
         DataHelper $dataHelper,
         ConfigHelper $configHelper
     ) {
-        $this->_orderRepository = $orderRepository;
-        $this->_addressRepository = $addressRepository;
-        $this->_customerRepository = $customerRepository;
-        $this->_taxConfig = $taxConfig;
-        $this->_scopeConfig = $scopeConfig;
-        $this->_storeManager = $storeManager;
-        $this->_quoteAddressFactory = $quoteAddressFactory;
-        $this->_taxCalculation = $taxCalculation;
-        $this->_calculation = $calculation;
-        $this->_quoteManagement = $quoteManagement;
-        $this->_dateTime = $dateTime;
-        $this->_timezone = $timezone;
-        $this->_productFactory = $productFactory;
-        $this->_stockManagement = $stockManagement;
-        $this->_quoteMagentoFactory = $quoteMagentoFactory;
-        $this->_productAttribute = $productAttribute;
+        $this->orderRepository = $orderRepository;
+        $this->addressRepository = $addressRepository;
+        $this->customerRepository = $customerRepository;
+        $this->taxConfig = $taxConfig;
+        $this->scopeConfig = $scopeConfig;
+        $this->storeManager = $storeManager;
+        $this->quoteAddressFactory = $quoteAddressFactory;
+        $this->taxCalculation = $taxCalculation;
+        $this->calculation = $calculation;
+        $this->quoteManagement = $quoteManagement;
+        $this->dateTime = $dateTime;
+        $this->timezone = $timezone;
+        $this->productFactory = $productFactory;
+        $this->stockManagement = $stockManagement;
+        $this->quoteMagentoFactory = $quoteMagentoFactory;
+        $this->productAttribute = $productAttribute;
         $this->backendSession = $backendSession;
-        $this->_productCollection = $productCollection;
-        $this->_lengowOrder = $lengowOrder;
-        $this->_lengowOrderFactory = $lengowOrderFactory;
-        $this->_orderErrorFactory = $orderErrorFactory;
-        $this->_lengowCustomer = $lengowCustomer;
-        $this->_lengowQuoteFactory = $lengowQuoteFactory;
-        $this->_lengowOrderLineFactory = $lengowOrderLineFactory;
-        $this->_importHelper = $importHelper;
-        $this->_dataHelper = $dataHelper;
-        $this->_configHelper = $configHelper;
+        $this->productCollection = $productCollection;
+        $this->lengowOrder = $lengowOrder;
+        $this->lengowOrderFactory = $lengowOrderFactory;
+        $this->lengowOrderErrorFactory = $lengowOrderErrorFactory;
+        $this->lengowCustomer = $lengowCustomer;
+        $this->lengowQuoteFactory = $lengowQuoteFactory;
+        $this->lengowOrderLineFactory = $lengowOrderLineFactory;
+        $this->importHelper = $importHelper;
+        $this->dataHelper = $dataHelper;
+        $this->configHelper = $configHelper;
         parent::__construct($context, $registry);
     }
 
     /**
-     * init a import order
+     * init an import order
      *
-     * @param array $params optional options for load a import order
+     * @param array $params optional options
      *
-     * @throws LengowException
+     * integer  store_id            Id store for current order
+     * boolean  force_sync          force import order even if there are errors
+     * boolean  debug_mode          debug mode
+     * boolean  log_output          display log messages
+     * string   marketplace_sku     order marketplace sku
+     * integer  delivery_address_id order delivery address id
+     * mixed    order_data          order data
+     * mixed    package_data        package data
+     * boolean  first_package       it is the first package
+     * boolean  import_one_order    synchronisation process for only one order
      *
      * @return Importorder
      */
     public function init($params)
     {
-        $this->_storeId = $params['store_id'];
-        $this->_debugMode = $params['debug_mode'];
-        $this->_logOutput = $params['log_output'];
-        $this->_marketplaceSku = $params['marketplace_sku'];
-        $this->_deliveryAddressId = $params['delivery_address_id'];
-        $this->_orderData = $params['order_data'];
-        $this->_packageData = $params['package_data'];
-        $this->_firstPackage = $params['first_package'];
-        $this->_importOneOrder = $params['import_one_order'];
-        $this->_marketplace = $this->_importHelper->getMarketplaceSingleton((string) $this->_orderData->marketplace);
-        $this->_marketplaceLabel = $this->_marketplace->labelName;
-        $this->_orderStateMarketplace = (string) $this->_orderData->marketplace_status;
-        $this->_orderStateLengow = $this->_marketplace->getStateLengow($this->_orderStateMarketplace);
+        $this->storeId = $params[self::PARAM_STORE_ID];
+        $this->forceSync = $params[self::PARAM_FORCE_SYNC];
+        $this->debugMode = $params[self::PARAM_DEBUG_MODE];
+        $this->logOutput = $params[self::PARAM_LOG_OUTPUT];
+        $this->marketplaceSku = $params[self::PARAM_MARKETPLACE_SKU];
+        $this->deliveryAddressId = $params[self::PARAM_DELIVERY_ADDRESS_ID];
+        $this->orderData = $params[self::PARAM_ORDER_DATA];
+        $this->packageData = $params[self::PARAM_PACKAGE_DATA];
+        $this->firstPackage = $params[self::PARAM_FIRST_PACKAGE];
+        $this->importOneOrder = $params[self::PARAM_IMPORT_ONE_ORDER];
         return $this;
     }
 
@@ -463,409 +512,149 @@ class Importorder extends AbstractModel
      *
      * @throws \Exception
      *
-     * @return array|false
+     * @return array
      */
     public function importOrder()
     {
-        // if log import exist and not finished
-        $importLog = $this->_lengowOrder->orderIsInError($this->_marketplaceSku, $this->_deliveryAddressId);
-        if ($importLog) {
-            $dateMessage = $this->_timezone->date(strtotime($importLog['created_at']))->format('Y-m-d H:i:s');
-            $decodedMessage = $this->_dataHelper->decodeLogMessage($importLog['message'], false);
-            $this->_dataHelper->log(
-                DataHelper::CODE_IMPORT,
-                $this->_dataHelper->setLogMessage(
-                    '%1 (created on the %2)',
-                    [
-                        $decodedMessage,
-                        $dateMessage,
-                    ]
-                ),
-                $this->_logOutput,
-                $this->_marketplaceSku
-            );
-            return false;
+        // load marketplace singleton and marketplace data
+        if (!$this->loadMarketplaceData()) {
+            return $this->returnResult(self::RESULT_IGNORED);
+        }
+        // checks if a record already exists in the lengow order table
+        $this->orderLengowId = $this->lengowOrder->getLengowOrderId(
+            $this->marketplaceSku,
+            $this->marketplace->name,
+            $this->deliveryAddressId
+        );
+        // checks if an order already has an error in progress
+        if ($this->orderLengowId && $this->orderErrorAlreadyExist()) {
+            return $this->returnResult(self::RESULT_IGNORED);
         }
         // recovery id if the command has already been imported
-        $orderId = $this->_lengowOrder->getOrderIdIfExist(
-            $this->_marketplaceSku,
-            $this->_marketplace->name,
-            $this->_deliveryAddressId
+        $orderId = $this->lengowOrder->getOrderIdIfExist(
+            $this->marketplaceSku,
+            $this->marketplace->name,
+            $this->deliveryAddressId
         );
         // update order state if already imported
         if ($orderId) {
-            $orderUpdated = $this->_checkAndUpdateOrder($orderId);
-            if ($orderUpdated && isset($orderUpdated['update'])) {
-                return $this->_returnResult(self::RESULT_UPDATE, $orderUpdated['order_lengow_id'], $orderId);
+            $orderUpdated = $this->checkAndUpdateOrder($orderId);
+            if ($orderUpdated) {
+                return $this->returnResult(self::RESULT_UPDATED);
             }
-            if (!$this->_isReimported) {
-                return false;
+            if (!$this->isReimported) {
+                return $this->returnResult(self::RESULT_IGNORED);
             }
         }
-        if (!$this->_importOneOrder) {
-            // skip import if the order is anonymized
-            if ($this->_orderData->anonymized) {
-                $this->_dataHelper->log(
-                    DataHelper::CODE_IMPORT,
-                    $this->_dataHelper->setLogMessage('Order is anonymized and has not been imported'),
-                    $this->_logOutput,
-                    $this->_marketplaceSku
-                );
-                return false;
-            }
-            // skip import if the order is older than 3 months
-            $dateTimeOrder = new \DateTime($this->_orderData->marketplace_order_date);
-            $interval = $dateTimeOrder->diff(new \DateTime());
-            $monthInterval = $interval->m + ($interval->y * 12);
-            if ($monthInterval >= LengowImport::MONTH_INTERVAL_TIME) {
-                $this->_dataHelper->log(
-                    DataHelper::CODE_IMPORT,
-                    $this->_dataHelper->setLogMessage('Order is older than 3 months and has not been imported'),
-                    $this->_logOutput,
-                    $this->_marketplaceSku
-                );
-                return false;
-            }
+        // checks if the order is not anonymized or too old
+        if (!$this->orderLengowId && !$this->canCreateOrder()) {
+            return $this->returnResult(self::RESULT_IGNORED);
         }
         // checks if an external id already exists
-        $orderMagentoId = $this->_checkExternalIds($this->_orderData->merchant_order_id);
-        if ($orderMagentoId && !$this->_debugMode && !$this->_isReimported) {
-            $this->_dataHelper->log(
-                DataHelper::CODE_IMPORT,
-                $this->_dataHelper->setLogMessage(
-                    'already imported in Magento with the order ID %1',
-                    [$orderMagentoId]
-                ),
-                $this->_logOutput,
-                $this->_marketplaceSku
-            );
-            return false;
+        if (!$this->orderLengowId && $this->externalIdAlreadyExist()) {
+            return $this->returnResult(self::RESULT_IGNORED);
         }
-        // get a record in the lengow order table
-        $this->_orderLengowId = $this->_lengowOrder->getLengowOrderId(
-            $this->_marketplaceSku,
-            $this->_marketplace->name,
-            $this->_deliveryAddressId
-        );
-        // if order is cancelled or new -> skip
-        if (!$this->_importHelper->checkState($this->_orderStateMarketplace, $this->_marketplace)) {
-            $orderProcessState = $this->_lengowOrder->getOrderProcessState($this->_orderStateLengow);
-            // check and complete an order not imported if it is canceled or refunded
-            if ($this->_orderLengowId && $orderProcessState === LengowOrder::PROCESS_STATE_FINISH) {
-                $this->_orderErrorFactory->create()->finishOrderErrors($this->_orderLengowId);
-                $orderLengow = $this->_lengowOrderFactory->create()->load((int) $this->_orderLengowId);
-                $orderLengow->updateOrder(
-                    [
-                        'is_in_error' => 0,
-                        'order_lengow_state' => $this->_orderStateLengow,
-                        'order_process_state' => $orderProcessState,
-                    ]
-                );
-
-            }
-            $this->_dataHelper->log(
-                DataHelper::CODE_IMPORT,
-                $this->_dataHelper->setLogMessage(
-                    'current order status %1 means it is not possible to import the order to the marketplace %2',
-                    [
-                        $this->_orderStateMarketplace,
-                        $this->_marketplace->name,
-                    ]
-                ),
-                $this->_logOutput,
-                $this->_marketplaceSku
-            );
-            return false;
+        // checks if the order status is valid for order creation
+        if (!$this->orderStatusIsValid()) {
+            return $this->returnResult(self::RESULT_IGNORED);
         }
-        // load order types data
-        $this->_loadOrderTypesData();
-        // create a new record in lengow order table if not exist
-        if (!$this->_orderLengowId) {
-            // created a record in the lengow order table
-            if (!$this->_createLengowOrder()) {
-                $this->_dataHelper->log(
-                    DataHelper::CODE_IMPORT,
-                    $this->_dataHelper->setLogMessage('WARNING! Order could NOT be saved in Lengow orders table'),
-                    $this->_logOutput,
-                    $this->_marketplaceSku
-                );
-                return false;
-            }
-            $this->_dataHelper->log(
-                DataHelper::CODE_IMPORT,
-                $this->_dataHelper->setLogMessage('order saved in Lengow orders table'),
-                $this->_logOutput,
-                $this->_marketplaceSku
-            );
+        // load data and create a new record in lengow order table if not exist
+        if (!$this->createLengowOrder()) {
+            return $this->returnResult(self::RESULT_IGNORED);
         }
         // load lengow order
-        $orderFactory = $this->_lengowOrderFactory->create();
-        $orderLengow = $orderFactory->load((int) $this->_orderLengowId);
-        // checks if the required order data is present
-        if (!$this->_checkOrderData()) {
-            return $this->_returnResult(self::RESULT_ERROR, $this->_orderLengowId);
+        $orderLengow = $this->lengowOrderFactory->create()->load($this->orderLengowId);
+        // checks if the required order data is present and update Lengow order record
+        if (!$this->checkAndUpdateLengowOrderData($orderLengow)) {
+            return $this->returnResult(self::RESULT_FAILED);
         }
-        // get order amount and load processing fees and shipping cost
-        $this->_orderAmount = $this->_getOrderAmount();
-        // load tracking data
-        $this->_loadTrackingData();
-        // get customer name and email
-        $customerName = $this->_getCustomerName();
-        $customerEmail = $this->_orderData->billing_address->email !== null
-            ? (string) $this->_orderData->billing_address->email
-            : (string) $this->_packageData->delivery->email;
-        // update Lengow order with new data
-        $orderLengow->updateOrder(
-            [
-                'currency' => $this->_orderData->currency->iso_a3,
-                'total_paid' => $this->_orderAmount,
-                'order_item' => $this->_orderItems,
-                'customer_name' => $customerName,
-                'customer_email' => $customerEmail,
-                'commission' => (float) $this->_orderData->commission,
-                'carrier' => $this->_carrierName,
-                'carrier_method' => $this->_carrierMethod,
-                'carrier_tracking' => $this->_trackingNumber,
-                'carrier_id_relay' => $this->_relayId,
-                'sent_marketplace' => $this->_shippedByMp,
-                'delivery_country_iso' => $this->_packageData->delivery->common_country_iso_a2,
-                'order_lengow_state' => $this->_orderStateLengow,
-                'extra' => json_encode($this->_orderData),
-            ]
-        );
-        // try to import order
+        // checks if an order sent by the marketplace must be created or not
+        if (!$this->canCreateOrderShippedByMarketplace($orderLengow)) {
+            return $this->returnResult(self::RESULT_IGNORED);
+        }
+        // create Magento order
+        if (!$this->createOrder($orderLengow)) {
+            return $this->returnResult(self::RESULT_FAILED);
+        }
+        return $this->returnResult(self::RESULT_CREATED);
+    }
+
+    /**
+     * Load marketplace singleton and marketplace data
+     *
+     * @return boolean
+     */
+    private function loadMarketplaceData()
+    {
         try {
-            // check if the order is shipped by marketplace
-            if ($this->_shippedByMp) {
-                $this->_dataHelper->log(
-                    DataHelper::CODE_IMPORT,
-                    $this->_dataHelper->setLogMessage('order shipped by %1', [$this->_marketplace->name]),
-                    $this->_logOutput,
-                    $this->_marketplaceSku
-                );
-                if (!$this->_configHelper->get(ConfigHelper::SHIPPED_BY_MARKETPLACE_ENABLED, $this->_storeId)) {
-                    $orderLengow->updateOrder(
-                        [
-                            'is_in_error' => 0,
-                            'order_process_state' => 2,
-                        ]
-                    );
-                    return false;
-                }
-            }
-            // get products from Api
-            $products = $this->getProducts();
-            // create or update customer with addresses
-            $customer = $this->_lengowCustomer->createCustomer(
-                $this->_orderData,
-                $this->_packageData->delivery,
-                $this->_storeId,
-                $this->_marketplaceSku,
-                $this->_logOutput
-            );
-            // if this order is B2B activate B2bTaxesApplicator
-            if ($this->_configHelper->get(ConfigHelper::B2B_WITHOUT_TAX_ENABLED) && $orderLengow->isBusiness()) {
-                $this->backendSession->setIsLengowB2b(1);
-            }
-            // create Magento Quote
-            $quote = $this->_createQuote($customer, $products);
-            // create Magento order
-            $order = $this->_makeOrder($quote, $orderLengow);
-            // if order is successfully imported
-            if ($order) {
-                // save order line id in lengow_order_line table
-                $orderLineSaved = $this->_saveLengowOrderLine($order, $products);
-                $this->_dataHelper->log(
-                    DataHelper::CODE_IMPORT,
-                    $this->_dataHelper->setLogMessage(
-                        'save order lines product: %1',
-                        [$orderLineSaved]
-                    ),
-                    $this->_logOutput,
-                    $this->_marketplaceSku
-                );
-                $this->_dataHelper->log(
-                    DataHelper::CODE_IMPORT,
-                    $this->_dataHelper->setLogMessage(
-                        'order successfully imported (ORDER ID %1)',
-                        [$order->getIncrementId()]
-                    ),
-                    $this->_logOutput,
-                    $this->_marketplaceSku
-                );
-                // update state to shipped
-                if ($this->_orderStateLengow === LengowOrder::STATE_SHIPPED
-                    || $this->_orderStateLengow === LengowOrder::STATE_CLOSED
-                ) {
-                    $this->_lengowOrder->toShip(
-                        $order,
-                        $this->_carrierName,
-                        $this->_carrierMethod,
-                        $this->_trackingNumber
-                    );
-                    $this->_dataHelper->log(
-                        DataHelper::CODE_IMPORT,
-                        $this->_dataHelper->setLogMessage(
-                            "order's status has been updated to %1",
-                            ['Complete']
-                        ),
-                        $this->_logOutput,
-                        $this->_marketplaceSku
-                    );
-                }
-            } else {
-                throw new LengowException($this->_dataHelper->setLogMessage('order could not be saved'));
-            }
-            // add quantity back for re-imported order and order shipped by marketplace
-            if ($this->_isReimported
-                || ($this->_shippedByMp
-                    && !$this->_configHelper->get(ConfigHelper::SHIPPED_BY_MARKETPLACE_STOCK_ENABLED, $this->_storeId)
-                )
-            ) {
-                if ($this->_isReimported) {
-                    $logMessage = $this->_dataHelper->setLogMessage(
-                        'adding quantity back to stock count (order is re-imported)'
-                    );
-                } else {
-                    $logMessage = $this->_dataHelper->setLogMessage(
-                        'adding quantity back to stock count (order shipped by marketplace)'
-                    );
-                }
-                $this->_dataHelper->log(
-                    DataHelper::CODE_IMPORT,
-                    $logMessage,
-                    $this->_logOutput,
-                    $this->_marketplaceSku
-                );
-                $this->_addQuantityBack($products);
-            }
+            // get marketplace and Lengow order state
+            $this->marketplace = $this->importHelper->getMarketplaceSingleton((string) $this->orderData->marketplace);
+            $this->marketplaceLabel = $this->marketplace->labelName;
+            $this->orderStateMarketplace = (string) $this->orderData->marketplace_status;
+            $this->orderStateLengow = $this->marketplace->getStateLengow($this->orderStateMarketplace);
+            $this->previousOrderStateLengow = $this->orderStateLengow;
+            return true;
         } catch (LengowException $e) {
-            $errorMessage = $e->getMessage();
-        } catch (\Exception $e) {
-            $errorMessage = 'Magento error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
+            $this->errors[] = $this->dataHelper->decodeLogMessage($e->getMessage(), false);
+            $this->dataHelper->log(DataHelper::CODE_IMPORT, $e->getMessage(), $this->logOutput, $this->marketplaceSku);
         }
-        if (isset($errorMessage)) {
-            if ((bool) $orderLengow->getData('is_in_error')) {
-                $orderError = $this->_orderErrorFactory->create();
-                $orderError->createOrderError(
-                    [
-                        'order_lengow_id' => $this->_orderLengowId,
-                        'message' => $errorMessage,
-                        'type' => 'import',
-                    ]
-                );
-                unset($orderError);
+        return false;
+    }
+
+    /**
+     * Return an array of result for each order
+     *
+     * @param string $resultType Type of result (created, updated, failed or ignored)
+     *
+     * @return array
+     */
+    private function returnResult($resultType)
+    {
+        return [
+            self::MERCHANT_ORDER_ID => $this->orderId,
+            self::MERCHANT_ORDER_REFERENCE => $this->orderReference,
+            self::LENGOW_ORDER_ID => $this->orderLengowId,
+            self::MARKETPLACE_SKU => $this->marketplaceSku,
+            self::MARKETPLACE_NAME => $this->marketplace ? $this->marketplace->name : null,
+            self::DELIVERY_ADDRESS_ID => $this->deliveryAddressId,
+            self::SHOP_ID => $this->storeId,
+            self::CURRENT_ORDER_STATUS => $this->orderStateLengow,
+            self::PREVIOUS_ORDER_STATUS => $this->previousOrderStateLengow,
+            self::ERRORS => $this->errors,
+            self::RESULT_TYPE => $resultType,
+        ];
+    }
+
+    /**
+     * Checks if an order already has an error in progress
+     *
+     * @return boolean
+     */
+    private function orderErrorAlreadyExist()
+    {
+        // if log import exist and not finished
+        $orderError = $this->lengowOrder->orderIsInError($this->marketplaceSku, $this->deliveryAddressId);
+        if ($orderError) {
+            // force order synchronization by removing pending errors
+            if ($this->forceSync) {
+                $this->lengowOrderErrorFactory->create()->finishOrderErrors($this->orderLengowId);
+                return false;
             }
-            $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
-            $this->_dataHelper->log(
-                DataHelper::CODE_IMPORT,
-                $this->_dataHelper->setLogMessage(
-                    'import order failed - %1',
-                    [$decodedMessage]
-                ),
-                $this->_logOutput,
-                $this->_marketplaceSku
-            );
-            $orderLengow->updateOrder(
+            $dateMessage = $this->timezone->date(strtotime($orderError[LengowOrderError::FIELD_CREATED_AT]))
+                ->format(DataHelper::DATE_FULL);
+            $decodedMessage = $this->dataHelper->decodeLogMessage($orderError[LengowOrderError::FIELD_MESSAGE], false);
+            $message = $this->dataHelper->setLogMessage(
+                '%1 (created on the %2)',
                 [
-                    'extra' => json_encode($this->_orderData),
-                    'order_lengow_state' => $this->_orderStateLengow,
+                    $decodedMessage,
+                    $dateMessage,
                 ]
             );
-            return $this->_returnResult(self::RESULT_ERROR, $this->_orderLengowId);
+            $this->errors[] = $this->dataHelper->decodeLogMessage($message, false);
+            $this->dataHelper->log(DataHelper::CODE_IMPORT, $message, $this->logOutput, $this->marketplaceSku);
+            return true;
         }
-        return $this->_returnResult(self::RESULT_NEW, $this->_orderLengowId, isset($order) ? $order->getId() : null);
-    }
-
-    /**
-     * Get order types data and update Lengow order record
-     */
-    protected function _loadOrderTypesData()
-    {
-        $orderTypes = [];
-        if ($this->_orderData->order_types !== null && !empty($this->_orderData->order_types)) {
-            foreach ($this->_orderData->order_types as $orderType) {
-                $orderTypes[$orderType->type] = $orderType->label;
-                if ($orderType->type === LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE) {
-                    $this->_shippedByMp = true;
-                }
-            }
-        }
-        $this->_orderTypes = $orderTypes;
-    }
-
-    /**
-     * Get tracking data and update Lengow order record
-     */
-    protected function _loadTrackingData()
-    {
-        $tracks = $this->_packageData->delivery->trackings;
-        if (!empty($tracks)) {
-            $tracking = $tracks[0];
-            $this->_carrierName = $tracking->carrier;
-            $this->_carrierMethod = $tracking->method;
-            $this->_trackingNumber = $tracking->number;
-            $this->_relayId = $tracking->relay->id;
-        }
-    }
-
-    /**
-     * Get order amount
-     *
-     * @return float
-     */
-    protected function _getOrderAmount()
-    {
-        $this->_processingFee = (float) $this->_orderData->processing_fee;
-        $this->_shippingCost = (float) $this->_orderData->shipping;
-        // rewrite processing fees and shipping cost
-        if (!$this->_firstPackage) {
-            $this->_processingFee = 0;
-            $this->_shippingCost = 0;
-            $this->_dataHelper->log(
-                DataHelper::CODE_IMPORT,
-                $this->_dataHelper->setLogMessage('rewrite amount without processing fee'),
-                $this->_logOutput,
-                $this->_marketplaceSku
-            );
-            $this->_dataHelper->log(
-                DataHelper::CODE_IMPORT,
-                $this->_dataHelper->setLogMessage('rewrite amount without shipping cost'),
-                $this->_logOutput,
-                $this->_marketplaceSku
-            );
-        }
-        // get total amount and the number of items
-        $nbItems = 0;
-        $totalAmount = 0;
-        foreach ($this->_packageData->cart as $product) {
-            // check whether the product is canceled for amount
-            if ($product->marketplace_status !== null) {
-                $stateProduct = $this->_marketplace->getStateLengow((string) $product->marketplace_status);
-                if ($stateProduct === LengowOrder::STATE_CANCELED || $stateProduct === LengowOrder::STATE_REFUSED) {
-                    continue;
-                }
-            }
-            $nbItems += (int) $product->quantity;
-            $totalAmount += (float) $product->amount;
-        }
-        $this->_orderItems = $nbItems;
-        return $totalAmount + $this->_processingFee + $this->_shippingCost;
-    }
-
-    /**
-     * Add quantity back to stock
-     *
-     * @param array $products Lengow products from Api
-     *
-     * @return Importorder
-     */
-    protected function _addQuantityBack($products)
-    {
-        foreach ($products as $productId => $product) {
-            $this->_stockManagement->backItemQty($productId, $product['quantity'], $this->_storeId);
-        }
-        return $this;
+        return false;
     }
 
     /**
@@ -873,158 +662,421 @@ class Importorder extends AbstractModel
      *
      * @param integer $orderId Magento order id
      *
-     * @return array|false
+     * @return boolean
      */
-    protected function _checkAndUpdateOrder($orderId)
+    private function checkAndUpdateOrder($orderId)
     {
-        $order = $this->_orderRepository->get($orderId);
-        $this->_dataHelper->log(
+        $orderUpdated = false;
+        $order = $this->orderRepository->get($orderId);
+        $this->dataHelper->log(
             DataHelper::CODE_IMPORT,
-            $this->_dataHelper->setLogMessage('order already imported (ORDER ID %1)', [$order->getIncrementId()]),
-            $this->_logOutput,
-            $this->_marketplaceSku
+            $this->dataHelper->setLogMessage('order already imported (ORDER ID %1)', [$order->getIncrementId()]),
+            $this->logOutput,
+            $this->marketplaceSku
         );
-        $orderLengowId = $this->_lengowOrder->getLengowOrderIdWithOrderId($orderId);
-        $lengowOrder = $this->_lengowOrderFactory->create()->load($orderLengowId);
-        $result = ['order_lengow_id' => $lengowOrder->getId()];
+        $orderLengowId = $this->lengowOrder->getLengowOrderIdWithOrderId($orderId);
+        $lengowOrder = $this->lengowOrderFactory->create()->load($orderLengowId);
         // Lengow -> Cancel and reimport order
-        if ($lengowOrder->getData('is_reimported')) {
-            $this->_dataHelper->log(
+        if ($lengowOrder->getData(LengowOrder::FIELD_IS_REIMPORTED)) {
+            $this->dataHelper->log(
                 DataHelper::CODE_IMPORT,
-                $this->_dataHelper->setLogMessage(
+                $this->dataHelper->setLogMessage(
                     'order ready to be re-imported (ORDER ID %1)',
                     [$order->getIncrementId()]
                 ),
-                $this->_logOutput,
-                $this->_marketplaceSku
+                $this->logOutput,
+                $this->marketplaceSku
             );
-            $this->_isReimported = true;
-            return false;
+            $this->isReimported = true;
+            return $orderUpdated;
         }
+        // load data for return
+        $this->orderId = (int) $orderId;
+        $this->orderReference = $order->getIncrementId();
+        $this->previousOrderStateLengow = $lengowOrder->getData(LengowOrder::FIELD_ORDER_LENGOW_STATE);
         // try to update magento order, lengow order and finish actions if necessary
-        $orderUpdated = $this->_lengowOrder->updateState(
+        $orderUpdated = $this->lengowOrder->updateState(
             $order,
             $lengowOrder,
-            $this->_orderStateLengow,
-            $this->_packageData
+            $this->orderStateLengow,
+            $this->packageData
         );
         if ($orderUpdated) {
-            $result['update'] = true;
-            $this->_dataHelper->log(
+            $orderUpdated = true;
+            $this->dataHelper->log(
                 DataHelper::CODE_IMPORT,
-                $this->_dataHelper->setLogMessage("order's status has been updated to %1", [$orderUpdated]),
-                $this->_logOutput,
-                $this->_marketplaceSku
+                $this->dataHelper->setLogMessage("order's status has been updated to %1", [$orderUpdated]),
+                $this->logOutput,
+                $this->marketplaceSku
             );
         }
         unset($order, $lengowOrder);
-        return $result;
+        return $orderUpdated;
     }
 
     /**
-     * Checks if an external id already exists
-     *
-     * @param array $externalIds API external ids
-     *
-     * @return integer|false
-     */
-    protected function _checkExternalIds($externalIds)
-    {
-        $orderMagentoId = false;
-        if ($externalIds !== null && !empty($externalIds)) {
-            foreach ($externalIds as $externalId) {
-                $lineId = $this->_lengowOrder->getOrderIdWithDeliveryAddress(
-                    (int) $externalId,
-                    (int) $this->_deliveryAddressId
-                );
-                if ($lineId) {
-                    $orderMagentoId = $externalId;
-                    break;
-                }
-            }
-        }
-        return $orderMagentoId;
-    }
-
-    /**
-     * Checks if order data are present
+     * Checks if the order is not anonymized or too old
      *
      * @return boolean
      */
-    protected function _checkOrderData()
+    private function canCreateOrder()
     {
-        $errorMessages = [];
-        if (empty($this->_packageData->cart)) {
-            $errorMessages[] = $this->_dataHelper->setLogMessage('Lengow error: no product in the order');
+        if ($this->importOneOrder) {
+            return true;
         }
-        if (!isset($this->_orderData->currency->iso_a3)) {
-            $errorMessages[] = $this->_dataHelper->setLogMessage('Lengow error: no currency in the order');
-        }
-        if ($this->_orderData->total_order == -1) {
-            $errorMessages[] = $this->_dataHelper->setLogMessage(
-                'Lengow error: no exchange rates available for order prices'
-            );
-        }
-        if ($this->_orderData->billing_address === null) {
-            $errorMessages[] = $this->_dataHelper->setLogMessage('Lengow error: no billing address in the order');
-        } elseif ($this->_orderData->billing_address->common_country_iso_a2 === null) {
-            $errorMessages[] = $this->_dataHelper->setLogMessage(
-                "Lengow error: billing address doesn't contain the country"
-            );
-        }
-        if ($this->_packageData->delivery->common_country_iso_a2 === null) {
-            $errorMessages[] = $this->_dataHelper->setLogMessage(
-                "Lengow error: delivery address doesn't contain the country"
-            );
-        }
-        if (!empty($errorMessages)) {
-            foreach ($errorMessages as $errorMessage) {
-                $orderError = $this->_orderErrorFactory->create();
-                $orderError->createOrderError(
-                    [
-                        'order_lengow_id' => $this->_orderLengowId,
-                        'message' => $errorMessage,
-                        'type' => 'import',
-                    ]
-                );
-                $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
-                $this->_dataHelper->log(
-                    DataHelper::CODE_IMPORT,
-                    $this->_dataHelper->setLogMessage(
-                        'import order failed - %1',
-                        [$decodedMessage]
-                    ),
-                    $this->_logOutput,
-                    $this->_marketplaceSku
-                );
-                unset($orderError);
-            };
+        // skip import if the order is anonymized
+        if ($this->orderData->anonymized) {
+            $message = $this->dataHelper->setLogMessage('order is anonymized and has not been imported');
+            $this->errors[] = $this->dataHelper->decodeLogMessage($message, false);
+            $this->dataHelper->log(DataHelper::CODE_IMPORT, $message, $this->logOutput, $this->marketplaceSku);
             return false;
+        }
+        // skip import if the order is older than 3 months
+        try {
+            $dateTimeOrder = new \DateTime($this->orderData->marketplace_order_date);
+            $interval = $dateTimeOrder->diff(new \DateTime());
+            $monthInterval = $interval->m + ($interval->y * 12);
+            if ($monthInterval >= LengowImport::MONTH_INTERVAL_TIME) {
+                $message = $this->dataHelper->setLogMessage('order is older than 3 months and has not been imported');
+                $this->errors[] = $this->dataHelper->decodeLogMessage($message, false);
+                $this->dataHelper->log(DataHelper::CODE_IMPORT, $message, $this->logOutput, $this->marketplaceSku);
+                return false;
+            }
+        } catch (\Exception $e) {
+            $this->dataHelper->log(
+                DataHelper::CODE_IMPORT,
+                $this->dataHelper->setLogMessage('unable to check if the order is too old'),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
         }
         return true;
     }
 
     /**
-     * Return an array of result for each order
+     * Checks if an external id already exists
      *
-     * @param string $typeResult Type of result (new, update, error)
-     * @param integer $orderLengowId Lengow order id
-     * @param integer|null $orderId Magento order id
-     *
-     * @return array
+     * @return boolean
      */
-    protected function _returnResult($typeResult, $orderLengowId, $orderId = null)
+    private function externalIdAlreadyExist()
     {
-        return [
-            'order_id' => $orderId,
-            'order_lengow_id' => $orderLengowId,
-            'marketplace_sku' => $this->_marketplaceSku,
-            'marketplace_name' => $this->_marketplace->name,
-            'lengow_state' => $this->_orderStateLengow,
-            'order_new' => $typeResult === self::RESULT_NEW,
-            'order_update' => $typeResult === self::RESULT_UPDATE,
-            'order_error' => $typeResult === self::RESULT_ERROR,
+        if (empty($this->orderData->merchant_order_id) || $this->debugMode || $this->isReimported) {
+            return false;
+        }
+        foreach ($this->orderData->merchant_order_id as $externalId) {
+            if ($this->lengowOrder->getOrderIdWithDeliveryAddress((int) $externalId, $this->deliveryAddressId)) {
+                $message = $this->dataHelper->setLogMessage(
+                    'already imported in Magento with the order ID %1',
+                    [$externalId]
+                );
+                $this->errors[] = $this->dataHelper->decodeLogMessage($message, false);
+                $this->dataHelper->log(DataHelper::CODE_IMPORT, $message, $this->logOutput, $this->marketplaceSku);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the order status is valid for order creation
+     *
+     * @return boolean
+     */
+    private function orderStatusIsValid()
+    {
+        if ($this->importHelper->checkState($this->orderStateMarketplace, $this->marketplace)) {
+            return true;
+        }
+        $orderProcessState = $this->lengowOrder->getOrderProcessState($this->orderStateLengow);
+        // check and complete an order not imported if it is canceled or refunded
+        if ($this->orderLengowId && $orderProcessState === LengowOrder::PROCESS_STATE_FINISH) {
+            $this->lengowOrderErrorFactory->create()->finishOrderErrors($this->orderLengowId);
+            $orderLengow = $this->lengowOrderFactory->create()->load((int) $this->orderLengowId);
+            $orderLengow->updateOrder(
+                [
+                    LengowOrder::FIELD_IS_IN_ERROR => 0,
+                    LengowOrder::FIELD_ORDER_LENGOW_STATE => $this->orderStateLengow,
+                    LengowOrder::FIELD_ORDER_PROCESS_STATE => $orderProcessState,
+                ]
+            );
+
+        }
+        $message = $this->dataHelper->setLogMessage(
+            'current order status %1 means it is not possible to import the order to the marketplace %2',
+            [
+                $this->orderStateMarketplace,
+                $this->marketplace->name,
+            ]
+        );
+        $this->errors[] = $this->dataHelper->decodeLogMessage($message, false);
+        $this->dataHelper->log(DataHelper::CODE_IMPORT, $message, $this->logOutput, $this->marketplaceSku);
+        return false;
+    }
+
+    /**
+     * Create an order in lengow orders table
+     *
+     * @return boolean
+     */
+    private function createLengowOrder()
+    {
+        // load order date
+        $this->loadOrderDate();
+        // If the Lengow order already exists do not recreate it
+        if ($this->orderLengowId) {
+            return true;
+        }
+        $params = [
+            LengowOrder::FIELD_STORE_ID => (int) $this->storeId,
+            LengowOrder::FIELD_MARKETPLACE_SKU => $this->marketplaceSku,
+            LengowOrder::FIELD_MARKETPLACE_NAME => $this->marketplace->name,
+            LengowOrder::FIELD_MARKETPLACE_LABEL => $this->marketplaceLabel,
+            LengowOrder::FIELD_DELIVERY_ADDRESS_ID => $this->deliveryAddressId,
+            LengowOrder::FIELD_ORDER_LENGOW_STATE => $this->orderStateLengow,
+            LengowOrder::FIELD_ORDER_TYPES => $this->getOrderTypesData(),
+            LengowOrder::FIELD_CUSTOMER_VAT_NUMBER => $this->getVatNumberFromOrderData(),
+            LengowOrder::FIELD_ORDER_DATE => $this->orderDate,
+            LengowOrder::FIELD_MESSAGE => $this->getOrderComment(),
+            LengowOrder::FIELD_IS_IN_ERROR => 1,
         ];
+        // create lengow order
+        $lengowOrder = $this->lengowOrderFactory->create();
+        $lengowOrder->createOrder($params);
+        // get lengow order id
+        $this->orderLengowId = $lengowOrder->getLengowOrderId(
+            $this->marketplaceSku,
+            $this->marketplace->name,
+            $this->deliveryAddressId
+        );
+        if ($this->orderLengowId) {
+            $this->dataHelper->log(
+                DataHelper::CODE_IMPORT,
+                $this->dataHelper->setLogMessage('order saved in Lengow orders table'),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+            return true;
+        }
+        $message = $this->dataHelper->setLogMessage('WARNING! Order could NOT be saved in Lengow orders table');
+        $this->errors[] = $this->dataHelper->decodeLogMessage($message, false);
+        $this->dataHelper->log(DataHelper::CODE_IMPORT, $message, $this->logOutput, $this->marketplaceSku);
+        return false;
+    }
+
+    /**
+     * Get order types data and update Lengow order record
+     *
+     * @return string
+     */
+    private function getOrderTypesData()
+    {
+        $orderTypes = [];
+        if ($this->orderData->order_types !== null && !empty($this->orderData->order_types)) {
+            foreach ($this->orderData->order_types as $orderType) {
+                $orderTypes[$orderType->type] = $orderType->label;
+                if ($orderType->type === LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE) {
+                    $this->shippedByMp = true;
+                }
+            }
+        }
+        return json_encode($orderTypes);
+    }
+
+    /**
+     * Load order date in GMT format
+     */
+    private function loadOrderDate()
+    {
+        $orderDate = $this->orderData->marketplace_order_date !== null
+            ? (string) $this->orderData->marketplace_order_date
+            : (string) $this->orderData->imported_at;
+        $this->orderDate = $this->dateTime->gmtDate(DataHelper::DATE_FULL, strtotime($orderDate));
+    }
+
+    /**
+     * Get order comment from marketplace
+     *
+     * @return string
+     */
+    private function getOrderComment()
+    {
+        if (isset($this->orderData->comments) && is_array($this->orderData->comments)) {
+            $orderComment = implode(',', $this->orderData->comments);
+        } else {
+            $orderComment = (string) $this->orderData->comments;
+        }
+        return $orderComment;
+    }
+
+    /**
+     * Get vat_number from lengow order data
+     *
+     * @return string|null
+     */
+    private function getVatNumberFromOrderData()
+    {
+        if (isset($this->orderData->billing_address->vat_number)) {
+            return $this->orderData->billing_address->vat_number;
+        }
+        if (isset($this->packageData->delivery->vat_number)) {
+            return $this->packageData->delivery->vat_number;
+        }
+        return null;
+    }
+
+    /**
+     * Checks if the required order data is present and update Lengow order record
+     *
+     * @param LengowOrder $orderLengow Lengow order instance
+     *
+     * @return boolean
+     */
+    private function checkAndUpdateLengowOrderData($orderLengow)
+    {
+        // checks if all necessary order data are present
+        if (!$this->checkOrderData()) {
+            return false;
+        }
+        // load order amount, processing fees and shipping costs
+        $this->loadOrderAmount();
+        // load tracking data
+        $this->loadTrackingData();
+        // update Lengow order record with new data
+        $orderLengow->updateOrder(
+            [
+                LengowOrder::FIELD_CURRENCY => $this->orderData->currency->iso_a3,
+                LengowOrder::FIELD_TOTAL_PAID => $this->orderAmount,
+                LengowOrder::FIELD_ORDER_ITEM => $this->orderItems,
+                LengowOrder::FIELD_CUSTOMER_NAME => $this->getCustomerName(),
+                LengowOrder::FIELD_CUSTOMER_EMAIL => $this->getCustomerEmail(),
+                LengowOrder::FIELD_COMMISSION => (float) $this->orderData->commission,
+                LengowOrder::FIELD_CARRIER => $this->carrierName,
+                LengowOrder::FIELD_CARRIER_METHOD => $this->carrierMethod,
+                LengowOrder::FIELD_CARRIER_TRACKING => $this->trackingNumber,
+                LengowOrder::FIELD_CARRIER_RELAY_ID => $this->relayId,
+                LengowOrder::FIELD_SENT_MARKETPLACE => $this->shippedByMp,
+                LengowOrder::FIELD_DELIVERY_COUNTRY_ISO => $this->packageData->delivery->common_country_iso_a2,
+                LengowOrder::FIELD_ORDER_LENGOW_STATE => $this->orderStateLengow,
+                LengowOrder::FIELD_EXTRA => json_encode($this->orderData),
+            ]
+        );
+        return true;
+    }
+
+    /**
+     * Checks if all necessary order data are present
+     *
+     * @return boolean
+     */
+    private function checkOrderData()
+    {
+        $errorMessages = [];
+        if (empty($this->packageData->cart)) {
+            $errorMessages[] = $this->dataHelper->setLogMessage('Lengow error: no product in the order');
+        }
+        if (!isset($this->orderData->currency->iso_a3)) {
+            $errorMessages[] = $this->dataHelper->setLogMessage('Lengow error: no currency in the order');
+        }
+        if ($this->orderData->total_order == -1) {
+            $errorMessages[] = $this->dataHelper->setLogMessage(
+                'Lengow error: no exchange rates available for order prices'
+            );
+        }
+        if ($this->orderData->billing_address === null) {
+            $errorMessages[] = $this->dataHelper->setLogMessage('Lengow error: no billing address in the order');
+        } elseif ($this->orderData->billing_address->common_country_iso_a2 === null) {
+            $errorMessages[] = $this->dataHelper->setLogMessage(
+                "Lengow error: billing address doesn't contain the country"
+            );
+        }
+        if ($this->packageData->delivery->common_country_iso_a2 === null) {
+            $errorMessages[] = $this->dataHelper->setLogMessage(
+                "Lengow error: delivery address doesn't contain the country"
+            );
+        }
+        if (empty($errorMessages)) {
+            return true;
+        }
+        foreach ($errorMessages as $errorMessage) {
+            $orderError = $this->lengowOrderErrorFactory->create();
+            $orderError->createOrderError(
+                [
+                    LengowOrderError::FIELD_ORDER_LENGOW_ID => $this->orderLengowId,
+                    LengowOrderError::FIELD_MESSAGE => $errorMessage,
+                    LengowOrderError::FIELD_TYPE => LengowOrderError::TYPE_ERROR_IMPORT,
+                ]
+            );
+            $decodedMessage = $this->dataHelper->decodeLogMessage($errorMessage, false);
+            $this->errors[] = $decodedMessage;
+            $this->dataHelper->log(
+                DataHelper::CODE_IMPORT,
+                $this->dataHelper->setLogMessage(
+                    'import order failed - %1',
+                    [$decodedMessage]
+                ),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+            unset($orderError);
+        }
+        return false;
+    }
+
+    /**
+     * Load order amount, processing fees and shipping costs
+     */
+    private function loadOrderAmount()
+    {
+        $this->processingFee = (float) $this->orderData->processing_fee;
+        $this->shippingCost = (float) $this->orderData->shipping;
+        // rewrite processing fees and shipping cost
+        if (!$this->firstPackage) {
+            $this->processingFee = 0;
+            $this->shippingCost = 0;
+            $this->dataHelper->log(
+                DataHelper::CODE_IMPORT,
+                $this->dataHelper->setLogMessage('rewrite amount without processing fee'),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+            $this->dataHelper->log(
+                DataHelper::CODE_IMPORT,
+                $this->dataHelper->setLogMessage('rewrite amount without shipping cost'),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+        }
+        // get total amount and the number of items
+        $nbItems = 0;
+        $totalAmount = 0;
+        foreach ($this->packageData->cart as $product) {
+            // check whether the product is canceled for amount
+            if ($product->marketplace_status !== null) {
+                $stateProduct = $this->marketplace->getStateLengow((string) $product->marketplace_status);
+                if ($stateProduct === LengowOrder::STATE_CANCELED || $stateProduct === LengowOrder::STATE_REFUSED) {
+                    continue;
+                }
+            }
+            $nbItems += (int) $product->quantity;
+            $totalAmount += (float) $product->amount;
+        }
+        $this->orderItems = $nbItems;
+        $this->orderAmount = $totalAmount + $this->processingFee + $this->shippingCost;
+    }
+
+    /**
+     * Get tracking data and update Lengow order record
+     */
+    private function loadTrackingData()
+    {
+        $tracks = $this->packageData->delivery->trackings;
+        if (!empty($tracks)) {
+            $tracking = $tracks[0];
+            $this->carrierName = $tracking->carrier;
+            $this->carrierMethod = $tracking->method;
+            $this->trackingNumber = $tracking->number;
+            $this->relayId = $tracking->relay->id;
+        }
     }
 
     /**
@@ -1032,16 +1084,150 @@ class Importorder extends AbstractModel
      *
      * @return string
      */
-    protected function _getCustomerName()
+    private function getCustomerName()
     {
-        $firstname = (string) $this->_orderData->billing_address->first_name;
-        $lastname = (string) $this->_orderData->billing_address->last_name;
+        $firstname = (string) $this->orderData->billing_address->first_name;
+        $lastname = (string) $this->orderData->billing_address->last_name;
         $firstname = ucfirst(strtolower($firstname));
         $lastname = ucfirst(strtolower($lastname));
         if (empty($firstname) && empty($lastname)) {
-            return (string) $this->_orderData->billing_address->full_name;
+            return (string) $this->orderData->billing_address->full_name;
+        }
+        if (empty($firstname)) {
+            return $lastname;
+        }
+        if (empty($lastname)) {
+            return $firstname;
         }
         return $firstname . ' ' . $lastname;
+    }
+
+    /**
+     * Get customer email
+     *
+     * @return string
+     */
+    private function getCustomerEmail()
+    {
+        return $this->orderData->billing_address->email !== null
+            ? (string) $this->orderData->billing_address->email
+            : (string) $this->packageData->delivery->email;
+    }
+
+    /**
+     * Checks if an order sent by the marketplace must be created or not
+     *
+     * @param LengowOrder $orderLengow Lengow order instance
+     *
+     * @return boolean
+     */
+    private function canCreateOrderShippedByMarketplace($orderLengow)
+    {
+        // check if the order is shipped by marketplace
+        if ($this->shippedByMp) {
+            $message = $this->dataHelper->setLogMessage('order shipped by %1', [$this->marketplace->name]);
+            $this->dataHelper->log(DataHelper::CODE_IMPORT, $message, $this->logOutput, $this->marketplaceSku);
+            if (!$this->configHelper->get(ConfigHelper::SHIPPED_BY_MARKETPLACE_ENABLED, $this->storeId)) {
+                $this->errors[] = $this->dataHelper->decodeLogMessage($message, false);
+                $orderLengow->updateOrder(
+                    [
+                        LengowOrder::FIELD_IS_IN_ERROR => 0,
+                        LengowOrder::FIELD_ORDER_PROCESS_STATE => 2,
+                    ]
+                );
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Create a Magento order
+     *
+     * @param LengowOrder $orderLengow Lengow order instance
+     *
+     * @return boolean
+     */
+    private function createOrder($orderLengow)
+    {
+        try {
+            // search and get all products
+            $products = $this->getProducts();
+            // create or update customer with addresses
+            $customer = $this->lengowCustomer->createCustomer(
+                $this->orderData,
+                $this->packageData->delivery,
+                $this->storeId,
+                $this->marketplaceSku,
+                $this->logOutput
+            );
+            // if this order is B2B activate B2bTaxesApplicator
+            if ($this->configHelper->get(ConfigHelper::B2B_WITHOUT_TAX_ENABLED) && $orderLengow->isBusiness()) {
+                $this->backendSession->setIsLengowB2b(1);
+            }
+            // create Magento Quote
+            $quote = $this->createQuote($customer, $products);
+            // create a Magento Order from a Quote
+            $order = $this->makeOrder($quote, $orderLengow);
+            // if no Magento order created
+            if (!$order) {
+                throw new LengowException($this->dataHelper->setLogMessage('order could not be saved'));
+            }
+            // load order data for return
+            $this->orderId = (int) $order->getId();
+            $this->orderReference = $order->getIncrementId();
+            // save order line id in lengow_order_line table
+            $this->saveLengowOrderLine($order, $products);
+            $this->dataHelper->log(
+                DataHelper::CODE_IMPORT,
+                $this->dataHelper->setLogMessage(
+                    'order successfully imported (ORDER ID %1)',
+                    [$order->getIncrementId()]
+                ),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+            // checks and places the order in complete status in Magento
+            $this->updateStateToShip($order);
+            // add quantity back for re-imported order and order shipped by marketplace
+            $this->addQuantityBack($products);
+        } catch (LengowException $e) {
+            $errorMessage = $e->getMessage();
+        } catch (\Exception $e) {
+            $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+        }
+        if (!isset($errorMessage)) {
+            return true;
+        }
+        if ($orderLengow->getData(LengowOrder::FIELD_IS_IN_ERROR)) {
+            $orderError = $this->lengowOrderErrorFactory->create();
+            $orderError->createOrderError(
+                [
+                    LengowOrderError::FIELD_ORDER_LENGOW_ID => $this->orderLengowId,
+                    LengowOrderError::FIELD_MESSAGE => $errorMessage,
+                    LengowOrderError::FIELD_TYPE => LengowOrderError::TYPE_ERROR_IMPORT,
+                ]
+            );
+            unset($orderError);
+        }
+        $decodedMessage = $this->dataHelper->decodeLogMessage($errorMessage, false);
+        $this->errors[] = $decodedMessage;
+        $this->dataHelper->log(
+            DataHelper::CODE_IMPORT,
+            $this->dataHelper->setLogMessage(
+                'import order failed - %1',
+                [$decodedMessage]
+            ),
+            $this->logOutput,
+            $this->marketplaceSku
+        );
+        $orderLengow->updateOrder(
+            [
+                LengowOrder::FIELD_EXTRA => json_encode($this->orderData),
+                LengowOrder::FIELD_ORDER_LENGOW_STATE => $this->orderStateLengow,
+            ]
+        );
+        return false;
     }
 
     /**
@@ -1051,31 +1237,31 @@ class Importorder extends AbstractModel
      *
      * @return array
      */
-    protected function getProducts()
+    private function getProducts()
     {
         $lengowProducts = [];
-        foreach ($this->_packageData->cart as $product) {
+        foreach ($this->packageData->cart as $product) {
             $found = false;
             $magentoProduct = false;
             $orderLineId = (string) $product->marketplace_order_line_id;
             // check whether the product is canceled
             if ($product->marketplace_status !== null) {
-                $stateProduct = $this->_marketplace->getStateLengow((string) $product->marketplace_status);
+                $stateProduct = $this->marketplace->getStateLengow((string) $product->marketplace_status);
                 if ($stateProduct === LengowOrder::STATE_CANCELED || $stateProduct === LengowOrder::STATE_REFUSED) {
                     $productId = $product->merchant_product_id->id !== null
                         ? (string) $product->merchant_product_id->id
                         : (string) $product->marketplace_product_id;
-                    $this->_dataHelper->log(
+                    $this->dataHelper->log(
                         DataHelper::CODE_IMPORT,
-                        $this->_dataHelper->setLogMessage(
+                        $this->dataHelper->setLogMessage(
                             'product %1 could not be added to cart - status: %2',
                             [
                                 $productId,
                                 $stateProduct,
                             ]
                         ),
-                        $this->_logOutput,
-                        $this->_marketplaceSku
+                        $this->logOutput,
+                        $this->marketplaceSku
                     );
                     continue;
                 }
@@ -1097,31 +1283,31 @@ class Importorder extends AbstractModel
                 // search by field if exists
                 if ($productField) {
                     try {
-                        $attributeModel = $this->_productAttribute->get($productField);
+                        $attributeModel = $this->productAttribute->get($productField);
                     } catch (\Exception $e) {
                         $attributeModel = false;
                     }
                     if ($attributeModel) {
-                        $collection = $this->_productCollection->create()
-                            ->setStoreId($this->_storeId)
+                        $collection = $this->productCollection->create()
+                            ->setStoreId($this->storeId)
                             ->addAttributeToSelect($productField)
                             ->addAttributeToFilter($productField, $attributeValue)
                             ->setPage(1, 1)
                             ->getData();
                         if (is_array($collection) && !empty($collection)) {
-                            $magentoProduct = $this->_productFactory->create()->load($collection[0]['entity_id']);
+                            $magentoProduct = $this->productFactory->create()->load($collection[0]['entity_id']);
                         }
                     }
                 }
                 // search by id or sku
                 if (!$magentoProduct || !$magentoProduct->getId()) {
                     if (preg_match('/^[0-9]*$/', $attributeValue)) {
-                        $magentoProduct = $this->_productFactory->create()->load((int) $attributeValue);
+                        $magentoProduct = $this->productFactory->create()->load((int) $attributeValue);
                     }
                     if (!$magentoProduct || !$magentoProduct->getId()) {
                         $attributeValue = str_replace('\_', '_', $attributeValue);
-                        $magentoProduct = $this->_productFactory->create()->load(
-                            $this->_productFactory->create()->getIdBySku($attributeValue)
+                        $magentoProduct = $this->productFactory->create()->load(
+                            $this->productFactory->create()->getIdBySku($attributeValue)
                         );
                     }
                 }
@@ -1135,7 +1321,7 @@ class Importorder extends AbstractModel
                     } else {
                         $lengowProducts[$magentoProductId] = [
                             'magento_product' => $magentoProduct,
-                            'sku' => (string) $magentoProduct->getSku(),
+                            'sku' => $magentoProduct->getSku(),
                             'title' => (string) $product->title,
                             'amount' => (float) $product->amount,
                             'price_unit' => (float) ($product->amount / $product->quantity),
@@ -1143,9 +1329,9 @@ class Importorder extends AbstractModel
                             'order_line_ids' => [$orderLineId],
                         ];
                     }
-                    $this->_dataHelper->log(
+                    $this->dataHelper->log(
                         DataHelper::CODE_IMPORT,
-                        $this->_dataHelper->setLogMessage(
+                        $this->dataHelper->setLogMessage(
                             'product id %1 found with field %2 (%3)',
                             [
                                 $magentoProduct->getId(),
@@ -1153,8 +1339,8 @@ class Importorder extends AbstractModel
                                 $attributeValue,
                             ]
                         ),
-                        $this->_logOutput,
-                        $this->_marketplaceSku
+                        $this->logOutput,
+                        $this->marketplaceSku
                     );
                     $found = true;
                     break;
@@ -1165,12 +1351,12 @@ class Importorder extends AbstractModel
                     ? (string) $product->merchant_product_id->id
                     : (string) $product->marketplace_product_id;
                 throw new LengowException(
-                    $this->_dataHelper->setLogMessage('product %1 could not be found', [$productId])
+                    $this->dataHelper->setLogMessage('product %1 could not be found', [$productId])
                 );
             }
             if ($magentoProduct->getTypeId() === Configurable::TYPE_CODE) {
                 throw new LengowException(
-                    $this->_dataHelper->setLogMessage(
+                    $this->dataHelper->setLogMessage(
                         'product %1 is a parent ID. Product variation is needed',
                         [$magentoProduct->getId()]
                     )
@@ -1190,30 +1376,30 @@ class Importorder extends AbstractModel
      *
      * @return LengowQuoteFactory
      */
-    protected function _createQuote(MagentoCustomer $customer, $products)
+    private function createQuote(MagentoCustomer $customer, $products)
     {
-        $customerRepo = $this->_customerRepository->getById($customer->getId());
-        $quote = $this->_lengowQuoteFactory->create()
+        $customerRepo = $this->customerRepository->getById($customer->getId());
+        $quote = $this->lengowQuoteFactory->create()
             ->setIsMultiShipping(false)
-            ->setStore($this->_storeManager->getStore($this->_storeId))
+            ->setStore($this->storeManager->getStore($this->storeId))
             ->setInventoryProcessed(false);
         // import customer addresses into quote
         // set billing Address
-        $customerBillingAddress = $this->_addressRepository->getById($customerRepo->getDefaultBilling());
-        $billingAddress = $this->_quoteAddressFactory->create()
+        $customerBillingAddress = $this->addressRepository->getById($customerRepo->getDefaultBilling());
+        $billingAddress = $this->quoteAddressFactory->create()
             ->setShouldIgnoreValidation(true)
             ->importCustomerAddressData($customerBillingAddress)
             ->setSaveInAddressBook(0);
-        $customerShippingAddress = $this->_addressRepository->getById($customerRepo->getDefaultShipping());
-        $shippingAddress = $this->_quoteAddressFactory->create()
+        $customerShippingAddress = $this->addressRepository->getById($customerRepo->getDefaultShipping());
+        $shippingAddress = $this->quoteAddressFactory->create()
             ->setShouldIgnoreValidation(true)
             ->importCustomerAddressData($customerShippingAddress)
             ->setSaveInAddressBook(0)
             ->setSameAsBilling(0);
         $quote->assignCustomerWithAddressChange($customerRepo, $billingAddress, $shippingAddress);
         // check if store include tax (Product and shipping cost)
-        $priceIncludeTax = $this->_taxConfig->priceIncludesTax($quote->getStore());
-        $shippingIncludeTax = $this->_taxConfig->shippingPriceIncludesTax($quote->getStore());
+        $priceIncludeTax = $this->taxConfig->priceIncludesTax($quote->getStore());
+        $shippingIncludeTax = $this->taxConfig->shippingPriceIncludesTax($quote->getStore());
         // if this order is b2b
         if ((int) $this->backendSession->getIsLengowB2b() === 1) {
             $priceIncludeTax = true;
@@ -1221,20 +1407,20 @@ class Importorder extends AbstractModel
         // add product in quote
         $quote->addLengowProducts($products, $priceIncludeTax);
         // get shipping cost with tax
-        $shippingCost = $this->_processingFee + $this->_shippingCost;
+        $shippingCost = $this->processingFee + $this->shippingCost;
         // if shipping cost not include tax -> get shipping cost without tax
         if (!$shippingIncludeTax) {
-            $shippingTaxClass = $this->_scopeConfig->getValue(
+            $shippingTaxClass = $this->scopeConfig->getValue(
                 TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
                 'store',
                 $quote->getStore()
             );
-            $taxRate = $this->_taxCalculation->getCalculatedRate(
+            $taxRate = $this->taxCalculation->getCalculatedRate(
                 $shippingTaxClass,
                 $customer->getId(),
                 $quote->getStore()
             );
-            $taxShippingCost = $this->_calculation->calcTaxAmount($shippingCost, $taxRate, true);
+            $taxShippingCost = $this->calculation->calcTaxAmount($shippingCost, $taxRate, true);
             $shippingCost -= $taxShippingCost;
         }
         $quoteShippingAddress = $quote->getShippingAddress();
@@ -1242,15 +1428,15 @@ class Importorder extends AbstractModel
         $quoteShippingAddress->setCollectShippingRates(true);
         $quoteShippingAddress->setTotalsCollectedFlag(false)->collectShippingRates();
         $rates = $quoteShippingAddress->getShippingRatesCollection();
-        $shippingMethod = $this->_updateRates($rates, $shippingCost);
+        $shippingMethod = $this->updateRates($rates, $shippingCost);
         // set shipping price and shipping method for current order
         $quoteShippingAddress
             ->setShippingPrice($shippingCost)
             ->setShippingMethod($shippingMethod);
         // get payment data
         $paymentInfo = '';
-        if (!empty($this->_orderData->payments)) {
-            $payment = $this->_orderData->payments[0];
+        if (!empty($this->orderData->payments)) {
+            $payment = $this->orderData->payments[0];
             $paymentInfo .= ' - ' . $payment->type;
             if (isset($payment->payment_terms->external_transaction_id)) {
                 $paymentInfo .= ' - ' . $payment->payment_terms->external_transaction_id;
@@ -1258,92 +1444,18 @@ class Importorder extends AbstractModel
         }
         // set payment method lengow
         $quote->getPayment()->setMethod('lengow')->setAdditionnalInformation([
-            'marketplace' => $this->_orderData->marketplace . $paymentInfo,
+            'marketplace' => $this->orderData->marketplace . $paymentInfo,
         ]);
         $quote->collectTotals()->save();
         // stop order creation when a quote is empty
         if (!$quote->getAllVisibleItems()) {
             $quote->setIsActive(false);
             throw new LengowException(
-                $this->_dataHelper->setLogMessage('quote does not contain any valid products')
+                $this->dataHelper->setLogMessage('quote does not contain any valid products')
             );
         }
         $quote->save();
         return $quote;
-    }
-
-    /**
-     * Create order
-     *
-     * @param Quote $quote Lengow quote instance
-     * @param LengowOrder $orderLengow Lengow order instance
-     *
-     * @throws \Exception|LengowException
-     *
-     * @return MagentoOrder
-     */
-    protected function _makeOrder(Quote $quote, $orderLengow)
-    {
-        $additionalData = [
-            'from_lengow' => true,
-            'global_currency_code' => (string) $this->_orderData->currency->iso_a3,
-            'base_currency_code' => (string) $this->_orderData->currency->iso_a3,
-            'store_currency_code' => (string) $this->_orderData->currency->iso_a3,
-            'order_currency_code' => (string) $this->_orderData->currency->iso_a3,
-        ];
-        try {
-            $order = $this->_quoteManagement->submit($quote, $additionalData);
-        } catch (\Exception $e) {
-            // try to generate order with quote factory for "Cart does not contain item" Magento bug
-            $magentoQuote = $this->_quoteMagentoFactory->create()->load($quote->getId());
-            $order = $this->_quoteManagement->submit($magentoQuote, $additionalData);
-        }
-        if (!$order) {
-            throw new LengowException(
-                $this->_dataHelper->setLogMessage('unable to create order based on given quote')
-            );
-        }
-        $order->addData($additionalData);
-        // modify order dates to use actual dates
-        // get all params to create order
-        if ($this->_orderData->marketplace_order_date !== null) {
-            $orderDate = (string) $this->_orderData->marketplace_order_date;
-        } else {
-            $orderDate = (string) $this->_orderData->imported_at;
-        }
-        $order->setCreatedAt($this->_dateTime->gmtDate('Y-m-d H:i:s', strtotime($orderDate)));
-        $order->setUpdatedAt($this->_dateTime->gmtDate('Y-m-d H:i:s', strtotime($orderDate)));
-        $order->save();
-        // update Lengow order record
-        $orderLengow->updateOrder(
-            [
-                'order_id' => $order->getId(),
-                'order_sku' => $order->getIncrementId(),
-                'order_process_state' => $this->_lengowOrder->getOrderProcessState($this->_orderStateLengow),
-                'order_lengow_state' => $this->_orderStateLengow,
-                'is_in_error' => 0,
-                'is_reimported' => 0,
-            ]
-        );
-        $this->_dataHelper->log(
-            DataHelper::CODE_IMPORT,
-            $this->_dataHelper->setLogMessage('order updated in Lengow orders table'),
-            $this->_logOutput,
-            $this->_marketplaceSku
-        );
-        // generate invoice for order
-        if ($order->canInvoice()) {
-            $this->_lengowOrder->toInvoice($order);
-        }
-        $carrierName = $this->_carrierName;
-        if ($carrierName === null || $carrierName === 'None') {
-            $carrierName = $this->_carrierMethod;
-        }
-        $order->setShippingDescription(
-            $order->getShippingDescription() . ' [marketplace shipping method : ' . $carrierName . ']'
-        );
-        $order->save();
-        return $order;
     }
 
     /**
@@ -1356,10 +1468,10 @@ class Importorder extends AbstractModel
      *
      * @return boolean
      */
-    protected function _updateRates($rates, $shippingCost, $shippingMethod = null, $first = true)
+    private function updateRates($rates, $shippingCost, $shippingMethod = null, $first = true)
     {
         if (!$shippingMethod) {
-            $shippingMethod = $this->_configHelper->get(ConfigHelper::DEFAULT_IMPORT_CARRIER_ID, $this->_storeId);
+            $shippingMethod = $this->configHelper->get(ConfigHelper::DEFAULT_IMPORT_CARRIER_ID, $this->storeId);
         }
         if (empty($shippingMethod)) {
             $shippingMethod = 'lengow_lengow';
@@ -1379,73 +1491,86 @@ class Importorder extends AbstractModel
             return 'lengow_lengow';
         }
         // get lengow shipping method if selected shipping method is unavailable
-        $this->_dataHelper->log(
+        $this->dataHelper->log(
             DataHelper::CODE_IMPORT,
-            $this->_dataHelper->setLogMessage(
+            $this->dataHelper->setLogMessage(
                 'the chosen shipping method is not available for this order. Lengow has assigned a shipping method'
             ),
-            $this->_logOutput,
-            $this->_marketplaceSku
+            $this->logOutput,
+            $this->marketplaceSku
         );
-        return $this->_updateRates($rates, $shippingCost, 'lengow_lengow', false);
+        return $this->updateRates($rates, $shippingCost, 'lengow_lengow', false);
     }
 
     /**
-     * Create a order in lengow orders table
+     * Create a Magento order from a quote
      *
-     * @return boolean
+     * @param Quote $quote Lengow quote instance
+     * @param LengowOrder $orderLengow Lengow order instance
+     *
+     * @throws \Exception|LengowException
+     *
+     * @return MagentoOrder
      */
-    protected function _createLengowOrder()
+    private function makeOrder(Quote $quote, $orderLengow)
     {
-        // get all params to create order
-        $orderDate = $this->_orderData->marketplace_order_date !== null
-            ? (string) $this->_orderData->marketplace_order_date
-            : (string) $this->_orderData->imported_at;
-        $message = (isset($this->_orderData->comments) && is_array($this->_orderData->comments))
-            ? join(',', $this->_orderData->comments)
-            : (string) $this->_orderData->comments;
-        $params = [
-            'store_id' => (int) $this->_storeId,
-            'marketplace_sku' => $this->_marketplaceSku,
-            'marketplace_name' => $this->_marketplace->name,
-            'marketplace_label' => (string) $this->_marketplaceLabel,
-            'delivery_address_id' => (int) $this->_deliveryAddressId,
-            'order_lengow_state' => $this->_orderStateLengow,
-            'order_types' => json_encode($this->_orderTypes),
-            'customer_vat_number' => $this->getVatNumberFromOrderData(),
-            'order_date' => $this->_dateTime->gmtDate('Y-m-d H:i:s', strtotime($orderDate)),
-            'message' => $message,
-            'is_in_error' => 1,
+        $currencyIsoA3 = (string) $this->orderData->currency->iso_a3;
+        $additionalData = [
+            'from_lengow' => true,
+            'global_currency_code' => $currencyIsoA3,
+            'base_currency_code' => $currencyIsoA3,
+            'store_currency_code' => $currencyIsoA3,
+            'order_currency_code' => $currencyIsoA3,
         ];
-        // create lengow order
-        $lengowOrder = $this->_lengowOrderFactory->create();
-        $lengowOrder->createOrder($params);
-        // get lengow order id
-        $this->_orderLengowId = $lengowOrder->getLengowOrderId(
-            $this->_marketplaceSku,
-            $this->_marketplace->name,
-            $this->_deliveryAddressId
+        try {
+            $order = $this->quoteManagement->submit($quote, $additionalData);
+        } catch (\Exception $e) {
+            // try to generate order with quote factory for "Cart does not contain item" Magento bug
+            $magentoQuote = $this->quoteMagentoFactory->create()->load($quote->getId());
+            $order = $this->quoteManagement->submit($magentoQuote, $additionalData);
+        }
+        if (!$order) {
+            throw new LengowException(
+                $this->dataHelper->setLogMessage('unable to create order based on given quote')
+            );
+        }
+        $order->addData($additionalData);
+        // modify order dates to use actual dates
+        $order->setCreatedAt($this->orderDate);
+        $order->setUpdatedAt($this->orderDate);
+        $order->save();
+        // update Lengow order record
+        $orderLengow->updateOrder(
+            [
+                LengowOrder::FIELD_ORDER_ID => (int) $order->getId(),
+                LengowOrder::FIELD_ORDER_SKU => $order->getIncrementId(),
+                LengowOrder::FIELD_ORDER_PROCESS_STATE => $this->lengowOrder->getOrderProcessState(
+                    $this->orderStateLengow
+                ),
+                LengowOrder::FIELD_ORDER_LENGOW_STATE => $this->orderStateLengow,
+                LengowOrder::FIELD_IS_IN_ERROR => 0,
+                LengowOrder::FIELD_IS_REIMPORTED => 0,
+            ]
         );
-        if (!$this->_orderLengowId) {
-            return false;
+        $this->dataHelper->log(
+            DataHelper::CODE_IMPORT,
+            $this->dataHelper->setLogMessage('order updated in Lengow orders table'),
+            $this->logOutput,
+            $this->marketplaceSku
+        );
+        // generate invoice for order
+        if ($order->canInvoice()) {
+            $this->lengowOrder->toInvoice($order);
         }
-        return true;
-    }
-
-    /**
-     * Get vat_number from lengow order data
-     *
-     * @return string|null
-     */
-    protected function getVatNumberFromOrderData()
-    {
-        if (isset($this->_orderData->billing_address->vat_number)) {
-            return $this->_orderData->billing_address->vat_number;
+        $carrierName = $this->carrierName;
+        if ($carrierName === null || $carrierName === 'None') {
+            $carrierName = $this->carrierMethod;
         }
-        if (isset($this->_packageData->delivery->vat_number)) {
-            return $this->_packageData->delivery->vat_number;
-        }
-        return null;
+        $order->setShippingDescription(
+            $order->getShippingDescription() . ' [marketplace shipping method : ' . $carrierName . ']'
+        );
+        $order->save();
+        return $order;
     }
 
     /**
@@ -1453,25 +1578,92 @@ class Importorder extends AbstractModel
      *
      * @param MagentoOrder $order Magento order instance
      * @param array $products Lengow products from Api
-     *
-     * @return string
      */
-    protected function _saveLengowOrderLine($order, $products)
+    private function saveLengowOrderLine($order, $products)
     {
         $orderLineSaved = false;
         foreach ($products as $productId => $product) {
             foreach ($product['order_line_ids'] as $idOrderLine) {
-                $orderLine = $this->_lengowOrderLineFactory->create();
+                $orderLine = $this->lengowOrderLineFactory->create();
                 $orderLine->createOrderLine(
                     [
-                        'order_id' => (int) $order->getId(),
-                        'product_id' => $productId,
-                        'order_line_id' => $idOrderLine,
+                        LengowOrderLine::FIELD_ORDER_ID => (int) $order->getId(),
+                        LengowOrderLine::FIELD_PRODUCT_ID => $productId,
+                        LengowOrderLine::FIELD_ORDER_LINE_ID => $idOrderLine,
                     ]
                 );
                 $orderLineSaved .= !$orderLineSaved ? $idOrderLine : ' / ' . $idOrderLine;
             }
         }
-        return $orderLineSaved;
+        if ($orderLineSaved) {
+            $this->dataHelper->log(
+                DataHelper::CODE_IMPORT,
+                $this->dataHelper->setLogMessage('save order lines product: %1', [$orderLineSaved]),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+        } else {
+            $this->dataHelper->log(
+                DataHelper::CODE_IMPORT,
+                $this->dataHelper->setLogMessage(
+                    'WARNING ! Order lines could NOT be saved in Lengow order lines table'
+                ),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+        }
+    }
+
+    /**
+     * Checks and places the order in complete status in Magento
+     *
+     * @param MagentoOrder $order Magento order instance
+     *
+     * @throws \Exception
+     */
+    private function updateStateToShip($order)
+    {
+        if ($this->orderStateLengow === LengowOrder::STATE_SHIPPED
+            || $this->orderStateLengow === LengowOrder::STATE_CLOSED
+        ) {
+            $this->lengowOrder->toShip($order, $this->carrierName, $this->carrierMethod, $this->trackingNumber);
+            $this->dataHelper->log(
+                DataHelper::CODE_IMPORT,
+                $this->dataHelper->setLogMessage(
+                    "order's status has been updated to %1",
+                    [MagentoOrder::STATE_COMPLETE]
+                ),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+        }
+    }
+
+    /**
+     * Add quantity back to stock
+     *
+     * @param array $products Lengow products from Api
+     */
+    private function addQuantityBack($products)
+    {
+        // add quantity back for re-imported order and order shipped by marketplace
+        if ($this->isReimported
+            || ($this->shippedByMp
+                && !$this->configHelper->get(ConfigHelper::SHIPPED_BY_MARKETPLACE_STOCK_ENABLED, $this->storeId)
+            )
+        ) {
+            $messageKey = $this->isReimported
+                ? 'adding quantity back to stock count (order is re-imported)'
+                : 'adding quantity back to stock count (order shipped by marketplace)';
+            $this->dataHelper->log(
+                DataHelper::CODE_IMPORT,
+                $this->dataHelper->setLogMessage($messageKey),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+            foreach ($products as $productId => $product) {
+                $this->stockManagement->backItemQty($productId, $product['quantity'], $this->storeId);
+            }
+        }
     }
 }

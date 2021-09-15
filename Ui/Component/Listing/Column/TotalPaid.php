@@ -25,6 +25,7 @@ use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Ui\Component\Listing\Columns\Column;
 use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class TotalPaid extends Column
 {
@@ -81,13 +82,17 @@ class TotalPaid extends Column
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if ($item['total_paid'] !== null) {
-                    $currencyFactory = $this->_currencyFactory->create()->load($item['currency']);
+                if ($item[LengowOrder::FIELD_TOTAL_PAID] !== null) {
+                    $currencyFactory = $this->_currencyFactory->create()->load($item[LengowOrder::FIELD_CURRENCY]);
                     $currencySymbol = $currencyFactory->getCurrencySymbol();
-                    $nbProduct = $this->_dataHelper->decodeLogMessage('%1 product(s)', true, [$item['order_item']]);
-                    $item['total_paid'] = '
+                    $nbProduct = $this->_dataHelper->decodeLogMessage(
+                        '%1 product(s)',
+                        true,
+                        [$item[LengowOrder::FIELD_ORDER_ITEM]]
+                    );
+                    $item[LengowOrder::FIELD_TOTAL_PAID] = '
                         <div class="lengow_tooltip">'
-                            . $currencySymbol . $item['total_paid'] .
+                            . $currencySymbol . $item[LengowOrder::FIELD_TOTAL_PAID] .
                             '<span class="lengow_order_amount">' . $nbProduct . '</span>
                         </div>
                     ';
