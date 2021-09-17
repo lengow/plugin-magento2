@@ -105,24 +105,34 @@ class Index extends Action
                         $this->toolboxHelper->downloadLog($date);
                         break;
                     case ToolboxHelper::ACTION_ORDER:
-                        $result = $this->toolboxHelper->syncOrders(
-                            [
-                                ToolboxHelper::PARAM_CREATED_TO => $this->getRequest()
-                                    ->getParam(ToolboxHelper::PARAM_CREATED_TO),
-                                ToolboxHelper::PARAM_CREATED_FROM => $this->getRequest()
-                                    ->getParam(ToolboxHelper::PARAM_CREATED_FROM),
-                                ToolboxHelper::PARAM_DAYS => $this->getRequest()
-                                    ->getParam(ToolboxHelper::PARAM_DAYS),
-                                ToolboxHelper::PARAM_FORCE => $this->getRequest()
-                                    ->getParam(ToolboxHelper::PARAM_FORCE),
-                                ToolboxHelper::PARAM_MARKETPLACE_NAME => $this->getRequest()
-                                    ->getParam(ToolboxHelper::PARAM_MARKETPLACE_NAME),
-                                ToolboxHelper::PARAM_MARKETPLACE_SKU => $this->getRequest()
-                                    ->getParam(ToolboxHelper::PARAM_MARKETPLACE_SKU),
-                                ToolboxHelper::PARAM_SHOP_ID => $this->getRequest()
-                                    ->getParam(ToolboxHelper::PARAM_SHOP_ID),
-                            ]
-                        );
+                        $process = $this->getRequest()
+                            ->getParam(ToolboxHelper::PARAM_PROCESS, ToolboxHelper::PROCESS_TYPE_SYNC);
+                        if ($process === ToolboxHelper::PROCESS_TYPE_GET_DATA) {
+                            $result = $this->toolboxHelper->getOrderData(
+                                $this->getRequest()->getParam(ToolboxHelper::PARAM_MARKETPLACE_SKU),
+                                $this->getRequest()->getParam(ToolboxHelper::PARAM_MARKETPLACE_NAME),
+                                $this->getRequest()->getParam(ToolboxHelper::PARAM_TYPE)
+                            );
+                        } else {
+                            $result = $this->toolboxHelper->syncOrders(
+                                [
+                                    ToolboxHelper::PARAM_CREATED_TO => $this->getRequest()
+                                        ->getParam(ToolboxHelper::PARAM_CREATED_TO),
+                                    ToolboxHelper::PARAM_CREATED_FROM => $this->getRequest()
+                                        ->getParam(ToolboxHelper::PARAM_CREATED_FROM),
+                                    ToolboxHelper::PARAM_DAYS => $this->getRequest()
+                                        ->getParam(ToolboxHelper::PARAM_DAYS),
+                                    ToolboxHelper::PARAM_FORCE => $this->getRequest()
+                                        ->getParam(ToolboxHelper::PARAM_FORCE),
+                                    ToolboxHelper::PARAM_MARKETPLACE_NAME => $this->getRequest()
+                                        ->getParam(ToolboxHelper::PARAM_MARKETPLACE_NAME),
+                                    ToolboxHelper::PARAM_MARKETPLACE_SKU => $this->getRequest()
+                                        ->getParam(ToolboxHelper::PARAM_MARKETPLACE_SKU),
+                                    ToolboxHelper::PARAM_SHOP_ID => $this->getRequest()
+                                        ->getParam(ToolboxHelper::PARAM_SHOP_ID),
+                                ]
+                            );
+                        }
                         if (isset($result[ToolboxHelper::ERRORS][ToolboxHelper::ERROR_CODE])) {
                             $errorCode = $result[ToolboxHelper::ERRORS][ToolboxHelper::ERROR_CODE];
                             if ($errorCode === LengowConnector::CODE_404) {

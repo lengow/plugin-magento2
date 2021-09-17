@@ -338,19 +338,21 @@ class Action extends AbstractModel
     }
 
     /**
-     * Find active actions by order id
+     * Find actions by order id
      *
      * @param integer $orderId Magento order id
+     * @param boolean $onlyActive get only active actions
      * @param string|null $actionType action type (ship or cancel)
      *
      * @return array|false
      */
-    public function getActiveActionByOrderId($orderId, $actionType = null)
+    public function getActionsByOrderId($orderId, $onlyActive = false, $actionType = null)
     {
-        $collection = $this->lengowActionCollection->create()
-            ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)
-            ->addFieldToFilter(self::FIELD_STATE, self::STATE_NEW);
-        if ($actionType !== null) {
+        $collection = $this->lengowActionCollection->create()->addFieldToFilter(self::FIELD_ORDER_ID, $orderId);
+        if ($onlyActive) {
+            $collection->addFieldToFilter(self::FIELD_STATE, self::STATE_NEW);
+        }
+        if ($actionType) {
             $collection->addFieldToFilter(self::FIELD_ACTION_TYPE, $actionType);
         }
         $results = $collection->getData();
@@ -359,7 +361,6 @@ class Action extends AbstractModel
         }
         return false;
     }
-
 
     /**
      * Get last order action type to re-send action
@@ -781,7 +782,7 @@ class Action extends AbstractModel
         $unsentOrders = $lengowOrder->getUnsentOrders();
         if ($unsentOrders) {
             foreach ($unsentOrders as $unsentOrder) {
-                if (!$this->getActiveActionByOrderId((int) $unsentOrder['order_id'])) {
+                if (!$this->getActionsByOrderId((int) $unsentOrder['order_id'], true)) {
                     $action = $unsentOrder['state'] === self::TYPE_CANCEL ? self::TYPE_CANCEL : self::TYPE_SHIP;
                     $order = $this->orderFactory->create()->load((int) $unsentOrder['order_id']);
                     $shipment = $action === self::TYPE_SHIP ? $order->getShipmentsCollection()->getFirstItem() : null;

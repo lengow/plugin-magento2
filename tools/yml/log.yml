@@ -64,6 +64,7 @@ en:
       anonymized_order: "order is anonymized and has not been imported"
       old_order: "order is older than 3 months and has not been imported"
       unable_verify_date: "unable to check if the order is too old"
+      unable_find_order: "Unable to find the requested order"
     order_action:
       check_completed_action: "check completed actions"
       check_old_action: "check and finish old actions"

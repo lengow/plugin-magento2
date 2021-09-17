@@ -40,37 +40,37 @@ class Info extends Template implements TabInterface
     /**
      * @var Registry Magento Registry instance
      */
-    protected $_coreRegistry;
+    private $coreRegistry;
 
     /**
      * @var MagentoOrder Magento order instance
      */
-    protected $_order;
+    private $order;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * @var LengowAction Lengow action instance
      */
-    protected $_action;
+    private $lengowAction;
 
     /**
      * @var LengowOrder Lengow order instance
      */
-    protected $_lengowOrder;
+    private $lengowOrder;
 
     /**
      * @var LengowOrderFactory Lengow order factory instance
      */
-    protected $_lengowOrderFactory;
+    private $lengowOrderFactory;
 
     /**
      * Construct
@@ -80,7 +80,7 @@ class Info extends Template implements TabInterface
      * @param DataHelper $dataHelper Lengow data helper instance
      * @param ConfigHelper $configHelper Lengow config helper instance
      * @param LengowOrderFactory $lengowOrderFactory Lengow order factory instance
-     * @param LengowAction $action Lengow action instance
+     * @param LengowAction $lengowAction Lengow action instance
      * @param array $data
      */
     public function __construct(
@@ -89,16 +89,16 @@ class Info extends Template implements TabInterface
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         LengowOrderFactory $lengowOrderFactory,
-        LengowAction $action,
+        LengowAction $lengowAction,
         array $data = []
     ) {
-        $this->_coreRegistry = $coreRegistry;
-        $this->_dataHelper = $dataHelper;
-        $this->_configHelper = $configHelper;
-        $this->_lengowOrderFactory = $lengowOrderFactory;
-        $this->_action = $action;
-        $this->_order = $this->getOrder();
-        $this->_lengowOrder = $this->getLengowOrder();
+        $this->coreRegistry = $coreRegistry;
+        $this->dataHelper = $dataHelper;
+        $this->configHelper = $configHelper;
+        $this->lengowOrderFactory = $lengowOrderFactory;
+        $this->lengowAction = $lengowAction;
+        $this->order = $this->getOrder();
+        $this->lengowOrder = $this->getLengowOrder();
         parent::__construct($context, $data);
     }
 
@@ -149,7 +149,7 @@ class Info extends Template implements TabInterface
      */
     public function getOrder()
     {
-        return $this->_coreRegistry->registry('current_order');
+        return $this->coreRegistry->registry('current_order');
     }
 
     /**
@@ -159,9 +159,9 @@ class Info extends Template implements TabInterface
      */
     public function getLengowOrder()
     {
-        $lengowOrderId = $this->_lengowOrderFactory->create()->getLengowOrderIdByOrderId($this->getOrderId());
+        $lengowOrderId = $this->lengowOrderFactory->create()->getLengowOrderIdByOrderId($this->getOrderId());
         if ($lengowOrderId) {
-            return $this->_lengowOrderFactory->create()->load($lengowOrderId);
+            return $this->lengowOrderFactory->create()->load($lengowOrderId);
         }
         return false;
     }
@@ -173,7 +173,7 @@ class Info extends Template implements TabInterface
      */
     public function getOrderId()
     {
-        return (int) $this->_order->getId();
+        return (int) $this->order->getId();
     }
 
     /**
@@ -183,17 +183,27 @@ class Info extends Template implements TabInterface
      */
     public function getOrderStatus()
     {
-        return $this->_order->getStatus();
+        return $this->order->getStatus();
+    }
+
+    /**
+     * Get import date of the order in Magento
+     *
+     * @return string
+     */
+    public function getOrderImportedDate()
+    {
+        return $this->order->getStatusHistoryCollection()->getFirstItem()->getCreatedAt();
     }
 
     /**
      * Get Lengow order id if exist
      *
-     * @return integer|false
+     * @return integer|null
      */
     public function getLengowOrderId()
     {
-        return $this->_lengowOrder ? (int) $this->_lengowOrder->getId() : false;
+        return $this->lengowOrder ? (int) $this->lengowOrder->getId() : null;
     }
 
     /**
@@ -203,41 +213,43 @@ class Info extends Template implements TabInterface
      */
     public function debugModeIsEnabled()
     {
-        return $this->_configHelper->debugModeIsActive();
+        return $this->configHelper->debugModeIsActive();
     }
 
     /**
-     * Check if is a order imported by Lengow
+     * Check if is an order imported by Lengow
      *
      * @return boolean
      */
     public function isOrderImportedByLengow()
     {
-        return (bool) $this->_order->getData('from_lengow');
+        return (bool) $this->order->getData('from_lengow');
     }
 
     /**
-     * Check if is a order with a Lengow order record
+     * Check if is an order with a Lengow order record
      *
      * @return boolean
      */
     public function isOrderFollowedByLengow()
     {
-        return (bool) $this->_lengowOrder;
+        return (bool) $this->lengowOrder;
     }
 
     /**
-     * Check if can resend action order
+     * Check if you can resend action order
      *
      * @return boolean
      */
     public function canReSendAction()
     {
-        if (!$this->_action->getActiveActionByOrderId($this->getOrderId())) {
+        if (!$this->lengowAction->getActionsByOrderId($this->getOrderId(), true)) {
             $orderStatus = $this->getOrderStatus();
-            if (($orderStatus === 'complete' || $orderStatus === 'canceled') && $this->_lengowOrder) {
-                $finishProcessState = $this->_lengowOrder->getOrderProcessState(LengowOrder::STATE_CLOSED);
-                $lengowOrderProcessState = (int) $this->_lengowOrder->getData(LengowOrder::FIELD_ORDER_PROCESS_STATE);
+            if (($orderStatus === MagentoOrder::STATE_COMPLETE || $orderStatus === MagentoOrder::STATE_CANCELED)
+                && $this->lengowOrder
+            ) {
+                $finishProcessState = $this->lengowOrder->getOrderProcessState(LengowOrder::STATE_CLOSED);
+                $lengowOrderProcessState = (int) $this->lengowOrder->getData(LengowOrder::FIELD_ORDER_PROCESS_STATE);
                 if ($lengowOrderProcessState !== $finishProcessState) {
                     return true;
                 }
@@ -254,85 +266,83 @@ class Info extends Template implements TabInterface
     public function getFields()
     {
         $fields = [];
-        if ($this->_lengowOrder) {
+        if ($this->lengowOrder) {
             $fields[] = [
                 'label' => __('Marketplace SKU'),
-                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_SKU),
+                'value' => $this->lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_SKU),
             ];
             $fields[] = [
                 'label' => __('Marketplace'),
-                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_LABEL),
+                'value' => $this->lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_LABEL),
             ];
             $fields[] = [
                 'label' => __('Delivery Address ID'),
-                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_DELIVERY_ADDRESS_ID),
+                'value' => $this->lengowOrder->getData(LengowOrder::FIELD_DELIVERY_ADDRESS_ID),
             ];
             $fields[] = [
                 'label' => __('Currency'),
-                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_CURRENCY),
+                'value' => $this->lengowOrder->getData(LengowOrder::FIELD_CURRENCY),
             ];
             $fields[] = [
                 'label' => __('Total Paid'),
-                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_TOTAL_PAID),
+                'value' => $this->lengowOrder->getData(LengowOrder::FIELD_TOTAL_PAID),
             ];
             $fields[] = [
                 'label' => __('Commission'),
-                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_COMMISSION),
+                'value' => $this->lengowOrder->getData(LengowOrder::FIELD_COMMISSION),
             ];
             $fields[] = [
                 'label' => __('Customer name'),
-                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_CUSTOMER_NAME),
+                'value' => $this->lengowOrder->getData(LengowOrder::FIELD_CUSTOMER_NAME),
             ];
             $fields[] = [
                 'label' => __('Customer email'),
-                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_CUSTOMER_EMAIL),
+                'value' => $this->lengowOrder->getData(LengowOrder::FIELD_CUSTOMER_EMAIL),
             ];
             $fields[] = [
                 'label' => __('Carrier from marketplace'),
-                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_CARRIER),
+                'value' => $this->lengowOrder->getData(LengowOrder::FIELD_CARRIER),
             ];
             $fields[] = [
                 'label' => __('Shipping method from marketplace'),
-                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_CARRIER_METHOD),
+                'value' => $this->lengowOrder->getData(LengowOrder::FIELD_CARRIER_METHOD),
             ];
             $fields[] = [
                 'label' => __('Tracking number'),
-                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_CARRIER_TRACKING),
+                'value' => $this->lengowOrder->getData(LengowOrder::FIELD_CARRIER_TRACKING),
             ];
             $fields[] = [
                 'label' => __('ID relay'),
-                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_CARRIER_RELAY_ID),
+                'value' => $this->lengowOrder->getData(LengowOrder::FIELD_CARRIER_RELAY_ID),
             ];
             $fields[] = [
                 'label' => __('Express delivery'),
-                'value' => $this->_lengowOrder->isExpress() ? __('Yes') : __('No'),
+                'value' => $this->lengowOrder->isExpress() ? __('Yes') : __('No'),
             ];
             $fields[] = [
                 'label' => __('Shipped by Marketplace'),
-                'value' => $this->_lengowOrder->isDeliveredByMarketplace() ? __('Yes') : __('No'),
+                'value' => $this->lengowOrder->isDeliveredByMarketplace() ? __('Yes') : __('No'),
             ];
             $fields[] = [
                 'label' => __('Business'),
-                'value' => $this->_lengowOrder->isBusiness() ? __('Yes') : __('No'),
+                'value' => $this->lengowOrder->isBusiness() ? __('Yes') : __('No'),
             ];
             $fields[] = [
                 'label' => __('Message'),
-                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_MESSAGE),
+                'value' => $this->lengowOrder->getData(LengowOrder::FIELD_MESSAGE),
             ];
             $fields[] = [
                 'label' => ('Vat number'),
-                'value' => $this->_lengowOrder->getData(LengowOrder::FIELD_CUSTOMER_VAT_NUMBER),
+                'value' => $this->lengowOrder->getData(LengowOrder::FIELD_CUSTOMER_VAT_NUMBER),
             ];
             $fields[] = [
                 'label' => __('Imported at'),
-                'value' => $this->_dataHelper->getDateInCorrectFormat(
-                    strtotime($this->_lengowOrder->getData(LengowOrder::FIELD_CREATED_AT))
-                ),
+                'value' => $this->dataHelper->getDateInCorrectFormat(strtotime($this->getOrderImportedDate())),
             ];
             $fields[] = [
                 'label' => __('JSON format'),
                 'value' => '<textarea disabled="disabled">'
-                    . $this->_lengowOrder->getData(LengowOrder::FIELD_EXTRA) . '</textarea>',
+                    . $this->lengowOrder->getData(LengowOrder::FIELD_EXTRA) . '</textarea>',
             ];
         }
         return $fields;

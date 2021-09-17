@@ -1225,7 +1225,7 @@ class Order extends AbstractModel
      * Get order ids from lengow order ID
      *
      * @param string $marketplaceSku marketplace sku
-     * @param string $marketplaceName delivery address id
+     * @param string $marketplaceName marketplace name
      *
      * @return array|false
      */
@@ -1256,6 +1256,23 @@ class Order extends AbstractModel
             return $results;
         }
         return false;
+    }
+
+    /**
+     * Retrieves all the Lengow order from a marketplace reference
+     *
+     * @param string $marketplaceSku marketplace sku
+     * @param string $marketplaceName marketplace name
+     *
+     * @return array
+     */
+    public function getAllLengowOrders($marketplaceSku, $marketplaceName)
+    {
+        $results = $this->lengowOrderCollection->create()
+            ->addFieldToFilter(self::FIELD_MARKETPLACE_SKU, $marketplaceSku)
+            ->addFieldToFilter(self::FIELD_MARKETPLACE_NAME, $marketplaceName)
+            ->getData();
+        return !empty($results) ? $results : [];
     }
 
     /**
