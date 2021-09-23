@@ -39,6 +39,11 @@ use Lengow\Connector\Model\Exception as LengowException;
 class Import extends AbstractHelper
 {
     /**
+     * @var integer interval of minutes for cron synchronisation
+     */
+    const MINUTE_INTERVAL_TIME = 1;
+
+    /**
      * @var array marketplaces collection
      */
     public static $marketplaces = [];
@@ -137,7 +142,7 @@ class Import extends AbstractHelper
         $timestamp = $this->_configHelper->get(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS);
         if ($timestamp > 0) {
             // security check : if last import is more than 60 seconds old => authorize new import to be launched
-            if (($timestamp + (60 * 1)) < time()) {
+            if (($timestamp + (60 * self::MINUTE_INTERVAL_TIME)) < time()) {
                 $this->setImportEnd();
                 return false;
             }
@@ -155,7 +160,7 @@ class Import extends AbstractHelper
     {
         $timestamp = $this->_configHelper->get(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS);
         if ($timestamp > 0) {
-            return $timestamp + (60 * 1) - time();
+            return $timestamp + (60 * self::MINUTE_INTERVAL_TIME) - time();
         }
         return false;
     }

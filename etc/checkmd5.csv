@@ -53,7 +53,7 @@
 /Helper/Data.php|987deb3fb8e1961b8e80bc0aa2b7ccb3
 /Helper/Sync.php|435945e8fa4d870bd37e0eaeadccf110
 /Helper/Security.php|805ba2e45c57c5cf00c2b475cbd8d3e6
-/Helper/Import.php|8cdf97871490498734f666759288f09d
+/Helper/Import.php|8e8b4ceef230a4d9097e4d438c9d4134
 /Helper/Toolbox.php|497498809a57d3a3eb3b9c9a30f67488
 /i18n/de_DE.csv|42162c0da0e35ca5a20618f82ed89b4b
 /i18n/en_GB.csv|ead641ec8030a0c29a466b57cd5f4c99
@@ -91,7 +91,7 @@
 /Model/Import/Quote.php|bee5107fe66ce3fb12c34483753e9f6a
 /Model/Import/Ordererror.php|b78317653baf13d68291bf2edb947baf
 /Model/Import/Quote/Item.php|deea2328f2b0109b4bfe412c7edc90a5
-/Model/Import/Importorder.php|3eb89175aefdbc0fe5dc814f3e1a070a
+/Model/Import/Importorder.php|91502b93985ef2cb967b366b657fe864
 /Model/Import/Customer.php|8dfe3c294a996a7dbc235cd07b2d1b5a
 /Model/Import/Order.php|3def91fa30a4b608bed42bb22eefa180
 /Model/Import/Action.php|db27e7ec6efd93ee9298b9540c9b4480

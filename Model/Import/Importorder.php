@@ -837,6 +837,7 @@ class Importorder extends AbstractModel
             LengowOrder::FIELD_CUSTOMER_VAT_NUMBER => $this->getVatNumberFromOrderData(),
             LengowOrder::FIELD_ORDER_DATE => $this->orderDate,
             LengowOrder::FIELD_MESSAGE => $this->getOrderComment(),
+            LengowOrder::FIELD_EXTRA => json_encode($this->orderData),
             LengowOrder::FIELD_IS_IN_ERROR => 1,
         ];
         // create lengow order
