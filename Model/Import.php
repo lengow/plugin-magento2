@@ -372,6 +372,7 @@ class Import
         ) {
             if (isset($params[self::PARAM_ORDER_LENGOW_ID])) {
                 $this->orderLengowId = (int) $params[self::PARAM_ORDER_LENGOW_ID];
+                $this->forceSync = true;
             }
             $this->marketplaceSku = (string) $params[self::PARAM_MARKETPLACE_SKU];
             $this->marketplaceName = (string) $params[self::PARAM_MARKETPLACE_NAME];
@@ -656,9 +657,6 @@ class Import
             if ($numberOrdersFound > 0) {
                 // import orders in Magento
                 $this->importOrders($orders, (int) $store->getId());
-            }
-            if ($this->orderLengowId !== null) {
-                $this->lengowOrderErrorFactory->create()->finishOrderErrors($this->orderLengowId);
             }
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();

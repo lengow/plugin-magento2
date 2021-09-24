@@ -97,7 +97,7 @@
 /Model/Import/Action.php|db27e7ec6efd93ee9298b9540c9b4480
 /Model/Import/Marketplace.php|12cf833d4a119934eb9a02e03a4355c4
 /Model/Carrier/Lengow.php|20bffbfe95c89f93f6b4ce6efe7c6a95
-/Model/Import.php|c6536cb619d38f4e64f98cd50e6a0c73
+/Model/Import.php|f4da339a6ef7dea32557a6ba538306c6
 /Model/Catalog.php|f33a036bcf06bcae5d5b01352974f9b8
 /Observer/SendAction.php|3c49484b6a85538c29d4c6c9549523a1
 /Observer/B2bTaxesApllicator.php|f7feb7b48d9ea7f4a688f77b4cb8b0dd
