@@ -20,6 +20,7 @@
 
 namespace Lengow\Connector\Setup;
 
+use Exception;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\InstallSchemaInterface;
@@ -42,7 +43,7 @@ class InstallSchema implements InstallSchemaInterface
      * @param SchemaSetupInterface $setup Magento schema setup instance
      * @param ModuleContextInterface $context Magento module context instance
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return void
      */

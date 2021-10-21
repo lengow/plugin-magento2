@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Controller\Adminhtml\Product;
 
+use Exception;
 use Magento\Backend\App\Action\Context;
 use Magento\Catalog\Controller\Adminhtml\Product;
 use Magento\Catalog\Controller\Adminhtml\Product\Builder as ProductBuilder;
@@ -30,19 +31,14 @@ use Magento\Store\Model\StoreManagerInterface;
 class MassPublish extends Product
 {
     /**
-     * @var Context Magento action context instance
-     */
-    protected $_context;
-
-    /**
      * @var StoreManagerInterface Magento store manager instance
      */
-    protected $_storeManager;
+    private $storeManager;
 
     /**
      * @var ProductAction Magento product action instance
      */
-    protected $_productAction;
+    private $productAction;
 
     /**
      * @param Context $context Magento action context instance
@@ -57,10 +53,9 @@ class MassPublish extends Product
         ProductAction $productAction
     ) {
         parent::__construct($context, $productBuilder);
-        $this->_context = $context;
         $this->productBuilder = $productBuilder;
-        $this->_storeManager = $storeManager;
-        $this->_productAction = $productAction;
+        $this->storeManager = $storeManager;
+        $this->productAction = $productAction;
     }
 
     /**
@@ -69,11 +64,11 @@ class MassPublish extends Product
     public function execute()
     {
         $productIds = $this->getRequest()->getParam('product');
-        $storeId = (int) $this->getRequest()->getParam('store', $this->_storeManager->getDefaultStoreView()->getId());
+        $storeId = (int) $this->getRequest()->getParam('store', $this->storeManager->getDefaultStoreView()->getId());
         $publish = (int) $this->getRequest()->getParam('publish');
         try {
-            $this->_productAction->updateAttributes($productIds, ['lengow_product' => $publish], $storeId);
-        } catch (\Exception $e) {
+            $this->productAction->updateAttributes($productIds, ['lengow_product' => $publish], $storeId);
+        } catch (Exception $e) {
             $this->_getSession()->addException(
                 $e,
                 __('Something went wrong while updating the lengow product(s) attribute.')

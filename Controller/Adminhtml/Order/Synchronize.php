@@ -32,17 +32,17 @@ class Synchronize extends Action
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * @var LengowOrder Lengow order instance
      */
-    protected $_lengowOrder;
+    private $lengowOrder;
 
     /**
      * @var LengowOrderFactory Lengow order instance
      */
-    protected $_lengowOrderFactory;
+    private $lengowOrderFactory;
 
     /**
      * Constructor
@@ -58,9 +58,9 @@ class Synchronize extends Action
         LengowOrder $lengowOrder,
         LengowOrderFactory $lengowOrderFactory
     ) {
-        $this->_dataHelper = $dataHelper;
-        $this->_lengowOrder = $lengowOrder;
-        $this->_lengowOrderFactory = $lengowOrderFactory;
+        $this->dataHelper = $dataHelper;
+        $this->lengowOrder = $lengowOrder;
+        $this->lengowOrderFactory = $lengowOrderFactory;
         parent::__construct($context);
     }
 
@@ -69,25 +69,25 @@ class Synchronize extends Action
      *
      * @return Redirect
      */
-    public function execute()
+    public function execute(): Redirect
     {
         $orderId = $this->getRequest()->getParam('order_id');
         $lengowOrderId = $this->getRequest()->getParam('lengow_order_id');
-        $lengowOrder = $this->_lengowOrderFactory->create()->load($lengowOrderId);
+        $lengowOrder = $this->lengowOrderFactory->create()->load($lengowOrderId);
         if ($lengowOrder) {
-            $synchro = $this->_lengowOrder->synchronizeOrder($lengowOrder);
+            $synchro = $this->lengowOrder->synchronizeOrder($lengowOrder);
             if ($synchro) {
-                $synchroMessage = $this->_dataHelper->setLogMessage(
+                $synchroMessage = $this->dataHelper->setLogMessage(
                     'order successfully synchronised with Lengow webservice (ORDER ID %1)',
                     [$lengowOrder->getData(LengowOrder::FIELD_ORDER_SKU)]
                 );
             } else {
-                $synchroMessage = $this->_dataHelper->setLogMessage(
+                $synchroMessage = $this->dataHelper->setLogMessage(
                     'WARNING! Order could NOT be synchronised with Lengow webservice (ORDER ID %1)',
                     [$lengowOrder->getData(LengowOrder::FIELD_ORDER_SKU)]
                 );
             }
-            $this->_dataHelper->log(
+            $this->dataHelper->log(
                 DataHelper::CODE_IMPORT,
                 $synchroMessage,
                 false,

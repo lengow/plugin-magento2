@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Exception;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
@@ -108,7 +109,7 @@ class Orderline extends AbstractModel
      *
      * @return Orderline|false
      */
-    public function createOrderLine($params = [])
+    public function createOrderLine(array $params = [])
     {
         foreach ($this->fieldList as $key => $value) {
             if (!array_key_exists($key, $params) && $value[DataHelper::FIELD_REQUIRED]) {
@@ -120,7 +121,7 @@ class Orderline extends AbstractModel
         }
         try {
             return $this->save();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
             $this->dataHelper->log(
                 DataHelper::CODE_ORM,
@@ -137,7 +138,7 @@ class Orderline extends AbstractModel
      *
      * @return array|false
      */
-    public function getOrderLineByOrderID($orderId)
+    public function getOrderLineByOrderID(int $orderId)
     {
         $results = $this->lengowOrderLineCollectionFactory->create()
             ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)

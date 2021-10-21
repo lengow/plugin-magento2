@@ -28,19 +28,19 @@ use Lengow\Connector\Model\Import\Order as LengowOrder;
 class SendAction implements ObserverInterface
 {
     /**
-     * @var BackendSession $_backendSession Backend session instance
+     * @var BackendSession Backend session instance
      */
-    protected $_backendSession;
+    protected $backendSession;
 
     /**
      * @var LengowOrder Lengow order instance
      */
-    protected $_lengowOrder;
+    protected $lengowOrder;
 
     /**
      * @var array order already shipped
      */
-    protected $_alreadyShipped = [];
+    protected $alreadyShipped = [];
 
     /**
      * Constructor
@@ -52,8 +52,8 @@ class SendAction implements ObserverInterface
         BackendSession $backendSession,
         LengowOrder $lengowOrder
     ) {
-        $this->_backendSession = $backendSession;
-        $this->_lengowOrder = $lengowOrder;
+        $this->backendSession = $backendSession;
+        $this->lengowOrder = $lengowOrder;
     }
 
     /**
@@ -87,13 +87,13 @@ class SendAction implements ObserverInterface
                 break;
         }
         if ($order) {
-            $marketplaceSku = $this->_lengowOrder->getMarketplaceSkuByOrderId($order->getId());
+            $marketplaceSku = $this->lengowOrder->getMarketplaceSkuByOrderId($order->getId());
             if ($marketplaceSku
-                && $marketplaceSku !== $this->_backendSession->getCurrentOrderLengow()
-                && !array_key_exists($marketplaceSku, $this->_alreadyShipped)
+                && !array_key_exists($marketplaceSku, $this->alreadyShipped)
+                && $marketplaceSku !== $this->backendSession->getCurrentOrderLengow()
             ) {
-                $this->_lengowOrder->callAction($action, $order, $shipment);
-                $this->_alreadyShipped[$marketplaceSku] = true;
+                $this->lengowOrder->callAction($action, $order, $shipment);
+                $this->alreadyShipped[$marketplaceSku] = true;
             }
         }
     }

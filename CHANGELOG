@@ -4,6 +4,7 @@ Version 1.3.3
 
     - Feature: Integration of order synchronization in the toolbox webservice
     - Feature: Retrieving the status of an order in the toolbox webservice
+    - Compatibility: Removal of compatibility with Magento 2.0
 
 =============================================================
 Version 1.3.2

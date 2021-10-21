@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Helper;
 
+use Exception;
 use Magento\Catalog\Model\Product;
 use Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory as ConfigDataCollectionFactory;
 use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as CustomerGroupCollectionFactory;
@@ -37,6 +38,7 @@ use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
 use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollectionFactory;
+use Magento\InventoryApi\Api\SourceRepositoryInterface;
 
 class Config extends AbstractHelper
 {
@@ -168,42 +170,42 @@ class Config extends AbstractHelper
     /**
      * @var WriterInterface Magento writer instance
      */
-    protected $_writerInterface;
+    private $writerInterface;
 
     /**
      * @var CacheManager Magento cache manager instance
      */
-    protected $_cacheManager;
+    private $cacheManager;
 
     /**
      * @var CustomerGroupCollectionFactory Magento customer group collection factory
      */
-    protected $_customerGroupCollectionFactory;
+    private $customerGroupCollectionFactory;
 
     /**
      * @var AttributeCollectionFactory Magento attribute collection factory
      */
-    protected $_attributeCollectionFactory;
+    private $attributeCollectionFactory;
 
     /**
      * @var ConfigDataCollectionFactory Magento config data collection factory
      */
-    protected $_configDataCollectionFactory;
+    private $configDataCollectionFactory;
 
     /**
      * @var StoreCollectionFactory Magento store collection factory
      */
-    protected $_storeCollectionFactory;
+    private $storeCollectionFactory;
 
     /**
      * @var EavConfig Magento eav config
      */
-    protected $_eavConfig;
+    private $eavConfig;
 
     /**
      * @var SearchCriteriaBuilderFactory Magento criteria builder factory
      */
-    protected $searchCriteriaBuilderFactory;
+    private $searchCriteriaBuilderFactory;
 
     /**
      * @var array all Lengow options path
@@ -528,7 +530,7 @@ class Config extends AbstractHelper
     /**
      * @var array attributes excludes
      */
-    protected $_excludeAttributes = [
+    private $excludeAttributes = [
         'sku',
         'name',
         'media_gallery',
@@ -565,13 +567,13 @@ class Config extends AbstractHelper
         StoreCollectionFactory $storeCollectionFactory,
         SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory
     ) {
-        $this->_writerInterface = $writerInterface;
-        $this->_cacheManager = $cacheManager;
-        $this->_customerGroupCollectionFactory = $customerGroupCollectionFactory;
-        $this->_eavConfig = $eavConfig;
-        $this->_attributeCollectionFactory = $attributeCollectionFactory;
-        $this->_configDataCollectionFactory = $configDataCollectionFactory;
-        $this->_storeCollectionFactory = $storeCollectionFactory;
+        $this->writerInterface = $writerInterface;
+        $this->cacheManager = $cacheManager;
+        $this->customerGroupCollectionFactory = $customerGroupCollectionFactory;
+        $this->eavConfig = $eavConfig;
+        $this->attributeCollectionFactory = $attributeCollectionFactory;
+        $this->configDataCollectionFactory = $configDataCollectionFactory;
+        $this->storeCollectionFactory = $storeCollectionFactory;
         $this->searchCriteriaBuilderFactory = $searchCriteriaBuilderFactory;
         parent::__construct($context);
     }
@@ -584,20 +586,20 @@ class Config extends AbstractHelper
      *
      * @return mixed
      */
-    public function get($key, $storeId = 0)
+    public function get(string $key, int $storeId = 0)
     {
         if (!array_key_exists($key, self::$lengowSettings)) {
             return null;
         }
         if (self::$lengowSettings[$key][self::PARAM_NO_CACHE]) {
-            $results = $this->_configDataCollectionFactory->create()
+            $results = $this->configDataCollectionFactory->create()
                 ->addFieldToFilter('path', self::$lengowSettings[$key]['path'])
                 ->addFieldToFilter('scope_id', $storeId)
                 ->load()
                 ->getData();
             $value = !empty($results) ? $results[0]['value'] : '';
         } else {
-            $scope = (int) $storeId === 0 ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES;
+            $scope = $storeId === 0 ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES;
             $value = $this->scopeConfig->getValue(self::$lengowSettings[$key]['path'], $scope, $storeId);
         }
         return $value;
@@ -610,12 +612,12 @@ class Config extends AbstractHelper
      * @param mixed $value Lengow setting value
      * @param integer $storeId Magento store id
      */
-    public function set($key, $value, $storeId = 0)
+    public function set(string $key, $value, int $storeId = 0)
     {
-        if ((int) $storeId === 0) {
-            $this->_writerInterface->save(self::$lengowSettings[$key]['path'], $value);
+        if ($storeId === 0) {
+            $this->writerInterface->save(self::$lengowSettings[$key]['path'], $value);
         } else {
-            $this->_writerInterface->save(
+            $this->writerInterface->save(
                 self::$lengowSettings[$key]['path'],
                 $value,
                 ScopeInterface::SCOPE_STORES,
@@ -630,12 +632,12 @@ class Config extends AbstractHelper
      * @param string $path Magento setting path
      * @param integer $storeId Magento store id
      */
-    public function delete($path, $storeId = 0)
+    public function delete(string $path, int $storeId = 0)
     {
-        if ((int) $storeId === 0) {
-            $this->_writerInterface->delete($path);
+        if ($storeId === 0) {
+            $this->writerInterface->delete($path);
         } else {
-            $this->_writerInterface->delete($path, ScopeInterface::SCOPE_STORES, $storeId);
+            $this->writerInterface->delete($path, ScopeInterface::SCOPE_STORES, $storeId);
         }
     }
 
@@ -644,7 +646,7 @@ class Config extends AbstractHelper
      */
     public function cleanConfigCache()
     {
-        $this->_cacheManager->flush([CacheTypeConfig::CACHE_TAG]);
+        $this->cacheManager->flush([CacheTypeConfig::CACHE_TAG]);
     }
 
     /**
@@ -652,7 +654,7 @@ class Config extends AbstractHelper
      *
      * @return array
      */
-    public function getAccessIds()
+    public function getAccessIds(): array
     {
         $accountId = $this->get(self::ACCOUNT_ID);
         $accessToken = $this->get(self::ACCESS_TOKEN);
@@ -670,7 +672,7 @@ class Config extends AbstractHelper
      *
      * @return bool
      */
-    public function setAccessIds($accessIds)
+    public function setAccessIds(array $accessIds): bool
     {
         $count = 0;
         $listKey = [self::ACCOUNT_ID, self::ACCESS_TOKEN, self::SECRET];
@@ -716,8 +718,8 @@ class Config extends AbstractHelper
     {
         $lengowActiveStores = $this->getLengowActiveStores();
         foreach ($lengowActiveStores as $store) {
-            $this->set(self::CATALOG_IDS, '', $store->getId());
-            $this->set(self::SHOP_ACTIVE, false, $store->getId());
+            $this->set(self::CATALOG_IDS, '', (int) $store->getId());
+            $this->set(self::SHOP_ACTIVE, false, (int) $store->getId());
         }
     }
 
@@ -728,7 +730,7 @@ class Config extends AbstractHelper
      *
      * @return array
      */
-    public function getCatalogIds($storeId)
+    public function getCatalogIds(int $storeId): array
     {
         $catalogIds = [];
         $storeCatalogIds = $this->get(self::CATALOG_IDS, $storeId);
@@ -747,14 +749,14 @@ class Config extends AbstractHelper
     /**
      * Get list of Magento stores that have been activated in Lengow
      *
-     * @param integer $storeId Magento store id
+     * @param integer|null $storeId Magento store id
      *
      * @return array
      */
-    public function getLengowActiveStores($storeId = null)
+    public function getLengowActiveStores(int $storeId = null): array
     {
         $lengowActiveStores = [];
-        $storeCollection = $this->_storeCollectionFactory->create()->load()->addFieldToFilter('is_active', 1);
+        $storeCollection = $this->storeCollectionFactory->create()->load()->addFieldToFilter('is_active', 1);
         foreach ($storeCollection as $store) {
             if ($storeId && (int) $store->getId() !== $storeId) {
                 continue;
@@ -775,7 +777,7 @@ class Config extends AbstractHelper
      *
      * @return boolean
      */
-    public function setCatalogIds($catalogIds, $storeId)
+    public function setCatalogIds(array $catalogIds, int $storeId): bool
     {
         $valueChange = false;
         $storeCatalogIds = $this->getCatalogIds($storeId);
@@ -796,7 +798,7 @@ class Config extends AbstractHelper
      *
      * @return boolean
      */
-    public function storeIsActive($storeId)
+    public function storeIsActive(int $storeId): bool
     {
         return (bool) $this->get(self::SHOP_ACTIVE, $storeId);
     }
@@ -808,7 +810,7 @@ class Config extends AbstractHelper
      *
      * @return boolean
      */
-    public function setActiveStore($storeId)
+    public function setActiveStore(int $storeId): bool
     {
         $storeIsActive = $this->storeIsActive($storeId);
         $catalogIds = $this->getCatalogIds($storeId);
@@ -822,7 +824,7 @@ class Config extends AbstractHelper
      *
      * @return boolean
      */
-    public function debugModeIsActive()
+    public function debugModeIsActive(): bool
     {
         return (bool) $this->get(self::DEBUG_MODE_ENABLED);
     }
@@ -832,9 +834,9 @@ class Config extends AbstractHelper
      *
      * @return array
      */
-    public function getAllCustomerGroup()
+    public function getAllCustomerGroup(): array
     {
-        return $this->_customerGroupCollectionFactory->create()->toOptionArray();
+        return $this->customerGroupCollectionFactory->create()->toOptionArray();
     }
 
     /**
@@ -842,9 +844,9 @@ class Config extends AbstractHelper
      *
      * @return StoreCollection
      */
-    public function getAllStore()
+    public function getAllStore(): StoreCollection
     {
-        return $this->_storeCollectionFactory->create();
+        return $this->storeCollectionFactory->create();
     }
 
     /**
@@ -852,9 +854,9 @@ class Config extends AbstractHelper
      *
      * @return array
      */
-    public function getAllStoreCode()
+    public function getAllStoreCode(): array
     {
-        $storeCollection = $this->_storeCollectionFactory->create();
+        $storeCollection = $this->storeCollectionFactory->create();
         $storeCodes = [];
         foreach ($storeCollection as $store) {
             $storeCodes[] = $store->getCode();
@@ -867,12 +869,12 @@ class Config extends AbstractHelper
      *
      * @return array
      */
-    public function getAllStoreId()
+    public function getAllStoreId(): array
     {
-        $storeCollection = $this->_storeCollectionFactory->create();
+        $storeCollection = $this->storeCollectionFactory->create();
         $storeIds = [];
         foreach ($storeCollection as $store) {
-            $storeIds[] = $store->getId();
+            $storeIds[] = (int) $store->getId();
         }
         return $storeIds;
     }
@@ -880,16 +882,16 @@ class Config extends AbstractHelper
     /**
      * Get all sources options
      *
-     * @return mixed
+     * @return array
      */
-    public function getAllSources()
+    public function getAllSources(): array
     {
         $options = [];
         $searchCriteriaBuilder = $this->searchCriteriaBuilderFactory->create();
         $searchCriteria = $searchCriteriaBuilder->create();
         // We use object manager here because SourceRepositoryInterface is only available for version >= 2.3
         $objectManager = ObjectManager::getInstance();
-        $sourceRepository = $objectManager->create('Magento\InventoryApi\Api\SourceRepositoryInterface');
+        $sourceRepository = $objectManager->create(SourceRepositoryInterface::class);
         $sources = $sourceRepository->getList($searchCriteria)->getItems();
         foreach ($sources as $source) {
             $options[] = $source->getSourceCode();
@@ -902,7 +904,7 @@ class Config extends AbstractHelper
      *
      * @return boolean
      */
-    public function isNewMerchant()
+    public function isNewMerchant(): bool
     {
         list($accountId, $accessToken, $secretToken) = $this->getAccessIds();
         return !($accountId && $accessToken && $secretToken);
@@ -915,7 +917,7 @@ class Config extends AbstractHelper
      *
      * @return array
      */
-    public function getSelectedAttributes($storeId = 0)
+    public function getSelectedAttributes(int $storeId = 0): array
     {
         $selectedAttributes = [];
         $attributes = $this->get(self::EXPORT_ATTRIBUTES, $storeId);
@@ -935,7 +937,7 @@ class Config extends AbstractHelper
      *
      * @return array
      */
-    public function getParentSelectedAttributes($storeId = 0)
+    public function getParentSelectedAttributes(int $storeId = 0): array
     {
         $selectedAttributes = [];
         $attributes = $this->get(self::EXPORT_PARENT_ATTRIBUTES, $storeId);
@@ -953,12 +955,12 @@ class Config extends AbstractHelper
      *
      * @return array
      */
-    public function getAllAttributes()
+    public function getAllAttributes(): array
     {
         try {
             // add filter by entity type to get product attributes only
-            $productEntityId = (int) $this->_eavConfig->getEntityType(Product::ENTITY)->getEntityTypeId();
-            $attributes = $this->_attributeCollectionFactory->create()
+            $productEntityId = (int) $this->eavConfig->getEntityType(Product::ENTITY)->getEntityTypeId();
+            $attributes = $this->attributeCollectionFactory->create()
                 ->addFieldToFilter(AttributeSet::KEY_ENTITY_TYPE_ID, $productEntityId)
                 ->load()
                 ->getData();
@@ -966,14 +968,14 @@ class Config extends AbstractHelper
                 ['value' => 'none', 'label' => ''],
             ];
             foreach ($attributes as $attribute) {
-                if (!in_array($attribute['attribute_code'], $this->_excludeAttributes, true)) {
+                if (!in_array($attribute['attribute_code'], $this->excludeAttributes, true)) {
                     $allAttributes[] = [
                         'value' => $attribute['attribute_code'],
                         'label' => $attribute['attribute_code'],
                     ];
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $allAttributes = [];
         }
         return $allAttributes;
@@ -986,7 +988,7 @@ class Config extends AbstractHelper
      *
      * @return string
      */
-    public function getToken($storeId = 0)
+    public function getToken(int $storeId = 0): string
     {
         $token = $this->get(self::CMS_TOKEN, $storeId);
         if ($token) {
@@ -1004,14 +1006,14 @@ class Config extends AbstractHelper
      *
      * @return StoreInterface|false
      */
-    public function getStoreByToken($token)
+    public function getStoreByToken(string $token)
     {
         if (strlen($token) <= 0) {
             return false;
         }
-        $storeCollection = $this->_storeCollectionFactory->create();
+        $storeCollection = $this->storeCollectionFactory->create();
         foreach ($storeCollection as $store) {
-            if ($token === $this->get(self::CMS_TOKEN, $store->getId())) {
+            if ($token === $this->get(self::CMS_TOKEN, (int) $store->getId())) {
                 return $store;
             }
         }
@@ -1042,7 +1044,7 @@ class Config extends AbstractHelper
      *
      * @return array
      */
-    public function getReportEmailAddress()
+    public function getReportEmailAddress(): array
     {
         $reportEmailAddress = [];
         $emails = $this->get(self::REPORT_MAILS);
@@ -1053,7 +1055,7 @@ class Config extends AbstractHelper
                 if ($email !== '' && \Zend_Validate::is($email, 'EmailAddress')) {
                     $reportEmailAddress[] = $email;
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 continue;
             }
         }
@@ -1071,7 +1073,7 @@ class Config extends AbstractHelper
      *
      * @return array
      */
-    public function getAuthorizedIps()
+    public function getAuthorizedIps(): array
     {
         $authorizedIps = [];
         $ips = $this->get(self::AUTHORIZED_IPS);
@@ -1090,7 +1092,7 @@ class Config extends AbstractHelper
      *
      * @return array
      */
-    public function getAllValues($storeId = null, $toolbox = false)
+    public function getAllValues(int $storeId = null, bool $toolbox = false): array
     {
         $rows = [];
         foreach (self::$lengowSettings as $key => $keyParams) {
@@ -1127,7 +1129,7 @@ class Config extends AbstractHelper
      *
      * @return boolean
      */
-    public function moduleIsEnabled($moduleName)
+    public function moduleIsEnabled(string $moduleName): bool
     {
         return $this->_moduleManager->isEnabled($moduleName);
     }
@@ -1140,7 +1142,7 @@ class Config extends AbstractHelper
      *
      * @return array|boolean|integer|float|string|string[]|null
      */
-    private function getValueWithCorrectType($key, $value = null)
+    private function getValueWithCorrectType(string $key, string $value = null)
     {
         $keyParams = self::$lengowSettings[$key];
         if (isset($keyParams[self::PARAM_RETURN])) {

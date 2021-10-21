@@ -34,7 +34,7 @@ class Check extends Field
      *
      * @return string
      */
-    protected function _getElementHtml(AbstractElement $element)
+    protected function _getElementHtml(AbstractElement $element): string
     {
         return '
 		<div class="notices-wrapper">

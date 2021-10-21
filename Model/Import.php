@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model;
 
+use Exception;
 use Magento\Backend\Model\Session as BackendSession;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
@@ -355,13 +356,13 @@ class Import
      * boolean debug_mode          debug mode
      * boolean force_sync          force import order even if there are errors
      */
-    public function init($params)
+    public function init(array $params)
     {
         // get generic params for synchronisation
         $this->debugMode = isset($params[self::PARAM_DEBUG_MODE])
             ? (bool) $params[self::PARAM_DEBUG_MODE]
             : $this->configHelper->debugModeIsActive();
-        $this->typeImport = isset($params[self::PARAM_TYPE]) ? $params[self::PARAM_TYPE] : self::TYPE_MANUAL;
+        $this->typeImport = $params[self::PARAM_TYPE] ?? self::TYPE_MANUAL;
         $this->forceSync = isset($params[self::PARAM_FORCE_SYNC]) && $params[self::PARAM_FORCE_SYNC];
         $this->logOutput = isset($params[self::PARAM_LOG_OUTPUT]) && $params[self::PARAM_LOG_OUTPUT];
         $this->storeId = isset($params[self::PARAM_STORE_ID]) ? (int) $params[self::PARAM_STORE_ID] : null;
@@ -387,8 +388,8 @@ class Import
             // set the time interval
             $this->setIntervalTime(
                 isset($params[self::PARAM_DAYS]) ? (int) $params[self::PARAM_DAYS] : null,
-                isset($params[self::PARAM_CREATED_FROM]) ? $params[self::PARAM_CREATED_FROM] : null,
-                isset($params[self::PARAM_CREATED_TO]) ? $params[self::PARAM_CREATED_TO] : null
+                $params[self::PARAM_CREATED_FROM] ?? null,
+                $params[self::PARAM_CREATED_TO] ?? null
             );
             $this->limit = isset($params[self::PARAM_LIMIT]) ? (int) $params[self::PARAM_LIMIT] : 0;
         }
@@ -399,7 +400,7 @@ class Import
      *
      * @return array
      */
-    public function exec()
+    public function exec(): array
     {
         $syncOk = true;
         // checks if a synchronization is not already in progress
@@ -449,7 +450,7 @@ class Import
      * @param string|null $createdFrom Import of orders since
      * @param string|null $createdTo Import of orders until
      */
-    private function setIntervalTime($days = null, $createdFrom = null, $createdTo = null)
+    private function setIntervalTime(int $days = null, string $createdFrom = null, string $createdTo = null)
     {
         if ($createdFrom && $createdTo) {
             // retrieval of orders created from ... until ...
@@ -460,31 +461,31 @@ class Import
             $this->createdTo = $intervalTime > self::MAX_INTERVAL_TIME
                 ? $createdFromTimestamp + self::MAX_INTERVAL_TIME
                 : $createdToTimestamp;
-        } else {
-            if ($days) {
-                $intervalTime = $days * 86400;
-                $intervalTime = $intervalTime > self::MAX_INTERVAL_TIME ? self::MAX_INTERVAL_TIME : $intervalTime;
-            } else {
-                // order recovery updated since ... days
-                $importDays = (int) $this->configHelper->get(ConfigHelper::SYNCHRONIZATION_DAY_INTERVAL);
-                $intervalTime = $importDays * 86400;
-                // add security for older versions of the plugin
-                $intervalTime = $intervalTime < self::MIN_INTERVAL_TIME ? self::MIN_INTERVAL_TIME : $intervalTime;
-                $intervalTime = $intervalTime > self::MAX_INTERVAL_TIME ? self::MAX_INTERVAL_TIME : $intervalTime;
-                // get dynamic interval time for cron synchronisation
-                $lastImport = $this->importHelper->getLastImport();
-                $lastSettingUpdate = (int) $this->configHelper->get(ConfigHelper::LAST_UPDATE_SETTING);
-                if (($this->typeImport === self::TYPE_CRON || $this->typeImport === self::TYPE_MAGENTO_CRON)
-                    && $lastImport['timestamp'] !== 'none'
-                    && $lastImport['timestamp'] > $lastSettingUpdate
-                ) {
-                    $lastIntervalTime = (time() - $lastImport['timestamp']) + self::SECURITY_INTERVAL_TIME;
-                    $intervalTime = $lastIntervalTime > $intervalTime ? $intervalTime : $lastIntervalTime;
-                }
-            }
-            $this->updatedFrom = time() - $intervalTime;
-            $this->updatedTo = time();
+            return;
         }
+        if ($days) {
+            $intervalTime = $days * 86400;
+            $intervalTime = $intervalTime > self::MAX_INTERVAL_TIME ? self::MAX_INTERVAL_TIME : $intervalTime;
+        } else {
+            // order recovery updated since ... days
+            $importDays = (int) $this->configHelper->get(ConfigHelper::SYNCHRONIZATION_DAY_INTERVAL);
+            $intervalTime = $importDays * 86400;
+            // add security for older versions of the plugin
+            $intervalTime = $intervalTime < self::MIN_INTERVAL_TIME ? self::MIN_INTERVAL_TIME : $intervalTime;
+            $intervalTime = $intervalTime > self::MAX_INTERVAL_TIME ? self::MAX_INTERVAL_TIME : $intervalTime;
+            // get dynamic interval time for cron synchronisation
+            $lastImport = $this->importHelper->getLastImport();
+            $lastSettingUpdate = (int) $this->configHelper->get(ConfigHelper::LAST_UPDATE_SETTING);
+            if (($this->typeImport === self::TYPE_CRON || $this->typeImport === self::TYPE_MAGENTO_CRON)
+                && $lastImport['timestamp'] !== 'none'
+                && $lastImport['timestamp'] > $lastSettingUpdate
+            ) {
+                $lastIntervalTime = (time() - $lastImport['timestamp']) + self::SECURITY_INTERVAL_TIME;
+                $intervalTime = $lastIntervalTime > $intervalTime ? $intervalTime : $lastIntervalTime;
+            }
+        }
+        $this->updatedFrom = time() - $intervalTime;
+        $this->updatedTo = time();
     }
 
     /**
@@ -492,7 +493,7 @@ class Import
      *
      * @return boolean
      */
-    private function canExecuteSynchronization()
+    private function canExecuteSynchronization(): bool
     {
         $globalError = false;
         // checks if the process can start
@@ -559,7 +560,7 @@ class Import
      *
      * @return boolean
      */
-    private function checkCredentials()
+    private function checkCredentials(): bool
     {
         if ($this->lengowConnector->isValidAuth($this->logOutput)) {
             list($this->accountId, $accessToken, $secret) = $this->configHelper->getAccessIds();
@@ -574,7 +575,7 @@ class Import
      *
      * @return array
      */
-    private function getResult()
+    private function getResult(): array
     {
         $nbOrdersCreated = count($this->ordersCreated);
         $nbOrdersUpdated = count($this->ordersUpdated);
@@ -609,7 +610,7 @@ class Import
      *
      * @return boolean
      */
-    private function synchronizeOrdersByStore($store)
+    private function synchronizeOrdersByStore(Store $store): bool
     {
         $this->dataHelper->log(
             DataHelper::CODE_IMPORT,
@@ -652,7 +653,7 @@ class Import
                 );
             }
             if ($numberOrdersFound <= 0 && $this->importOneOrder) {
-                throw new Exception('Lengow error: order cannot be found in Lengow feed');
+                throw new LengowException('Lengow error: order cannot be found in Lengow feed');
             }
             if ($numberOrdersFound > 0) {
                 // import orders in Magento
@@ -660,7 +661,7 @@ class Import
             }
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
         }
         if (isset($errorMessage)) {
@@ -694,7 +695,7 @@ class Import
      *
      * @return boolean
      */
-    private function checkCatalogIds($store)
+    private function checkCatalogIds(Store $store): bool
     {
         if ($this->importOneOrder) {
             return true;
@@ -738,11 +739,11 @@ class Import
      *
      * @param Store $store Magento store instance
      *
-     * @throws LengowException
-     *
      * @return array
+     *
+     * @throws LengowException
      */
-    private function getOrdersFromApi($store)
+    private function getOrdersFromApi(Store $store): array
     {
         $page = 1;
         $orders = [];
@@ -835,7 +836,7 @@ class Import
                         $this->logOutput
                     );
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 throw new LengowException(
                     $this->dataHelper->setLogMessage(
                         'Lengow webservice : %1 - "%2" in store %3 (%4)',
@@ -875,15 +876,13 @@ class Import
         return $orders;
     }
 
-
-
     /**
      * Create or update order in Magento
      *
      * @param mixed $orders API orders
      * @param integer $storeId Magento store Id
      */
-    private function importOrders($orders, $storeId)
+    private function importOrders($orders, int $storeId)
     {
         $importFinished = false;
         foreach ($orders as $orderData) {
@@ -921,13 +920,14 @@ class Import
                 $packageDeliveryAddressId = (int) $packageData->delivery->id;
                 $firstPackage = !($nbPackage > 1);
                 // check the package for re-import order
-                if ($this->importOneOrder) {
-                    if ($this->deliveryAddressId !== null && $this->deliveryAddressId !== $packageDeliveryAddressId) {
-                        $message = $this->dataHelper->setLogMessage('import order failed - wrong package number');
-                        $this->dataHelper->log(DataHelper::CODE_IMPORT, $message, $this->logOutput, $marketplaceSku);
-                        $this->addOrderNotFormatted($marketplaceSku, $message, $orderData);
-                        continue;
-                    }
+                if ($this->importOneOrder
+                    && $this->deliveryAddressId !== null
+                    && $this->deliveryAddressId !== $packageDeliveryAddressId
+                ) {
+                    $message = $this->dataHelper->setLogMessage('import order failed - wrong package number');
+                    $this->dataHelper->log(DataHelper::CODE_IMPORT, $message, $this->logOutput, $marketplaceSku);
+                    $this->addOrderNotFormatted($marketplaceSku, $message, $orderData);
+                    continue;
                 }
                 try {
                     // try to import or update order
@@ -953,7 +953,7 @@ class Import
                     $this->saveSynchronizationResult($result);
                     // clean import order process
                     unset($importOrderFactory, $result);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $errorMessage = '[Magento error]: "' . $e->getMessage()
                         . '" ' . $e->getFile() . ' | ' . $e->getLine();
                 }
@@ -991,7 +991,7 @@ class Import
      * @param string $errorMessage Error message
      * @param mixed $orderData API order data
      */
-    private function addOrderNotFormatted($marketplaceSku, $errorMessage, $orderData)
+    private function addOrderNotFormatted(string $marketplaceSku, string $errorMessage, $orderData)
     {
         $messageDecoded = $this->dataHelper->decodeLogMessage($errorMessage, false);
         $this->ordersNotFormatted[] = [
@@ -1004,7 +1004,7 @@ class Import
             LengowImportOrder::SHOP_ID => $this->storeId,
             LengowImportOrder::CURRENT_ORDER_STATUS => (string) $orderData->lengow_status,
             LengowImportOrder::PREVIOUS_ORDER_STATUS => (string) $orderData->lengow_status,
-            LengowImportOrder::ERRORS => array($messageDecoded),
+            LengowImportOrder::ERRORS => [$messageDecoded],
         ];
     }
 
@@ -1013,7 +1013,7 @@ class Import
      *
      * @param array $result synchronization order result
      */
-    private function synchronizeMerchantOrderId($result)
+    private function synchronizeMerchantOrderId(array $result)
     {
         if (!$this->debugMode && $result[LengowImportOrder::RESULT_TYPE] === LengowImportOrder::RESULT_CREATED) {
             $lengowOrder = $this->lengowOrderFactory->create()->load($result[LengowImportOrder::LENGOW_ORDER_ID]);
@@ -1039,7 +1039,7 @@ class Import
      *
      * @param array $result synchronization order result
      */
-    private function saveSynchronizationResult($result)
+    private function saveSynchronizationResult(array $result)
     {
         $resultType = $result[LengowImportOrder::RESULT_TYPE];
         unset($result[LengowImportOrder::RESULT_TYPE]);

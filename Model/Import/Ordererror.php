@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Exception;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
@@ -135,7 +136,7 @@ class Ordererror extends AbstractModel
      *
      * @return Ordererror|false
      */
-    public function createOrderError($params = [])
+    public function createOrderError(array $params = [])
     {
         foreach ($this->fieldList as $key => $value) {
             if (!array_key_exists($key, $params) && $value[DataHelper::FIELD_REQUIRED]) {
@@ -148,7 +149,7 @@ class Ordererror extends AbstractModel
         $this->setData(self::FIELD_CREATED_AT, $this->dateTime->gmtDate(DataHelper::DATE_FULL));
         try {
             return $this->save();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -160,7 +161,7 @@ class Ordererror extends AbstractModel
      *
      * @return Ordererror|false
      */
-    public function updateOrderError($params = [])
+    public function updateOrderError(array $params = [])
     {
         if (!$this->getId()) {
             return false;
@@ -174,7 +175,7 @@ class Ordererror extends AbstractModel
         $this->setData(self::FIELD_UPDATED_AT, $this->dateTime->gmtDate(DataHelper::DATE_FULL));
         try {
             return $this->save();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -184,7 +185,7 @@ class Ordererror extends AbstractModel
      *
      * @return array
      */
-    public function getUpdatedFields()
+    public function getUpdatedFields(): array
     {
         $updatedFields = [];
         foreach ($this->fieldList as $key => $value) {
@@ -199,11 +200,11 @@ class Ordererror extends AbstractModel
      * Removes all order error for one order lengow
      *
      * @param integer $orderLengowId Lengow order id
-     * @param string $type order error type (import or send)
+     * @param int $type order error type (import or send)
      *
      * @return boolean
      */
-    public function finishOrderErrors($orderLengowId, $type = self::TYPE_ERROR_IMPORT)
+    public function finishOrderErrors(int $orderLengowId, int $type = self::TYPE_ERROR_IMPORT): bool
     {
         // get all order errors
         $results = $this->lengowOrderErrorCollection->create()->load()
@@ -227,13 +228,12 @@ class Ordererror extends AbstractModel
      * Get all order errors
      *
      * @param integer $orderLengowId Lengow order id
-     * @param string|null $type order error type (import or send)
+     * @param int|null $type order error type (import or send)
      * @param boolean|null $finished log finished
      *
      * @return array|false
-     *
      */
-    public function getOrderErrors($orderLengowId, $type = null, $finished = null)
+    public function getOrderErrors(int $orderLengowId, int $type = null, bool $finished = null)
     {
         $collection = $this->lengowOrderErrorCollection->create()->load()
             ->addFieldToFilter(self::FIELD_ORDER_LENGOW_ID, $orderLengowId);

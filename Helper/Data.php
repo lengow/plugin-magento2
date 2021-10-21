@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Helper;
 
+use Exception;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\Filesystem\DirectoryList;
@@ -73,32 +74,32 @@ class Data extends AbstractHelper
     /**
      * @var DirectoryList Magento directory list instance
      */
-    protected $_directoryList;
+    private $directoryList;
 
     /**
      * @var ResourceConnection Magento resource connection instance
      */
-    protected $_resource;
+    private $resource;
 
     /**
      * @var storeManagerInterface Magento store manager instance
      */
-    protected $_storeManager;
+    private $storeManager;
 
     /**
      * @var TimezoneInterface Magento datetime timezone instance
      */
-    protected $_timezone;
+    private $timezone;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * @var LengowLogFactory Lengow log factory instance
      */
-    protected $_logFactory;
+    private $logFactory;
 
     /**
      * Constructor
@@ -120,12 +121,12 @@ class Data extends AbstractHelper
         LengowLogFactory $logFactory,
         ConfigHelper $configHelper
     ) {
-        $this->_storeManager = $storeManager;
-        $this->_directoryList = $directoryList;
-        $this->_resource = $resource;
-        $this->_timezone = $timezone;
-        $this->_logFactory = $logFactory;
-        $this->_configHelper = $configHelper;
+        $this->storeManager = $storeManager;
+        $this->directoryList = $directoryList;
+        $this->resource = $resource;
+        $this->timezone = $timezone;
+        $this->logFactory = $logFactory;
+        $this->configHelper = $configHelper;
         parent::__construct($context);
     }
 
@@ -139,8 +140,12 @@ class Data extends AbstractHelper
      *
      * @return boolean
      */
-    public function log($category, $message = '', $display = false, $marketplaceSku = null)
-    {
+    public function log(
+        string $category,
+        string $message = '',
+        bool $display = false,
+        string $marketplaceSku = null
+    ) {
         if ($message === '') {
             return false;
         }
@@ -148,11 +153,11 @@ class Data extends AbstractHelper
         $finalMessage = '' . (empty($marketplaceSku) ? '' : 'order ' . $marketplaceSku . ' : ');
         $finalMessage .= $decodedMessage;
         if ($display) {
-            $date = $this->_timezone->date()->format(self::DATE_FULL);
+            $date = $this->timezone->date()->format(self::DATE_FULL);
             print_r($date . ' - [' . $category . '] ' . $finalMessage . '<br />');
             flush();
         }
-        $log = $this->_logFactory->create();
+        $log = $this->logFactory->create();
         return $log->createLog(
             [
                 LengowLog::FIELD_MESSAGE => $finalMessage,
@@ -169,7 +174,7 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function setLogMessage($key, $params = null)
+    public function setLogMessage(string $key, array $params = null): string
     {
         if ($params === null || (is_array($params) && empty($params))) {
             return $key;
@@ -179,7 +184,7 @@ class Data extends AbstractHelper
             $value = str_replace('|', '', $value);
             $allParams[] = $value;
         }
-        return $key . '[' . join('|', $allParams) . ']';
+        return $key . '[' . implode('|', $allParams) . ']';
     }
 
     /**
@@ -191,30 +196,29 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function decodeLogMessage($message, $useTranslation = true, $params = [])
+    public function decodeLogMessage(string $message, bool $useTranslation = true, array $params = []): string
     {
         // clean new line for magento error
         $message = preg_replace("#\n|\t|\r#", ' ', $message);
-        if (preg_match('/^([^\[\]]*)(\[(.*)\]|)$/', $message, $result)) {
-            if (isset($result[1])) {
-                $key = $result[1];
-                if (isset($result[3]) && empty($params)) {
-                    $strParam = $result[3];
-                    $params = explode('|', $strParam);
-                }
-                if ($useTranslation) {
-                    $phrase = __($key, $params);
-                    $message = $phrase->__toString();
-                } else {
-                    if (!empty($params)) {
-                        $ii = 1;
-                        foreach ($params as $param) {
-                            $key = str_replace('%' . $ii, $param, $key);
-                            $ii++;
-                        }
+        if (preg_match('/^([^\[\]]*)(\[(.*)\]|)$/', $message, $result) && isset($result[1])) {
+            /** @var string $key */
+            $key = $result[1];
+            if (isset($result[3]) && empty($params)) {
+                $strParam = $result[3];
+                $params = explode('|', $strParam);
+            }
+            if ($useTranslation) {
+                $phrase = __($key, $params);
+                $message = $phrase->__toString();
+            } else {
+                if (!empty($params)) {
+                    $index = 1;
+                    foreach ($params as $param) {
+                        $key = str_replace('%' . $index, $param, $key);
+                        $index++;
                     }
-                    $message = $key;
                 }
+                $message = $key;
             }
         }
         return $message;
@@ -225,14 +229,14 @@ class Data extends AbstractHelper
      *
      * @param integer $nbDays
      */
-    public function cleanLog($nbDays = LengowLog::LOG_LIFE)
+    public function cleanLog(int $nbDays = LengowLog::LOG_LIFE)
     {
         if ($nbDays <= 0) {
             $nbDays = LengowLog::LOG_LIFE;
         }
-        $table = $this->_resource->getTableName(LengowLog::TABLE_LOG);
+        $table = $this->resource->getTableName(LengowLog::TABLE_LOG);
         $query = 'DELETE FROM ' . $table . ' WHERE `date` < DATE_SUB(NOW(),INTERVAL ' . $nbDays . ' DAY)';
-        $connection = $this->_resource->getConnection(ResourceConnection::DEFAULT_CONNECTION);
+        $connection = $this->resource->getConnection(ResourceConnection::DEFAULT_CONNECTION);
         $connection->query($query);
     }
 
@@ -244,11 +248,11 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function getExportUrl($storeId, $additionalParams = [])
+    public function getExportUrl(int $storeId, array $additionalParams = []): string
     {
         $defaultParams = [
             LengowExport::PARAM_STORE_ID => $storeId,
-            LengowExport::PARAM_TOKEN => $this->_configHelper->getToken($storeId),
+            LengowExport::PARAM_TOKEN => $this->configHelper->getToken($storeId),
             '_nosid' => true,
             '_store_to_url' => false,
         ];
@@ -266,17 +270,17 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function getCronUrl($additionalParams = [])
+    public function getCronUrl(array $additionalParams = []): string
     {
         $defaultParams = [
-            LengowImport::PARAM_TOKEN => $this->_configHelper->getToken(),
+            LengowImport::PARAM_TOKEN => $this->configHelper->getToken(),
             '_nosid' => true,
             '_store_to_url' => false,
         ];
         if (!empty($additionalParams)) {
             $defaultParams = array_merge($defaultParams, $additionalParams);
         }
-        $this->_urlBuilder->setScope($this->_storeManager->getDefaultStoreView()->getId());
+        $this->_urlBuilder->setScope($this->storeManager->getDefaultStoreView()->getId());
         return $this->_urlBuilder->getUrl('lengow/cron', $defaultParams);
     }
 
@@ -287,17 +291,17 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function getToolboxUrl($additionalParams = [])
+    public function getToolboxUrl(array $additionalParams = []): string
     {
         $defaultParams = [
-            ToolboxHelper::PARAM_TOKEN => $this->_configHelper->getToken(),
+            ToolboxHelper::PARAM_TOKEN => $this->configHelper->getToken(),
             '_nosid' => true,
             '_store_to_url' => false,
         ];
         if (!empty($additionalParams)) {
             $defaultParams = array_merge($defaultParams, $additionalParams);
         }
-        $this->_urlBuilder->setScope($this->_storeManager->getDefaultStoreView()->getId());
+        $this->_urlBuilder->setScope($this->storeManager->getDefaultStoreView()->getId());
         return $this->_urlBuilder->getUrl('lengow/toolbox', $defaultParams);
     }
 
@@ -309,11 +313,11 @@ class Data extends AbstractHelper
      *
      * @return string in gmt format
      */
-    public function getDateInCorrectFormat($timestamp, $second = false)
+    public function getDateInCorrectFormat(int $timestamp, bool $second = false): string
     {
-        $date = $this->_timezone->date($timestamp);
+        $date = $this->timezone->date($timestamp);
         $pattern = $second ? 'EEEE d MMMM y @ HH:mm:ss' : 'EEEE d MMMM y @ HH:mm';
-        return $this->_timezone->formatDateTime(
+        return $this->timezone->formatDateTime(
             $date,
             \IntlDateFormatter::FULL,
             \IntlDateFormatter::FULL,
@@ -328,16 +332,16 @@ class Data extends AbstractHelper
      *
      * @return StoreInterface
      */
-    public function getStore()
+    public function getStore(): StoreInterface
     {
         $storeId = (int) $this->_getRequest()->getParam('store', 0);
         if ($storeId === 0) {
-            $storeId = $this->_storeManager->getDefaultStoreView()->getId();
+            $storeId = (int) $this->storeManager->getDefaultStoreView()->getId();
         }
         try {
-            $store = $this->_storeManager->getStore($storeId);
-        } catch (\Exception $e) {
-            $store = $this->_storeManager->getDefaultStoreView();
+            $store = $this->storeManager->getStore($storeId);
+        } catch (Exception $e) {
+            $store = $this->storeManager->getDefaultStoreView();
         }
         return $store;
     }
@@ -347,11 +351,11 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function getMediaUrl()
+    public function getMediaUrl(): string
     {
         try {
-            $url = $this->_storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
-        } catch (\Exception $e) {
+            $url = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
+        } catch (Exception $e) {
             $url = '';
         }
         return $url;
@@ -362,11 +366,11 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function getMediaPath()
+    public function getMediaPath(): string
     {
         try {
-            $path = $this->_directoryList->getPath('media');
-        } catch (\Exception $e) {
+            $path = $this->directoryList->getPath('media');
+        } catch (Exception $e) {
             $path = '';
         }
         return $path;
@@ -375,11 +379,11 @@ class Data extends AbstractHelper
     /**
      * Clean data
      *
-     * @param string $str the content
+     * @param string|null $str the content
      *
      * @return string
      */
-    public function cleanData($str)
+    public function cleanData(string $str = null): string
     {
         $str = preg_replace(
             '/[\x00-\x08\x10\x0B\x0C\x0E-\x19\x7F]
@@ -439,11 +443,11 @@ class Data extends AbstractHelper
     /**
      * Clean html content
      *
-     * @param string $str the html content
+     * @param string|null $str the html content
      *
      * @return string
      */
-    public function cleanHtml($str)
+    public function cleanHtml(string $str = null): string
     {
         $str = str_replace('<br />', ' ', nl2br($str));
         $str = trim(strip_tags(htmlspecialchars_decode($str)));
@@ -454,25 +458,21 @@ class Data extends AbstractHelper
         $str = preg_replace($pattern, ' ', $str);
         $str = preg_replace('/[\s]+/', ' ', $str);
         $str = trim($str);
-        $str = str_replace('&nbsp;', ' ', $str);
-        $str = str_replace('|', ' ', $str);
-        $str = str_replace('"', '\'', $str);
-        $str = str_replace('’', '\'', $str);
-        $str = str_replace('&#39;', '\' ', $str);
-        $str = str_replace('&#150;', '-', $str);
-        $str = str_replace(chr(9), ' ', $str);
-        $str = str_replace(chr(10), ' ', $str);
-        return str_replace(chr(13), ' ', $str);
+        return str_replace(
+            ['&nbsp;', '|', '"', '’', '&#39;', '&#150;', chr(9), chr(10), chr(13)],
+            [' ', ' ', '\'', '\'', '\' ', '-', ' ', ' ', ' '],
+            $str
+        );
     }
 
     /**
      * Replace all accented chars by their equivalent non accented chars
      *
-     * @param string $str the content
+     * @param string|null $str the content
      *
      * @return string
      */
-    public function replaceAccentedChars($str)
+    public function replaceAccentedChars(string $str = null): string
     {
         /* One source among others:
             http://www.tachyonsoft.com/uc0000.htm
@@ -555,7 +555,6 @@ class Data extends AbstractHelper
             '/[\x{044E}]/u',
             /* zh */
             '/[\x{0436}]/u',
-
             /* Uppercase */
             /* A  */
             '/[\x{0100}\x{0102}\x{0104}\x{00C0}\x{00C1}\x{00C2}\x{00C3}\x{00C4}\x{00C5}\x{0410}]/u',
@@ -630,7 +629,6 @@ class Data extends AbstractHelper
             /* ZH */
             '/[\x{0416}]/u',
         ];
-
         // ö to oe
         // å to aa
         // ä to ae

@@ -33,22 +33,22 @@ class LinkCatalog extends Action
     /**
      * @var PageFactory Magento page factory
      */
-    protected $resultPageFactory;
+    private $resultPageFactory;
 
     /**
      * @var JsonFactory Magento Json factory
      */
-    protected $resultJsonFactory;
+    private $resultJsonFactory;
 
     /**
      * @var ConfigHelper Lengow config helper
      */
-    protected $configHelper;
+    private $configHelper;
 
     /**
      * @var LengowCatalog Lengow catalog helper
      */
-    protected $catalog;
+    private $catalog;
 
     /**
      * View constructor
@@ -78,14 +78,12 @@ class LinkCatalog extends Action
      *
      * @return MagentoJsonResult
      */
-    public function execute()
+    public function execute(): MagentoJsonResult
     {
         $result = $this->resultJsonFactory->create();
         $resultPage = $this->resultPageFactory->create();
         $catalogsLinked = true;
-        $catalogSelected = $this->getRequest()->getParam('catalogSelected') !== null
-            ? $this->getRequest()->getParam('catalogSelected')
-            : [];
+        $catalogSelected = $this->getRequest()->getParam('catalogSelected') ?? [];
         if (!empty($catalogSelected)) {
             $catalogsLinked = $this->catalog->saveCatalogsLinked($catalogSelected);
         }

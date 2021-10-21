@@ -37,42 +37,42 @@ class CmsResult extends Action
     /**
      * @var PageFactory Magento Page factory
      */
-    protected $resultPageFactory;
+    private $resultPageFactory;
 
     /**
      * @var JsonFactory Magento Json factory
      */
-    protected $resultJsonFactory;
+    private $resultJsonFactory;
 
     /**
      * @var JsonHelper Magento Json Helper
      */
-    protected $jsonHelper;
+    private $jsonHelper;
 
     /**
      * @var ConfigHelper Lengow config helper
      */
-    protected $configHelper;
+    private $configHelper;
 
     /**
      * @var LengowConnector Lengow connector helper
      */
-    protected $connector;
+    private $connector;
 
     /**
      * @var LengowCatalog Lengow catalog helper
      */
-    protected $catalog;
+    private $catalog;
 
     /**
      * @var DataHelper Lengow data helper
      */
-    protected $dataHelper;
+    private $dataHelper;
 
     /**
      * @var SyncHelper Lengow sync helper
      */
-    protected $syncHelper;
+    private $syncHelper;
 
     /**
      * View constructor
@@ -110,11 +110,11 @@ class CmsResult extends Action
     }
 
     /**
-     * Return cms connection result page
+     * Return CMS connection result page
      *
      * @return MagentoJsonResult
      */
-    public function execute()
+    public function execute(): MagentoJsonResult
     {
         $result = $this->resultJsonFactory->create();
         $resultPage = $this->resultPageFactory->create();
@@ -154,7 +154,7 @@ class CmsResult extends Action
      *
      * @return bool
      */
-    private function checkApiCredentials($accessToken, $secret)
+    private function checkApiCredentials(string $accessToken, string $secret): bool
     {
         $accountId = $this->connector->getAccountIdByCredentials($accessToken, $secret);
         if ($accountId) {
@@ -174,7 +174,8 @@ class CmsResult extends Action
      *
      * @return bool
      */
-    private function connectCms() {
+    private function connectCms(): bool
+    {
         $cmsToken = $this->configHelper->getToken();
         $cmsConnected = $this->syncHelper->syncCatalog(true);
         if (!$cmsConnected) {
@@ -210,7 +211,7 @@ class CmsResult extends Action
      *
      * @return boolean
      */
-    private function hasCatalogToLink()
+    private function hasCatalogToLink(): bool
     {
         $lengowActiveStores = $this->configHelper->getLengowActiveStores();
         if (empty($lengowActiveStores)) {

@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model;
 
+use Exception;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
@@ -120,9 +121,9 @@ class Log extends AbstractModel
      *
      * @return Log|boolean
      */
-    public function createLog($params = [])
+    public function createLog(array $params = [])
     {
-        foreach ($this->fieldList  as $key => $value) {
+        foreach ($this->fieldList as $key => $value) {
             if (!array_key_exists($key, $params) && $value[DataHelper::FIELD_REQUIRED]) {
                 return false;
             }
@@ -133,7 +134,7 @@ class Log extends AbstractModel
         $this->setData(self::FIELD_DATE, $this->dateTime->gmtDate(DataHelper::DATE_FULL));
         try {
             return $this->save();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -145,7 +146,7 @@ class Log extends AbstractModel
      *
      * @return array
      */
-    public function getLogsByDate($date)
+    public function getLogsByDate(string $date): array
     {
         $collection = $this->lengowLogCollection->create()
             ->addFieldToFilter(
@@ -166,7 +167,7 @@ class Log extends AbstractModel
      *
      * @return boolean
      */
-    public function logDateIsAvailable($date)
+    public function logDateIsAvailable(string $date): bool
     {
         $table = $this->resourceConnection->getTableName(self::TABLE_LOG);
         $query = 'SELECT COUNT(*) FROM ' . $table . '
@@ -181,7 +182,7 @@ class Log extends AbstractModel
      *
      * @return array
      */
-    public function getAvailableLogDates()
+    public function getAvailableLogDates(): array
     {
         $logDates = [];
         for ($i = 0; $i <= self::LOG_LIFE; $i++) {
@@ -199,7 +200,7 @@ class Log extends AbstractModel
      *
      * @param string|null $date date for a specific log file
      */
-    public function download($date = null)
+    public function download(string $date = null)
     {
         $contents = '';
         if ($date && preg_match('/^(\d{4}-\d{2}-\d{2})$/', $date)) {

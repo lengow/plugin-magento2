@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Helper;
 
+use Exception;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Module\Dir\Reader as ModuleReader;
@@ -211,7 +212,7 @@ class Toolbox extends AbstractHelper
     /**
      * @var ModuleReader Magento module reader instance
      */
-    protected $moduleReader;
+    private $moduleReader;
 
     /**
      * @var OrderRepositoryInterface Magento order repository instance
@@ -221,52 +222,52 @@ class Toolbox extends AbstractHelper
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $configHelper;
+    private $configHelper;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $dataHelper;
+    private $dataHelper;
 
     /**
      * @var ImportHelper Lengow import helper instance
      */
-    protected $importHelper;
+    private $importHelper;
 
     /**
      * @var SecurityHelper Lengow security helper instance
      */
-    protected $securityHelper;
+    private $securityHelper;
 
     /**
      * @var LengowExport Lengow export instance
      */
-    protected $lengowExport;
+    private $lengowExport;
 
     /**
      * @var LengowImport Lengow import instance
      */
-    protected $lengowImport;
+    private $lengowImport;
 
     /**
      * @var LengowLog Lengow log instance
      */
-    protected $lengowLog;
+    private $lengowLog;
 
     /**
      * @var LengowAction Lengow action instance
      */
-    protected $lengowAction;
+    private $lengowAction;
 
     /**
      * @var LengowOrder Lengow order instance
      */
-    protected $lengowOrder;
+    private $lengowOrder;
 
     /**
      * @var LengowOrderError Lengow order error instance
      */
-    protected $lengowOrderError;
+    private $lengowOrderError;
 
     /**
      * Constructor
@@ -322,7 +323,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    public function getData($type = self::DATA_TYPE_CMS)
+    public function getData(string $type = self::DATA_TYPE_CMS): array
     {
         switch ($type) {
             case self::DATA_TYPE_ALL:
@@ -352,7 +353,7 @@ class Toolbox extends AbstractHelper
      *
      * @param string|null $date name of file to download
      */
-    public function downloadLog($date = null)
+    public function downloadLog(string $date = null)
     {
         $this->lengowLog->download($date);
     }
@@ -364,7 +365,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    public function syncOrders($params = [])
+    public function syncOrders(array $params = []): array
     {
         // get all params for order synchronization
         $params = $this->filterParamsForSync($params);
@@ -387,8 +388,11 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    public function getOrderData($marketplaceSku = null, $marketplaceName = null, $type = self::DATA_TYPE_ORDER)
-    {
+    public function getOrderData(
+        string $marketplaceSku = null,
+        string $marketplaceName = null,
+        string $type = self::DATA_TYPE_ORDER
+    ): array {
         $lengowOrders = $marketplaceSku && $marketplaceName
             ? $this->lengowOrder->getAllLengowOrders($marketplaceSku, $marketplaceName)
             : [];
@@ -410,7 +414,7 @@ class Toolbox extends AbstractHelper
         return [
             self::ORDER_MARKETPLACE_SKU => $marketplaceSku,
             self::ORDER_MARKETPLACE_NAME => $marketplaceName,
-            self::ORDER_MARKETPLACE_LABEL => isset($marketplaceLabel) ? $marketplaceLabel : null,
+            self::ORDER_MARKETPLACE_LABEL => $marketplaceLabel ?? null,
             self::ORDERS => $orders,
         ];
     }
@@ -422,7 +426,7 @@ class Toolbox extends AbstractHelper
      *
      * @return bool
      */
-    public function isToolboxAction($action)
+    public function isToolboxAction(string $action): bool
     {
         return in_array($action, $this->toolboxActions, true);
     }
@@ -432,7 +436,7 @@ class Toolbox extends AbstractHelper
      *
      * @return bool
      */
-    public static function isCurlActivated()
+    public static function isCurlActivated(): bool
     {
         return function_exists(self::PHP_EXTENSION_CURL);
     }
@@ -442,7 +446,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getAllData()
+    private function getAllData(): array
     {
         return [
             self::CHECKLIST => $this->getChecklistData(),
@@ -460,7 +464,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getCmsData()
+    private function getCmsData(): array
     {
         return [
             self::CHECKLIST => $this->getChecklistData(),
@@ -475,7 +479,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getChecklistData()
+    private function getChecklistData(): array
     {
         $checksumData = $this->getChecksumData();
         return [
@@ -491,7 +495,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getPluginData()
+    private function getPluginData(): array
     {
         return [
             self::PLUGIN_CMS_VERSION => $this->securityHelper->getMagentoVersion(),
@@ -510,7 +514,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getSynchronizationData()
+    private function getSynchronizationData(): array
     {
         $lastImport = $this->importHelper->getLastImport();
         return [
@@ -530,7 +534,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getShopData()
+    private function getShopData(): array
     {
         $exportData = [];
         $stores = $this->configHelper->getAllStore();
@@ -538,7 +542,7 @@ class Toolbox extends AbstractHelper
             return $exportData;
         }
         foreach ($stores as $store) {
-            $storeId = $store->getId();
+            $storeId = (int) $store->getId();
             $this->lengowExport->init([LengowExport::PARAM_STORE_ID => $storeId]);
             $lastExport = $this->configHelper->get(ConfigHelper::LAST_UPDATE_EXPORT, $storeId);
             $exportData[] = [
@@ -563,7 +567,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getOptionData()
+    private function getOptionData(): array
     {
         $optionData = [
             self::CMS_OPTIONS => $this->configHelper->getAllValues(),
@@ -571,7 +575,7 @@ class Toolbox extends AbstractHelper
         ];
         $stores = $this->configHelper->getAllStore();
         foreach ($stores as $store) {
-            $optionData[self::SHOP_OPTIONS][] = $this->configHelper->getAllValues($store->getId());
+            $optionData[self::SHOP_OPTIONS][] = $this->configHelper->getAllValues((int) $store->getId());
         }
         return $optionData;
     }
@@ -581,7 +585,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getChecksumData()
+    private function getChecksumData(): array
     {
         $fileCounter = 0;
         $fileModified = [];
@@ -590,7 +594,7 @@ class Toolbox extends AbstractHelper
         $fileName = $this->moduleReader->getModuleDir('etc', SecurityHelper::MODULE_NAME) . $sep . self::FILE_CHECKMD5;
         if (file_exists($fileName)) {
             $md5Available = true;
-            if (($file = fopen($fileName, 'r')) !== false) {
+            if (($file = fopen($fileName, 'rb')) !== false) {
                 while (($data = fgetcsv($file, 1000, '|')) !== false) {
                     $fileCounter++;
                     $shortPath = $data[0];
@@ -613,7 +617,7 @@ class Toolbox extends AbstractHelper
         $fileDeletedCounter = count($fileDeleted);
         return [
             self::CHECKSUM_AVAILABLE => $md5Available,
-            self::CHECKSUM_SUCCESS => !$md5Available || !($fileModifiedCounter > 0) || !($fileModifiedCounter > 0),
+            self::CHECKSUM_SUCCESS => !$md5Available || !($fileModifiedCounter > 0) || !($fileDeletedCounter > 0),
             self::CHECKSUM_NUMBER_FILES_CHECKED => $fileCounter,
             self::CHECKSUM_NUMBER_FILES_MODIFIED => $fileModifiedCounter,
             self::CHECKSUM_NUMBER_FILES_DELETED => $fileDeletedCounter,
@@ -627,7 +631,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getLogData()
+    private function getLogData(): array
     {
         $logs = [];
         $logDates = $this->lengowLog->getAvailableLogDates();
@@ -656,7 +660,7 @@ class Toolbox extends AbstractHelper
      *
      * @return bool
      */
-    private function isSimpleXMLActivated()
+    private function isSimpleXMLActivated(): bool
     {
         return function_exists(self::PHP_EXTENSION_SIMPLEXML);
     }
@@ -666,7 +670,7 @@ class Toolbox extends AbstractHelper
      *
      * @return bool
      */
-    private function isJsonActivated()
+    private function isJsonActivated(): bool
     {
         return function_exists(self::PHP_EXTENSION_JSON);
     }
@@ -676,18 +680,18 @@ class Toolbox extends AbstractHelper
      *
      * @return bool
      */
-    private function testWritePermission()
+    private function testWritePermission(): bool
     {
         $sep = DIRECTORY_SEPARATOR;
         $filePath = $this->dataHelper->getMediaPath() . $sep . DataHelper::LENGOW_FOLDER . $sep . self::FILE_TEST;
         try {
-            $file = fopen($filePath, 'w+');
+            $file = fopen($filePath, 'wb+');
             if (!$file) {
                 return false;
             }
             unlink($filePath);
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -699,7 +703,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function filterParamsForSync($params = [])
+    private function filterParamsForSync(array $params = []): array
     {
         $paramsFiltered = [LengowImport::PARAM_TYPE => LengowImport::TYPE_TOOLBOX];
         if (isset(
@@ -734,7 +738,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getOrderDataByType($data, $type)
+    private function getOrderDataByType(array $data, string $type): array
     {
         $order = $data[LengowOrder::FIELD_ORDER_ID]
             ? $this->orderRepository->get((int) $data[LengowOrder::FIELD_ORDER_ID])
@@ -776,15 +780,15 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getAllOrderData($data, $order = null)
+    private function getAllOrderData(array $data, MagentoOrderInterface $order = null): array
     {
         $importedAt = 0;
-        $hasAnActionInProgress = false;
+        $hasActionInProgress = false;
         $orderTypes = json_decode($data[LengowOrder::FIELD_ORDER_TYPES], true);
         if ($order) {
             $tracks = $order->getShipmentsCollection()->getLastItem()->getAllTracks();
             $lastTrack = !empty($tracks) ? end($tracks) : null;
-            $hasAnActionInProgress = (bool) $this->lengowAction->getActionsByOrderId((int) $order->getId(), true);
+            $hasActionInProgress = (bool) $this->lengowAction->getActionsByOrderId((int) $order->getId(), true);
             $importedAt = strtotime($order->getStatusHistoryCollection()->getFirstItem()->getCreatedAt());
         }
         return [
@@ -840,7 +844,7 @@ class Toolbox extends AbstractHelper
             self::ORDER_IS_REIMPORTED => (bool) $data[LengowOrder::FIELD_IS_REIMPORTED],
             self::ORDER_IS_IN_ERROR => (bool) $data[LengowOrder::FIELD_IS_IN_ERROR],
             self::ERRORS => $this->getOrderErrorsData((int) $data[LengowOrder::FIELD_ID]),
-            self::ORDER_ACTION_IN_PROGRESS => $hasAnActionInProgress,
+            self::ORDER_ACTION_IN_PROGRESS => $hasActionInProgress,
             self::ACTIONS => $order ? $this->getOrderActionData((int) $order->getId()) : [],
             self::CREATED_AT => strtotime($data[LengowOrder::FIELD_CREATED_AT]),
             self::UPDATED_AT => strtotime($data[LengowOrder::FIELD_UPDATED_AT]),

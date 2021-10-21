@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Cron;
 
+use Exception;
 use Magento\Store\Model\StoreManagerInterface;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
@@ -30,22 +31,22 @@ class LaunchExport
     /**
      * @var StoreManagerInterface Magento store manager instance
      */
-    protected $_storeManager;
+    private $storeManager;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * @var LengowExportFactory Lengow export instance
      */
-    protected $_exportFactory;
+    private $exportFactory;
 
     /**
      * Constructor
@@ -61,10 +62,10 @@ class LaunchExport
         ConfigHelper $configHelper,
         LengowExportFactory $exportFactory
     ) {
-        $this->_storeManager = $storeManager;
-        $this->_dataHelper = $dataHelper;
-        $this->_configHelper = $configHelper;
-        $this->_exportFactory = $exportFactory;
+        $this->storeManager = $storeManager;
+        $this->dataHelper = $dataHelper;
+        $this->configHelper = $configHelper;
+        $this->exportFactory = $exportFactory;
     }
 
     /**
@@ -74,16 +75,16 @@ class LaunchExport
     {
         set_time_limit(0);
         ini_set('memory_limit', '1G');
-        $storeCollection = $this->_storeManager->getStores();
+        $storeCollection = $this->storeManager->getStores();
         foreach ($storeCollection as $store) {
             if ($store->isActive()) {
-                $storeId = $store->getId();
-                if ($this->_configHelper->get(ConfigHelper::EXPORT_MAGENTO_CRON_ENABLED, $storeId)) {
+                $storeId = (int) $store->getId();
+                if ($this->configHelper->get(ConfigHelper::EXPORT_MAGENTO_CRON_ENABLED, $storeId)) {
                     try {
                         // config store
-                        $this->_storeManager->setCurrentStore($storeId);
+                        $this->storeManager->setCurrentStore($storeId);
                         // launch export process
-                        $export = $this->_exportFactory->create();
+                        $export = $this->exportFactory->create();
                         $export->init(
                             [
                                 LengowExport::PARAM_STORE_ID => $storeId,
@@ -95,10 +96,10 @@ class LaunchExport
                         );
                         $export->exec();
                         unset($export);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         $errorMessage = '[Magento error]: "' . $e->getMessage()
                             . '" ' . $e->getFile() . ' | ' . $e->getLine();
-                        $this->_dataHelper->log(DataHelper::CODE_EXPORT, $errorMessage);
+                        $this->dataHelper->log(DataHelper::CODE_EXPORT, $errorMessage);
                     }
                 }
             }

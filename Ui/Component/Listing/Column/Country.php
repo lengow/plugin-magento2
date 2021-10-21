@@ -31,12 +31,12 @@ class Country extends Column
     /**
      * @var Repository Magento asset repository instance
      */
-    protected $_assetRepo;
+    private $assetRepo;
 
     /**
      * @var CountryFactory Magento country factory instance
      */
-    protected $_countryFactory;
+    private $countryFactory;
 
     /**
      * Constructor
@@ -56,8 +56,8 @@ class Country extends Column
         array $components = [],
         array $data = []
     ) {
-        $this->_assetRepo = $assetRepo;
-        $this->_countryFactory = $countryFactory;
+        $this->assetRepo = $assetRepo;
+        $this->countryFactory = $countryFactory;
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
@@ -68,7 +68,7 @@ class Country extends Column
      *
      * @return array
      */
-    public function prepareDataSource(array $dataSource)
+    public function prepareDataSource(array $dataSource): array
     {
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
@@ -76,9 +76,9 @@ class Country extends Column
                 if ($item[LengowOrder::FIELD_DELIVERY_COUNTRY_ISO] !== null
                     && strlen($item[LengowOrder::FIELD_DELIVERY_COUNTRY_ISO]) === 2
                 ) {
-                    $filename = $this->_assetRepo->getUrl('Lengow_Connector/images/flag')
+                    $filename = $this->assetRepo->getUrl('Lengow_Connector/images/flag')
                         . DIRECTORY_SEPARATOR . strtoupper($item[LengowOrder::FIELD_DELIVERY_COUNTRY_ISO]) . '.png';
-                    $countryName = $this->_countryFactory->create()
+                    $countryName = $this->countryFactory->create()
                         ->loadByCode($item[LengowOrder::FIELD_DELIVERY_COUNTRY_ISO])
                         ->getName();
                     $item[LengowOrder::FIELD_DELIVERY_COUNTRY_ISO] = '<a class="lengow_tooltip" href="#">

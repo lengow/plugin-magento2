@@ -19,6 +19,8 @@
 
 namespace Lengow\Connector\Test\Unit;
 
+use Exception;
+
 class Fixture extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -37,7 +39,7 @@ class Fixture extends \PHPUnit_Framework_TestCase
             $method = $reflection->getMethod($methodName);
             $method->setAccessible(true);
             return $method->invokeArgs($object, $parameters);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -57,7 +59,7 @@ class Fixture extends \PHPUnit_Framework_TestCase
             $property = $reflection->getProperty($propertyName);
             $property->setAccessible(true);
             return $property->getValue($object);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -74,7 +76,7 @@ class Fixture extends \PHPUnit_Framework_TestCase
         $ii = 0;
         try {
             $reflection = new \ReflectionClass(get_class($object));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $reflection = false;
         }
         if ($reflection) {
@@ -84,7 +86,7 @@ class Fixture extends \PHPUnit_Framework_TestCase
                     $property->setAccessible(true);
                     $property->setValue($object, $propertyValues[$ii]);
                     $ii++;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     continue;
                 }
             }

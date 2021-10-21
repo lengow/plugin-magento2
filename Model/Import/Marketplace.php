@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Exception;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Registry;
@@ -26,7 +27,6 @@ use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Sales\Model\Order\Shipment;
 use Magento\Sales\Model\Order\Shipment\Track;
-use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Exception as LengowException;
@@ -44,32 +44,27 @@ class Marketplace extends AbstractModel
     /**
      * @var TimezoneInterface Magento datetime timezone instance
      */
-    protected $_timezone;
+    private $timezone;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
-
-    /**
-     * @var ConfigHelper Lengow config helper instance
-     */
-    protected $_configHelper;
+    private $dataHelper;
 
     /**
      * @var SyncHelper Lengow sync helper instance
      */
-    protected $_syncHelper;
+    private $syncHelper;
 
     /**
      * @var LengowAction Lengow action instance
      */
-    protected $_orderAction;
+    private $orderAction;
 
     /**
      * @var LengowOrderErrorFactory Lengow order error factory instance
      */
-    protected $_orderErrorFactory;
+    private $orderErrorFactory;
 
     /**
      * @var array all valid actions
@@ -141,7 +136,6 @@ class Marketplace extends AbstractModel
      * @param Registry $registry Magento registry instance
      * @param TimezoneInterface $timezone Magento datetime timezone instance
      * @param DataHelper $dataHelper Lengow data helper instance
-     * @param ConfigHelper $configHelper Lengow config helper instance
      * @param SyncHelper $syncHelper Lengow sync helper instance
      * @param LengowAction $orderAction Lengow action instance
      * @param LengowOrderErrorFactory $orderErrorFactory Lengow order error factory instance
@@ -151,17 +145,15 @@ class Marketplace extends AbstractModel
         Registry $registry,
         TimezoneInterface $timezone,
         DataHelper $dataHelper,
-        ConfigHelper $configHelper,
         SyncHelper $syncHelper,
         LengowAction $orderAction,
         LengowOrderErrorFactory $orderErrorFactory
     ) {
-        $this->_timezone = $timezone;
-        $this->_dataHelper = $dataHelper;
-        $this->_configHelper = $configHelper;
-        $this->_syncHelper = $syncHelper;
-        $this->_orderAction = $orderAction;
-        $this->_orderErrorFactory = $orderErrorFactory;
+        $this->timezone = $timezone;
+        $this->dataHelper = $dataHelper;
+        $this->syncHelper = $syncHelper;
+        $this->orderAction = $orderAction;
+        $this->orderErrorFactory = $orderErrorFactory;
         parent::__construct($context, $registry);
     }
 
@@ -173,13 +165,13 @@ class Marketplace extends AbstractModel
      *
      * @throws LengowException
      */
-    public function init($params = [])
+    public function init(array $params = [])
     {
         $this->loadApiMarketplace();
         $this->name = strtolower($params['name']);
         if (!isset(self::$marketplaces->{$this->name})) {
             throw new LengowException(
-                $this->_dataHelper->setLogMessage(
+                $this->dataHelper->setLogMessage(
                     'Lengow error: %1 does not feature in the marketplace list',
                     [$this->name]
                 )
@@ -217,9 +209,8 @@ class Marketplace extends AbstractModel
                     $defaultValue = isset($argDescription->default_value)
                         ? (string) $argDescription->default_value
                         : '';
-                    $acceptFreeValue = isset($argDescription->accept_free_values)
-                        ? (bool) $argDescription->accept_free_values
-                        : true;
+                    $acceptFreeValue = !isset($argDescription->accept_free_values)
+                        || (bool) $argDescription->accept_free_values;
                     $this->argValues[(string) $argKey] = [
                         'default_value' => $defaultValue,
                         'accept_free_values' => $acceptFreeValue,
@@ -236,14 +227,13 @@ class Marketplace extends AbstractModel
         }
     }
 
-
     /**
      * Load the json configuration of all marketplaces
      */
     public function loadApiMarketplace()
     {
         if (!self::$marketplaces) {
-            self::$marketplaces = $this->_syncHelper->getMarketplaces();
+            self::$marketplaces = $this->syncHelper->getMarketplaces();
         }
     }
 
@@ -254,7 +244,7 @@ class Marketplace extends AbstractModel
      *
      * @return string The lengow state
      */
-    public function getStateLengow($name)
+    public function getStateLengow(string $name): string
     {
         if (array_key_exists($name, $this->statesLengow)) {
             return $this->statesLengow[$name];
@@ -269,7 +259,7 @@ class Marketplace extends AbstractModel
      *
      * @return array|false
      */
-    public function getAction($action)
+    public function getAction(string $action)
     {
         if (array_key_exists($action, $this->actions)) {
             return $this->actions[$action];
@@ -284,7 +274,7 @@ class Marketplace extends AbstractModel
      *
      * @return string|false
      */
-    public function getDefaultValue($name)
+    public function getDefaultValue(string $name)
     {
         if (array_key_exists($name, $this->argValues)) {
             $defaultValue = $this->argValues[$name]['default_value'];
@@ -302,7 +292,7 @@ class Marketplace extends AbstractModel
      *
      * @return bool
      */
-    public function containOrderLine($action)
+    public function containOrderLine(string $action): bool
     {
         if (isset($this->actions[$action])) {
             $actions = $this->actions[$action];
@@ -333,18 +323,23 @@ class Marketplace extends AbstractModel
      *
      * @return boolean
      */
-    public function callAction($action, $order, $lengowOrder, $shipment = null, $orderLineId = null)
-    {
+    public function callAction(
+        string $action,
+        MagentoOrder $order,
+        Order $lengowOrder,
+        Shipment $shipment = null,
+        string $orderLineId = null
+    ): bool {
         try {
             // check the action and order data
-            $this->_checkAction($action);
-            $this->_checkOrderData($lengowOrder);
+            $this->checkAction($action);
+            $this->checkOrderData($lengowOrder);
             // get all required and optional arguments for a specific marketplace
-            $marketplaceArguments = $this->_getMarketplaceArguments($action);
+            $marketplaceArguments = $this->getMarketplaceArguments($action);
             // get all available values from an order
-            $params = $this->_getAllParams($action, $order, $lengowOrder, $shipment, $marketplaceArguments);
+            $params = $this->getAllParams($action, $order, $lengowOrder, $shipment, $marketplaceArguments);
             // check required arguments and clean value for empty optionals arguments
-            $params = $this->_checkAndCleanParams($action, $params);
+            $params = $this->checkAndCleanParams($action, $params);
             // complete the values with the specific values of the account
             if ($orderLineId !== null) {
                 $params[LengowAction::ARG_LINE] = $orderLineId;
@@ -353,21 +348,21 @@ class Marketplace extends AbstractModel
             $params[LengowImport::ARG_MARKETPLACE] = $lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_NAME);
             $params[LengowAction::ARG_ACTION_TYPE] = $action;
             // checks whether the action is already created to not return an action
-            $canSendAction = $this->_orderAction->canSendAction($params, $order);
+            $canSendAction = $this->orderAction->canSendAction($params, $order);
             if ($canSendAction) {
                 // send a new action on the order via the Lengow API
-                $this->_orderAction->sendAction($params, $order, $lengowOrder);
+                $this->orderAction->sendAction($params, $order, $lengowOrder);
             }
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
         }
         if (isset($errorMessage)) {
             $orderProcessState = (int) $lengowOrder->getData(LengowOrder::FIELD_ORDER_PROCESS_STATE);
             if ($orderProcessState !== $lengowOrder->getOrderProcessState(LengowOrder::STATE_CLOSED)) {
                 $lengowOrder->updateOrder([LengowOrder::FIELD_IS_IN_ERROR => 1]);
-                $orderError = $this->_orderErrorFactory->create();
+                $orderError = $this->orderErrorFactory->create();
                 $orderError->createOrderError(
                     [
                         LengowOrderError::FIELD_ORDER_LENGOW_ID => $lengowOrder->getId(),
@@ -377,10 +372,10 @@ class Marketplace extends AbstractModel
                 );
                 unset($orderError);
             }
-            $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
-            $this->_dataHelper->log(
+            $decodedMessage = $this->dataHelper->decodeLogMessage($errorMessage, false);
+            $this->dataHelper->log(
                 DataHelper::CODE_ACTION,
-                $this->_dataHelper->setLogMessage('order action failed - %1', [$decodedMessage]),
+                $this->dataHelper->setLogMessage('order action failed - %1', [$decodedMessage]),
                 false,
                 $lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_SKU)
             );
@@ -396,14 +391,14 @@ class Marketplace extends AbstractModel
      *
      * @throws LengowException
      */
-    protected function _checkAction($action)
+    private function checkAction(string $action)
     {
         if (!in_array($action, self::$validActions, true)) {
-            throw new LengowException($this->_dataHelper->setLogMessage('action %1 is not valid', [$action]));
+            throw new LengowException($this->dataHelper->setLogMessage('action %1 is not valid', [$action]));
         }
         if (!isset($this->actions[$action])) {
             throw new LengowException(
-                $this->_dataHelper->setLogMessage('the marketplace action %1 is not present', [$action])
+                $this->dataHelper->setLogMessage('the marketplace action %1 is not present', [$action])
             );
         }
     }
@@ -411,17 +406,17 @@ class Marketplace extends AbstractModel
     /**
      * Check if the essential data of the order are present
      *
-     * @param LengowOrder $lengowOrder Lengow order instance
+     * @param Order $lengowOrder Lengow order instance
      *
      * @throws LengowException
      */
-    protected function _checkOrderData($lengowOrder)
+    private function checkOrderData(Order $lengowOrder)
     {
         if ($lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_SKU) === '') {
-            throw new LengowException($this->_dataHelper->setLogMessage('marketplace order reference is required'));
+            throw new LengowException($this->dataHelper->setLogMessage('marketplace order reference is required'));
         }
         if ($lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_NAME) === '') {
-            throw new LengowException($this->_dataHelper->setLogMessage('marketplace name is required'));
+            throw new LengowException($this->dataHelper->setLogMessage('marketplace name is required'));
         }
     }
 
@@ -432,7 +427,7 @@ class Marketplace extends AbstractModel
      *
      * @return array
      */
-    protected function _getMarketplaceArguments($action)
+    private function getMarketplaceArguments(string $action): array
     {
         $actions = $this->getAction($action);
         if (isset($actions['args'], $actions['optional_args'])) {
@@ -458,8 +453,13 @@ class Marketplace extends AbstractModel
      *
      * @return array
      */
-    protected function _getAllParams($action, $order, $lengowOrder, $shipment, $marketplaceArguments)
-    {
+    private function getAllParams(
+        string $action,
+        MagentoOrder $order,
+        Order $lengowOrder,
+        Shipment $shipment,
+        array $marketplaceArguments
+    ): array {
         $params = [];
         $actions = $this->getAction($action);
         // get all order data
@@ -484,7 +484,7 @@ class Marketplace extends AbstractModel
                             $lastTrack = end($tracks);
                         }
                         $carrierCode = isset($lastTrack)
-                            ? $this->_matchCarrier($lastTrack->getCarrierCode(), $lastTrack->getTitle())
+                            ? $this->matchCarrier($lastTrack->getCarrierCode(), $lastTrack->getTitle())
                             : '';
                     }
                     $params[$arg] = $carrierCode;
@@ -494,7 +494,7 @@ class Marketplace extends AbstractModel
                     break;
                 case LengowAction::ARG_SHIPPING_DATE:
                 case LengowAction::ARG_DELIVERY_DATE:
-                    $params[$arg] = $this->_timezone->date()->format(DataHelper::DATE_ISO_8601);
+                    $params[$arg] = $this->timezone->date()->format(DataHelper::DATE_ISO_8601);
                     break;
                 default:
                     if (isset($actions['optional_args']) && in_array($arg, $actions['optional_args'], true)) {
@@ -515,11 +515,11 @@ class Marketplace extends AbstractModel
      * @param string $action Lengow order actions type (ship or cancel)
      * @param array $params all available values
      *
-     * @throws LengowException
-     *
      * @return array
+     *
+     * @throws LengowException
      */
-    protected function _checkAndCleanParams($action, $params)
+    private function checkAndCleanParams(string $action, array $params)
     {
         $actions = $this->getAction($action);
         // check all required arguments
@@ -527,7 +527,7 @@ class Marketplace extends AbstractModel
             foreach ($actions['args'] as $arg) {
                 if (!isset($params[$arg]) || $params[$arg] === '') {
                     throw new LengowException(
-                        $this->_dataHelper->setLogMessage("can't send action: %1 is required", [$arg])
+                        $this->dataHelper->setLogMessage("can't send action: %1 is required", [$arg])
                     );
                 }
             }
@@ -551,25 +551,25 @@ class Marketplace extends AbstractModel
      *
      * @return string
      */
-    private function _matchCarrier($code, $title)
+    private function matchCarrier(string $code, string $title): string
     {
         if (!empty($this->carriers)) {
-            $codeCleaned = $this->_cleanString($code);
-            $titleCleaned = $this->_cleanString($title);
+            $codeCleaned = $this->cleanString($code);
+            $titleCleaned = $this->cleanString($title);
             // search by Magento carrier code
             // strict search
-            $result = $this->_searchCarrierCode($codeCleaned);
+            $result = $this->searchCarrierCode($codeCleaned);
             if (!$result) {
                 // approximate search
-                $result = $this->_searchCarrierCode($codeCleaned, false);
+                $result = $this->searchCarrierCode($codeCleaned, false);
             }
             // search by Magento carrier title if it is different from the Magento carrier code
             if (!$result && $titleCleaned !== $codeCleaned) {
                 // strict search
-                $result = $this->_searchCarrierCode($titleCleaned);
+                $result = $this->searchCarrierCode($titleCleaned);
                 if (!$result) {
                     // approximate search
-                    $result = $this->_searchCarrierCode($titleCleaned, false);
+                    $result = $this->searchCarrierCode($titleCleaned, false);
                 }
             }
             if ($result) {
@@ -590,7 +590,7 @@ class Marketplace extends AbstractModel
      *
      * @return string
      */
-    private function _cleanString($string)
+    private function cleanString(string $string): string
     {
         $cleanFilters = [' ', '-', '_', '.'];
         return strtolower(str_replace($cleanFilters, '', trim($string)));
@@ -604,17 +604,17 @@ class Marketplace extends AbstractModel
      *
      * @return string|false
      */
-    private function _searchCarrierCode($search, $strict = true)
+    private function searchCarrierCode(string $search, bool $strict = true)
     {
         $result = false;
         foreach ($this->carriers as $key => $label) {
-            $keyCleaned = $this->_cleanString($key);
-            $labelCleaned = $this->_cleanString($label);
+            $keyCleaned = $this->cleanString($key);
+            $labelCleaned = $this->cleanString($label);
             // search on the carrier key
-            $found = $this->_searchValue($keyCleaned, $search, $strict);
+            $found = $this->searchValue($keyCleaned, $search, $strict);
             // search on the carrier label if it is different from the key
             if (!$found && $labelCleaned !== $keyCleaned) {
-                $found = $this->_searchValue($labelCleaned, $search, $strict);
+                $found = $this->searchValue($labelCleaned, $search, $strict);
             }
             if ($found) {
                 $result = $key;
@@ -632,7 +632,7 @@ class Marketplace extends AbstractModel
      *
      * @return boolean
      */
-    private function _searchValue($pattern, $subject, $strict = true)
+    private function searchValue(string $pattern, string $subject, bool $strict = true): bool
     {
         if ($strict) {
             $found = $pattern === $subject;

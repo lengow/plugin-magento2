@@ -31,12 +31,12 @@ class Reimport extends Action
     /**
      * @var MagentoOrderFactory Magento order factory instance
      */
-    protected $_orderFactory;
+    private $orderFactory;
 
     /**
      * @var LengowOrderFactory Lengow order factory instance
      */
-    protected $_lengowOrderFactory;
+    private $lengowOrderFactory;
 
     /**
      * Constructor
@@ -50,8 +50,8 @@ class Reimport extends Action
         MagentoOrderFactory $orderFactory,
         LengowOrderFactory $lengowOrderFactory
     ) {
-        $this->_orderFactory = $orderFactory;
-        $this->_lengowOrderFactory = $lengowOrderFactory;
+        $this->orderFactory = $orderFactory;
+        $this->lengowOrderFactory = $lengowOrderFactory;
         parent::__construct($context);
     }
 
@@ -60,13 +60,13 @@ class Reimport extends Action
      *
      * @return Redirect
      */
-    public function execute()
+    public function execute(): Redirect
     {
         $orderId = $this->getRequest()->getParam('order_id');
         $lengowOrderId = $this->getRequest()->getParam('lengow_order_id');
-        $order = $this->_orderFactory->create()->load((int) $orderId);
-        $lengowOrder = $this->_lengowOrderFactory->create()->load((int) $lengowOrderId);
-        $newOrderId = $this->_lengowOrderFactory->create()->cancelAndReImportOrder($order, $lengowOrder);
+        $order = $this->orderFactory->create()->load((int) $orderId);
+        $lengowOrder = $this->lengowOrderFactory->create()->load((int) $lengowOrderId);
+        $newOrderId = $this->lengowOrderFactory->create()->cancelAndReImportOrder($order, $lengowOrder);
         $newOrderId = !$newOrderId ? $orderId : $newOrderId;
         /** @var Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);

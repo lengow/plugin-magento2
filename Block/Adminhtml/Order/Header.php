@@ -29,12 +29,12 @@ class Header extends Template
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * @var ImportHelper Lengow import helper instance
      */
-    protected $_importHelper;
+    private $importHelper;
 
     /**
      * Constructor
@@ -50,19 +50,19 @@ class Header extends Template
         ImportHelper $importHelper,
         array $data = []
     ) {
-        $this->_configHelper = $configHelper;
-        $this->_importHelper = $importHelper;
+        $this->configHelper = $configHelper;
+        $this->importHelper = $importHelper;
         parent::__construct($context, $data);
     }
 
     /**
      * Debug Mode is enable
      *
-     * @return boolean
+     * @return bool
      */
-    public function debugModeIsEnabled()
+    public function debugModeIsEnabled(): bool
     {
-        return $this->_configHelper->debugModeIsActive();
+        return $this->configHelper->debugModeIsActive();
     }
 
     /**
@@ -70,8 +70,8 @@ class Header extends Template
      *
      * @return ImportHelper
      */
-    public function getImportHelper()
+    public function getImportHelper(): ImportHelper
     {
-        return $this->_importHelper;
+        return $this->importHelper;
     }
 }

@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Export;
 
+use Exception;
 use Magento\Catalog\Model\Product\Interceptor as ProductInterceptor;
 use Magento\Framework\Pricing\PriceCurrencyInterface as PriceCurrency;
 use Magento\Quote\Model\Quote\Address\RateRequest;
@@ -37,87 +38,87 @@ class Shipping
     /**
      * @var ProductInterceptor Magento product instance
      */
-    protected $_product;
+    private $product;
 
     /**
      * @var ShippingFactory Magento shipping Factory instance
      */
-    protected $_shippingFactory;
+    private $shippingFactory;
 
     /**
      * @var CarrierFactory Magento carrier Factory instance
      */
-    protected $_carrierFactory;
+    private $carrierFactory;
 
     /**
      * @var RateRequestFactory Magento rate request instance
      */
-    protected $_rateRequestFactory;
+    private $rateRequestFactory;
 
     /**
      * @var ItemFactory Magento quote item factory
      */
-    protected $_quoteItemFactory;
+    private $quoteItemFactory;
 
     /**
      * @var PriceCurrency Magento price currency instance
      */
-    protected $_priceCurrency;
+    private $priceCurrency;
 
     /**
      * @var StoreInterceptor Magento store instance
      */
-    protected $_store;
+    private $store;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * @var string currency code for conversion
      */
-    protected $_currency;
+    private $currency;
 
     /**
      * @var string original store currency
      */
-    protected $_storeCurrency;
+    private $storeCurrency;
 
     /**
      * @var string shipping carrier code
      */
-    protected $_shippingCarrier;
+    private $shippingCarrier;
 
     /**
      * @var string shipping method
      */
-    protected $_shippingMethod;
+    private $shippingMethod;
 
     /**
      * @var string shipping country iso code
      */
-    protected $_shippingCountryCode;
+    private $shippingCountryCode;
 
     /**
      * @var boolean shipping is fixed or not
      */
-    protected $_shippingIsFixed;
+    private $shippingIsFixed;
 
     /**
      * @var float shipping cost
      */
-    protected $_shippingCost;
+    private $shippingCost;
 
     /**
      * @var float shipping cost fixed
      */
-    protected $_shippingCostFixed;
+    private $shippingCostFixed;
 
     /**
      * @var float default shipping price
      */
-    protected $_defaultShippingPrice;
+    private $defaultShippingPrice;
 
     /**
      * Constructor
@@ -137,44 +138,44 @@ class Shipping
         PriceCurrency $priceCurrency,
         ConfigHelper $configHelper
     ) {
-        $this->_shippingFactory = $shippingFactory;
-        $this->_carrierFactory = $carrierFactory;
-        $this->_rateRequestFactory = $rateRequestFactory;
-        $this->_quoteItemFactory = $quoteItemFactory;
-        $this->_priceCurrency = $priceCurrency;
-        $this->_configHelper = $configHelper;
+        $this->shippingFactory = $shippingFactory;
+        $this->carrierFactory = $carrierFactory;
+        $this->rateRequestFactory = $rateRequestFactory;
+        $this->quoteItemFactory = $quoteItemFactory;
+        $this->priceCurrency = $priceCurrency;
+        $this->configHelper = $configHelper;
     }
 
     /**
-     * init a new shipping
+     * Init a new shipping
      *
      * @param array $params optional options for load a specific product
      * StoreInterceptor store    Magento store instance
      * string           currency Currency iso code for conversion
      */
-    public function init($params)
+    public function init(array $params)
     {
-        $this->_store = $params['store'];
-        $this->_currency = $params['currency'];
-        $this->_storeCurrency = $this->_store->getCurrentCurrencyCode();
-        $shippingData = $this->_getShippingData();
-        $this->_shippingCarrier = isset($shippingData['shipping_carrier']) ? $shippingData['shipping_carrier'] : null;
-        $this->_shippingMethod = isset($shippingData['shipping_method']) ? $shippingData['shipping_method'] : null;
-        $this->_shippingIsFixed = isset($shippingData['shipping_is_fixed']) ? $shippingData['shipping_is_fixed'] : null;
-        $this->_shippingCountryCode = $this->_configHelper->get(
+        $this->store = $params['store'];
+        $this->currency = $params['currency'];
+        $this->storeCurrency = $this->store->getCurrentCurrencyCode();
+        $shippingData = $this->getShippingData();
+        $this->shippingCarrier = $shippingData['shipping_carrier'] ?? null;
+        $this->shippingMethod = $shippingData['shipping_method'] ?? null;
+        $this->shippingIsFixed = $shippingData['shipping_is_fixed'] ?? null;
+        $this->shippingCountryCode = $this->configHelper->get(
             ConfigHelper::DEFAULT_EXPORT_SHIPPING_COUNTRY,
-            $this->_store->getId()
+            $this->store->getId()
         );
-        $conversion = $this->_currency !== $this->_storeCurrency;
-        $this->_defaultShippingPrice = $this->_configHelper->get(
+        $conversion = $this->currency !== $this->storeCurrency;
+        $this->defaultShippingPrice = $this->configHelper->get(
             ConfigHelper::DEFAULT_EXPORT_SHIPPING_PRICE,
-            $this->_store->getId()
+            $this->store->getId()
         );
-        if ($this->_defaultShippingPrice !== null && $conversion) {
-            $this->_defaultShippingPrice = $this->_priceCurrency->convertAndRound(
-                $this->_defaultShippingPrice,
-                $this->_storeCurrency,
-                $this->_currency
+        if ($this->defaultShippingPrice !== null && $conversion) {
+            $this->defaultShippingPrice = $this->priceCurrency->convertAndRound(
+                $this->defaultShippingPrice,
+                $this->storeCurrency,
+                $this->currency
             );
         }
     }
@@ -185,15 +186,15 @@ class Shipping
      * @param array $params optional options for load a specific shipping
      * ProductInterceptor product Magento product instance
      */
-    public function load($params)
+    public function load(array $params)
     {
-        $this->_product = $params['product'];
-        if ($this->_defaultShippingPrice !== null || $this->_shippingCarrier === null) {
-            $this->_shippingCost = $this->_defaultShippingPrice;
-        } elseif ($this->_shippingIsFixed && $this->_shippingCostFixed !== null) {
-            $this->_shippingCost = $this->_shippingCostFixed;
+        $this->product = $params['product'];
+        if ($this->defaultShippingPrice !== null || $this->shippingCarrier === null) {
+            $this->shippingCost = $this->defaultShippingPrice;
+        } elseif ($this->shippingIsFixed && $this->shippingCostFixed !== null) {
+            $this->shippingCost = $this->shippingCostFixed;
         } else {
-            $this->_shippingCost = $this->_getProductShippingCost();
+            $this->shippingCost = $this->getProductShippingCost();
         }
     }
 
@@ -202,9 +203,9 @@ class Shipping
      *
      * @return string
      */
-    public function getShippingMethod()
+    public function getShippingMethod(): string
     {
-        return $this->_shippingMethod;
+        return $this->shippingMethod;
     }
 
     /**
@@ -212,9 +213,9 @@ class Shipping
      *
      * @return float
      */
-    public function getShippingCost()
+    public function getShippingCost(): float
     {
-        return $this->_shippingCost;
+        return $this->shippingCost;
     }
 
     /**
@@ -222,8 +223,8 @@ class Shipping
      */
     public function clean()
     {
-        $this->_product = null;
-        $this->_shippingCost = null;
+        $this->product = null;
+        $this->shippingCost = null;
     }
 
     /**
@@ -231,13 +232,13 @@ class Shipping
      *
      * @return array
      */
-    protected function _getShippingData()
+    private function getShippingData(): array
     {
         $shippingData = [];
-        $shippingMethod = $this->_configHelper->get(ConfigHelper::DEFAULT_EXPORT_CARRIER_ID, $this->_store->getId());
+        $shippingMethod = $this->configHelper->get(ConfigHelper::DEFAULT_EXPORT_CARRIER_ID, $this->store->getId());
         if ($shippingMethod !== null) {
             $shippingMethod = explode('_', $shippingMethod);
-            $carrier = $this->_carrierFactory->get($shippingMethod[0]);
+            $carrier = $this->carrierFactory->get($shippingMethod[0]);
             $shippingData['shipping_carrier'] = $carrier ? $carrier->getCarrierCode() : '';
             $shippingData['shipping_is_fixed'] = $carrier && $carrier->isFixed();
             $shippingData['shipping_method'] = ucfirst($shippingMethod[1]);
@@ -250,13 +251,18 @@ class Shipping
      *
      * @return float|boolean
      */
-    protected function _getProductShippingCost()
+    private function getProductShippingCost()
     {
         $shippingCost = 0;
-        $conversion = $this->_currency !== $this->_storeCurrency;
-        $shippingRateRequest = $this->_getShippingRateRequest();
-        $shippingFactory = $this->_shippingFactory->create();
-        $result = $shippingFactory->collectCarrierRates($this->_shippingCarrier, $shippingRateRequest)
+        $conversion = $this->currency !== $this->storeCurrency;
+        try {
+            $shippingRateRequest = $this->getShippingRateRequest();
+        } catch (Exception $e) {
+            // without $shippingRateRequest, we can't find shipping cost
+            return $shippingCost;
+        }
+        $shippingFactory = $this->shippingFactory->create();
+        $result = $shippingFactory->collectCarrierRates($this->shippingCarrier, $shippingRateRequest)
             ->getResult();
         if ($result === null || $result->getError()) {
             return false;
@@ -268,17 +274,17 @@ class Shipping
                 break;
             }
             if ($conversion) {
-                $shippingCost = $this->_priceCurrency->convertAndRound(
+                $shippingCost = $this->priceCurrency->convertAndRound(
                     $shippingCost,
-                    $this->_storeCurrency,
-                    $this->_currency
+                    $this->storeCurrency,
+                    $this->currency
                 );
             } else {
-                $shippingCost = $this->_priceCurrency->round($shippingCost);
+                $shippingCost = $this->priceCurrency->round($shippingCost);
             }
         }
-        if ($this->_shippingIsFixed) {
-            $this->_shippingCostFixed = $shippingCost;
+        if ($this->shippingIsFixed) {
+            $this->shippingCostFixed = $shippingCost;
         }
         return $shippingCost;
     }
@@ -287,33 +293,35 @@ class Shipping
      * Get shipping rate request for a product
      *
      * @return RateRequest
+     *
+     * @throws Exception
      */
-    protected function _getShippingRateRequest()
+    private function getShippingRateRequest(): RateRequest
     {
-        $quoteItem = $this->_quoteItemFactory->create();
-        $quoteItem->setStoreId($this->_store->getId());
-        $quoteItem->setOptions($this->_product->getCustomOptions())->setProduct($this->_product);
-        $request = $this->_rateRequestFactory->create();
+        $quoteItem = $this->quoteItemFactory->create();
+        $quoteItem->setStoreId($this->store->getId());
+        $quoteItem->setOptions($this->product->getCustomOptions())->setProduct($this->product);
+        $request = $this->rateRequestFactory->create();
         if (!$request->getOrig()) {
-            $request->setCountryId($this->_shippingCountryCode)
+            $request->setCountryId($this->shippingCountryCode)
                 ->setRegionId('')
                 ->setCity('')
                 ->setPostcode('');
         }
         $request->setAllItems([$quoteItem]);
-        $request->setDestCountryId($this->_shippingCountryCode);
+        $request->setDestCountryId($this->shippingCountryCode);
         $request->setDestRegionId('');
         $request->setDestRegionCode('');
         $request->setDestPostcode('');
-        $request->setPackageValue($this->_product->getPrice());
-        $request->setPackageValueWithDiscount($this->_product->getFinalPrice());
-        $request->setPackageWeight($this->_product->getWeight());
+        $request->setPackageValue($this->product->getPrice());
+        $request->setPackageValueWithDiscount($this->product->getFinalPrice());
+        $request->setPackageWeight($this->product->getWeight());
         $request->setFreeMethodWeight(0);
         $request->setPackageQty(1);
-        $request->setStoreId($this->_store->getId());
-        $request->setWebsiteId($this->_store->getWebsiteId());
-        $request->setBaseCurrency($this->_store->getBaseCurrency());
-        $request->setPackageCurrency($this->_store->getCurrentCurrency());
+        $request->setStoreId($this->store->getId());
+        $request->setWebsiteId($this->store->getWebsiteId());
+        $request->setBaseCurrency($this->store->getBaseCurrency());
+        $request->setPackageCurrency($this->store->getCurrentCurrency());
         return $request;
     }
 }

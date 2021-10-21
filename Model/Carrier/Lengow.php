@@ -35,33 +35,35 @@ class Lengow extends AbstractCarrier implements CarrierInterface
 {
     /**
      * @var string Lengow carrier code
+     * @inherited
      */
     protected $_code = 'lengow';
 
     /**
      * @var boolean is fixed
+     * @inherited
      */
     protected $_isFixed = true;
 
     /**
      * @var BackendSession Magento customer session instance
      */
-    protected $_backendSession;
+    private $backendSession;
 
     /**
      * @var CheckoutSession Magento checkout session instance
      */
-    protected $_checkoutSession;
+    private $checkoutSession;
 
     /**
      * @var ResultFactory Magento result factory instance
      */
-    protected $_rateResultFactory;
+    private $rateResultFactory;
 
     /**
      * @var MethodFactory Magento method factory instance
      */
-    protected $_rateMethodFactory;
+    private $rateMethodFactory;
 
     /**
      * @param BackendSession $backendSession Magento customer session instance
@@ -83,10 +85,10 @@ class Lengow extends AbstractCarrier implements CarrierInterface
         MethodFactory $rateMethodFactory,
         array $data = []
     ) {
-        $this->_backendSession = $backendSession;
-        $this->_checkoutSession = $checkoutSession;
-        $this->_rateResultFactory = $rateResultFactory;
-        $this->_rateMethodFactory = $rateMethodFactory;
+        $this->backendSession = $backendSession;
+        $this->checkoutSession = $checkoutSession;
+        $this->rateResultFactory = $rateResultFactory;
+        $this->rateMethodFactory = $rateMethodFactory;
         parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
     }
 
@@ -95,7 +97,7 @@ class Lengow extends AbstractCarrier implements CarrierInterface
      *
      * @return array
      */
-    public function getAllowedMethods()
+    public function getAllowedMethods(): array
     {
         return ['lengow' => $this->getConfigData('name')];
     }
@@ -105,9 +107,9 @@ class Lengow extends AbstractCarrier implements CarrierInterface
      *
      * @return CheckoutSession
      */
-    public function getSession()
+    public function getSession(): CheckoutSession
     {
-        return $this->_checkoutSession;
+        return $this->checkoutSession;
     }
 
     /**
@@ -115,12 +117,14 @@ class Lengow extends AbstractCarrier implements CarrierInterface
      *
      * @return boolean
      */
-    public function isActive()
+    public function isActive(): bool
     {
-        return (bool) $this->_backendSession->getIsFromlengow();
+        return (bool) $this->backendSession->getIsFromlengow();
     }
 
     /**
+     * CollectRates lengow implementation
+     *
      * @param RateRequest $request
      *
      * @return bool|Result
@@ -130,8 +134,8 @@ class Lengow extends AbstractCarrier implements CarrierInterface
         if (!$this->isActive()) {
             return false;
         }
-        $result = $this->_rateResultFactory->create();
-        $method = $this->_rateMethodFactory->create();
+        $result = $this->rateResultFactory->create();
+        $method = $this->rateMethodFactory->create();
         $method->setCarrier('lengow');
         $method->setCarrierTitle($this->getConfigData('title'));
         $method->setMethod('lengow');
@@ -140,16 +144,5 @@ class Lengow extends AbstractCarrier implements CarrierInterface
         $method->setCost($this->getSession()->getShippingPrice());
         $result->append($method);
         return $result;
-    }
-
-    /**
-     * Check if carrier has shipping tracking option available
-     *
-     * @return boolean
-     * @api
-     */
-    public function isTrackingAvailable()
-    {
-        return false;
     }
 }

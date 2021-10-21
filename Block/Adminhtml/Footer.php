@@ -29,7 +29,7 @@ class Footer extends Template
     /**
      * @var SecurityHelper Lengow security helper instance
      */
-    protected $_securityHelper;
+    private $securityHelper;
 
     /**
      * Constructor
@@ -43,7 +43,7 @@ class Footer extends Template
         SecurityHelper $securityHelper,
         array $data = []
     ) {
-        $this->_securityHelper = $securityHelper;
+        $this->securityHelper = $securityHelper;
         parent::__construct($context, $data);
     }
 
@@ -52,9 +52,9 @@ class Footer extends Template
      *
      * @return string
      */
-    public function getPluginVersion()
+    public function getPluginVersion(): string
     {
-        return $this->_securityHelper->getPluginVersion();
+        return $this->securityHelper->getPluginVersion();
     }
 
     /**
@@ -62,7 +62,7 @@ class Footer extends Template
      *
      * @return string
      */
-    public function isPreprodPlugin()
+    public function isPreprodPlugin(): string
     {
         return LengowConnector::LENGOW_URL === 'lengow.net';
     }
@@ -72,7 +72,7 @@ class Footer extends Template
      *
      * @return string
      */
-    public function getPluginCopyright()
+    public function getPluginCopyright(): string
     {
         return 'copyright © ' . date('Y');
     }

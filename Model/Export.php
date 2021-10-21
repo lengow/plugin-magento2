@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model;
 
+use Exception;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 use Magento\Catalog\Model\ResourceModel\Product\Collection as ProductCollection;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
@@ -76,62 +77,62 @@ class Export
     /**
      * @var StoreManagerInterface Magento store manager instance
      */
-    protected $_storeManager;
+    private $storeManager;
 
     /**
      * @var DateTime Magento datetime instance
      */
-    protected $_dateTime;
+    private $dateTime;
 
     /**
      * @var ScopeConfigInterface Magento scope config instance
      */
-    protected $_scopeConfig;
+    private $scopeConfig;
 
     /**
      * @var ProductStatus Magento product status instance
      */
-    protected $_productStatus;
+    private $productStatus;
 
     /**
      * @var ProductCollectionFactory Magento product collection factory
      */
-    protected $_productCollectionFactory;
+    private $productCollectionFactory;
 
     /**
      * @var JsonHelper Magento json helper instance
      */
-    protected $_jsonHelper;
+    private $jsonHelper;
 
     /**
      * @var WebsiteFactory Magento website factory instance
      */
-    protected $_websiteFactory;
+    private $websiteFactory;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * @var LengowFeedFactory Lengow feed factory instance
      */
-    protected $_feedFactory;
+    private $feedFactory;
 
     /**
      * @var LengowProductFactory Lengow product factory instance
      */
-    protected $_productFactory;
+    private $productFactory;
 
     /**
      * @var array all available params for export
      */
-    protected $_exportParams = [
+    private $exportParams = [
         self::PARAM_MODE,
         self::PARAM_FORMAT,
         self::PARAM_STREAM,
@@ -154,7 +155,7 @@ class Export
     /**
      * @var array available formats for export
      */
-    protected $_availableFormats = [
+    private $availableFormats = [
         LengowFeed::FORMAT_CSV,
         LengowFeed::FORMAT_YAML,
         LengowFeed::FORMAT_XML,
@@ -164,7 +165,7 @@ class Export
     /**
      * @var array available formats for export
      */
-    protected $_availableProductTypes = [
+    private $availableProductTypes = [
         'configurable',
         'simple',
         'downloadable',
@@ -175,7 +176,7 @@ class Export
     /**
      * @var array default fields for export
      */
-    protected $_defaultFields = [
+    private $defaultFields = [
         'id' => 'id',
         'sku' => 'sku',
         'name' => 'name',
@@ -219,82 +220,82 @@ class Export
     /**
      * @var StoreInterceptor Magento store instance
      */
-    protected $_store;
+    private $store;
 
     /**
      * @var integer Magento store id
      */
-    protected $_storeId;
+    private $storeId;
 
     /**
      * @var integer amount of products to export
      */
-    protected $_limit;
+    private $limit;
 
     /**
      * @var integer offset of total product
      */
-    protected $_offset;
+    private $offset;
 
     /**
      * @var string format to return
      */
-    protected $_format;
+    private $format;
 
     /**
      * @var boolean stream return
      */
-    protected $_stream;
+    private $stream;
 
     /**
      * @var string currency iso code for conversion
      */
-    protected $_currency;
+    private $currency;
 
     /**
      * @var boolean export Lengow selection
      */
-    protected $_selection;
+    private $selection;
 
     /**
      * @var boolean export out of stock product
      */
-    protected $_outOfStock;
+    private $outOfStock;
 
     /**
      * @var boolean include active products
      */
-    protected $_inactive;
+    private $inactive;
 
     /**
      * @var boolean see log or not
      */
-    protected $_logOutput;
+    private $logOutput;
 
     /**
      * @var array export product types
      */
-    protected $_productTypes;
+    private $productTypes;
 
     /**
      * @var array product ids to be exported
      */
-    protected $_productIds;
+    private $productIds;
 
     /**
      * @var boolean update export date.
      */
-    protected $_updateExportDate;
+    private $updateExportDate;
 
     /**
      * @var string export type (manual, cron or magento cron)
      */
-    protected $_exportType;
+    private $exportType;
 
     /**
      * @var SecurityHelper Lengow security helper instance
      */
-    protected $securityHelper;
+    private $securityHelper;
 
     /**
      * Constructor
@@ -326,17 +327,17 @@ class Export
         LengowProductFactory $productFactory,
         SecurityHelper $securityHelper
     ) {
-        $this->_storeManager = $storeManager;
-        $this->_dateTime = $dateTime;
-        $this->_scopeConfig = $scopeConfig;
-        $this->_productStatus = $productStatus;
-        $this->_productCollectionFactory = $productCollectionFactory;
-        $this->_jsonHelper = $jsonHelper;
-        $this->_websiteFactory = $websiteFactory;
-        $this->_dataHelper = $dataHelper;
-        $this->_configHelper = $configHelper;
-        $this->_feedFactory = $feedFactory;
-        $this->_productFactory = $productFactory;
+        $this->storeManager = $storeManager;
+        $this->dateTime = $dateTime;
+        $this->scopeConfig = $scopeConfig;
+        $this->productStatus = $productStatus;
+        $this->productCollectionFactory = $productCollectionFactory;
+        $this->jsonHelper = $jsonHelper;
+        $this->websiteFactory = $websiteFactory;
+        $this->dataHelper = $dataHelper;
+        $this->configHelper = $configHelper;
+        $this->feedFactory = $feedFactory;
+        $this->productFactory = $productFactory;
         $this->securityHelper = $securityHelper;
     }
 
@@ -359,46 +360,34 @@ class Export
      * boolean stream       Display file when call script (1) | Save File (0)
      * boolean log_output   See logs (only when stream = 0) (1) | no logs (0)
      */
-    public function init($params)
+    public function init(array $params)
     {
-        $this->_storeId = isset($params[self::PARAM_STORE_ID]) ? (int) $params[self::PARAM_STORE_ID] : 0;
+        $this->storeId = isset($params[self::PARAM_STORE_ID]) ? (int) $params[self::PARAM_STORE_ID] : 0;
         try {
-            $this->_store = $this->_storeManager->getStore($this->_storeId);
-        } catch (\Exception $e) {
-            $this->_store = $this->_storeManager->getDefaultStoreView();
+            $this->store = $this->storeManager->getStore($this->storeId);
+        } catch (Exception $e) {
+            $this->store = $this->storeManager->getDefaultStoreView();
         }
-        $this->_limit = isset($params[self::PARAM_LIMIT]) ? (int) $params[self::PARAM_LIMIT] : 0;
-        $this->_offset = isset($params[self::PARAM_OFFSET]) ? (int) $params[self::PARAM_OFFSET] : 0;
-        $this->_stream = isset($params[self::PARAM_STREAM])
+        $this->limit = isset($params[self::PARAM_LIMIT]) ? (int) $params[self::PARAM_LIMIT] : 0;
+        $this->offset = isset($params[self::PARAM_OFFSET]) ? (int) $params[self::PARAM_OFFSET] : 0;
+        $this->stream = isset($params[self::PARAM_STREAM])
             ? (bool) $params[self::PARAM_STREAM]
-            : !(bool) $this->_configHelper->get(ConfigHelper::EXPORT_FILE_ENABLED, $this->_storeId);
-        $this->_selection = isset($params[self::PARAM_SELECTION])
+            : !(bool) $this->configHelper->get(ConfigHelper::EXPORT_FILE_ENABLED, $this->storeId);
+        $this->selection = isset($params[self::PARAM_SELECTION])
             ? (bool) $params[self::PARAM_SELECTION]
-            : (bool) $this->_configHelper->get(ConfigHelper::SELECTION_ENABLED, $this->_storeId);
-        $this->_inactive = isset($params[self::PARAM_INACTIVE])
+            : (bool) $this->configHelper->get(ConfigHelper::SELECTION_ENABLED, $this->storeId);
+        $this->inactive = isset($params[self::PARAM_INACTIVE])
             ? (bool) $params[self::PARAM_INACTIVE]
-            : (bool) $this->_configHelper->get(ConfigHelper::INACTIVE_ENABLED, $this->_storeId);
-        $this->_outOfStock = isset($params[self::PARAM_OUT_OF_STOCK]) ? $params[self::PARAM_OUT_OF_STOCK] : true;
-        $this->_updateExportDate = !isset($params[self::PARAM_UPDATE_EXPORT_DATE])
+            : (bool) $this->configHelper->get(ConfigHelper::INACTIVE_ENABLED, $this->storeId);
+        $this->outOfStock = $params[self::PARAM_OUT_OF_STOCK] ?? true;
+        $this->updateExportDate = !isset($params[self::PARAM_UPDATE_EXPORT_DATE])
             || $params[self::PARAM_UPDATE_EXPORT_DATE];
-        $this->_format = $this->_setFormat(
-            isset($params[self::PARAM_FORMAT]) ? $params[self::PARAM_FORMAT] : LengowFeed::FORMAT_CSV
-        );
-        $this->_productIds = $this->_setProductIds(
-            isset($params[self::PARAM_PRODUCT_IDS]) ? $params[self::PARAM_PRODUCT_IDS] : false
-        );
-        $this->_productTypes = $this->_setProductTypes(
-            isset($params[self::PARAM_PRODUCT_TYPES]) ? $params[self::PARAM_PRODUCT_TYPES] : false
-        );
-        $this->_logOutput = $this->_setLogOutput(
-            isset($params[self::PARAM_LOG_OUTPUT]) ? $params[self::PARAM_LOG_OUTPUT] : true
-        );
-        $this->_currency = $this->_setCurrency(
-            isset($params[self::PARAM_CURRENCY]) ? $params[self::PARAM_CURRENCY] : false
-        );
-        $this->_exportType = $this->_setType(
-            isset($params[self::PARAM_TYPE]) ? $params[self::PARAM_TYPE] : false
-        );
+        $this->format = $this->setFormat($params[self::PARAM_FORMAT] ?? LengowFeed::FORMAT_CSV);
+        $this->productIds = $this->setProductIds($params[self::PARAM_PRODUCT_IDS] ?? false);
+        $this->productTypes = $this->setProductTypes($params[self::PARAM_PRODUCT_TYPES] ?? false);
+        $this->logOutput = $this->setLogOutput($params[self::PARAM_LOG_OUTPUT] ?? true);
+        $this->currency = $this->setCurrency($params[self::PARAM_CURRENCY] ?? false);
+        $this->exportType = $this->setType($params[self::PARAM_TYPE] ?? false);
     }
 
     /**
@@ -406,11 +395,11 @@ class Export
      *
      * @return integer
      **/
-    public function getTotalProduct()
+    public function getTotalProduct(): int
     {
-        $productCollection = $this->_productCollectionFactory->create()
-            ->setStoreId($this->_storeId)
-            ->addStoreFilter($this->_storeId)
+        $productCollection = $this->productCollectionFactory->create()
+            ->setStoreId($this->storeId)
+            ->addStoreFilter($this->storeId)
             ->addAttributeToFilter('type_id', ['nlike' => 'bundle']);
         return $productCollection->getSize();
     }
@@ -420,9 +409,9 @@ class Export
      *
      * @return integer
      **/
-    public function getTotalExportProduct()
+    public function getTotalExportProduct(): int
     {
-        $productCollection = $this->_getQuery();
+        $productCollection = $this->getQuery();
         return $productCollection->getSize();
     }
 
@@ -433,70 +422,70 @@ class Export
     {
         try {
             // start timer
-            $timeStart = $this->_microtimeFloat();
+            $timeStart = $this->microtimeFloat();
             // clean logs
-            $this->_dataHelper->cleanLog();
-            $this->_dataHelper->log(
+            $this->dataHelper->cleanLog();
+            $this->dataHelper->log(
                 DataHelper::CODE_EXPORT,
-                $this->_dataHelper->setLogMessage('## start %1 export ##', [$this->_exportType]),
-                $this->_logOutput
+                $this->dataHelper->setLogMessage('## start %1 export ##', [$this->exportType]),
+                $this->logOutput
             );
-            $this->_dataHelper->log(
+            $this->dataHelper->log(
                 DataHelper::CODE_EXPORT,
-                $this->_dataHelper->setLogMessage(
+                $this->dataHelper->setLogMessage(
                     'start export in store %1 (%2)',
                     [
-                        $this->_store->getName(),
-                        $this->_storeId,
+                        $this->store->getName(),
+                        $this->storeId,
                     ]
                 ),
-                $this->_logOutput
+                $this->logOutput
             );
             // get fields to export
-            $fields = $this->_getFields();
+            $fields = $this->getFields();
             // get products to be exported
-            $productCollection = $this->_getQuery();
+            $productCollection = $this->getQuery();
             $products = $productCollection->getData();
-            $this->_dataHelper->log(
+            $this->dataHelper->log(
                 DataHelper::CODE_EXPORT,
-                $this->_dataHelper->setLogMessage('%1 product(s) found', [count($products)]),
-                $this->_logOutput
+                $this->dataHelper->setLogMessage('%1 product(s) found', [count($products)]),
+                $this->logOutput
             );
-            $this->_export($products, $fields);
-            if ($this->_updateExportDate) {
-                $this->_configHelper->set(
+            $this->export($products, $fields);
+            if ($this->updateExportDate) {
+                $this->configHelper->set(
                     ConfigHelper::LAST_UPDATE_EXPORT,
-                    $this->_dateTime->gmtTimestamp(),
-                    $this->_storeId
+                    $this->dateTime->gmtTimestamp(),
+                    $this->storeId
                 );
             }
-            $timeEnd = $this->_microtimeFloat();
-            $this->_dataHelper->log(
+            $timeEnd = $this->microtimeFloat();
+            $this->dataHelper->log(
                 DataHelper::CODE_EXPORT,
-                $this->_dataHelper->setLogMessage('memory usage: %1 Mb', [round(memory_get_usage() / 1000000, 2)]),
-                $this->_logOutput
+                $this->dataHelper->setLogMessage('memory usage: %1 Mb', [round(memory_get_usage() / 1000000, 2)]),
+                $this->logOutput
             );
-            $this->_dataHelper->log(
+            $this->dataHelper->log(
                 DataHelper::CODE_EXPORT,
-                $this->_dataHelper->setLogMessage('execution time: %1 seconds', [round($timeEnd - $timeStart, 4)]),
-                $this->_logOutput
+                $this->dataHelper->setLogMessage('execution time: %1 seconds', [round($timeEnd - $timeStart, 4)]),
+                $this->logOutput
             );
-            $this->_dataHelper->log(
+            $this->dataHelper->log(
                 DataHelper::CODE_EXPORT,
-                $this->_dataHelper->setLogMessage('## end %1 export ##', [$this->_exportType]),
-                $this->_logOutput
+                $this->dataHelper->setLogMessage('## end %1 export ##', [$this->exportType]),
+                $this->logOutput
             );
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
         }
         if (isset($errorMessage)) {
-            $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
-            $this->_dataHelper->log(
+            $decodedMessage = $this->dataHelper->decodeLogMessage($errorMessage, false);
+            $this->dataHelper->log(
                 DataHelper::CODE_EXPORT,
-                $this->_dataHelper->setLogMessage('export failed - %1', [$decodedMessage]),
-                $this->_logOutput
+                $this->dataHelper->setLogMessage('export failed - %1', [$decodedMessage]),
+                $this->logOutput
             );
         }
     }
@@ -507,30 +496,30 @@ class Export
      * @param array $products list of products to be exported
      * @param array $fields list of fields to export
      *
-     * @throws \Exception|LengowException
+     * @throws Exception|LengowException
      */
-    protected function _export($products, $fields)
+    private function export(array $products, array $fields)
     {
         $isFirst = true;
         $productCount = 0;
         // get modulo for export counter
-        $productModulo = $this->_getProductModulo(count($products));
+        $productModulo = $this->getProductModulo(count($products));
         // get the maximum of character for yaml format
-        $maxCharacter = $this->_getMaxCharacterSize($fields);
+        $maxCharacter = $this->getMaxCharacterSize($fields);
         // init product to export
-        $lengowProduct = $this->_productFactory->create();
+        $lengowProduct = $this->productFactory->create();
         $lengowProduct->init([
-            'store' => $this->_store,
-            'currency' => $this->_currency,
-            'parentFields' => $this->_configHelper->getParentSelectedAttributes($this->_storeId)
+            'store' => $this->store,
+            'currency' => $this->currency,
+            'parentFields' => $this->configHelper->getParentSelectedAttributes($this->storeId)
         ]);
         // init feed to export
-        $feed = $this->_feedFactory->create();
+        $feed = $this->feedFactory->create();
         $feed->init(
             [
-                'stream' => $this->_stream,
-                'format' => $this->_format,
-                'store_code' => $this->_store->getCode(),
+                'stream' => $this->stream,
+                'format' => $this->format,
+                'store_code' => $this->store->getCode(),
             ]
         );
         $feed->write(LengowFeed::HEADER, $fields);
@@ -542,13 +531,13 @@ class Export
                     'product_type' => $product['type_id'],
                 ]
             );
-            if (!$this->_inactive && !$lengowProduct->isEnableForExport()) {
+            if (!$this->inactive && !$lengowProduct->isEnableForExport()) {
                 $lengowProduct->clean();
                 continue;
             }
             foreach ($fields as $field) {
-                if (isset($this->_defaultFields[$field])) {
-                    $productData[$field] = $lengowProduct->getData($this->_defaultFields[$field]);
+                if (isset($this->defaultFields[$field])) {
+                    $productData[$field] = $lengowProduct->getData($this->defaultFields[$field]);
                 } else {
                     $productData[$field] = $lengowProduct->getData($field);
                 }
@@ -556,7 +545,7 @@ class Export
             // write product data
             $feed->write(LengowFeed::BODY, $productData, $isFirst, $maxCharacter);
             $productCount++;
-            $this->_setCounterLog($productModulo, $productCount);
+            $this->setCounterLog($productModulo, $productCount);
             // clean data for next product
             $lengowProduct->clean();
             unset($productData);
@@ -565,14 +554,14 @@ class Export
         $success = $feed->end();
         if (!$success) {
             throw new LengowException(
-                $this->_dataHelper->setLogMessage('unable to access the folder %1', [$feed->getFolderPath()])
+                $this->dataHelper->setLogMessage('unable to access the folder %1', [$feed->getFolderPath()])
             );
         }
         // product counter
         $counters = $lengowProduct->getCounters();
-        $this->_dataHelper->log(
+        $this->dataHelper->log(
             DataHelper::CODE_EXPORT,
-            $this->_dataHelper->setLogMessage(
+            $this->dataHelper->setLogMessage(
                 '%1 product(s) exported, %2 simple product(s), %3 configurable product(s),
                 %4 grouped product(s), %5 virtual product(s), %6 downloadable product(s)',
                 [
@@ -584,34 +573,34 @@ class Export
                     $counters['downloadable'],
                 ]
             ),
-            $this->_logOutput
+            $this->logOutput
         );
         // warning for simple product associated with configurable products disabled
         if ($counters['simple_disabled'] > 0) {
-            $this->_dataHelper->log(
+            $this->dataHelper->log(
                 DataHelper::CODE_EXPORT,
-                $this->_dataHelper->setLogMessage(
+                $this->dataHelper->setLogMessage(
                     'WARNING! %1 simple product(s) associated with configurable products are disabled',
                     [$counters['simple_disabled']]
                 ),
-                $this->_logOutput
+                $this->logOutput
             );
         }
         // link generation
-        if (!$this->_stream) {
+        if (!$this->stream) {
             $feedUrl = $feed->getUrl();
             if ($feedUrl) {
-                $this->_dataHelper->log(
+                $this->dataHelper->log(
                     DataHelper::CODE_EXPORT,
-                    $this->_dataHelper->setLogMessage(
+                    $this->dataHelper->setLogMessage(
                         'the export for the store %1 (%2) generated the following file: %3',
                         [
-                            $this->_store->getName(),
-                            $this->_storeId,
+                            $this->store->getName(),
+                            $this->storeId,
                             $feedUrl,
                         ]
                     ),
-                    $this->_logOutput
+                    $this->logOutput
                 );
             }
         }
@@ -623,18 +612,14 @@ class Export
      *
      * @return string
      */
-    public function getExportParams()
+    public function getExportParams(): string
     {
-        $params = [];
-        $availableStores = [];
-        $availableCodes = [];
-        $availableCurrencies = [];
-        $availableLanguages = [];
-        foreach ($this->_websiteFactory->create()->getCollection() as $website) {
+        $params = $availableStores = $availableCodes = $availableCurrencies = $availableLanguages = [];
+        foreach ($this->websiteFactory->create()->getCollection() as $website) {
             foreach ($website->getGroups() as $group) {
                 $stores = $group->getStores();
                 foreach ($stores as $store) {
-                    $availableStores[] = $store->getId();
+                    $availableStores[] = (int) $store->getId();
                     $availableCodes[] = $store->getCode();
                     $currencyCodes = $store->getAvailableCurrencyCodes();
                     foreach ($currencyCodes as $currencyCode) {
@@ -642,10 +627,10 @@ class Export
                             $availableCurrencies[] = $currencyCode;
                         }
                     }
-                    $storeLanguage = $this->_scopeConfig->getValue(
+                    $storeLanguage = $this->scopeConfig->getValue(
                         'general/locale/code',
                         ScopeInterface::SCOPE_STORE,
-                        $store->getId()
+                        (int) $store->getId()
                     );
                     if (!in_array($storeLanguage, $availableLanguages, true)) {
                         $availableLanguages[] = $storeLanguage;
@@ -653,7 +638,7 @@ class Export
                 }
             }
         }
-        foreach ($this->_exportParams as $param) {
+        foreach ($this->exportParams as $param) {
             switch ($param) {
                 case self::PARAM_MODE:
                     $authorizedValue = ['size', 'total'];
@@ -661,7 +646,7 @@ class Export
                     $example = 'size';
                     break;
                 case self::PARAM_FORMAT:
-                    $authorizedValue = $this->_availableFormats;
+                    $authorizedValue = $this->availableFormats;
                     $type = 'string';
                     $example = LengowFeed::FORMAT_CSV;
                     break;
@@ -697,7 +682,7 @@ class Export
                     $example = '101,108,215';
                     break;
                 case self::PARAM_PRODUCT_TYPES:
-                    $authorizedValue = $this->_availableProductTypes;
+                    $authorizedValue = $this->availableProductTypes;
                     $type = 'string';
                     $example = 'configurable,simple,grouped';
                     break;
@@ -713,7 +698,7 @@ class Export
                 'example' => $example,
             ];
         }
-        return $this->_jsonHelper->jsonEncode($params);
+        return $this->jsonHelper->jsonEncode($params);
     }
 
     /**
@@ -721,22 +706,22 @@ class Export
      *
      * @return array
      */
-    protected function _getFields()
+    private function getFields(): array
     {
         $fields = [];
-        foreach ($this->_defaultFields as $key => $defaultField) {
+        foreach (array_keys($this->defaultFields) as $key) {
             $fields[] = $key;
         }
-        $selectedAttributes = $this->_configHelper->getSelectedAttributes($this->_storeId);
+        $selectedAttributes = $this->configHelper->getSelectedAttributes($this->storeId);
         foreach ($selectedAttributes as $selectedAttribute) {
             if (!in_array($selectedAttribute, $fields, true)) {
                 $fields[] = $selectedAttribute;
             }
         }
-        if ($this->_configHelper->moduleIsEnabled('Magento_Inventory')
+        if ($this->configHelper->moduleIsEnabled('Magento_Inventory')
             && version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')
         ) {
-            $sources = $this->_configHelper->getAllSources();
+            $sources = $this->configHelper->getAllSources();
             // if multi-stock
             if (count($sources) > 1) {
                 foreach ($sources as $source) {
@@ -754,9 +739,9 @@ class Export
      *
      * @return string
      */
-    protected function _setFormat($format)
+    private function setFormat(string $format): string
     {
-        return !in_array($format, $this->_availableFormats, true) ? LengowFeed::FORMAT_CSV : $format;
+        return !in_array($format, $this->availableFormats, true) ? LengowFeed::FORMAT_CSV : $format;
     }
 
     /**
@@ -766,7 +751,7 @@ class Export
      *
      * @return array
      */
-    protected function _setProductIds($productIds)
+    private function setProductIds($productIds): array
     {
         $ids = [];
         if ($productIds) {
@@ -787,19 +772,19 @@ class Export
      *
      * @return array
      */
-    protected function _setProductTypes($productTypes)
+    private function setProductTypes($productTypes): array
     {
         $types = [];
         if ($productTypes) {
             $exportedTypes = explode(',', $productTypes);
             foreach ($exportedTypes as $type) {
-                if (in_array($type, $this->_availableProductTypes, true)) {
+                if (in_array($type, $this->availableProductTypes, true)) {
                     $types[] = $type;
                 }
             }
         }
         if (empty($types)) {
-            $types = explode(',', $this->_configHelper->get(ConfigHelper::EXPORT_PRODUCT_TYPES, $this->_storeId));
+            $types = explode(',', $this->configHelper->get(ConfigHelper::EXPORT_PRODUCT_TYPES, $this->storeId));
         }
         return $types;
     }
@@ -811,9 +796,9 @@ class Export
      *
      * @return boolean
      */
-    protected function _setLogOutput($logOutput)
+    private function setLogOutput(bool $logOutput): bool
     {
-        return $this->_stream ? false : $logOutput;
+        return $this->stream ? false : $logOutput;
     }
 
     /**
@@ -823,11 +808,11 @@ class Export
      *
      * @return string
      */
-    protected function _setCurrency($currency)
+    private function setCurrency($currency): string
     {
-        $availableCurrencies = $this->_store->getAvailableCurrencyCodes();
+        $availableCurrencies = $this->store->getAvailableCurrencyCodes();
         if (!$currency || !in_array($currency, $availableCurrencies, true)) {
-            $currency = $this->_store->getCurrentCurrencyCode();
+            $currency = $this->store->getCurrentCurrencyCode();
         }
         return $currency;
     }
@@ -839,10 +824,10 @@ class Export
      *
      * @return string
      */
-    protected function _setType($type)
+    private function setType($type): string
     {
         if (!$type) {
-            $type = $this->_updateExportDate ? self::TYPE_CRON : self::TYPE_MANUAL;
+            $type = $this->updateExportDate ? self::TYPE_CRON : self::TYPE_MANUAL;
         }
         return $type;
     }
@@ -852,18 +837,17 @@ class Export
      *
      * @param integer $productModulo product modulo
      * @param integer $productCount product counter
-     *
      */
-    protected function _setCounterLog($productModulo, $productCount)
+    private function setCounterLog(int $productModulo, int $productCount)
     {
-        $logMessage = $this->_dataHelper->setLogMessage('%1 product(s) exported', [$productCount]);
+        $logMessage = $this->dataHelper->setLogMessage('%1 product(s) exported', [$productCount]);
         // save 10 logs maximum in database
         if ($productCount % $productModulo === 0) {
-            $this->_dataHelper->log(DataHelper::CODE_EXPORT, $logMessage);
+            $this->dataHelper->log(DataHelper::CODE_EXPORT, $logMessage);
         }
-        if (!$this->_stream && $this->_logOutput) {
+        if (!$this->stream && $this->logOutput) {
             if ($productCount % 50 === 0) {
-                $countMessage = $this->_dataHelper->decodeLogMessage($logMessage, false);
+                $countMessage = $this->dataHelper->decodeLogMessage($logMessage, false);
                 print_r('[Export] ' . $countMessage . '<br />');
             }
             flush();
@@ -877,9 +861,9 @@ class Export
      *
      * @return integer
      */
-    protected function _getProductModulo($productTotal)
+    private function getProductModulo(int $productTotal): int
     {
-        $productModulo = (int)($productTotal / 10);
+        $productModulo = (int) ($productTotal / 10);
         return $productModulo < 50 ? 50 : $productModulo;
     }
 
@@ -890,7 +874,7 @@ class Export
      *
      * @return integer
      */
-    protected function _getMaxCharacterSize($fields)
+    private function getMaxCharacterSize(array $fields = []): int
     {
         $maxCharacter = 0;
         foreach ($fields as $field) {
@@ -903,8 +887,10 @@ class Export
 
     /**
      * Get microtime float
+     *
+     * @return float
      */
-    protected function _microtimeFloat()
+    private function microtimeFloat(): float
     {
         list($usec, $sec) = explode(' ', microtime());
         return ((float) $usec + (float) $sec);
@@ -915,25 +901,25 @@ class Export
      *
      * @return ProductCollection
      */
-    protected function _getQuery()
+    private function getQuery(): ProductCollection
     {
         // export only specific products types for one store
-        $productCollection = $this->_productCollectionFactory->create()
-            ->setStoreId($this->_storeId)
-            ->addStoreFilter($this->_storeId)
-            ->addAttributeToFilter('type_id', ['in' => $this->_productTypes]);
+        $productCollection = $this->productCollectionFactory->create()
+            ->setStoreId($this->storeId)
+            ->addStoreFilter($this->storeId)
+            ->addAttributeToFilter('type_id', ['in' => $this->productTypes]);
         // export only enabled products
-        if (!$this->_inactive) {
-            $productCollection->addAttributeToFilter('status', ['in' => $this->_productStatus->getVisibleStatusIds()]);
+        if (!$this->inactive) {
+            $productCollection->addAttributeToFilter('status', ['in' => $this->productStatus->getVisibleStatusIds()]);
         }
         // export only selected products
-        if ($this->_selection) {
+        if ($this->selection) {
             $productCollection->addAttributeToFilter('lengow_product', 1, 'left');
         }
         // export out of stock products
-        if (!$this->_outOfStock) {
+        if (!$this->outOfStock) {
             try {
-                $config = (int) $this->_scopeConfig->isSetFlag(CatalogInventoryConfiguration::XML_PATH_MANAGE_STOCK);
+                $config = (int) $this->scopeConfig->isSetFlag(CatalogInventoryConfiguration::XML_PATH_MANAGE_STOCK);
                 $condition = '({{table}}.`is_in_stock` = 1) '
                     . ' OR IF({{table}}.`use_config_manage_stock` = 1, ' . $config . ', {{table}}.`manage_stock`) = 0';
                 $productCollection->joinTable(
@@ -942,27 +928,27 @@ class Export
                     ['qty' => 'qty', 'is_in_stock' => 'is_in_stock'],
                     $condition
                 );
-            } catch (\Exception $e) {
-                $this->_dataHelper->log(
+            } catch (Exception $e) {
+                $this->dataHelper->log(
                     DataHelper::CODE_EXPORT,
-                    $this->_dataHelper->setLogMessage(
+                    $this->dataHelper->setLogMessage(
                         'the junction with the %1 table did not work',
                         ['cataloginventory_stock_item']
                     ),
-                    $this->_logOutput
+                    $this->logOutput
                 );
             }
         }
         // export specific products with id
-        if (!empty($this->_productIds)) {
-            $productCollection->addAttributeToFilter('entity_id', ['in' => $this->_productIds]);
+        if (!empty($this->productIds)) {
+            $productCollection->addAttributeToFilter('entity_id', ['in' => $this->productIds]);
         }
         // export with limit & offset
-        if ($this->_limit > 0) {
-            if ($this->_offset > 0) {
-                $productCollection->getSelect()->limit($this->_limit, $this->_offset);
+        if ($this->limit > 0) {
+            if ($this->offset > 0) {
+                $productCollection->getSelect()->limit($this->limit, $this->offset);
             } else {
-                $productCollection->getSelect()->limit($this->_limit);
+                $productCollection->getSelect()->limit($this->limit);
             }
         }
         return $productCollection;

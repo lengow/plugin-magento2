@@ -24,8 +24,6 @@ use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\Driver\File as DriverFile;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
-use Magento\Framework\Module\Dir\Reader;
-use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Security as SecurityHelper;
@@ -78,52 +76,42 @@ class Sync extends AbstractHelper
     /**
      * @var DriverFile Magento driver file instance
      */
-    protected $_driverFile;
+    private $driverFile;
 
     /**
      * @var JsonHelper Magento json helper instance
      */
-    protected $_jsonHelper;
-
-    /**
-     * @var Reader Magento module reader instance
-     */
-    protected $_moduleReader;
-
-    /**
-     * @var TimezoneInterface Magento datetime timezone instance
-     */
-    protected $_timezone;
+    private $jsonHelper;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * @var DataHelper data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * @var SecurityHelper Lengow security helper instance
      */
-    protected $_securityHelper;
+    private $securityHelper;
 
     /**
      * @var LengowConnector Lengow connector instance
      */
-    protected $_connector;
+    private $connector;
 
     /**
      * @var LengowExport Lengow export instance
      */
-    protected $_export;
+    private $export;
 
     /**
      * @var array cache time for catalog, account status, cms options and marketplace synchronisation
      */
-    protected $_cacheTimes = [
+    protected $cacheTimes = [
         self::SYNC_CATALOG => 21600,
         self::SYNC_CMS_OPTION => 86400,
         self::SYNC_STATUS_ACCOUNT => 86400,
@@ -134,7 +122,7 @@ class Sync extends AbstractHelper
     /**
      * @var array valid sync actions
      */
-    protected $_syncActions = [
+    protected $syncActions = [
         self::SYNC_ORDER,
         self::SYNC_CMS_OPTION,
         self::SYNC_STATUS_ACCOUNT,
@@ -169,8 +157,6 @@ class Sync extends AbstractHelper
      * @param Context $context Magento context instance
      * @param JsonHelper $jsonHelper Magento json helper instance
      * @param DriverFile $driverFile Magento driver file instance
-     * @param Reader $moduleReader Magento module reader instance
-     * @param TimezoneInterface $timezone Magento datetime timezone instance
      * @param DataHelper $dataHelper Lengow data helper instance
      * @param ConfigHelper $configHelper Lengow config helper instance
      * @param SecurityHelper $securityHelper Lengow security helper instance
@@ -181,23 +167,19 @@ class Sync extends AbstractHelper
         Context $context,
         JsonHelper $jsonHelper,
         DriverFile $driverFile,
-        Reader $moduleReader,
-        TimezoneInterface $timezone,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         SecurityHelper $securityHelper,
         LengowConnector $connector,
         LengowExport $export
     ) {
-        $this->_jsonHelper = $jsonHelper;
-        $this->_driverFile = $driverFile;
-        $this->_moduleReader = $moduleReader;
-        $this->_timezone = $timezone;
-        $this->_dataHelper = $dataHelper;
-        $this->_configHelper = $configHelper;
-        $this->_securityHelper = $securityHelper;
-        $this->_connector = $connector;
-        $this->_export = $export;
+        $this->jsonHelper = $jsonHelper;
+        $this->driverFile = $driverFile;
+        $this->dataHelper = $dataHelper;
+        $this->configHelper = $configHelper;
+        $this->securityHelper = $securityHelper;
+        $this->connector = $connector;
+        $this->export = $export;
         parent::__construct($context);
     }
 
@@ -208,9 +190,9 @@ class Sync extends AbstractHelper
      *
      * @return boolean
      */
-    public function isSyncAction($action)
+    public function isSyncAction(string $action): bool
     {
-        return in_array($action, $this->_syncActions, true);
+        return in_array($action, $this->syncActions, true);
     }
 
     /**
@@ -218,9 +200,9 @@ class Sync extends AbstractHelper
      *
      * @return boolean
      */
-    public function pluginIsBlocked()
+    public function pluginIsBlocked(): bool
     {
-        if ($this->_configHelper->isNewMerchant()) {
+        if ($this->configHelper->isNewMerchant()) {
             return true;
         }
         $statusAccount = $this->getStatusAccount();
@@ -232,31 +214,31 @@ class Sync extends AbstractHelper
      *
      * @return array
      */
-    public function getSyncData()
+    public function getSyncData(): array
     {
         $data = [
             'domain_name' => $_SERVER['SERVER_NAME'],
-            'token' => $this->_configHelper->getToken(),
+            'token' => $this->configHelper->getToken(),
             'type' => self::CMS_TYPE,
-            'version' => $this->_securityHelper->getMagentoVersion(),
-            'plugin_version' => $this->_securityHelper->getPluginVersion(),
+            'version' => $this->securityHelper->getMagentoVersion(),
+            'plugin_version' => $this->securityHelper->getPluginVersion(),
             'email' => $this->scopeConfig->getValue('trans_email/ident_general/email'),
-            'cron_url' => $this->_dataHelper->getCronUrl(),
-            'toolbox_url' => $this->_dataHelper->getToolboxUrl(),
+            'cron_url' => $this->dataHelper->getCronUrl(),
+            'toolbox_url' => $this->dataHelper->getToolboxUrl(),
             'shops' => [],
         ];
-        $stores = $this->_configHelper->getAllStore();
+        $stores = $this->configHelper->getAllStore();
         foreach ($stores as $store) {
             $storeId = (int) $store->getId();
-            $this->_export->init([LengowExport::PARAM_STORE_ID => $storeId]);
+            $this->export->init([LengowExport::PARAM_STORE_ID => $storeId]);
             $data['shops'][] = [
-                'token' => $this->_configHelper->getToken($storeId),
+                'token' => $this->configHelper->getToken($storeId),
                 'shop_name' => $store->getName(),
                 'domain_url' => $store->getBaseUrl(),
-                'feed_url' => $this->_dataHelper->getExportUrl($storeId),
-                'total_product_number' => $this->_export->getTotalProduct(),
-                'exported_product_number' => $this->_export->getTotalExportProduct(),
-                'enabled' => $this->_configHelper->storeIsActive($storeId),
+                'feed_url' => $this->dataHelper->getExportUrl($storeId),
+                'total_product_number' => $this->export->getTotalProduct(),
+                'exported_product_number' => $this->export->getTotalExportProduct(),
+                'enabled' => $this->configHelper->storeIsActive($storeId),
             ];
         }
         return $data;
@@ -270,32 +252,32 @@ class Sync extends AbstractHelper
      *
      * @return boolean
      */
-    public function syncCatalog($force = false, $logOutput = false)
+    public function syncCatalog(bool $force = false, bool $logOutput = false): bool
     {
         $success = false;
         $cleanCache = false;
-        if ($this->_configHelper->isNewMerchant()) {
+        if ($this->configHelper->isNewMerchant()) {
             return $success;
         }
         if (!$force) {
-            $updatedAt = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_CATALOG);
-            if ($updatedAt !== null && (time() - (int) $updatedAt) < $this->_cacheTimes[self::SYNC_CATALOG]) {
+            $updatedAt = $this->configHelper->get(ConfigHelper::LAST_UPDATE_CATALOG);
+            if ($updatedAt !== null && (time() - (int) $updatedAt) < $this->cacheTimes[self::SYNC_CATALOG]) {
                 return $success;
             }
         }
-        $result = $this->_connector->queryApi(LengowConnector::GET, LengowConnector::API_CMS, [], '', $logOutput);
+        $result = $this->connector->queryApi(LengowConnector::GET, LengowConnector::API_CMS, [], '', $logOutput);
         if (isset($result->cms)) {
-            $cmsToken = $this->_configHelper->getToken();
+            $cmsToken = $this->configHelper->getToken();
             foreach ($result->cms as $cms) {
                 if ($cms->token === $cmsToken) {
                     foreach ($cms->shops as $cmsShop) {
-                        $store = $this->_configHelper->getStoreByToken($cmsShop->token);
+                        $store = $this->configHelper->getStoreByToken($cmsShop->token);
                         if ($store) {
-                            $catalogIdsChange = $this->_configHelper->setCatalogIds(
+                            $catalogIdsChange = $this->configHelper->setCatalogIds(
                                 $cmsShop->catalog_ids,
                                 (int) $store->getId()
                             );
-                            $activeStoreChange = $this->_configHelper->setActiveStore((int) $store->getId());
+                            $activeStoreChange = $this->configHelper->setActiveStore((int) $store->getId());
                             if (!$cleanCache && ($catalogIdsChange || $activeStoreChange)) {
                                 $cleanCache = true;
                             }
@@ -309,10 +291,10 @@ class Sync extends AbstractHelper
         // clean config cache to valid configuration
         if ($cleanCache) {
             // save last update date for a specific settings (change synchronisation interval time)
-            $this->_configHelper->set(ConfigHelper::LAST_UPDATE_SETTING, time());
-            $this->_configHelper->cleanConfigCache();
+            $this->configHelper->set(ConfigHelper::LAST_UPDATE_SETTING, time());
+            $this->configHelper->cleanConfigCache();
         }
-        $this->_configHelper->set(ConfigHelper::LAST_UPDATE_CATALOG, time());
+        $this->configHelper->set(ConfigHelper::LAST_UPDATE_CATALOG, time());
         return $success;
     }
 
@@ -321,25 +303,25 @@ class Sync extends AbstractHelper
      *
      * @return array
      */
-    public function getOptionData()
+    public function getOptionData(): array
     {
         $data = [
-            'token' => $this->_configHelper->getToken(),
-            'version' => $this->_securityHelper->getMagentoVersion(),
-            'plugin_version' => $this->_securityHelper->getPluginVersion(),
-            'options' => $this->_configHelper->getAllValues(),
+            'token' => $this->configHelper->getToken(),
+            'version' => $this->securityHelper->getMagentoVersion(),
+            'plugin_version' => $this->securityHelper->getPluginVersion(),
+            'options' => $this->configHelper->getAllValues(),
             'shops' => [],
         ];
-        $stores = $this->_configHelper->getAllStore();
+        $stores = $this->configHelper->getAllStore();
         foreach ($stores as $store) {
             $storeId = (int) $store->getId();
-            $this->_export->init([LengowExport::PARAM_STORE_ID => $storeId]);
+            $this->export->init([LengowExport::PARAM_STORE_ID => $storeId]);
             $data['shops'][] = [
-                'token' => $this->_configHelper->getToken($storeId),
-                'enabled' => $this->_configHelper->storeIsActive($storeId),
-                'total_product_number' => $this->_export->getTotalProduct(),
-                'exported_product_number' => $this->_export->getTotalExportProduct(),
-                'options' => $this->_configHelper->getAllValues($storeId),
+                'token' => $this->configHelper->getToken($storeId),
+                'enabled' => $this->configHelper->storeIsActive($storeId),
+                'total_product_number' => $this->export->getTotalProduct(),
+                'exported_product_number' => $this->export->getTotalExportProduct(),
+                'options' => $this->configHelper->getAllValues($storeId),
             ];
         }
         return $data;
@@ -353,20 +335,20 @@ class Sync extends AbstractHelper
      *
      * @return boolean
      */
-    public function setCmsOption($force = false, $logOutput = false)
+    public function setCmsOption(bool $force = false, bool $logOutput = false): bool
     {
-        if ($this->_configHelper->isNewMerchant() || $this->_configHelper->debugModeIsActive()) {
+        if ($this->configHelper->isNewMerchant() || $this->configHelper->debugModeIsActive()) {
             return false;
         }
         if (!$force) {
-            $updatedAt = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_OPTION_CMS);
-            if ($updatedAt !== null && (time() - (int) $updatedAt) < $this->_cacheTimes[self::SYNC_CMS_OPTION]) {
+            $updatedAt = $this->configHelper->get(ConfigHelper::LAST_UPDATE_OPTION_CMS);
+            if ($updatedAt !== null && (time() - (int) $updatedAt) < $this->cacheTimes[self::SYNC_CMS_OPTION]) {
                 return false;
             }
         }
-        $options = $this->_jsonHelper->jsonEncode($this->getOptionData());
-        $this->_connector->queryApi(LengowConnector::PUT, LengowConnector::API_CMS, [], $options, $logOutput);
-        $this->_configHelper->set(ConfigHelper::LAST_UPDATE_OPTION_CMS, time());
+        $options = $this->jsonHelper->jsonEncode($this->getOptionData());
+        $this->connector->queryApi(LengowConnector::PUT, LengowConnector::API_CMS, [], $options, $logOutput);
+        $this->configHelper->set(ConfigHelper::LAST_UPDATE_OPTION_CMS, time());
         return true;
     }
 
@@ -376,35 +358,35 @@ class Sync extends AbstractHelper
      * @param boolean $force force cache update
      * @param boolean $logOutput see log or not
      *
-     * @return array|false
+     * @return array|null
      */
-    public function getStatusAccount($force = false, $logOutput = false)
+    public function getStatusAccount(bool $force = false, bool $logOutput = false)
     {
-        if ($this->_configHelper->isNewMerchant()) {
-            return false;
+        if ($this->configHelper->isNewMerchant()) {
+            return null;
         }
         if (!$force) {
-            $updatedAt = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_ACCOUNT_STATUS_DATA);
-            if ($updatedAt !== null && (time() - (int) $updatedAt) < $this->_cacheTimes[self::SYNC_STATUS_ACCOUNT]) {
-                return json_decode($this->_configHelper->get(ConfigHelper::ACCOUNT_STATUS_DATA), true);
+            $updatedAt = $this->configHelper->get(ConfigHelper::LAST_UPDATE_ACCOUNT_STATUS_DATA);
+            if ($updatedAt !== null && (time() - (int) $updatedAt) < $this->cacheTimes[self::SYNC_STATUS_ACCOUNT]) {
+                return json_decode($this->configHelper->get(ConfigHelper::ACCOUNT_STATUS_DATA), true);
             }
         }
         // use static cache for multiple call in same time (specific Magento 2)
         if (self::$statusAccount !== null) {
             return self::$statusAccount;
         }
-        $status = false;
-        $result = $this->_connector->queryApi(LengowConnector::GET, LengowConnector::API_PLAN, [], '', $logOutput);
+        $status = null;
+        $result = $this->connector->queryApi(LengowConnector::GET, LengowConnector::API_PLAN, [], '', $logOutput);
         if (isset($result->isFreeTrial)) {
             $status = [
                 'type' => $result->isFreeTrial ? 'free_trial' : '',
                 'day' => (int) $result->leftDaysBeforeExpired < 0 ? 0 : (int) $result->leftDaysBeforeExpired,
                 'expired' => (bool) $result->isExpired,
             ];
-            $this->_configHelper->set(ConfigHelper::ACCOUNT_STATUS_DATA, $this->_jsonHelper->jsonEncode($status));
-            $this->_configHelper->set(ConfigHelper::LAST_UPDATE_ACCOUNT_STATUS_DATA, time());
-        } else if ($this->_configHelper->get(ConfigHelper::ACCOUNT_STATUS_DATA)) {
-            $status = json_decode($this->_configHelper->get(ConfigHelper::ACCOUNT_STATUS_DATA), true);
+            $this->configHelper->set(ConfigHelper::ACCOUNT_STATUS_DATA, $this->jsonHelper->jsonEncode($status));
+            $this->configHelper->set(ConfigHelper::LAST_UPDATE_ACCOUNT_STATUS_DATA, time());
+        } elseif ($this->configHelper->get(ConfigHelper::ACCOUNT_STATUS_DATA)) {
+            $status = json_decode($this->configHelper->get(ConfigHelper::ACCOUNT_STATUS_DATA), true);
         }
         self::$statusAccount = $status;
         return $status;
@@ -418,26 +400,27 @@ class Sync extends AbstractHelper
      *
      * @return array|false
      */
-    public function getMarketplaces($force = false, $logOutput = false)
+    public function getMarketplaces(bool $force = false, bool $logOutput = false)
     {
         $sep = DIRECTORY_SEPARATOR;
-        $folderPath = $this->_dataHelper->getMediaPath() . $sep . DataHelper::LENGOW_FOLDER;
+        $folderPath = $this->dataHelper->getMediaPath() . $sep . DataHelper::LENGOW_FOLDER;
         $filePath = $folderPath . $sep . self::MARKETPLACE_FILE;
         if (!$force) {
-            $updatedAt = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_MARKETPLACE);
+            $updatedAt = $this->configHelper->get(ConfigHelper::LAST_UPDATE_MARKETPLACE);
             if ($updatedAt !== null
-                && (time() - (int) $updatedAt) < $this->_cacheTimes[self::SYNC_MARKETPLACE]
+                && (time() - (int) $updatedAt) < $this->cacheTimes[self::SYNC_MARKETPLACE]
                 && file_exists($filePath)
             ) {
                 // recovering data with the marketplaces.json file
                 $marketplacesData = file_get_contents($filePath);
                 if ($marketplacesData) {
+                    // don't add true, decoded data are used as object
                     return json_decode($marketplacesData);
                 }
             }
         }
         // recovering data with the API
-        $result = $this->_connector->queryApi(
+        $result = $this->connector->queryApi(
             LengowConnector::GET,
             LengowConnector::API_MARKETPLACE,
             [],
@@ -447,30 +430,32 @@ class Sync extends AbstractHelper
         if ($result && is_object($result) && !isset($result->error)) {
             // updated marketplaces.json file
             try {
-                $this->_driverFile->createDirectory($folderPath);
-                $file = $this->_driverFile->fileOpen($filePath, 'w+');
-                $this->_driverFile->fileLock($file);
-                $this->_driverFile->fileWrite($file, $this->_jsonHelper->jsonEncode($result));
-                $this->_driverFile->fileUnlock($file);
-                $this->_driverFile->fileClose($file);
-                $this->_configHelper->set(ConfigHelper::LAST_UPDATE_MARKETPLACE, time());
+                $this->driverFile->createDirectory($folderPath);
+                $file = $this->driverFile->fileOpen($filePath, 'w+');
+                $this->driverFile->fileLock($file);
+                $this->driverFile->fileWrite($file, $this->jsonHelper->jsonEncode($result));
+                $this->driverFile->fileUnlock($file);
+                $this->driverFile->fileClose($file);
+                $this->configHelper->set(ConfigHelper::LAST_UPDATE_MARKETPLACE, time());
             } catch (FileSystemException $e) {
-                $this->_dataHelper->log(
+                $this->dataHelper->log(
                     DataHelper::CODE_IMPORT,
-                    $this->_dataHelper->setLogMessage('marketplace update failed - %1', [$e->getMessage()]),
+                    $this->dataHelper->setLogMessage('marketplace update failed - %1', [$e->getMessage()]),
                     $logOutput
                 );
             }
             return $result;
-        } else {
-            // if the API does not respond, use marketplaces.json if it exists
-            if (file_exists($filePath)) {
-                $marketplacesData = file_get_contents($filePath);
-                if ($marketplacesData) {
-                    return json_decode($marketplacesData);
-                }
+        }
+
+        // if the API does not respond, use marketplaces.json if it exists
+        if (file_exists($filePath)) {
+            $marketplacesData = file_get_contents($filePath);
+            if ($marketplacesData) {
+                // don't add true, decoded data are used as object
+                return json_decode($marketplacesData);
             }
         }
+
         return false;
     }
 
@@ -482,15 +467,15 @@ class Sync extends AbstractHelper
      *
      * @return array|false
      */
-    public function getPluginData($force = false, $logOutput = false)
+    public function getPluginData(bool $force = false, bool $logOutput = false)
     {
         if (!$force) {
-            $updatedAt = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_PLUGIN_DATA);
-            if ($updatedAt !== null && (time() - (int) $updatedAt) < $this->_cacheTimes[self::SYNC_PLUGIN_DATA]) {
-                return json_decode($this->_configHelper->get(ConfigHelper::PLUGIN_DATA), true);
+            $updatedAt = $this->configHelper->get(ConfigHelper::LAST_UPDATE_PLUGIN_DATA);
+            if ($updatedAt !== null && (time() - (int) $updatedAt) < $this->cacheTimes[self::SYNC_PLUGIN_DATA]) {
+                return json_decode($this->configHelper->get(ConfigHelper::PLUGIN_DATA), true);
             }
         }
-        $plugins = $this->_connector->queryApi(
+        $plugins = $this->connector->queryApi(
             LengowConnector::GET,
             LengowConnector::API_PLUGIN,
             [],
@@ -534,14 +519,12 @@ class Sync extends AbstractHelper
                 }
             }
             if ($pluginData) {
-                $this->_configHelper->set(ConfigHelper::PLUGIN_DATA, $this->_jsonHelper->jsonEncode($pluginData));
-                $this->_configHelper->set(ConfigHelper::LAST_UPDATE_PLUGIN_DATA, time());
+                $this->configHelper->set(ConfigHelper::PLUGIN_DATA, $this->jsonHelper->jsonEncode($pluginData));
+                $this->configHelper->set(ConfigHelper::LAST_UPDATE_PLUGIN_DATA, time());
                 return $pluginData;
             }
-        } else {
-            if ($this->_configHelper->get(ConfigHelper::PLUGIN_DATA)) {
-                return json_decode($this->_configHelper->get(ConfigHelper::PLUGIN_DATA), true);
-            }
+        } elseif ($this->configHelper->get(ConfigHelper::PLUGIN_DATA)) {
+            return json_decode($this->configHelper->get(ConfigHelper::PLUGIN_DATA), true);
         }
         return false;
     }
@@ -553,7 +536,7 @@ class Sync extends AbstractHelper
      *
      * @return array
      */
-    public function getPluginLinks($isoCode = null)
+    public function getPluginLinks(string $isoCode = null): array
     {
         $pluginData = $this->getPluginData();
         if (!$pluginData) {
@@ -561,10 +544,8 @@ class Sync extends AbstractHelper
         }
         // check if the links are available in the locale
         $isoCode = $isoCode ?: DataHelper::DEFAULT_ISO_CODE;
-        $localeLinks = isset($pluginData['links'][$isoCode]) ? $pluginData['links'][$isoCode] : false;
-        $defaultLocaleLinks = isset($pluginData['links'][DataHelper::DEFAULT_ISO_CODE])
-            ? $pluginData['links'][DataHelper::DEFAULT_ISO_CODE]
-            : false;
+        $localeLinks = $pluginData['links'][$isoCode] ?? false;
+        $defaultLocaleLinks = $pluginData['links'][DataHelper::DEFAULT_ISO_CODE] ?? false;
         // for each type of link, we check if the link is translated
         $pluginLinks = [];
         foreach ($this->defaultPluginLinks as $linkType => $defaultLink) {

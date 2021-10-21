@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Export;
 
+use Exception;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\Product\Interceptor as ProductInterceptor;
 use Magento\Store\Model\Store\Interceptor as StoreInterceptor;
@@ -31,32 +32,32 @@ class Category
     /**
      * @var CategoryRepository Magento category repository instance
      */
-    protected $_categoryRepository;
+    private $categoryRepository;
 
     /**
      * @var ProductInterceptor Magento product instance
      */
-    protected $_product;
+    private $product;
 
     /**
      * @var StoreInterceptor Magento store instance
      */
-    protected $_store;
+    private $store;
 
     /**
      * @var array cache category names
      */
-    protected $_cacheCategoryNames = [];
+    private $cacheCategoryNames = [];
 
     /**
      * @var array cache category breadcrumb
      */
-    protected $_cacheCategoryBreadcrumbs = [];
+    private $cacheCategoryBreadcrumbs = [];
 
     /**
      * @var string category breadcrumb
      */
-    protected $_categoryBreadcrumb;
+    private $categoryBreadcrumb;
 
     /**
      * Constructor
@@ -65,18 +66,18 @@ class Category
      */
     public function __construct(CategoryRepository $categoryRepository)
     {
-        $this->_categoryRepository = $categoryRepository;
+        $this->categoryRepository = $categoryRepository;
     }
 
     /**
-     * init a new category
+     * Init a new category
      *
      * @param array $params optional options for load a specific product
      * StoreInterceptor store Magento store instance
      */
-    public function init($params)
+    public function init(array $params)
     {
-        $this->_store = $params['store'];
+        $this->store = $params['store'];
     }
 
     /**
@@ -85,14 +86,14 @@ class Category
      * @param array $params optional options for load a specific category
      * ProductInterceptor product Magento product instance
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function load($params)
+    public function load(array $params)
     {
-        $this->_product = $params['product'];
-        $defaultCategory = $this->_getDefaultCategory();
-        $this->_categoryBreadcrumb = $defaultCategory['id'] > 0
-            ? $this->_getBreadcrumb((int) $defaultCategory['id'], $defaultCategory['path'])
+        $this->product = $params['product'];
+        $defaultCategory = $this->getDefaultCategory();
+        $this->categoryBreadcrumb = $defaultCategory['id'] > 0
+            ? $this->getBreadcrumb((int) $defaultCategory['id'], $defaultCategory['path'])
             : '';
     }
 
@@ -101,9 +102,9 @@ class Category
      *
      * @return string
      */
-    public function getCategoryBreadcrumb()
+    public function getCategoryBreadcrumb(): string
     {
-        return $this->_categoryBreadcrumb;
+        return $this->categoryBreadcrumb;
     }
 
     /**
@@ -111,24 +112,24 @@ class Category
      */
     public function clean()
     {
-        $this->_product = null;
-        $this->_categoryBreadcrumb = null;
+        $this->product = null;
+        $this->categoryBreadcrumb = null;
     }
 
     /**
      * Get default category id and path
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return array
      */
-    protected function _getDefaultCategory()
+    private function getDefaultCategory(): array
     {
         $currentLevel = 0;
         $defaultCategory = [];
         // get category collection for one product
-        $categoryCollection = $this->_product->getCategoryCollection()
-            ->addPathsFilter('1/' . $this->_store->getRootCategoryId() . '/')
+        $categoryCollection = $this->product->getCategoryCollection()
+            ->addPathsFilter('1/' . $this->store->getRootCategoryId() . '/')
             ->exportToArray();
         if (!empty($categoryCollection)) {
             // select category with max level by default
@@ -141,7 +142,7 @@ class Category
         }
         return [
             'id' => isset($defaultCategory['entity_id']) ? (int) $defaultCategory['entity_id'] : 0,
-            'path' => isset($defaultCategory['path']) ? $defaultCategory['path'] : '',
+            'path' => $defaultCategory['path'] ?? '',
         ];
     }
 
@@ -151,30 +152,30 @@ class Category
      * @param integer $categoryId Magento category id
      * @param string $categoryPath Magento category path
      *
-     * @throws \Exception
-     *
      * @return string
+     *
+     * @throws Exception
      */
-    protected function _getBreadcrumb($categoryId, $categoryPath)
+    private function getBreadcrumb(int $categoryId, string $categoryPath): string
     {
         if ($categoryId === 0 || $categoryPath === '') {
             return '';
         }
         $categoryNames = [];
-        if (isset($this->_cacheCategoryBreadcrumbs[$categoryId])) {
-            return $this->_cacheCategoryBreadcrumbs[$categoryId];
+        if (isset($this->cacheCategoryBreadcrumbs[$categoryId])) {
+            return $this->cacheCategoryBreadcrumbs[$categoryId];
         }
         // create breadcrumb with categories
         $categoryIds = explode('/', $categoryPath);
         foreach ($categoryIds as $id) {
             // no root category in breadcrumb
             if ((int) $id !== 1) {
-                $categoryNames[] = $this->_getName((int) $id);
+                $categoryNames[] = $this->getName((int) $id);
             }
         }
         $categoryBreadcrumb = implode(' > ', $categoryNames);
         // set breadcrumb in category cache
-        $this->_cacheCategoryBreadcrumbs[$categoryId] = $categoryBreadcrumb;
+        $this->cacheCategoryBreadcrumbs[$categoryId] = $categoryBreadcrumb;
         return $categoryBreadcrumb;
     }
 
@@ -183,22 +184,22 @@ class Category
      *
      * @param integer $categoryId Magento category id
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return string
      */
-    protected function _getName($categoryId)
+    private function getName(int $categoryId): string
     {
         if ($categoryId === 0) {
             return '';
         }
-        if (isset($this->_cacheCategoryNames[$categoryId])) {
-            $categoryName = $this->_cacheCategoryNames[$categoryId];
+        if (isset($this->cacheCategoryNames[$categoryId])) {
+            $categoryName = $this->cacheCategoryNames[$categoryId];
         } else {
-            $category = $this->_categoryRepository->get($categoryId, $this->_store->getId());
+            $category = $this->categoryRepository->get($categoryId, $this->store->getId());
             $name = $category->getName();
             $categoryName = $name;
-            $this->_cacheCategoryNames[$categoryId] = $name;
+            $this->cacheCategoryNames[$categoryId] = $name;
         }
         return $categoryName;
     }

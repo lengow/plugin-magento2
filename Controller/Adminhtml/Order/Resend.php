@@ -23,6 +23,7 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\Result\Redirect;
+use Magento\Sales\Model\Order\Shipment;
 use Magento\Sales\Model\OrderFactory as MagentoOrderFactory;
 use Lengow\Connector\Model\Import\Action as LengowAction;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
@@ -32,12 +33,12 @@ class Resend extends Action
     /**
      * @var MagentoOrderFactory Magento order factory instance
      */
-    protected $_orderFactory;
+    private $orderFactory;
 
     /**
      * @var LengowOrder Lengow order instance
      */
-    protected $_lengowOrder;
+    private $lengowOrder;
 
     /**
      * Constructor
@@ -51,8 +52,8 @@ class Resend extends Action
         MagentoOrderFactory $orderFactory,
         LengowOrder $lengowOrder
     ) {
-        $this->_orderFactory = $orderFactory;
-        $this->_lengowOrder = $lengowOrder;
+        $this->orderFactory = $orderFactory;
+        $this->lengowOrder = $lengowOrder;
         parent::__construct($context);
     }
 
@@ -61,15 +62,16 @@ class Resend extends Action
      *
      * @return Redirect
      */
-    public function execute()
+    public function execute(): Redirect
     {
         $orderId = $this->getRequest()->getParam('order_id');
         $action = $this->getRequest()->getParam('status') === LengowOrder::STATE_CANCELED
             ? LengowAction::TYPE_CANCEL
             : LengowAction::TYPE_SHIP;
-        $order = $this->_orderFactory->create()->load((int) $orderId);
+        $order = $this->orderFactory->create()->load((int) $orderId);
+        /** @var Shipment|void $shipment */
         $shipment = $action === LengowAction::TYPE_SHIP ? $order->getShipmentsCollection()->getFirstItem() : null;
-        $this->_lengowOrder->callAction($action, $order, $shipment);
+        $this->lengowOrder->callAction($action, $order, $shipment);
         /** @var Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         return $resultRedirect->setPath('sales/order/view', ['order_id' => $orderId]);

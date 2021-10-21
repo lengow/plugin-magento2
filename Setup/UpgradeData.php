@@ -30,7 +30,7 @@ class UpgradeData implements UpgradeDataInterface
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * Constructor
@@ -39,11 +39,11 @@ class UpgradeData implements UpgradeDataInterface
      */
     public function __construct(ConfigHelper $configHelper)
     {
-        $this->_configHelper = $configHelper;
+        $this->configHelper = $configHelper;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
@@ -55,11 +55,11 @@ class UpgradeData implements UpgradeDataInterface
             //    active Lengow tracker for versions 1.0.0 - 1.0.3
             // *********************************************************
 
-            $trackingEnable = (bool) $this->_configHelper->get(ConfigHelper::TRACKING_ENABLED);
-            if (!$trackingEnable && !$this->_configHelper->isNewMerchant()) {
-                $this->_configHelper->set(ConfigHelper::TRACKING_ENABLED, 1);
+            $trackingEnable = (bool) $this->configHelper->get(ConfigHelper::TRACKING_ENABLED);
+            if (!$trackingEnable && !$this->configHelper->isNewMerchant()) {
+                $this->configHelper->set(ConfigHelper::TRACKING_ENABLED, 1);
                 // clean config cache to valid configuration
-                $this->_configHelper->cleanConfigCache();
+                $this->configHelper->cleanConfigCache();
             }
         }
 
@@ -69,16 +69,15 @@ class UpgradeData implements UpgradeDataInterface
             // Delete statistic configurations for versions 1.0.0 - 1.1.5
             // **********************************************************
 
-            $this->_configHelper->delete('lengow_global_options/advanced/order_statistic');
-            $this->_configHelper->delete('lengow_global_options/advanced/last_statistic_update');
+            $this->configHelper->delete('lengow_global_options/advanced/order_statistic');
+            $this->configHelper->delete('lengow_global_options/advanced/last_statistic_update');
 
             // *************************************************************
             // Delete preprod mode configuration for versions 1.0.0 - 1.1.5
             // *************************************************************
 
-            $this->_configHelper->delete('lengow_import_options/advanced/import_preprod_mode_enable');
+            $this->configHelper->delete('lengow_import_options/advanced/import_preprod_mode_enable');
         }
-
 
         $setup->endSetup();
     }

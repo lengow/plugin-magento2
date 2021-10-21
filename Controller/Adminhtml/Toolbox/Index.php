@@ -20,20 +20,9 @@
 namespace Lengow\Connector\Controller\Adminhtml\Toolbox;
 
 use Magento\Backend\App\Action;
-use Magento\Backend\App\Action\Context;
 
 class Index extends Action
 {
-    /**
-     * Constructor
-     *
-     * @param Context $context Magento action context instance
-     */
-    public function __construct(Context $context)
-    {
-        parent::__construct($context);
-    }
-
     /**
      * Load and render layout
      */

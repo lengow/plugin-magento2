@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Exception;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Backend\Model\Session as BackendSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -28,12 +29,14 @@ use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductColl
 use Magento\CatalogInventory\Api\StockManagementInterface;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Customer\Model\Customer as MagentoCustomer;
+use Magento\Quote\Model\ResourceModel\Quote\Address\Rate\Collection;
 use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -475,7 +478,7 @@ class Importorder extends AbstractModel
     }
 
     /**
-     * init an import order
+     * Init an import order
      *
      * @param array $params optional options
      *
@@ -492,7 +495,7 @@ class Importorder extends AbstractModel
      *
      * @return Importorder
      */
-    public function init($params)
+    public function init(array $params): Importorder
     {
         $this->storeId = $params[self::PARAM_STORE_ID];
         $this->forceSync = $params[self::PARAM_FORCE_SYNC];
@@ -510,11 +513,11 @@ class Importorder extends AbstractModel
     /**
      * Create or update order
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return array
      */
-    public function importOrder()
+    public function importOrder(): array
     {
         // load marketplace singleton and marketplace data
         if (!$this->loadMarketplaceData()) {
@@ -584,7 +587,7 @@ class Importorder extends AbstractModel
      *
      * @return boolean
      */
-    private function loadMarketplaceData()
+    private function loadMarketplaceData(): bool
     {
         try {
             // get marketplace and Lengow order state
@@ -608,14 +611,14 @@ class Importorder extends AbstractModel
      *
      * @return array
      */
-    private function returnResult($resultType)
+    private function returnResult(string $resultType): array
     {
         return [
             self::MERCHANT_ORDER_ID => $this->orderId,
             self::MERCHANT_ORDER_REFERENCE => $this->orderReference,
             self::LENGOW_ORDER_ID => $this->orderLengowId,
             self::MARKETPLACE_SKU => $this->marketplaceSku,
-            self::MARKETPLACE_NAME => $this->marketplace ? $this->marketplace->name : null,
+            self::MARKETPLACE_NAME => $this->marketplace->name ?? null,
             self::DELIVERY_ADDRESS_ID => $this->deliveryAddressId,
             self::SHOP_ID => $this->storeId,
             self::CURRENT_ORDER_STATUS => $this->orderStateLengow,
@@ -630,7 +633,7 @@ class Importorder extends AbstractModel
      *
      * @return boolean
      */
-    private function orderErrorAlreadyExist()
+    private function orderErrorAlreadyExist(): bool
     {
         // if log import exist and not finished
         $orderError = $this->lengowOrder->orderIsInError($this->marketplaceSku, $this->deliveryAddressId);
@@ -664,7 +667,7 @@ class Importorder extends AbstractModel
      *
      * @return boolean
      */
-    private function checkAndUpdateOrder($orderId)
+    private function checkAndUpdateOrder(int $orderId): bool
     {
         $orderUpdated = false;
         $order = $this->orderRepository->get($orderId);
@@ -719,7 +722,7 @@ class Importorder extends AbstractModel
      *
      * @return boolean
      */
-    private function canCreateOrder()
+    private function canCreateOrder(): bool
     {
         if ($this->importOneOrder) {
             return true;
@@ -742,7 +745,7 @@ class Importorder extends AbstractModel
                 $this->dataHelper->log(DataHelper::CODE_IMPORT, $message, $this->logOutput, $this->marketplaceSku);
                 return false;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->dataHelper->log(
                 DataHelper::CODE_IMPORT,
                 $this->dataHelper->setLogMessage('unable to check if the order is too old'),
@@ -758,7 +761,7 @@ class Importorder extends AbstractModel
      *
      * @return boolean
      */
-    private function externalIdAlreadyExist()
+    private function externalIdAlreadyExist(): bool
     {
         if (empty($this->orderData->merchant_order_id) || $this->debugMode || $this->isReimported) {
             return false;
@@ -782,7 +785,7 @@ class Importorder extends AbstractModel
      *
      * @return boolean
      */
-    private function orderStatusIsValid()
+    private function orderStatusIsValid(): bool
     {
         if ($this->importHelper->checkState($this->orderStateMarketplace, $this->marketplace)) {
             return true;
@@ -818,7 +821,7 @@ class Importorder extends AbstractModel
      *
      * @return boolean
      */
-    private function createLengowOrder()
+    private function createLengowOrder(): bool
     {
         // load order date
         $this->loadOrderDate();
@@ -869,7 +872,7 @@ class Importorder extends AbstractModel
      *
      * @return string
      */
-    private function getOrderTypesData()
+    private function getOrderTypesData(): string
     {
         $orderTypes = [];
         if ($this->orderData->order_types !== null && !empty($this->orderData->order_types)) {
@@ -899,7 +902,7 @@ class Importorder extends AbstractModel
      *
      * @return string
      */
-    private function getOrderComment()
+    private function getOrderComment(): string
     {
         if (isset($this->orderData->comments) && is_array($this->orderData->comments)) {
             $orderComment = implode(',', $this->orderData->comments);
@@ -916,13 +919,7 @@ class Importorder extends AbstractModel
      */
     private function getVatNumberFromOrderData()
     {
-        if (isset($this->orderData->billing_address->vat_number)) {
-            return $this->orderData->billing_address->vat_number;
-        }
-        if (isset($this->packageData->delivery->vat_number)) {
-            return $this->packageData->delivery->vat_number;
-        }
-        return null;
+        return $this->orderData->billing_address->vat_number ?? $this->packageData->delivery->vat_number ?? null;
     }
 
     /**
@@ -932,7 +929,7 @@ class Importorder extends AbstractModel
      *
      * @return boolean
      */
-    private function checkAndUpdateLengowOrderData($orderLengow)
+    private function checkAndUpdateLengowOrderData(Order $orderLengow): bool
     {
         // checks if all necessary order data are present
         if (!$this->checkOrderData()) {
@@ -969,7 +966,7 @@ class Importorder extends AbstractModel
      *
      * @return boolean
      */
-    private function checkOrderData()
+    private function checkOrderData(): bool
     {
         $errorMessages = [];
         if (empty($this->packageData->cart)) {
@@ -1085,7 +1082,7 @@ class Importorder extends AbstractModel
      *
      * @return string
      */
-    private function getCustomerName()
+    private function getCustomerName(): string
     {
         $firstname = (string) $this->orderData->billing_address->first_name;
         $lastname = (string) $this->orderData->billing_address->last_name;
@@ -1108,7 +1105,7 @@ class Importorder extends AbstractModel
      *
      * @return string
      */
-    private function getCustomerEmail()
+    private function getCustomerEmail(): string
     {
         return $this->orderData->billing_address->email !== null
             ? (string) $this->orderData->billing_address->email
@@ -1122,7 +1119,7 @@ class Importorder extends AbstractModel
      *
      * @return boolean
      */
-    private function canCreateOrderShippedByMarketplace($orderLengow)
+    private function canCreateOrderShippedByMarketplace(Order $orderLengow): bool
     {
         // check if the order is shipped by marketplace
         if ($this->shippedByMp) {
@@ -1149,7 +1146,7 @@ class Importorder extends AbstractModel
      *
      * @return boolean
      */
-    private function createOrder($orderLengow)
+    private function createOrder(Order $orderLengow): bool
     {
         try {
             // search and get all products
@@ -1194,7 +1191,7 @@ class Importorder extends AbstractModel
             $this->addQuantityBack($products);
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
         }
         if (!isset($errorMessage)) {
@@ -1238,7 +1235,7 @@ class Importorder extends AbstractModel
      *
      * @return array
      */
-    private function getProducts()
+    private function getProducts(): array
     {
         $lengowProducts = [];
         foreach ($this->packageData->cart as $product) {
@@ -1285,7 +1282,7 @@ class Importorder extends AbstractModel
                 if ($productField) {
                     try {
                         $attributeModel = $this->productAttribute->get($productField);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         $attributeModel = false;
                     }
                     if ($attributeModel) {
@@ -1296,18 +1293,24 @@ class Importorder extends AbstractModel
                             ->setPage(1, 1)
                             ->getData();
                         if (is_array($collection) && !empty($collection)) {
-                            $magentoProduct = $this->productFactory->create()->load($collection[0]['entity_id']);
+                            $magentoProduct = $this->productFactory
+                                ->create()
+                                ->setStoreId($this->storeId)
+                                ->load($collection[0]['entity_id']);
                         }
                     }
                 }
                 // search by id or sku
                 if (!$magentoProduct || !$magentoProduct->getId()) {
                     if (preg_match('/^[0-9]*$/', $attributeValue)) {
-                        $magentoProduct = $this->productFactory->create()->load((int) $attributeValue);
+                        $magentoProduct = $this->productFactory
+                            ->create()
+                            ->setStoreId($this->storeId)
+                            ->load((int) $attributeValue);
                     }
                     if (!$magentoProduct || !$magentoProduct->getId()) {
                         $attributeValue = str_replace('\_', '_', $attributeValue);
-                        $magentoProduct = $this->productFactory->create()->load(
+                        $magentoProduct = $this->productFactory->create()->setStoreId($this->storeId)->load(
                             $this->productFactory->create()->getIdBySku($attributeValue)
                         );
                     }
@@ -1373,11 +1376,11 @@ class Importorder extends AbstractModel
      * @param MagentoCustomer $customer Magento customer instance
      * @param array $products Lengow products from Api
      *
-     * @throws \Exception
+     * @return Quote
      *
-     * @return LengowQuoteFactory
+     * @throws Exception
      */
-    private function createQuote(MagentoCustomer $customer, $products)
+    private function createQuote(MagentoCustomer $customer, array $products): Quote
     {
         $customerRepo = $this->customerRepository->getById($customer->getId());
         $quote = $this->lengowQuoteFactory->create()
@@ -1462,21 +1465,26 @@ class Importorder extends AbstractModel
     /**
      * Update Rates with shipping cost
      *
-     * @param QuoteAddressRate $rates Magento rates
+     * @param Collection $rates Magento rates
      * @param float $shippingCost shipping cost
      * @param string|null $shippingMethod Magento shipping method
      * @param boolean $first stop recursive effect
      *
      * @return boolean
      */
-    private function updateRates($rates, $shippingCost, $shippingMethod = null, $first = true)
-    {
+    private function updateRates(
+        Collection $rates,
+        float $shippingCost,
+        string $shippingMethod = null,
+        bool $first = true
+    ) {
         if (!$shippingMethod) {
             $shippingMethod = $this->configHelper->get(ConfigHelper::DEFAULT_IMPORT_CARRIER_ID, $this->storeId);
         }
         if (empty($shippingMethod)) {
             $shippingMethod = 'lengow_lengow';
         }
+        /** @var QuoteAddressRate $rate */
         foreach ($rates as &$rate) {
             // make sure the chosen shipping method is correct
             if ($rate->getCode() == $shippingMethod) {
@@ -1509,11 +1517,12 @@ class Importorder extends AbstractModel
      * @param Quote $quote Lengow quote instance
      * @param LengowOrder $orderLengow Lengow order instance
      *
-     * @throws \Exception|LengowException
-     *
      * @return MagentoOrder
+     *
+     * @throws LengowException
+     * @throws LocalizedException
      */
-    private function makeOrder(Quote $quote, $orderLengow)
+    private function makeOrder(Quote $quote, Order $orderLengow): MagentoOrder
     {
         $currencyIsoA3 = (string) $this->orderData->currency->iso_a3;
         $additionalData = [
@@ -1525,7 +1534,7 @@ class Importorder extends AbstractModel
         ];
         try {
             $order = $this->quoteManagement->submit($quote, $additionalData);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // try to generate order with quote factory for "Cart does not contain item" Magento bug
             $magentoQuote = $this->quoteMagentoFactory->create()->load($quote->getId());
             $order = $this->quoteManagement->submit($magentoQuote, $additionalData);
@@ -1580,7 +1589,7 @@ class Importorder extends AbstractModel
      * @param MagentoOrder $order Magento order instance
      * @param array $products Lengow products from Api
      */
-    private function saveLengowOrderLine($order, $products)
+    private function saveLengowOrderLine(MagentoOrder $order, array $products)
     {
         $orderLineSaved = false;
         foreach ($products as $productId => $product) {
@@ -1620,9 +1629,9 @@ class Importorder extends AbstractModel
      *
      * @param MagentoOrder $order Magento order instance
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    private function updateStateToShip($order)
+    private function updateStateToShip(MagentoOrder $order)
     {
         if ($this->orderStateLengow === LengowOrder::STATE_SHIPPED
             || $this->orderStateLengow === LengowOrder::STATE_CLOSED
@@ -1645,7 +1654,7 @@ class Importorder extends AbstractModel
      *
      * @param array $products Lengow products from Api
      */
-    private function addQuantityBack($products)
+    private function addQuantityBack(array $products)
     {
         // add quantity back for re-imported order and order shipped by marketplace
         if ($this->isReimported

@@ -75,7 +75,7 @@ class Connector
     /**
      * @var array success HTTP codes for request
      */
-    protected $_successCodes = [
+    private $successCodes = [
         self::CODE_200,
         self::CODE_201,
     ];
@@ -83,7 +83,7 @@ class Connector
     /**
      * @var array authorization HTTP codes for request
      */
-    protected $authorizationCodes = [
+    private $authorizationCodes = [
         self::CODE_401,
         self::CODE_403,
     ];
@@ -91,12 +91,12 @@ class Connector
     /**
      * @var integer Authorization token lifetime
      */
-    protected $_tokenLifetime = 3000;
+    private $tokenLifetime = 3000;
 
     /**
      * @var array default options for curl
      */
-    protected $_curlOpts = [
+    private $curlOpts = [
         CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT => 10,
@@ -106,22 +106,22 @@ class Connector
     /**
      * @var string the access token to connect
      */
-    protected $_accessToken;
+    private $accessToken;
 
     /**
      * @var string the secret to connect
      */
-    protected $_secret;
+    private $secret;
 
     /**
      * @var string temporary token for the authorization
      */
-    protected $_token;
+    private $token;
 
     /**
      * @var array Lengow url for curl timeout
      */
-    protected $_lengowUrls = [
+    private $lengowUrls = [
         self::API_ORDER => 20,
         self::API_ORDER_MOI => 10,
         self::API_ORDER_ACTION => 15,
@@ -136,7 +136,7 @@ class Connector
     /**
      * @var array API requiring no arguments in the call url
      */
-    protected $apiWithoutUrlArgs = [
+    private $apiWithoutUrlArgs = [
         self::API_ACCESS_TOKEN,
         self::API_ORDER_ACTION,
         self::API_ORDER_MOI,
@@ -145,19 +145,19 @@ class Connector
     /**
      * @var array API requiring no authorization for the call url
      */
-    protected $apiWithoutAuthorizations = [
+    private $apiWithoutAuthorizations = [
         self::API_PLUGIN,
     ];
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * Constructor
@@ -169,8 +169,8 @@ class Connector
         DataHelper $dataHelper,
         ConfigHelper $configHelper
     ) {
-        $this->_dataHelper = $dataHelper;
-        $this->_configHelper = $configHelper;
+        $this->dataHelper = $dataHelper;
+        $this->configHelper = $configHelper;
     }
 
     /**
@@ -180,10 +180,10 @@ class Connector
      * string access_token Lengow access token
      * string secret       Lengow secret
      */
-    public function init($params)
+    public function init(array $params = [])
     {
-        $this->_accessToken = $params['access_token'];
-        $this->_secret = $params['secret'];
+        $this->accessToken = $params['access_token'];
+        $this->secret = $params['secret'];
     }
 
     /**
@@ -191,7 +191,7 @@ class Connector
      *
      * @return boolean
      */
-    public function isCurlActivated()
+    public function isCurlActivated(): bool
     {
         return function_exists('curl_version');
     }
@@ -203,12 +203,12 @@ class Connector
      *
      * @return boolean
      */
-    public function isValidAuth($logOutput = false)
+    public function isValidAuth(bool $logOutput = false): bool
     {
         if (!$this->isCurlActivated()) {
             return false;
         }
-        list($accountId, $accessToken, $secret) = $this->_configHelper->getAccessIds();
+        list($accountId, $accessToken, $secret) = $this->configHelper->getAccessIds();
         if ($accountId === null) {
             return false;
         }
@@ -216,9 +216,9 @@ class Connector
             $this->init(['access_token' => $accessToken, 'secret' => $secret]);
             $this->connect(false, $logOutput);
         } catch (LengowException $e) {
-            $message = $this->_dataHelper->decodeLogMessage($e->getMessage(), false);
-            $error = $this->_dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
-            $this->_dataHelper->log(DataHelper::CODE_CONNECTOR, $error, $logOutput);
+            $message = $this->dataHelper->decodeLogMessage($e->getMessage(), false);
+            $error = $this->dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
+            $this->dataHelper->log(DataHelper::CODE_CONNECTOR, $error, $logOutput);
             return false;
         }
         return true;
@@ -235,14 +235,14 @@ class Connector
      *
      * @return mixed
      */
-    public function queryApi($type, $api, $args = [], $body = '', $logOutput = false)
+    public function queryApi(string $type, string $api, array $args = [], string $body = '', bool $logOutput = false)
     {
         if (!in_array($type, [self::GET, self::POST, self::PUT, self::PATCH])) {
             return false;
         }
         try {
             $authorizationRequired = !in_array($api, $this->apiWithoutAuthorizations, true);
-            list($accountId, $accessToken, $secret) = $this->_configHelper->getAccessIds();
+            list($accountId, $accessToken, $secret) = $this->configHelper->getAccessIds();
             if ($accountId === null && $authorizationRequired) {
                 return false;
             }
@@ -251,11 +251,12 @@ class Connector
             $args = $authorizationRequired ? array_merge([LengowImport::ARG_ACCOUNT_ID => $accountId], $args) : $args;
             $results = $this->$type($api, $args, self::FORMAT_STREAM, $body, $logOutput);
         } catch (LengowException $e) {
-            $message = $this->_dataHelper->decodeLogMessage($e->getMessage(), false);
-            $error = $this->_dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
-            $this->_dataHelper->log(DataHelper::CODE_CONNECTOR, $error, $logOutput);
+            $message = $this->dataHelper->decodeLogMessage($e->getMessage(), false);
+            $error = $this->dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
+            $this->dataHelper->log(DataHelper::CODE_CONNECTOR, $error, $logOutput);
             return false;
         }
+        // don't decode into array as we use the result as an object
         return json_decode($results);
     }
 
@@ -268,11 +269,11 @@ class Connector
      *
      * @return int|null
      */
-    public function getAccountIdByCredentials($accessToken, $secret, $logOutput = false)
+    public function getAccountIdByCredentials(string $accessToken, string $secret, bool $logOutput = false)
     {
         $this->init(['access_token' => $accessToken, 'secret' => $secret]);
         try {
-            $data = $this->_callAction(
+            $data = $this->callAction(
                 self::API_ACCESS_TOKEN,
                 [
                     'access_token' => $accessToken,
@@ -284,9 +285,9 @@ class Connector
                 $logOutput
             );
         } catch (LengowException $e) {
-            $message = $this->_dataHelper->decodeLogMessage($e->getMessage(), false);
-            $error = $this->_dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
-            $this->_dataHelper->log(DataHelper::CODE_CONNECTION, $error, $logOutput);
+            $message = $this->dataHelper->decodeLogMessage($e->getMessage(), false);
+            $error = $this->dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
+            $this->dataHelper->log(DataHelper::CODE_CONNECTION, $error, $logOutput);
             return null;
         }
         return $data['account_id'] ? (int) $data['account_id'] : null;
@@ -300,23 +301,23 @@ class Connector
      *
      * @throws LengowException
      */
-    public function connect($force = false, $logOutput = false)
+    public function connect(bool $force = false, bool $logOutput = false)
     {
-        $token = $this->_configHelper->get(ConfigHelper::AUTHORIZATION_TOKEN);
-        $updatedAt = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_AUTHORIZATION_TOKEN);
+        $token = $this->configHelper->get(ConfigHelper::AUTHORIZATION_TOKEN);
+        $updatedAt = $this->configHelper->get(ConfigHelper::LAST_UPDATE_AUTHORIZATION_TOKEN);
         if (!$force
             && $token !== null
             && $updatedAt !== null
             && $token !== ''
-            && (time() - $updatedAt) < $this->_tokenLifetime
+            && (time() - $updatedAt) < $this->tokenLifetime
         ) {
             $authorizationToken = $token;
         } else {
-            $authorizationToken = $this->_getAuthorizationToken($logOutput);
-            $this->_configHelper->set(ConfigHelper::AUTHORIZATION_TOKEN, $authorizationToken);
-            $this->_configHelper->set(ConfigHelper::LAST_UPDATE_AUTHORIZATION_TOKEN, time());
+            $authorizationToken = $this->getAuthorizationToken($logOutput);
+            $this->configHelper->set(ConfigHelper::AUTHORIZATION_TOKEN, $authorizationToken);
+            $this->configHelper->set(ConfigHelper::LAST_UPDATE_AUTHORIZATION_TOKEN, time());
         }
-        $this->_token = $authorizationToken;
+        $this->token = $authorizationToken;
     }
 
     /**
@@ -328,13 +329,18 @@ class Connector
      * @param string $body body data for request
      * @param boolean $logOutput see log or not
      *
-     * @throws LengowException
-     *
      * @return mixed
+     *
+     * @throws LengowException
      */
-    public function get($api, $args = [], $format = self::FORMAT_JSON, $body = '', $logOutput = false)
-    {
-        return $this->_call($api, $args, self::GET, $format, $body, $logOutput);
+    public function get(
+        string $api,
+        array $args = [],
+        string $format = self::FORMAT_JSON,
+        string $body = '',
+        bool $logOutput = false
+    ) {
+        return $this->call($api, $args, self::GET, $format, $body, $logOutput);
     }
 
     /**
@@ -346,13 +352,18 @@ class Connector
      * @param string $body body data for request
      * @param boolean $logOutput see log or not
      *
-     * @throws LengowException
-     *
      * @return mixed
+     *
+     * @throws LengowException
      */
-    public function post($api, $args = [], $format = self::FORMAT_JSON, $body = '', $logOutput = false)
-    {
-        return $this->_call($api, $args, self::POST, $format, $body, $logOutput);
+    public function post(
+        string $api,
+        array $args = [],
+        string $format = self::FORMAT_JSON,
+        string $body = '',
+        bool $logOutput = false
+    ) {
+        return $this->call($api, $args, self::POST, $format, $body, $logOutput);
     }
 
     /**
@@ -364,13 +375,18 @@ class Connector
      * @param string $body body data for request
      * @param boolean $logOutput see log or not
      *
-     * @throws LengowException
-     *
      * @return mixed
+     *
+     * @throws LengowException
      */
-    public function put($api, $args = [], $format = self::FORMAT_JSON, $body = '', $logOutput = false)
-    {
-        return $this->_call($api, $args, self::PUT, $format, $body, $logOutput);
+    public function put(
+        string $api,
+        array $args = [],
+        string $format = self::FORMAT_JSON,
+        string $body = '',
+        bool $logOutput = false
+    ) {
+        return $this->call($api, $args, self::PUT, $format, $body, $logOutput);
     }
 
     /**
@@ -382,13 +398,18 @@ class Connector
      * @param string $body body data for request
      * @param boolean $logOutput see log or not
      *
-     * @throws LengowException
-     *
      * @return mixed
+     *
+     * @throws LengowException
      */
-    public function patch($api, $args = [], $format = self::FORMAT_JSON, $body = '', $logOutput = false)
-    {
-        return $this->_call($api, $args, self::PATCH, $format, $body, $logOutput);
+    public function patch(
+        string $api,
+        array $args = [],
+        string $format = self::FORMAT_JSON,
+        string $body = '',
+        bool $logOutput = false
+    ) {
+        return $this->call($api, $args, self::PATCH, $format, $body, $logOutput);
     }
 
     /**
@@ -401,22 +422,28 @@ class Connector
      * @param string $body body data for request
      * @param boolean $logOutput see log or not
      *
-     * @throws LengowException
-     *
      * @return mixed
+     *
+     * @throws LengowException
      */
-    private function _call($api, $args, $type, $format, $body, $logOutput)
-    {
+    private function call(
+        string $api,
+        array $args = [],
+        string $type = self::GET,
+        string $format = self::FORMAT_JSON,
+        string $body = '',
+        bool $logOutput = false
+    ) {
         try {
             if (!in_array($api, $this->apiWithoutAuthorizations, true)) {
                 $this->connect(false, $logOutput);
             }
-            $data = $this->_callAction($api, $args, $type, $format, $body, $logOutput);
+            $data = $this->callAction($api, $args, $type, $format, $body, $logOutput);
         } catch (LengowException $e) {
             if (in_array($e->getCode(), $this->authorizationCodes, true)) {
-                $this->_dataHelper->log(
+                $this->dataHelper->log(
                     DataHelper::CODE_CONNECTOR,
-                    $this->_dataHelper->setLogMessage(
+                    $this->dataHelper->setLogMessage(
                         'API call failed - authorization token expired - attempt to recover a new token'
                     ),
                     $logOutput
@@ -424,7 +451,7 @@ class Connector
                 if (!in_array($api, $this->apiWithoutAuthorizations, true)) {
                     $this->connect(true, $logOutput);
                 }
-                $data = $this->_callAction($api, $args, $type, $format, $body, $logOutput);
+                $data = $this->callAction($api, $args, $type, $format, $body, $logOutput);
             } else {
                 throw new LengowException($e->getMessage(), $e->getCode());
             }
@@ -442,14 +469,14 @@ class Connector
      * @param string $body body data for request
      * @param boolean $logOutput see log or not
      *
-     * @throws LengowException
-     *
      * @return mixed
+     *
+     * @throws LengowException
      */
-    private function _callAction($api, $args, $type, $format, $body, $logOutput)
+    private function callAction(string $api, array $args, string $type, string $format, string $body, bool $logOutput)
     {
-        $result = $this->_makeRequest($type, $api, $args, $this->_token, $body, $logOutput);
-        return $this->_format($result, $format);
+        $result = $this->makeRequest($type, $api, $args, $this->token, $body, $logOutput);
+        return $this->format($result, $format);
     }
 
     /**
@@ -457,19 +484,19 @@ class Connector
      *
      * @param boolean $logOutput see log or not
      *
-     * @throws LengowException
-     *
      * @return string
+     *
+     * @throws LengowException
      */
-    private function _getAuthorizationToken($logOutput)
+    private function getAuthorizationToken(bool $logOutput): string
     {
         // reset temporary token for the new authorization
-        $this->_token = null;
-        $data = $this->_callAction(
+        $this->token = null;
+        $data = $this->callAction(
             self::API_ACCESS_TOKEN,
             [
-                'access_token' => $this->_accessToken,
-                'secret' => $this->_secret,
+                'access_token' => $this->accessToken,
+                'secret' => $this->secret,
             ],
             self::POST,
             self::FORMAT_JSON,
@@ -479,13 +506,13 @@ class Connector
         // return a specific error for get_token
         if (!isset($data['token'])) {
             throw new LengowException(
-                $this->_dataHelper->setLogMessage('no authorization token returned'),
+                $this->dataHelper->setLogMessage('no authorization token returned'),
                 self::CODE_500
             );
         }
         if ($data['token'] === '') {
             throw new LengowException(
-                $this->_dataHelper->setLogMessage('the returned authorization token is empty'),
+                $this->dataHelper->setLogMessage('the returned authorization token is empty'),
                 self::CODE_500
             );
         }
@@ -502,20 +529,26 @@ class Connector
      * @param string $body body data for request
      * @param boolean $logOutput see log or not
      *
-     * @throws LengowException
-     *
      * @return mixed
+     *
+     * @throws LengowException
      */
-    private function _makeRequest($type, $api, $args, $token, $body, $logOutput)
-    {
+    private function makeRequest(
+        string $type,
+        string $api,
+        array $args = [],
+        string $token = null,
+        string $body = '',
+        bool $logOutput = false
+    ) {
         // Define CURLE_OPERATION_TIMEDOUT for old php versions
         defined('CURLE_OPERATION_TIMEDOUT') || define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);
         $ch = curl_init();
         // get default curl options
-        $opts = $this->_curlOpts;
+        $opts = $this->curlOpts;
         // get special timeout for specific Lengow API
-        if (array_key_exists($api, $this->_lengowUrls)) {
-            $opts[CURLOPT_TIMEOUT] = $this->_lengowUrls[$api];
+        if (array_key_exists($api, $this->lengowUrls)) {
+            $opts[CURLOPT_TIMEOUT] = $this->lengowUrls[$api];
         }
         // get base url for a specific environment
         $url = self::LENGOW_API_URL . $api;
@@ -551,9 +584,9 @@ class Connector
                 $opts[CURLOPT_POSTFIELDS] = http_build_query($args);
             }
         }
-        $this->_dataHelper->log(
+        $this->dataHelper->log(
             DataHelper::CODE_CONNECTOR,
-            $this->_dataHelper->setLogMessage('call %1 %2', [$type, $opts[CURLOPT_URL]]),
+            $this->dataHelper->setLogMessage('call %1 %2', [$type, $opts[CURLOPT_URL]]),
             $logOutput
         );
         curl_setopt_array($ch, $opts);
@@ -562,43 +595,42 @@ class Connector
         $curlError = curl_error($ch);
         $curlErrorNumber = curl_errno($ch);
         curl_close($ch);
-        $this->_checkReturnRequest($result, $httpCode, $curlError, $curlErrorNumber);
+        $this->checkReturnRequest($result, $httpCode, $curlError, $curlErrorNumber);
         return $result;
     }
 
     /**
      * Check return request and generate exception if needed
      *
-     * @param string $result Curl return call
+     * @param string|false $result Curl return call
      * @param integer $httpCode request http code
      * @param string $curlError Curl error
      * @param string $curlErrorNumber Curl error number
      *
      * @throws LengowException
-     *
      */
-    private function _checkReturnRequest($result, $httpCode, $curlError, $curlErrorNumber)
+    private function checkReturnRequest($result, int $httpCode, string $curlError, string $curlErrorNumber)
     {
         if ($result === false) {
             // recovery of Curl errors
             if (in_array($curlErrorNumber, [CURLE_OPERATION_TIMEDOUT, CURLE_OPERATION_TIMEOUTED], true)) {
                 throw new LengowException(
-                    $this->_dataHelper->setLogMessage('API call blocked due to a timeout'),
+                    $this->dataHelper->setLogMessage('API call blocked due to a timeout'),
                     self::CODE_504
                 );
             }
             throw new LengowException(
-                $this->_dataHelper->setLogMessage('Curl error %1 - %2', [$curlErrorNumber, $curlError]),
+                $this->dataHelper->setLogMessage('Curl error %1 - %2', [$curlErrorNumber, $curlError]),
                 self::CODE_500
             );
         }
-        if (!in_array($httpCode, $this->_successCodes, true)) {
-            $result = $this->_format($result);
+        if (!in_array($httpCode, $this->successCodes, true)) {
+            $result = $this->format($result);
             // recovery of Lengow Api errors
             if (isset($result['error']['message'])) {
                 throw new LengowException($result['error']['message'], $httpCode);
             }
-            throw new LengowException($this->_dataHelper->setLogMessage('Lengow APIs are not available'), $httpCode);
+            throw new LengowException($this->dataHelper->setLogMessage('Lengow APIs are not available'), $httpCode);
         }
     }
 
@@ -610,7 +642,7 @@ class Connector
      *
      * @return mixed
      */
-    private function _format($data, $format = self::FORMAT_JSON)
+    private function format($data, string $format = self::FORMAT_JSON)
     {
         switch ($format) {
             case self::FORMAT_STREAM:

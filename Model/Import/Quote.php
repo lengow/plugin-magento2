@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Exception;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Api\ExtensibleDataObjectConverter;
@@ -34,7 +35,6 @@ use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Helper\Product;
-use Magento\Catalog\Model\ProductFactory;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Interceptor as ProductInterceptor;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
@@ -68,29 +68,24 @@ use Lengow\Connector\Model\Exception as LengowException;
 class Quote extends MagentoQuote
 {
     /**
-     * @var ProductFactory Magento product factory instance
-     */
-    protected $_productFactory;
-
-    /**
      * @var TaxCalculation Magento tax calculation instance
      */
-    protected $_taxCalculation;
+    private $taxCalculation;
 
     /**
      * @var Calculation Magento calculation instance
      */
-    protected $_calculation;
+    private $calculation;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * @var SecurityHelper Lengow security helper instance
      */
-    protected $_securityHelper;
+    private $securityHelper;
 
     /**
      * Constructor
@@ -134,7 +129,6 @@ class Quote extends MagentoQuote
      * @param ShippingAssignmentFactory $shippingAssignmentFactory Magento shipping assignment factory instance
      * @param TaxCalculation $taxCalculation Magento tax calculation instance
      * @param Calculation $calculation Magento calculation instance
-     * @param ProductFactory $productFactory Magento product factory instance
      * @param DataHelper $dataHelper Lengow data helper instance
      * @param SecurityHelper $securityHelper Lengow security helper instance
      */
@@ -178,15 +172,13 @@ class Quote extends MagentoQuote
         ShippingAssignmentFactory $shippingAssignmentFactory,
         TaxCalculation $taxCalculation,
         Calculation $calculation,
-        ProductFactory $productFactory,
         DataHelper $dataHelper,
         SecurityHelper $securityHelper
     ) {
-        $this->_taxCalculation = $taxCalculation;
-        $this->_calculation = $calculation;
-        $this->_productFactory = $productFactory;
-        $this->_dataHelper = $dataHelper;
-        $this->_securityHelper = $securityHelper;
+        $this->taxCalculation = $taxCalculation;
+        $this->calculation = $calculation;
+        $this->dataHelper = $dataHelper;
+        $this->securityHelper = $securityHelper;
         parent::__construct(
             $context,
             $registry,
@@ -234,11 +226,11 @@ class Quote extends MagentoQuote
      * @param mixed $products Lengow products list
      * @param boolean $priceIncludeTax price include tax
      *
-     * @throws \Exception|LengowException
-     *
      * @return Quote
+     *
+     * @throws Exception|LengowException
      */
-    public function addLengowProducts($products, $priceIncludeTax = true)
+    public function addLengowProducts($products, bool $priceIncludeTax = true): Quote
     {
         foreach ($products as $product) {
             $magentoProduct = $product['magento_product'];
@@ -250,12 +242,12 @@ class Quote extends MagentoQuote
                 // get product prices
                 $price = $product['price_unit'];
                 if (!$priceIncludeTax) {
-                    $taxRate = $this->_taxCalculation->getCalculatedRate(
+                    $taxRate = $this->taxCalculation->getCalculatedRate(
                         $magentoProduct->getTaxClassId(),
                         $this->getCustomer()->getId(),
                         $this->getStore()
                     );
-                    $tax = $this->_calculation->calcTaxAmount($price, $taxRate, true);
+                    $tax = $this->calculation->calcTaxAmount($price, $taxRate, true);
                     $price -= $tax;
                 }
                 $magentoProduct->setPrice($price);
@@ -286,13 +278,13 @@ class Quote extends MagentoQuote
      *
      * @throws LengowException
      */
-    public function checkProductStatus($product)
+    public function checkProductStatus(ProductInterceptor $product)
     {
         if ((int) $product->getStatus() === Status::STATUS_DISABLED
-            && version_compare($this->_securityHelper->getMagentoVersion(), '2.2.0', '>=')
+            && version_compare($this->securityHelper->getMagentoVersion(), '2.2.0', '>=')
         ) {
             throw new LengowException(
-                $this->_dataHelper->setLogMessage(
+                $this->dataHelper->setLogMessage(
                     'product id %1 can not be added to the quote because it is disabled',
                     [$product->getId()]
                 )
@@ -308,10 +300,10 @@ class Quote extends MagentoQuote
      *
      * @throws LengowException
      */
-    public function checkProductQuantity($product, $quantity)
+    public function checkProductQuantity(ProductInterceptor $product, int $quantity)
     {
         $stockItem = $product->getExtensionAttributes()->getStockItem();
-        if ($stockItem->getManageStock()) {
+        if ($stockItem && $stockItem->getManageStock()) {
             // get salable quantity
             $stockStatus = $this->stockRegistry->getStockStatus(
                 $product->getId(),
@@ -319,7 +311,7 @@ class Quote extends MagentoQuote
             );
             if ($stockStatus && $quantity > (float) $stockStatus->getQty()) {
                 throw new LengowException(
-                    $this->_dataHelper->setLogMessage(
+                    $this->dataHelper->setLogMessage(
                         'product id %1 can not be added to the quote because the stock is insufficient',
                         [$product->getId()]
                     )

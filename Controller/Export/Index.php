@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Controller\Export;
 
+use Exception;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Locale\Resolver as Locale;
@@ -34,37 +35,37 @@ class Index extends Action
     /**
      * @var Locale Magento locale resolver instance
      */
-    protected $_locale;
+    private $locale;
 
     /**
      * @var TranslateInterface Magento translate instance
      */
-    protected $_translate;
+    private $translate;
 
     /**
      * @var StoreManagerInterface Magento store manager instance
      */
-    protected $_storeManager;
+    private $storeManager;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * @var SecurityHelper Lengow security helper instance
      */
-    protected $_securityHelper;
+    private $securityHelper;
 
     /**
      * @var LengowExport Lengow export instance
      */
-    protected $_export;
+    private $export;
 
     /**
      * Constructor
@@ -88,38 +89,38 @@ class Index extends Action
         ConfigHelper $configHelper,
         LengowExport $export
     ) {
-        $this->_storeManager = $storeManager;
-        $this->_locale = $locale;
-        $this->_translate = $translate;
-        $this->_securityHelper = $securityHelper;
-        $this->_dataHelper = $dataHelper;
-        $this->_configHelper = $configHelper;
-        $this->_export = $export;
+        $this->storeManager = $storeManager;
+        $this->locale = $locale;
+        $this->translate = $translate;
+        $this->securityHelper = $securityHelper;
+        $this->dataHelper = $dataHelper;
+        $this->configHelper = $configHelper;
+        $this->export = $export;
         parent::__construct($context);
     }
 
+    /**
+     * List params
+     * string  mode               Number of products exported
+     * string  format             Format of exported files ('csv','yaml','xml','json')
+     * boolean stream             Stream file (1) or generate a file on server (0)
+     * integer offset             Offset of total product
+     * integer limit              Limit number of exported product
+     * boolean selection          Export product selection (1) or all products (0)
+     * boolean out_of_stock       Export out of stock product (1) Export only product in stock (0)
+     * string  product_ids        List of product id separate with comma (1,2,3)
+     * string  product_types      Type separate with comma (simple,configurable,downloadable,grouped,virtual)
+     * boolean inactive           Export inactive product (1) or not (0)
+     * string  code               Export a specific store with store code
+     * integer store              Export a specific store with store id
+     * string  currency           Convert prices with a specific currency
+     * string  language           Translate content with a specific locale
+     * boolean log_output         See logs (1) or not (0)
+     * boolean update_export_date Change last export date in data base (1) or not (0)
+     * boolean get_params         See export parameters and authorized values in json format (1) or not (0)
+     */
     public function execute()
     {
-        /**
-         * List params
-         * string  mode               Number of products exported
-         * string  format             Format of exported files ('csv','yaml','xml','json')
-         * boolean stream             Stream file (1) or generate a file on server (0)
-         * integer offset             Offset of total product
-         * integer limit              Limit number of exported product
-         * boolean selection          Export product selection (1) or all products (0)
-         * boolean out_of_stock       Export out of stock product (1) Export only product in stock (0)
-         * string  product_ids        List of product id separate with comma (1,2,3)
-         * string  product_types      Type separate with comma (simple,configurable,downloadable,grouped,virtual)
-         * boolean inactive           Export inactive product (1) or not (0)
-         * string  code               Export a specific store with store code
-         * integer store              Export a specific store with store id
-         * string  currency           Convert prices with a specific currency
-         * string  language           Translate content with a specific locale
-         * boolean log_output         See logs (1) or not (0)
-         * boolean update_export_date Change last export date in data base (1) or not (0)
-         * boolean get_params         See export parameters and authorized values in json format (1) or not (0)
-         */
         set_time_limit(0);
         ini_set('memory_limit', '1G');
         // get params data
@@ -140,12 +141,12 @@ class Index extends Action
         $updateExportDate = $this->getRequest()->getParam(LengowExport::PARAM_UPDATE_EXPORT_DATE);
         // get store data
         $storeCode = $this->getRequest()->getParam(LengowExport::PARAM_CODE);
-        if (in_array($storeCode, $this->_configHelper->getAllStoreCode(), true)) {
-            $storeId = $this->_storeManager->getStore($storeCode)->getId();
+        if (in_array($storeCode, $this->configHelper->getAllStoreCode(), true)) {
+            $storeId = (int) $this->storeManager->getStore($storeCode)->getId();
         } else {
             $storeId = (int) $this->getRequest()->getParam(LengowExport::PARAM_STORE);
-            if (!in_array($storeId, $this->_configHelper->getAllStoreId(), true)) {
-                $storeId = $this->_storeManager->getStore()->getId();
+            if (!in_array($storeId, $this->configHelper->getAllStoreId(), true)) {
+                $storeId = (int) $this->storeManager->getStore()->getId();
             }
         }
         // get locale data
@@ -153,16 +154,16 @@ class Index extends Action
             ->getParam(LengowExport::PARAM_LANGUAGE);
         if ($language) {
             // changing locale works!
-            $this->_locale->setLocale($language);
+            $this->locale->setLocale($language);
             // needed to add this
-            $this->_translate->setLocale($language);
+            $this->translate->setLocale($language);
             // translation now works
-            $this->_translate->loadData('frontend', true);
+            $this->translate->loadData('frontend', true);
         }
-        if ($this->_securityHelper->checkWebserviceAccess($token, $storeId)) {
+        if ($this->securityHelper->checkWebserviceAccess($token, $storeId)) {
             try {
                 // config store
-                $this->_storeManager->setCurrentStore($storeId);
+                $this->storeManager->setCurrentStore($storeId);
                 $params = [
                     LengowExport::PARAM_STORE_ID => $storeId,
                     LengowExport::PARAM_FORMAT => $format,
@@ -178,25 +179,25 @@ class Index extends Action
                     LengowExport::PARAM_UPDATE_EXPORT_DATE => $updateExportDate,
                     LengowExport::PARAM_LOG_OUTPUT => $logOutput,
                 ];
-                $this->_export->init($params);
+                $this->export->init($params);
                 if ($getParams) {
-                    $this->getResponse()->setBody($this->_export->getExportParams());
+                    $this->getResponse()->setBody($this->export->getExportParams());
                 } elseif ($mode === 'size') {
-                    $this->getResponse()->setBody((string) $this->_export->getTotalExportProduct());
+                    $this->getResponse()->setBody((string) $this->export->getTotalExportProduct());
                 } elseif ($mode === 'total') {
-                    $this->getResponse()->setBody((string) $this->_export->getTotalProduct());
+                    $this->getResponse()->setBody((string) $this->export->getTotalProduct());
                 } else {
-                    $this->_export->exec();
+                    $this->export->exec();
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
-                $this->_dataHelper->log(DataHelper::CODE_EXPORT, $errorMessage);
+                $this->dataHelper->log(DataHelper::CODE_EXPORT, $errorMessage);
                 $this->getResponse()->setStatusHeader(500, '1.1', 'Internal Server Error');
                 $this->getResponse()->setBody($errorMessage);
             }
         } else {
-            if ($this->_configHelper->get(ConfigHelper::AUTHORIZED_IP_ENABLED)) {
-                $errorMessage = __('unauthorised IP: %1', [$this->_securityHelper->getRemoteIp()]);
+            if ($this->configHelper->get(ConfigHelper::AUTHORIZED_IP_ENABLED)) {
+                $errorMessage = __('unauthorised IP: %1', [$this->securityHelper->getRemoteIp()]);
             } else {
                 $errorMessage = $token !== ''
                     ? __('unauthorised access for this token: %1', [$token])

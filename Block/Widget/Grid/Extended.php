@@ -22,10 +22,6 @@ namespace Lengow\Connector\Block\Widget\Grid;
 use Magento\Backend\Block\Widget\Grid\Extended as MagentoGridExtended;
 use Lengow\Connector\Block\Widget\Grid\Massaction\Extended as LengowMassactionExtended;
 
-/**
- * Class Extended
- * @package Lengow\Connector\Block\Widget\Grid
- */
 class Extended extends MagentoGridExtended
 {
     /**
@@ -34,12 +30,4 @@ class Extended extends MagentoGridExtended
      * @var string
      */
     protected $_massactionBlockName = LengowMassactionExtended::class;
-
-    /**
-     * @return void
-     */
-    protected function _construct()
-    {
-        parent::_construct();
-    }
 }

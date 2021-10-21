@@ -20,6 +20,7 @@
 
 namespace Lengow\Connector\Setup;
 
+use Magento\Eav\Model\Entity\Attribute\Source\Boolean as EavBool;
 use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
@@ -32,7 +33,7 @@ use Lengow\Connector\Model\Log as LengowLog;
 class UpgradeSchema implements UpgradeSchemaInterface
 {
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
@@ -54,7 +55,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'default' => 0,
                     'input' => 'select',
                     'system' => 0,
-                    'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
+                    'source' => EavBool::class,
                     'grid' => true,
                     'comment' => 'From Lengow',
                 ]

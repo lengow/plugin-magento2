@@ -27,7 +27,7 @@ class Group implements ArrayInterface
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * Constructor
@@ -36,7 +36,7 @@ class Group implements ArrayInterface
      */
     public function __construct(ConfigHelper $configHelper)
     {
-        $this->_configHelper = $configHelper;
+        $this->configHelper = $configHelper;
     }
 
     /**
@@ -44,8 +44,8 @@ class Group implements ArrayInterface
      *
      * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
-        return $this->_configHelper->getAllCustomerGroup();
+        return $this->configHelper->getAllCustomerGroup();
     }
 }

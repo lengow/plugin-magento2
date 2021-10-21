@@ -49,7 +49,8 @@ class WeeeConfig
      *
      * @return boolean
      */
-    public function aroundIsEnabled(Config $subject, Closure $proceed) {
+    public function aroundIsEnabled(Config $subject, Closure $proceed)
+    {
         if ($this->backendSession->getIsFromlengow()) {
             return false;
         }

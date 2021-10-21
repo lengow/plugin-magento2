@@ -30,7 +30,7 @@ class Refresh extends Action
     /**
      * @var SyncHelper Lengow sync helper instance
      */
-    protected $_syncHelper;
+    private $syncHelper;
 
     /**
      * Constructor
@@ -42,7 +42,7 @@ class Refresh extends Action
         Context $context,
         SyncHelper $syncHelper
     ) {
-        $this->_syncHelper = $syncHelper;
+        $this->syncHelper = $syncHelper;
         parent::__construct($context);
     }
 
@@ -51,7 +51,7 @@ class Refresh extends Action
      */
     public function execute()
     {
-        $this->_syncHelper->getStatusAccount(true);
+        $this->syncHelper->getStatusAccount(true);
         /** @var Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         return $resultRedirect->setPath('lengow/*/');

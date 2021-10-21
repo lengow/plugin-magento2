@@ -383,7 +383,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export\Product::_getConfigurableProduct
+     * @covers \Lengow\Connector\Model\Export\Product::getConfigurableProduct
      */
     public function testGetConfigurableProduct()
     {
@@ -439,7 +439,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export\Product::_getImages
+     * @covers \Lengow\Connector\Model\Export\Product::getImages
      */
     public function testGetImages()
     {
@@ -759,7 +759,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export\Product::_getChildrenIds
+     * @covers \Lengow\Connector\Model\Export\Product::getChildrenIds
      */
     public function testGetChildrenIds()
     {

@@ -21,6 +21,9 @@ namespace Lengow\Connector\Controller\Adminhtml\Order;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\ResultInterface;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
@@ -30,12 +33,12 @@ class MassReSend extends Action
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    protected $dataHelper;
 
     /**
      * @var LengowOrderFactory Lengow order factory instance
      */
-    protected $_orderFactory;
+    protected $orderFactory;
 
     /**
      * Constructor
@@ -49,11 +52,16 @@ class MassReSend extends Action
         DataHelper $dataHelper,
         LengowOrderFactory $orderFactory
     ) {
-        $this->_dataHelper = $dataHelper;
-        $this->_orderFactory = $orderFactory;
+        $this->dataHelper = $dataHelper;
+        $this->orderFactory = $orderFactory;
         parent::__construct($context);
     }
 
+    /**
+     * Execute mass resend
+     *
+     * @return ResponseInterface|Redirect|ResultInterface
+     */
     public function execute()
     {
         $selectedIds = $this->getRequest()->getParam('selected');
@@ -61,7 +69,7 @@ class MassReSend extends Action
         $excludedIds = $excludedIds === 'false' ? [] : $excludedIds;
         if (empty($selectedIds)) {
             $ids = [];
-            $allLengowOrderIds = $this->_orderFactory->create()->getAllLengowOrderIds();
+            $allLengowOrderIds = $this->orderFactory->create()->getAllLengowOrderIds();
             if ($allLengowOrderIds) {
                 foreach ($allLengowOrderIds as $lengowOrderId) {
                     if (!in_array($lengowOrderId[LengowOrder::FIELD_ID], $excludedIds, true)) {
@@ -80,13 +88,13 @@ class MassReSend extends Action
         // resend all selected orders
         $totalReSent = 0;
         foreach ($ids as $orderLengowId) {
-            if ($this->_orderFactory->create()->reSendOrder((int) $orderLengowId)) {
+            if ($this->orderFactory->create()->reSendOrder((int) $orderLengowId)) {
                 $totalReSent++;
             }
         }
         // get the number of orders correctly resent
         $this->messageManager->addSuccessMessage(
-            $this->_dataHelper->decodeLogMessage(
+            $this->dataHelper->decodeLogMessage(
                 'A total of %1 order(s) in %2 selected have been sent.',
                 true,
                 [$totalReSent, count($ids)]

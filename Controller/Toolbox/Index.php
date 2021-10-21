@@ -35,22 +35,22 @@ class Index extends Action
     /**
      * @var JsonHelper Magento json helper instance
      */
-    protected $jsonHelper;
+    private $jsonHelper;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $configHelper;
+    private $configHelper;
 
     /**
      * @var SecurityHelper Lengow security helper instance
      */
-    protected $securityHelper;
+    private $securityHelper;
 
     /**
      * @var ToolboxHelper Lengow toolbox helper instance
      */
-    protected $toolboxHelper;
+    private $toolboxHelper;
 
     /**
      * Constructor
@@ -77,23 +77,22 @@ class Index extends Action
 
     /**
      * Get all plugin data for toolbox
+     *
+     * List params
+     * string  toolbox_action   Toolbox specific action
+     * string  type             Type of data to display
+     * string  created_from     Synchronization of orders since
+     * string  created_to       Synchronization of orders until
+     * string  date             Log date to download
+     * string  marketplace_name Lengow marketplace name to synchronize
+     * string  marketplace_sku  Lengow marketplace order id to synchronize
+     * string  process          Type of process for order action
+     * boolean force            Force synchronization order even if there are errors (1) or not (0)
+     * integer shop_id          Shop id to synchronize
+     * integer days             Synchronization interval time
      */
     public function execute()
     {
-        /**
-         * List params
-         * string  toolbox_action   Toolbox specific action
-         * string  type             Type of data to display
-         * string  created_from     Synchronization of orders since
-         * string  created_to       Synchronization of orders until
-         * string  date             Log date to download
-         * string  marketplace_name Lengow marketplace name to synchronize
-         * string  marketplace_sku  Lengow marketplace order id to synchronize
-         * string  process          Type of process for order action
-         * boolean force            Force synchronization order even if there are errors (1) or not (0)
-         * integer shop_id          Shop id to synchronize
-         * integer days             Synchronization interval time
-         */
         $token = $this->getRequest()->getParam(ToolboxHelper::PARAM_TOKEN);
         if ($this->securityHelper->checkWebserviceAccess($token)) {
             // check if toolbox action is valid
@@ -111,7 +110,7 @@ class Index extends Action
                             $result = $this->toolboxHelper->getOrderData(
                                 $this->getRequest()->getParam(ToolboxHelper::PARAM_MARKETPLACE_SKU),
                                 $this->getRequest()->getParam(ToolboxHelper::PARAM_MARKETPLACE_NAME),
-                                $this->getRequest()->getParam(ToolboxHelper::PARAM_TYPE)
+                                $this->getRequest()->getParam(ToolboxHelper::PARAM_TYPE, ToolboxHelper::DATA_TYPE_ORDER)
                             );
                         } else {
                             $result = $this->toolboxHelper->syncOrders(
@@ -144,7 +143,7 @@ class Index extends Action
                         $this->getResponse()->setBody($this->jsonHelper->jsonEncode($result));
                         break;
                     default:
-                        $type = $this->getRequest()->getParam(ToolboxHelper::PARAM_TYPE);
+                        $type = $this->getRequest()->getParam(ToolboxHelper::PARAM_TYPE, ToolboxHelper::DATA_TYPE_CMS);
                         $this->getResponse()->setBody(
                             $this->jsonHelper->jsonEncode($this->toolboxHelper->getData($type))
                         );

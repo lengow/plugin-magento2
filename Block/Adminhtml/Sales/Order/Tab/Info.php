@@ -63,7 +63,7 @@ class Info extends Template implements TabInterface
     private $lengowAction;
 
     /**
-     * @var LengowOrder Lengow order instance
+     * @var ?LengowOrder Lengow order instance
      */
     private $lengowOrder;
 
@@ -107,7 +107,7 @@ class Info extends Template implements TabInterface
      *
      * @return string
      */
-    public function getTabLabel()
+    public function getTabLabel(): string
     {
         return __('Lengow');
     }
@@ -117,7 +117,7 @@ class Info extends Template implements TabInterface
      *
      * @return string
      */
-    public function getTabTitle()
+    public function getTabTitle(): string
     {
         return __('Lengow');
     }
@@ -127,7 +127,7 @@ class Info extends Template implements TabInterface
      *
      * @return boolean
      */
-    public function canShowTab()
+    public function canShowTab(): bool
     {
         return true;
     }
@@ -137,7 +137,7 @@ class Info extends Template implements TabInterface
      *
      * @return boolean
      */
-    public function isHidden()
+    public function isHidden(): bool
     {
         return false;
     }
@@ -147,7 +147,7 @@ class Info extends Template implements TabInterface
      *
      * @return MagentoOrder
      */
-    public function getOrder()
+    public function getOrder(): MagentoOrder
     {
         return $this->coreRegistry->registry('current_order');
     }
@@ -155,7 +155,7 @@ class Info extends Template implements TabInterface
     /**
      * Get Lengow order by Magento order id
      *
-     * @return LengowOrder|false
+     * @return LengowOrder|null
      */
     public function getLengowOrder()
     {
@@ -163,7 +163,7 @@ class Info extends Template implements TabInterface
         if ($lengowOrderId) {
             return $this->lengowOrderFactory->create()->load($lengowOrderId);
         }
-        return false;
+        return null;
     }
 
     /**
@@ -171,7 +171,7 @@ class Info extends Template implements TabInterface
      *
      * @return integer
      */
-    public function getOrderId()
+    public function getOrderId(): int
     {
         return (int) $this->order->getId();
     }
@@ -181,7 +181,7 @@ class Info extends Template implements TabInterface
      *
      * @return string
      */
-    public function getOrderStatus()
+    public function getOrderStatus(): string
     {
         return $this->order->getStatus();
     }
@@ -191,7 +191,7 @@ class Info extends Template implements TabInterface
      *
      * @return string
      */
-    public function getOrderImportedDate()
+    public function getOrderImportedDate(): string
     {
         return $this->order->getStatusHistoryCollection()->getFirstItem()->getCreatedAt();
     }
@@ -211,7 +211,7 @@ class Info extends Template implements TabInterface
      *
      * @return boolean
      */
-    public function debugModeIsEnabled()
+    public function debugModeIsEnabled(): bool
     {
         return $this->configHelper->debugModeIsActive();
     }
@@ -221,7 +221,7 @@ class Info extends Template implements TabInterface
      *
      * @return boolean
      */
-    public function isOrderImportedByLengow()
+    public function isOrderImportedByLengow(): bool
     {
         return (bool) $this->order->getData('from_lengow');
     }
@@ -231,7 +231,7 @@ class Info extends Template implements TabInterface
      *
      * @return boolean
      */
-    public function isOrderFollowedByLengow()
+    public function isOrderFollowedByLengow(): bool
     {
         return (bool) $this->lengowOrder;
     }
@@ -241,7 +241,7 @@ class Info extends Template implements TabInterface
      *
      * @return boolean
      */
-    public function canReSendAction()
+    public function canReSendAction(): bool
     {
         if (!$this->lengowAction->getActionsByOrderId($this->getOrderId(), true)) {
             $orderStatus = $this->getOrderStatus();
@@ -263,7 +263,7 @@ class Info extends Template implements TabInterface
      *
      * @return array
      */
-    public function getFields()
+    public function getFields(): array
     {
         $fields = [];
         if ($this->lengowOrder) {

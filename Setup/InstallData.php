@@ -20,17 +20,20 @@
 
 namespace Lengow\Connector\Setup;
 
+use Exception;
 use Magento\Catalog\Model\Product;
 use Magento\Customer\Model\Customer;
 use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
+use Magento\Eav\Model\Entity\Attribute\Source\Boolean as EavBool;
 use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Framework\Setup\InstallDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Status;
 use Magento\Sales\Setup\SalesSetupFactory;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
@@ -42,32 +45,32 @@ class InstallData implements InstallDataInterface
     /**
      * @var EavSetupFactory Magento EAV setup factory instance
      */
-    private $_eavSetupFactory;
+    private $eavSetupFactory;
 
     /**
      * @var CustomerSetupFactory Magento customer setup factory instance
      */
-    private $_customerSetupFactory;
+    private $customerSetupFactory;
 
     /**
      * @var SalesSetupFactory Magento sales setup factory instance
      */
-    protected $_salesSetupFactory;
+    private $salesSetupFactory;
 
     /**
      * @var AttributeSetFactory
      */
-    private $_attributeSetFactory;
+    private $attributeSetFactory;
 
     /**
      * @var ObjectManagerInterface Magento object manager instance
      */
-    protected $_objectManager;
+    private $objectManager;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * Init
@@ -87,12 +90,12 @@ class InstallData implements InstallDataInterface
         ObjectManagerInterface $objectManager,
         ConfigHelper $configHelper
     ) {
-        $this->_eavSetupFactory = $eavSetupFactory;
-        $this->_customerSetupFactory = $customerSetupFactory;
-        $this->_salesSetupFactory = $salesSetupFactory;
-        $this->_attributeSetFactory = $attributeSetFactory;
-        $this->_objectManager = $objectManager;
-        $this->_configHelper = $configHelper;
+        $this->eavSetupFactory = $eavSetupFactory;
+        $this->customerSetupFactory = $customerSetupFactory;
+        $this->salesSetupFactory = $salesSetupFactory;
+        $this->attributeSetFactory = $attributeSetFactory;
+        $this->objectManager = $objectManager;
+        $this->configHelper = $configHelper;
     }
 
     /**
@@ -101,16 +104,16 @@ class InstallData implements InstallDataInterface
      * @param ModuleDataSetupInterface $setup Magento module data setup instance
      * @param ModuleContextInterface $context Magento module context instance
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return void
      */
     public function install(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
         $setup->startSetup();
-        $eavSetup = $this->_eavSetupFactory->create(['setup' => $setup]);
-        $customerSetup = $this->_customerSetupFactory->create(['resourceName' => 'customer_setup', 'setup' => $setup]);
-        $salesSetup = $this->_salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
+        $customerSetup = $this->customerSetupFactory->create(['resourceName' => 'customer_setup', 'setup' => $setup]);
+        $salesSetup = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
 
         // create attribute lengow_product for product
         $entityTypeId = $customerSetup->getEntityTypeId(Product::ENTITY);
@@ -146,7 +149,7 @@ class InstallData implements InstallDataInterface
         $entityTypeId = $customerSetup->getEntityTypeId(Customer::ENTITY);
         $customerEntity = $customerSetup->getEavConfig()->getEntityType('customer');
         $attributeSetId = $customerEntity->getDefaultAttributeSetId();
-        $attributeSet = $this->_attributeSetFactory->create();
+        $attributeSet = $this->attributeSetFactory->create();
         $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
         $fromLengowCustomer = $eavSetup->getAttribute($entityTypeId, 'from_lengow');
         if (!$fromLengowCustomer) {
@@ -164,7 +167,7 @@ class InstallData implements InstallDataInterface
                     'input' => 'select',
                     'system' => 0,
                     'user_defined' => true,
-                    'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
+                    'source' => EavBool::class,
                 ]
             );
             $fromLengowCustomer = $customerSetup->getEavConfig()
@@ -195,16 +198,16 @@ class InstallData implements InstallDataInterface
                 'default' => 0,
                 'input' => 'select',
                 'system' => 0,
-                'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
+                'source' => EavBool::class,
                 'grid' => true,
             ]
         );
 
         // set default attributes
-        $this->_configHelper->setDefaultAttributes();
+        $this->configHelper->setDefaultAttributes();
 
         // check if order state and status 'Lengow technical error' exists
-        $collections = $this->_objectManager->create('Magento\Sales\Model\Order\Status')
+        $collections = $this->objectManager->create(Status::class)
             ->getCollection()
             ->toOptionArray();
         $lengowTechnicalExists = false;
