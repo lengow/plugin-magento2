@@ -79,7 +79,7 @@ class Header extends Template
      */
     public function selectionIsEnabled(): bool
     {
-        return (bool) $this->configHelper->get(ConfigHelper::SELECTION_ENABLED, $this->store->getId());
+        return (bool) $this->configHelper->get(ConfigHelper::SELECTION_ENABLED, (int) $this->store->getId());
     }
 
     /**

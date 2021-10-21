@@ -164,12 +164,12 @@ class Shipping
         $this->shippingIsFixed = $shippingData['shipping_is_fixed'] ?? null;
         $this->shippingCountryCode = $this->configHelper->get(
             ConfigHelper::DEFAULT_EXPORT_SHIPPING_COUNTRY,
-            $this->store->getId()
+            (int) $this->store->getId()
         );
         $conversion = $this->currency !== $this->storeCurrency;
         $this->defaultShippingPrice = $this->configHelper->get(
             ConfigHelper::DEFAULT_EXPORT_SHIPPING_PRICE,
-            $this->store->getId()
+            (int) $this->store->getId()
         );
         if ($this->defaultShippingPrice !== null && $conversion) {
             $this->defaultShippingPrice = $this->priceCurrency->convertAndRound(
@@ -235,7 +235,10 @@ class Shipping
     private function getShippingData(): array
     {
         $shippingData = [];
-        $shippingMethod = $this->configHelper->get(ConfigHelper::DEFAULT_EXPORT_CARRIER_ID, $this->store->getId());
+        $shippingMethod = $this->configHelper->get(
+            ConfigHelper::DEFAULT_EXPORT_CARRIER_ID,
+            (int) $this->store->getId()
+        );
         if ($shippingMethod !== null) {
             $shippingMethod = explode('_', $shippingMethod);
             $carrier = $this->carrierFactory->get($shippingMethod[0]);

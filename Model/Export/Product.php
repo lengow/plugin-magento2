@@ -625,7 +625,7 @@ class Product
         // get product and parent images
         if ($this->parentProduct
             && $this->parentProduct->getMediaGalleryImages() !== null
-            && $this->configHelper->get(ConfigHelper::EXPORT_PARENT_IMAGE_ENABLED, $this->store->getId())
+            && $this->configHelper->get(ConfigHelper::EXPORT_PARENT_IMAGE_ENABLED, (int) $this->store->getId())
         ) {
             $parentImages = $this->parentProduct->getMediaGalleryImages()->toArray();
         }
