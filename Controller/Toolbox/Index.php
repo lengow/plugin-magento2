@@ -25,6 +25,7 @@ use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Helper\Toolbox as ToolboxHelper;
+use Lengow\Connector\Model\Connector as LengowConnector;
 
 /**
  * ToolboxController
@@ -34,22 +35,22 @@ class Index extends Action
     /**
      * @var JsonHelper Magento json helper instance
      */
-    protected $jsonHelper;
+    private $jsonHelper;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $configHelper;
+    private $configHelper;
 
     /**
      * @var SecurityHelper Lengow security helper instance
      */
-    protected $securityHelper;
+    private $securityHelper;
 
     /**
      * @var ToolboxHelper Lengow toolbox helper instance
      */
-    protected $toolboxHelper;
+    private $toolboxHelper;
 
     /**
      * Constructor
@@ -76,27 +77,73 @@ class Index extends Action
 
     /**
      * Get all plugin data for toolbox
+     *
+     * List params
+     * string  toolbox_action   Toolbox specific action
+     * string  type             Type of data to display
+     * string  created_from     Synchronization of orders since
+     * string  created_to       Synchronization of orders until
+     * string  date             Log date to download
+     * string  marketplace_name Lengow marketplace name to synchronize
+     * string  marketplace_sku  Lengow marketplace order id to synchronize
+     * string  process          Type of process for order action
+     * boolean force            Force synchronization order even if there are errors (1) or not (0)
+     * integer shop_id          Shop id to synchronize
+     * integer days             Synchronization interval time
      */
     public function execute()
     {
-        /**
-         * List params
-         * string toolbox_action toolbox specific action
-         * string type           type of data to display
-         * string date           date of the log to export
-         */
         $token = $this->getRequest()->getParam(ToolboxHelper::PARAM_TOKEN);
         if ($this->securityHelper->checkWebserviceAccess($token)) {
             // check if toolbox action is valid
-            $action = $this->getRequest()->getParam(ToolboxHelper::PARAM_TOOLBOX_ACTION) ?: ToolboxHelper::ACTION_DATA;
+            $action = $this->getRequest()->getParam(ToolboxHelper::PARAM_TOOLBOX_ACTION, ToolboxHelper::ACTION_DATA);
             if ($this->toolboxHelper->isToolboxAction($action)) {
                 switch ($action) {
                     case ToolboxHelper::ACTION_LOG:
                         $date = $this->getRequest()->getParam(ToolboxHelper::PARAM_DATE);
                         $this->toolboxHelper->downloadLog($date);
                         break;
+                    case ToolboxHelper::ACTION_ORDER:
+                        $process = $this->getRequest()
+                            ->getParam(ToolboxHelper::PARAM_PROCESS, ToolboxHelper::PROCESS_TYPE_SYNC);
+                        if ($process === ToolboxHelper::PROCESS_TYPE_GET_DATA) {
+                            $result = $this->toolboxHelper->getOrderData(
+                                $this->getRequest()->getParam(ToolboxHelper::PARAM_MARKETPLACE_SKU),
+                                $this->getRequest()->getParam(ToolboxHelper::PARAM_MARKETPLACE_NAME),
+                                $this->getRequest()->getParam(ToolboxHelper::PARAM_TYPE, ToolboxHelper::DATA_TYPE_ORDER)
+                            );
+                        } else {
+                            $result = $this->toolboxHelper->syncOrders(
+                                [
+                                    ToolboxHelper::PARAM_CREATED_TO => $this->getRequest()
+                                        ->getParam(ToolboxHelper::PARAM_CREATED_TO),
+                                    ToolboxHelper::PARAM_CREATED_FROM => $this->getRequest()
+                                        ->getParam(ToolboxHelper::PARAM_CREATED_FROM),
+                                    ToolboxHelper::PARAM_DAYS => $this->getRequest()
+                                        ->getParam(ToolboxHelper::PARAM_DAYS),
+                                    ToolboxHelper::PARAM_FORCE => $this->getRequest()
+                                        ->getParam(ToolboxHelper::PARAM_FORCE),
+                                    ToolboxHelper::PARAM_MARKETPLACE_NAME => $this->getRequest()
+                                        ->getParam(ToolboxHelper::PARAM_MARKETPLACE_NAME),
+                                    ToolboxHelper::PARAM_MARKETPLACE_SKU => $this->getRequest()
+                                        ->getParam(ToolboxHelper::PARAM_MARKETPLACE_SKU),
+                                    ToolboxHelper::PARAM_SHOP_ID => $this->getRequest()
+                                        ->getParam(ToolboxHelper::PARAM_SHOP_ID),
+                                ]
+                            );
+                        }
+                        if (isset($result[ToolboxHelper::ERRORS][ToolboxHelper::ERROR_CODE])) {
+                            $errorCode = $result[ToolboxHelper::ERRORS][ToolboxHelper::ERROR_CODE];
+                            if ($errorCode === LengowConnector::CODE_404) {
+                                $this->getResponse()->setStatusHeader(404, '1.1', 'Not Found');
+                            } else {
+                                $this->getResponse()->setStatusHeader(403, '1.1', 'Forbidden');
+                            }
+                        }
+                        $this->getResponse()->setBody($this->jsonHelper->jsonEncode($result));
+                        break;
                     default:
-                        $type = $this->getRequest()->getParam(ToolboxHelper::PARAM_TYPE);
+                        $type = $this->getRequest()->getParam(ToolboxHelper::PARAM_TYPE, ToolboxHelper::DATA_TYPE_CMS);
                         $this->getResponse()->setBody(
                             $this->jsonHelper->jsonEncode($this->toolboxHelper->getData($type))
                         );

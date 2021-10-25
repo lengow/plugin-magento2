@@ -22,6 +22,7 @@ namespace Lengow\Connector\Controller\Adminhtml\Product;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Catalog\Model\Product\Action as ProductAction;
+use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
@@ -33,32 +34,32 @@ class Index extends Action
     /**
      * @var ProductAction Magento product action instance
      */
-    protected $_productAction;
+    private $productAction;
 
     /**
      * @var JsonFactory Magento json factory instance
      */
-    protected $_resultJsonFactory;
+    private $resultJsonFactory;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * @var SyncHelper Lengow sync helper instance
      */
-    protected $_syncHelper;
+    private $syncHelper;
 
     /**
      * @var LengowExport Lengow export instance
      */
-    protected $_export;
+    private $export;
 
     /**
      * Constructor
@@ -80,90 +81,88 @@ class Index extends Action
         SyncHelper $syncHelper,
         LengowExport $export
     ) {
-        $this->_productAction = $productAction;
-        $this->_resultJsonFactory = $resultJsonFactory;
-        $this->_configHelper = $configHelper;
-        $this->_dataHelper = $dataHelper;
-        $this->_syncHelper = $syncHelper;
-        $this->_export = $export;
+        $this->productAction = $productAction;
+        $this->resultJsonFactory = $resultJsonFactory;
+        $this->configHelper = $configHelper;
+        $this->dataHelper = $dataHelper;
+        $this->syncHelper = $syncHelper;
+        $this->export = $export;
         parent::__construct($context);
     }
 
     /**
      * Index action
      *
-     * @return mixed
+     * @return Json|void
      */
     public function execute()
     {
-        if ($this->_syncHelper->pluginIsBlocked()) {
+        if ($this->syncHelper->pluginIsBlocked()) {
             $this->_redirect('lengow/home/index');
-        } else {
-            if ($this->getRequest()->getParam('isAjax')) {
-                $action = $this->getRequest()->getParam('action');
-                if ($action) {
-                    switch ($action) {
-                        case 'change_option_selected':
-                            $state = $this->getRequest()->getParam('state');
-                            $storeId = $this->getRequest()->getParam('store_id');
-                            if ($state !== null) {
-                                $oldValue = $this->_configHelper->get(ConfigHelper::SELECTION_ENABLED, $storeId);
-                                $this->_configHelper->set(ConfigHelper::SELECTION_ENABLED, $state, $storeId);
-                                // clean config cache to valid configuration
-                                $this->_configHelper->cleanConfigCache();
-                                $this->_dataHelper->log(
-                                    DataHelper::CODE_SETTING,
-                                    $this->_dataHelper->setLogMessage(
-                                        '%1 - old value %2 replaced with %3 for store %4',
-                                        [
-                                            'lengow_export_options/simple/export_selection_enable',
-                                            $oldValue,
-                                            $state,
-                                            $storeId,
-                                        ]
-                                    )
-                                );
-                                $this->_export->init([
-                                    LengowExport::PARAM_STORE_ID => $storeId,
-                                    LengowExport::PARAM_SELECTION => $state,
-                                ]);
-                                return $this->_resultJsonFactory->create()->setData(
+        } elseif ($this->getRequest()->getParam('isAjax')) {
+            $action = $this->getRequest()->getParam('action');
+            if ($action) {
+                switch ($action) {
+                    case 'change_option_selected':
+                        $state = $this->getRequest()->getParam('state');
+                        $storeId = (int) $this->getRequest()->getParam('store_id');
+                        if ($state !== null) {
+                            $oldValue = $this->configHelper->get(ConfigHelper::SELECTION_ENABLED, $storeId);
+                            $this->configHelper->set(ConfigHelper::SELECTION_ENABLED, $state, $storeId);
+                            // clean config cache to valid configuration
+                            $this->configHelper->cleanConfigCache();
+                            $this->dataHelper->log(
+                                DataHelper::CODE_SETTING,
+                                $this->dataHelper->setLogMessage(
+                                    '%1 - old value %2 replaced with %3 for store %4',
                                     [
-                                        'state' => $state,
-                                        'exported' => $this->_export->getTotalExportProduct(),
-                                        'total' => $this->_export->getTotalProduct(),
+                                        'lengow_export_options/simple/export_selection_enable',
+                                        $oldValue,
+                                        $state,
+                                        $storeId,
                                     ]
-                                );
-                            }
-                            break;
-                        case 'lengow_export_product':
-                            $storeId = $this->getRequest()->getParam('store_id');
-                            $state = $this->getRequest()->getParam('state');
-                            $productId = $this->getRequest()->getParam('product_id');
-                            if ($state !== null) {
-                                $this->_productAction->updateAttributes(
-                                    [$productId],
-                                    ['lengow_product' => $state],
-                                    $storeId
-                                );
-                                $this->_export->init([
-                                    LengowExport::PARAM_STORE_ID => $storeId,
-                                    LengowExport::PARAM_SELECTION => 1,
-                                ]);
-                                return $this->_resultJsonFactory->create()->setData(
-                                    [
-                                        'exported' => $this->_export->getTotalExportProduct(),
-                                        'total' => $this->_export->getTotalProduct(),
-                                    ]
-                                );
-                            }
-                            break;
-                    }
+                                )
+                            );
+                            $this->export->init([
+                                LengowExport::PARAM_STORE_ID => $storeId,
+                                LengowExport::PARAM_SELECTION => $state,
+                            ]);
+                            return $this->resultJsonFactory->create()->setData(
+                                [
+                                    'state' => $state,
+                                    'exported' => $this->export->getTotalExportProduct(),
+                                    'total' => $this->export->getTotalProduct(),
+                                ]
+                            );
+                        }
+                        break;
+                    case 'lengow_export_product':
+                        $storeId = (int) $this->getRequest()->getParam('store_id');
+                        $state = $this->getRequest()->getParam('state');
+                        $productId = $this->getRequest()->getParam('product_id');
+                        if ($state !== null) {
+                            $this->productAction->updateAttributes(
+                                [$productId],
+                                ['lengow_product' => $state],
+                                $storeId
+                            );
+                            $this->export->init([
+                                LengowExport::PARAM_STORE_ID => $storeId,
+                                LengowExport::PARAM_SELECTION => 1,
+                            ]);
+                            return $this->resultJsonFactory->create()->setData(
+                                [
+                                    'exported' => $this->export->getTotalExportProduct(),
+                                    'total' => $this->export->getTotalProduct(),
+                                ]
+                            );
+                        }
+                        break;
                 }
-            } else {
-                $this->_view->loadLayout();
-                $this->_view->renderLayout();
             }
+        } else {
+            $this->_view->loadLayout();
+            $this->_view->renderLayout();
         }
     }
 }

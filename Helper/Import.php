@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Helper;
 
+use Exception;
 use Magento\Backend\Model\UrlInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
@@ -32,11 +33,17 @@ use Lengow\Connector\Model\Import\Marketplace as LengowMarketplace;
 use Lengow\Connector\Model\Import\MarketplaceFactory as LengowMarketplaceFactory;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
+use Lengow\Connector\Model\Import\Ordererror as LengowOrderError;
 use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
 use Lengow\Connector\Model\Exception as LengowException;
 
 class Import extends AbstractHelper
 {
+    /**
+     * @var integer interval of minutes for cron synchronisation
+     */
+    const MINUTE_INTERVAL_TIME = 1;
+
     /**
      * @var array marketplaces collection
      */
@@ -45,47 +52,47 @@ class Import extends AbstractHelper
     /**
      * @var UrlInterface Backend url interface
      */
-    protected $_urlBackend;
+    private $urlBackend;
 
     /**
      * @var DateTime Magento datetime instance
      */
-    protected $_dateTime;
+    private $dateTime;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * @var syncHelper Lengow sync helper instance
      */
-    protected $syncHelper;
+    private $syncHelper;
 
     /**
      * @var LengowMarketplaceFactory Lengow marketplace factory instance
      */
-    protected $_marketplaceFactory;
+    private $marketplaceFactory;
 
     /**
      * @var LengowOrderFactory Lengow import order factory instance
      */
-    protected $_orderFactory;
+    private $orderFactory;
 
     /**
      * @var LengowOrderErrorFactory Lengow order error factory instance
      */
-    protected $_orderErrorFactory;
+    private $orderErrorFactory;
 
     /**
      * @var array valid states lengow to create a Lengow order
      */
-    protected $_lengowStates = [
+    private $lengowStates = [
         LengowOrder::STATE_WAITING_SHIPMENT,
         LengowOrder::STATE_SHIPPED,
         LengowOrder::STATE_CLOSED,
@@ -99,8 +106,8 @@ class Import extends AbstractHelper
      * @param DataHelper $dataHelper Lengow data helper instance
      * @param ConfigHelper $configHelper Lengow config helper instance
      * @param SyncHelper $syncHelper Lengow sync helper instance
-     * @param DateTime $dateTime Magento datetime instance
      * @param LengowOrderErrorFactory $orderErrorFactory Lengow order error factory instance
+     * @param DateTime $dateTime Magento datetime instance
      * @param LengowMarketplaceFactory $marketplaceFactory Lengow marketplace factory instance
      * @param LengowOrderFactory $lengowOrder Lengow import order factory instance
      */
@@ -115,14 +122,14 @@ class Import extends AbstractHelper
         LengowMarketplaceFactory $marketplaceFactory,
         LengowOrderFactory $lengowOrder
     ) {
-        $this->_urlBackend = $urlBackend;
-        $this->_configHelper = $configHelper;
-        $this->_dataHelper = $dataHelper;
+        $this->urlBackend = $urlBackend;
+        $this->configHelper = $configHelper;
+        $this->dataHelper = $dataHelper;
         $this->syncHelper = $syncHelper;
-        $this->_dateTime = $dateTime;
-        $this->_orderErrorFactory = $orderErrorFactory;
-        $this->_marketplaceFactory = $marketplaceFactory;
-        $this->_orderFactory = $lengowOrder;
+        $this->dateTime = $dateTime;
+        $this->orderErrorFactory = $orderErrorFactory;
+        $this->marketplaceFactory = $marketplaceFactory;
+        $this->orderFactory = $lengowOrder;
         parent::__construct($context);
     }
 
@@ -131,12 +138,12 @@ class Import extends AbstractHelper
      *
      * @return boolean
      */
-    public function isInProcess()
+    public function isInProcess(): bool
     {
-        $timestamp = $this->_configHelper->get(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS);
+        $timestamp = $this->configHelper->get(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS);
         if ($timestamp > 0) {
             // security check : if last import is more than 60 seconds old => authorize new import to be launched
-            if (($timestamp + (60 * 1)) < time()) {
+            if (($timestamp + (60 * self::MINUTE_INTERVAL_TIME)) < time()) {
                 $this->setImportEnd();
                 return false;
             }
@@ -146,15 +153,15 @@ class Import extends AbstractHelper
     }
 
     /**
-     * Get Rest time to make re import order
+     * Get Rest time to make re-import order
      *
      * @return boolean
      */
     public function restTimeToImport()
     {
-        $timestamp = $this->_configHelper->get(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS);
+        $timestamp = $this->configHelper->get(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS);
         if ($timestamp > 0) {
-            return $timestamp + (60 * 1) - time();
+            return $timestamp + (60 * self::MINUTE_INTERVAL_TIME) - time();
         }
         return false;
     }
@@ -164,7 +171,7 @@ class Import extends AbstractHelper
      */
     public function setImportInProcess()
     {
-        $this->_configHelper->set(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS, time());
+        $this->configHelper->set(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS, time());
     }
 
     /**
@@ -172,7 +179,7 @@ class Import extends AbstractHelper
      */
     public function setImportEnd()
     {
-        $this->_configHelper->set(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS, -1);
+        $this->configHelper->set(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS, -1);
     }
 
     /**
@@ -182,17 +189,17 @@ class Import extends AbstractHelper
      *
      * @return boolean
      */
-    public function updateDateImport($type)
+    public function updateDateImport(string $type): bool
     {
         if ($type === LengowImport::TYPE_CRON || $type === LengowImport::TYPE_MAGENTO_CRON) {
-            $this->_configHelper->set(
+            $this->configHelper->set(
                 ConfigHelper::LAST_UPDATE_CRON_SYNCHRONIZATION,
-                $this->_dateTime->gmtTimestamp()
+                $this->dateTime->gmtTimestamp()
             );
         } else {
-            $this->_configHelper->set(
+            $this->configHelper->set(
                 ConfigHelper::LAST_UPDATE_MANUAL_SYNCHRONIZATION,
-                $this->_dateTime->gmtTimestamp()
+                $this->dateTime->gmtTimestamp()
             );
         }
         return true;
@@ -203,10 +210,10 @@ class Import extends AbstractHelper
      *
      * @return array
      */
-    public function getLastImport()
+    public function getLastImport(): array
     {
-        $timestampCron = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_CRON_SYNCHRONIZATION);
-        $timestampManual = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_MANUAL_SYNCHRONIZATION);
+        $timestampCron = $this->configHelper->get(ConfigHelper::LAST_UPDATE_CRON_SYNCHRONIZATION);
+        $timestampManual = $this->configHelper->get(ConfigHelper::LAST_UPDATE_MANUAL_SYNCHRONIZATION);
         if ($timestampCron && $timestampManual) {
             if ((int) $timestampCron > (int) $timestampManual) {
                 return ['type' => LengowImport::TYPE_CRON, 'timestamp' => (int) $timestampCron];
@@ -228,16 +235,16 @@ class Import extends AbstractHelper
      *
      * @return string
      */
-    public function getLastImportDatePrint()
+    public function getLastImportDatePrint(): string
     {
         $lastImport = $this->getLastImport();
         if ($lastImport['type'] !== 'none') {
-            $lastImportDate = $this->_dataHelper->getDateInCorrectFormat($lastImport['timestamp']);
-            return $this->_dataHelper->decodeLogMessage(
-                $this->_dataHelper->setLogMessage('Last synchronisation : %1', ['<b>' . $lastImportDate . '</b>'])
+            $lastImportDate = $this->dataHelper->getDateInCorrectFormat($lastImport['timestamp']);
+            return $this->dataHelper->decodeLogMessage(
+                $this->dataHelper->setLogMessage('Last synchronisation : %1', ['<b>' . $lastImportDate . '</b>'])
             );
         }
-        return $this->_dataHelper->decodeLogMessage($this->_dataHelper->setLogMessage('No synchronisation for now'));
+        return $this->dataHelper->decodeLogMessage($this->dataHelper->setLogMessage('No synchronisation for now'));
     }
 
     /**
@@ -245,27 +252,27 @@ class Import extends AbstractHelper
      *
      * @return string
      */
-    public function getOrderWithErrorPrint()
+    public function getOrderWithErrorPrint(): string
     {
-        return $this->_dataHelper->decodeLogMessage(
-            $this->_dataHelper->setLogMessage(
+        return $this->dataHelper->decodeLogMessage(
+            $this->dataHelper->setLogMessage(
                 'You have %1 order(s) with errors',
-                [$this->_orderFactory->create()->countOrderWithError()]
+                [$this->orderFactory->create()->countOrderWithError()]
             )
         );
     }
 
     /**
-     * Get number orders to sent to print
+     * Get number orders to send to print
      *
      * @return string
      */
-    public function getOrderToBeSentPrint()
+    public function getOrderToBeSentPrint(): string
     {
-        return $this->_dataHelper->decodeLogMessage(
-            $this->_dataHelper->setLogMessage(
+        return $this->dataHelper->decodeLogMessage(
+            $this->dataHelper->setLogMessage(
                 'You have %1 order(s) waiting to be sent',
-                [$this->_orderFactory->create()->countOrderToBeSent()]
+                [$this->orderFactory->create()->countOrderToBeSent()]
             )
         );
     }
@@ -275,24 +282,24 @@ class Import extends AbstractHelper
      *
      * @return string
      */
-    public function getReportMailPrint()
+    public function getReportMailPrint(): string
     {
         $reportMailPrint = '';
-        $reportMailActive = (bool) $this->_configHelper->get(ConfigHelper::REPORT_MAIL_ENABLED);
-        $reportMailLink = $this->_urlBackend->getUrl('adminhtml/system_config/edit/section/lengow_import_options/');
-        $reportMails = $this->_configHelper->getReportEmailAddress();
+        $reportMailActive = (bool) $this->configHelper->get(ConfigHelper::REPORT_MAIL_ENABLED);
+        $reportMailLink = $this->urlBackend->getUrl('adminhtml/system_config/edit/section/lengow_import_options/');
+        $reportMails = $this->configHelper->getReportEmailAddress();
         if ($reportMailActive) {
-            $reportMailPrint .= $this->_dataHelper->decodeLogMessage(
-                $this->_dataHelper->setLogMessage('All order issue reports will be sent by mail to')
+            $reportMailPrint .= $this->dataHelper->decodeLogMessage(
+                $this->dataHelper->setLogMessage('All order issue reports will be sent by mail to')
             );
             $reportMailPrint .= ' ' . implode(', ', $reportMails);
         } else {
-            $reportMailPrint .= $this->_dataHelper->decodeLogMessage(
-                $this->_dataHelper->setLogMessage('No order issue reports will be sent by mail')
+            $reportMailPrint .= $this->dataHelper->decodeLogMessage(
+                $this->dataHelper->setLogMessage('No order issue reports will be sent by mail')
             );
         }
         $reportMailPrint .= ' (<a href="' . $reportMailLink . '">';
-        $reportMailPrint .= $this->_dataHelper->decodeLogMessage($this->_dataHelper->setLogMessage('Change this?'));
+        $reportMailPrint .= $this->dataHelper->decodeLogMessage($this->dataHelper->setLogMessage('Change this?'));
         $reportMailPrint .= '</a>)';
         return $reportMailPrint;
     }
@@ -302,14 +309,14 @@ class Import extends AbstractHelper
      *
      * @param string $name marketplace name
      *
-     * @throws LengowException
-     *
      * @return LengowMarketplace
+     *
+     * @throws LengowException
      */
-    public function getMarketplaceSingleton($name)
+    public function getMarketplaceSingleton(string $name): LengowMarketplace
     {
         if (!array_key_exists($name, self::$marketplaces)) {
-            $marketplace = $this->_marketplaceFactory->create();
+            $marketplace = $this->marketplaceFactory->create();
             $marketplace->init(['name' => $name]);
             self::$marketplaces[$name] = $marketplace;
         }
@@ -324,12 +331,12 @@ class Import extends AbstractHelper
      *
      * @return boolean
      */
-    public function checkState($orderStateMarketplace, $marketplace)
+    public function checkState(string $orderStateMarketplace, LengowMarketplace $marketplace): bool
     {
         if (empty($orderStateMarketplace)) {
             return false;
         }
-        if (!in_array($marketplace->getStateLengow($orderStateMarketplace), $this->_lengowStates, true)) {
+        if (!in_array($marketplace->getStateLengow($orderStateMarketplace), $this->lengowStates, true)) {
             return false;
         }
         return true;
@@ -340,33 +347,37 @@ class Import extends AbstractHelper
      *
      * @param boolean $logOutput see log or not
      */
-    public function sendMailAlert($logOutput = false)
+    public function sendMailAlert(bool $logOutput = false)
     {
         // recovery of all errors not yet sent by email
-        $errors = $this->_orderErrorFactory->create()->getOrderErrorsNotSent();
+        $errors = $this->orderErrorFactory->create()->getOrderErrorsNotSent();
         if ($errors) {
             // construction of the report e-mail
-            $subject = $this->_dataHelper->decodeLogMessage('Lengow imports errors');
+            $subject = $this->dataHelper->decodeLogMessage('Lengow imports errors');
             $pluginLinks = $this->syncHelper->getPluginLinks();
-            $support = $this->_dataHelper->decodeLogMessage(
+            $support = $this->dataHelper->decodeLogMessage(
                 'no error message, contact support via %1',
                 true,
                 [$pluginLinks[SyncHelper::LINK_TYPE_SUPPORT]]
             );
             $mailBody = '<h2>' . $subject . '</h2><p><ul>';
             foreach ($errors as $error) {
-                $order = $this->_dataHelper->decodeLogMessage('Order %1', true, [$error['marketplace_sku']]);
-                $message = $error['message'] !== ''
-                    ? $this->_dataHelper->decodeLogMessage($error['message'])
+                $order = $this->dataHelper->decodeLogMessage(
+                    'Order %1',
+                    true,
+                    [$error[LengowOrder::FIELD_MARKETPLACE_SKU]]
+                );
+                $message = $error[LengowOrderError::FIELD_MESSAGE] !== ''
+                    ? $this->dataHelper->decodeLogMessage($error[LengowOrderError::FIELD_MESSAGE])
                     : $support;
                 $mailBody .= '<li>' . $order . ' - ' . $message . '</li>';
-                $orderError = $this->_orderErrorFactory->create()->load((int) $error['id']);
-                $orderError->updateOrderError(['mail' => 1]);
+                $orderError = $this->orderErrorFactory->create()->load((int) $error[LengowOrderError::FIELD_ID]);
+                $orderError->updateOrderError([LengowOrderError::FIELD_MAIL => 1]);
                 unset($orderError, $order, $message);
             }
             $mailBody .= '</ul></p>';
             // send an email foreach email address
-            $emails = $this->_configHelper->getReportEmailAddress();
+            $emails = $this->configHelper->getReportEmailAddress();
             foreach ($emails as $email) {
                 if ($email !== '') {
                     try {
@@ -382,15 +393,15 @@ class Import extends AbstractHelper
                         );
                         $mail->addTo($email);
                         $mail->send();
-                        $this->_dataHelper->log(
+                        $this->dataHelper->log(
                             DataHelper::CODE_MAIL_REPORT,
-                            $this->_dataHelper->setLogMessage('report email sent to %1', [$email]),
+                            $this->dataHelper->setLogMessage('report email sent to %1', [$email]),
                             $logOutput
                         );
-                    } catch (\Exception $e) {
-                        $this->_dataHelper->log(
+                    } catch (Exception $e) {
+                        $this->dataHelper->log(
                             DataHelper::CODE_MAIL_REPORT,
-                            $this->_dataHelper->setLogMessage('unable to send report email to %1', [$email]),
+                            $this->dataHelper->setLogMessage('unable to send report email to %1', [$email]),
                             $logOutput
                         );
                     }

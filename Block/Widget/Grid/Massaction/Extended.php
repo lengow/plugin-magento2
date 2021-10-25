@@ -19,51 +19,17 @@
 
 namespace Lengow\Connector\Block\Widget\Grid\Massaction;
 
-use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Block\Widget\Grid\Massaction\Extended as MagentoMassactionExtended;
-use Magento\Backend\Helper\Data as BackendHelper;
 use Magento\Framework\Data\Collection;
-use Magento\Framework\Json\EncoderInterface;
 
-/**
- * Class Extended
- * @package Lengow\Connector\Block\Widget\Grid\Massaction
- */
 class Extended extends MagentoMassactionExtended
 {
     /**
-     * Backend data
+     * Override MagentoMassactionExtended::getGridIdsJson
      *
-     * @var BackendHelper Magento backend helper instance
-     */
-    protected $_backendData = null;
-
-    /**
-     * @var EncoderInterface Magento json encoder interface instance
-     */
-    protected $_jsonEncoder;
-
-    /**
-     * @param Context $context Magento context instance
-     * @param EncoderInterface $jsonEncoder Magento json encoder interface instance
-     * @param BackendHelper $backendData Magento backend helper instance
-     * @param array $data
-     */
-    public function __construct(
-        Context $context,
-        EncoderInterface $jsonEncoder,
-        BackendHelper $backendData,
-        array $data = []
-    ) {
-        $this->_jsonEncoder = $jsonEncoder;
-        $this->_backendData = $backendData;
-        parent::__construct($context, $jsonEncoder, $backendData, $data);
-    }
-
-    /**
      * @return string
      */
-    public function getGridIdsJson()
+    public function getGridIdsJson(): string
     {
         if (!$this->getUseSelectAll()) {
             return '';
@@ -74,7 +40,7 @@ class Extended extends MagentoMassactionExtended
         $gridIds = $allIdsCollection->clear()->setPageSize(0)->getAllIds();
 
         if (!empty($gridIds)) {
-            return join(',', $gridIds);
+            return implode(',', $gridIds);
         }
         return '';
     }

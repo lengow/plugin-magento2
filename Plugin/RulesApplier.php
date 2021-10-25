@@ -33,18 +33,18 @@ use Magento\SalesRule\Model\ResourceModel\Rule\Collection as RuleCollection;
 class RulesApplier
 {
     /**
-     * @var BackendSession $_backendSession Backend session instance
+     * @var BackendSession Backend session instance
      */
-    protected $backendSession;
+    private $backendSession;
 
     /**
      * @var RuleCollectionFactory Magento Rule Factory
      */
-    protected $ruleFactory;
+    private $ruleFactory;
 
     /**
-     * @param BackendSession $backendSession Backend session instance
      * @param RuleCollectionFactory $rulesFactory Magento Rules Factory
+     * @param BackendSession $backendSession Backend session instance
      */
     public function __construct(
         RuleCollectionFactory $rulesFactory,
@@ -61,7 +61,7 @@ class RulesApplier
      * @param \Magento\SalesRule\Model\RulesApplier $subject Magento RulesApplier base class
      * @param Closure $proceed Callable (have to be called otherwise magento prevent the execution of the next plugins)
      * @param AbstractItem $item Magento Abstract Item representing a Quote
-     * @param RuleCollection $rules Magento RuleColletion assigned to the Quote
+     * @param RuleCollection $rules Magento RuleCollection assigned to the Quote
      * @param bool $skipValidation Magento option to skip rule validation
      * @param mixed $couponCode Magento Coupon Code
      *

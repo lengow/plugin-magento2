@@ -29,7 +29,7 @@ class Image extends AbstractRenderer
     /**
      * @var ImageHelper Magento image helper instance
      */
-    protected $imageHelper;
+    private $imageHelper;
 
     /**
      * Constructor
@@ -53,9 +53,9 @@ class Image extends AbstractRenderer
      *
      * @param DataObject $row Magento data object instance
      *
-     * @return  string
+     * @return string
      */
-    public function render(DataObject $row)
+    public function render(DataObject $row): string
     {
         $image = 'product_listing_thumbnail';
         $imageUrl = $this->imageHelper->init($row, $image)->getUrl();

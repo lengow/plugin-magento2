@@ -20,6 +20,7 @@
 namespace Lengow\Connector\Model\ResourceModel\Log;
 
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
+use Lengow\Connector\Model\Log;
 
 class Collection extends AbstractCollection
 {
@@ -31,8 +32,8 @@ class Collection extends AbstractCollection
     public function _construct()
     {
         $this->_init(
-            'Lengow\Connector\Model\Log',
-            'Lengow\Connector\Model\ResourceModel\Log'
+            Log::class,
+            \Lengow\Connector\Model\ResourceModel\Log::class
         );
     }
 }

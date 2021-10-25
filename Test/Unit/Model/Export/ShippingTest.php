@@ -107,7 +107,7 @@ class ShippingTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export\Shipping::_getShippingData
+     * @covers \Lengow\Connector\Model\Export\Shipping::getShippingData
      */
     public function testGetShippingData()
     {

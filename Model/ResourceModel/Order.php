@@ -20,6 +20,7 @@
 namespace Lengow\Connector\Model\ResourceModel;
 
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class Order extends AbstractDb
 {
@@ -30,6 +31,6 @@ class Order extends AbstractDb
      */
     protected function _construct()
     {
-        $this->_init('lengow_order', 'id');
+        $this->_init(LengowOrder::TABLE_ORDER, LengowOrder::FIELD_ID);
     }
 }

@@ -28,7 +28,7 @@ class Tracking implements ArrayInterface
      *
      * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         return [
             ['value' => 'sku', 'label' => __('Sku')],

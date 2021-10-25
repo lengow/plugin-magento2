@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Exception;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
@@ -27,29 +28,49 @@ use Lengow\Connector\Model\ResourceModel\Orderline\CollectionFactory as LengowOr
 use Lengow\Connector\Model\ResourceModel\Orderline as LengowOrderLineResource;
 
 /**
- * Model import orderline
+ * Model import order line
  */
 class Orderline extends AbstractModel
 {
     /**
+     * @var string Lengow order line table name
+     */
+    const TABLE_ORDER_LINE = 'lengow_order_line';
+
+    /* Order line fields */
+    const FIELD_ID = 'id';
+    const FIELD_ORDER_ID = 'order_id';
+    const FIELD_PRODUCT_ID = 'product_id';
+    const FIELD_ORDER_LINE_ID = 'order_line_id';
+
+    /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
-     * @var LengowOrderLineCollectionFactory Lengow orderline collection factory instance
+     * @var LengowOrderLineCollectionFactory Lengow order line collection factory instance
      */
-    protected $_orderLineCollectionFactory;
+    private $lengowOrderLineCollectionFactory;
 
     /**
-     * @var array $_fieldList field list for the table lengow_order_line
+     * @var array field list for the table lengow_order_line
      * required => Required fields when creating registration
      * update   => Fields allowed when updating registration
      */
-    protected $_fieldList = [
-        'order_id' => ['required' => true, 'updated' => false],
-        'product_id' => ['required' => true, 'updated' => false],
-        'order_line_id' => ['required' => true, 'updated' => false],
+    private $fieldList = [
+        self::FIELD_ORDER_ID => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_PRODUCT_ID => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_ORDER_LINE_ID => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
     ];
 
     /**
@@ -58,17 +79,17 @@ class Orderline extends AbstractModel
      * @param Context $context Magento context instance
      * @param Registry $registry Magento registry instance
      * @param DataHelper $dataHelper Lengow data helper instance
-     * @param LengowOrderLineCollectionFactory $orderLineCollectionFactory Lengow orderline collection factory instance
+     * @param LengowOrderLineCollectionFactory $lengowOrderLineCollectionFactory Lengow order line collection instance
      */
     public function __construct(
         Context $context,
         Registry $registry,
         DataHelper $dataHelper,
-        LengowOrderLineCollectionFactory $orderLineCollectionFactory
+        LengowOrderLineCollectionFactory $lengowOrderLineCollectionFactory
     ) {
         parent::__construct($context, $registry);
-        $this->_dataHelper = $dataHelper;
-        $this->_orderLineCollectionFactory = $orderLineCollectionFactory;
+        $this->dataHelper = $dataHelper;
+        $this->lengowOrderLineCollectionFactory = $lengowOrderLineCollectionFactory;
     }
 
     /**
@@ -84,14 +105,14 @@ class Orderline extends AbstractModel
     /**
      * Create Lengow order line
      *
-     * @param array $params orderline parameters
+     * @param array $params order line parameters
      *
      * @return Orderline|false
      */
-    public function createOrderLine($params = [])
+    public function createOrderLine(array $params = [])
     {
-        foreach ($this->_fieldList as $key => $value) {
-            if (!array_key_exists($key, $params) && $value['required']) {
+        foreach ($this->fieldList as $key => $value) {
+            if (!array_key_exists($key, $params) && $value[DataHelper::FIELD_REQUIRED]) {
                 return false;
             }
         }
@@ -100,11 +121,11 @@ class Orderline extends AbstractModel
         }
         try {
             return $this->save();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
-            $this->_dataHelper->log(
+            $this->dataHelper->log(
                 DataHelper::CODE_ORM,
-                $this->_dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
+                $this->dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
             );
             return false;
         }
@@ -117,11 +138,11 @@ class Orderline extends AbstractModel
      *
      * @return array|false
      */
-    public function getOrderLineByOrderID($orderId)
+    public function getOrderLineByOrderID(int $orderId)
     {
-        $results = $this->_orderLineCollectionFactory->create()
-            ->addFieldToFilter('order_id', $orderId)
-            ->addFieldToSelect('order_line_id')
+        $results = $this->lengowOrderLineCollectionFactory->create()
+            ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)
+            ->addFieldToSelect(self::FIELD_ORDER_LINE_ID)
             ->getData();
         if (!empty($results)) {
             return $results;

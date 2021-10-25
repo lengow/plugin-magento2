@@ -28,7 +28,7 @@ class Type implements ArrayInterface
      *
      * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         return [
             ['value' => 'configurable', 'label' => __('Configurable')],

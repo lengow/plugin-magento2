@@ -47,27 +47,27 @@ class Content extends Template
     /**
      * @var ScheduleCollection Magento schedule collection factory
      */
-    protected $scheduleCollection;
+    private $scheduleCollection;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $configHelper;
+    private $configHelper;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $dataHelper;
+    private $dataHelper;
 
     /**
      * @var ImportHelper Lengow import helper instance
      */
-    protected $importHelper;
+    private $importHelper;
 
     /**
      * @var ToolboxHelper Lengow toolbox helper instance
      */
-    protected $toolboxHelper;
+    private $toolboxHelper;
 
     /**
      * Constructor
@@ -262,7 +262,7 @@ class Content extends Template
      *
      * @return string
      */
-    public function getExportInformation()
+    public function getExportInformation(): string
     {
         $content = '';
         $exportData = $this->toolboxHelper->getData(ToolboxHelper::DATA_TYPE_SHOP);
@@ -282,7 +282,7 @@ class Content extends Template
                 ],
                 [
                     self::DATA_TITLE => __('Lengow catalogs id synchronized'),
-                    self::DATA_MESSAGE => implode (', ' , $data[ToolboxHelper::SHOP_CATALOG_IDS]),
+                    self::DATA_MESSAGE => implode(', ', $data[ToolboxHelper::SHOP_CATALOG_IDS]),
                 ],
                 [
                     self::DATA_TITLE => __('Products available in the store'),
@@ -315,7 +315,7 @@ class Content extends Template
      *
      * @return string
      */
-    public function getFileInformation()
+    public function getFileInformation(): string
     {
         $content = '';
         $stores = $this->configHelper->getAllStore();
@@ -354,7 +354,7 @@ class Content extends Template
      *
      * @return string
      */
-    public function getCronInformation($type)
+    public function getCronInformation(string $type): string
     {
         $jobCode = $type === 'import' ? self::CRON_JOB_IMPORT : self::CRON_JOB_EXPORT;
         $lengowCronJobs = $this->scheduleCollection->create()
@@ -369,7 +369,7 @@ class Content extends Template
      *
      * @return string
      */
-    public function checkFileMd5()
+    public function checkFileMd5(): string
     {
         $checklist = [];
         $checksumData = $this->toolboxHelper->getData(ToolboxHelper::DATA_TYPE_CHECKSUM);
@@ -436,10 +436,10 @@ class Content extends Template
      *
      * @return string
      */
-    private function getContent($checklist = [])
+    private function getContent(array $checklist = []): string
     {
         if (empty($checklist)) {
-            return null;
+            return '';
         }
         $out = '<table cellpadding="0" cellspacing="0">';
         foreach ($checklist as $check) {
@@ -482,7 +482,7 @@ class Content extends Template
      *
      * @return string
      */
-    private function getCronContent($lengowCronJobs = [])
+    private function getCronContent(array $lengowCronJobs = []): string
     {
         $out = '<table cellpadding="0" cellspacing="0" style="text-align: left">';
         if (empty($lengowCronJobs)) {

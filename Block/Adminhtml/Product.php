@@ -19,7 +19,9 @@
 
 namespace Lengow\Connector\Block\Adminhtml;
 
-class Product extends \Magento\Backend\Block\Widget\Grid\Container
+use Magento\Backend\Block\Widget\Grid\Container as MagentoContainer;
+
+class Product extends MagentoContainer
 {
     /**
      * Constructor

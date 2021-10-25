@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Exception;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DB\Transaction;
 use Magento\Framework\Model\AbstractModel;
@@ -39,14 +40,18 @@ use Magento\Sales\Model\Service\InvoiceService;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
+use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Model\Connector as LengowConnector;
 use Lengow\Connector\Model\Exception as LengowException;
 use Lengow\Connector\Model\ImportFactory as LengowImportFactory;
 use Lengow\Connector\Model\Import as LengowImport;
 use Lengow\Connector\Model\Import\Action as LengowAction;
 use Lengow\Connector\Model\Import\ActionFactory as LengowActionFactory;
+use Lengow\Connector\Model\Import\Importorder as LengowImportOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
+use Lengow\Connector\Model\Import\Ordererror as LengowOrderError;
 use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
+use Lengow\Connector\Model\Import\Orderline as LengowOrderLine;
 use Lengow\Connector\Model\Import\OrderlineFactory as LengowOrderLineFactory;
 use Lengow\Connector\Model\ResourceModel\Order as LengowOrderResource;
 use Lengow\Connector\Model\ResourceModel\Order\CollectionFactory as LengowOrderCollectionFactory;
@@ -58,83 +63,63 @@ use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory as LengowO
 class Order extends AbstractModel
 {
     /**
-     * @var integer order process state for new order not imported
+     * @var string Lengow order table name
      */
+    const TABLE_ORDER = 'lengow_order';
+
+    /* Order fields */
+    const FIELD_ID = 'id';
+    const FIELD_ORDER_ID = 'order_id';
+    const FIELD_ORDER_SKU = 'order_sku';
+    const FIELD_STORE_ID = 'store_id';
+    const FIELD_DELIVERY_ADDRESS_ID = 'delivery_address_id';
+    const FIELD_DELIVERY_COUNTRY_ISO = 'delivery_country_iso';
+    const FIELD_MARKETPLACE_SKU = 'marketplace_sku';
+    const FIELD_MARKETPLACE_NAME = 'marketplace_name';
+    const FIELD_MARKETPLACE_LABEL = 'marketplace_label';
+    const FIELD_ORDER_LENGOW_STATE = 'order_lengow_state';
+    const FIELD_ORDER_PROCESS_STATE = 'order_process_state';
+    const FIELD_ORDER_DATE = 'order_date';
+    const FIELD_ORDER_ITEM = 'order_item';
+    const FIELD_ORDER_TYPES = 'order_types';
+    const FIELD_CURRENCY = 'currency';
+    const FIELD_TOTAL_PAID = 'total_paid';
+    const FIELD_COMMISSION = 'commission';
+    const FIELD_CUSTOMER_NAME = 'customer_name';
+    const FIELD_CUSTOMER_EMAIL = 'customer_email';
+    const FIELD_CUSTOMER_VAT_NUMBER = 'customer_vat_number';
+    const FIELD_CARRIER = 'carrier';
+    const FIELD_CARRIER_METHOD = 'carrier_method';
+    const FIELD_CARRIER_TRACKING = 'carrier_tracking';
+    const FIELD_CARRIER_RELAY_ID = 'carrier_id_relay';
+    const FIELD_SENT_MARKETPLACE = 'sent_marketplace';
+    const FIELD_IS_IN_ERROR = 'is_in_error';
+    const FIELD_IS_REIMPORTED = 'is_reimported';
+    const FIELD_MESSAGE = 'message';
+    const FIELD_CREATED_AT = 'created_at';
+    const FIELD_UPDATED_AT = 'updated_at';
+    const FIELD_EXTRA = 'extra';
+
+    /* Order process states */
     const PROCESS_STATE_NEW = 0;
-
-    /**
-     * @var integer order process state for order imported
-     */
     const PROCESS_STATE_IMPORT = 1;
-
-    /**
-     * @var integer order process state for order finished
-     */
     const PROCESS_STATE_FINISH = 2;
 
-    /**
-     * @var string order new
-     */
+    /* Order states */
     const STATE_NEW = 'new';
-
-    /**
-     * @var string order state waiting acceptance
-     */
     const STATE_WAITING_ACCEPTANCE = 'waiting_acceptance';
-
-    /**
-     * @var string order state accepted
-     */
     const STATE_ACCEPTED = 'accepted';
-
-    /**
-     * @var string order state waiting_shipment
-     */
     const STATE_WAITING_SHIPMENT = 'waiting_shipment';
-
-    /**
-     * @var string order state shipped
-     */
     const STATE_SHIPPED = 'shipped';
-
-    /**
-     * @var string order state closed
-     */
     const STATE_CLOSED = 'closed';
-
-    /**
-     * @var string order state refused
-     */
     const STATE_REFUSED = 'refused';
-
-    /**
-     * @var string order state canceled
-     */
     const STATE_CANCELED = 'canceled';
-
-    /**
-     * @var string order state refunded
-     */
     const STATE_REFUNDED = 'refunded';
 
-    /**
-     * @var string order type prime
-     */
+    /* Order types */
     const TYPE_PRIME = 'is_prime';
-
-    /**
-     * @var string order type express
-     */
     const TYPE_EXPRESS = 'is_express';
-
-    /**
-     * @var string order type business
-     */
     const TYPE_BUSINESS = 'is_business';
-
-    /**
-     * @var string order type delivered by marketplace
-     */
     const TYPE_DELIVERED_BY_MARKETPLACE = 'is_delivered_by_marketplace';
 
     /**
@@ -145,137 +130,221 @@ class Order extends AbstractModel
     /**
      * @var MagentoOrderFactory Magento order factory instance
      */
-    protected $_orderFactory;
+    private $orderFactory;
 
     /**
      * @var InvoiceService Magento invoice service
      */
-    protected $_invoiceService;
+    private $invoiceService;
 
     /**
      * @var Transaction Magento transaction
      */
-    protected $_transaction;
+    private $transaction;
 
     /**
      * @var DateTime Magento datetime instance
      */
-    protected $_dateTime;
+    private $dateTime;
 
     /**
      * @var ConvertOrder Magento convert order instance
      */
-    protected $_convertOrder;
+    private $convertOrder;
 
     /**
      * @var JsonHelper Magento json helper
      */
-    protected $jsonHelper;
+    private $jsonHelper;
 
     /**
      * @var TrackFactory Magento shipment track instance
      */
-    protected $_trackFactory;
+    protected $trackFactory;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * @var ImportHelper Lengow import helper instance
      */
-    protected $_importHelper;
+    private $importHelper;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * @var LengowAction Lengow action instance
      */
-    protected $_action;
+    private $lengowAction;
 
     /**
      * @var LengowActionFactory Lengow action factory instance
      */
-    protected $_actionFactory;
+    private $lengowActionFactory;
 
     /**
      * @var LengowConnector Lengow connector instance
      */
-    protected $_connector;
-
-    /**
-     * @var LengowImport Lengow import instance
-     */
-    protected $_import;
+    private $lengowConnector;
 
     /**
      * @var LengowImportFactory Lengow import factory instance
      */
-    protected $_importFactory;
+    private $lengowImportFactory;
 
     /**
      * @var LengowOrderFactory Lengow order instance
      */
-    protected $_lengowOrderFactory;
+    private $lengowOrderFactory;
 
     /**
      * @var LengowOrderCollectionFactory Lengow order collection factory
      */
-    protected $_orderCollection;
+    private $lengowOrderCollection;
 
     /**
      * @var LengowOrderErrorFactory Lengow order error factory instance
      */
-    protected $_orderErrorFactory;
+    private $lengowOrderErrorFactory;
 
     /**
      * @var LengowOrderErrorCollectionFactory Lengow order error collection factory
      */
-    protected $_orderErrorCollection;
+    private $lengowOrderErrorCollection;
 
     /**
-     * @var LengowOrderLineFactory Lengow orderline factory instance
+     * @var LengowOrderLineFactory Lengow order line factory instance
      */
-    protected $_lengowOrderLineFactory;
+    private $lengowOrderLineFactory;
 
     /**
-     * @var array $_fieldList field list for the table lengow_order_line
+     * @var SecurityHelper Lengow security helper instance
+     */
+    private $securityHelper;
+
+    /**
+     * @var array field list for the table lengow_order_line
      * required => Required fields when creating registration
      * update   => Fields allowed when updating registration
      */
-    protected $_fieldList = [
-        'order_id' => ['required' => false, 'updated' => true],
-        'order_sku' => ['required' => false, 'updated' => true],
-        'store_id' => ['required' => true, 'updated' => false],
-        'delivery_address_id' => ['required' => true, 'updated' => false],
-        'delivery_country_iso' => ['required' => false, 'updated' => true],
-        'marketplace_sku' => ['required' => true, 'updated' => false],
-        'marketplace_name' => ['required' => true, 'updated' => false],
-        'marketplace_label' => ['required' => true, 'updated' => false],
-        'order_lengow_state' => ['required' => true, 'updated' => true],
-        'order_process_state' => ['required' => false, 'updated' => true],
-        'order_date' => ['required' => true, 'updated' => false],
-        'order_item' => ['required' => false, 'updated' => true],
-        'order_types' => ['required' => true, 'updated' => false],
-        'currency' => ['required' => false, 'updated' => true],
-        'total_paid' => ['required' => false, 'updated' => true],
-        'customer_vat_number' => ['required' => true, 'updated' => true],
-        'commission' => ['required' => false, 'updated' => true],
-        'customer_name' => ['required' => false, 'updated' => true],
-        'customer_email' => ['required' => false, 'updated' => true],
-        'carrier' => ['required' => false, 'updated' => true],
-        'carrier_method' => ['required' => false, 'updated' => true],
-        'carrier_tracking' => ['required' => false, 'updated' => true],
-        'carrier_id_relay' => ['required' => false, 'updated' => true],
-        'sent_marketplace' => ['required' => false, 'updated' => true],
-        'is_in_error' => ['required' => false, 'updated' => true],
-        'is_reimported' => ['required' => false, 'updated' => true],
-        'message' => ['required' => true, 'updated' => true],
-        'extra' => ['required' => false, 'updated' => true],
+    private $fieldList = [
+        self::FIELD_ORDER_ID => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_ORDER_SKU => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_STORE_ID => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_DELIVERY_ADDRESS_ID => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_DELIVERY_COUNTRY_ISO => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_MARKETPLACE_SKU => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_MARKETPLACE_NAME => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_MARKETPLACE_LABEL => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_ORDER_LENGOW_STATE => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_ORDER_PROCESS_STATE => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_ORDER_DATE => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_ORDER_ITEM => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_ORDER_TYPES => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_CURRENCY => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_TOTAL_PAID => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_COMMISSION => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_CUSTOMER_NAME => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_CUSTOMER_EMAIL => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_CUSTOMER_VAT_NUMBER => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_CARRIER => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_CARRIER_METHOD => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_CARRIER_TRACKING => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_CARRIER_RELAY_ID => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_SENT_MARKETPLACE => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_IS_IN_ERROR => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_IS_REIMPORTED => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_MESSAGE => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_EXTRA => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
     ];
 
     /**
@@ -293,16 +362,16 @@ class Order extends AbstractModel
      * @param DataHelper $dataHelper Lengow data helper instance
      * @param ImportHelper $importHelper Lengow import helper instance
      * @param ConfigHelper $configHelper Lengow config helper instance
-     * @param LengowOrderErrorFactory $orderErrorFactory Lengow order error factory instance
-     * @param LengowOrderErrorCollectionFactory $orderErrorCollection Lengow ordererror collection factory instance
+     * @param LengowOrderErrorFactory $lengowOrderErrorFactory Lengow order error factory instance
+     * @param LengowOrderErrorCollectionFactory $lengowOrderErrorCollection Lengow order error collection instance
      * @param LengowOrderFactory $lengowOrderFactory Lengow order factory instance
-     * @param LengowOrderCollectionFactory $orderCollection Lengow order collection factory instance
-     * @param LengowOrderLineFactory $orderLineFactory Lengow orderline factory instance
-     * @param LengowActionFactory $actionFactory Lengow action factory instance
-     * @param LengowConnector $connector Lengow connector instance
-     * @param LengowImport $import Lengow import instance
-     * @param LengowAction $action Lengow action instance
-     * @param LengowImportFactory $importFactory Lengow import factory instance
+     * @param LengowOrderCollectionFactory $lengowOrderCollection Lengow order collection factory instance
+     * @param LengowOrderLineFactory $lengowOrderLineFactory Lengow order line factory instance
+     * @param LengowActionFactory $lengowActionFactory Lengow action factory instance
+     * @param LengowConnector $lengowConnector Lengow connector instance
+     * @param LengowAction $lengowAction Lengow action instance
+     * @param LengowImportFactory $lengowImportFactory Lengow import factory instance
+     * @param SecurityHelper $securityHelper Lengow security helper
      * @param AbstractResource $resource Magento abstract resource instance
      * @param AbstractDb $resourceCollection Magento abstract db instance
      */
@@ -319,39 +388,39 @@ class Order extends AbstractModel
         DataHelper $dataHelper,
         ImportHelper $importHelper,
         ConfigHelper $configHelper,
-        LengowOrderErrorFactory $orderErrorFactory,
-        LengowOrderErrorCollectionFactory $orderErrorCollection,
+        LengowOrderErrorFactory $lengowOrderErrorFactory,
+        LengowOrderErrorCollectionFactory $lengowOrderErrorCollection,
         LengowOrderFactory $lengowOrderFactory,
-        LengowOrderCollectionFactory $orderCollection,
-        LengowOrderLineFactory $orderLineFactory,
-        LengowActionFactory $actionFactory,
-        LengowConnector $connector,
-        LengowImport $import,
-        LengowAction $action,
-        LengowImportFactory $importFactory,
+        LengowOrderCollectionFactory $lengowOrderCollection,
+        LengowOrderLineFactory $lengowOrderLineFactory,
+        LengowActionFactory $lengowActionFactory,
+        LengowConnector $lengowConnector,
+        LengowAction $lengowAction,
+        LengowImportFactory $lengowImportFactory,
+        SecurityHelper $securityHelper,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null
     ) {
-        $this->_orderFactory = $orderFactory;
-        $this->_invoiceService = $invoiceService;
-        $this->_transaction = $transaction;
-        $this->_dateTime = $dateTime;
-        $this->_convertOrder = $convertOrder;
-        $this->_trackFactory = $trackFactory;
+        $this->orderFactory = $orderFactory;
+        $this->invoiceService = $invoiceService;
+        $this->transaction = $transaction;
+        $this->dateTime = $dateTime;
+        $this->convertOrder = $convertOrder;
+        $this->trackFactory = $trackFactory;
         $this->jsonHelper = $jsonHelper;
-        $this->_dataHelper = $dataHelper;
-        $this->_importHelper = $importHelper;
-        $this->_configHelper = $configHelper;
-        $this->_orderErrorFactory = $orderErrorFactory;
-        $this->_orderErrorCollection = $orderErrorCollection;
-        $this->_lengowOrderFactory = $lengowOrderFactory;
-        $this->_orderCollection = $orderCollection;
-        $this->_lengowOrderLineFactory = $orderLineFactory;
-        $this->_actionFactory = $actionFactory;
-        $this->_connector = $connector;
-        $this->_import = $import;
-        $this->_action = $action;
-        $this->_importFactory = $importFactory;
+        $this->dataHelper = $dataHelper;
+        $this->importHelper = $importHelper;
+        $this->configHelper = $configHelper;
+        $this->lengowOrderErrorFactory = $lengowOrderErrorFactory;
+        $this->lengowOrderErrorCollection = $lengowOrderErrorCollection;
+        $this->lengowOrderFactory = $lengowOrderFactory;
+        $this->lengowOrderCollection = $lengowOrderCollection;
+        $this->lengowOrderLineFactory = $lengowOrderLineFactory;
+        $this->lengowActionFactory = $lengowActionFactory;
+        $this->lengowConnector = $lengowConnector;
+        $this->lengowAction = $lengowAction;
+        $this->lengowImportFactory = $lengowImportFactory;
+        $this->securityHelper = $securityHelper;
         parent::__construct($context, $registry, $resource, $resourceCollection);
     }
 
@@ -372,29 +441,29 @@ class Order extends AbstractModel
      *
      * @return Order|false
      */
-    public function createOrder($params = [])
+    public function createOrder(array $params = [])
     {
-        foreach ($this->_fieldList as $key => $value) {
-            if (!array_key_exists($key, $params) && $value['required']) {
+        foreach ($this->fieldList as $key => $value) {
+            if (!array_key_exists($key, $params) && $value[DataHelper::FIELD_REQUIRED]) {
                 return false;
             }
         }
         foreach ($params as $key => $value) {
             $this->setData($key, $value);
         }
-        if (!array_key_exists('order_process_state', $params)) {
-            $this->setData('order_process_state', self::PROCESS_STATE_NEW);
+        if (!array_key_exists(self::FIELD_ORDER_PROCESS_STATE, $params)) {
+            $this->setData(self::FIELD_ORDER_PROCESS_STATE, self::PROCESS_STATE_NEW);
         }
         if (!$this->getCreatedAt()) {
-            $this->setData('created_at', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
+            $this->setData(self::FIELD_CREATED_AT, $this->dateTime->gmtDate(DataHelper::DATE_FULL));
         }
         try {
             return $this->save();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
-            $this->_dataHelper->log(
+            $this->dataHelper->log(
                 DataHelper::CODE_ORM,
-                $this->_dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
+                $this->dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
             );
             return false;
         }
@@ -407,7 +476,7 @@ class Order extends AbstractModel
      *
      * @return Order|false
      */
-    public function updateOrder($params = [])
+    public function updateOrder(array $params = [])
     {
         if (!$this->getId()) {
             return false;
@@ -418,14 +487,14 @@ class Order extends AbstractModel
                 $this->setData($key, $value);
             }
         }
-        $this->setData('updated_at', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
+        $this->setData(self::FIELD_UPDATED_AT, $this->dateTime->gmtDate(DataHelper::DATE_FULL));
         try {
             return $this->save();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
-            $this->_dataHelper->log(
+            $this->dataHelper->log(
                 DataHelper::CODE_ORM,
-                $this->_dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
+                $this->dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
             );
             return false;
         }
@@ -436,11 +505,11 @@ class Order extends AbstractModel
      *
      * @return array
      */
-    public function getUpdatedFields()
+    public function getUpdatedFields(): array
     {
         $updatedFields = [];
-        foreach ($this->_fieldList as $key => $value) {
-            if ($value['updated']) {
+        foreach ($this->fieldList as $key => $value) {
+            if ($value[DataHelper::FIELD_CAN_BE_UPDATED]) {
                 $updatedFields[] = $key;
             }
         }
@@ -452,9 +521,9 @@ class Order extends AbstractModel
      *
      * @return boolean
      */
-    public function isExpress()
+    public function isExpress(): bool
     {
-        $orderTypes = (string) $this->getData('order_types');
+        $orderTypes = (string) $this->getData(self::FIELD_ORDER_TYPES);
         $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : [];
         return isset($orderTypes[self::TYPE_EXPRESS]) || isset($orderTypes[self::TYPE_PRIME]);
     }
@@ -464,9 +533,9 @@ class Order extends AbstractModel
      *
      * @return boolean
      */
-    public function isBusiness()
+    public function isBusiness(): bool
     {
-        $orderTypes = (string) $this->getData('order_types');
+        $orderTypes = (string) $this->getData(self::FIELD_ORDER_TYPES);
         $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : [];
         return isset($orderTypes[self::TYPE_BUSINESS]);
     }
@@ -476,11 +545,11 @@ class Order extends AbstractModel
      *
      * @return boolean
      */
-    public function isDeliveredByMarketplace()
+    public function isDeliveredByMarketplace(): bool
     {
-        $orderTypes = (string) $this->getData('order_types');
+        $orderTypes = (string) $this->getData(self::FIELD_ORDER_TYPES);
         $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : [];
-        return isset($orderTypes[self::TYPE_DELIVERED_BY_MARKETPLACE]) || $this->getData('sent_marketplace');
+        return isset($orderTypes[self::TYPE_DELIVERED_BY_MARKETPLACE]) || $this->getData(self::FIELD_SENT_MARKETPLACE);
     }
 
     /**
@@ -488,27 +557,32 @@ class Order extends AbstractModel
      *
      * @param string $marketplaceSku marketplace sku
      * @param integer $deliveryAddressId delivery address id
-     * @param string $type order error type (import or send)
+     * @param int $type order error type (import or send)
      *
      * @return array|false
      */
-    public function orderIsInError($marketplaceSku, $deliveryAddressId, $type = 'import')
-    {
-        $errorType = $this->_orderErrorFactory->create()->getOrderErrorType($type);
+    public function orderIsInError(
+        string $marketplaceSku,
+        int $deliveryAddressId,
+        int $type = LengowOrderError::TYPE_ERROR_IMPORT
+    ) {
         // check if log already exists for the given order id
-        $results = $this->_orderErrorCollection->create()
+        $results = $this->lengowOrderErrorCollection->create()
             ->join(
-                'lengow_order',
+                self::TABLE_ORDER,
                 '`lengow_order`.id=main_table.order_lengow_id',
-                ['marketplace_sku' => 'marketplace_sku', 'delivery_address_id' => 'delivery_address_id']
+                [
+                    self::FIELD_MARKETPLACE_SKU => self::FIELD_MARKETPLACE_SKU,
+                    self::FIELD_DELIVERY_ADDRESS_ID => self::FIELD_DELIVERY_ADDRESS_ID,
+                ]
             )
-            ->addFieldToFilter('marketplace_sku', $marketplaceSku)
-            ->addFieldToFilter('delivery_address_id', $deliveryAddressId)
-            ->addFieldToFilter('type', $errorType)
-            ->addFieldToFilter('is_finished', ['eq' => 0])
-            ->addFieldToSelect('id')
-            ->addFieldToSelect('message')
-            ->addFieldToSelect('created_at')
+            ->addFieldToFilter(self::FIELD_MARKETPLACE_SKU, $marketplaceSku)
+            ->addFieldToFilter(self::FIELD_DELIVERY_ADDRESS_ID, $deliveryAddressId)
+            ->addFieldToFilter(LengowOrderError::FIELD_TYPE, $type)
+            ->addFieldToFilter(LengowOrderError::FIELD_IS_FINISHED, ['eq' => 0])
+            ->addFieldToSelect(LengowOrderError::FIELD_ID)
+            ->addFieldToSelect(LengowOrderError::FIELD_MESSAGE)
+            ->addFieldToSelect(LengowOrderError::FIELD_CREATED_AT)
             ->load()
             ->getData();
         if (empty($results)) {
@@ -518,7 +592,7 @@ class Order extends AbstractModel
     }
 
     /**
-     * if order is already Imported
+     * If order is already Imported
      *
      * @param string $marketplaceSku marketplace sku
      * @param string $marketplaceName marketplace name
@@ -526,18 +600,18 @@ class Order extends AbstractModel
      *
      * @return integer|false
      */
-    public function getOrderIdIfExist($marketplaceSku, $marketplaceName, $deliveryAddressId)
+    public function getOrderIdIfExist(string $marketplaceSku, string $marketplaceName, int $deliveryAddressId)
     {
         // get order id Magento from our table
-        $results = $this->_orderCollection->create()
-            ->addFieldToFilter('marketplace_sku', $marketplaceSku)
-            ->addFieldToFilter('marketplace_name', $marketplaceName)
-            ->addFieldToFilter('delivery_address_id', $deliveryAddressId)
-            ->addFieldToSelect('order_id')
+        $results = $this->lengowOrderCollection->create()
+            ->addFieldToFilter(self::FIELD_MARKETPLACE_SKU, $marketplaceSku)
+            ->addFieldToFilter(self::FIELD_MARKETPLACE_NAME, $marketplaceName)
+            ->addFieldToFilter(self::FIELD_DELIVERY_ADDRESS_ID, $deliveryAddressId)
+            ->addFieldToSelect(self::FIELD_ORDER_ID)
             ->load()
             ->getData();
         if (!empty($results)) {
-            return $results[0]['order_id'];
+            return $results[0][self::FIELD_ORDER_ID];
         }
         return false;
     }
@@ -550,15 +624,15 @@ class Order extends AbstractModel
      *
      * @return string|false
      */
-    public function getOrderIdWithDeliveryAddress($orderId, $deliveryAddressId)
+    public function getOrderIdWithDeliveryAddress(int $orderId, string $deliveryAddressId)
     {
-        $results = $this->_orderCollection->create()
-            ->addFieldToFilter('order_id', $orderId)
-            ->addFieldToFilter('delivery_address_id', $deliveryAddressId)
-            ->addFieldToSelect('id')
+        $results = $this->lengowOrderCollection->create()
+            ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)
+            ->addFieldToFilter(self::FIELD_DELIVERY_ADDRESS_ID, $deliveryAddressId)
+            ->addFieldToSelect(self::FIELD_ID)
             ->getData();
         if (!empty($results)) {
-            return $results[0]['id'];
+            return $results[0][self::FIELD_ID];
         }
         return false;
     }
@@ -572,16 +646,16 @@ class Order extends AbstractModel
      *
      * @return integer|false
      */
-    public function getLengowOrderId($marketplaceSku, $marketplaceName, $deliveryAddressId)
+    public function getLengowOrderId(string $marketplaceSku, string $marketplaceName, int $deliveryAddressId)
     {
-        $results = $this->_orderCollection->create()
-            ->addFieldToFilter('marketplace_sku', $marketplaceSku)
-            ->addFieldToFilter('marketplace_name', $marketplaceName)
-            ->addFieldToFilter('delivery_address_id', $deliveryAddressId)
-            ->addFieldToSelect('id')
+        $results = $this->lengowOrderCollection->create()
+            ->addFieldToFilter(self::FIELD_MARKETPLACE_SKU, $marketplaceSku)
+            ->addFieldToFilter(self::FIELD_MARKETPLACE_NAME, $marketplaceName)
+            ->addFieldToFilter(self::FIELD_DELIVERY_ADDRESS_ID, $deliveryAddressId)
+            ->addFieldToSelect(self::FIELD_ID)
             ->getData();
         if (!empty($results)) {
-            return (int) $results[0]['id'];
+            return (int) $results[0][self::FIELD_ID];
         }
         return false;
     }
@@ -593,14 +667,14 @@ class Order extends AbstractModel
      *
      * @return integer|false
      */
-    public function getLengowOrderIdWithOrderId($orderId)
+    public function getLengowOrderIdWithOrderId(int $orderId)
     {
-        $results = $this->_orderCollection->create()
-            ->addFieldToFilter('order_id', $orderId)
-            ->addFieldToSelect('id')
+        $results = $this->lengowOrderCollection->create()
+            ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)
+            ->addFieldToSelect(self::FIELD_ID)
             ->getData();
         if (!empty($results)) {
-            return (int) $results[0]['id'];
+            return (int) $results[0][self::FIELD_ID];
         }
         return false;
     }
@@ -612,7 +686,7 @@ class Order extends AbstractModel
      *
      * @return string
      */
-    public function getOrderState($orderStateLengow)
+    public function getOrderState(string $orderStateLengow): string
     {
         switch ($orderStateLengow) {
             case self::STATE_NEW:
@@ -640,27 +714,30 @@ class Order extends AbstractModel
      *
      * @return string|false
      */
-    public function updateState($order, $lengowOrder, $orderStateLengow, $packageData)
+    public function updateState($order, Order $lengowOrder, string $orderStateLengow, $packageData)
     {
         // finish actions if lengow order is shipped, closed, cancel or refunded
         $orderProcessState = $this->getOrderProcessState($orderStateLengow);
         $tracks = $packageData->delivery->trackings;
         if ($orderProcessState === self::PROCESS_STATE_FINISH) {
-            $this->_actionFactory->create()->finishAllActions($order->getId());
-            $this->_orderErrorFactory->create()->finishOrderErrors($lengowOrder->getId(), 'send');
+            $this->lengowActionFactory->create()->finishAllActions($order->getId());
+            $this->lengowOrderErrorFactory->create()->finishOrderErrors(
+                $lengowOrder->getId(),
+                LengowOrderError::TYPE_ERROR_SEND
+            );
         }
         // update Lengow order if necessary
         $params = [];
-        if ($lengowOrder->getData('order_lengow_state') !== $orderStateLengow) {
-            $params['order_lengow_state'] = $orderStateLengow;
-            $params['carrier_tracking'] = !empty($tracks) ? (string) $tracks[0]->number : null;
+        if ($lengowOrder->getData(self::FIELD_ORDER_PROCESS_STATE) !== $orderStateLengow) {
+            $params[self::FIELD_ORDER_LENGOW_STATE] = $orderStateLengow;
+            $params[self::FIELD_CARRIER_TRACKING] = !empty($tracks) ? (string) $tracks[0]->number : null;
         }
         if ($orderProcessState === self::PROCESS_STATE_FINISH) {
-            if ((int) $lengowOrder->getData('order_process_state') !== $orderProcessState) {
-                $params['order_process_state'] = $orderProcessState;
+            if ((int) $lengowOrder->getData(self::FIELD_ORDER_PROCESS_STATE) !== $orderProcessState) {
+                $params[self::FIELD_ORDER_PROCESS_STATE] = $orderProcessState;
             }
-            if ($lengowOrder->getData('is_in_error')) {
-                $params['is_in_error'] = 0;
+            if ($lengowOrder->getData(self::FIELD_IS_IN_ERROR)) {
+                $params[self::FIELD_IS_IN_ERROR] = 0;
             }
         }
         if (!empty($params)) {
@@ -682,13 +759,8 @@ class Order extends AbstractModel
                         $carrierMethod = $tracking->method;
                         $trackingNumber = $tracking->number;
                     }
-                    $this->toShip(
-                        $order,
-                        isset($carrierName) ? $carrierName : null,
-                        isset($carrierMethod) ? $carrierMethod : null,
-                        isset($trackingNumber) ? $trackingNumber : null
-                    );
-                    return 'Complete';
+                    $this->toShip($order, $carrierName ?? null, $carrierMethod ?? null, $trackingNumber ?? null);
+                    return MagentoOrder::STATE_COMPLETE;
                 }
                 if (($orderStateLengow === self::STATE_CANCELED || $orderStateLengow === self::STATE_REFUSED)
                     && ($order->getState() === $this->getOrderState(self::STATE_NEW)
@@ -697,10 +769,10 @@ class Order extends AbstractModel
                     )
                 ) {
                     $this->toCancel($order);
-                    return 'Canceled';
+                    return MagentoOrder::STATE_CANCELED;
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
         return false;
@@ -711,7 +783,7 @@ class Order extends AbstractModel
      *
      * @param MagentoOrder $order Magento order instance
      */
-    public function toCancel($order)
+    public function toCancel(MagentoOrder $order)
     {
         if ($order->canCancel()) {
             $order->cancel();
@@ -723,16 +795,16 @@ class Order extends AbstractModel
      *
      * @param MagentoOrder|OrderInterface $order Magento order instance
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function toInvoice($order)
     {
-        $invoice = $this->_invoiceService->prepareInvoice($order);
+        $invoice = $this->invoiceService->prepareInvoice($order);
         if ($invoice) {
             $invoice->register();
             $invoice->getOrder()->setIsInProcess(true);
             $invoice->setState(Invoice::STATE_PAID);
-            $transactionSave = $this->_transaction->addObject(
+            $transactionSave = $this->transaction->addObject(
                 $invoice
             )->addObject(
                 $invoice->getOrder()
@@ -745,23 +817,30 @@ class Order extends AbstractModel
      * Ship order
      *
      * @param MagentoOrder|OrderInterface $order Magento order instance
-     * @param string $carrierName carrier name
-     * @param string $carrierMethod carrier method
-     * @param string $trackingNumber tracking number
+     * @param string|null $carrierName carrier name
+     * @param string|null $carrierMethod carrier method
+     * @param string|null $trackingNumber tracking number
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function toShip($order, $carrierName, $carrierMethod, $trackingNumber)
-    {
+    public function toShip(
+        $order,
+        string $carrierName = null,
+        string $carrierMethod = null,
+        string $trackingNumber = null
+    ) {
         if ($order->canShip()) {
-            $shipment = $this->_convertOrder->toShipment($order);
+            $shipment = $this->convertOrder->toShipment($order);
             if ($shipment) {
+                if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')) {
+                    $shipment->getExtensionAttributes()->setSourceCode('default');
+                }
                 foreach ($order->getAllItems() as $orderItem) {
                     if (!$orderItem->getQtyToShip() || $orderItem->getIsVirtual()) {
                         continue;
                     }
                     $qtyShipped = $orderItem->getQtyToShip();
-                    $shipmentItem = $this->_convertOrder->itemToShipmentItem($orderItem)->setQty($qtyShipped);
+                    $shipmentItem = $this->convertOrder->itemToShipmentItem($orderItem)->setQty($qtyShipped);
                     $shipment->addItem($shipmentItem);
                 }
                 $shipment->register();
@@ -772,7 +851,7 @@ class Order extends AbstractModel
                     if ($title === null || $title === 'None') {
                         $title = $carrierMethod;
                     }
-                    $track = $this->_trackFactory->create()
+                    $track = $this->trackFactory->create()
                         ->setNumber($trackingNumber)
                         ->setCarrierCode(Track::CUSTOM_CARRIER_CODE)
                         ->setTitle($title);
@@ -791,14 +870,14 @@ class Order extends AbstractModel
      *
      * @return string|false
      */
-    public function getMarketplaceSkuByOrderId($orderId)
+    public function getMarketplaceSkuByOrderId(int $orderId)
     {
-        $results = $this->_orderCollection->create()
-            ->addFieldToFilter('order_id', $orderId)
-            ->addFieldToSelect('marketplace_sku')
+        $results = $this->lengowOrderCollection->create()
+            ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)
+            ->addFieldToSelect(self::FIELD_MARKETPLACE_SKU)
             ->getData();
         if (!empty($results)) {
-            return $results[0]['marketplace_sku'];
+            return $results[0][self::FIELD_MARKETPLACE_SKU];
         }
         return false;
     }
@@ -810,13 +889,13 @@ class Order extends AbstractModel
      *
      * @return integer|false
      */
-    public function getLengowOrderIdByOrderId($orderId)
+    public function getLengowOrderIdByOrderId(int $orderId)
     {
-        $results = $this->_orderCollection->create()
-            ->addFieldToFilter('order_id', $orderId)
+        $results = $this->lengowOrderCollection->create()
+            ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)
             ->getData();
         if (!empty($results)) {
-            return (int) $results[0]['id'];
+            return (int) $results[0][self::FIELD_ID];
         }
         return false;
     }
@@ -829,7 +908,7 @@ class Order extends AbstractModel
     public function getUnsentOrders()
     {
         $date = strtotime('-5 days', time());
-        $results = $this->_orderCollection->create()
+        $results = $this->lengowOrderCollection->create()
             ->join(
                 ['magento_order' => 'sales_order'],
                 'magento_order.entity_id=main_table.order_id',
@@ -857,20 +936,23 @@ class Order extends AbstractModel
      *
      * @return array|false
      */
-    public function reImportOrder($orderLengowId)
+    public function reImportOrder(int $orderLengowId)
     {
-        $orderLengow = $this->_lengowOrderFactory->create()->load($orderLengowId);
-        if ((int) $orderLengow->getData('order_process_state') === 0 && $orderLengow->getData('is_in_error')) {
+        $orderLengow = $this->lengowOrderFactory->create()->load($orderLengowId);
+        if ((int) $orderLengow->getData(self::FIELD_ORDER_PROCESS_STATE) === 0
+            && $orderLengow->getData(self::FIELD_IS_IN_ERROR)
+        ) {
             $params = [
                 LengowImport::PARAM_TYPE => LengowImport::TYPE_MANUAL,
                 LengowImport::PARAM_ORDER_LENGOW_ID => $orderLengowId,
-                LengowImport::PARAM_MARKETPLACE_SKU => $orderLengow->getData('marketplace_sku'),
-                LengowImport::PARAM_MARKETPLACE_NAME => $orderLengow->getData('marketplace_name'),
-                LengowImport::PARAM_DELIVERY_ADDRESS_ID => $orderLengow->getData('delivery_address_id'),
-                LengowImport::PARAM_STORE_ID => $orderLengow->getData('store_id'),
+                LengowImport::PARAM_MARKETPLACE_SKU => $orderLengow->getData(self::FIELD_MARKETPLACE_SKU),
+                LengowImport::PARAM_MARKETPLACE_NAME => $orderLengow->getData(self::FIELD_MARKETPLACE_NAME),
+                LengowImport::PARAM_DELIVERY_ADDRESS_ID => $orderLengow->getData(self::FIELD_DELIVERY_ADDRESS_ID),
+                LengowImport::PARAM_STORE_ID => $orderLengow->getData(self::FIELD_STORE_ID),
             ];
-            $this->_import->init($params);
-            return $this->_import->exec();
+            $lengowImport = $this->lengowImportFactory->create();
+            $lengowImport->init($params);
+            return $lengowImport->exec();
         }
         return false;
     }
@@ -882,19 +964,22 @@ class Order extends AbstractModel
      *
      * @return boolean
      */
-    public function reSendOrder($orderLengowId)
+    public function reSendOrder(int $orderLengowId): bool
     {
-        $orderLengow = $this->_lengowOrderFactory->create()->load($orderLengowId);
-        if ((int) $orderLengow->getData('order_process_state') === 1 && $orderLengow->getData('is_in_error')) {
-            $orderId = $orderLengow->getData('order_id');
+        $orderLengow = $this->lengowOrderFactory->create()->load($orderLengowId);
+        if ((int) $orderLengow->getData(self::FIELD_ORDER_PROCESS_STATE) === 1
+            && $orderLengow->getData(self::FIELD_IS_IN_ERROR)
+        ) {
+            $orderId = $orderLengow->getData(self::FIELD_ORDER_ID);
             if ($orderId !== null) {
-                $order = $this->_orderFactory->create()->load($orderId);
-                $action = $this->_action->getLastOrderActionType($orderId);
+                $order = $this->orderFactory->create()->load($orderId);
+                $action = $this->lengowAction->getLastOrderActionType($orderId);
                 if (!$action) {
                     $action = $order->getData('status') === self::STATE_CANCELED
                         ? LengowAction::TYPE_CANCEL
                         : LengowAction::TYPE_SHIP;
                 }
+                /** @var Shipment|void $shipment */
                 $shipment = $order->getShipmentsCollection()->getFirstItem();
                 return $this->callAction($action, $order, $shipment);
             }
@@ -909,7 +994,7 @@ class Order extends AbstractModel
      *
      * @return integer|false
      */
-    public function getOrderProcessState($state)
+    public function getOrderProcessState(string $state)
     {
         switch ($state) {
             case self::STATE_ACCEPTED:
@@ -934,44 +1019,48 @@ class Order extends AbstractModel
      *
      * @return integer|false
      */
-    public function cancelAndReImportOrder($order, $lengowOrder)
+    public function cancelAndReImportOrder(MagentoOrder $order, Order $lengowOrder)
     {
         if (!$this->isReimported($lengowOrder)) {
             return false;
         }
         $params = [
-            LengowImport::PARAM_MARKETPLACE_SKU => $lengowOrder->getData('marketplace_sku'),
-            LengowImport::PARAM_MARKETPLACE_NAME => $lengowOrder->getData('marketplace_name'),
-            LengowImport::PARAM_DELIVERY_ADDRESS_ID => $lengowOrder->getData('delivery_address_id'),
-            LengowImport::PARAM_STORE_ID => $order->getData('store_id'),
+            LengowImport::PARAM_MARKETPLACE_SKU => $lengowOrder->getData(self::FIELD_MARKETPLACE_SKU),
+            LengowImport::PARAM_MARKETPLACE_NAME => $lengowOrder->getData(self::FIELD_MARKETPLACE_NAME),
+            LengowImport::PARAM_DELIVERY_ADDRESS_ID => $lengowOrder->getData(self::FIELD_DELIVERY_ADDRESS_ID),
+            LengowImport::PARAM_STORE_ID => $lengowOrder->getData(self::FIELD_STORE_ID),
         ];
-        $import = $this->_importFactory->create();
-        $import->init($params);
-        $result = $import->exec();
-        if ((isset($result['order_new']) && $result['order_new'])
-            && (isset($result['order_id']) && (int) $result['order_id'] !== (int) $order->getData('order_id'))
-        ) {
-            try {
-                // if state != STATE_COMPLETE or != STATE_CLOSED
-                $order->setState('lengow_technical_error')->setStatus('lengow_technical_error');
-                $order->save();
-            } catch (\Exception $e) {
-                $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
-                $this->_dataHelper->log(
-                    DataHelper::CODE_ORM,
-                    $this->_dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
-                );
+        $lengowImport = $this->lengowImportFactory->create();
+        $lengowImport->init($params);
+        $result = $lengowImport->exec();
+        if (!empty($result[LengowImport::ORDERS_CREATED])) {
+            $orderCreated = $result[LengowImport::ORDERS_CREATED][0];
+            if ($orderCreated[LengowImportOrder::MERCHANT_ORDER_ID] !== (int) $order->getData('order_id')) {
+                try {
+                    // if state != STATE_COMPLETE or != STATE_CLOSED
+                    $order->setState('lengow_technical_error')->setStatus('lengow_technical_error');
+                    $order->save();
+                } catch (Exception $e) {
+                    $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
+                    $this->dataHelper->log(
+                        DataHelper::CODE_ORM,
+                        $this->dataHelper->setLogMessage(
+                            'Error while inserting record in database - %1',
+                            [$errorMessage]
+                        )
+                    );
+                }
+                return $orderCreated[LengowImportOrder::MERCHANT_ORDER_ID];
             }
-            return (int) $result['order_id'];
         }
-        // finish all order errors before API call
-        $this->_orderErrorFactory->create()->finishOrderErrors($lengowOrder->getId());
+        // in the event of an error, all new order errors are finished and the order is reset
+        $this->lengowOrderErrorFactory->create()->finishOrderErrors($lengowOrder->getId());
         $lengowOrder->updateOrder(
             [
-                'order_id' => $order->getId(),
-                'order_sku' => $order->getIncrementId(),
-                'is_reimported' => 0,
-                'is_in_error' => 0,
+                self::FIELD_ORDER_ID => $order->getId(),
+                self::FIELD_ORDER_SKU => $order->getIncrementId(),
+                self::FIELD_IS_REIMPORTED => 0,
+                self::FIELD_IS_IN_ERROR => 0,
             ]
         );
         return false;
@@ -984,11 +1073,11 @@ class Order extends AbstractModel
      *
      * @return boolean
      */
-    public function isReimported($lengowOrder)
+    public function isReimported(Order $lengowOrder): bool
     {
-        $lengowOrder->updateOrder(['is_reimported' => 1]);
+        $lengowOrder->updateOrder([self::FIELD_IS_REIMPORTED => 1]);
         // check success update in database
-        if ($lengowOrder->getData('is_reimported')) {
+        if ($lengowOrder->getData(self::FIELD_IS_REIMPORTED)) {
             return true;
         }
         return false;
@@ -1003,7 +1092,7 @@ class Order extends AbstractModel
      *
      * @return boolean
      */
-    public function callAction($action, $order, $shipment = null)
+    public function callAction(string $action, MagentoOrder $order, Shipment $shipment = null): bool
     {
         $success = true;
         if (!(bool) $order->getData('from_lengow')) {
@@ -1013,36 +1102,41 @@ class Order extends AbstractModel
         if (!$lengowOrderId) {
             return false;
         }
-        $lengowOrder = $this->_lengowOrderFactory->create()->load($lengowOrderId);
-        $this->_dataHelper->log(
+        $lengowOrder = $this->lengowOrderFactory->create()->load($lengowOrderId);
+        $this->dataHelper->log(
             DataHelper::CODE_ACTION,
-            $this->_dataHelper->setLogMessage(
+            $this->dataHelper->setLogMessage(
                 'try to send %1 action (ORDER ID %2)',
                 [$action, $order->getIncrementId()]
             ),
             false,
-            $lengowOrder->getData('marketplace_sku')
+            $lengowOrder->getData(self::FIELD_MARKETPLACE_SKU)
         );
         // finish all order errors before API call
-        $this->_orderErrorFactory->create()->finishOrderErrors($lengowOrder->getId(), 'send');
-        if ($lengowOrder->getData('is_in_error')) {
-            $lengowOrder->updateOrder(['is_in_error' => 0]);
+        $this->lengowOrderErrorFactory->create()->finishOrderErrors(
+            $lengowOrder->getId(),
+            LengowOrderError::TYPE_ERROR_SEND
+        );
+        if ($lengowOrder->getData(self::FIELD_IS_IN_ERROR)) {
+            $lengowOrder->updateOrder([self::FIELD_IS_IN_ERROR => 0]);
         }
         try {
-            $marketplace = $this->_importHelper->getMarketplaceSingleton($lengowOrder->getData('marketplace_name'));
+            $marketplace = $this->importHelper->getMarketplaceSingleton(
+                $lengowOrder->getData(self::FIELD_MARKETPLACE_NAME)
+            );
             if ($marketplace->containOrderLine($action)) {
-                $orderLineCollection = $this->_lengowOrderLineFactory->create()->getOrderLineByOrderID($order->getId());
+                $orderLineCollection = $this->lengowOrderLineFactory->create()->getOrderLineByOrderID($order->getId());
                 // get order line ids by API for security
                 if (!$orderLineCollection) {
                     $orderLineCollection = $this->getOrderLineByApi(
-                        $lengowOrder->getData('marketplace_sku'),
-                        $lengowOrder->getData('marketplace_name'),
-                        (int) $lengowOrder->getData('delivery_address_id')
+                        $lengowOrder->getData(self::FIELD_MARKETPLACE_SKU),
+                        $lengowOrder->getData(self::FIELD_MARKETPLACE_NAME),
+                        (int) $lengowOrder->getData(self::FIELD_DELIVERY_ADDRESS_ID)
                     );
                 }
                 if (!$orderLineCollection) {
                     throw new LengowException(
-                        $this->_dataHelper->setLogMessage('order line is required but not found in the order')
+                        $this->dataHelper->setLogMessage('order line is required but not found in the order')
                     );
                 }
                 $results = [];
@@ -1052,7 +1146,7 @@ class Order extends AbstractModel
                         $order,
                         $lengowOrder,
                         $shipment,
-                        $orderLine['order_line_id']
+                        $orderLine[LengowOrderLine::FIELD_ORDER_LINE_ID]
                     );
                 }
                 $success = !in_array(false, $results, true);
@@ -1061,43 +1155,48 @@ class Order extends AbstractModel
             }
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
-        } catch (\Exception $e) {
-            $errorMessage = 'Magento error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
+        } catch (Exception $e) {
+            $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
         }
         if (isset($errorMessage)) {
-            if ((int) $lengowOrder->getData('order_process_state') !== self::PROCESS_STATE_FINISH) {
-                $lengowOrder->updateOrder(['is_in_error' => 1]);
-                $orderError = $this->_orderErrorFactory->create();
+            if ((int) $lengowOrder->getData(self::FIELD_ORDER_PROCESS_STATE) !== self::PROCESS_STATE_FINISH) {
+                $lengowOrder->updateOrder([self::FIELD_IS_IN_ERROR => 1]);
+                $orderError = $this->lengowOrderErrorFactory->create();
                 $orderError->createOrderError(
                     [
-                        'order_lengow_id' => $lengowOrder->getId(),
-                        'message' => $errorMessage,
-                        'type' => 'send',
+                        LengowOrderError::FIELD_ORDER_LENGOW_ID => $lengowOrder->getId(),
+                        LengowOrderError::FIELD_MESSAGE => $errorMessage,
+                        LengowOrderError::FIELD_TYPE => LengowOrderError::TYPE_ERROR_SEND,
                     ]
                 );
                 unset($orderError);
             }
-            $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
-            $this->_dataHelper->log(
+            $decodedMessage = $this->dataHelper->decodeLogMessage($errorMessage, false);
+            $this->dataHelper->log(
                 DataHelper::CODE_ACTION,
-                $this->_dataHelper->setLogMessage('order action failed - %1', [$decodedMessage]),
+                $this->dataHelper->setLogMessage('order action failed - %1', [$decodedMessage]),
                 false,
-                $lengowOrder->getData('marketplace_sku')
+                $lengowOrder->getData(self::FIELD_MARKETPLACE_SKU)
             );
             $success = false;
         }
         if ($success) {
-            $message = $this->_dataHelper->setLogMessage(
+            $message = $this->dataHelper->setLogMessage(
                 'action %1 successfully sent (ORDER ID %2)',
                 [$action, $order->getIncrementId()]
             );
         } else {
-            $message = $this->_dataHelper->setLogMessage(
+            $message = $this->dataHelper->setLogMessage(
                 'WARNING! action %1 could not be sent (ORDER ID %2)',
                 [$action, $order->getIncrementId()]
             );
         }
-        $this->_dataHelper->log(DataHelper::CODE_ACTION, $message, false, $lengowOrder->getData('marketplace_sku'));
+        $this->dataHelper->log(
+            DataHelper::CODE_ACTION,
+            $message,
+            false,
+            $lengowOrder->getData(self::FIELD_MARKETPLACE_SKU)
+        );
         return $success;
     }
 
@@ -1110,15 +1209,15 @@ class Order extends AbstractModel
      *
      * @return array|false
      */
-    public function getOrderLineByApi($marketplaceSku, $marketplaceName, $deliveryAddressId)
+    public function getOrderLineByApi(string $marketplaceSku, string $marketplaceName, int $deliveryAddressId)
     {
         $orderLines = [];
-        $results = $this->_connector->queryApi(
+        $results = $this->lengowConnector->queryApi(
             LengowConnector::GET,
             LengowConnector::API_ORDER,
             [
-                'marketplace_order_id' => $marketplaceSku,
-                'marketplace' => $marketplaceName,
+                LengowImport::ARG_MARKETPLACE_ORDER_ID => $marketplaceSku,
+                LengowImport::ARG_MARKETPLACE => $marketplaceName,
             ]
         );
         if (!isset($results->results) || (isset($results->count) && (int) $results->count === 0)) {
@@ -1128,28 +1227,29 @@ class Order extends AbstractModel
         foreach ($orderData->packages as $package) {
             $productLines = [];
             foreach ($package->cart as $product) {
-                $productLines[] = ['order_line_id' => (string) $product->marketplace_order_line_id];
+                $productLines[] = [
+                    LengowOrderLine::FIELD_ORDER_LINE_ID => (string) $product->marketplace_order_line_id,
+                ];
             }
             $orderLines[(int) $package->delivery->id] = $productLines;
         }
-        $return = isset($orderLines[$deliveryAddressId]) ? $orderLines[$deliveryAddressId] : [];
-        return !empty($return) ? $return : false;
+        return $orderLines[$deliveryAddressId] ?? false;
     }
 
     /**
      * Get order ids from lengow order ID
      *
      * @param string $marketplaceSku marketplace sku
-     * @param string $marketplaceName delivery address id
+     * @param string $marketplaceName marketplace name
      *
      * @return array|false
      */
-    public function getAllOrderIds($marketplaceSku, $marketplaceName)
+    public function getAllOrderIds(string $marketplaceSku, string $marketplaceName)
     {
-        $results = $this->_orderCollection->create()
-            ->addFieldToFilter('marketplace_sku', $marketplaceSku)
-            ->addFieldToFilter('marketplace_name', $marketplaceName)
-            ->addFieldToSelect('order_id')
+        $results = $this->lengowOrderCollection->create()
+            ->addFieldToFilter(self::FIELD_MARKETPLACE_SKU, $marketplaceSku)
+            ->addFieldToFilter(self::FIELD_MARKETPLACE_NAME, $marketplaceName)
+            ->addFieldToSelect(self::FIELD_ORDER_ID)
             ->getData();
         if (!empty($results)) {
             return $results;
@@ -1164,13 +1264,30 @@ class Order extends AbstractModel
      */
     public function getAllLengowOrderIds()
     {
-        $results = $this->_orderCollection->create()
-            ->addFieldToSelect('id')
+        $results = $this->lengowOrderCollection->create()
+            ->addFieldToSelect(self::FIELD_ID)
             ->getData();
         if (!empty($results)) {
             return $results;
         }
         return false;
+    }
+
+    /**
+     * Retrieves all the Lengow order from a marketplace reference
+     *
+     * @param string $marketplaceSku marketplace sku
+     * @param string $marketplaceName marketplace name
+     *
+     * @return array
+     */
+    public function getAllLengowOrders(string $marketplaceSku, string $marketplaceName): array
+    {
+        $results = $this->lengowOrderCollection->create()
+            ->addFieldToFilter(self::FIELD_MARKETPLACE_SKU, $marketplaceSku)
+            ->addFieldToFilter(self::FIELD_MARKETPLACE_NAME, $marketplaceName)
+            ->getData();
+        return !empty($results) ? $results : [];
     }
 
     /**
@@ -1182,52 +1299,51 @@ class Order extends AbstractModel
      *
      * @return boolean
      */
-    public function synchronizeOrder($lengowOrder, $connector = null, $logOutput = false)
-    {
-        list($accountId, $accessToken, $secretToken) = $this->_configHelper->getAccessIds();
+    public function synchronizeOrder(
+        Order $lengowOrder,
+        LengowConnector $connector = null,
+        bool $logOutput = false
+    ): bool {
+        list($accountId, $accessToken, $secretToken) = $this->configHelper->getAccessIds();
         if ($connector === null) {
-            if ($this->_connector->isValidAuth($logOutput)) {
-                $this->_connector->init(['access_token' => $accessToken, 'secret' => $secretToken]);
+            if ($this->lengowConnector->isValidAuth($logOutput)) {
+                $this->lengowConnector->init(['access_token' => $accessToken, 'secret' => $secretToken]);
             } else {
                 return false;
             }
         }
         $orderIds = $this->getAllOrderIds(
-            $lengowOrder->getData('marketplace_sku'),
-            $lengowOrder->getData('marketplace_name')
+            $lengowOrder->getData(self::FIELD_MARKETPLACE_SKU),
+            $lengowOrder->getData(self::FIELD_MARKETPLACE_NAME)
         );
         if ($orderIds) {
             $magentoIds = [];
             foreach ($orderIds as $orderId) {
-                $magentoIds[] = (int) $orderId['order_id'];
+                $magentoIds[] = (int) $orderId[self::FIELD_ORDER_ID];
             }
             try {
                 $body = [
-                    'account_id' => $accountId,
-                    'marketplace_order_id' => $lengowOrder->getData('marketplace_sku'),
-                    'marketplace' => $lengowOrder->getData('marketplace_name'),
-                    'merchant_order_id' => $magentoIds,
+                    LengowImport::ARG_ACCOUNT_ID => $accountId,
+                    LengowImport::ARG_MARKETPLACE_ORDER_ID => $lengowOrder->getData(self::FIELD_MARKETPLACE_SKU),
+                    LengowImport::ARG_MARKETPLACE => $lengowOrder->getData(self::FIELD_MARKETPLACE_NAME),
+                    LengowImport::ARG_MERCHANT_ORDER_ID => $magentoIds,
                 ];
-                $result = $this->_connector->patch(
+                $result = $this->lengowConnector->patch(
                     LengowConnector::API_ORDER_MOI,
                     [],
                     LengowConnector::FORMAT_JSON,
                     $this->jsonHelper->jsonEncode($body),
                     $logOutput
                 );
-            } catch (\Exception $e) {
-                $message = $this->_dataHelper->decodeLogMessage($e->getMessage(), false);
-                $error = $this->_dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
-                $this->_dataHelper->log(DataHelper::CODE_CONNECTOR, $error, $logOutput);
+            } catch (Exception $e) {
+                $message = $this->dataHelper->decodeLogMessage($e->getMessage(), false);
+                $error = $this->dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
+                $this->dataHelper->log(DataHelper::CODE_CONNECTOR, $error, $logOutput);
                 return false;
             }
-            if ($result === null
+            return !($result === null
                 || (isset($result['detail']) && $result['detail'] === 'Pas trouvé.')
-                || isset($result['error'])
-            ) {
-                return false;
-            }
-            return true;
+                || isset($result['error']));
         }
         return false;
     }
@@ -1237,11 +1353,11 @@ class Order extends AbstractModel
      *
      * @return integer
      */
-    public function countOrderImportedByLengow()
+    public function countOrderImportedByLengow(): int
     {
-        $results = $this->_orderCollection->create()
+        $results = $this->lengowOrderCollection->create()
             ->join(['magento_order' => 'sales_order'], 'magento_order.entity_id=main_table.order_id')
-            ->addFieldToSelect('id')
+            ->addFieldToSelect(self::FIELD_ID)
             ->getData();
         return count($results);
     }
@@ -1251,11 +1367,11 @@ class Order extends AbstractModel
      *
      * @return integer
      */
-    public function countOrderWithError()
+    public function countOrderWithError(): int
     {
-        $results = $this->_orderCollection->create()
-            ->addFieldToFilter('is_in_error', 1)
-            ->addFieldToSelect('id')
+        $results = $this->lengowOrderCollection->create()
+            ->addFieldToFilter(self::FIELD_IS_IN_ERROR, 1)
+            ->addFieldToSelect(self::FIELD_ID)
             ->getData();
         return count($results);
     }
@@ -1265,11 +1381,11 @@ class Order extends AbstractModel
      *
      * @return integer
      */
-    public function countOrderToBeSent()
+    public function countOrderToBeSent(): int
     {
-        $results = $this->_orderCollection->create()
-            ->addFieldToFilter('order_process_state', 1)
-            ->addFieldToSelect('id')
+        $results = $this->lengowOrderCollection->create()
+            ->addFieldToFilter(self::FIELD_ORDER_PROCESS_STATE, 1)
+            ->addFieldToSelect(self::FIELD_ID)
             ->getData();
         return count($results);
     }

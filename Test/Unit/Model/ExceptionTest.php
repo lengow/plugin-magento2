@@ -25,7 +25,7 @@ use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 class ExceptionTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Lengow\Connector\Model\Exception
+     * @var Exception
      */
     protected $_exception;
 

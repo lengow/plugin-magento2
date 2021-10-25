@@ -28,7 +28,7 @@ class Index extends Action
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $configHelper;
+    private $configHelper;
 
     /**
      * Constructor

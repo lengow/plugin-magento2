@@ -36,7 +36,7 @@ class Security extends AbstractHelper
     /**
      * @var array lengow authorized ips
      */
-    protected $_ipsLengow = [
+    private $ipsLengow = [
         '127.0.0.1',
         '10.0.4.150',
         '46.19.183.204',
@@ -70,22 +70,22 @@ class Security extends AbstractHelper
     /**
      * @var ServerAddress Magento server address instance
      */
-    protected $_serverAddress;
+    private $serverAddress;
 
     /**
      * @var ModuleList Magento module list instance
      */
-    protected $_moduleList;
+    private $moduleList;
 
     /**
      * @var ProductMetadata Magento product metadata instance
      */
-    protected $_productMetadata;
+    private $productMetadata;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * Constructor
@@ -103,10 +103,10 @@ class Security extends AbstractHelper
         ProductMetadata $productMetadata,
         ConfigHelper $configHelper
     ) {
-        $this->_serverAddress = $serverAddress;
-        $this->_moduleList = $moduleList;
-        $this->_productMetadata = $productMetadata;
-        $this->_configHelper = $configHelper;
+        $this->serverAddress = $serverAddress;
+        $this->moduleList = $moduleList;
+        $this->productMetadata = $productMetadata;
+        $this->configHelper = $configHelper;
         parent::__construct($context);
     }
 
@@ -118,17 +118,10 @@ class Security extends AbstractHelper
      *
      * @return boolean
      */
-    public function checkWebserviceAccess($token, $storeId = 0)
+    public function checkWebserviceAccess(string $token, int $storeId = 0): bool
     {
-        if (!(bool) $this->_configHelper->get(ConfigHelper::AUTHORIZED_IP_ENABLED)
-            && $this->checkToken($token, $storeId)
-        ) {
-            return true;
-        }
-        if ($this->checkIp()) {
-            return true;
-        }
-        return false;
+        return (!(bool)$this->configHelper->get(ConfigHelper::AUTHORIZED_IP_ENABLED)
+                && $this->checkToken($token, $storeId)) || $this->checkIp();
     }
 
     /**
@@ -139,9 +132,9 @@ class Security extends AbstractHelper
      *
      * @return boolean
      */
-    public function checkToken($token, $storeId = 0)
+    public function checkToken(string $token, int $storeId = 0): bool
     {
-        return $token === $this->_configHelper->getToken($storeId);
+        return $token === $this->configHelper->getToken($storeId);
     }
 
     /**
@@ -149,9 +142,9 @@ class Security extends AbstractHelper
      *
      * @return boolean
      */
-    public function checkIp()
+    public function checkIp(): bool
     {
-        $authorizedIps = array_merge($this->_configHelper->getAuthorizedIps(), $this->_ipsLengow);
+        $authorizedIps = array_merge($this->configHelper->getAuthorizedIps(), $this->ipsLengow);
         $authorizedIps[] = $this->getServerIp();
         return in_array($this->getRemoteIp(), $authorizedIps, true);
     }
@@ -161,9 +154,9 @@ class Security extends AbstractHelper
      *
      * @return string
      */
-    public function getServerIp()
+    public function getServerIp(): string
     {
-        return $this->_serverAddress->getServerAddress();
+        return $this->serverAddress->getServerAddress();
     }
 
     /**
@@ -171,7 +164,7 @@ class Security extends AbstractHelper
      *
      * @return string
      */
-    public function getRemoteIp()
+    public function getRemoteIp(): string
     {
         return $this->_remoteAddress->getRemoteAddress();
     }
@@ -181,9 +174,9 @@ class Security extends AbstractHelper
      *
      * @return string
      */
-    public function getPluginVersion()
+    public function getPluginVersion(): string
     {
-        return $this->_moduleList->getOne(self::MODULE_NAME)['setup_version'];
+        return $this->moduleList->getOne(self::MODULE_NAME)['setup_version'];
     }
 
     /**
@@ -191,8 +184,8 @@ class Security extends AbstractHelper
      *
      * @return string
      */
-    public function getMagentoVersion()
+    public function getMagentoVersion(): string
     {
-        return $this->_productMetadata->getVersion();
+        return $this->productMetadata->getVersion();
     }
 }

@@ -25,6 +25,7 @@ use Magento\CatalogRule\Model\Rule as CatalogueRule;
 use Magento\Framework\Pricing\PriceCurrencyInterface as PriceCurrency;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Lengow\Connector\Helper\Data as DataHelper;
 
 /**
  * Lengow export price
@@ -34,82 +35,82 @@ class Price
     /**
      * @var ProductInterceptor Magento product instance
      */
-    protected $_product;
+    private $product;
 
     /**
      * @var StoreInterceptor Magento store instance
      */
-    protected $_store;
+    private $store;
 
     /**
      * @var CatalogueRule Magento catalogue rule instance
      */
-    protected $_catalogueRule;
+    private $catalogueRule;
 
     /**
      * @var PriceCurrency Magento price currency instance
      */
-    protected $_priceCurrency;
+    private $priceCurrency;
 
     /**
      * @var DateTime Magento datetime instance
      */
-    protected $_dateTime;
+    private $dateTime;
 
     /**
      * @var TimezoneInterface Magento datetime timezone instance
      */
-    protected $_timezone;
+    private $timezone;
 
     /**
      * @var string currency code for conversion
      */
-    protected $_currency;
+    private $currency;
 
     /**
      * @var string original store currency
      */
-    protected $_storeCurrency;
+    private $storeCurrency;
 
     /**
      * @var float Product price exclude tax
      */
-    protected $_priceExclTax;
+    private $priceExclTax;
 
     /**
      * @var float Product price include tax
      */
-    protected $_priceInclTax;
+    private $priceInclTax;
 
     /**
      * @var float Product price before discount exclude tax
      */
-    protected $_priceBeforeDiscountExclTax;
+    private $priceBeforeDiscountExclTax;
 
     /**
      * @var float Product price before discount include tax
      */
-    protected $_priceBeforeDiscountInclTax;
+    private $priceBeforeDiscountInclTax;
 
     /**
      * @var float discount amount
      */
-    protected $_discountAmount;
+    private $discountAmount;
 
     /**
      * @var float discount percent
      */
-    protected $_discountPercent;
+    private $discountPercent;
 
     /**
      * @var string discount start date
      */
-    protected $_discountStartDate;
+    private $discountStartDate;
 
     /**
      * @var string discount end date
      */
-    protected $_discountEndDate;
+    private $discountEndDate;
 
     /**
      * Constructor
@@ -125,24 +126,24 @@ class Price
         DateTime $dateTime,
         TimezoneInterface $timezone
     ) {
-        $this->_priceCurrency = $priceCurrency;
-        $this->_catalogueRule = $catalogueRule;
-        $this->_dateTime = $dateTime;
-        $this->_timezone = $timezone;
+        $this->priceCurrency = $priceCurrency;
+        $this->catalogueRule = $catalogueRule;
+        $this->dateTime = $dateTime;
+        $this->timezone = $timezone;
     }
 
     /**
-     * init a new price
+     * Init a new price
      *
      * @param array $params optional options for load a specific product
      * StoreInterceptor store    Magento store instance
      * string           currency Currency iso code for conversion
      */
-    public function init($params)
+    public function init(array $params)
     {
-        $this->_currency = $params['currency'];
-        $this->_store = $params['store'];
-        $this->_storeCurrency = $this->_store->getCurrentCurrencyCode();
+        $this->currency = $params['currency'];
+        $this->store = $params['store'];
+        $this->storeCurrency = $this->store->getCurrentCurrencyCode();
     }
 
     /**
@@ -151,23 +152,23 @@ class Price
      * @param array $params optional options for load a specific price
      * ProductInterceptor product Magento product instance
      */
-    public function load($params)
+    public function load(array $params)
     {
-        $this->_product = $params['product'];
+        $this->product = $params['product'];
         // get product prices
-        $productPrices = $this->_getAllPrices();
-        $this->_priceExclTax = $productPrices['price_excl_tax'];
-        $this->_priceInclTax = $productPrices['price_incl_tax'];
-        $this->_priceBeforeDiscountExclTax = $productPrices['price_before_discount_excl_tax'];
-        $this->_priceBeforeDiscountInclTax = $productPrices['price_before_discount_incl_tax'];
+        $productPrices = $this->getAllPrices();
+        $this->priceExclTax = $productPrices['price_excl_tax'];
+        $this->priceInclTax = $productPrices['price_incl_tax'];
+        $this->priceBeforeDiscountExclTax = $productPrices['price_before_discount_excl_tax'];
+        $this->priceBeforeDiscountInclTax = $productPrices['price_before_discount_incl_tax'];
         // get product discount amount and percent
-        $productDiscount = $this->_getAllDiscounts();
-        $this->_discountAmount = $productDiscount['discount_amount'];
-        $this->_discountPercent = $productDiscount['discount_percent'];
+        $productDiscount = $this->getAllDiscounts();
+        $this->discountAmount = $productDiscount['discount_amount'];
+        $this->discountPercent = $productDiscount['discount_percent'];
         // get product discount start and end date
-        $productDiscountDates = $this->_getAllDiscountDates();
-        $this->_discountStartDate = $productDiscountDates['discount_start_date'];
-        $this->_discountEndDate = $productDiscountDates['discount_end_date'];
+        $productDiscountDates = $this->getAllDiscountDates();
+        $this->discountStartDate = $productDiscountDates['discount_start_date'];
+        $this->discountEndDate = $productDiscountDates['discount_end_date'];
     }
 
     /**
@@ -175,13 +176,13 @@ class Price
      *
      * @return array
      */
-    public function getPrices()
+    public function getPrices(): array
     {
         return [
-            'price_excl_tax' => $this->_priceExclTax,
-            'price_incl_tax' => $this->_priceInclTax,
-            'price_before_discount_excl_tax' => $this->_priceBeforeDiscountExclTax,
-            'price_before_discount_incl_tax' => $this->_priceBeforeDiscountInclTax,
+            'price_excl_tax' => $this->priceExclTax,
+            'price_incl_tax' => $this->priceInclTax,
+            'price_before_discount_excl_tax' => $this->priceBeforeDiscountExclTax,
+            'price_before_discount_incl_tax' => $this->priceBeforeDiscountInclTax,
         ];
     }
 
@@ -190,13 +191,13 @@ class Price
      *
      * @return array
      */
-    public function getDiscounts()
+    public function getDiscounts(): array
     {
         return [
-            'discount_amount' => $this->_discountAmount,
-            'discount_percent' => $this->_discountPercent,
-            'discount_start_date' => $this->_discountStartDate,
-            'discount_end_date' => $this->_discountEndDate,
+            'discount_amount' => $this->discountAmount,
+            'discount_percent' => $this->discountPercent,
+            'discount_start_date' => $this->discountStartDate,
+            'discount_end_date' => $this->discountEndDate,
         ];
     }
 
@@ -205,15 +206,15 @@ class Price
      */
     public function clean()
     {
-        $this->_product = null;
-        $this->_priceExclTax = null;
-        $this->_priceInclTax = null;
-        $this->_priceBeforeDiscountExclTax = null;
-        $this->_priceBeforeDiscountInclTax = null;
-        $this->_discountAmount = null;
-        $this->_discountPercent = null;
-        $this->_discountStartDate = null;
-        $this->_discountEndDate = null;
+        $this->product = null;
+        $this->priceExclTax = null;
+        $this->priceInclTax = null;
+        $this->priceBeforeDiscountExclTax = null;
+        $this->priceBeforeDiscountInclTax = null;
+        $this->discountAmount = null;
+        $this->discountPercent = null;
+        $this->discountStartDate = null;
+        $this->discountEndDate = null;
     }
 
     /**
@@ -221,14 +222,14 @@ class Price
      *
      * @return array
      */
-    protected function _getAllPrices()
+    private function getAllPrices(): array
     {
-        $conversion = $this->_currency !== $this->_storeCurrency;
+        $conversion = $this->currency !== $this->storeCurrency;
         return [
-            'price_excl_tax' => $this->_getSpecificPrice('final_price', $conversion),
-            'price_incl_tax' => $this->_getSpecificPrice('final_price', $conversion, true),
-            'price_before_discount_excl_tax' => $this->_getSpecificPrice('regular_price', $conversion),
-            'price_before_discount_incl_tax' => $this->_getSpecificPrice('regular_price', $conversion, true),
+            'price_excl_tax' => $this->getSpecificPrice('final_price', $conversion),
+            'price_incl_tax' => $this->getSpecificPrice('final_price', $conversion, true),
+            'price_before_discount_excl_tax' => $this->getSpecificPrice('regular_price', $conversion),
+            'price_before_discount_incl_tax' => $this->getSpecificPrice('regular_price', $conversion, true),
         ];
     }
 
@@ -241,17 +242,17 @@ class Price
      *
      * @return float
      */
-    protected function _getSpecificPrice($code, $conversion = false, $includeTax = false)
+    private function getSpecificPrice(string $code, bool $conversion = false, bool $includeTax = false): float
     {
         if ($includeTax) {
-            $price = $this->_product->getPriceInfo()->getPrice($code)->getAmount()->getValue();
+            $price = $this->product->getPriceInfo()->getPrice($code)->getAmount()->getValue();
         } else {
-            $price = $this->_product->getPriceInfo()->getPrice($code)->getAmount()->getBaseAmount();
+            $price = $this->product->getPriceInfo()->getPrice($code)->getAmount()->getBaseAmount();
         }
         if ($conversion) {
-            $price = $this->_priceCurrency->convert($price, $this->_storeCurrency, $this->_currency);
+            $price = $this->priceCurrency->convert($price, $this->storeCurrency, $this->currency);
         }
-        return $this->_priceCurrency->round($price);
+        return $this->priceCurrency->round($price);
     }
 
     /**
@@ -259,12 +260,12 @@ class Price
      *
      * @return array
      */
-    protected function _getAllDiscounts()
+    private function getAllDiscounts(): array
     {
-        $discountAmount = $this->_priceBeforeDiscountInclTax - $this->_priceInclTax;
-        $discountAmount = $discountAmount > 0 ? $this->_priceCurrency->round($discountAmount) : 0;
+        $discountAmount = $this->priceBeforeDiscountInclTax - $this->priceInclTax;
+        $discountAmount = $discountAmount > 0 ? $this->priceCurrency->round($discountAmount) : 0;
         $discountPercent = $discountAmount > 0
-            ? $this->_priceCurrency->round(($discountAmount * 100) / $this->_priceBeforeDiscountInclTax)
+            ? $this->priceCurrency->round(($discountAmount * 100) / $this->priceBeforeDiscountInclTax)
             : 0;
         return [
             'discount_amount' => $discountAmount,
@@ -277,26 +278,26 @@ class Price
      *
      * @return array
      */
-    protected function _getAllDiscountDates()
+    private function getAllDiscountDates(): array
     {
         // get discount date from a special price
-        $discountStartDate = $this->_product->getSpecialFromDate();
-        $discountEndDate = $this->_product->getSpecialToDate();
+        $discountStartDate = $this->product->getSpecialFromDate();
+        $discountEndDate = $this->product->getSpecialToDate();
         // get discount date from a catalogue rule if exist
-        $catalogueRules = $this->_catalogueRule->getResource()->getRulesFromProduct(
-            (int) $this->_dateTime->gmtTimestamp(),
-            $this->_store->getWebsiteId(),
+        $catalogueRules = $this->catalogueRule->getResource()->getRulesFromProduct(
+            (int) $this->dateTime->gmtTimestamp(),
+            $this->store->getWebsiteId(),
             1,
-            $this->_product->getId()
+            $this->product->getId()
         );
         if (!empty($catalogueRules)) {
             $startTimestamp = (int) $catalogueRules[0]['from_time'];
             $endTimestamp = (int) $catalogueRules[0]['to_time'];
             $discountStartDate = $startTimestamp !== 0
-                ? $this->_timezone->date($startTimestamp)->format('Y-m-d H:i:s')
+                ? $this->timezone->date($startTimestamp)->format(DataHelper::DATE_FULL)
                 : '';
             $discountEndDate = $endTimestamp !== 0
-                ? $this->_timezone->date($endTimestamp)->format('Y-m-d H:i:s')
+                ? $this->timezone->date($endTimestamp)->format(DataHelper::DATE_FULL)
                 : '';
         }
         return [

@@ -96,7 +96,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export\Category::_getDefaultCategory
+     * @covers \Lengow\Connector\Model\Export\Category::getDefaultCategory
      */
     public function testGetDefaultCategory()
     {
@@ -140,7 +140,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export\Category::_getBreadcrumb
+     * @covers \Lengow\Connector\Model\Export\Category::getBreadcrumb
      */
     public function testGetBreadcrumb()
     {

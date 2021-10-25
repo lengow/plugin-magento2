@@ -29,22 +29,22 @@ class LaunchSynchronization
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    protected $configHelper;
 
     /**
      * @var SyncHelper Lengow sync helper instance
      */
-    protected $_syncHelper;
+    protected $syncHelper;
 
     /**
      * @var LengowAction Lengow action instance
      */
-    protected $_action;
+    protected $action;
 
     /**
      * @var LengowImport Lengow import instance
      */
-    protected $_import;
+    protected $import;
 
     /**
      * Constructor
@@ -60,10 +60,10 @@ class LaunchSynchronization
         LengowImport $import,
         LengowAction $action
     ) {
-        $this->_configHelper = $configHelper;
-        $this->_syncHelper = $syncHelper;
-        $this->_import = $import;
-        $this->_action = $action;
+        $this->configHelper = $configHelper;
+        $this->syncHelper = $syncHelper;
+        $this->import = $import;
+        $this->action = $action;
     }
 
     /**
@@ -71,18 +71,18 @@ class LaunchSynchronization
      */
     public function execute()
     {
-        if ($this->_configHelper->get(ConfigHelper::SYNCHRONISATION_MAGENTO_CRON_ENABLED)) {
+        if ($this->configHelper->get(ConfigHelper::SYNCHRONISATION_MAGENTO_CRON_ENABLED)) {
             // sync catalogs id between Lengow and Magento
-            $this->_syncHelper->syncCatalog();
+            $this->syncHelper->syncCatalog();
             // sync orders between Lengow and Magento
-            $this->_import->init([LengowImport::PARAM_TYPE => LengowImport::TYPE_MAGENTO_CRON]);
-            $this->_import->exec();
+            $this->import->init([LengowImport::PARAM_TYPE => LengowImport::TYPE_MAGENTO_CRON]);
+            $this->import->exec();
             // sync action between Lengow and Magento
-            $this->_action->checkFinishAction();
-            $this->_action->checkOldAction();
-            $this->_action->checkActionNotSent();
+            $this->action->checkFinishAction();
+            $this->action->checkOldAction();
+            $this->action->checkActionNotSent();
             // sync options between Lengow and Magento
-            $this->_syncHelper->setCmsOption();
+            $this->syncHelper->setCmsOption();
         }
     }
 }

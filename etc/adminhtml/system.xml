@@ -97,7 +97,7 @@
                 <field id="export_default_shipping_method" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="1">
                     <label>Shipping method</label>
                     <comment>Default shipping method to calculate shipping cost</comment>
-                    <source_model>\Magento\Shipping\Model\Config\Source\Allmethods</source_model>
+                    <source_model>Magento\Shipping\Model\Config\Source\Allmethods</source_model>
                 </field>
                 <field id="export_default_shipping_price" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="1">
                     <label>Shipping cost</label>
@@ -143,7 +143,7 @@
                 <field id="import_default_shipping_method" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="1">
                     <label>Shipping method</label>
                     <comment>Choose a shipping method for imported orders</comment>
-                    <source_model>\Magento\Shipping\Model\Config\Source\Allmethods</source_model>
+                    <source_model>Magento\Shipping\Model\Config\Source\Allmethods</source_model>
                 </field>
                 <field id="import_currency_conversion_enable" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="1">
                     <label>Convert the currency of your order</label>

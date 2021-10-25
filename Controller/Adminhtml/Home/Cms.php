@@ -57,7 +57,7 @@ class Cms extends Action
      *
      * @return MagentoJsonResult
      */
-    public function execute()
+    public function execute(): MagentoJsonResult
     {
         $result = $this->resultJsonFactory->create();
         $resultPage = $this->resultPageFactory->create();

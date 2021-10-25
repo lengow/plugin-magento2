@@ -29,17 +29,17 @@ class SaveConfig
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $configHelper;
+    private $configHelper;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $dataHelper;
+    private $dataHelper;
 
     /**
      * @var array path for Lengow options
      */
-    protected $_lengowOptions = [
+    private $lengowOptions = [
         'lengow_global_options',
         'lengow_export_options',
         'lengow_import_options',
@@ -67,9 +67,9 @@ class SaveConfig
     {
         $sectionId = $subject->getSection();
         $groups = $subject->getGroups();
-        if (!empty($groups) && in_array($sectionId, $this->_lengowOptions, true)) {
+        if (!empty($groups) && in_array($sectionId, $this->lengowOptions, true)) {
             $oldConfig = $subject->load();
-            $storeId = $subject->getScopeId() !== 0 ? $subject->getScopeId() : false;
+            $storeId = (int) $subject->getScopeId() !== 0 ? (int) $subject->getScopeId() : false;
             foreach ($groups as $groupId => $group) {
                 foreach ($group['fields'] as $fieldId => $value) {
                     $keyParams = ConfigHelper::$lengowSettings[$fieldId];
@@ -101,6 +101,12 @@ class SaveConfig
                         // save last update date for a specific settings (change synchronisation interval time)
                         if (isset($keyParams[ConfigHelper::PARAM_UPDATE]) && $keyParams[ConfigHelper::PARAM_UPDATE]) {
                             $this->configHelper->set(ConfigHelper::LAST_UPDATE_SETTING, time());
+                        }
+                        // reset the authorization token when a configuration parameter is changed
+                        if (isset($keyParams[ConfigHelper::PARAM_RESET_TOKEN])
+                            && $keyParams[ConfigHelper::PARAM_RESET_TOKEN]
+                        ) {
+                            $this->configHelper->resetAuthorizationToken();
                         }
                     }
                 }

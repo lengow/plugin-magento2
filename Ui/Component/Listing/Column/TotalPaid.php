@@ -22,32 +22,26 @@ namespace Lengow\Connector\Ui\Component\Listing\Column;
 use Magento\Directory\Model\CurrencyFactory;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
-use Magento\Store\Model\StoreManagerInterface;
 use Magento\Ui\Component\Listing\Columns\Column;
 use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class TotalPaid extends Column
 {
     /**
-     * @var StoreManagerInterface Magento store manager instance
-     */
-    protected $_storeManager;
-
-    /**
      * @var CurrencyFactory Magento currency factory instance
      */
-    protected $_currencyFactory;
+    private $currencyFactory;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * Constructor
      *
      * @param CurrencyFactory $currencyFactory Magento currency factory instance
-     * @param StoreManagerInterface $storeManager Magento store manager instance
      * @param ContextInterface $context Magento ui context instance
      * @param UiComponentFactory $uiComponentFactory Magento ui factory instance
      * @param DataHelper $dataHelper Lengow data helper instance
@@ -56,16 +50,14 @@ class TotalPaid extends Column
      */
     public function __construct(
         CurrencyFactory $currencyFactory,
-        StoreManagerInterface $storeManager,
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
         DataHelper $dataHelper,
         array $components = [],
         array $data = []
     ) {
-        $this->_storeManager = $storeManager;
-        $this->_currencyFactory = $currencyFactory;
-        $this->_dataHelper = $dataHelper;
+        $this->currencyFactory = $currencyFactory;
+        $this->dataHelper = $dataHelper;
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
@@ -76,18 +68,22 @@ class TotalPaid extends Column
      *
      * @return array
      */
-    public function prepareDataSource(array $dataSource)
+    public function prepareDataSource(array $dataSource): array
     {
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if ($item['total_paid'] !== null) {
-                    $currencyFactory = $this->_currencyFactory->create()->load($item['currency']);
+                if ($item[LengowOrder::FIELD_TOTAL_PAID] !== null) {
+                    $currencyFactory = $this->currencyFactory->create()->load($item[LengowOrder::FIELD_CURRENCY]);
                     $currencySymbol = $currencyFactory->getCurrencySymbol();
-                    $nbProduct = $this->_dataHelper->decodeLogMessage('%1 product(s)', true, [$item['order_item']]);
-                    $item['total_paid'] = '
+                    $nbProduct = $this->dataHelper->decodeLogMessage(
+                        '%1 product(s)',
+                        true,
+                        [$item[LengowOrder::FIELD_ORDER_ITEM]]
+                    );
+                    $item[LengowOrder::FIELD_TOTAL_PAID] = '
                         <div class="lengow_tooltip">'
-                            . $currencySymbol . $item['total_paid'] .
+                            . $currencySymbol . $item[LengowOrder::FIELD_TOTAL_PAID] .
                             '<span class="lengow_order_amount">' . $nbProduct . '</span>
                         </div>
                     ';

@@ -32,22 +32,22 @@ class Catalog
     /**
      * @var JsonHelper
      */
-    protected $jsonHelper;
+    private $jsonHelper;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $dataHelper;
+    private $dataHelper;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $configHelper;
+    private $configHelper;
 
     /**
      * @var LengowConnector
      */
-    protected $connector;
+    private $connector;
 
     /**
      * Constructor
@@ -74,7 +74,7 @@ class Catalog
      *
      * @return boolean
      */
-    public function hasCatalogNotLinked()
+    public function hasCatalogNotLinked(): bool
     {
         $lengowCatalogs = $this->connector->queryApi(
             LengowConnector::GET,
@@ -97,7 +97,7 @@ class Catalog
      *
      * @return array
      */
-    public function getCatalogList()
+    public function getCatalogList(): array
     {
         $catalogList = [];
         $lengowCatalogs = $this->connector->queryApi(
@@ -111,15 +111,11 @@ class Catalog
             if (!is_object($catalog) || $catalog->shop) {
                 continue;
             }
-            if ($catalog->name !== null) {
-                $name = $catalog->name;
-            } else {
-                $name = $this->dataHelper->decodeLogMessage(
-                    'Catalogue %1',
-                    true,
-                    ['catalog_id' => $catalog->id]
-                );
-            }
+            $name = $catalog->name ?? $this->dataHelper->decodeLogMessage(
+                'Catalogue %1',
+                true,
+                ['catalog_id' => $catalog->id]
+            );
             $status = $catalog->is_active
                 ?  $this->dataHelper->decodeLogMessage('Active')
                 :  $this->dataHelper->decodeLogMessage('Draft');
@@ -148,7 +144,7 @@ class Catalog
      *
      * @return bool
      */
-    public function saveCatalogsLinked($catalogSelected)
+    public function saveCatalogsLinked(array $catalogSelected = []): bool
     {
         $catalogsLinked = true;
         $catalogsByStores = [];
@@ -168,7 +164,7 @@ class Catalog
             $messageKey = $catalogsLinked
                 ? 'catalogues successfully linked with Lengow webservice'
                 : 'WARNING! catalogues could NOT be linked with Lengow webservice';
-            $this->dataHelper->log(DataHelper::CODE_CONNECTION,  $this->dataHelper->decodeLogMessage($messageKey));
+            $this->dataHelper->log(DataHelper::CODE_CONNECTION, $this->dataHelper->decodeLogMessage($messageKey));
         }
         return $catalogsLinked;
     }
@@ -180,13 +176,13 @@ class Catalog
      *
      * @return bool
      */
-    public function linkCatalogs($catalogsByStores)
+    public function linkCatalogs(array $catalogsByStores = []): bool
     {
         $catalogsLinked = false;
-        $hasCatalogToLink = false;
         if (empty($catalogsByStores)) {
             return $catalogsLinked;
         }
+        $hasCatalogToLink = false;
         $linkCatalogData = [
             'cms_token' => $this->configHelper->getToken(),
             'shops' => [],
@@ -201,7 +197,7 @@ class Catalog
                 'shop_token' => $shopToken,
                 'catalogs_id' => $catalogIds,
             ];
-            $this->dataHelper->log(DataHelper::CODE_CONNECTION,  $this->dataHelper->decodeLogMessage(
+            $this->dataHelper->log(DataHelper::CODE_CONNECTION, $this->dataHelper->decodeLogMessage(
                 'try to associate catalogue IDs %1 to the shop (SHOP token %2) for the Magento store ID %3',
                 false,
                 [

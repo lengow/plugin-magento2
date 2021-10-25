@@ -65,7 +65,7 @@ class ExportTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export::_getFields
+     * @covers \Lengow\Connector\Model\Export::getFields
      */
     public function testGetFields()
     {
@@ -96,7 +96,7 @@ class ExportTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export::_setFormat
+     * @covers \Lengow\Connector\Model\Export::setFormat
      */
     public function testSetFormat()
     {

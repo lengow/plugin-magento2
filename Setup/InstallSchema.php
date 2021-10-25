@@ -20,11 +20,17 @@
 
 namespace Lengow\Connector\Setup;
 
+use Exception;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
+use Lengow\Connector\Model\Import\Action as LengowAction;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
+use Lengow\Connector\Model\Import\Ordererror as LengowOrderError;
+use Lengow\Connector\Model\Import\Orderline as LengowOrderLine;
+use Lengow\Connector\Model\Log as LengowLog;
 
 /**
  * @codeCoverageIgnore
@@ -37,7 +43,7 @@ class InstallSchema implements InstallSchemaInterface
      * @param SchemaSetupInterface $setup Magento schema setup instance
      * @param ModuleContextInterface $context Magento module context instance
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return void
      */
@@ -47,12 +53,12 @@ class InstallSchema implements InstallSchemaInterface
         $installer->startSetup();
 
         // create table lengow_order
-        $tableName = $installer->getTable('lengow_order');
+        $tableName = $installer->getTable(LengowOrder::TABLE_ORDER);
         if (!$installer->getConnection()->isTableExists($tableName)) {
             $table = $installer->getConnection()
                 ->newTable($tableName)
                 ->addColumn(
-                    'id',
+                    LengowOrder::FIELD_ID,
                     Table::TYPE_INTEGER,
                     null,
                     [
@@ -63,7 +69,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Id'
                 )->addColumn(
-                    'order_id',
+                    LengowOrder::FIELD_ORDER_ID,
                     Table::TYPE_INTEGER,
                     null,
                     [
@@ -73,7 +79,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Order Id'
                 )->addColumn(
-                    'order_sku',
+                    LengowOrder::FIELD_ORDER_SKU,
                     Table::TYPE_TEXT,
                     40,
                     [
@@ -82,7 +88,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Order sku'
                 )->addColumn(
-                    'store_id',
+                    LengowOrder::FIELD_STORE_ID,
                     Table::TYPE_INTEGER,
                     null,
                     [
@@ -91,7 +97,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Store Id'
                 )->addColumn(
-                    'delivery_address_id',
+                    LengowOrder::FIELD_DELIVERY_ADDRESS_ID,
                     Table::TYPE_INTEGER,
                     null,
                     [
@@ -101,7 +107,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Delivery Address Id'
                 )->addColumn(
-                    'delivery_country_iso',
+                    LengowOrder::FIELD_DELIVERY_COUNTRY_ISO,
                     Table::TYPE_TEXT,
                     3,
                     [
@@ -110,7 +116,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Delivery Country Iso'
                 )->addColumn(
-                    'marketplace_sku',
+                    LengowOrder::FIELD_MARKETPLACE_SKU,
                     Table::TYPE_TEXT,
                     100,
                     [
@@ -118,7 +124,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Marketplace Sku'
                 )->addColumn(
-                    'marketplace_name',
+                    LengowOrder::FIELD_MARKETPLACE_NAME,
                     Table::TYPE_TEXT,
                     100,
                     [
@@ -126,7 +132,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Marketplace Name'
                 )->addColumn(
-                    'marketplace_label',
+                    LengowOrder::FIELD_MARKETPLACE_LABEL,
                     Table::TYPE_TEXT,
                     100,
                     [
@@ -135,7 +141,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Marketplace Label'
                 )->addColumn(
-                    'order_lengow_state',
+                    LengowOrder::FIELD_ORDER_LENGOW_STATE,
                     Table::TYPE_TEXT,
                     100,
                     [
@@ -143,7 +149,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Order Lengow State'
                 )->addColumn(
-                    'order_process_state',
+                    LengowOrder::FIELD_ORDER_PROCESS_STATE,
                     Table::TYPE_SMALLINT,
                     null,
                     [
@@ -152,7 +158,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Order Process State'
                 )->addColumn(
-                    'order_date',
+                    LengowOrder::FIELD_ORDER_DATE,
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
@@ -161,7 +167,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Order Date'
                 )->addColumn(
-                    'order_item',
+                    LengowOrder::FIELD_ORDER_ITEM,
                     Table::TYPE_SMALLINT,
                     null,
                     [
@@ -171,7 +177,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Order Item'
                 )->addColumn(
-                    'order_types',
+                    LengowOrder::FIELD_ORDER_TYPES,
                     Table::TYPE_TEXT,
                     null,
                     [
@@ -180,7 +186,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Order Types'
                 )->addColumn(
-                    'currency',
+                    LengowOrder::FIELD_CURRENCY,
                     Table::TYPE_TEXT,
                     3,
                     [
@@ -189,7 +195,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Currency'
                 )->addColumn(
-                    'total_paid',
+                    LengowOrder::FIELD_TOTAL_PAID,
                     Table::TYPE_DECIMAL,
                     null,
                     [
@@ -201,7 +207,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Total Paid'
                 )->addColumn(
-                    'customer_vat_number',
+                    LengowOrder::FIELD_CUSTOMER_VAT_NUMBER,
                     Table::TYPE_TEXT,
                     null,
                     [
@@ -210,7 +216,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Customer Vat Number'
                 )->addColumn(
-                    'commission',
+                    LengowOrder::FIELD_COMMISSION,
                     Table::TYPE_DECIMAL,
                     null,
                     [
@@ -222,7 +228,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Commission'
                 )->addColumn(
-                    'customer_name',
+                    LengowOrder::FIELD_CUSTOMER_NAME,
                     Table::TYPE_TEXT,
                     255,
                     [
@@ -231,7 +237,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Customer Name'
                 )->addColumn(
-                    'customer_email',
+                    LengowOrder::FIELD_CUSTOMER_EMAIL,
                     Table::TYPE_TEXT,
                     255,
                     [
@@ -240,7 +246,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Customer Email'
                 )->addColumn(
-                    'carrier',
+                    LengowOrder::FIELD_CARRIER,
                     Table::TYPE_TEXT,
                     100,
                     [
@@ -249,7 +255,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Carrier'
                 )->addColumn(
-                    'carrier_method',
+                    LengowOrder::FIELD_CARRIER_METHOD,
                     Table::TYPE_TEXT,
                     100,
                     [
@@ -258,7 +264,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Carrier Method'
                 )->addColumn(
-                    'carrier_tracking',
+                    LengowOrder::FIELD_CARRIER_TRACKING,
                     Table::TYPE_TEXT,
                     100,
                     [
@@ -267,7 +273,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Carrier Tracking'
                 )->addColumn(
-                    'carrier_id_relay',
+                    LengowOrder::FIELD_CARRIER_RELAY_ID,
                     Table::TYPE_TEXT,
                     100,
                     [
@@ -276,7 +282,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Carrier Id Relay'
                 )->addColumn(
-                    'sent_marketplace',
+                    LengowOrder::FIELD_SENT_MARKETPLACE,
                     Table::TYPE_BOOLEAN,
                     null,
                     [
@@ -285,7 +291,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Sent Marketplace'
                 )->addColumn(
-                    'is_in_error',
+                    LengowOrder::FIELD_IS_IN_ERROR,
                     Table::TYPE_BOOLEAN,
                     null,
                     [
@@ -294,7 +300,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Is In Error'
                 )->addColumn(
-                    'is_reimported',
+                    LengowOrder::FIELD_IS_REIMPORTED,
                     Table::TYPE_BOOLEAN,
                     null,
                     [
@@ -303,7 +309,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Is importable again'
                 )->addColumn(
-                    'message',
+                    LengowOrder::FIELD_MESSAGE,
                     Table::TYPE_TEXT,
                     null,
                     [
@@ -312,7 +318,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Message'
                 )->addColumn(
-                    'created_at',
+                    LengowOrder::FIELD_CREATED_AT,
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
@@ -321,7 +327,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Created At'
                 )->addColumn(
-                    'updated_at',
+                    LengowOrder::FIELD_UPDATED_AT,
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
@@ -330,7 +336,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Updated At'
                 )->addColumn(
-                    'extra',
+                    LengowOrder::FIELD_EXTRA,
                     Table::TYPE_TEXT,
                     null,
                     [
@@ -339,40 +345,40 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Extra'
                 )->addIndex(
-                    $installer->getIdxName('lengow_order', ['store_id']),
-                    ['store_id']
+                    $installer->getIdxName(LengowOrder::TABLE_ORDER, [LengowOrder::FIELD_STORE_ID]),
+                    [LengowOrder::FIELD_STORE_ID]
                 )->addIndex(
-                    $installer->getIdxName('lengow_order', ['marketplace_sku']),
-                    ['marketplace_sku']
+                    $installer->getIdxName(LengowOrder::TABLE_ORDER, [LengowOrder::FIELD_MARKETPLACE_SKU]),
+                    [LengowOrder::FIELD_MARKETPLACE_SKU]
                 )->addIndex(
-                    $installer->getIdxName('lengow_order', ['marketplace_name']),
-                    ['marketplace_name']
+                    $installer->getIdxName(LengowOrder::TABLE_ORDER, [LengowOrder::FIELD_MARKETPLACE_NAME]),
+                    [LengowOrder::FIELD_MARKETPLACE_NAME]
                 )->addIndex(
-                    $installer->getIdxName('lengow_order', ['order_lengow_state']),
-                    ['order_lengow_state']
+                    $installer->getIdxName(LengowOrder::TABLE_ORDER, [LengowOrder::FIELD_ORDER_LENGOW_STATE]),
+                    [LengowOrder::FIELD_ORDER_LENGOW_STATE]
                 )->addIndex(
-                    $installer->getIdxName('lengow_order', ['total_paid']),
-                    ['total_paid']
+                    $installer->getIdxName(LengowOrder::TABLE_ORDER, [LengowOrder::FIELD_TOTAL_PAID]),
+                    [LengowOrder::FIELD_TOTAL_PAID]
                 )->addIndex(
                     $installer->getIdxName(
-                        'lengow_order',
+                        LengowOrder::TABLE_ORDER,
                         [
-                            'order_sku',
-                            'marketplace_sku',
-                            'marketplace_name',
-                            'marketplace_label',
-                            'customer_name',
-                            'customer_email',
+                            LengowOrder::FIELD_ORDER_SKU,
+                            LengowOrder::FIELD_MARKETPLACE_SKU,
+                            LengowOrder::FIELD_MARKETPLACE_NAME,
+                            LengowOrder::FIELD_MARKETPLACE_LABEL,
+                            LengowOrder::FIELD_CUSTOMER_NAME,
+                            LengowOrder::FIELD_CUSTOMER_EMAIL,
                         ],
                         AdapterInterface::INDEX_TYPE_FULLTEXT
                     ),
                     [
-                        'order_sku',
-                        'marketplace_sku',
-                        'marketplace_name',
-                        'marketplace_label',
-                        'customer_name',
-                        'customer_email',
+                        LengowOrder::FIELD_ORDER_SKU,
+                        LengowOrder::FIELD_MARKETPLACE_SKU,
+                        LengowOrder::FIELD_MARKETPLACE_NAME,
+                        LengowOrder::FIELD_MARKETPLACE_LABEL,
+                        LengowOrder::FIELD_CUSTOMER_NAME,
+                        LengowOrder::FIELD_CUSTOMER_EMAIL,
                     ],
                     ['type' => AdapterInterface::INDEX_TYPE_FULLTEXT]
                 )
@@ -383,12 +389,12 @@ class InstallSchema implements InstallSchemaInterface
         }
 
         // create table lengow_order_line
-        $tableName = $installer->getTable('lengow_order_line');
+        $tableName = $installer->getTable(LengowOrderLine::TABLE_ORDER_LINE);
         if (!$installer->getConnection()->isTableExists($tableName)) {
             $table = $installer->getConnection()
-                ->newTable($installer->getTable('lengow_order_line'))
+                ->newTable($tableName)
                 ->addColumn(
-                    'id',
+                    LengowOrderLine::FIELD_ID,
                     Table::TYPE_INTEGER,
                     null,
                     [
@@ -399,7 +405,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Id'
                 )->addColumn(
-                    'order_id',
+                    LengowOrderLine::FIELD_ORDER_ID,
                     Table::TYPE_INTEGER,
                     null,
                     [
@@ -408,7 +414,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Order Id'
                 )->addColumn(
-                    'product_id',
+                    LengowOrderLine::FIELD_PRODUCT_ID,
                     Table::TYPE_INTEGER,
                     null,
                     [
@@ -417,7 +423,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Product Id'
                 )->addColumn(
-                    'order_line_id',
+                    LengowOrderLine::FIELD_ORDER_LINE_ID,
                     Table::TYPE_TEXT,
                     100,
                     [
@@ -429,12 +435,12 @@ class InstallSchema implements InstallSchemaInterface
         }
 
         // create table lengow_order_error
-        $tableName = $installer->getTable('lengow_order_error');
+        $tableName = $installer->getTable(LengowOrderError::TABLE_ORDER_ERROR);
         if (!$installer->getConnection()->isTableExists($tableName)) {
             $table = $installer->getConnection()
-                ->newTable($installer->getTable('lengow_order_error'))
+                ->newTable($tableName)
                 ->addColumn(
-                    'id',
+                    LengowOrderError::FIELD_ID,
                     Table::TYPE_INTEGER,
                     null,
                     [
@@ -445,7 +451,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Id'
                 )->addColumn(
-                    'order_lengow_id',
+                    LengowOrderError::FIELD_ORDER_LENGOW_ID,
                     Table::TYPE_INTEGER,
                     null,
                     [
@@ -454,7 +460,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Order Lengow Id'
                 )->addColumn(
-                    'message',
+                    LengowOrderError::FIELD_MESSAGE,
                     Table::TYPE_TEXT,
                     null,
                     [
@@ -463,7 +469,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Message'
                 )->addColumn(
-                    'type',
+                    LengowOrderError::FIELD_TYPE,
                     Table::TYPE_INTEGER,
                     null,
                     [
@@ -472,7 +478,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Type'
                 )->addColumn(
-                    'is_finished',
+                    LengowOrderError::FIELD_IS_FINISHED,
                     Table::TYPE_BOOLEAN,
                     null,
                     [
@@ -481,7 +487,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Is Finished'
                 )->addColumn(
-                    'mail',
+                    LengowOrderError::FIELD_MAIL,
                     Table::TYPE_BOOLEAN,
                     null,
                     [
@@ -490,7 +496,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Mail'
                 )->addColumn(
-                    'created_at',
+                    LengowOrderError::FIELD_CREATED_AT,
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
@@ -499,7 +505,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Created At'
                 )->addColumn(
-                    'updated_at',
+                    LengowOrderError::FIELD_UPDATED_AT,
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
@@ -512,12 +518,12 @@ class InstallSchema implements InstallSchemaInterface
         }
 
         // create table lengow_action
-        $tableName = $installer->getTable('lengow_action');
+        $tableName = $installer->getTable(LengowAction::TABLE_ACTION);
         if (!$installer->getConnection()->isTableExists($tableName)) {
             $table = $installer->getConnection()
-                ->newTable($installer->getTable('lengow_action'))
+                ->newTable($tableName)
                 ->addColumn(
-                    'id',
+                    LengowAction::FIELD_ID,
                     Table::TYPE_INTEGER,
                     null,
                     [
@@ -528,7 +534,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Id'
                 )->addColumn(
-                    'order_id',
+                    LengowAction::FIELD_ORDER_ID,
                     Table::TYPE_INTEGER,
                     null,
                     [
@@ -537,7 +543,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Order Id'
                 )->addColumn(
-                    'action_id',
+                    LengowAction::FIELD_ACTION_ID,
                     Table::TYPE_INTEGER,
                     null,
                     [
@@ -546,7 +552,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Action Id'
                 )->addColumn(
-                    'order_line_sku',
+                    LengowAction::FIELD_ORDER_LINE_SKU,
                     Table::TYPE_TEXT,
                     100,
                     [
@@ -555,7 +561,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Order Line Sku'
                 )->addColumn(
-                    'action_type',
+                    LengowAction::FIELD_ACTION_TYPE,
                     Table::TYPE_TEXT,
                     32,
                     [
@@ -563,7 +569,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Action Type'
                 )->addColumn(
-                    'retry',
+                    LengowAction::FIELD_RETRY,
                     Table::TYPE_SMALLINT,
                     null,
                     [
@@ -573,7 +579,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Retry'
                 )->addColumn(
-                    'parameters',
+                    LengowAction::FIELD_PARAMETERS,
                     Table::TYPE_TEXT,
                     null,
                     [
@@ -581,7 +587,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Parameters'
                 )->addColumn(
-                    'state',
+                    LengowAction::FIELD_STATE,
                     Table::TYPE_SMALLINT,
                     null,
                     [
@@ -590,7 +596,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'State'
                 )->addColumn(
-                    'created_at',
+                    LengowAction::FIELD_CREATED_AT,
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
@@ -599,7 +605,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Created At'
                 )->addColumn(
-                    'updated_at',
+                    LengowAction::FIELD_UPDATED_AT,
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
@@ -609,16 +615,16 @@ class InstallSchema implements InstallSchemaInterface
                     'Updated At'
                 )->addIndex(
                     $installer->getIdxName(
-                        'lengow_action',
+                        LengowAction::TABLE_ACTION,
                         [
-                            'order_line_sku',
-                            'parameters',
+                            LengowAction::FIELD_ORDER_LINE_SKU,
+                            LengowAction::FIELD_PARAMETERS,
                         ],
                         AdapterInterface::INDEX_TYPE_FULLTEXT
                     ),
                     [
-                        'order_line_sku',
-                        'parameters',
+                        LengowAction::FIELD_ORDER_LINE_SKU,
+                        LengowAction::FIELD_PARAMETERS,
                     ],
                     ['type' => AdapterInterface::INDEX_TYPE_FULLTEXT]
                 );
@@ -626,12 +632,12 @@ class InstallSchema implements InstallSchemaInterface
         }
 
         // create table lengow_log
-        $tableName = $installer->getTable('lengow_log');
+        $tableName = $installer->getTable(LengowLog::TABLE_LOG);
         if (!$installer->getConnection()->isTableExists($tableName)) {
             $table = $installer->getConnection()
-                ->newTable($installer->getTable('lengow_log'))
+                ->newTable($tableName)
                 ->addColumn(
-                    'id',
+                    LengowLog::FIELD_ID,
                     Table::TYPE_INTEGER,
                     null,
                     [
@@ -642,7 +648,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Id'
                 )->addColumn(
-                    'date',
+                    LengowLog::FIELD_DATE,
                     Table::TYPE_TIMESTAMP,
                     null,
                     [
@@ -651,7 +657,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Date'
                 )->addColumn(
-                    'category',
+                    LengowLog::FIELD_CATEGORY,
                     Table::TYPE_TEXT,
                     100,
                     [
@@ -659,7 +665,7 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Category'
                 )->addColumn(
-                    'message',
+                    LengowLog::FIELD_MESSAGE,
                     Table::TYPE_TEXT,
                     null,
                     [
@@ -667,18 +673,18 @@ class InstallSchema implements InstallSchemaInterface
                     ],
                     'Message'
                 )->addIndex(
-                    $installer->getIdxName('lengow_log', ['category']),
-                    ['category']
+                    $installer->getIdxName(LengowLog::TABLE_LOG, [LengowLog::FIELD_CATEGORY]),
+                    [LengowLog::FIELD_CATEGORY]
                 )->addIndex(
                     $installer->getIdxName(
-                        'lengow_log',
+                        LengowLog::TABLE_LOG,
                         [
-                            'message',
+                            LengowLog::FIELD_MESSAGE,
                         ],
                         AdapterInterface::INDEX_TYPE_FULLTEXT
                     ),
                     [
-                        'message',
+                        LengowLog::FIELD_MESSAGE,
                     ],
                     ['type' => AdapterInterface::INDEX_TYPE_FULLTEXT]
                 );

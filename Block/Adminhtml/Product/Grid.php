@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Block\Adminhtml\Product;
 
+use Exception;
 use Magento\Backend\Helper\Data as BackendHelper;
 use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Block\Widget\Grid as MagentoGrid;
@@ -28,7 +29,10 @@ use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 use Magento\Catalog\Model\Product\AttributeSet\Options as AttributeSetOptions;
 use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
 use Magento\Framework\DataObject;
+use Magento\Framework\Exception\FileSystemException;
 use Magento\Store\Model\WebsiteFactory;
+use Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Image;
+use Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Lengow;
 use Lengow\Connector\Block\Widget\Grid\Extended;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Config\Source\Type as SourceType;
@@ -38,37 +42,37 @@ class Grid extends Extended
     /**
      * @var ProductCollectionFactory Magento product collection factory instance
      */
-    protected $_collectionFactory;
+    private $collectionFactory;
 
     /**
      * @var AttributeSetOptions Magento attribute set options instance
      */
-    protected $_attributeSetOptions;
+    private $attributeSetOptions;
 
     /**
      * @var ProductVisibility Magento product visibility instance
      */
-    protected $_productVisibility;
+    private $productVisibility;
 
     /**
      * @var WebsiteFactory Magento website factory instance
      */
-    protected $_websiteFactory;
+    private $websiteFactory;
 
     /**
      * @var ProductStatus Magento product attribute status instance
      */
-    protected $_status;
+    private $status;
 
     /**
      * @var SourceType Lengow config source type instance
      */
-    protected $_sourceType;
+    private $sourceType;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * Constructor
@@ -96,18 +100,22 @@ class Grid extends Extended
         DataHelper $dataHelper,
         array $data = []
     ) {
-        $this->_collectionFactory = $collectionFactory;
-        $this->_sourceType = $sourceType;
-        $this->_attributeSetOptions = $attributeSetOptions;
-        $this->_productVisibility = $productVisibility;
-        $this->_websiteFactory = $websiteFactory;
-        $this->_status = $status;
-        $this->_dataHelper = $dataHelper;
+        $this->collectionFactory = $collectionFactory;
+        $this->sourceType = $sourceType;
+        $this->attributeSetOptions = $attributeSetOptions;
+        $this->productVisibility = $productVisibility;
+        $this->websiteFactory = $websiteFactory;
+        $this->status = $status;
+        $this->dataHelper = $dataHelper;
         parent::__construct($context, $backendHelper, $data);
     }
 
     /**
+     * Inherited construct method
+     *
      * @return void
+     *
+     * @throws FileSystemException
      */
     protected function _construct()
     {
@@ -122,13 +130,13 @@ class Grid extends Extended
     /**
      * Prepare collection
      *
-     * @throws \Exception
-     *
      * @return MagentoGrid
+     *
+     * @throws Exception
      */
-    protected function _prepareCollection()
+    protected function _prepareCollection(): MagentoGrid
     {
-        $collection = $this->_collectionFactory->create();
+        $collection = $this->collectionFactory->create();
         $collection->addAttributeToSelect('sku')
             ->addAttributeToSelect('name')
             ->addAttributeToSelect('thumbnail')
@@ -140,7 +148,7 @@ class Grid extends Extended
                 '{{table}}.stock_id=1',
                 'left'
             )
-            ->addStoreFilter($this->_dataHelper->getStore())
+            ->addStoreFilter($this->dataHelper->getStore())
             ->addAttributeToFilter('type_id', ['nlike' => 'bundle']);
         $collection->joinAttribute(
             'lengow_product',
@@ -148,7 +156,7 @@ class Grid extends Extended
             'entity_id',
             null,
             'left',
-            $this->_dataHelper->getStore()->getId()
+            $this->dataHelper->getStore()->getId()
         );
         $collection->joinAttribute(
             'price',
@@ -156,7 +164,7 @@ class Grid extends Extended
             'entity_id',
             null,
             'left',
-            $this->_dataHelper->getStore()->getId()
+            $this->dataHelper->getStore()->getId()
         );
         $collection->joinAttribute(
             'status',
@@ -164,7 +172,7 @@ class Grid extends Extended
             'entity_id',
             null,
             'inner',
-            $this->_dataHelper->getStore()->getId()
+            $this->dataHelper->getStore()->getId()
         );
         $collection->joinAttribute(
             'visibility',
@@ -172,7 +180,7 @@ class Grid extends Extended
             'entity_id',
             null,
             'inner',
-            $this->_dataHelper->getStore()->getId()
+            $this->dataHelper->getStore()->getId()
         );
         $this->setCollection($collection);
 
@@ -184,19 +192,19 @@ class Grid extends Extended
     /**
      * Prepare columns
      *
-     * @throws \Exception
-     *
      * @return MagentoGridExtended
+     *
+     * @throws Exception
      */
-    protected function _prepareColumns()
+    protected function _prepareColumns(): MagentoGridExtended
     {
         // create type filter without bundle type product
-        $types = $this->_sourceType->toOptionArray();
+        $types = $this->sourceType->toOptionArray();
         $type = [];
         foreach ($types as $value) {
             $type[$value['value']] = $value['label'];
         }
-        $store = $this->_dataHelper->getStore();
+        $store = $this->dataHelper->getStore();
         $this->addColumn(
             'entity_id',
             [
@@ -217,7 +225,7 @@ class Grid extends Extended
             [
                 'header' => __('Image'),
                 'index' => 'image',
-                'renderer' => '\Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Image',
+                'renderer' => Image::class,
                 'column_css_class' => 'data-grid-thumbnail-cell',
                 'filter' => false,
             ]
@@ -232,7 +240,7 @@ class Grid extends Extended
                 'options' => $type,
             ]
         );
-        $sets = $this->_attributeSetOptions->toOptionArray();
+        $sets = $this->attributeSetOptions->toOptionArray();
         $set = [];
         foreach ($sets as $value) {
             $set[$value['value']] = $value['label'];
@@ -279,7 +287,7 @@ class Grid extends Extended
                 'header' => __('Visibility'),
                 'index' => 'visibility',
                 'type' => 'options',
-                'options' => $this->_productVisibility->getOptionArray(),
+                'options' => $this->productVisibility::getOptionArray(),
             ]
         );
         $this->addColumn(
@@ -289,7 +297,7 @@ class Grid extends Extended
                 'column_css_class' => 'a-center',
                 'index' => 'status',
                 'type' => 'options',
-                'options' => $this->_status->getOptionArray(),
+                'options' => $this->status::getOptionArray(),
             ]
         );
         if (!$this->_storeManager->isSingleStoreMode()) {
@@ -300,7 +308,7 @@ class Grid extends Extended
                     'sortable' => false,
                     'index' => 'websites',
                     'type' => 'options',
-                    'options' => $this->_websiteFactory->create()->getCollection()->toOptionHash(),
+                    'options' => $this->websiteFactory->create()->getCollection()->toOptionHash(),
                     'filter' => false,
                 ]
             );
@@ -311,7 +319,7 @@ class Grid extends Extended
                 'header' => __('Include in export?'),
                 'index' => 'lengow_product',
                 'type' => 'options',
-                'renderer' => 'Lengow\Connector\Block\Adminhtml\Product\Grid\Renderer\Lengow',
+                'renderer' => Lengow::class,
                 'column_css_class' => 'a-center',
                 'options' => [
                     1 => __('Yes'),
@@ -327,7 +335,7 @@ class Grid extends Extended
      *
      * @return $this
      */
-    protected function _prepareMassaction()
+    protected function _prepareMassaction(): self
     {
         $this->setMassactionIdField('entity_id');
         $this->getMassactionBlock()->setFormFieldName('product');
@@ -356,7 +364,7 @@ class Grid extends Extended
      *
      * @return string
      */
-    public function getGridUrl()
+    public function getGridUrl(): string
     {
         return $this->getUrl('lengow/product/index', ['_current' => true]);
     }
@@ -364,15 +372,15 @@ class Grid extends Extended
     /**
      * Inline editing action
      *
-     * @param DataObject $row Magento data object instance
+     * @param DataObject $item Magento data object instance
      *
      * @return string
      */
-    public function getRowUrl($row)
+    public function getRowUrl($item): string
     {
         return $this->getUrl(
             'catalog/*/edit',
-            ['store' => $this->getRequest()->getParam('store'), 'id' => $row->getId()]
+            ['store' => $this->getRequest()->getParam('store'), 'id' => $item->getId()]
         );
     }
 }

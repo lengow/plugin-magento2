@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Export;
 
+use Exception;
 use Magento\Framework\Filesystem\Driver\File as DriverFile;
 use Lengow\Connector\Helper\Data as DataHelper;
 
@@ -30,32 +31,32 @@ class File
     /**
      * @var DriverFile Magento driver file instance
      */
-    protected $_driverFile;
+    private $driverFile;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * @var resource file
      */
-    protected $_fileInstance;
+    private $fileInstance;
 
     /**
      * @var string file name
      */
-    protected $_fileName;
+    private $fileName;
 
     /**
      * @var string folder name that contains the file
      */
-    protected $_folderName;
+    private $folderName;
 
     /**
      * @var string file link
      */
-    protected $_link;
+    private $link;
 
     /**
      * Constructor
@@ -67,8 +68,8 @@ class File
         DriverFile $driverFile,
         DataHelper $dataHelper
     ) {
-        $this->_driverFile = $driverFile;
-        $this->_dataHelper = $dataHelper;
+        $this->driverFile = $driverFile;
+        $this->dataHelper = $dataHelper;
     }
 
     /**
@@ -78,13 +79,13 @@ class File
      * string folder_name Lengow export folder name
      * string file_name   Lengow export file name
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function init($params)
+    public function init(array $params)
     {
-        $this->_folderName = $params['folder_name'];
-        $this->_fileName = $params['file_name'];
-        $this->_fileInstance = $this->_getFileResource($this->getPath());
+        $this->folderName = $params['folder_name'];
+        $this->fileName = $params['file_name'];
+        $this->fileInstance = $this->getFileResource($this->getPath());
     }
 
     /**
@@ -92,26 +93,26 @@ class File
      *
      * @param string $data data to be written
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function write($data)
+    public function write(string $data)
     {
-        if (is_resource($this->_fileInstance)) {
-            $this->_driverFile->fileLock($this->_fileInstance);
-            $this->_driverFile->fileWrite($this->_fileInstance, $data);
-            $this->_driverFile->fileUnlock($this->_fileInstance);
+        if (is_resource($this->fileInstance)) {
+            $this->driverFile->fileLock($this->fileInstance);
+            $this->driverFile->fileWrite($this->fileInstance, $data);
+            $this->driverFile->fileUnlock($this->fileInstance);
         }
     }
 
     /**
      * Write content in file
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function close()
     {
-        if (is_resource($this->_fileInstance)) {
-            $this->_driverFile->fileClose($this->_fileInstance);
+        if (is_resource($this->fileInstance)) {
+            $this->driverFile->fileClose($this->fileInstance);
         }
     }
 
@@ -120,21 +121,21 @@ class File
      *
      * @param string $newFileName new file name
      *
-     * @throws \Exception
-     *
      * @return boolean
+     *
+     * @throws Exception
      */
-    public function rename($newFileName)
+    public function rename(string $newFileName): bool
     {
         $sep = DIRECTORY_SEPARATOR;
         $oldPath = $this->getPath();
-        $newPath = $this->_dataHelper->getMediaPath() . $sep . $this->_folderName . $sep . $newFileName;
-        if ($this->_fileExists($newPath)) {
-            $this->_driverFile->deleteFile($newPath);
+        $newPath = $this->dataHelper->getMediaPath() . $sep . $this->folderName . $sep . $newFileName;
+        if ($this->fileExists($newPath)) {
+            $this->driverFile->deleteFile($newPath);
         }
-        $success = $this->_driverFile->rename($oldPath, $newPath);
+        $success = $this->driverFile->rename($oldPath, $newPath);
         if ($success) {
-            $this->_fileName = $newFileName;
+            $this->fileName = $newFileName;
             return true;
         }
         return false;
@@ -143,17 +144,17 @@ class File
     /**
      * Get file link
      *
-     * @throws \Exception
-     *
      * @return string
+     *
+     * @throws Exception
      */
-    public function getLink()
+    public function getLink(): string
     {
-        if (empty($this->_link) && $this->_fileExists()) {
+        if (empty($this->link) && $this->fileExists()) {
             $sep = DIRECTORY_SEPARATOR;
-            $this->_link = $this->_dataHelper->getMediaUrl() . $this->_folderName . $sep . $this->_fileName;
+            $this->link = $this->dataHelper->getMediaUrl() . $this->folderName . $sep . $this->fileName;
         }
-        return $this->_link;
+        return $this->link;
     }
 
     /**
@@ -161,10 +162,10 @@ class File
      *
      * @return string
      */
-    public function getPath()
+    public function getPath(): string
     {
         $sep = DIRECTORY_SEPARATOR;
-        return $this->_dataHelper->getMediaPath() . $sep . $this->_folderName . $sep . $this->_fileName;
+        return $this->dataHelper->getMediaPath() . $sep . $this->folderName . $sep . $this->fileName;
     }
 
     /**
@@ -172,13 +173,13 @@ class File
      *
      * @param string $path file path
      *
-     * @throws \Exception
-     *
      * @return resource
+     *
+     * @throws Exception
      */
-    protected function _getFileResource($path)
+    private function getFileResource(string $path)
     {
-        return $this->_driverFile->fileOpen($path, 'a+');
+        return $this->driverFile->fileOpen($path, 'a+');
     }
 
     /**
@@ -186,13 +187,13 @@ class File
      *
      * @param string|null $filePath file path
      *
-     * @throws \Exception
-     *
      * @return boolean
+     *
+     * @throws Exception
      */
-    protected function _fileExists($filePath = null)
+    private function fileExists(string $filePath = null): bool
     {
-        $filePath = $filePath !== null ? $filePath : $this->getPath();
-        return $this->_driverFile->isExists($filePath);
+        $filePath = $filePath ?? $this->getPath();
+        return $this->driverFile->isExists($filePath);
     }
 }

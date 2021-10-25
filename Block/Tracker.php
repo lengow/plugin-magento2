@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Block;
 
+use Exception;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
@@ -33,27 +34,27 @@ class Tracker extends Template
     /**
      * @var ProductRepository Magento product repository instance
      */
-    protected $_productRepository;
+    private $productRepository;
 
     /**
      * @var Session Magento checkout session instance
      */
-    protected $_checkoutSession;
+    private $checkoutSession;
 
     /**
      * @var JsonHelper Magento json helper instance
      */
-    protected $_jsonHelper;
+    private $jsonHelper;
 
     /**
      * @var MagentoOrderFactory Magento order factory instance
      */
-    protected $_orderFactory;
+    private $orderFactory;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * Constructor
@@ -76,11 +77,11 @@ class Tracker extends Template
         array $data = []
     ) {
         parent::__construct($context, $data);
-        $this->_checkoutSession = $checkoutSession;
-        $this->_orderFactory = $orderFactory;
-        $this->_productRepository = $productRepository;
-        $this->_jsonHelper = $jsonHelper;
-        $this->_configHelper = $configHelper;
+        $this->checkoutSession = $checkoutSession;
+        $this->orderFactory = $orderFactory;
+        $this->productRepository = $productRepository;
+        $this->jsonHelper = $jsonHelper;
+        $this->configHelper = $configHelper;
     }
 
     /**
@@ -90,8 +91,8 @@ class Tracker extends Template
      */
     public function getLastOrder()
     {
-        if ($this->_checkoutSession->getLastRealOrderId()) {
-            return $this->_orderFactory->create()->loadByIncrementId($this->_checkoutSession->getLastRealOrderId());
+        if ($this->checkoutSession->getLastRealOrderId()) {
+            return $this->orderFactory->create()->loadByIncrementId($this->checkoutSession->getLastRealOrderId());
         }
         return false;
     }
@@ -103,7 +104,7 @@ class Tracker extends Template
      *
      * @return string
      */
-    public function getProductIds($order)
+    private function getProductIds(MagentoOrder $order): string
     {
         $orderItems = $order->getAllVisibleItems();
         $productsCart = [];
@@ -112,37 +113,36 @@ class Tracker extends Template
                 $product = $item->getProduct();
             } else {
                 try {
-                    $product = $this->_productRepository->getById($item->getProductId());
-                } catch (\Exception $e) {
+                    $product = $this->productRepository->getById($item->getProductId());
+                } catch (Exception $e) {
                     continue;
                 }
             }
             $quantity = (int) $item->getQtyOrdered();
             $price = round((float) $item->getRowTotalInclTax() / $quantity, 2);
-            $identifier = $this->_configHelper->get(ConfigHelper::TRACKING_ID);
-            $productDatas = [
+            $identifier = $this->configHelper->get(ConfigHelper::TRACKING_ID);
+            $productsCart[] = [
                 'product_id' => $product->getData($identifier),
                 'price' => $price,
                 'quantity' => $quantity,
             ];
-            $productsCart[] = $productDatas;
         }
-        return $this->_jsonHelper->jsonEncode($productsCart);
+        return $this->jsonHelper->jsonEncode($productsCart);
     }
 
     /**
      * Prepare and return block's html output
      *
-     * @return string
+     * @return Tracker
      */
-    protected function _prepareLayout()
+    protected function _prepareLayout(): Tracker
     {
-        if ((bool) $this->_configHelper->get(ConfigHelper::TRACKING_ENABLED)
+        if ($this->configHelper->get(ConfigHelper::TRACKING_ENABLED)
             && $this->getRequest()->getActionName() === 'success'
         ) {
             $order = $this->getLastOrder();
             if ($order) {
-                $this->setData('account_id', $this->_configHelper->get('account_id'));
+                $this->setData('account_id', $this->configHelper->get(ConfigHelper::ACCOUNT_ID));
                 $this->setData('order_ref', $order->getId());
                 $this->setData('amount', $order->getGrandTotal());
                 $this->setData('currency', $order->getOrderCurrencyCode());
@@ -161,9 +161,9 @@ class Tracker extends Template
      *
      * @return string
      */
-    protected function _toHtml()
+    protected function _toHtml(): string
     {
-        if (!(bool) $this->_configHelper->get(ConfigHelper::TRACKING_ENABLED)
+        if (!(bool) $this->configHelper->get(ConfigHelper::TRACKING_ENABLED)
             || $this->getRequest()->getActionName() !== 'success'
         ) {
             return '';

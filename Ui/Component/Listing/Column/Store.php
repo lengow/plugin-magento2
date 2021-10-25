@@ -19,17 +19,19 @@
 
 namespace Lengow\Connector\Ui\Component\Listing\Column;
 
+use Exception;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Ui\Component\Listing\Columns\Column;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class Store extends Column
 {
     /**
      * @var StoreManagerInterface Magento store manager instance
      */
-    protected $_storeManager;
+    private $storeManager;
 
     /**
      * Constructor
@@ -47,7 +49,7 @@ class Store extends Column
         array $components = [],
         array $data = []
     ) {
-        $this->_storeManager = $storeManager;
+        $this->storeManager = $storeManager;
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
@@ -58,15 +60,17 @@ class Store extends Column
      *
      * @return array
      */
-    public function prepareDataSource(array $dataSource)
+    public function prepareDataSource(array $dataSource): array
     {
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
                 try {
-                    $item['store_id'] = $this->_storeManager->getStore($item['store_id'])->getName();
-                } catch (\Exception $e) {
-                    $item['store_id'] = $this->_storeManager->getDefaultStoreView()->getName();
+                    $item[LengowOrder::FIELD_STORE_ID] = $this->storeManager->getStore(
+                        $item[LengowOrder::FIELD_STORE_ID]
+                    )->getName();
+                } catch (Exception $e) {
+                    $item[LengowOrder::FIELD_STORE_ID] = $this->storeManager->getDefaultStoreView()->getName();
                 }
             }
         }

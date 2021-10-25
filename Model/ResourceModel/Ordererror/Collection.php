@@ -20,6 +20,7 @@
 namespace Lengow\Connector\Model\ResourceModel\Ordererror;
 
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
+use Lengow\Connector\Model\Import\Ordererror;
 
 class Collection extends AbstractCollection
 {
@@ -31,8 +32,8 @@ class Collection extends AbstractCollection
     public function _construct()
     {
         $this->_init(
-            'Lengow\Connector\Model\Import\Ordererror',
-            'Lengow\Connector\Model\ResourceModel\Ordererror'
+            Ordererror::class,
+            \Lengow\Connector\Model\ResourceModel\Ordererror::class
         );
     }
 }

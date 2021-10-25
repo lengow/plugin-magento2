@@ -24,18 +24,19 @@ use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Ui\Component\Listing\Columns\Column;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class Country extends Column
 {
     /**
      * @var Repository Magento asset repository instance
      */
-    protected $_assetRepo;
+    private $assetRepo;
 
     /**
      * @var CountryFactory Magento country factory instance
      */
-    protected $_countryFactory;
+    private $countryFactory;
 
     /**
      * Constructor
@@ -55,8 +56,8 @@ class Country extends Column
         array $components = [],
         array $data = []
     ) {
-        $this->_assetRepo = $assetRepo;
-        $this->_countryFactory = $countryFactory;
+        $this->assetRepo = $assetRepo;
+        $this->countryFactory = $countryFactory;
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
@@ -67,20 +68,22 @@ class Country extends Column
      *
      * @return array
      */
-    public function prepareDataSource(array $dataSource)
+    public function prepareDataSource(array $dataSource): array
     {
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if (['delivery_country_iso'] !== null && strlen($item['delivery_country_iso']) === 2) {
-                    $filename = $this->_assetRepo->getUrl('Lengow_Connector/images/flag')
-                        . DIRECTORY_SEPARATOR . strtoupper($item['delivery_country_iso']) . '.png';
-                    $country_name = $this->_countryFactory->create()
-                        ->loadByCode($item['delivery_country_iso'])
+                if ($item[LengowOrder::FIELD_DELIVERY_COUNTRY_ISO] !== null
+                    && strlen($item[LengowOrder::FIELD_DELIVERY_COUNTRY_ISO]) === 2
+                ) {
+                    $filename = $this->assetRepo->getUrl('Lengow_Connector/images/flag')
+                        . DIRECTORY_SEPARATOR . strtoupper($item[LengowOrder::FIELD_DELIVERY_COUNTRY_ISO]) . '.png';
+                    $countryName = $this->countryFactory->create()
+                        ->loadByCode($item[LengowOrder::FIELD_DELIVERY_COUNTRY_ISO])
                         ->getName();
-                    $item['delivery_country_iso'] = '<a class="lengow_tooltip" href="#">
+                    $item[LengowOrder::FIELD_DELIVERY_COUNTRY_ISO] = '<a class="lengow_tooltip" href="#">
                         <img src="' . $filename . '" />
-                        <span class="lengow_order_country">' . $country_name . '</span></a>';
+                        <span class="lengow_order_country">' . $countryName . '</span></a>';
                 }
             }
         }

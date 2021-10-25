@@ -28,31 +28,27 @@ use Lengow\Connector\Block\Adminhtml\Main;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Catalog as LengowCatalog;
 
-/**
- * Class Catalog
- * @package Lengow\Connector\Controller\Adminhtml\Home
- */
 class Catalog extends Action
 {
     /**
      * @var PageFactory Magento page factory
      */
-    protected $resultPageFactory;
+    private $resultPageFactory;
 
     /**
      * @var JsonFactory Magento Json factory
      */
-    protected $resultJsonFactory;
+    private $resultJsonFactory;
 
     /**
      * @var ConfigHelper Lengow config helper
      */
-    protected $configHelper;
+    private $configHelper;
 
     /**
      * @var LengowCatalog Lengow catalog helper
      */
-    protected $catalog;
+    private $catalog;
 
     /**
      * View constructor
@@ -83,7 +79,7 @@ class Catalog extends Action
      *
      * @return MagentoJsonResult
      */
-    public function execute()
+    public function execute(): MagentoJsonResult
     {
         $result = $this->resultJsonFactory->create();
         $resultPage = $this->resultPageFactory->create();
@@ -105,7 +101,7 @@ class Catalog extends Action
      *
      * @return array
      */
-    private function getCatalogList()
+    private function getCatalogList(): array
     {
         $lengowActiveStores = $this->configHelper->getLengowActiveStores();
         if (empty($lengowActiveStores)) {

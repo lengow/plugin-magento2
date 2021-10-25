@@ -20,6 +20,7 @@
 namespace Lengow\Connector\Model\ResourceModel\Orderline;
 
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
+use Lengow\Connector\Model\Import\Orderline;
 
 class Collection extends AbstractCollection
 {
@@ -31,8 +32,8 @@ class Collection extends AbstractCollection
     public function _construct()
     {
         $this->_init(
-            'Lengow\Connector\Model\Import\Orderline',
-            'Lengow\Connector\Model\ResourceModel\Orderline'
+            Orderline::class,
+            \Lengow\Connector\Model\ResourceModel\Orderline::class
         );
     }
 }

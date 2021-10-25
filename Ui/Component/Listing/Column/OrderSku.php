@@ -19,10 +19,10 @@
 
 namespace Lengow\Connector\Ui\Component\Listing\Column;
 
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\UrlInterface;
-use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Ui\Component\Listing\Columns\Column;
 
 class OrderSku extends Column
@@ -30,17 +30,11 @@ class OrderSku extends Column
     /**
      * @var UrlInterface Magento framework url instance
      */
-    protected $_urlBuilder;
-
-    /**
-     * @var OrderRepositoryInterface Magento order repository instance
-     */
-    protected $_orderRepository;
+    private $urlBuilder;
 
     /**
      * Constructor
      *
-     * @param OrderRepositoryInterface $orderRepository Magento order repository instance
      * @param UrlInterface $urlBuilder Magento framework url instance
      * @param ContextInterface $context Magento ui context instance
      * @param UiComponentFactory $uiComponentFactory Magento ui factory instance
@@ -48,15 +42,13 @@ class OrderSku extends Column
      * @param array $data additional params
      */
     public function __construct(
-        OrderRepositoryInterface $orderRepository,
         UrlInterface $urlBuilder,
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
         array $components = [],
         array $data = []
     ) {
-        $this->_urlBuilder = $urlBuilder;
-        $this->_orderRepository = $orderRepository;
+        $this->urlBuilder = $urlBuilder;
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
@@ -67,15 +59,18 @@ class OrderSku extends Column
      *
      * @return array
      */
-    public function prepareDataSource(array $dataSource)
+    public function prepareDataSource(array $dataSource): array
     {
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if ($item['order_sku'] !== null) {
-                    $item['order_sku'] = '<a href="' .
-                        $this->_urlBuilder->getUrl('sales/order/view', ['order_id' => $item['order_id']]) . '">
-                        ' . $item['order_sku'] . '</a>';
+                if ($item[LengowOrder::FIELD_ORDER_SKU] !== null) {
+                    $href = $this->urlBuilder->getUrl(
+                        'sales/order/view',
+                        ['order_id' => $item[LengowOrder::FIELD_ORDER_ID]]
+                    );
+                    $item[LengowOrder::FIELD_ORDER_SKU] = '<a href="' . $href . '">'
+                        . $item[LengowOrder::FIELD_ORDER_SKU] . '</a>';
                 }
             }
         }

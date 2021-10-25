@@ -21,7 +21,12 @@ namespace Lengow\Connector\Controller\Adminhtml\Order;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\ResultInterface;
 use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Model\Import as LengowImport;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 
 class MassReImport extends Action
@@ -29,12 +34,12 @@ class MassReImport extends Action
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * @var LengowOrderFactory Lengow order factory instance
      */
-    protected $_orderFactory;
+    private $orderFactory;
 
     /**
      * Constructor
@@ -48,11 +53,16 @@ class MassReImport extends Action
         DataHelper $dataHelper,
         LengowOrderFactory $orderFactory
     ) {
-        $this->_dataHelper = $dataHelper;
-        $this->_orderFactory = $orderFactory;
+        $this->dataHelper = $dataHelper;
+        $this->orderFactory = $orderFactory;
         parent::__construct($context);
     }
 
+    /**
+     * Execute mass reimport
+     *
+     * @return ResponseInterface|Redirect|ResultInterface
+     */
     public function execute()
     {
         $selectedIds = $this->getRequest()->getParam('selected');
@@ -60,11 +70,11 @@ class MassReImport extends Action
         $excludedIds = $excludedIds === 'false' ? [] : $excludedIds;
         if (empty($selectedIds)) {
             $ids = [];
-            $allLengowOrderIds = $this->_orderFactory->create()->getAllLengowOrderIds();
+            $allLengowOrderIds = $this->orderFactory->create()->getAllLengowOrderIds();
             if ($allLengowOrderIds) {
                 foreach ($allLengowOrderIds as $lengowOrderId) {
-                    if (!in_array($lengowOrderId['id'], $excludedIds, true)) {
-                        $ids[] = $lengowOrderId['id'];
+                    if (!in_array($lengowOrderId[LengowOrder::FIELD_ID], $excludedIds, true)) {
+                        $ids[] = $lengowOrderId[LengowOrder::FIELD_ID];
                     }
                 }
             }
@@ -77,19 +87,19 @@ class MassReImport extends Action
             return $resultRedirect->setPath('*/*/index', ['_current' => true]);
         }
         // reimport all selected orders
-        $totalReSent = 0;
+        $totalReImport = 0;
         foreach ($ids as $orderLengowId) {
-            $result = $this->_orderFactory->create()->reImportOrder((int) $orderLengowId);
-            if ($result && isset($result['order_new']) && $result['order_new']) {
-                $totalReSent++;
+            $result = $this->orderFactory->create()->reImportOrder((int) $orderLengowId);
+            if (!empty($result[LengowImport::ORDERS_CREATED])) {
+                $totalReImport++;
             }
         }
         // get the number of orders correctly re-imported
         $this->messageManager->addSuccessMessage(
-            $this->_dataHelper->decodeLogMessage(
+            $this->dataHelper->decodeLogMessage(
                 'A total of %1 order(s) in %2 selected have been imported.',
                 true,
-                [$totalReSent, count($ids)]
+                [$totalReImport, count($ids)]
             )
         );
         $resultRedirect = $this->resultRedirectFactory->create();

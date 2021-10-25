@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Exception;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
@@ -31,10 +32,12 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Connector as LengowConnector;
 use Lengow\Connector\Model\Exception as LengowException;
+use Lengow\Connector\Model\Import as LengowImport;
 use Lengow\Connector\Model\Import\Action as LengowAction;
 use Lengow\Connector\Model\Import\ActionFactory as LengowActionFactory;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
+use Lengow\Connector\Model\Import\Ordererror as LengowOrderError;
 use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
 use Lengow\Connector\Model\ResourceModel\Action as LengowActionResource;
 use Lengow\Connector\Model\ResourceModel\Action\CollectionFactory as LengowActionCollectionFactory;
@@ -45,73 +48,40 @@ use Lengow\Connector\Model\ResourceModel\Action\CollectionFactory as LengowActio
 class Action extends AbstractModel
 {
     /**
-     * @var integer action state for new action
+     * @var string Lengow action table name
      */
-    const STATE_NEW = 0;
+    const TABLE_ACTION = 'lengow_action';
 
-    /**
-     * @var integer action state for action finished
-     */
+    /* Action fields */
+    const FIELD_ID = 'id';
+    const FIELD_ORDER_ID = 'order_id';
+    const FIELD_ACTION_ID = 'action_id';
+    const FIELD_ORDER_LINE_SKU = 'order_line_sku';
+    const FIELD_ACTION_TYPE = 'action_type';
+    const FIELD_RETRY = 'retry';
+    const FIELD_PARAMETERS = 'parameters';
+    const FIELD_STATE = 'state';
+    const FIELD_CREATED_AT = 'created_at';
+    const FIELD_UPDATED_AT = 'updated_at';
+
+    /* Action states */
+    const STATE_NEW = 0;
     const STATE_FINISH = 1;
 
-    /**
-     * @var string action type ship
-     */
+    /* Action types */
     const TYPE_SHIP = 'ship';
-
-    /**
-     * @var string action type cancel
-     */
     const TYPE_CANCEL = 'cancel';
 
-    /**
-     * @var string action argument action type
-     */
+    /* Action API arguments */
     const ARG_ACTION_TYPE = 'action_type';
-
-    /**
-     * @var string action argument line
-     */
     const ARG_LINE = 'line';
-
-    /**
-     * @var string action argument carrier
-     */
     const ARG_CARRIER = 'carrier';
-
-    /**
-     * @var string action argument carrier name
-     */
     const ARG_CARRIER_NAME = 'carrier_name';
-
-    /**
-     * @var string action argument custom carrier
-     */
     const ARG_CUSTOM_CARRIER = 'custom_carrier';
-
-    /**
-     * @var string action argument shipping method
-     */
     const ARG_SHIPPING_METHOD = 'shipping_method';
-
-    /**
-     * @var string action argument tracking number
-     */
     const ARG_TRACKING_NUMBER = 'tracking_number';
-
-    /**
-     * @var string action argument shipping price
-     */
     const ARG_SHIPPING_PRICE = 'shipping_price';
-
-    /**
-     * @var string action argument shipping date
-     */
     const ARG_SHIPPING_DATE = 'shipping_date';
-
-    /**
-     * @var string action argument delivery date
-     */
     const ARG_DELIVERY_DATE = 'delivery_date';
 
     /**
@@ -135,71 +105,92 @@ class Action extends AbstractModel
     /**
      * @var DateTime Magento datetime instance
      */
-    protected $_dateTime;
+    private $dateTime;
 
     /**
      * @var TimezoneInterface Magento datetime timezone instance
      */
-    protected $_timezone;
+    private $timezone;
 
     /**
      * @var MagentoOrderFactory Magento order factory instance
      */
-    protected $_orderFactory;
+    private $orderFactory;
 
     /**
      * @var JsonHelper Magento json helper instance
      */
-    protected $_jsonHelper;
+    private $jsonHelper;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * @var LengowConnector Lengow connector instance
      */
-    protected $_connector;
+    private $lengowConnector;
 
     /**
      * @var LengowActionFactory Lengow action factory instance
      */
-    protected $_actionFactory;
+    private $lengowActionFactory;
 
     /**
      * @var LengowOrderFactory Lengow order factory instance
      */
-    protected $_lengowOrderFactory;
+    private $lengowOrderFactory;
 
     /**
      * @var LengowOrderErrorFactory Lengow order error factory instance
      */
-    protected $_orderErrorFactory;
+    private $lengowOrderErrorFactory;
 
     /**
      * @var LengowActionCollectionFactory Lengow action collection factory
      */
-    protected $_actionCollection;
+    private $lengowActionCollection;
 
     /**
-     * @var array $_fieldList field list for the table lengow_order_line
+     * @var array field list for the table lengow_order_line
      * required => Required fields when creating registration
      * update   => Fields allowed when updating registration
      */
-    protected $_fieldList = [
-        'order_id' => ['required' => true, 'updated' => false],
-        'action_id' => ['required' => true, 'updated' => false],
-        'order_line_sku' => ['required' => false, 'updated' => false],
-        'action_type' => ['required' => true, 'updated' => false],
-        'retry' => ['required' => false, 'updated' => true],
-        'parameters' => ['required' => true, 'updated' => false],
-        'state' => ['required' => false, 'updated' => true],
+    private $fieldList = [
+        self::FIELD_ORDER_ID => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_ACTION_ID => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_ORDER_LINE_SKU => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_ACTION_TYPE => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_RETRY => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_PARAMETERS => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_STATE => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
     ];
 
     /**
@@ -213,11 +204,11 @@ class Action extends AbstractModel
      * @param JsonHelper $jsonHelper Magento json helper instance
      * @param DataHelper $dataHelper Lengow data helper instance
      * @param ConfigHelper $configHelper Lengow config helper instance
-     * @param LengowConnector $connector Lengow connector instance
+     * @param LengowConnector $lengowConnector Lengow connector instance
      * @param LengowOrderFactory $lengowOrderFactory Lengow order factory instance
-     * @param LengowOrderErrorFactory $orderErrorFactory Lengow order error factory instance
-     * @param LengowActionCollectionFactory $actionCollection Lengow action collection factory
-     * @param LengowActionFactory $actionFactory Lengow action factory instance
+     * @param LengowOrderErrorFactory $lengowOrderErrorFactory Lengow order error factory instance
+     * @param LengowActionCollectionFactory $lengowActionCollection Lengow action collection factory
+     * @param LengowActionFactory $lengowActionFactory Lengow action factory instance
      */
     public function __construct(
         Context $context,
@@ -228,23 +219,23 @@ class Action extends AbstractModel
         JsonHelper $jsonHelper,
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
-        LengowConnector $connector,
+        LengowConnector $lengowConnector,
         LengowOrderFactory $lengowOrderFactory,
-        LengowOrderErrorFactory $orderErrorFactory,
-        LengowActionCollectionFactory $actionCollection,
-        LengowActionFactory $actionFactory
+        LengowOrderErrorFactory $lengowOrderErrorFactory,
+        LengowActionCollectionFactory $lengowActionCollection,
+        LengowActionFactory $lengowActionFactory
     ) {
-        $this->_dateTime = $dateTime;
-        $this->_timezone = $timezone;
-        $this->_orderFactory = $orderFactory;
-        $this->_jsonHelper = $jsonHelper;
-        $this->_dataHelper = $dataHelper;
-        $this->_configHelper = $configHelper;
-        $this->_connector = $connector;
-        $this->_lengowOrderFactory = $lengowOrderFactory;
-        $this->_orderErrorFactory = $orderErrorFactory;
-        $this->_actionCollection = $actionCollection;
-        $this->_actionFactory = $actionFactory;
+        $this->dateTime = $dateTime;
+        $this->timezone = $timezone;
+        $this->orderFactory = $orderFactory;
+        $this->jsonHelper = $jsonHelper;
+        $this->dataHelper = $dataHelper;
+        $this->configHelper = $configHelper;
+        $this->lengowConnector = $lengowConnector;
+        $this->lengowOrderFactory = $lengowOrderFactory;
+        $this->lengowOrderErrorFactory = $lengowOrderErrorFactory;
+        $this->lengowActionCollection = $lengowActionCollection;
+        $this->lengowActionFactory = $lengowActionFactory;
         parent::__construct($context, $registry);
     }
 
@@ -265,21 +256,21 @@ class Action extends AbstractModel
      *
      * @return LengowAction|false
      */
-    public function createAction($params = [])
+    public function createAction(array $params = [])
     {
-        foreach ($this->_fieldList as $key => $value) {
-            if (!array_key_exists($key, $params) && $value['required']) {
+        foreach ($this->fieldList as $key => $value) {
+            if (!array_key_exists($key, $params) && $value[DataHelper::FIELD_REQUIRED]) {
                 return false;
             }
         }
         foreach ($params as $key => $value) {
             $this->setData($key, $value);
         }
-        $this->setData('state', self::STATE_NEW);
-        $this->setData('created_at', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
+        $this->setData(self::FIELD_STATE, self::STATE_NEW);
+        $this->setData(self::FIELD_CREATED_AT, $this->dateTime->gmtDate(DataHelper::DATE_FULL));
         try {
             return $this->save();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -291,12 +282,12 @@ class Action extends AbstractModel
      *
      * @return LengowAction|false
      */
-    public function updateAction($params = [])
+    public function updateAction(array $params = [])
     {
         if (!$this->getId()) {
             return false;
         }
-        if ((int) $this->getData('state') !== self::STATE_NEW) {
+        if ((int) $this->getData(self::FIELD_STATE) !== self::STATE_NEW) {
             return false;
         }
         $updatedFields = $this->getUpdatedFields();
@@ -305,10 +296,10 @@ class Action extends AbstractModel
                 $this->setData($key, $value);
             }
         }
-        $this->setData('updated_at', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
+        $this->setData(self::FIELD_UPDATED_AT, $this->dateTime->gmtDate(DataHelper::DATE_FULL));
         try {
             return $this->save();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -318,11 +309,11 @@ class Action extends AbstractModel
      *
      * @return array
      */
-    public function getUpdatedFields()
+    public function getUpdatedFields(): array
     {
         $updatedFields = [];
-        foreach ($this->_fieldList as $key => $value) {
-            if ($value['updated']) {
+        foreach ($this->fieldList as $key => $value) {
+            if ($value[DataHelper::FIELD_CAN_BE_UPDATED]) {
                 $updatedFields[] = $key;
             }
         }
@@ -336,32 +327,34 @@ class Action extends AbstractModel
      *
      * @return integer|false
      */
-    public function getActionByActionId($actionId)
+    public function getActionByActionId(int $actionId)
     {
-        $results = $this->_actionCollection->create()
-            ->addFieldToFilter('action_id', $actionId)
+        $results = $this->lengowActionCollection->create()
+            ->addFieldToFilter(self::FIELD_ACTION_ID, $actionId)
             ->getData();
         if (!empty($results)) {
-            return (int) $results[0]['id'];
+            return (int) $results[0][self::FIELD_ID];
         }
         return false;
     }
 
     /**
-     * Find active actions by order id
+     * Find actions by order id
      *
      * @param integer $orderId Magento order id
+     * @param boolean $onlyActive get only active actions
      * @param string|null $actionType action type (ship or cancel)
      *
      * @return array|false
      */
-    public function getActiveActionByOrderId($orderId, $actionType = null)
+    public function getActionsByOrderId(int $orderId, bool $onlyActive = false, string $actionType = null)
     {
-        $collection = $this->_actionCollection->create()
-            ->addFieldToFilter('order_id', $orderId)
-            ->addFieldToFilter('state', self::STATE_NEW);
-        if ($actionType !== null) {
-            $collection->addFieldToFilter('action_type', $actionType);
+        $collection = $this->lengowActionCollection->create()->addFieldToFilter(self::FIELD_ORDER_ID, $orderId);
+        if ($onlyActive) {
+            $collection->addFieldToFilter(self::FIELD_STATE, self::STATE_NEW);
+        }
+        if ($actionType) {
+            $collection->addFieldToFilter(self::FIELD_ACTION_TYPE, $actionType);
         }
         $results = $collection->getData();
         if (!empty($results)) {
@@ -370,7 +363,6 @@ class Action extends AbstractModel
         return false;
     }
 
-
     /**
      * Get last order action type to re-send action
      *
@@ -378,15 +370,15 @@ class Action extends AbstractModel
      *
      * @return string|false
      */
-    public function getLastOrderActionType($orderId)
+    public function getLastOrderActionType(int $orderId)
     {
-        $results = $this->_actionCollection->create()
-            ->addFieldToFilter('order_id', $orderId)
-            ->addFieldToFilter('state', self::STATE_NEW)
-            ->addFieldToSelect('action_type');
+        $results = $this->lengowActionCollection->create()
+            ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)
+            ->addFieldToFilter(self::FIELD_STATE, self::STATE_NEW)
+            ->addFieldToSelect(self::FIELD_ACTION_TYPE);
         $lastAction = $results->getLastItem()->getData();
         if (!empty($lastAction)) {
-            return (string) $lastAction['action_type'];
+            return (string) $lastAction[self::FIELD_ACTION_TYPE];
         }
         return false;
     }
@@ -398,8 +390,8 @@ class Action extends AbstractModel
      */
     public function getActiveActions()
     {
-        $results = $this->_actionCollection->create()
-            ->addFieldToFilter('state', self::STATE_NEW)
+        $results = $this->lengowActionCollection->create()
+            ->addFieldToFilter(self::FIELD_STATE, self::STATE_NEW)
             ->getData();
         if (!empty($results)) {
             return $results;
@@ -417,7 +409,7 @@ class Action extends AbstractModel
      *
      * @return boolean
      */
-    public function canSendAction($params, $order)
+    public function canSendAction(array $params, MagentoOrder $order): bool
     {
         $sendAction = true;
         // check if action is already created
@@ -428,7 +420,7 @@ class Action extends AbstractModel
                 unset($getParams[$param]);
             }
         }
-        $result = $this->_connector->queryApi(LengowConnector::GET, LengowConnector::API_ORDER_ACTION, $getParams);
+        $result = $this->lengowConnector->queryApi(LengowConnector::GET, LengowConnector::API_ORDER_ACTION, $getParams);
         if (isset($result->error, $result->error->message)) {
             throw new LengowException($result->error->message);
         }
@@ -436,22 +428,22 @@ class Action extends AbstractModel
             foreach ($result->results as $row) {
                 $actionId = $this->getActionByActionId($row->id);
                 if ($actionId) {
-                    $action = $this->_actionFactory->create()->load($actionId);
-                    if ((int) $action->getData('state') === 0) {
-                        $retry = (int) $action->getData('retry') + 1;
-                        $action->updateAction(['retry' => $retry]);
+                    $action = $this->lengowActionFactory->create()->load($actionId);
+                    if ((int) $action->getData(self::FIELD_STATE) === 0) {
+                        $retry = (int) $action->getData(self::FIELD_RETRY) + 1;
+                        $action->updateAction([self::FIELD_RETRY => $retry]);
                         $sendAction = false;
                     }
                 } else {
                     // if update doesn't work, create new action
-                    $action = $this->_actionFactory->create();
+                    $action = $this->lengowActionFactory->create();
                     $action->createAction(
                         [
-                            'order_id' => $order->getId(),
-                            'action_type' => $params[self::ARG_ACTION_TYPE],
-                            'action_id' => $row->id,
-                            'order_line_sku' => isset($params['line']) ? $params['line'] : null,
-                            'parameters' => $this->_jsonHelper->jsonEncode($params),
+                            self::FIELD_ORDER_ID => $order->getId(),
+                            self::FIELD_ACTION_TYPE => $params[self::ARG_ACTION_TYPE],
+                            self::FIELD_ACTION_ID => $row->id,
+                            self::FIELD_ORDER_LINE_SKU => $params[self::ARG_LINE] ?? null,
+                            self::FIELD_PARAMETERS => $this->jsonHelper->jsonEncode($params),
                         ]
                     );
                     $sendAction = false;
@@ -470,30 +462,34 @@ class Action extends AbstractModel
      *
      * @throws LengowException
      */
-    public function sendAction($params, $order, $lengowOrder)
+    public function sendAction(array $params, MagentoOrder $order, Order $lengowOrder)
     {
-        if (!$this->_configHelper->debugModeIsActive()) {
-            $result = $this->_connector->queryApi(LengowConnector::POST, LengowConnector::API_ORDER_ACTION, $params);
+        if (!$this->configHelper->debugModeIsActive()) {
+            $result = $this->lengowConnector->queryApi(
+                LengowConnector::POST,
+                LengowConnector::API_ORDER_ACTION,
+                $params
+            );
             if (isset($result->id)) {
-                $action = $this->_actionFactory->create();
+                $action = $this->lengowActionFactory->create();
                 $action->createAction(
                     [
-                        'order_id' => $order->getId(),
-                        'action_type' => $params[self::ARG_ACTION_TYPE],
-                        'action_id' => $result->id,
-                        'order_line_sku' => isset($params['line']) ? $params['line'] : null,
-                        'parameters' => $this->_jsonHelper->jsonEncode($params),
+                        self::FIELD_ORDER_ID => $order->getId(),
+                        self::FIELD_ACTION_TYPE => $params[self::ARG_ACTION_TYPE],
+                        self::FIELD_ACTION_ID => $result->id,
+                        self::FIELD_ORDER_LINE_SKU => $params[self::ARG_LINE] ?? null,
+                        self::FIELD_PARAMETERS => $this->jsonHelper->jsonEncode($params),
                     ]
                 );
             } else {
                 if ($result) {
-                    $message = $this->_dataHelper->setLogMessage(
+                    $message = $this->dataHelper->setLogMessage(
                         "can't create action: %1",
-                        [$this->_jsonHelper->jsonEncode($result)]
+                        [$this->jsonHelper->jsonEncode($result)]
                     );
                 } else {
                     // generating a generic error message when the Lengow API is unavailable
-                    $message = $this->_dataHelper->setLogMessage(
+                    $message = $this->dataHelper->setLogMessage(
                         "can't create action because Lengow API is unavailable. Please retry"
                     );
                 }
@@ -505,11 +501,11 @@ class Action extends AbstractModel
         foreach ($params as $param => $value) {
             $paramList .= !$paramList ? '"' . $param . '": ' . $value : ' -- "' . $param . '": ' . $value;
         }
-        $this->_dataHelper->log(
+        $this->dataHelper->log(
             DataHelper::CODE_ACTION,
-            $this->_dataHelper->setLogMessage('call tracking with parameters: %1', [$paramList]),
+            $this->dataHelper->setLogMessage('call tracking with parameters: %1', [$paramList]),
             false,
-            $lengowOrder->getData('marketplace_sku')
+            $lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_SKU)
         );
     }
 
@@ -521,20 +517,20 @@ class Action extends AbstractModel
      *
      * @return boolean
      */
-    public function finishAllActions($orderId, $actionType = null)
+    public function finishAllActions(int $orderId, string $actionType = null): bool
     {
         // get all order action
-        $collection = $this->_actionCollection->create()
-            ->addFieldToFilter('order_id', $orderId)
-            ->addFieldToFilter('state', self::STATE_NEW);
+        $collection = $this->lengowActionCollection->create()
+            ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)
+            ->addFieldToFilter(self::FIELD_STATE, self::STATE_NEW);
         if ($actionType !== null) {
-            $collection->addFieldToFilter('action_type', $actionType);
+            $collection->addFieldToFilter(self::FIELD_ACTION_TYPE, $actionType);
         }
-        $results = $collection->addFieldToSelect('id')->getData();
+        $results = $collection->addFieldToSelect(self::FIELD_ID)->getData();
         if (!empty($results)) {
             foreach ($results as $result) {
-                $action = $this->_actionFactory->create()->load($result['id']);
-                $action->updateAction(['state' => self::STATE_FINISH]);
+                $action = $this->lengowActionFactory->create()->load($result[self::FIELD_ID]);
+                $action->updateAction([self::FIELD_STATE => self::STATE_FINISH]);
                 unset($action);
             }
             return true;
@@ -549,14 +545,14 @@ class Action extends AbstractModel
      *
      * @return boolean
      */
-    public function checkFinishAction($logOutput = false)
+    public function checkFinishAction(bool $logOutput = false): bool
     {
-        if ($this->_configHelper->debugModeIsActive()) {
+        if ($this->configHelper->debugModeIsActive()) {
             return false;
         }
-        $this->_dataHelper->log(
+        $this->dataHelper->log(
             DataHelper::CODE_ACTION,
-            $this->_dataHelper->setLogMessage('check completed actions'),
+            $this->dataHelper->setLogMessage('check completed actions'),
             $logOutput
         );
         // get all active actions
@@ -568,28 +564,28 @@ class Action extends AbstractModel
         // get all actions with API (max 3 days)
         $page = 1;
         $apiActions = [];
-        $intervalTime = $this->_getIntervalTime();
-        $dateFrom = $this->_timezone->date(time() - $intervalTime);
-        $dateTo = $this->_timezone->date();
-        $this->_dataHelper->log(
+        $intervalTime = $this->getIntervalTime();
+        $dateFrom = $this->timezone->date(time() - $intervalTime);
+        $dateTo = $this->timezone->date();
+        $this->dataHelper->log(
             DataHelper::CODE_ACTION,
-            $this->_dataHelper->setLogMessage(
+            $this->dataHelper->setLogMessage(
                 'get order actions between %1 and %2',
                 [
-                    $dateFrom->format('Y-m-d H:i:s'),
-                    $dateTo->format('Y-m-d H:i:s'),
+                    $dateFrom->format(DataHelper::DATE_FULL),
+                    $dateTo->format(DataHelper::DATE_FULL),
                 ]
             ),
             $logOutput
         );
         do {
-            $results = $this->_connector->queryApi(
+            $results = $this->lengowConnector->queryApi(
                 LengowConnector::GET,
                 LengowConnector::API_ORDER_ACTION,
                 [
-                    'updated_from' => $dateFrom->format('c'),
-                    'updated_to' => $dateTo->format('c'),
-                    'page' => $page,
+                    LengowImport::ARG_UPDATED_FROM => $dateFrom->format(DataHelper::DATE_ISO_8601),
+                    LengowImport::ARG_UPDATED_TO => $dateTo->format(DataHelper::DATE_ISO_8601),
+                    LengowImport::ARG_PAGE => $page,
                 ],
                 '',
                 $logOutput
@@ -610,69 +606,70 @@ class Action extends AbstractModel
         }
         // check foreach action if is complete
         foreach ($activeActions as $action) {
-            if (!isset($apiActions[$action['action_id']])) {
+            if (!isset($apiActions[$action[self::FIELD_ACTION_ID]])) {
                 continue;
             }
-            if (isset($apiActions[$action['action_id']]->queued)
-                && isset($apiActions[$action['action_id']]->processed)
-                && isset($apiActions[$action['action_id']]->errors)
-            ) {
-                if ($apiActions[$action['action_id']]->queued == false) {
-                    // order action is waiting to return from the marketplace
-                    if ($apiActions[$action['action_id']]->processed == false
-                        && empty($apiActions[$action['action_id']]->errors)
-                    ) {
-                        continue;
-                    }
-                    // finish action in lengow_action table
-                    $lengowAction = $this->_actionFactory->create()->load($action['id']);
-                    $lengowAction->updateAction(['state' => self::STATE_FINISH]);
-                    $lengowOrderId = $this->_lengowOrderFactory->create()
-                        ->getLengowOrderIdByOrderId($action['order_id']);
-                    if ($lengowOrderId) {
-                        $lengowOrder = $this->_lengowOrderFactory->create()->load($lengowOrderId);
-                        $this->_orderErrorFactory->create()->finishOrderErrors($lengowOrder->getId(), 'send');
-                        if ((bool) $lengowOrder->getData('is_in_error')) {
-                            $lengowOrder->updateOrder(['is_in_error' => 0]);
-                        }
-                        $processStateFinish = $lengowOrder->getOrderProcessState('closed');
-                        if ((int) $lengowOrder->getData('order_process_state') !== $processStateFinish) {
-                            // if action is accepted -> close order and finish all order actions
-                            if ($apiActions[$action['action_id']]->processed == true
-                                && empty($apiActions[$action['action_id']]->errors)
-                            ) {
-                                $lengowOrder->updateOrder(['order_process_state' => $processStateFinish]);
-                                $this->finishAllActions($action['order_id']);
-                            } else {
-                                // if action is denied -> create order error
-                                $orderError = $this->_orderErrorFactory->create();
-                                $orderError->createOrderError(
-                                    [
-                                        'order_lengow_id' => $lengowOrder->getId(),
-                                        'message' => $apiActions[$action['action_id']]->errors,
-                                        'type' => 'send',
-                                    ]
-                                );
-                                $lengowOrder->updateOrder(['is_in_error' => 1]);
-                                $this->_dataHelper->log(
-                                    DataHelper::CODE_ACTION,
-                                    $this->_dataHelper->setLogMessage(
-                                        'order action failed - %1',
-                                        [$apiActions[$action['action_id']]->errors]
-                                    ),
-                                    $logOutput,
-                                    $lengowOrder->getData('marketplace_sku')
-                                );
-                                unset($orderError);
-                            }
-                        }
-                        unset($lengowOrder);
-                    }
-                    unset($lengowAction);
+            $apiAction = $apiActions[$action[self::FIELD_ACTION_ID]];
+            if (isset($apiAction->queued, $apiAction->processed, $apiAction->errors) && $apiAction->queued == false) {
+                // order action is waiting to return from the marketplace
+                if ($apiAction->processed == false
+                    && empty($apiActions[$action[self::FIELD_ACTION_ID]]->errors)
+                ) {
+                    continue;
                 }
+                // finish action in lengow_action table
+                $lengowAction = $this->lengowActionFactory->create()->load($action[self::FIELD_ID]);
+                $lengowAction->updateAction([self::FIELD_STATE => self::STATE_FINISH]);
+                $lengowOrderId = $this->lengowOrderFactory->create()
+                    ->getLengowOrderIdByOrderId($action[self::FIELD_ORDER_ID]);
+                if ($lengowOrderId) {
+                    $lengowOrder = $this->lengowOrderFactory->create()->load($lengowOrderId);
+                    $this->lengowOrderErrorFactory->create()->finishOrderErrors(
+                        $lengowOrder->getId(),
+                        LengowOrderError::TYPE_ERROR_SEND
+                    );
+                    if ((bool) $lengowOrder->getData(LengowOrder::FIELD_IS_IN_ERROR)) {
+                        $lengowOrder->updateOrder([LengowOrder::FIELD_IS_IN_ERROR => 0]);
+                    }
+                    $processStateFinish = $lengowOrder->getOrderProcessState('closed');
+                    if ((int) $lengowOrder->getData(LengowOrder::FIELD_ORDER_PROCESS_STATE) !== $processStateFinish) {
+                        // if action is accepted -> close order and finish all order actions
+                        if ($apiAction->processed == true
+                            && empty($apiAction->errors)
+                        ) {
+                            $lengowOrder->updateOrder(
+                                [LengowOrder::FIELD_ORDER_PROCESS_STATE => $processStateFinish]
+                            );
+                            $this->finishAllActions($action[self::FIELD_ORDER_ID]);
+                        } else {
+                            // if action is denied -> create order error
+                            $orderError = $this->lengowOrderErrorFactory->create();
+                            $orderError->createOrderError(
+                                [
+                                    LengowOrderError::FIELD_ORDER_LENGOW_ID => $lengowOrder->getId(),
+                                    LengowOrderError::FIELD_MESSAGE => $apiAction->errors,
+                                    LengowOrderError::FIELD_TYPE => LengowOrderError::TYPE_ERROR_SEND,
+                                ]
+                            );
+                            $lengowOrder->updateOrder([LengowOrder::FIELD_IS_IN_ERROR => 1]);
+                            $this->dataHelper->log(
+                                DataHelper::CODE_ACTION,
+                                $this->dataHelper->setLogMessage(
+                                    'order action failed - %1',
+                                    [$apiAction->errors]
+                                ),
+                                $logOutput,
+                                $lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_SKU)
+                            );
+                            unset($orderError);
+                        }
+                    }
+                    unset($lengowOrder);
+                }
+                unset($lengowAction);
             }
         }
-        $this->_configHelper->set(ConfigHelper::LAST_UPDATE_ACTION_SYNCHRONIZATION, time());
+        $this->configHelper->set(ConfigHelper::LAST_UPDATE_ACTION_SYNCHRONIZATION, time());
         return true;
     }
 
@@ -683,46 +680,47 @@ class Action extends AbstractModel
      *
      * @return boolean
      */
-    public function checkOldAction($logOutput = false)
+    public function checkOldAction(bool $logOutput = false): bool
     {
-        if ($this->_configHelper->debugModeIsActive()) {
+        if ($this->configHelper->debugModeIsActive()) {
             return false;
         }
-        $this->_dataHelper->log(
+        $this->dataHelper->log(
             DataHelper::CODE_ACTION,
-            $this->_dataHelper->setLogMessage('check and finish old actions'),
+            $this->dataHelper->setLogMessage('check and finish old actions'),
             $logOutput
         );
         // get all old order action (+ 3 days)
         $actions = $this->getOldActions();
         if ($actions) {
             foreach ($actions as $action) {
-                $action = $this->_actionFactory->create()->load($action['id']);
-                $action->updateAction(['state' => self::STATE_FINISH]);
-                $lengowOrderId = $this->_lengowOrderFactory->create()->getLengowOrderIdByOrderId($action['order_id']);
+                $action = $this->lengowActionFactory->create()->load($action[self::FIELD_ID]);
+                $action->updateAction([self::FIELD_STATE => self::STATE_FINISH]);
+                $lengowOrderId = $this->lengowOrderFactory->create()
+                    ->getLengowOrderIdByOrderId($action[self::FIELD_ORDER_ID]);
                 if ($lengowOrderId) {
-                    $lengowOrder = $this->_lengowOrderFactory->create()->load($lengowOrderId);
+                    $lengowOrder = $this->lengowOrderFactory->create()->load($lengowOrderId);
                     $processStateFinish = $lengowOrder->getOrderProcessState('closed');
-                    if ((int) $lengowOrder->getData('order_process_state') !== $processStateFinish
-                        && (bool) $lengowOrder->getData('is_in_error') === false
+                    if ((int) $lengowOrder->getData(LengowOrder::FIELD_ORDER_PROCESS_STATE) !== $processStateFinish
+                        && (bool) $lengowOrder->getData(LengowOrder::FIELD_IS_IN_ERROR) === false
                     ) {
                         // if action is denied -> create order error
-                        $errorMessage = $this->_dataHelper->setLogMessage('order action is too old. Please retry');
-                        $orderError = $this->_orderErrorFactory->create();
+                        $errorMessage = $this->dataHelper->setLogMessage('order action is too old. Please retry');
+                        $orderError = $this->lengowOrderErrorFactory->create();
                         $orderError->createOrderError(
                             [
-                                'order_lengow_id' => $lengowOrder->getId(),
-                                'message' => $errorMessage,
-                                'type' => 'send',
+                                LengowOrderError::FIELD_ORDER_LENGOW_ID => $lengowOrder->getId(),
+                                LengowOrderError::FIELD_MESSAGE => $errorMessage,
+                                LengowOrderError::FIELD_TYPE => LengowOrderError::TYPE_ERROR_SEND,
                             ]
                         );
-                        $lengowOrder->updateOrder(['is_in_error' => 1]);
-                        $decodedMessage = $this->_dataHelper->decodeLogMessage($errorMessage, false);
-                        $this->_dataHelper->log(
+                        $lengowOrder->updateOrder([LengowOrder::FIELD_IS_IN_ERROR => 1]);
+                        $decodedMessage = $this->dataHelper->decodeLogMessage($errorMessage, false);
+                        $this->dataHelper->log(
                             DataHelper::CODE_ACTION,
-                            $this->_dataHelper->setLogMessage('order action failed - %1', [$decodedMessage]),
+                            $this->dataHelper->setLogMessage('order action failed - %1', [$decodedMessage]),
                             $logOutput,
-                            $lengowOrder->getData('marketplace_sku')
+                            $lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_SKU)
                         );
                         unset($orderError);
                     }
@@ -742,10 +740,10 @@ class Action extends AbstractModel
      */
     public function getOldActions()
     {
-        $collection = $this->_actionCollection->create()
-            ->addFieldToFilter('state', self::STATE_NEW)
+        $collection = $this->lengowActionCollection->create()
+            ->addFieldToFilter(self::FIELD_STATE, self::STATE_NEW)
             ->addFieldToFilter(
-                'created_at',
+                self::FIELD_CREATED_AT,
                 [
                     'to' => time() - self::MAX_INTERVAL_TIME,
                     'datetime' => true,
@@ -762,24 +760,24 @@ class Action extends AbstractModel
      *
      * @return boolean
      */
-    public function checkActionNotSent($logOutput = false)
+    public function checkActionNotSent(bool $logOutput = false): bool
     {
-        if ($this->_configHelper->debugModeIsActive()) {
+        if ($this->configHelper->debugModeIsActive()) {
             return false;
         }
-        $this->_dataHelper->log(
+        $this->dataHelper->log(
             DataHelper::CODE_ACTION,
-            $this->_dataHelper->setLogMessage('check actions not sent'),
+            $this->dataHelper->setLogMessage('check actions not sent'),
             $logOutput
         );
         // get unsent orders
-        $lengowOrder = $this->_lengowOrderFactory->create();
+        $lengowOrder = $this->lengowOrderFactory->create();
         $unsentOrders = $lengowOrder->getUnsentOrders();
         if ($unsentOrders) {
             foreach ($unsentOrders as $unsentOrder) {
-                if (!$this->getActiveActionByOrderId((int) $unsentOrder['order_id'])) {
+                if (!$this->getActionsByOrderId((int) $unsentOrder['order_id'], true)) {
                     $action = $unsentOrder['state'] === self::TYPE_CANCEL ? self::TYPE_CANCEL : self::TYPE_SHIP;
-                    $order = $this->_orderFactory->create()->load((int) $unsentOrder['order_id']);
+                    $order = $this->orderFactory->create()->load((int) $unsentOrder['order_id']);
                     $shipment = $action === self::TYPE_SHIP ? $order->getShipmentsCollection()->getFirstItem() : null;
                     $lengowOrder->callAction($action, $order, $shipment);
                 }
@@ -793,10 +791,10 @@ class Action extends AbstractModel
      *
      * @return integer
      */
-    protected function _getIntervalTime()
+    private function getIntervalTime(): int
     {
         $intervalTime = self::MAX_INTERVAL_TIME;
-        $lastActionSynchronisation = $this->_configHelper->get(ConfigHelper::LAST_UPDATE_ACTION_SYNCHRONIZATION);
+        $lastActionSynchronisation = $this->configHelper->get(ConfigHelper::LAST_UPDATE_ACTION_SYNCHRONIZATION);
         if ($lastActionSynchronisation) {
             $lastIntervalTime = time() - (int) $lastActionSynchronisation;
             $lastIntervalTime += self::SECURITY_INTERVAL_TIME;

@@ -20,6 +20,7 @@
 namespace Lengow\Connector\Model\ResourceModel\Action;
 
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
+use Lengow\Connector\Model\Import\Action;
 
 class Collection extends AbstractCollection
 {
@@ -31,8 +32,8 @@ class Collection extends AbstractCollection
     public function _construct()
     {
         $this->_init(
-            'Lengow\Connector\Model\Import\Action',
-            'Lengow\Connector\Model\ResourceModel\Action'
+            Action::class,
+            \Lengow\Connector\Model\ResourceModel\Action::class
         );
     }
 }

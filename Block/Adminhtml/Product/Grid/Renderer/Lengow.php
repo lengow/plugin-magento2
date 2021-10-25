@@ -31,12 +31,12 @@ class Lengow extends AbstractRenderer
     /**
      * @var BackendHelper backend helper instance
      */
-    protected $_backendHelper;
+    private $backendHelper;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * Constructor
@@ -52,8 +52,8 @@ class Lengow extends AbstractRenderer
         DataHelper $dataHelper,
         array $data = []
     ) {
-        $this->_backendHelper = $backendHelper;
-        $this->_dataHelper = $dataHelper;
+        $this->backendHelper = $backendHelper;
+        $this->dataHelper = $dataHelper;
         parent::__construct($context, $data);
     }
 
@@ -64,7 +64,7 @@ class Lengow extends AbstractRenderer
      *
      * @return string
      */
-    public function render(DataObject $row)
+    public function render(DataObject $row): string
     {
         $value = (int) $row->getData($this->getColumn()->getIndex());
         return '<div class="lgw-switch ' . ($value === 1 ? 'checked' : '') . '">
@@ -72,9 +72,9 @@ class Lengow extends AbstractRenderer
             <div>
                 <a href="javascript:void(0)" name="lengow_export_product" class="lengow_switch_export_product"
                 id="lengow_export_product_' . $row->getData('entity_id') . '"
-                data-href="' . $this->_backendHelper->getUrl('lengow/product') . '"
+                data-href="' . $this->backendHelper->getUrl('lengow/product') . '"
                 data-action="lengow_export_product"
-                data-id_store="' . $this->_dataHelper->getStore()->getId() . '"
+                data-id_store="' . $this->dataHelper->getStore()->getId() . '"
                 data-id_product="' . $row->getData('entity_id') . '"
                 data-checked="' . $value . '">
                 <span></span>

@@ -25,28 +25,29 @@ use Magento\Store\Api\Data\StoreInterface;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Export as LengowExport;
+use phpDocumentor\Reflection\Types\Boolean;
 
 class Header extends Template
 {
     /**
      * @var StoreInterface Magento store instance
      */
-    protected $_store;
+    private $store;
 
     /**
      * @var DataHelper Lengow data helper instance
      */
-    protected $_dataHelper;
+    private $dataHelper;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * @var LengowExport Lengow export instance
      */
-    protected $_export;
+    private $export;
 
     /**
      * Constructor
@@ -64,10 +65,10 @@ class Header extends Template
         LengowExport $export,
         array $data = []
     ) {
-        $this->_dataHelper = $dataHelper;
-        $this->_configHelper = $configHelper;
-        $this->_export = $export;
-        $this->_store = $this->_dataHelper->getStore();
+        $this->dataHelper = $dataHelper;
+        $this->configHelper = $configHelper;
+        $this->export = $export;
+        $this->store = $this->dataHelper->getStore();
         parent::__construct($context, $data);
     }
 
@@ -76,9 +77,9 @@ class Header extends Template
      *
      * @return boolean
      */
-    public function selectionIsEnabled()
+    public function selectionIsEnabled(): bool
     {
-        return (bool) $this->_configHelper->get(ConfigHelper::SELECTION_ENABLED, $this->_store->getId());
+        return (bool) $this->configHelper->get(ConfigHelper::SELECTION_ENABLED, (int) $this->store->getId());
     }
 
     /**
@@ -86,9 +87,9 @@ class Header extends Template
      *
      * @return StoreInterface
      */
-    public function getStore()
+    public function getStore(): StoreInterface
     {
-        return $this->_store;
+        return $this->store;
     }
 
     /**
@@ -96,10 +97,10 @@ class Header extends Template
      *
      * @return LengowExport
      */
-    public function getExport()
+    public function getExport(): LengowExport
     {
-        $this->_export->init([LengowExport::PARAM_STORE_ID => $this->_store->getId()]);
-        return $this->_export;
+        $this->export->init([LengowExport::PARAM_STORE_ID => $this->store->getId()]);
+        return $this->export;
     }
 
     /**
@@ -107,10 +108,10 @@ class Header extends Template
      *
      * @return string
      */
-    public function getExportUrl()
+    public function getExportUrl(): string
     {
-        return $this->_dataHelper->getExportUrl(
-            $this->_store->getId(),
+        return $this->dataHelper->getExportUrl(
+            $this->store->getId(),
             [
                 LengowExport::PARAM_STREAM => 1,
                 LengowExport::PARAM_UPDATE_EXPORT_DATE => 0,

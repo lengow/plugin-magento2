@@ -19,55 +19,82 @@
 
 namespace Lengow\Connector\Model\Import;
 
+use Exception;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
 use Lengow\Connector\Model\ResourceModel\Ordererror as LengowOrderErrorResource;
 use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory as LengowOrderErrorCollectionFactory;
 
 /**
- * Model import ordererror
+ * Model import order error
  */
 class Ordererror extends AbstractModel
 {
     /**
-     * @var integer order error import type
+     * @var string Lengow order error table name
      */
-    const TYPE_ERROR_IMPORT = 1;
+    const TABLE_ORDER_ERROR = 'lengow_order_error';
 
-    /**
-     * @var integer order error send type
-     */
+    /* Order error fields */
+    const FIELD_ID = 'id';
+    const FIELD_ORDER_LENGOW_ID = 'order_lengow_id';
+    const FIELD_MESSAGE = 'message';
+    const FIELD_TYPE = 'type';
+    const FIELD_IS_FINISHED = 'is_finished';
+    const FIELD_MAIL = 'mail';
+    const FIELD_CREATED_AT = 'created_at';
+    const FIELD_UPDATED_AT = 'updated_at';
+
+    /* Order error types */
+    const TYPE_ERROR_IMPORT = 1;
     const TYPE_ERROR_SEND = 2;
 
     /**
-     * @var DateTime $_dateTime Magento datetime instance
+     * @var DateTime Magento datetime instance
      */
-    protected $_dateTime;
+    private $dateTime;
 
     /**
      * @var LengowOrderErrorCollectionFactory Lengow order error collection factory
      */
-    protected $_orderErrorCollection;
+    private $lengowOrderErrorCollection;
 
     /**
      * @var LengowOrderErrorFactory Lengow order error factory
      */
-    protected $_orderErrorFactory;
+    private $lengowOrderErrorFactory;
 
     /**
-     * @var array $_fieldList field list for the table lengow_order_line
+     * @var array field list for the table lengow_order_line
      * required => Required fields when creating registration
      * update   => Fields allowed when updating registration
      */
-    protected $_fieldList = [
-        'order_lengow_id' => ['required' => true, 'updated' => false],
-        'message' => ['required' => true, 'updated' => false],
-        'type' => ['required' => true, 'updated' => false],
-        'is_finished' => ['required' => false, 'updated' => true],
-        'mail' => ['required' => false, 'updated' => true],
+    private $fieldList = [
+        self::FIELD_ORDER_LENGOW_ID => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_MESSAGE => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_TYPE => [
+            DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_IS_FINISHED => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
+        self::FIELD_MAIL => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => true,
+        ],
     ];
 
     /**
@@ -86,14 +113,14 @@ class Ordererror extends AbstractModel
         LengowOrderErrorCollectionFactory $orderErrorCollection,
         LengowOrderErrorFactory $orderErrorFactory
     ) {
-        $this->_dateTime = $dateTime;
-        $this->_orderErrorCollection = $orderErrorCollection;
-        $this->_orderErrorFactory = $orderErrorFactory;
+        $this->dateTime = $dateTime;
+        $this->lengowOrderErrorCollection = $orderErrorCollection;
+        $this->lengowOrderErrorFactory = $orderErrorFactory;
         parent::__construct($context, $registry);
     }
 
     /**
-     * Initialize ordererror model
+     * Initialize order error model
      *
      * @return void
      */
@@ -105,27 +132,24 @@ class Ordererror extends AbstractModel
     /**
      * Create Lengow order error
      *
-     * @param array $params ordererror parameters
+     * @param array $params order error parameters
      *
      * @return Ordererror|false
      */
-    public function createOrderError($params = [])
+    public function createOrderError(array $params = [])
     {
-        foreach ($this->_fieldList as $key => $value) {
-            if (!array_key_exists($key, $params) && $value['required']) {
+        foreach ($this->fieldList as $key => $value) {
+            if (!array_key_exists($key, $params) && $value[DataHelper::FIELD_REQUIRED]) {
                 return false;
             }
         }
         foreach ($params as $key => $value) {
-            if ($key === 'type') {
-                $value = $this->getOrderErrorType($value);
-            }
             $this->setData($key, $value);
         }
-        $this->setData('created_at', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
+        $this->setData(self::FIELD_CREATED_AT, $this->dateTime->gmtDate(DataHelper::DATE_FULL));
         try {
             return $this->save();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -133,11 +157,11 @@ class Ordererror extends AbstractModel
     /**
      * Update Lengow order error
      *
-     * @param array $params ordererror parameters
+     * @param array $params order error parameters
      *
      * @return Ordererror|false
      */
-    public function updateOrderError($params = [])
+    public function updateOrderError(array $params = [])
     {
         if (!$this->getId()) {
             return false;
@@ -148,10 +172,10 @@ class Ordererror extends AbstractModel
                 $this->setData($key, $value);
             }
         }
-        $this->setData('updated_at', $this->_dateTime->gmtDate('Y-m-d H:i:s'));
+        $this->setData(self::FIELD_UPDATED_AT, $this->dateTime->gmtDate(DataHelper::DATE_FULL));
         try {
             return $this->save();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -161,11 +185,11 @@ class Ordererror extends AbstractModel
      *
      * @return array
      */
-    public function getUpdatedFields()
+    public function getUpdatedFields(): array
     {
         $updatedFields = [];
-        foreach ($this->_fieldList as $key => $value) {
-            if ($value['updated']) {
+        foreach ($this->fieldList as $key => $value) {
+            if ($value[DataHelper::FIELD_CAN_BE_UPDATED]) {
                 $updatedFields[] = $key;
             }
         }
@@ -173,47 +197,26 @@ class Ordererror extends AbstractModel
     }
 
     /**
-     * Return type value
-     *
-     * @param string $type order error type (import or send)
-     *
-     * @return integer
-     */
-    public function getOrderErrorType($type = null)
-    {
-        switch ($type) {
-            case 'send':
-                return self::TYPE_ERROR_SEND;
-                break;
-            case 'import':
-            default:
-                return self::TYPE_ERROR_IMPORT;
-                break;
-        }
-    }
-
-    /**
      * Removes all order error for one order lengow
      *
      * @param integer $orderLengowId Lengow order id
-     * @param string $type order error type (import or send)
+     * @param int $type order error type (import or send)
      *
      * @return boolean
      */
-    public function finishOrderErrors($orderLengowId, $type = 'import')
+    public function finishOrderErrors(int $orderLengowId, int $type = self::TYPE_ERROR_IMPORT): bool
     {
-        $errorType = $this->getOrderErrorType($type);
         // get all order errors
-        $results = $this->_orderErrorCollection->create()->load()
-            ->addFieldToFilter('order_lengow_id', $orderLengowId)
-            ->addFieldToFilter('is_finished', 0)
-            ->addFieldToFilter('type', $errorType)
-            ->addFieldToSelect('id')
+        $results = $this->lengowOrderErrorCollection->create()->load()
+            ->addFieldToFilter(self::FIELD_ORDER_LENGOW_ID, $orderLengowId)
+            ->addFieldToFilter(self::FIELD_IS_FINISHED, 0)
+            ->addFieldToFilter(self::FIELD_TYPE, $type)
+            ->addFieldToSelect(self::FIELD_ID)
             ->getData();
         if (!empty($results)) {
             foreach ($results as $result) {
-                $orderError = $this->_orderErrorFactory->create()->load((int) $result['id']);
-                $orderError->updateOrderError(['is_finished' => 1]);
+                $orderError = $this->lengowOrderErrorFactory->create()->load((int) $result[self::FIELD_ID]);
+                $orderError->updateOrderError([self::FIELD_IS_FINISHED => 1]);
                 unset($orderError);
             }
             return true;
@@ -225,23 +228,21 @@ class Ordererror extends AbstractModel
      * Get all order errors
      *
      * @param integer $orderLengowId Lengow order id
-     * @param string|null $type order error type (import or send)
+     * @param int|null $type order error type (import or send)
      * @param boolean|null $finished log finished
      *
      * @return array|false
-     *
      */
-    public function getOrderErrors($orderLengowId, $type = null, $finished = null)
+    public function getOrderErrors(int $orderLengowId, int $type = null, bool $finished = null)
     {
-        $collection = $this->_orderErrorCollection->create()->load()
-            ->addFieldToFilter('order_lengow_id', $orderLengowId);
+        $collection = $this->lengowOrderErrorCollection->create()->load()
+            ->addFieldToFilter(self::FIELD_ORDER_LENGOW_ID, $orderLengowId);
         if ($type !== null) {
-            $errorType = $this->getOrderErrorType($type);
-            $collection->addFieldToFilter('type', $errorType);
+            $collection->addFieldToFilter(self::FIELD_TYPE, $type);
         }
         if ($finished !== null) {
             $errorFinished = $finished ? 1 : 0;
-            $collection->addFieldToFilter('is_finished', $errorFinished);
+            $collection->addFieldToFilter(self::FIELD_IS_FINISHED, $errorFinished);
         }
         $results = $collection->getData();
         if (!empty($results)) {
@@ -257,16 +258,16 @@ class Ordererror extends AbstractModel
      */
     public function getOrderErrorsNotSent()
     {
-        $results = $this->_orderErrorCollection->create()->load()
+        $results = $this->lengowOrderErrorCollection->create()->load()
             ->join(
-                'lengow_order',
+                LengowOrder::TABLE_ORDER,
                 '`lengow_order`.id=main_table.order_lengow_id',
-                ['marketplace_sku' => 'marketplace_sku']
+                [LengowOrder::FIELD_MARKETPLACE_SKU => LengowOrder::FIELD_MARKETPLACE_SKU]
             )
-            ->addFieldToFilter('mail', ['eq' => 0])
-            ->addFieldToFilter('is_finished', ['eq' => 0])
-            ->addFieldToSelect('message')
-            ->addFieldToSelect('id')
+            ->addFieldToFilter(self::FIELD_MAIL, ['eq' => 0])
+            ->addFieldToFilter(self::FIELD_IS_FINISHED, ['eq' => 0])
+            ->addFieldToSelect(self::FIELD_MESSAGE)
+            ->addFieldToSelect(self::FIELD_ID)
             ->getData();
         if (empty($results)) {
             return false;

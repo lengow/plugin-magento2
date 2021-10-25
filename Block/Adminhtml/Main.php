@@ -33,44 +33,34 @@ use Lengow\Connector\Model\Import\Order as LengowOrder;
 class Main extends Template
 {
     /**
-     * @var AuthSession Magento auth session instance
-     */
-    protected $authSession;
-
-    /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $configHelper;
+    private $configHelper;
 
     /**
      * @var SecurityHelper Lengow security helper instance
      */
-    protected $securityHelper;
-
-    /**
-     * @var SyncHelper Lengow sync helper instance
-     */
-    protected $syncHelper;
+    private $securityHelper;
 
     /**
      * @var LengowOrder Lengow order instance
      */
-    protected $lengowOrder;
+    private $lengowOrder;
 
     /**
-     * @var array Lengow status account
+     * @var array|null Lengow status account
      */
-    protected $statusAccount = [];
+    private $statusAccount;
 
     /**
      * @var array Lengow plugin data
      */
-    protected $pluginData = [];
+    private $pluginData;
 
     /**
      * @var array Lengow plugin links
      */
-    protected $pluginLinks = [];
+    private $pluginLinks;
 
     /**
      * Constructor
@@ -93,17 +83,15 @@ class Main extends Template
         array $data = []
     ) {
         $this->securityHelper = $securityHelper;
-        $this->authSession = $authSession;
         $this->configHelper = $configHelper;
-        $this->syncHelper = $syncHelper;
         $this->lengowOrder = $lengowOrder;
-        $this->statusAccount = $this->syncHelper->getStatusAccount();
-        $this->pluginData = $this->syncHelper->getPluginData();
+        $this->statusAccount = $syncHelper->getStatusAccount();
+        $this->pluginData = $syncHelper->getPluginData();
         // get actual plugin urls in current language
-        $interfaceLocale = $this->authSession->getUser()
-            ? $this->authSession->getUser()->getInterfaceLocale()
+        $interfaceLocale = $authSession->getUser()
+            ? $authSession->getUser()->getInterfaceLocale()
             : DataHelper::DEFAULT_ISO_CODE;
-        $this->pluginLinks = $this->syncHelper->getPluginLinks($interfaceLocale);
+        $this->pluginLinks = $syncHelper->getPluginLinks($interfaceLocale);
         parent::__construct($context, $data);
     }
 
@@ -112,7 +100,7 @@ class Main extends Template
      *
      * @return boolean
      */
-    public function isNewMerchant()
+    public function isNewMerchant(): bool
     {
         return $this->configHelper->isNewMerchant();
     }
@@ -122,7 +110,7 @@ class Main extends Template
      *
      * @return boolean
      */
-    public function isPreprodPlugin()
+    public function isPreprodPlugin(): bool
     {
         return LengowConnector::LENGOW_URL === 'lengow.net';
     }
@@ -132,7 +120,7 @@ class Main extends Template
      *
      * @return boolean
      */
-    public function debugModeIsActive()
+    public function debugModeIsActive(): bool
     {
         return $this->configHelper->debugModeIsActive();
     }
@@ -142,7 +130,7 @@ class Main extends Template
      *
      * @return string
      */
-    public function getLengowSolutionUrl()
+    public function getLengowSolutionUrl(): string
     {
         return '//my.' . LengowConnector::LENGOW_URL;
     }
@@ -152,7 +140,7 @@ class Main extends Template
      *
      * @return string
      */
-    public function getPluginVersion()
+    public function getPluginVersion(): string
     {
         return $this->securityHelper->getPluginVersion();
     }
@@ -162,7 +150,7 @@ class Main extends Template
      *
      * @return StoreCollection
      */
-    public function getStores()
+    public function getStores(): StoreCollection
     {
         return $this->configHelper->getAllStore();
     }
@@ -172,7 +160,7 @@ class Main extends Template
      *
      * @return boolean
      */
-    public function freeTrialIsEnabled()
+    public function freeTrialIsEnabled(): bool
     {
         return isset($this->statusAccount['type'], $this->statusAccount['expired'])
             && $this->statusAccount['type'] === 'free_trial'
@@ -184,7 +172,7 @@ class Main extends Template
      *
      * @return boolean
      */
-    public function freeTrialIsExpired()
+    public function freeTrialIsExpired(): bool
     {
         return isset($this->statusAccount['type'], $this->statusAccount['expired'])
             && $this->statusAccount['type'] === 'free_trial'
@@ -196,7 +184,7 @@ class Main extends Template
      *
      * @return integer
      */
-    public function getFreeTrialDays()
+    public function getFreeTrialDays(): int
     {
         return isset($this->statusAccount['day']) ? (int) $this->statusAccount['day'] : 0;
     }
@@ -206,7 +194,7 @@ class Main extends Template
      *
      * @return boolean
      */
-    public function newPluginVersionIsAvailable()
+    public function newPluginVersionIsAvailable(): bool
     {
         return ($this->pluginData && isset($this->pluginData['version']))
             && version_compare($this->securityHelper->getPluginVersion(), $this->pluginData['version'], '<');
@@ -217,7 +205,7 @@ class Main extends Template
      *
      * @return string
      */
-    public function getNewPluginVersion()
+    public function getNewPluginVersion(): string
     {
         return ($this->pluginData && isset($this->pluginData['version'])) ? $this->pluginData['version'] : '';
     }
@@ -227,7 +215,7 @@ class Main extends Template
      *
      * @return string
      */
-    public function getNewPluginDownloadLink()
+    public function getNewPluginDownloadLink(): string
     {
         return ($this->pluginData && isset($this->pluginData['download_link']))
             ? $this->getLengowSolutionUrl() . $this->pluginData['download_link']
@@ -239,7 +227,7 @@ class Main extends Template
      *
      * @return string
      */
-    public function getCmsMinVersion()
+    public function getCmsMinVersion(): string
     {
         return ($this->pluginData && isset($this->pluginData['cms_min_version']))
             ? $this->pluginData['cms_min_version']
@@ -251,7 +239,7 @@ class Main extends Template
      *
      * @return string
      */
-    public function getCmsMaxVersion()
+    public function getCmsMaxVersion(): string
     {
         return ($this->pluginData && isset($this->pluginData['cms_max_version']))
             ? $this->pluginData['cms_max_version']
@@ -263,7 +251,7 @@ class Main extends Template
      *
      * @return array
      */
-    public function getPluginExtensions()
+    public function getPluginExtensions(): array
     {
         return ($this->pluginData && isset($this->pluginData['extensions']))
             ? $this->pluginData['extensions']
@@ -275,18 +263,17 @@ class Main extends Template
      *
      * @return string
      */
-    public function getHelpCenterLink()
+    public function getHelpCenterLink(): string
     {
         return $this->pluginLinks[SyncHelper::LINK_TYPE_HELP_CENTER];
     }
-
 
     /**
      * Return plugin changelog link for current locale
      *
      * @return string
      */
-    public function getChangelogLink()
+    public function getChangelogLink(): string
     {
         return $this->pluginLinks[SyncHelper::LINK_TYPE_CHANGELOG];
     }
@@ -296,7 +283,7 @@ class Main extends Template
      *
      * @return string
      */
-    public function getUpdateGuideLink()
+    public function getUpdateGuideLink(): string
     {
         return $this->pluginLinks[SyncHelper::LINK_TYPE_UPDATE_GUIDE];
     }
@@ -306,7 +293,7 @@ class Main extends Template
      *
      * @return string
      */
-    public function getSupportLink()
+    public function getSupportLink(): string
     {
         return $this->pluginLinks[SyncHelper::LINK_TYPE_SUPPORT];
     }
@@ -316,7 +303,7 @@ class Main extends Template
      *
      * @return string
      */
-    public function getPluginCopyright()
+    public function getPluginCopyright(): string
     {
         return 'copyright © ' . date('Y');
     }
@@ -326,7 +313,7 @@ class Main extends Template
      *
      * @return boolean
      */
-    public function showPluginUpgradeModal()
+    public function showPluginUpgradeModal(): bool
     {
         if (!$this->newPluginVersionIsAvailable()) {
             return false;
@@ -344,7 +331,7 @@ class Main extends Template
      *
      * @return integer
      */
-    public function getNumberOrderToBeSent()
+    public function getNumberOrderToBeSent(): int
     {
         return $this->lengowOrder->countOrderToBeSent();
     }

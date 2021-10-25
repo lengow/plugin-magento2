@@ -19,30 +19,11 @@
 
 namespace Lengow\Connector\Ui\Component\Listing\Column;
 
-use Magento\Framework\View\Element\UiComponentFactory;
-use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Ui\Component\Listing\Columns\Column;
 use Lengow\Connector\Model\Import\Action as LengowAction;
 
 class ActionParameters extends Column
 {
-    /**
-     * Constructor
-     *
-     * @param ContextInterface $context Magento ui context instance
-     * @param UiComponentFactory $uiComponentFactory Magento ui factory instance
-     * @param array $components component data
-     * @param array $data additional params
-     */
-    public function __construct(
-        ContextInterface $context,
-        UiComponentFactory $uiComponentFactory,
-        array $components = [],
-        array $data = []
-    ) {
-        parent::__construct($context, $uiComponentFactory, $components, $data);
-    }
-
     /**
      * Prepare Data Source
      *
@@ -50,18 +31,19 @@ class ActionParameters extends Column
      *
      * @return array
      */
-    public function prepareDataSource(array $dataSource)
+    public function prepareDataSource(array $dataSource): array
     {
         $dataSource = parent::prepareDataSource($dataSource);
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if ($item['parameters']) {
+                if ($item[LengowAction::FIELD_PARAMETERS]) {
                     $return = '';
-                    $parameters = json_decode($item['parameters'], true);
+                    $parameters = json_decode($item[LengowAction::FIELD_PARAMETERS], true);
                     foreach ($parameters as $key => $value) {
                         if ($key === LengowAction::ARG_LINE || $key === LengowAction::ARG_ACTION_TYPE) {
                             continue;
-                        } elseif ($key === LengowAction::ARG_TRACKING_NUMBER) {
+                        }
+                        if ($key === LengowAction::ARG_TRACKING_NUMBER) {
                             $key = 'tracking';
                         } elseif ($key === 'marketplace_order_id') {
                             $key = 'marketplace sku';
@@ -70,7 +52,7 @@ class ActionParameters extends Column
                             ? ucfirst($key) . ': ' . $value . ' '
                             : '- ' . ucfirst($key) . ': ' . $value . ' ';
                     }
-                    $item['parameters'] = $return;
+                    $item[LengowAction::FIELD_PARAMETERS] = $return;
                 }
             }
         }

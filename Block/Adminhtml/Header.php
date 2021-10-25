@@ -31,27 +31,22 @@ class Header extends Template
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    protected $_configHelper;
+    private $configHelper;
 
     /**
      * @var SecurityHelper Lengow security helper instance
      */
-    protected $_securityHelper;
-
-    /**
-     * @var SyncHelper Lengow sync helper instance
-     */
-    protected $_syncHelper;
+    private $securityHelper;
 
     /**
      * @var array Lengow status account
      */
-    protected $_statusAccount = [];
+    private $statusAccount;
 
     /**
      * @var array Lengow plugin data
      */
-    protected $_pluginData = [];
+    private $pluginData;
 
     /**
      * Constructor
@@ -69,11 +64,10 @@ class Header extends Template
         SyncHelper $syncHelper,
         array $data = []
     ) {
-        $this->_configHelper = $configHelper;
-        $this->_securityHelper = $securityHelper;
-        $this->_syncHelper = $syncHelper;
-        $this->_statusAccount = $this->_syncHelper->getStatusAccount();
-        $this->_pluginData = $this->_syncHelper->getPluginData();
+        $this->configHelper = $configHelper;
+        $this->securityHelper = $securityHelper;
+        $this->statusAccount = $syncHelper->getStatusAccount();
+        $this->pluginData = $syncHelper->getPluginData();
         parent::__construct($context, $data);
     }
 
@@ -82,9 +76,9 @@ class Header extends Template
      *
      * @return boolean
      */
-    public function debugModeIsEnabled()
+    public function debugModeIsEnabled(): bool
     {
-        return $this->_configHelper->debugModeIsActive();
+        return $this->configHelper->debugModeIsActive();
     }
 
     /**
@@ -92,7 +86,7 @@ class Header extends Template
      *
      * @return string
      */
-    public function getLengowSolutionUrl()
+    public function getLengowSolutionUrl(): string
     {
         return '//my.' . LengowConnector::LENGOW_URL;
     }
@@ -102,10 +96,11 @@ class Header extends Template
      *
      * @return boolean
      */
-    public function freeTrialIsEnabled()
+    public function freeTrialIsEnabled(): bool
     {
-        return (isset($this->_statusAccount['type']) && $this->_statusAccount['type'] === 'free_trial')
-            && (isset($this->_statusAccount['expired']) && !$this->_statusAccount['expired']);
+        return isset($this->statusAccount['type'], $this->statusAccount['expired'])
+            && $this->statusAccount['type'] === 'free_trial'
+            && !$this->statusAccount['expired'];
     }
 
     /**
@@ -113,9 +108,9 @@ class Header extends Template
      *
      * @return integer
      */
-    public function getFreeTrialDays()
+    public function getFreeTrialDays(): int
     {
-        return isset($this->_statusAccount['day']) ? (int) $this->_statusAccount['day'] : 0;
+        return isset($this->statusAccount['day']) ? (int) $this->statusAccount['day'] : 0;
     }
 
     /**
@@ -123,10 +118,10 @@ class Header extends Template
      *
      * @return boolean
      */
-    public function newPluginVersionIsAvailable()
+    public function newPluginVersionIsAvailable(): bool
     {
-        return ($this->_pluginData && isset($this->_pluginData['version']))
-            && version_compare($this->_securityHelper->getPluginVersion(), $this->_pluginData['version'], '<');
+        return ($this->pluginData && isset($this->pluginData['version']))
+            && version_compare($this->securityHelper->getPluginVersion(), $this->pluginData['version'], '<');
     }
 
     /**
@@ -134,9 +129,9 @@ class Header extends Template
      *
      * @return string
      */
-    public function getNewPluginVersion()
+    public function getNewPluginVersion(): string
     {
-        return ($this->_pluginData && isset($this->_pluginData['version'])) ? $this->_pluginData['version'] : '';
+        return ($this->pluginData && isset($this->pluginData['version'])) ? $this->pluginData['version'] : '';
     }
 
     /**
@@ -144,10 +139,10 @@ class Header extends Template
      *
      * @return string
      */
-    public function getNewPluginDownloadLink()
+    public function getNewPluginDownloadLink(): string
     {
-        return ($this->_pluginData && isset($this->_pluginData['download_link']))
-            ? $this->getLengowSolutionUrl() . $this->_pluginData['download_link']
+        return ($this->pluginData && isset($this->pluginData['download_link']))
+            ? $this->getLengowSolutionUrl() . $this->pluginData['download_link']
             : '';
     }
 }

@@ -20,6 +20,7 @@
 namespace Lengow\Connector\Model\ResourceModel;
 
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+use Lengow\Connector\Model\Import\Action as LengowAction;
 
 class Action extends AbstractDb
 {
@@ -30,6 +31,6 @@ class Action extends AbstractDb
      */
     protected function _construct()
     {
-        $this->_init('lengow_action', 'id');
+        $this->_init(LengowAction::TABLE_ACTION, LengowAction::FIELD_ID);
     }
 }

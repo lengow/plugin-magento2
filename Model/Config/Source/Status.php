@@ -29,7 +29,7 @@ class Status implements ArrayInterface
      *
      * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         return [
             ['value' => LengowOrder::STATE_ACCEPTED, 'label' => __('Accepted')],
