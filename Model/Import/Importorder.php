@@ -905,11 +905,9 @@ class Importorder extends AbstractModel
     private function getOrderComment(): string
     {
         if (isset($this->orderData->comments) && is_array($this->orderData->comments)) {
-            $orderComment = implode(',', $this->orderData->comments);
-        } else {
-            $orderComment = (string) $this->orderData->comments;
+            return implode(',', $this->orderData->comments);
         }
-        return $orderComment;
+        return (string) $this->orderData->comments;
     }
 
     /**

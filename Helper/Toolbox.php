@@ -783,6 +783,7 @@ class Toolbox extends AbstractHelper
     private function getAllOrderData(array $data, MagentoOrderInterface $order = null): array
     {
         $importedAt = 0;
+        $lastTrack = null;
         $hasActionInProgress = false;
         $orderTypes = json_decode($data[LengowOrder::FIELD_ORDER_TYPES], true);
         if ($order) {
@@ -837,8 +838,8 @@ class Toolbox extends AbstractHelper
                 self::TRACKING_RELAY_ID => !empty($data[LengowOrder::FIELD_CARRIER_RELAY_ID])
                     ? $data[LengowOrder::FIELD_CARRIER_RELAY_ID]
                     : null,
-                self::TRACKING_MERCHANT_CARRIER => isset($lastTrack) ? $lastTrack->getTitle() : null,
-                self::TRACKING_MERCHANT_TRACKING_NUMBER => isset($lastTrack) ? $lastTrack->getNumber() : null,
+                self::TRACKING_MERCHANT_CARRIER => $lastTrack ? $lastTrack->getTitle() : null,
+                self::TRACKING_MERCHANT_TRACKING_NUMBER => $lastTrack ? $lastTrack->getNumber() : null,
                 self::TRACKING_MERCHANT_TRACKING_URL => null,
             ],
             self::ORDER_IS_REIMPORTED => (bool) $data[LengowOrder::FIELD_IS_REIMPORTED],
@@ -926,28 +927,28 @@ class Toolbox extends AbstractHelper
     private function getOrderStatusesData($order)
     {
         $orderStatuses = [];
-        $pendingStatusHistory = $order->getStatusHistoryCollection()->getFirstItem();
-        $invoice = $order->getInvoiceCollection()->getFirstItem();
-        $shipment = $order->getShipmentsCollection()->getFirstItem();
-        if ($pendingStatusHistory->getCreatedAt()) {
+        $pendingStatusHistoryCreatedAt = $order->getStatusHistoryCollection()->getFirstItem()->getCreatedAt();
+        $invoiceCreatedAt = $order->getInvoiceCollection()->getFirstItem()->getCreatedAt();
+        $shipmentCreatedAt = $order->getShipmentsCollection()->getFirstItem()->getCreatedAt();
+        if ($pendingStatusHistoryCreatedAt) {
             $orderStatuses[] = [
                 self::ORDER_MERCHANT_ORDER_STATUS => MagentoOrder::STATE_NEW,
                 self::ORDER_STATUS => null,
-                self::CREATED_AT => strtotime($pendingStatusHistory->getCreatedAt()),
+                self::CREATED_AT => strtotime($pendingStatusHistoryCreatedAt),
             ];
         }
-        if ($invoice->getCreatedAt()) {
+        if ($invoiceCreatedAt) {
             $orderStatuses[] = [
                 self::ORDER_MERCHANT_ORDER_STATUS => MagentoOrder::STATE_PROCESSING,
                 self::ORDER_STATUS => LengowOrder::STATE_WAITING_SHIPMENT,
-                self::CREATED_AT => strtotime($invoice->getCreatedAt()),
+                self::CREATED_AT => strtotime($invoiceCreatedAt),
             ];
         }
-        if ($shipment->getCreatedAt()) {
+        if ($shipmentCreatedAt) {
             $orderStatuses[] = [
                 self::ORDER_MERCHANT_ORDER_STATUS => MagentoOrder::STATE_COMPLETE,
                 self::ORDER_STATUS => LengowOrder::STATE_SHIPPED,
-                self::CREATED_AT => strtotime($shipment->getCreatedAt()),
+                self::CREATED_AT => strtotime($shipmentCreatedAt),
             ];
         }
         if ($order->getState() === MagentoOrder::STATE_CANCELED) {
