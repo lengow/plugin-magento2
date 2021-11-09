@@ -612,9 +612,7 @@ class Action extends AbstractModel
             $apiAction = $apiActions[$action[self::FIELD_ACTION_ID]];
             if (isset($apiAction->queued, $apiAction->processed, $apiAction->errors) && $apiAction->queued == false) {
                 // order action is waiting to return from the marketplace
-                if ($apiAction->processed == false
-                    && empty($apiActions[$action[self::FIELD_ACTION_ID]]->errors)
-                ) {
+                if ($apiAction->processed == false && empty($apiAction->errors)) {
                     continue;
                 }
                 // finish action in lengow_action table
