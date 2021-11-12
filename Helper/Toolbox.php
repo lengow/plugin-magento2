@@ -860,7 +860,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getOrderErrorsData($lengowOrderId)
+    private function getOrderErrorsData(int $lengowOrderId): array
     {
         $orderErrors = [];
         $errors = $this->lengowOrderError->getOrderErrors($lengowOrderId);
@@ -895,7 +895,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getOrderActionData($orderId)
+    private function getOrderActionData(int $orderId): array
     {
         $orderActions = [];
         $actions = $this->lengowAction->getActionsByOrderId($orderId);
@@ -924,7 +924,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getOrderStatusesData($order)
+    private function getOrderStatusesData(MagentoOrderInterface $order): array
     {
         $orderStatuses = [];
         $pendingStatusHistoryCreatedAt = $order->getStatusHistoryCollection()->getFirstItem()->getCreatedAt();
@@ -968,7 +968,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getOrderExtraData($data)
+    private function getOrderExtraData(array $data): array
     {
         return json_decode($data[LengowOrder::FIELD_EXTRA], true);
     }
@@ -980,7 +980,7 @@ class Toolbox extends AbstractHelper
      *
      * @return string
      */
-    private function getOrderProcessLabel($orderProcess)
+    private function getOrderProcessLabel(int $orderProcess): string
     {
         switch ($orderProcess) {
             case LengowOrder::PROCESS_STATE_NEW:
@@ -1001,7 +1001,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function generateErrorReturn($httpCode, $error)
+    private function generateErrorReturn(int $httpCode, string $error): array
     {
         return [
             self::ERRORS => [
