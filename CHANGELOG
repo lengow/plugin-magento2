@@ -2,7 +2,7 @@
 Version 1.4.1
 =============================================================
 
-
+    - BugFix: [Import] Unblocking the synchronization process when an order is refunded
 
 =============================================================
 Version 1.4.0
