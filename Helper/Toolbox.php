@@ -783,6 +783,7 @@ class Toolbox extends AbstractHelper
     private function getAllOrderData(array $data, MagentoOrderInterface $order = null): array
     {
         $importedAt = 0;
+        $lastTrack = null;
         $hasActionInProgress = false;
         $orderTypes = json_decode($data[LengowOrder::FIELD_ORDER_TYPES], true);
         if ($order) {
@@ -837,8 +838,8 @@ class Toolbox extends AbstractHelper
                 self::TRACKING_RELAY_ID => !empty($data[LengowOrder::FIELD_CARRIER_RELAY_ID])
                     ? $data[LengowOrder::FIELD_CARRIER_RELAY_ID]
                     : null,
-                self::TRACKING_MERCHANT_CARRIER => isset($lastTrack) ? $lastTrack->getTitle() : null,
-                self::TRACKING_MERCHANT_TRACKING_NUMBER => isset($lastTrack) ? $lastTrack->getNumber() : null,
+                self::TRACKING_MERCHANT_CARRIER => $lastTrack ? $lastTrack->getTitle() : null,
+                self::TRACKING_MERCHANT_TRACKING_NUMBER => $lastTrack ? $lastTrack->getNumber() : null,
                 self::TRACKING_MERCHANT_TRACKING_URL => null,
             ],
             self::ORDER_IS_REIMPORTED => (bool) $data[LengowOrder::FIELD_IS_REIMPORTED],
@@ -859,7 +860,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getOrderErrorsData($lengowOrderId)
+    private function getOrderErrorsData(int $lengowOrderId): array
     {
         $orderErrors = [];
         $errors = $this->lengowOrderError->getOrderErrors($lengowOrderId);
@@ -894,7 +895,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getOrderActionData($orderId)
+    private function getOrderActionData(int $orderId): array
     {
         $orderActions = [];
         $actions = $this->lengowAction->getActionsByOrderId($orderId);
@@ -923,31 +924,31 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getOrderStatusesData($order)
+    private function getOrderStatusesData(MagentoOrderInterface $order): array
     {
         $orderStatuses = [];
-        $pendingStatusHistory = $order->getStatusHistoryCollection()->getFirstItem();
-        $invoice = $order->getInvoiceCollection()->getFirstItem();
-        $shipment = $order->getShipmentsCollection()->getFirstItem();
-        if ($pendingStatusHistory->getCreatedAt()) {
+        $pendingStatusHistoryCreatedAt = $order->getStatusHistoryCollection()->getFirstItem()->getCreatedAt();
+        $invoiceCreatedAt = $order->getInvoiceCollection()->getFirstItem()->getCreatedAt();
+        $shipmentCreatedAt = $order->getShipmentsCollection()->getFirstItem()->getCreatedAt();
+        if ($pendingStatusHistoryCreatedAt) {
             $orderStatuses[] = [
                 self::ORDER_MERCHANT_ORDER_STATUS => MagentoOrder::STATE_NEW,
                 self::ORDER_STATUS => null,
-                self::CREATED_AT => strtotime($pendingStatusHistory->getCreatedAt()),
+                self::CREATED_AT => strtotime($pendingStatusHistoryCreatedAt),
             ];
         }
-        if ($invoice->getCreatedAt()) {
+        if ($invoiceCreatedAt) {
             $orderStatuses[] = [
                 self::ORDER_MERCHANT_ORDER_STATUS => MagentoOrder::STATE_PROCESSING,
                 self::ORDER_STATUS => LengowOrder::STATE_WAITING_SHIPMENT,
-                self::CREATED_AT => strtotime($invoice->getCreatedAt()),
+                self::CREATED_AT => strtotime($invoiceCreatedAt),
             ];
         }
-        if ($shipment->getCreatedAt()) {
+        if ($shipmentCreatedAt) {
             $orderStatuses[] = [
                 self::ORDER_MERCHANT_ORDER_STATUS => MagentoOrder::STATE_COMPLETE,
                 self::ORDER_STATUS => LengowOrder::STATE_SHIPPED,
-                self::CREATED_AT => strtotime($shipment->getCreatedAt()),
+                self::CREATED_AT => strtotime($shipmentCreatedAt),
             ];
         }
         if ($order->getState() === MagentoOrder::STATE_CANCELED) {
@@ -967,7 +968,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getOrderExtraData($data)
+    private function getOrderExtraData(array $data): array
     {
         return json_decode($data[LengowOrder::FIELD_EXTRA], true);
     }
@@ -979,7 +980,7 @@ class Toolbox extends AbstractHelper
      *
      * @return string
      */
-    private function getOrderProcessLabel($orderProcess)
+    private function getOrderProcessLabel(int $orderProcess): string
     {
         switch ($orderProcess) {
             case LengowOrder::PROCESS_STATE_NEW:
@@ -1000,7 +1001,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function generateErrorReturn($httpCode, $error)
+    private function generateErrorReturn(int $httpCode, string $error): array
     {
         return [
             self::ERRORS => [

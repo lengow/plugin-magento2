@@ -701,6 +701,8 @@ class Order extends AbstractModel
             case self::STATE_REFUSED:
             case self::STATE_CANCELED:
                 return MagentoOrder::STATE_CANCELED;
+            default:
+                return '';
         }
     }
 

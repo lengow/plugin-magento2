@@ -120,8 +120,9 @@ class Security extends AbstractHelper
      */
     public function checkWebserviceAccess(string $token, int $storeId = 0): bool
     {
-        return (!(bool)$this->configHelper->get(ConfigHelper::AUTHORIZED_IP_ENABLED)
-                && $this->checkToken($token, $storeId)) || $this->checkIp();
+        return (!(bool) $this->configHelper->get(ConfigHelper::AUTHORIZED_IP_ENABLED)
+                && $this->checkToken($token, $storeId)
+            ) || $this->checkIp();
     }
 
     /**

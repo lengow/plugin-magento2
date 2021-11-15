@@ -637,27 +637,27 @@ class Importorder extends AbstractModel
     {
         // if log import exist and not finished
         $orderError = $this->lengowOrder->orderIsInError($this->marketplaceSku, $this->deliveryAddressId);
-        if ($orderError) {
-            // force order synchronization by removing pending errors
-            if ($this->forceSync) {
-                $this->lengowOrderErrorFactory->create()->finishOrderErrors($this->orderLengowId);
-                return false;
-            }
-            $dateMessage = $this->timezone->date(strtotime($orderError[LengowOrderError::FIELD_CREATED_AT]))
-                ->format(DataHelper::DATE_FULL);
-            $decodedMessage = $this->dataHelper->decodeLogMessage($orderError[LengowOrderError::FIELD_MESSAGE], false);
-            $message = $this->dataHelper->setLogMessage(
-                '%1 (created on the %2)',
-                [
-                    $decodedMessage,
-                    $dateMessage,
-                ]
-            );
-            $this->errors[] = $this->dataHelper->decodeLogMessage($message, false);
-            $this->dataHelper->log(DataHelper::CODE_IMPORT, $message, $this->logOutput, $this->marketplaceSku);
-            return true;
+        if (!$orderError) {
+            return false;
         }
-        return false;
+        // force order synchronization by removing pending errors
+        if ($this->forceSync) {
+            $this->lengowOrderErrorFactory->create()->finishOrderErrors($this->orderLengowId);
+            return false;
+        }
+        $dateMessage = $this->timezone->date(strtotime($orderError[LengowOrderError::FIELD_CREATED_AT]))
+            ->format(DataHelper::DATE_FULL);
+        $decodedMessage = $this->dataHelper->decodeLogMessage($orderError[LengowOrderError::FIELD_MESSAGE], false);
+        $message = $this->dataHelper->setLogMessage(
+            '%1 (created on the %2)',
+            [
+                $decodedMessage,
+                $dateMessage,
+            ]
+        );
+        $this->errors[] = $this->dataHelper->decodeLogMessage($message, false);
+        $this->dataHelper->log(DataHelper::CODE_IMPORT, $message, $this->logOutput, $this->marketplaceSku);
+        return true;
     }
 
     /**
@@ -705,13 +705,13 @@ class Importorder extends AbstractModel
             $this->packageData
         );
         if ($orderUpdated) {
-            $orderUpdated = true;
             $this->dataHelper->log(
                 DataHelper::CODE_IMPORT,
                 $this->dataHelper->setLogMessage("order's status has been updated to %1", [$orderUpdated]),
                 $this->logOutput,
                 $this->marketplaceSku
             );
+            $orderUpdated = true;
         }
         unset($order, $lengowOrder);
         return $orderUpdated;
@@ -905,11 +905,9 @@ class Importorder extends AbstractModel
     private function getOrderComment(): string
     {
         if (isset($this->orderData->comments) && is_array($this->orderData->comments)) {
-            $orderComment = implode(',', $this->orderData->comments);
-        } else {
-            $orderComment = (string) $this->orderData->comments;
+            return implode(',', $this->orderData->comments);
         }
-        return $orderComment;
+        return (string) $this->orderData->comments;
     }
 
     /**
