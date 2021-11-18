@@ -615,9 +615,10 @@ class Toolbox extends AbstractHelper
         }
         $fileModifiedCounter = count($fileModified);
         $fileDeletedCounter = count($fileDeleted);
+        $md5Success = $md5Available && !($fileModifiedCounter > 0) && !($fileDeletedCounter > 0);
         return [
             self::CHECKSUM_AVAILABLE => $md5Available,
-            self::CHECKSUM_SUCCESS => !$md5Available || !($fileModifiedCounter > 0) || !($fileDeletedCounter > 0),
+            self::CHECKSUM_SUCCESS => $md5Success,
             self::CHECKSUM_NUMBER_FILES_CHECKED => $fileCounter,
             self::CHECKSUM_NUMBER_FILES_MODIFIED => $fileModifiedCounter,
             self::CHECKSUM_NUMBER_FILES_DELETED => $fileDeletedCounter,
