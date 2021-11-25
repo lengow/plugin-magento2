@@ -215,7 +215,7 @@ class Shipping
      */
     public function getShippingCost(): float
     {
-        return $this->shippingCost;
+        return (float) $this->shippingCost;
     }
 
     /**
