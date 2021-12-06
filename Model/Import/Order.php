@@ -460,7 +460,7 @@ class Order extends AbstractModel
         try {
             return $this->save();
         } catch (Exception $e) {
-            $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
+            $errorMessage = '[Orm error]: "' . $e->getMessage() . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
             $this->dataHelper->log(
                 DataHelper::CODE_ORM,
                 $this->dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
@@ -491,7 +491,7 @@ class Order extends AbstractModel
         try {
             return $this->save();
         } catch (Exception $e) {
-            $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
+            $errorMessage = '[Orm error]: "' . $e->getMessage() . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
             $this->dataHelper->log(
                 DataHelper::CODE_ORM,
                 $this->dataHelper->setLogMessage('Error while inserting record in database - %1', [$errorMessage])
@@ -1043,7 +1043,8 @@ class Order extends AbstractModel
                     $order->setState('lengow_technical_error')->setStatus('lengow_technical_error');
                     $order->save();
                 } catch (Exception $e) {
-                    $errorMessage = 'Orm error: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
+                    $errorMessage = '[Orm error]: "' . $e->getMessage()
+                        . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
                     $this->dataHelper->log(
                         DataHelper::CODE_ORM,
                         $this->dataHelper->setLogMessage(
@@ -1158,7 +1159,8 @@ class Order extends AbstractModel
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (Exception $e) {
-            $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            $errorMessage = '[Magento error]: "' . $e->getMessage()
+                . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
         }
         if (isset($errorMessage)) {
             if ((int) $lengowOrder->getData(self::FIELD_ORDER_PROCESS_STATE) !== self::PROCESS_STATE_FINISH) {

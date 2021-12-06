@@ -478,7 +478,8 @@ class Export
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (Exception $e) {
-            $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            $errorMessage = '[Magento error]: "' . $e->getMessage()
+                . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
         }
         if (isset($errorMessage)) {
             $decodedMessage = $this->dataHelper->decodeLogMessage($errorMessage, false);

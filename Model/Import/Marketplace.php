@@ -356,7 +356,8 @@ class Marketplace extends AbstractModel
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (Exception $e) {
-            $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            $errorMessage = '[Magento error]: "' . $e->getMessage()
+                . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
         }
         if (isset($errorMessage)) {
             $orderProcessState = (int) $lengowOrder->getData(LengowOrder::FIELD_ORDER_PROCESS_STATE);

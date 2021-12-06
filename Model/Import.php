@@ -662,7 +662,8 @@ class Import
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (Exception $e) {
-            $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            $errorMessage = '[Magento error]: "' . $e->getMessage()
+                . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
         }
         if (isset($errorMessage)) {
             if (isset($this->orderLengowId) && $this->orderLengowId) {
@@ -955,7 +956,7 @@ class Import
                     unset($importOrderFactory, $result);
                 } catch (Exception $e) {
                     $errorMessage = '[Magento error]: "' . $e->getMessage()
-                        . '" ' . $e->getFile() . ' | ' . $e->getLine();
+                        . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
                 }
                 if (isset($errorMessage)) {
                     $decodedMessage = $this->dataHelper->decodeLogMessage($errorMessage, false);
