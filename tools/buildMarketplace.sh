@@ -94,6 +94,8 @@ remove_files $FOLDER_TMP ".git"
 remove_files $FOLDER_TMP ".DS_Store"
 # remove .idea
 remove_files $FOLDER_TMP ".idea"
+# remove Jenkinsfile
+remove_files $FOLDER_TMP "Jenkinsfile"
 # clean tools folder
 remove_directory $FOLDER_TOOLS
 echo "- Remove Tools folder : ""$VERT""DONE""$NORMAL"""
