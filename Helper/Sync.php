@@ -35,38 +35,38 @@ class Sync extends AbstractHelper
     /**
      * @var string cms type
      */
-    const CMS_TYPE = 'magento';
+    private const CMS_TYPE = 'magento';
 
     /* Sync actions */
-    const SYNC_CATALOG = 'catalog';
-    const SYNC_CMS_OPTION = 'cms_option';
-    const SYNC_STATUS_ACCOUNT = 'status_account';
-    const SYNC_MARKETPLACE = 'marketplace';
-    const SYNC_ORDER = 'order';
-    const SYNC_ACTION = 'action';
-    const SYNC_PLUGIN_DATA = 'plugin';
+    public const SYNC_CATALOG = 'catalog';
+    public const SYNC_CMS_OPTION = 'cms_option';
+    public const SYNC_STATUS_ACCOUNT = 'status_account';
+    public const SYNC_MARKETPLACE = 'marketplace';
+    public const SYNC_ORDER = 'order';
+    public const SYNC_ACTION = 'action';
+    public const SYNC_PLUGIN_DATA = 'plugin';
 
     /**
      * @var string marketplace file name
      */
-    const MARKETPLACE_FILE = 'marketplaces.json';
+    private const MARKETPLACE_FILE = 'marketplaces.json';
 
     /* Plugin link types */
-    const LINK_TYPE_HELP_CENTER = 'help_center';
-    const LINK_TYPE_CHANGELOG = 'changelog';
-    const LINK_TYPE_UPDATE_GUIDE = 'update_guide';
-    const LINK_TYPE_SUPPORT = 'support';
+    public const LINK_TYPE_HELP_CENTER = 'help_center';
+    public const LINK_TYPE_CHANGELOG = 'changelog';
+    public const LINK_TYPE_UPDATE_GUIDE = 'update_guide';
+    public const LINK_TYPE_SUPPORT = 'support';
 
     /* Default plugin links */
-    const LINK_HELP_CENTER = 'https://support.lengow.com/kb/guide/en/zIKNDzKdKk';
-    const LINK_CHANGELOG = 'https://support.lengow.com/kb/guide/en/o153qbn91H';
-    const LINK_UPDATE_GUIDE = 'https://support.lengow.com/kb/guide/en/zIKNDzKdKk/Steps/25861,120332';
-    const LINK_SUPPORT = 'https://help-support.lengow.com/hc/en-us/requests/new';
+    private const LINK_HELP_CENTER = 'https://support.lengow.com/kb/guide/en/zIKNDzKdKk';
+    private const LINK_CHANGELOG = 'https://support.lengow.com/kb/guide/en/o153qbn91H';
+    private const LINK_UPDATE_GUIDE = 'https://support.lengow.com/kb/guide/en/zIKNDzKdKk/Steps/25861,120332';
+    private const LINK_SUPPORT = 'https://help-support.lengow.com/hc/en-us/requests/new';
 
     /* Api iso codes */
-    const API_ISO_CODE_EN = 'en';
-    const API_ISO_CODE_FR = 'fr';
-    const API_ISO_CODE_DE = 'de';
+    private const API_ISO_CODE_EN = 'en';
+    private const API_ISO_CODE_FR = 'fr';
+    private const API_ISO_CODE_DE = 'de';
 
     /**
      * @var mixed status account
@@ -360,7 +360,7 @@ class Sync extends AbstractHelper
      *
      * @return array|null
      */
-    public function getStatusAccount(bool $force = false, bool $logOutput = false)
+    public function getStatusAccount(bool $force = false, bool $logOutput = false): ?array
     {
         if ($this->configHelper->isNewMerchant()) {
             return null;

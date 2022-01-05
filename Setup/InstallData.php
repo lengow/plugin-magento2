@@ -117,8 +117,8 @@ class InstallData implements InstallDataInterface
 
         // create attribute lengow_product for product
         $entityTypeId = $customerSetup->getEntityTypeId(Product::ENTITY);
-        $lengowProductAttribut = $eavSetup->getAttribute($entityTypeId, 'lengow_product');
-        if (!$lengowProductAttribut) {
+        $lengowProductAttribute = $eavSetup->getAttribute($entityTypeId, 'lengow_product');
+        if (!$lengowProductAttribute) {
             $eavSetup->addAttribute(
                 $entityTypeId,
                 'lengow_product',

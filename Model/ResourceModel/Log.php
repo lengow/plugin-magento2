@@ -29,7 +29,7 @@ class Log extends AbstractDb
      *
      * @return void
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init(LengowLog::TABLE_LOG, LengowLog::FIELD_ID);
     }

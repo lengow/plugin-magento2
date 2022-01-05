@@ -20,6 +20,7 @@
 namespace Lengow\Connector\Helper;
 
 use Exception;
+use Lengow\Connector\Model\Log;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\Filesystem\DirectoryList;
@@ -38,38 +39,38 @@ use Lengow\Connector\Model\Log as LengowLog;
 class Data extends AbstractHelper
 {
     /* Log category codes */
-    const CODE_SETTING = 'Setting';
-    const CODE_CONNECTOR = 'Connector';
-    const CODE_EXPORT = 'Export';
-    const CODE_IMPORT = 'Import';
-    const CODE_ACTION = 'Action';
-    const CODE_CONNECTION = 'Connection';
-    const CODE_MAIL_REPORT = 'Mail Report';
-    const CODE_ORM = 'Orm';
+    public const CODE_SETTING = 'Setting';
+    public const CODE_CONNECTOR = 'Connector';
+    public const CODE_EXPORT = 'Export';
+    public const CODE_IMPORT = 'Import';
+    public const CODE_ACTION = 'Action';
+    public const CODE_CONNECTION = 'Connection';
+    public const CODE_MAIL_REPORT = 'Mail Report';
+    public const CODE_ORM = 'Orm';
 
     /* Plugin translation iso codes */
-    const ISO_CODE_EN = 'en_GB';
-    const ISO_CODE_FR = 'fr_FR';
-    const ISO_CODE_DE = 'de_DE';
+    public const ISO_CODE_EN = 'en_GB';
+    public const ISO_CODE_FR = 'fr_FR';
+    public const ISO_CODE_DE = 'de_DE';
 
     /* Field database actions */
-    const FIELD_REQUIRED = 'required';
-    const FIELD_CAN_BE_UPDATED = 'updated';
+    public const FIELD_REQUIRED = 'required';
+    public const FIELD_CAN_BE_UPDATED = 'updated';
 
     /* Date formats */
-    const DATE_FULL = 'Y-m-d H:i:s';
-    const DATE_DAY = 'Y-m-d';
-    const DATE_ISO_8601 = 'c';
+    public const DATE_FULL = 'Y-m-d H:i:s';
+    public const DATE_DAY = 'Y-m-d';
+    public const DATE_ISO_8601 = 'c';
 
     /**
      * @var string default iso code
      */
-    const DEFAULT_ISO_CODE = self::ISO_CODE_EN;
+    public const DEFAULT_ISO_CODE = self::ISO_CODE_EN;
 
     /**
      * @var string Lengow media folder
      */
-    const LENGOW_FOLDER = 'lengow';
+    public const LENGOW_FOLDER = 'lengow';
 
     /**
      * @var DirectoryList Magento directory list instance
@@ -229,7 +230,7 @@ class Data extends AbstractHelper
      *
      * @param integer $nbDays
      */
-    public function cleanLog(int $nbDays = LengowLog::LOG_LIFE)
+    public function cleanLog(int $nbDays = LengowLog::LOG_LIFE): void
     {
         if ($nbDays <= 0) {
             $nbDays = LengowLog::LOG_LIFE;
@@ -251,7 +252,7 @@ class Data extends AbstractHelper
     public function getExportUrl(int $storeId, array $additionalParams = []): string
     {
         $defaultParams = [
-            LengowExport::PARAM_STORE_ID => $storeId,
+            LengowExport::PARAM_STORE => $storeId,
             LengowExport::PARAM_TOKEN => $this->configHelper->getToken($storeId),
             '_nosid' => true,
             '_store_to_url' => false,

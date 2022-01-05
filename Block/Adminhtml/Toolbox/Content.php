@@ -31,18 +31,18 @@ use Lengow\Connector\Model\Import as LengowImport;
 class Content extends Template
 {
     /* Array data for toolbox content creation */
-    const DATA_HEADER = 'header';
-    const DATA_TITLE = 'title';
-    const DATA_STATE = 'state';
-    const DATA_MESSAGE = 'message';
-    const DATA_SIMPLE = 'simple';
-    const DATA_HELP = 'help';
-    const DATA_HELP_LINK = 'help_link';
-    const DATA_HELP_LABEL = 'help_label';
+    private const DATA_HEADER = 'header';
+    private const DATA_TITLE = 'title';
+    private const DATA_STATE = 'state';
+    private const DATA_MESSAGE = 'message';
+    private const DATA_SIMPLE = 'simple';
+    private const DATA_HELP = 'help';
+    private const DATA_HELP_LINK = 'help_link';
+    private const DATA_HELP_LABEL = 'help_label';
 
     /* Lengow cron jobs */
-    const CRON_JOB_EXPORT = 'lengow_connector_launch_export';
-    const CRON_JOB_IMPORT = 'lengow_connector_launch_synchronization';
+    private const CRON_JOB_EXPORT = 'lengow_connector_launch_export';
+    private const CRON_JOB_IMPORT = 'lengow_connector_launch_synchronization';
 
     /**
      * @var ScheduleCollection Magento schedule collection factory
@@ -102,7 +102,7 @@ class Content extends Template
      *
      * @return string
      */
-    public function getCheckList()
+    public function getCheckList(): string
     {
         $checklistData = $this->toolboxHelper->getData(ToolboxHelper::DATA_TYPE_CHECKLIST);
         $checklist = [
@@ -141,7 +141,7 @@ class Content extends Template
      *
      * @return string
      */
-    public function getPluginInformation()
+    public function getPluginInformation(): string
     {
         $pluginData = $this->toolboxHelper->getData(ToolboxHelper::DATA_TYPE_PLUGIN);
         $checklist = [
@@ -194,7 +194,7 @@ class Content extends Template
      *
      * @return string
      */
-    public function getImportInformation()
+    public function getImportInformation(): string
     {
         $synchronizationData = $this->toolboxHelper->getData(ToolboxHelper::DATA_TYPE_SYNCHRONIZATION);
         $lastSynchronization = $synchronizationData[ToolboxHelper::SYNCHRONIZATION_LAST_SYNCHRONIZATION];

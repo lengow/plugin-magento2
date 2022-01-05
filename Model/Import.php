@@ -43,76 +43,76 @@ use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
 class Import
 {
     /* Import GET params */
-    const PARAM_TOKEN = 'token';
-    const PARAM_TYPE = 'type';
-    const PARAM_STORE_ID = 'store_id';
-    const PARAM_MARKETPLACE_SKU = 'marketplace_sku';
-    const PARAM_MARKETPLACE_NAME = 'marketplace_name';
-    const PARAM_DELIVERY_ADDRESS_ID = 'delivery_address_id';
-    const PARAM_DAYS = 'days';
-    const PARAM_CREATED_FROM = 'created_from';
-    const PARAM_CREATED_TO = 'created_to';
-    const PARAM_ORDER_LENGOW_ID = 'order_lengow_id';
-    const PARAM_LIMIT = 'limit';
-    const PARAM_LOG_OUTPUT = 'log_output';
-    const PARAM_DEBUG_MODE = 'debug_mode';
-    const PARAM_FORCE = 'force';
-    const PARAM_FORCE_SYNC = 'force_sync';
-    const PARAM_SYNC = 'sync';
-    const PARAM_GET_SYNC = 'get_sync';
+    public const PARAM_TOKEN = 'token';
+    public const PARAM_TYPE = 'type';
+    public const PARAM_STORE_ID = 'store_id';
+    public const PARAM_MARKETPLACE_SKU = 'marketplace_sku';
+    public const PARAM_MARKETPLACE_NAME = 'marketplace_name';
+    public const PARAM_DELIVERY_ADDRESS_ID = 'delivery_address_id';
+    public const PARAM_DAYS = 'days';
+    public const PARAM_CREATED_FROM = 'created_from';
+    public const PARAM_CREATED_TO = 'created_to';
+    public const PARAM_ORDER_LENGOW_ID = 'order_lengow_id';
+    public const PARAM_LIMIT = 'limit';
+    public const PARAM_LOG_OUTPUT = 'log_output';
+    public const PARAM_DEBUG_MODE = 'debug_mode';
+    public const PARAM_FORCE = 'force';
+    public const PARAM_FORCE_SYNC = 'force_sync';
+    public const PARAM_SYNC = 'sync';
+    public const PARAM_GET_SYNC = 'get_sync';
 
     /* Import API arguments */
-    const ARG_ACCOUNT_ID = 'account_id';
-    const ARG_CATALOG_IDS = 'catalog_ids';
-    const ARG_MARKETPLACE = 'marketplace';
-    const ARG_MARKETPLACE_ORDER_DATE_FROM = 'marketplace_order_date_from';
-    const ARG_MARKETPLACE_ORDER_DATE_TO = 'marketplace_order_date_to';
-    const ARG_MARKETPLACE_ORDER_ID = 'marketplace_order_id';
-    const ARG_MERCHANT_ORDER_ID = 'merchant_order_id';
-    const ARG_NO_CURRENCY_CONVERSION = 'no_currency_conversion';
-    const ARG_PAGE = 'page';
-    const ARG_UPDATED_FROM = 'updated_from';
-    const ARG_UPDATED_TO = 'updated_to';
+    public const ARG_ACCOUNT_ID = 'account_id';
+    public const ARG_CATALOG_IDS = 'catalog_ids';
+    public const ARG_MARKETPLACE = 'marketplace';
+    public const ARG_MARKETPLACE_ORDER_DATE_FROM = 'marketplace_order_date_from';
+    public const ARG_MARKETPLACE_ORDER_DATE_TO = 'marketplace_order_date_to';
+    public const ARG_MARKETPLACE_ORDER_ID = 'marketplace_order_id';
+    public const ARG_MERCHANT_ORDER_ID = 'merchant_order_id';
+    public const ARG_NO_CURRENCY_CONVERSION = 'no_currency_conversion';
+    public const ARG_PAGE = 'page';
+    public const ARG_UPDATED_FROM = 'updated_from';
+    public const ARG_UPDATED_TO = 'updated_to';
 
     /* Import types */
-    const TYPE_MANUAL = 'manual';
-    const TYPE_CRON = 'cron';
-    const TYPE_MAGENTO_CRON = 'magento cron';
-    const TYPE_TOOLBOX = 'toolbox';
+    public const TYPE_MANUAL = 'manual';
+    public const TYPE_CRON = 'cron';
+    public const TYPE_MAGENTO_CRON = 'magento cron';
+    public const TYPE_TOOLBOX = 'toolbox';
 
     /* Import Data */
-    const NUMBER_ORDERS_PROCESSED = 'number_orders_processed';
-    const NUMBER_ORDERS_CREATED = 'number_orders_created';
-    const NUMBER_ORDERS_UPDATED = 'number_orders_updated';
-    const NUMBER_ORDERS_FAILED = 'number_orders_failed';
-    const NUMBER_ORDERS_IGNORED = 'number_orders_ignored';
-    const NUMBER_ORDERS_NOT_FORMATTED = 'number_orders_not_formatted';
-    const ORDERS_CREATED = 'orders_created';
-    const ORDERS_UPDATED = 'orders_updated';
-    const ORDERS_FAILED = 'orders_failed';
-    const ORDERS_IGNORED = 'orders_ignored';
-    const ORDERS_NOT_FORMATTED = 'orders_not_formatted';
-    const ERRORS = 'errors';
+    public const NUMBER_ORDERS_PROCESSED = 'number_orders_processed';
+    public const NUMBER_ORDERS_CREATED = 'number_orders_created';
+    public const NUMBER_ORDERS_UPDATED = 'number_orders_updated';
+    public const NUMBER_ORDERS_FAILED = 'number_orders_failed';
+    public const NUMBER_ORDERS_IGNORED = 'number_orders_ignored';
+    public const NUMBER_ORDERS_NOT_FORMATTED = 'number_orders_not_formatted';
+    public const ORDERS_CREATED = 'orders_created';
+    public const ORDERS_UPDATED = 'orders_updated';
+    public const ORDERS_FAILED = 'orders_failed';
+    public const ORDERS_IGNORED = 'orders_ignored';
+    public const ORDERS_NOT_FORMATTED = 'orders_not_formatted';
+    public const ERRORS = 'errors';
 
     /**
      * @var integer max interval time for order synchronisation old versions (1 day)
      */
-    const MIN_INTERVAL_TIME = 86400;
+    public const MIN_INTERVAL_TIME = 86400;
 
     /**
      * @var integer max import days for old versions (10 days)
      */
-    const MAX_INTERVAL_TIME = 864000;
+    public const MAX_INTERVAL_TIME = 864000;
 
     /**
      * @var integer security interval time for cron synchronisation (2 hours)
      */
-    const SECURITY_INTERVAL_TIME = 7200;
+    public const SECURITY_INTERVAL_TIME = 7200;
 
     /**
      * @var integer interval of months for cron synchronisation
      */
-    const MONTH_INTERVAL_TIME = 3;
+    public const MONTH_INTERVAL_TIME = 3;
 
     /**
      * @var DateTime Magento datetime instance
@@ -356,7 +356,7 @@ class Import
      * boolean debug_mode          debug mode
      * boolean force_sync          force import order even if there are errors
      */
-    public function init(array $params)
+    public function init(array $params): void
     {
         // get generic params for synchronisation
         $this->debugMode = isset($params[self::PARAM_DEBUG_MODE])
@@ -450,7 +450,7 @@ class Import
      * @param string|null $createdFrom Import of orders since
      * @param string|null $createdTo Import of orders until
      */
-    private function setIntervalTime(int $days = null, string $createdFrom = null, string $createdTo = null)
+    private function setIntervalTime(int $days = null, string $createdFrom = null, string $createdTo = null): void
     {
         if ($createdFrom && $createdTo) {
             // retrieval of orders created from ... until ...
@@ -528,7 +528,7 @@ class Import
     /**
      * Starts some processes necessary for synchronization
      */
-    private function setupSynchronization()
+    private function setupSynchronization(): void
     {
         // suppress log files when too old
         $this->dataHelper->cleanLog();
@@ -883,7 +883,7 @@ class Import
      * @param mixed $orders API orders
      * @param integer $storeId Magento store Id
      */
-    private function importOrders($orders, int $storeId)
+    private function importOrders($orders, int $storeId): void
     {
         $importFinished = false;
         foreach ($orders as $orderData) {
@@ -992,7 +992,7 @@ class Import
      * @param string $errorMessage Error message
      * @param mixed $orderData API order data
      */
-    private function addOrderNotFormatted(string $marketplaceSku, string $errorMessage, $orderData)
+    private function addOrderNotFormatted(string $marketplaceSku, string $errorMessage, $orderData): void
     {
         $messageDecoded = $this->dataHelper->decodeLogMessage($errorMessage, false);
         $this->ordersNotFormatted[] = [
@@ -1014,7 +1014,7 @@ class Import
      *
      * @param array $result synchronization order result
      */
-    private function synchronizeMerchantOrderId(array $result)
+    private function synchronizeMerchantOrderId(array $result): void
     {
         if (!$this->debugMode && $result[LengowImportOrder::RESULT_TYPE] === LengowImportOrder::RESULT_CREATED) {
             $lengowOrder = $this->lengowOrderFactory->create()->load($result[LengowImportOrder::LENGOW_ORDER_ID]);
@@ -1040,7 +1040,7 @@ class Import
      *
      * @param array $result synchronization order result
      */
-    private function saveSynchronizationResult(array $result)
+    private function saveSynchronizationResult(array $result): void
     {
         $resultType = $result[LengowImportOrder::RESULT_TYPE];
         unset($result[LengowImportOrder::RESULT_TYPE]);
@@ -1063,7 +1063,7 @@ class Import
     /**
      * Complete synchronization and start all necessary processes
      */
-    private function finishSynchronization()
+    private function finishSynchronization(): void
     {
         // finish synchronization process
         $this->importHelper->setImportEnd();

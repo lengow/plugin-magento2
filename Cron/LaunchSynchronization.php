@@ -69,7 +69,7 @@ class LaunchSynchronization
     /**
      * Synchronize catalogs, orders, actions and options for each store with cron job
      */
-    public function execute()
+    public function execute(): void
     {
         if ($this->configHelper->get(ConfigHelper::SYNCHRONISATION_MAGENTO_CRON_ENABLED)) {
             // sync catalogs id between Lengow and Magento

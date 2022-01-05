@@ -34,30 +34,30 @@ use Lengow\Connector\Model\Export\FileFactory as LengowFileFactory;
 class Feed
 {
     /* Feed formats */
-    const FORMAT_CSV = 'csv';
-    const FORMAT_YAML = 'yaml';
-    const FORMAT_XML = 'xml';
-    const FORMAT_JSON = 'json';
+    public const FORMAT_CSV = 'csv';
+    public const FORMAT_YAML = 'yaml';
+    public const FORMAT_XML = 'xml';
+    public const FORMAT_JSON = 'json';
 
     /* Content types */
-    const HEADER = 'header';
-    const BODY = 'body';
-    const FOOTER = 'footer';
+    public const HEADER = 'header';
+    public const BODY = 'body';
+    public const FOOTER = 'footer';
 
     /**
      * @var string  CSV protection
      */
-    const PROTECTION = '"';
+    public const PROTECTION = '"';
 
     /**
      * @var string CSV separator
      */
-    const CSV_SEPARATOR = '|';
+    public const CSV_SEPARATOR = '|';
 
     /**
      * @var string end of line
      */
-    const EOL = "\r\n";
+    public const EOL = "\r\n";
 
     /**
      * @var DriverFile Magento driver file instance
@@ -157,7 +157,7 @@ class Feed
      *
      * @throws Exception|LengowException
      */
-    public function init(array $params)
+    public function init(array $params): void
     {
         $this->stream = $params['stream'];
         $this->format = $params['format'];
@@ -180,7 +180,7 @@ class Feed
      *
      * @throws Exception
      */
-    public function write(string $type, array $data = [], bool $isFirst = null, bool $maxCharacter = null)
+    public function write(string $type, array $data = [], bool $isFirst = null, bool $maxCharacter = null): void
     {
         switch ($type) {
             case self::HEADER:
@@ -361,7 +361,7 @@ class Feed
      *
      * @throws Exception|LengowException
      */
-    private function initExportFile()
+    private function initExportFile(): void
     {
         try {
             $this->driverFile->createDirectory($this->folderPath);
@@ -417,7 +417,7 @@ class Feed
      *
      * @throws Exception
      */
-    private function flush(string $content)
+    private function flush(string $content): void
     {
         if ($this->stream) {
             print_r($content);

@@ -45,9 +45,9 @@ use Lengow\Connector\Helper\Data as DataHelper;
 class Customer extends MagentoResourceCustomer
 {
     /* Country iso codes */
-    const ISO_A2_FR = 'FR';
-    const ISO_A2_ES = 'ES';
-    const ISO_A2_IT = 'IT';
+    public const ISO_A2_FR = 'FR';
+    public const ISO_A2_ES = 'ES';
+    public const ISO_A2_IT = 'IT';
 
     /**
      * @var CustomerRepositoryInterface Magento customer repository instance
@@ -795,7 +795,7 @@ class Customer extends MagentoResourceCustomer
                 break;
             case self::ISO_A2_IT:
                 $regionCode = $this->regionCodes[$countryIsoA2][$postcodeSubstr] ?? false;
-                if ($regionCode && is_array($regionCode) && !empty($regionCode)) {
+                if (is_array($regionCode) && !empty($regionCode)) {
                     $regionCode = $this->getRegionCodeFromIntervalPostcodes((int) $postcode, $regionCode);
                 }
                 break;

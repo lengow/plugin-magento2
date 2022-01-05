@@ -28,7 +28,7 @@ class Product extends MagentoContainer
      *
      * @return void
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_controller = 'adminhtml_product';
         $this->_blockGroup = 'Lengow\Connector';

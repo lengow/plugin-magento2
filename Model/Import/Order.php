@@ -65,67 +65,67 @@ class Order extends AbstractModel
     /**
      * @var string Lengow order table name
      */
-    const TABLE_ORDER = 'lengow_order';
+    public const TABLE_ORDER = 'lengow_order';
 
     /* Order fields */
-    const FIELD_ID = 'id';
-    const FIELD_ORDER_ID = 'order_id';
-    const FIELD_ORDER_SKU = 'order_sku';
-    const FIELD_STORE_ID = 'store_id';
-    const FIELD_DELIVERY_ADDRESS_ID = 'delivery_address_id';
-    const FIELD_DELIVERY_COUNTRY_ISO = 'delivery_country_iso';
-    const FIELD_MARKETPLACE_SKU = 'marketplace_sku';
-    const FIELD_MARKETPLACE_NAME = 'marketplace_name';
-    const FIELD_MARKETPLACE_LABEL = 'marketplace_label';
-    const FIELD_ORDER_LENGOW_STATE = 'order_lengow_state';
-    const FIELD_ORDER_PROCESS_STATE = 'order_process_state';
-    const FIELD_ORDER_DATE = 'order_date';
-    const FIELD_ORDER_ITEM = 'order_item';
-    const FIELD_ORDER_TYPES = 'order_types';
-    const FIELD_CURRENCY = 'currency';
-    const FIELD_TOTAL_PAID = 'total_paid';
-    const FIELD_COMMISSION = 'commission';
-    const FIELD_CUSTOMER_NAME = 'customer_name';
-    const FIELD_CUSTOMER_EMAIL = 'customer_email';
-    const FIELD_CUSTOMER_VAT_NUMBER = 'customer_vat_number';
-    const FIELD_CARRIER = 'carrier';
-    const FIELD_CARRIER_METHOD = 'carrier_method';
-    const FIELD_CARRIER_TRACKING = 'carrier_tracking';
-    const FIELD_CARRIER_RELAY_ID = 'carrier_id_relay';
-    const FIELD_SENT_MARKETPLACE = 'sent_marketplace';
-    const FIELD_IS_IN_ERROR = 'is_in_error';
-    const FIELD_IS_REIMPORTED = 'is_reimported';
-    const FIELD_MESSAGE = 'message';
-    const FIELD_CREATED_AT = 'created_at';
-    const FIELD_UPDATED_AT = 'updated_at';
-    const FIELD_EXTRA = 'extra';
+    public const FIELD_ID = 'id';
+    public const FIELD_ORDER_ID = 'order_id';
+    public const FIELD_ORDER_SKU = 'order_sku';
+    public const FIELD_STORE_ID = 'store_id';
+    public const FIELD_DELIVERY_ADDRESS_ID = 'delivery_address_id';
+    public const FIELD_DELIVERY_COUNTRY_ISO = 'delivery_country_iso';
+    public const FIELD_MARKETPLACE_SKU = 'marketplace_sku';
+    public const FIELD_MARKETPLACE_NAME = 'marketplace_name';
+    public const FIELD_MARKETPLACE_LABEL = 'marketplace_label';
+    public const FIELD_ORDER_LENGOW_STATE = 'order_lengow_state';
+    public const FIELD_ORDER_PROCESS_STATE = 'order_process_state';
+    public const FIELD_ORDER_DATE = 'order_date';
+    public const FIELD_ORDER_ITEM = 'order_item';
+    public const FIELD_ORDER_TYPES = 'order_types';
+    public const FIELD_CURRENCY = 'currency';
+    public const FIELD_TOTAL_PAID = 'total_paid';
+    public const FIELD_COMMISSION = 'commission';
+    public const FIELD_CUSTOMER_NAME = 'customer_name';
+    public const FIELD_CUSTOMER_EMAIL = 'customer_email';
+    public const FIELD_CUSTOMER_VAT_NUMBER = 'customer_vat_number';
+    public const FIELD_CARRIER = 'carrier';
+    public const FIELD_CARRIER_METHOD = 'carrier_method';
+    public const FIELD_CARRIER_TRACKING = 'carrier_tracking';
+    public const FIELD_CARRIER_RELAY_ID = 'carrier_id_relay';
+    public const FIELD_SENT_MARKETPLACE = 'sent_marketplace';
+    public const FIELD_IS_IN_ERROR = 'is_in_error';
+    public const FIELD_IS_REIMPORTED = 'is_reimported';
+    public const FIELD_MESSAGE = 'message';
+    public const FIELD_CREATED_AT = 'created_at';
+    public const FIELD_UPDATED_AT = 'updated_at';
+    public const FIELD_EXTRA = 'extra';
 
     /* Order process states */
-    const PROCESS_STATE_NEW = 0;
-    const PROCESS_STATE_IMPORT = 1;
-    const PROCESS_STATE_FINISH = 2;
+    public const PROCESS_STATE_NEW = 0;
+    public const PROCESS_STATE_IMPORT = 1;
+    public const PROCESS_STATE_FINISH = 2;
 
     /* Order states */
-    const STATE_NEW = 'new';
-    const STATE_WAITING_ACCEPTANCE = 'waiting_acceptance';
-    const STATE_ACCEPTED = 'accepted';
-    const STATE_WAITING_SHIPMENT = 'waiting_shipment';
-    const STATE_SHIPPED = 'shipped';
-    const STATE_CLOSED = 'closed';
-    const STATE_REFUSED = 'refused';
-    const STATE_CANCELED = 'canceled';
-    const STATE_REFUNDED = 'refunded';
+    public const STATE_NEW = 'new';
+    public const STATE_WAITING_ACCEPTANCE = 'waiting_acceptance';
+    public const STATE_ACCEPTED = 'accepted';
+    public const STATE_WAITING_SHIPMENT = 'waiting_shipment';
+    public const STATE_SHIPPED = 'shipped';
+    public const STATE_CLOSED = 'closed';
+    public const STATE_REFUSED = 'refused';
+    public const STATE_CANCELED = 'canceled';
+    public const STATE_REFUNDED = 'refunded';
 
     /* Order types */
-    const TYPE_PRIME = 'is_prime';
-    const TYPE_EXPRESS = 'is_express';
-    const TYPE_BUSINESS = 'is_business';
-    const TYPE_DELIVERED_BY_MARKETPLACE = 'is_delivered_by_marketplace';
+    public const TYPE_PRIME = 'is_prime';
+    public const TYPE_EXPRESS = 'is_express';
+    public const TYPE_BUSINESS = 'is_business';
+    public const TYPE_DELIVERED_BY_MARKETPLACE = 'is_delivered_by_marketplace';
 
     /**
      * @var string label fulfillment for old orders without order type
      */
-    const LABEL_FULFILLMENT = 'Fulfillment';
+    public const LABEL_FULFILLMENT = 'Fulfillment';
 
     /**
      * @var MagentoOrderFactory Magento order factory instance
@@ -372,8 +372,8 @@ class Order extends AbstractModel
      * @param LengowAction $lengowAction Lengow action instance
      * @param LengowImportFactory $lengowImportFactory Lengow import factory instance
      * @param SecurityHelper $securityHelper Lengow security helper
-     * @param AbstractResource $resource Magento abstract resource instance
-     * @param AbstractDb $resourceCollection Magento abstract db instance
+     * @param AbstractResource|null $resource Magento abstract resource instance
+     * @param AbstractDb|null $resourceCollection Magento abstract db instance
      */
     public function __construct(
         MagentoOrderFactory $orderFactory,
@@ -429,7 +429,7 @@ class Order extends AbstractModel
      *
      * @return void
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init(LengowOrderResource::class);
     }
@@ -785,7 +785,7 @@ class Order extends AbstractModel
      *
      * @param MagentoOrder $order Magento order instance
      */
-    public function toCancel(MagentoOrder $order)
+    public function toCancel(MagentoOrder $order): void
     {
         if ($order->canCancel()) {
             $order->cancel();
@@ -799,7 +799,7 @@ class Order extends AbstractModel
      *
      * @throws Exception
      */
-    public function toInvoice($order)
+    public function toInvoice($order): void
     {
         $invoice = $this->invoiceService->prepareInvoice($order);
         if ($invoice) {
@@ -830,7 +830,7 @@ class Order extends AbstractModel
         string $carrierName = null,
         string $carrierMethod = null,
         string $trackingNumber = null
-    ) {
+    ): void {
         if ($order->canShip()) {
             $shipment = $this->convertOrder->toShipment($order);
             if ($shipment) {
@@ -909,7 +909,6 @@ class Order extends AbstractModel
      */
     public function getUnsentOrders()
     {
-        $date = strtotime('-5 days', time());
         $results = $this->lengowOrderCollection->create()
             ->join(
                 ['magento_order' => 'sales_order'],
@@ -920,7 +919,7 @@ class Order extends AbstractModel
                     'state' => 'state',
                 ]
             )
-            ->addFieldToFilter('magento_order.updated_at', ['from' => $date, 'datetime' => true])
+            ->addFieldToFilter('magento_order.updated_at', ['from' => strtotime('-5 days'), 'datetime' => true])
             ->addFieldToFilter('magento_order.state', [['in' => ['cancel', 'complete']]])
             ->addFieldToFilter('main_table.order_process_state', ['eq' => 1])
             ->addFieldToFilter('main_table.is_in_error', ['eq' => 0])

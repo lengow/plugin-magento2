@@ -42,12 +42,12 @@ class B2bTaxesApllicator implements ObserverInterface
     }
 
     /**
-     * Remove tax class from each products if the order is B2B
+     * Remove tax class from each product if the order is B2B
      *
      * @param Observer $observer
      * @return void
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): void
     {
         if ($this->backendSession->getIsFromlengow() && (int) $this->backendSession->getIsLengowB2b() === 1) {
             $items = $observer->getEvent()->getQuote()->getAllVisibleItems();

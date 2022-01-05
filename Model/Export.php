@@ -45,34 +45,34 @@ use Lengow\Connector\Helper\Security as SecurityHelper;
 class Export
 {
     /* Export GET params */
-    const PARAM_TOKEN = 'token';
-    const PARAM_MODE = 'mode';
-    const PARAM_FORMAT = 'format';
-    const PARAM_STREAM = 'stream';
-    const PARAM_OFFSET = 'offset';
-    const PARAM_LIMIT = 'limit';
-    const PARAM_TYPE = 'type';
-    const PARAM_SELECTION = 'selection';
-    const PARAM_OUT_OF_STOCK = 'out_of_stock';
-    const PARAM_PRODUCT_IDS = 'product_ids';
-    const PARAM_PRODUCT_TYPES = 'product_types';
-    const PARAM_INACTIVE = 'inactive';
-    const PARAM_STORE = 'store';
-    const PARAM_STORE_ID = 'store_id';
-    const PARAM_CODE = 'code';
-    const PARAM_CURRENCY = 'currency';
-    const PARAM_LANGUAGE = 'language';
-    const PARAM_LOG_OUTPUT = 'log_output';
-    const PARAM_UPDATE_EXPORT_DATE = 'update_export_date';
-    const PARAM_GET_PARAMS = 'get_params';
+    public const PARAM_TOKEN = 'token';
+    public const PARAM_MODE = 'mode';
+    public const PARAM_FORMAT = 'format';
+    public const PARAM_STREAM = 'stream';
+    public const PARAM_OFFSET = 'offset';
+    public const PARAM_LIMIT = 'limit';
+    public const PARAM_TYPE = 'type';
+    public const PARAM_SELECTION = 'selection';
+    public const PARAM_OUT_OF_STOCK = 'out_of_stock';
+    public const PARAM_PRODUCT_IDS = 'product_ids';
+    public const PARAM_PRODUCT_TYPES = 'product_types';
+    public const PARAM_INACTIVE = 'inactive';
+    public const PARAM_STORE = 'store';
+    public const PARAM_STORE_ID = 'store_id';
+    public const PARAM_CODE = 'code';
+    public const PARAM_CURRENCY = 'currency';
+    public const PARAM_LANGUAGE = 'language';
+    public const PARAM_LOG_OUTPUT = 'log_output';
+    public const PARAM_UPDATE_EXPORT_DATE = 'update_export_date';
+    public const PARAM_GET_PARAMS = 'get_params';
 
     /* Legacy export GET params for old versions */
-    const PARAM_LEGACY_LANGUAGE = 'locale';
+    public const PARAM_LEGACY_LANGUAGE = 'locale';
 
     /* Export types */
-    const TYPE_MANUAL = 'manual';
-    const TYPE_CRON = 'cron';
-    const TYPE_MAGENTO_CRON = 'magento cron';
+    public const TYPE_MANUAL = 'manual';
+    public const TYPE_CRON = 'cron';
+    public const TYPE_MAGENTO_CRON = 'magento cron';
 
     /**
      * @var StoreManagerInterface Magento store manager instance
@@ -360,7 +360,7 @@ class Export
      * boolean stream       Display file when call script (1) | Save File (0)
      * boolean log_output   See logs (only when stream = 0) (1) | no logs (0)
      */
-    public function init(array $params)
+    public function init(array $params): void
     {
         $this->storeId = isset($params[self::PARAM_STORE_ID]) ? (int) $params[self::PARAM_STORE_ID] : 0;
         try {
@@ -418,7 +418,7 @@ class Export
     /**
      * Execute the export
      **/
-    public function exec()
+    public function exec(): void
     {
         try {
             // start timer
@@ -499,7 +499,7 @@ class Export
      *
      * @throws Exception|LengowException
      */
-    private function export(array $products, array $fields)
+    private function export(array $products, array $fields): void
     {
         $isFirst = true;
         $productCount = 0;
@@ -839,7 +839,7 @@ class Export
      * @param integer $productModulo product modulo
      * @param integer $productCount product counter
      */
-    private function setCounterLog(int $productModulo, int $productCount)
+    private function setCounterLog(int $productModulo, int $productCount): void
     {
         $logMessage = $this->dataHelper->setLogMessage('%1 product(s) exported', [$productCount]);
         // save 10 logs maximum in database

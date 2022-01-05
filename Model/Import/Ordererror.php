@@ -38,21 +38,21 @@ class Ordererror extends AbstractModel
     /**
      * @var string Lengow order error table name
      */
-    const TABLE_ORDER_ERROR = 'lengow_order_error';
+    public const TABLE_ORDER_ERROR = 'lengow_order_error';
 
     /* Order error fields */
-    const FIELD_ID = 'id';
-    const FIELD_ORDER_LENGOW_ID = 'order_lengow_id';
-    const FIELD_MESSAGE = 'message';
-    const FIELD_TYPE = 'type';
-    const FIELD_IS_FINISHED = 'is_finished';
-    const FIELD_MAIL = 'mail';
-    const FIELD_CREATED_AT = 'created_at';
-    const FIELD_UPDATED_AT = 'updated_at';
+    public const FIELD_ID = 'id';
+    public const FIELD_ORDER_LENGOW_ID = 'order_lengow_id';
+    public const FIELD_MESSAGE = 'message';
+    public const FIELD_TYPE = 'type';
+    public const FIELD_IS_FINISHED = 'is_finished';
+    public const FIELD_MAIL = 'mail';
+    public const FIELD_CREATED_AT = 'created_at';
+    public const FIELD_UPDATED_AT = 'updated_at';
 
     /* Order error types */
-    const TYPE_ERROR_IMPORT = 1;
-    const TYPE_ERROR_SEND = 2;
+    public const TYPE_ERROR_IMPORT = 1;
+    public const TYPE_ERROR_SEND = 2;
 
     /**
      * @var DateTime Magento datetime instance
@@ -124,7 +124,7 @@ class Ordererror extends AbstractModel
      *
      * @return void
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init(LengowOrderErrorResource::class);
     }

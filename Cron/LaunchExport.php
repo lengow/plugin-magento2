@@ -71,7 +71,7 @@ class LaunchExport
     /**
      * Launch export products for each store
      */
-    public function execute()
+    public function execute(): void
     {
         set_time_limit(0);
         ini_set('memory_limit', '1G');

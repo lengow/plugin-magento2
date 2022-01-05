@@ -81,7 +81,7 @@ class File
      *
      * @throws Exception
      */
-    public function init(array $params)
+    public function init(array $params): void
     {
         $this->folderName = $params['folder_name'];
         $this->fileName = $params['file_name'];
@@ -95,7 +95,7 @@ class File
      *
      * @throws Exception
      */
-    public function write(string $data)
+    public function write(string $data): void
     {
         if (is_resource($this->fileInstance)) {
             $this->driverFile->fileLock($this->fileInstance);
@@ -109,7 +109,7 @@ class File
      *
      * @throws Exception
      */
-    public function close()
+    public function close(): void
     {
         if (is_resource($this->fileInstance)) {
             $this->driverFile->fileClose($this->fileInstance);

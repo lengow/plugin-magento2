@@ -35,13 +35,13 @@ class Orderline extends AbstractModel
     /**
      * @var string Lengow order line table name
      */
-    const TABLE_ORDER_LINE = 'lengow_order_line';
+    public const TABLE_ORDER_LINE = 'lengow_order_line';
 
     /* Order line fields */
-    const FIELD_ID = 'id';
-    const FIELD_ORDER_ID = 'order_id';
-    const FIELD_PRODUCT_ID = 'product_id';
-    const FIELD_ORDER_LINE_ID = 'order_line_id';
+    public const FIELD_ID = 'id';
+    public const FIELD_ORDER_ID = 'order_id';
+    public const FIELD_PRODUCT_ID = 'product_id';
+    public const FIELD_ORDER_LINE_ID = 'order_line_id';
 
     /**
      * @var DataHelper Lengow data helper instance
@@ -97,7 +97,7 @@ class Orderline extends AbstractModel
      *
      * @return void
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init(LengowOrderLineResource::class);
     }

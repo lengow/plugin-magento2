@@ -62,7 +62,7 @@ class SendAction implements ObserverInterface
      * @param Observer $observer Magento observer instance
      * @return void
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): void
     {
         $order = null;
         $shipment = null;
