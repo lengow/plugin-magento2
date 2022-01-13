@@ -5,7 +5,7 @@
 /Block/Adminhtml/Sales/Order/Tab/Info.php|4ce087663f556696e71f434ac1f762b5
 /Block/Adminhtml/Footer.php|bb369b1bdee21b33544c48cfa0ad6101
 /Block/Adminhtml/Main.php|accc5fce5bc9508724aa9a3ec3889139
-/Block/Adminhtml/Toolbox/Content.php|e49a467cd777891745712d03c2fa327f
+/Block/Adminhtml/Toolbox/Content.php|3b9b55aadadfb4eb63da4c5ea66b19e7
 /Block/Adminhtml/System/Config/Check.php|8b586a60e6140da4d214e301d3c4490d
 /Block/Adminhtml/Product.php|81152137f15cbca93381a23c56009e33
 /Block/Adminhtml/Order/Header.php|56ea07c3236f300945d842ac96a4e154
@@ -54,10 +54,10 @@
 /Helper/Sync.php|ecd28281d54bfa37e28c1c6077a26641
 /Helper/Security.php|7b684086abcb605bbff8dbc9ad8a4d39
 /Helper/Import.php|e76314836ea1455a72f983c6da86a898
-/Helper/Toolbox.php|9b8e297200b115a5fd6e2cb6ee94cea8
-/i18n/de_DE.csv|42162c0da0e35ca5a20618f82ed89b4b
-/i18n/en_GB.csv|ead641ec8030a0c29a466b57cd5f4c99
-/i18n/fr_FR.csv|fc9253aa43c33f5e1426396e1741531c
+/Helper/Toolbox.php|54d8e876a9e211b086125b90ed20ed1f
+/i18n/de_DE.csv|5df7d9c06779613bc021e3088813da73
+/i18n/en_GB.csv|a69a1ce7d20431ea7e1699c207094435
+/i18n/fr_FR.csv|59f69f2732e9518db52698a38e735cef
 /Model/Config/Source/Actiontype.php|f35a8153c3cd053d5d32bfb5e955ee81
 /Model/Config/Source/Tracking.php|1473315f89ca45511f4ed36094d42c3a
 /Model/Config/Source/Attribute.php|9d1afe33d2a059ccf33e156ba4e2e78c

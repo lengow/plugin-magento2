@@ -154,6 +154,10 @@ class Content extends Template
                 self::DATA_MESSAGE => $pluginData[ToolboxHelper::PLUGIN_VERSION],
             ],
             [
+                self::DATA_TITLE => __('PHP version'),
+                self::DATA_MESSAGE => $pluginData[ToolboxHelper::PLUGIN_PHP_VERSION],
+            ],
+            [
                 self::DATA_TITLE => __('Server IP'),
                 self::DATA_MESSAGE => $pluginData[ToolboxHelper::PLUGIN_SERVER_IP],
             ],

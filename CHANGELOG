@@ -3,6 +3,7 @@ Version 1.4.2
 =============================================================
 
     - Feature: Removal of compatibility with Magento versions lower than 2.3
+    - Feature: Adding the PHP version in the toolbox
     - BugFix: [Import] Registering a specific customer group for a new customer
     - BugFix: [Export] Fix a type error sometime happening while retrieving product shipping cost
 

@@ -88,6 +88,7 @@ class Toolbox extends AbstractHelper
     public const PLUGIN = 'plugin';
     public const PLUGIN_CMS_VERSION = 'cms_version';
     public const PLUGIN_VERSION = 'plugin_version';
+    public const PLUGIN_PHP_VERSION = 'php_version';
     public const PLUGIN_DEBUG_MODE_DISABLE = 'debug_mode_disable';
     public const PLUGIN_WRITE_PERMISSION = 'write_permission';
     public const PLUGIN_SERVER_IP = 'server_ip';
@@ -500,6 +501,7 @@ class Toolbox extends AbstractHelper
         return [
             self::PLUGIN_CMS_VERSION => $this->securityHelper->getMagentoVersion(),
             self::PLUGIN_VERSION => $this->securityHelper->getPluginVersion(),
+            self::PLUGIN_PHP_VERSION => PHP_VERSION,
             self::PLUGIN_DEBUG_MODE_DISABLE => !$this->configHelper->debugModeIsActive(),
             self::PLUGIN_WRITE_PERMISSION => $this->testWritePermission(),
             self::PLUGIN_SERVER_IP => $_SERVER['SERVER_ADDR'],
