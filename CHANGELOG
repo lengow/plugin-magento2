@@ -8,6 +8,7 @@ Version 1.4.2
     - BugFix: [Export] Fix a type error sometime happening while retrieving product shipping cost
     - BugFix: [Export] Convert custom attribute values to string
     - BugFix: [Import] Loading of order types at each order synchronization
+    - BugFix: [Import] Checks if multi-stock is activated when sending the order
 
 =============================================================
 Version 1.4.1

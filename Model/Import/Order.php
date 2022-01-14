@@ -834,7 +834,9 @@ class Order extends AbstractModel
         if ($order->canShip()) {
             $shipment = $this->convertOrder->toShipment($order);
             if ($shipment) {
-                if (version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')) {
+                if ($this->configHelper->moduleIsEnabled('Magento_Inventory')
+                    && version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')
+                ) {
                     $shipment->getExtensionAttributes()->setSourceCode('default');
                 }
                 foreach ($order->getAllItems() as $orderItem) {
