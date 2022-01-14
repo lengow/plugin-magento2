@@ -772,7 +772,7 @@ class Product
                     ->getValue($product);
             }
         }
-        return $attributeValue;
+        return is_array($attributeValue) ? json_encode($attributeValue) : $attributeValue;
     }
 
     /**
