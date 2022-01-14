@@ -334,6 +334,11 @@ class Importorder extends AbstractModel
     private $orderReference;
 
     /**
+     * @var string order types data
+     */
+    private $orderTypes;
+
+    /**
      * @var string order date in GMT format
      */
     private $orderDate;
@@ -824,6 +829,8 @@ class Importorder extends AbstractModel
     {
         // load order date
         $this->loadOrderDate();
+        // load order types data
+        $this->loadOrderTypesData();
         // If the Lengow order already exists do not recreate it
         if ($this->orderLengowId) {
             return true;
@@ -835,7 +842,7 @@ class Importorder extends AbstractModel
             LengowOrder::FIELD_MARKETPLACE_LABEL => $this->marketplaceLabel,
             LengowOrder::FIELD_DELIVERY_ADDRESS_ID => $this->deliveryAddressId,
             LengowOrder::FIELD_ORDER_LENGOW_STATE => $this->orderStateLengow,
-            LengowOrder::FIELD_ORDER_TYPES => $this->getOrderTypesData(),
+            LengowOrder::FIELD_ORDER_TYPES => $this->orderTypes,
             LengowOrder::FIELD_CUSTOMER_VAT_NUMBER => $this->getVatNumberFromOrderData(),
             LengowOrder::FIELD_ORDER_DATE => $this->orderDate,
             LengowOrder::FIELD_MESSAGE => $this->getOrderComment(),
@@ -867,11 +874,20 @@ class Importorder extends AbstractModel
     }
 
     /**
-     * Get order types data and update Lengow order record
-     *
-     * @return string
+     * Load order date in GMT format
      */
-    private function getOrderTypesData(): string
+    private function loadOrderDate(): void
+    {
+        $orderDate = $this->orderData->marketplace_order_date !== null
+            ? (string) $this->orderData->marketplace_order_date
+            : (string) $this->orderData->imported_at;
+        $this->orderDate = $this->dateTime->gmtDate(DataHelper::DATE_FULL, strtotime($orderDate));
+    }
+
+    /**
+     * Load order types data and update Lengow order record
+     */
+    private function loadOrderTypesData(): void
     {
         $orderTypes = [];
         if ($this->orderData->order_types !== null && !empty($this->orderData->order_types)) {
@@ -882,18 +898,7 @@ class Importorder extends AbstractModel
                 }
             }
         }
-        return json_encode($orderTypes);
-    }
-
-    /**
-     * Load order date in GMT format
-     */
-    private function loadOrderDate(): void
-    {
-        $orderDate = $this->orderData->marketplace_order_date !== null
-            ? (string) $this->orderData->marketplace_order_date
-            : (string) $this->orderData->imported_at;
-        $this->orderDate = $this->dateTime->gmtDate(DataHelper::DATE_FULL, strtotime($orderDate));
+        $this->orderTypes = json_encode($orderTypes);
     }
 
     /**
@@ -1122,7 +1127,7 @@ class Importorder extends AbstractModel
         if ($this->shippedByMp) {
             $message = $this->dataHelper->setLogMessage('order shipped by %1', [$this->marketplace->name]);
             $this->dataHelper->log(DataHelper::CODE_IMPORT, $message, $this->logOutput, $this->marketplaceSku);
-            if (!$this->configHelper->get(ConfigHelper::SHIPPED_BY_MARKETPLACE_ENABLED, $this->storeId)) {
+            if (!$this->configHelper->get(ConfigHelper::SHIPPED_BY_MARKETPLACE_ENABLED)) {
                 $this->errors[] = $this->dataHelper->decodeLogMessage($message, false);
                 $orderLengow->updateOrder(
                     [
@@ -1655,9 +1660,7 @@ class Importorder extends AbstractModel
     {
         // add quantity back for re-imported order and order shipped by marketplace
         if ($this->isReimported
-            || ($this->shippedByMp
-                && !$this->configHelper->get(ConfigHelper::SHIPPED_BY_MARKETPLACE_STOCK_ENABLED, $this->storeId)
-            )
+            || ($this->shippedByMp && !$this->configHelper->get(ConfigHelper::SHIPPED_BY_MARKETPLACE_STOCK_ENABLED))
         ) {
             $messageKey = $this->isReimported
                 ? 'adding quantity back to stock count (order is re-imported)'
