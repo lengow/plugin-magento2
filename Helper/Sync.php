@@ -58,10 +58,10 @@ class Sync extends AbstractHelper
     public const LINK_TYPE_SUPPORT = 'support';
 
     /* Default plugin links */
-    private const LINK_HELP_CENTER = 'https://support.lengow.com/kb/guide/en/zIKNDzKdKk';
-    private const LINK_CHANGELOG = 'https://support.lengow.com/kb/guide/en/o153qbn91H';
-    private const LINK_UPDATE_GUIDE = 'https://support.lengow.com/kb/guide/en/zIKNDzKdKk/Steps/25861,120332';
-    private const LINK_SUPPORT = 'https://help-support.lengow.com/hc/en-us/requests/new';
+    private const LINK_HELP_CENTER = 'https://help.lengow.com/hc/en-us/articles/360012204551';
+    private const LINK_CHANGELOG = 'https://help.lengow.com/hc/en-us/articles/360011215439';
+    private const LINK_UPDATE_GUIDE = 'https://help.lengow.com/hc/en-us/articles/360012204551#12-update-the-plugin-version';
+    private const LINK_SUPPORT = 'https://help.lengow.com/hc/en-us/requests/new';
 
     /* Api iso codes */
     private const API_ISO_CODE_EN = 'en';
