@@ -182,6 +182,7 @@ class Toolbox extends AbstractHelper
     public const ACTION_PARAMETERS = 'parameters';
     public const ACTION_RETRY = 'retry';
     public const ACTION_FINISH = 'is_finished';
+    public const EXTRA_UPDATED_AT = 'extra_updated_at';
 
     /* Process state labels */
     private const PROCESS_STATE_NEW = 'new';
@@ -406,11 +407,15 @@ class Toolbox extends AbstractHelper
         }
         $orders = [];
         foreach ($lengowOrders as $data) {
+            $order = $data[LengowOrder::FIELD_ORDER_ID]
+                ? $this->orderRepository->get((int) $data[LengowOrder::FIELD_ORDER_ID])
+                : null;
             if ($type === self::DATA_TYPE_EXTRA) {
-                return $this->getOrderExtraData($data);
+                return $this->getOrderExtraData($data, $order);
             }
             $marketplaceLabel = $data[LengowOrder::FIELD_MARKETPLACE_LABEL];
-            $orders[] = $this->getOrderDataByType($data, $type);
+            $orders[] = $this->getOrderDataByType($type, $data, $order);
+            unset($order);
         }
         return [
             self::ORDER_MARKETPLACE_SKU => $marketplaceSku,
@@ -736,16 +741,14 @@ class Toolbox extends AbstractHelper
     /**
      * Get array of all the data of the order
      *
-     * @param array $data All Lengow order data
      * @param string $type Toolbox order data type
+     * @param array $data All Lengow order data
+     * @param MagentoOrderInterface|null $order Magento order instance
      *
      * @return array
      */
-    private function getOrderDataByType(array $data, string $type): array
+    private function getOrderDataByType(string $type, array $data, MagentoOrderInterface $order = null): array
     {
-        $order = $data[LengowOrder::FIELD_ORDER_ID]
-            ? $this->orderRepository->get((int) $data[LengowOrder::FIELD_ORDER_ID])
-            : null;
         $orderReferences = [
             self::ID => (int) $data[LengowOrder::FIELD_ID],
             self::ORDER_MERCHANT_ORDER_ID  => $order ? (int) $order->getId() : null,
@@ -779,7 +782,7 @@ class Toolbox extends AbstractHelper
      * Get array of all the data of the order
      *
      * @param array $data All Lengow order data
-     * @param MagentoOrderInterface|null $order Lengow order instance
+     * @param MagentoOrderInterface|null $order Magento order instance
      *
      * @return array
      */
@@ -968,12 +971,17 @@ class Toolbox extends AbstractHelper
      * Get all the data of the order at the time of import
      *
      * @param array $data All Lengow order data
+     * @param MagentoOrderInterface|null $order Magento order instance
      *
      * @return array
      */
-    private function getOrderExtraData(array $data): array
+    private function getOrderExtraData(array $data, MagentoOrderInterface $order = null): array
     {
-        return json_decode($data[LengowOrder::FIELD_EXTRA], true);
+        $orderData = json_decode($data[LengowOrder::FIELD_EXTRA], true);
+        $orderData[self::EXTRA_UPDATED_AT] = $order
+            ? strtotime($order->getStatusHistoryCollection()->getFirstItem()->getCreatedAt())
+            : strtotime($data[LengowOrder::FIELD_UPDATED_AT]);
+        return $orderData;
     }
 
     /**
