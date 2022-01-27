@@ -22,6 +22,7 @@ namespace Lengow\Connector\Plugin;
 use Closure;
 use Magento\Backend\Model\Session as BackendSession;
 use Magento\Quote\Model\Quote\Item\AbstractItem;
+use Magento\SalesRule\Model\RulesApplier as RulesApplierModel;
 use Magento\SalesRule\Model\ResourceModel\Rule\CollectionFactory as RuleCollectionFactory;
 use Magento\SalesRule\Model\ResourceModel\Rule\Collection as RuleCollection;
 
@@ -56,23 +57,23 @@ class RulesApplier
 
     /**
      * This method is executed each time magento call his own ApplyRule method
-     * It allow lengow orders to be imported without any Cart Rules
+     * It allows lengow orders to be imported without any Cart Rules
      *
-     * @param \Magento\SalesRule\Model\RulesApplier $subject Magento RulesApplier base class
-     * @param Closure $proceed Callable (have to be called otherwise magento prevent the execution of the next plugins)
-     * @param AbstractItem $item Magento Abstract Item representing a Quote
-     * @param RuleCollection $rules Magento RuleCollection assigned to the Quote
-     * @param bool $skipValidation Magento option to skip rule validation
-     * @param mixed $couponCode Magento Coupon Code
+     * @param  RulesApplierModel  $subject  Magento RulesApplier base class
+     * @param  Closure  $proceed  Callable (have to be called otherwise magento prevent the execution of the next plugins)
+     * @param  AbstractItem  $item  Magento Abstract Item representing a Quote
+     * @param  RuleCollection  $rules  Magento RuleCollection assigned to the Quote
+     * @param  bool  $skipValidation  Magento option to skip rule validation
+     * @param  mixed  $couponCode  Magento Coupon Code
      *
      * @return mixed
      */
     public function aroundApplyRules(
-        \Magento\SalesRule\Model\RulesApplier $subject,
+        RulesApplierModel $subject,
         Closure $proceed,
-        $item,
-        $rules,
-        $skipValidation,
+        AbstractItem $item,
+        RuleCollection $rules,
+        bool $skipValidation,
         $couponCode
     ) {
         if ($this->backendSession->getIsFromlengow()) {

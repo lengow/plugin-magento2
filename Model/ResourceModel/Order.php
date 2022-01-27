@@ -29,7 +29,7 @@ class Order extends AbstractDb
      *
      * @return void
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init(LengowOrder::TABLE_ORDER, LengowOrder::FIELD_ID);
     }

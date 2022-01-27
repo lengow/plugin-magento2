@@ -34,22 +34,22 @@ class Log extends AbstractModel
     /**
      * @var string Lengow log table name
      */
-    const TABLE_LOG = 'lengow_log';
+    public const TABLE_LOG = 'lengow_log';
 
     /* Action fields */
-    const FIELD_ID = 'id';
-    const FIELD_DATE = 'date';
-    const FIELD_CATEGORY = 'category';
-    const FIELD_MESSAGE = 'message';
+    public const FIELD_ID = 'id';
+    public const FIELD_DATE = 'date';
+    public const FIELD_CATEGORY = 'category';
+    public const FIELD_MESSAGE = 'message';
 
     /* Log params for export */
-    const LOG_DATE = 'date';
-    const LOG_LINK = 'link';
+    public const LOG_DATE = 'date';
+    public const LOG_LINK = 'link';
 
     /**
      * @var integer life of log files in days
      */
-    const LOG_LIFE = 20;
+    public const LOG_LIFE = 20;
 
     /**
      * @var array field list for the table lengow_log
@@ -109,7 +109,7 @@ class Log extends AbstractModel
      *
      * @return void
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init(LengowLogResource::class);
     }
@@ -200,7 +200,7 @@ class Log extends AbstractModel
      *
      * @param string|null $date date for a specific log file
      */
-    public function download(string $date = null)
+    public function download(string $date = null): void
     {
         $contents = '';
         if ($date && preg_match('/^(\d{4}-\d{2}-\d{2})$/', $date)) {

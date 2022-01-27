@@ -278,7 +278,7 @@ class Quote extends MagentoQuote
      *
      * @throws LengowException
      */
-    public function checkProductStatus(ProductInterceptor $product)
+    public function checkProductStatus(ProductInterceptor $product): void
     {
         if ((int) $product->getStatus() === Status::STATUS_DISABLED
             && version_compare($this->securityHelper->getMagentoVersion(), '2.2.0', '>=')
@@ -300,7 +300,7 @@ class Quote extends MagentoQuote
      *
      * @throws LengowException
      */
-    public function checkProductQuantity(ProductInterceptor $product, int $quantity)
+    public function checkProductQuantity(ProductInterceptor $product, int $quantity): void
     {
         $stockItem = $product->getExtensionAttributes()->getStockItem();
         if ($stockItem && $stockItem->getManageStock()) {

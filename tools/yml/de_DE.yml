@@ -254,6 +254,7 @@ de:
       plugin_information: "Information zum Plugin"
       magento_version: "Version von Magento"
       plugin_version: "Version des Plugins"
+      php_version: "PHP-Version"
       server_ip: "Server IP"
       authorized_ip_enable: "Autorisierung über IP aktiviert"
       authorized_ip: "Autorisierte IP"

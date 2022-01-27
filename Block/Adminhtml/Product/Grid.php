@@ -117,7 +117,7 @@ class Grid extends Extended
      *
      * @throws FileSystemException
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->setId('lengow_product_grid');
         parent::_construct();

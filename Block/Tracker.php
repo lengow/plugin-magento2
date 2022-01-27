@@ -87,14 +87,14 @@ class Tracker extends Template
     /**
      * Get last order
      *
-     * @return MagentoOrder|false
+     * @return MagentoOrder|null
      */
-    public function getLastOrder()
+    public function getLastOrder(): ?MagentoOrder
     {
         if ($this->checkoutSession->getLastRealOrderId()) {
             return $this->orderFactory->create()->loadByIncrementId($this->checkoutSession->getLastRealOrderId());
         }
-        return false;
+        return null;
     }
 
     /**

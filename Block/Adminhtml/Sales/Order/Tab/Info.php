@@ -157,7 +157,7 @@ class Info extends Template implements TabInterface
      *
      * @return LengowOrder|null
      */
-    public function getLengowOrder()
+    public function getLengowOrder(): ?LengowOrder
     {
         $lengowOrderId = $this->lengowOrderFactory->create()->getLengowOrderIdByOrderId($this->getOrderId());
         if ($lengowOrderId) {
@@ -201,7 +201,7 @@ class Info extends Template implements TabInterface
      *
      * @return integer|null
      */
-    public function getLengowOrderId()
+    public function getLengowOrderId(): ?int
     {
         return $this->lengowOrder ? (int) $this->lengowOrder->getId() : null;
     }

@@ -31,7 +31,7 @@ class Security extends AbstractHelper
     /**
      * @var string Lengow module name
      */
-    const MODULE_NAME = 'Lengow_Connector';
+    public const MODULE_NAME = 'Lengow_Connector';
 
     /**
      * @var array lengow authorized ips

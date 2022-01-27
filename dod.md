@@ -2,7 +2,8 @@
 
 ## Liste des critères  ##
 	
-* Recetter sa feature sur les versions 2.0, 2.1, 2.2, 2.3 et 2.4 :
+* Recetter sa feature sur les versions 2.3 et 2.4 :
+* Coder en respectant la version de PHP 7.1 :
 * Pas de modification de comportement de fonction :
 * Principe SOLID (au moins le S) :
 * Coding Style (PSR2) :
@@ -18,8 +19,11 @@
  	
 ## Explication des critères ##
 
-### Recetter sa feature sur les versions 2.0, 2.1, 2.2, 2.3 et 2.4 ###
+### Recetter sa feature sur les versions 2.3 et 2.4 ###
 Tester son développement sur toutes les versions compatibles avec le module
+
+### Coder en respectant la version de PHP 7.1 ###
+Coder en respectant tous les standards de la version de PHP requise
 
 ### Pas de modification de comportement de fonction ###
 Attention à ne pas modifier le comportement des fonctions déjà présentes

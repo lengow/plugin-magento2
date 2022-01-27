@@ -29,7 +29,7 @@ class Orderline extends AbstractDb
      *
      * @return void
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init(LengowOrderline::TABLE_ORDER_LINE, LengowOrderline::FIELD_ID);
     }

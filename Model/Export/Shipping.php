@@ -153,7 +153,7 @@ class Shipping
      * StoreInterceptor store    Magento store instance
      * string           currency Currency iso code for conversion
      */
-    public function init(array $params)
+    public function init(array $params): void
     {
         $this->store = $params['store'];
         $this->currency = $params['currency'];
@@ -186,7 +186,7 @@ class Shipping
      * @param array $params optional options for load a specific shipping
      * ProductInterceptor product Magento product instance
      */
-    public function load(array $params)
+    public function load(array $params): void
     {
         $this->product = $params['product'];
         if ($this->defaultShippingPrice !== null || $this->shippingCarrier === null) {
@@ -215,13 +215,13 @@ class Shipping
      */
     public function getShippingCost(): float
     {
-        return $this->shippingCost;
+        return (float) $this->shippingCost;
     }
 
     /**
      * Clean product shipping for a next product
      */
-    public function clean()
+    public function clean(): void
     {
         $this->product = null;
         $this->shippingCost = null;

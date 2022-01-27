@@ -71,7 +71,7 @@ class LaunchExport
     /**
      * Launch export products for each store
      */
-    public function execute()
+    public function execute(): void
     {
         set_time_limit(0);
         ini_set('memory_limit', '1G');
@@ -98,7 +98,7 @@ class LaunchExport
                         unset($export);
                     } catch (Exception $e) {
                         $errorMessage = '[Magento error]: "' . $e->getMessage()
-                            . '" ' . $e->getFile() . ' | ' . $e->getLine();
+                            . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
                         $this->dataHelper->log(DataHelper::CODE_EXPORT, $errorMessage);
                     }
                 }

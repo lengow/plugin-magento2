@@ -1,4 +1,18 @@
 =============================================================
+Version 1.4.2
+=============================================================
+
+    - Feature: Removal of compatibility with Magento versions lower than 2.3
+    - Feature: Adding the PHP version in the toolbox
+    - Feature: Modification of the fallback urls of the Lengow Help Center
+    - Feature: Adding extra field update date in external toolbox
+    - BugFix: [Import] Registering a specific customer group for a new customer
+    - BugFix: [Export] Fix a type error sometime happening while retrieving product shipping cost
+    - BugFix: [Export] Convert custom attribute values to string
+    - BugFix: [Import] Loading of order types at each order synchronization
+    - BugFix: [Import] Checks if multi-stock is activated when sending the order
+
+=============================================================
 Version 1.4.1
 =============================================================
 

@@ -139,7 +139,7 @@ class Price
      * StoreInterceptor store    Magento store instance
      * string           currency Currency iso code for conversion
      */
-    public function init(array $params)
+    public function init(array $params): void
     {
         $this->currency = $params['currency'];
         $this->store = $params['store'];
@@ -152,7 +152,7 @@ class Price
      * @param array $params optional options for load a specific price
      * ProductInterceptor product Magento product instance
      */
-    public function load(array $params)
+    public function load(array $params): void
     {
         $this->product = $params['product'];
         // get product prices
@@ -204,7 +204,7 @@ class Price
     /**
      * Clean product price for a next product
      */
-    public function clean()
+    public function clean(): void
     {
         $this->product = null;
         $this->priceExclTax = null;

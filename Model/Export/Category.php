@@ -75,7 +75,7 @@ class Category
      * @param array $params optional options for load a specific product
      * StoreInterceptor store Magento store instance
      */
-    public function init(array $params)
+    public function init(array $params): void
     {
         $this->store = $params['store'];
     }
@@ -88,7 +88,7 @@ class Category
      *
      * @throws Exception
      */
-    public function load(array $params)
+    public function load(array $params): void
     {
         $this->product = $params['product'];
         $defaultCategory = $this->getDefaultCategory();
@@ -110,7 +110,7 @@ class Category
     /**
      * Clean category for a next product
      */
-    public function clean()
+    public function clean(): void
     {
         $this->product = null;
         $this->categoryBreadcrumb = null;

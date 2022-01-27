@@ -45,9 +45,9 @@ use Lengow\Connector\Helper\Data as DataHelper;
 class Customer extends MagentoResourceCustomer
 {
     /* Country iso codes */
-    const ISO_A2_FR = 'FR';
-    const ISO_A2_ES = 'ES';
-    const ISO_A2_IT = 'IT';
+    public const ISO_A2_FR = 'FR';
+    public const ISO_A2_ES = 'ES';
+    public const ISO_A2_IT = 'IT';
 
     /**
      * @var CustomerRepositoryInterface Magento customer repository instance
@@ -490,8 +490,9 @@ class Customer extends MagentoResourceCustomer
         // first get by email
         $customer = $this->_customerFactory->create();
         $customer->setWebsiteId($idWebsite);
-        $customer->setGroupId($this->configHelper->get(ConfigHelper::SYNCHRONISATION_CUSTOMER_GROUP, $storeId));
         $customer->loadByEmail($customerEmail);
+        // add the client id group after uploading by mail because the data is all reset
+        $customer->setGroupId($this->configHelper->get(ConfigHelper::SYNCHRONISATION_CUSTOMER_GROUP, $storeId));
         // create new subscriber without send a confirmation email
         if (!$customer->getId()) {
             $customerNames = $this->getNames($billingData);
@@ -794,7 +795,7 @@ class Customer extends MagentoResourceCustomer
                 break;
             case self::ISO_A2_IT:
                 $regionCode = $this->regionCodes[$countryIsoA2][$postcodeSubstr] ?? false;
-                if ($regionCode && is_array($regionCode) && !empty($regionCode)) {
+                if (is_array($regionCode) && !empty($regionCode)) {
                     $regionCode = $this->getRegionCodeFromIntervalPostcodes((int) $postcode, $regionCode);
                 }
                 break;

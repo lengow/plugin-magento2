@@ -68,35 +68,35 @@ use Lengow\Connector\Model\Import\QuoteFactory as LengowQuoteFactory;
 class Importorder extends AbstractModel
 {
     /* Import Order construct params */
-    const PARAM_STORE_ID = 'store_id';
-    const PARAM_FORCE_SYNC = 'force_sync';
-    const PARAM_DEBUG_MODE = 'debug_mode';
-    const PARAM_LOG_OUTPUT = 'log_output';
-    const PARAM_MARKETPLACE_SKU = 'marketplace_sku';
-    const PARAM_DELIVERY_ADDRESS_ID = 'delivery_address_id';
-    const PARAM_ORDER_DATA = 'order_data';
-    const PARAM_PACKAGE_DATA = 'package_data';
-    const PARAM_FIRST_PACKAGE = 'first_package';
-    const PARAM_IMPORT_ONE_ORDER = 'import_one_order';
+    public const PARAM_STORE_ID = 'store_id';
+    public const PARAM_FORCE_SYNC = 'force_sync';
+    public const PARAM_DEBUG_MODE = 'debug_mode';
+    public const PARAM_LOG_OUTPUT = 'log_output';
+    public const PARAM_MARKETPLACE_SKU = 'marketplace_sku';
+    public const PARAM_DELIVERY_ADDRESS_ID = 'delivery_address_id';
+    public const PARAM_ORDER_DATA = 'order_data';
+    public const PARAM_PACKAGE_DATA = 'package_data';
+    public const PARAM_FIRST_PACKAGE = 'first_package';
+    public const PARAM_IMPORT_ONE_ORDER = 'import_one_order';
 
     /* Import Order data */
-    const MERCHANT_ORDER_ID = 'merchant_order_id';
-    const MERCHANT_ORDER_REFERENCE = 'merchant_order_reference';
-    const LENGOW_ORDER_ID = 'lengow_order_id';
-    const MARKETPLACE_SKU = 'marketplace_sku';
-    const MARKETPLACE_NAME = 'marketplace_name';
-    const DELIVERY_ADDRESS_ID = 'delivery_address_id';
-    const SHOP_ID = 'shop_id';
-    const CURRENT_ORDER_STATUS = 'current_order_status';
-    const PREVIOUS_ORDER_STATUS = 'previous_order_status';
-    const ERRORS = 'errors';
-    const RESULT_TYPE = 'result_type';
+    public const MERCHANT_ORDER_ID = 'merchant_order_id';
+    public const MERCHANT_ORDER_REFERENCE = 'merchant_order_reference';
+    public const LENGOW_ORDER_ID = 'lengow_order_id';
+    public const MARKETPLACE_SKU = 'marketplace_sku';
+    public const MARKETPLACE_NAME = 'marketplace_name';
+    public const DELIVERY_ADDRESS_ID = 'delivery_address_id';
+    public const SHOP_ID = 'shop_id';
+    public const CURRENT_ORDER_STATUS = 'current_order_status';
+    public const PREVIOUS_ORDER_STATUS = 'previous_order_status';
+    public const ERRORS = 'errors';
+    public const RESULT_TYPE = 'result_type';
 
     /* Synchronisation results */
-    const RESULT_CREATED = 'created';
-    const RESULT_UPDATED = 'updated';
-    const RESULT_FAILED = 'failed';
-    const RESULT_IGNORED = 'ignored';
+    public const RESULT_CREATED = 'created';
+    public const RESULT_UPDATED = 'updated';
+    public const RESULT_FAILED = 'failed';
+    public const RESULT_IGNORED = 'ignored';
 
     /**
      * @var QuoteFactory Magento quote factory instance
@@ -332,6 +332,11 @@ class Importorder extends AbstractModel
      * @var integer Magento order reference
      */
     private $orderReference;
+
+    /**
+     * @var string order types data
+     */
+    private $orderTypes;
 
     /**
      * @var string order date in GMT format
@@ -669,7 +674,6 @@ class Importorder extends AbstractModel
      */
     private function checkAndUpdateOrder(int $orderId): bool
     {
-        $orderUpdated = false;
         $order = $this->orderRepository->get($orderId);
         $this->dataHelper->log(
             DataHelper::CODE_IMPORT,
@@ -691,7 +695,7 @@ class Importorder extends AbstractModel
                 $this->marketplaceSku
             );
             $this->isReimported = true;
-            return $orderUpdated;
+            return false;
         }
         // load data for return
         $this->orderId = (int) $orderId;
@@ -825,6 +829,8 @@ class Importorder extends AbstractModel
     {
         // load order date
         $this->loadOrderDate();
+        // load order types data
+        $this->loadOrderTypesData();
         // If the Lengow order already exists do not recreate it
         if ($this->orderLengowId) {
             return true;
@@ -836,7 +842,7 @@ class Importorder extends AbstractModel
             LengowOrder::FIELD_MARKETPLACE_LABEL => $this->marketplaceLabel,
             LengowOrder::FIELD_DELIVERY_ADDRESS_ID => $this->deliveryAddressId,
             LengowOrder::FIELD_ORDER_LENGOW_STATE => $this->orderStateLengow,
-            LengowOrder::FIELD_ORDER_TYPES => $this->getOrderTypesData(),
+            LengowOrder::FIELD_ORDER_TYPES => $this->orderTypes,
             LengowOrder::FIELD_CUSTOMER_VAT_NUMBER => $this->getVatNumberFromOrderData(),
             LengowOrder::FIELD_ORDER_DATE => $this->orderDate,
             LengowOrder::FIELD_MESSAGE => $this->getOrderComment(),
@@ -868,11 +874,20 @@ class Importorder extends AbstractModel
     }
 
     /**
-     * Get order types data and update Lengow order record
-     *
-     * @return string
+     * Load order date in GMT format
      */
-    private function getOrderTypesData(): string
+    private function loadOrderDate(): void
+    {
+        $orderDate = $this->orderData->marketplace_order_date !== null
+            ? (string) $this->orderData->marketplace_order_date
+            : (string) $this->orderData->imported_at;
+        $this->orderDate = $this->dateTime->gmtDate(DataHelper::DATE_FULL, strtotime($orderDate));
+    }
+
+    /**
+     * Load order types data and update Lengow order record
+     */
+    private function loadOrderTypesData(): void
     {
         $orderTypes = [];
         if ($this->orderData->order_types !== null && !empty($this->orderData->order_types)) {
@@ -883,18 +898,7 @@ class Importorder extends AbstractModel
                 }
             }
         }
-        return json_encode($orderTypes);
-    }
-
-    /**
-     * Load order date in GMT format
-     */
-    private function loadOrderDate()
-    {
-        $orderDate = $this->orderData->marketplace_order_date !== null
-            ? (string) $this->orderData->marketplace_order_date
-            : (string) $this->orderData->imported_at;
-        $this->orderDate = $this->dateTime->gmtDate(DataHelper::DATE_FULL, strtotime($orderDate));
+        $this->orderTypes = json_encode($orderTypes);
     }
 
     /**
@@ -915,7 +919,7 @@ class Importorder extends AbstractModel
      *
      * @return string|null
      */
-    private function getVatNumberFromOrderData()
+    private function getVatNumberFromOrderData(): ?string
     {
         return $this->orderData->billing_address->vat_number ?? $this->packageData->delivery->vat_number ?? null;
     }
@@ -1021,7 +1025,7 @@ class Importorder extends AbstractModel
     /**
      * Load order amount, processing fees and shipping costs
      */
-    private function loadOrderAmount()
+    private function loadOrderAmount(): void
     {
         $this->processingFee = (float) $this->orderData->processing_fee;
         $this->shippingCost = (float) $this->orderData->shipping;
@@ -1063,7 +1067,7 @@ class Importorder extends AbstractModel
     /**
      * Get tracking data and update Lengow order record
      */
-    private function loadTrackingData()
+    private function loadTrackingData(): void
     {
         $tracks = $this->packageData->delivery->trackings;
         if (!empty($tracks)) {
@@ -1123,7 +1127,7 @@ class Importorder extends AbstractModel
         if ($this->shippedByMp) {
             $message = $this->dataHelper->setLogMessage('order shipped by %1', [$this->marketplace->name]);
             $this->dataHelper->log(DataHelper::CODE_IMPORT, $message, $this->logOutput, $this->marketplaceSku);
-            if (!$this->configHelper->get(ConfigHelper::SHIPPED_BY_MARKETPLACE_ENABLED, $this->storeId)) {
+            if (!$this->configHelper->get(ConfigHelper::SHIPPED_BY_MARKETPLACE_ENABLED)) {
                 $this->errors[] = $this->dataHelper->decodeLogMessage($message, false);
                 $orderLengow->updateOrder(
                     [
@@ -1190,7 +1194,8 @@ class Importorder extends AbstractModel
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (Exception $e) {
-            $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            $errorMessage = '[Magento error]: "' . $e->getMessage()
+                . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
         }
         if (!isset($errorMessage)) {
             return true;
@@ -1517,8 +1522,7 @@ class Importorder extends AbstractModel
      *
      * @return MagentoOrder
      *
-     * @throws LengowException
-     * @throws LocalizedException
+     * @throws Exception|LengowException
      */
     private function makeOrder(Quote $quote, Order $orderLengow): MagentoOrder
     {
@@ -1587,7 +1591,7 @@ class Importorder extends AbstractModel
      * @param MagentoOrder $order Magento order instance
      * @param array $products Lengow products from Api
      */
-    private function saveLengowOrderLine(MagentoOrder $order, array $products)
+    private function saveLengowOrderLine(MagentoOrder $order, array $products): void
     {
         $orderLineSaved = false;
         foreach ($products as $productId => $product) {
@@ -1629,7 +1633,7 @@ class Importorder extends AbstractModel
      *
      * @throws Exception
      */
-    private function updateStateToShip(MagentoOrder $order)
+    private function updateStateToShip(MagentoOrder $order): void
     {
         if ($this->orderStateLengow === LengowOrder::STATE_SHIPPED
             || $this->orderStateLengow === LengowOrder::STATE_CLOSED
@@ -1652,13 +1656,11 @@ class Importorder extends AbstractModel
      *
      * @param array $products Lengow products from Api
      */
-    private function addQuantityBack(array $products)
+    private function addQuantityBack(array $products): void
     {
         // add quantity back for re-imported order and order shipped by marketplace
         if ($this->isReimported
-            || ($this->shippedByMp
-                && !$this->configHelper->get(ConfigHelper::SHIPPED_BY_MARKETPLACE_STOCK_ENABLED, $this->storeId)
-            )
+            || ($this->shippedByMp && !$this->configHelper->get(ConfigHelper::SHIPPED_BY_MARKETPLACE_STOCK_ENABLED))
         ) {
             $messageKey = $this->isReimported
                 ? 'adding quantity back to stock count (order is re-imported)'

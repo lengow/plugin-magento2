@@ -42,7 +42,7 @@ class Import extends AbstractHelper
     /**
      * @var integer interval of minutes for cron synchronisation
      */
-    const MINUTE_INTERVAL_TIME = 1;
+    public const MINUTE_INTERVAL_TIME = 1;
 
     /**
      * @var array marketplaces collection
@@ -155,21 +155,21 @@ class Import extends AbstractHelper
     /**
      * Get Rest time to make re-import order
      *
-     * @return boolean
+     * @return int
      */
-    public function restTimeToImport()
+    public function restTimeToImport(): int
     {
         $timestamp = $this->configHelper->get(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS);
         if ($timestamp > 0) {
             return $timestamp + (60 * self::MINUTE_INTERVAL_TIME) - time();
         }
-        return false;
+        return 0;
     }
 
     /**
      * Set import to "in process" state
      */
-    public function setImportInProcess()
+    public function setImportInProcess(): void
     {
         $this->configHelper->set(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS, time());
     }
@@ -177,7 +177,7 @@ class Import extends AbstractHelper
     /**
      * Set import to finished
      */
-    public function setImportEnd()
+    public function setImportEnd(): void
     {
         $this->configHelper->set(ConfigHelper::SYNCHRONIZATION_IN_PROGRESS, -1);
     }
@@ -263,7 +263,7 @@ class Import extends AbstractHelper
     }
 
     /**
-     * Get number orders to send to print
+     * Get number orders sending to print
      *
      * @return string
      */
@@ -347,7 +347,7 @@ class Import extends AbstractHelper
      *
      * @param boolean $logOutput see log or not
      */
-    public function sendMailAlert(bool $logOutput = false)
+    public function sendMailAlert(bool $logOutput = false): void
     {
         // recovery of all errors not yet sent by email
         $errors = $this->orderErrorFactory->create()->getOrderErrorsNotSent();

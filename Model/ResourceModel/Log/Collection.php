@@ -29,7 +29,7 @@ class Collection extends AbstractCollection
      *
      * @return void
      */
-    public function _construct()
+    public function _construct(): void
     {
         $this->_init(
             Log::class,

@@ -20,8 +20,8 @@
 namespace Lengow\Connector\Model\Export;
 
 use Exception;
+use Magento\Framework\App\ObjectManager;
 use Magento\GroupedProduct\Model\Product\Type\Grouped;
-use Magento\InventoryApi\Api\GetSourceItemsBySkuInterface;
 use Magento\Catalog\Model\Product\Interceptor as ProductInterceptor;
 use Magento\Store\Model\Store\Interceptor as StoreInterceptor;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
@@ -227,7 +227,7 @@ class Product
     private $securityHelper;
 
     /**
-     * @var Array All stock sources for this specific product
+     * @var array All stock sources for this specific product
      */
     private $quantities;
 
@@ -285,7 +285,7 @@ class Product
      * StoreInterceptor store    Magento store instance
      * string           currency Currency iso code for conversion
      */
-    public function init(array $params)
+    public function init(array $params): void
     {
         $this->store = $params['store'];
         $this->currency = $params['currency'];
@@ -306,7 +306,7 @@ class Product
      *
      * @throws Exception
      */
-    public function load(array $params)
+    public function load(array $params): void
     {
         $this->type = $params['product_type'];
         $this->product = $this->getProduct($params['product_id']);
@@ -342,7 +342,7 @@ class Product
             ->addFilter(SourceItemInterface::SKU, $sku)
             ->create();
         // We use object manager here because SourceRepositoryInterface is only available for version >= 2.3
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $objectManager = ObjectManager::getInstance();
         $sourceItemRepository = $objectManager->create('Magento\InventoryApi\Api\SourceItemRepositoryInterface');
         return $sourceItemRepository->getList($searchCriteria)->getItems();
     }
@@ -449,7 +449,7 @@ class Product
     }
 
     /**
-     * Check if a simple product is enable
+     * Check if a simple product is enabled
      *
      * @return boolean
      */
@@ -468,7 +468,7 @@ class Product
     /**
      * Clean data for next product
      */
-    public function clean()
+    public function clean(): void
     {
         if ($this->type !== Configurable::TYPE_CODE) {
             $this->product->clearInstance();
@@ -513,7 +513,7 @@ class Product
     /**
      * Set product counter for different product types
      */
-    private function setCounter()
+    private function setCounter(): void
     {
         switch ($this->type) {
             case 'simple':
@@ -542,11 +542,11 @@ class Product
      * @param integer $productId Magento product is
      * @param boolean $forceReload force reload for product repository
      *
-     * @return ProductInterceptor
+     * @return ProductInterceptor|null
      *
      * @throws Exception
      */
-    private function getProduct(int $productId, bool $forceReload = false)
+    private function getProduct(int $productId, bool $forceReload = false): ?ProductInterceptor
     {
         if ($this->type === Configurable::TYPE_CODE) {
             $product = $this->getConfigurableProduct($productId);
@@ -563,7 +563,7 @@ class Product
      *
      * @throws Exception
      */
-    private function getParentProduct()
+    private function getParentProduct(): ?ProductInterceptor
     {
         $parentProduct = null;
         if ($this->type === 'simple') {
@@ -589,7 +589,7 @@ class Product
      *
      * @throws Exception
      */
-    protected function getConfigurableProduct(int $parentId)
+    protected function getConfigurableProduct(int $parentId): ?ProductInterceptor
     {
         if (!isset($this->cacheConfigurableProducts[$parentId])) {
             if ($this->clearCacheConfigurable > 300) {
@@ -739,11 +739,11 @@ class Product
     /**
      * Get product attribute value
      *
-     * @param string $field name a of specific attribute
+     * @param string|null $field name an of specific attribute
      *
      * @return string|null
      */
-    private function getAttributeValue(string $field = null)
+    private function getAttributeValue(string $field = null): ?string
     {
         $attributeValue = '';
         if ($this->parentProduct && in_array($field, $this->parentFields, true)) {
@@ -754,7 +754,6 @@ class Product
         $attribute = $product->getData($field);
         if ($attribute !== null) {
             if (is_array($attribute)) {
-                $attributeValue = '';
                 foreach ($attribute as $key => $value) {
                     // checks whether an array-form product attribute contains another array
                     if (is_array($value)) {
@@ -773,7 +772,7 @@ class Product
                     ->getValue($product);
             }
         }
-        return $attributeValue;
+        return is_array($attributeValue) ? json_encode($attributeValue) : $attributeValue;
     }
 
     /**

@@ -43,74 +43,74 @@ use Magento\InventoryApi\Api\SourceRepositoryInterface;
 class Config extends AbstractHelper
 {
     /* Settings database key */
-    const ACCOUNT_ID = 'global_account_id';
-    const ACCESS_TOKEN = 'global_access_token';
-    const SECRET = 'global_secret_token';
-    const CMS_TOKEN = 'token';
-    const AUTHORIZED_IP_ENABLED = 'global_authorized_ip_enable';
-    const AUTHORIZED_IPS = 'global_authorized_ip';
-    const TRACKING_ENABLED = 'global_tracking_enable';
-    const TRACKING_ID = 'global_tracking_id';
-    const DEBUG_MODE_ENABLED = 'import_debug_mode_enable';
-    const REPORT_MAIL_ENABLED = 'import_report_mail_enable';
-    const REPORT_MAILS = 'import_report_mail_address';
-    const AUTHORIZATION_TOKEN = 'authorization_token';
-    const PLUGIN_DATA = 'plugin_data';
-    const ACCOUNT_STATUS_DATA = 'account_status';
-    const SHOP_TOKEN = 'global_shop_token';
-    const SHOP_ACTIVE = 'global_store_enable';
-    const CATALOG_IDS = 'global_catalog_id';
-    const SELECTION_ENABLED = 'export_selection_enable';
-    const INACTIVE_ENABLED = 'export_product_status';
-    const EXPORT_PRODUCT_TYPES = 'export_product_type';
-    const EXPORT_ATTRIBUTES = 'export_attribute';
-    const EXPORT_PARENT_ATTRIBUTES = 'export_link_parent_attribute_to_child';
-    const EXPORT_PARENT_IMAGE_ENABLED = 'export_parent_image';
-    const EXPORT_FILE_ENABLED = 'export_file_enable';
-    const EXPORT_MAGENTO_CRON_ENABLED = 'export_cron_enable';
-    const DEFAULT_EXPORT_SHIPPING_COUNTRY = 'export_default_shipping_country';
-    const DEFAULT_EXPORT_CARRIER_ID = 'export_default_shipping_method';
-    const DEFAULT_EXPORT_SHIPPING_PRICE = 'export_default_shipping_price';
-    const SYNCHRONIZATION_DAY_INTERVAL = 'import_days';
-    const DEFAULT_IMPORT_CARRIER_ID = 'import_default_shipping_method';
-    const CURRENCY_CONVERSION_ENABLED = 'import_currency_conversion_enable';
-    const B2B_WITHOUT_TAX_ENABLED = 'import_b2b_without_tax';
-    const SHIPPED_BY_MARKETPLACE_ENABLED = 'import_ship_mp_enabled';
-    const SHIPPED_BY_MARKETPLACE_STOCK_ENABLED = 'import_stock_ship_mp';
-    const SYNCHRONISATION_MAGENTO_CRON_ENABLED = 'import_cron_enable';
-    const SYNCHRONISATION_CUSTOMER_GROUP = 'import_customer_group';
-    const SYNCHRONIZATION_IN_PROGRESS = 'import_in_progress';
-    const LAST_UPDATE_EXPORT = 'export_last_export';
-    const LAST_UPDATE_CRON_SYNCHRONIZATION = 'last_import_cron';
-    const LAST_UPDATE_MANUAL_SYNCHRONIZATION = 'last_import_manual';
-    const LAST_UPDATE_ACTION_SYNCHRONIZATION = 'last_action_sync';
-    const LAST_UPDATE_CATALOG = 'last_catalog_update';
-    const LAST_UPDATE_MARKETPLACE = 'last_marketplace_update';
-    const LAST_UPDATE_ACCOUNT_STATUS_DATA = 'last_status_update';
-    const LAST_UPDATE_OPTION_CMS = 'last_option_cms_update';
-    const LAST_UPDATE_SETTING = 'last_setting_update';
-    const LAST_UPDATE_PLUGIN_DATA = 'last_plugin_data_update';
-    const LAST_UPDATE_AUTHORIZATION_TOKEN = 'last_authorization_token_update';
-    const LAST_UPDATE_PLUGIN_MODAL = 'last_plugin_modal_update';
+    public const ACCOUNT_ID = 'global_account_id';
+    public const ACCESS_TOKEN = 'global_access_token';
+    public const SECRET = 'global_secret_token';
+    public const CMS_TOKEN = 'token';
+    public const AUTHORIZED_IP_ENABLED = 'global_authorized_ip_enable';
+    public const AUTHORIZED_IPS = 'global_authorized_ip';
+    public const TRACKING_ENABLED = 'global_tracking_enable';
+    public const TRACKING_ID = 'global_tracking_id';
+    public const DEBUG_MODE_ENABLED = 'import_debug_mode_enable';
+    public const REPORT_MAIL_ENABLED = 'import_report_mail_enable';
+    public const REPORT_MAILS = 'import_report_mail_address';
+    public const AUTHORIZATION_TOKEN = 'authorization_token';
+    public const PLUGIN_DATA = 'plugin_data';
+    public const ACCOUNT_STATUS_DATA = 'account_status';
+    public const SHOP_TOKEN = 'global_shop_token';
+    public const SHOP_ACTIVE = 'global_store_enable';
+    public const CATALOG_IDS = 'global_catalog_id';
+    public const SELECTION_ENABLED = 'export_selection_enable';
+    public const INACTIVE_ENABLED = 'export_product_status';
+    public const EXPORT_PRODUCT_TYPES = 'export_product_type';
+    public const EXPORT_ATTRIBUTES = 'export_attribute';
+    public const EXPORT_PARENT_ATTRIBUTES = 'export_link_parent_attribute_to_child';
+    public const EXPORT_PARENT_IMAGE_ENABLED = 'export_parent_image';
+    public const EXPORT_FILE_ENABLED = 'export_file_enable';
+    public const EXPORT_MAGENTO_CRON_ENABLED = 'export_cron_enable';
+    public const DEFAULT_EXPORT_SHIPPING_COUNTRY = 'export_default_shipping_country';
+    public const DEFAULT_EXPORT_CARRIER_ID = 'export_default_shipping_method';
+    public const DEFAULT_EXPORT_SHIPPING_PRICE = 'export_default_shipping_price';
+    public const SYNCHRONIZATION_DAY_INTERVAL = 'import_days';
+    public const DEFAULT_IMPORT_CARRIER_ID = 'import_default_shipping_method';
+    public const CURRENCY_CONVERSION_ENABLED = 'import_currency_conversion_enable';
+    public const B2B_WITHOUT_TAX_ENABLED = 'import_b2b_without_tax';
+    public const SHIPPED_BY_MARKETPLACE_ENABLED = 'import_ship_mp_enabled';
+    public const SHIPPED_BY_MARKETPLACE_STOCK_ENABLED = 'import_stock_ship_mp';
+    public const SYNCHRONISATION_MAGENTO_CRON_ENABLED = 'import_cron_enable';
+    public const SYNCHRONISATION_CUSTOMER_GROUP = 'import_customer_group';
+    public const SYNCHRONIZATION_IN_PROGRESS = 'import_in_progress';
+    public const LAST_UPDATE_EXPORT = 'export_last_export';
+    public const LAST_UPDATE_CRON_SYNCHRONIZATION = 'last_import_cron';
+    public const LAST_UPDATE_MANUAL_SYNCHRONIZATION = 'last_import_manual';
+    public const LAST_UPDATE_ACTION_SYNCHRONIZATION = 'last_action_sync';
+    public const LAST_UPDATE_CATALOG = 'last_catalog_update';
+    public const LAST_UPDATE_MARKETPLACE = 'last_marketplace_update';
+    public const LAST_UPDATE_ACCOUNT_STATUS_DATA = 'last_status_update';
+    public const LAST_UPDATE_OPTION_CMS = 'last_option_cms_update';
+    public const LAST_UPDATE_SETTING = 'last_setting_update';
+    public const LAST_UPDATE_PLUGIN_DATA = 'last_plugin_data_update';
+    public const LAST_UPDATE_AUTHORIZATION_TOKEN = 'last_authorization_token_update';
+    public const LAST_UPDATE_PLUGIN_MODAL = 'last_plugin_modal_update';
 
     /* Configuration parameters */
-    const PARAM_EXPORT = 'export';
-    const PARAM_EXPORT_TOOLBOX = 'export_toolbox';
-    const PARAM_GLOBAL = 'global';
-    const PARAM_LOG = 'log';
-    const PARAM_NO_CACHE = 'no_cache';
-    const PARAM_RESET_TOKEN = 'reset_token';
-    const PARAM_RETURN = 'return';
-    const PARAM_SECRET = 'secret';
-    const PARAM_SHOP = 'store';
-    const PARAM_PATH = 'path';
-    const PARAM_UPDATE = 'update';
+    public const PARAM_EXPORT = 'export';
+    public const PARAM_EXPORT_TOOLBOX = 'export_toolbox';
+    public const PARAM_GLOBAL = 'global';
+    public const PARAM_LOG = 'log';
+    public const PARAM_NO_CACHE = 'no_cache';
+    public const PARAM_RESET_TOKEN = 'reset_token';
+    public const PARAM_RETURN = 'return';
+    public const PARAM_SECRET = 'secret';
+    public const PARAM_SHOP = 'store';
+    public const PARAM_PATH = 'path';
+    public const PARAM_UPDATE = 'update';
 
     /* Configuration value return type */
-    const RETURN_TYPE_BOOLEAN = 'boolean';
-    const RETURN_TYPE_INTEGER = 'integer';
-    const RETURN_TYPE_ARRAY = 'array';
-    const RETURN_TYPE_FLOAT = 'float';
+    public const RETURN_TYPE_BOOLEAN = 'boolean';
+    public const RETURN_TYPE_INTEGER = 'integer';
+    public const RETURN_TYPE_ARRAY = 'array';
+    public const RETURN_TYPE_FLOAT = 'float';
 
     /**
      * @var array params correspondence keys for toolbox
@@ -612,7 +612,7 @@ class Config extends AbstractHelper
      * @param mixed $value Lengow setting value
      * @param integer $storeId Magento store id
      */
-    public function set(string $key, $value, int $storeId = 0)
+    public function set(string $key, $value, int $storeId = 0): void
     {
         if ($storeId === 0) {
             $this->writerInterface->save(self::$lengowSettings[$key]['path'], $value);
@@ -632,7 +632,7 @@ class Config extends AbstractHelper
      * @param string $path Magento setting path
      * @param integer $storeId Magento store id
      */
-    public function delete(string $path, int $storeId = 0)
+    public function delete(string $path, int $storeId = 0): void
     {
         if ($storeId === 0) {
             $this->writerInterface->delete($path);
@@ -644,7 +644,7 @@ class Config extends AbstractHelper
     /**
      * Clean configuration cache
      */
-    public function cleanConfigCache()
+    public function cleanConfigCache(): void
     {
         $this->cacheManager->flush([CacheTypeConfig::CACHE_TAG]);
     }
@@ -691,7 +691,7 @@ class Config extends AbstractHelper
     /**
      * Reset access ids
      */
-    public function resetAccessIds()
+    public function resetAccessIds(): void
     {
         $accessIds = [self::ACCOUNT_ID, self::ACCESS_TOKEN, self::SECRET];
         foreach ($accessIds as $accessId) {
@@ -705,7 +705,7 @@ class Config extends AbstractHelper
     /**
      * Reset authorization token
      */
-    public function resetAuthorizationToken()
+    public function resetAuthorizationToken(): void
     {
         $this->set(self::AUTHORIZATION_TOKEN, '');
         $this->set(self::LAST_UPDATE_AUTHORIZATION_TOKEN, '');
@@ -714,7 +714,7 @@ class Config extends AbstractHelper
     /**
      * Delete catalog ID and disable store
      */
-    public function resetCatalogIds()
+    public function resetCatalogIds(): void
     {
         $lengowActiveStores = $this->getLengowActiveStores();
         foreach ($lengowActiveStores as $store) {
@@ -1023,7 +1023,7 @@ class Config extends AbstractHelper
     /**
      * Set default attributes
      */
-    public function setDefaultAttributes()
+    public function setDefaultAttributes(): void
     {
         if ($this->get(self::EXPORT_ATTRIBUTES) === null) {
             $attributeList = '';

@@ -29,7 +29,7 @@ class Action extends AbstractDb
      *
      * @return void
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init(LengowAction::TABLE_ACTION, LengowAction::FIELD_ID);
     }

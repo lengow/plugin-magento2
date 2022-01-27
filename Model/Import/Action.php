@@ -50,49 +50,49 @@ class Action extends AbstractModel
     /**
      * @var string Lengow action table name
      */
-    const TABLE_ACTION = 'lengow_action';
+    public const TABLE_ACTION = 'lengow_action';
 
     /* Action fields */
-    const FIELD_ID = 'id';
-    const FIELD_ORDER_ID = 'order_id';
-    const FIELD_ACTION_ID = 'action_id';
-    const FIELD_ORDER_LINE_SKU = 'order_line_sku';
-    const FIELD_ACTION_TYPE = 'action_type';
-    const FIELD_RETRY = 'retry';
-    const FIELD_PARAMETERS = 'parameters';
-    const FIELD_STATE = 'state';
-    const FIELD_CREATED_AT = 'created_at';
-    const FIELD_UPDATED_AT = 'updated_at';
+    public const FIELD_ID = 'id';
+    public const FIELD_ORDER_ID = 'order_id';
+    public const FIELD_ACTION_ID = 'action_id';
+    public const FIELD_ORDER_LINE_SKU = 'order_line_sku';
+    public const FIELD_ACTION_TYPE = 'action_type';
+    public const FIELD_RETRY = 'retry';
+    public const FIELD_PARAMETERS = 'parameters';
+    public const FIELD_STATE = 'state';
+    public const FIELD_CREATED_AT = 'created_at';
+    public const FIELD_UPDATED_AT = 'updated_at';
 
     /* Action states */
-    const STATE_NEW = 0;
-    const STATE_FINISH = 1;
+    public const STATE_NEW = 0;
+    public const STATE_FINISH = 1;
 
     /* Action types */
-    const TYPE_SHIP = 'ship';
-    const TYPE_CANCEL = 'cancel';
+    public const TYPE_SHIP = 'ship';
+    public const TYPE_CANCEL = 'cancel';
 
     /* Action API arguments */
-    const ARG_ACTION_TYPE = 'action_type';
-    const ARG_LINE = 'line';
-    const ARG_CARRIER = 'carrier';
-    const ARG_CARRIER_NAME = 'carrier_name';
-    const ARG_CUSTOM_CARRIER = 'custom_carrier';
-    const ARG_SHIPPING_METHOD = 'shipping_method';
-    const ARG_TRACKING_NUMBER = 'tracking_number';
-    const ARG_SHIPPING_PRICE = 'shipping_price';
-    const ARG_SHIPPING_DATE = 'shipping_date';
-    const ARG_DELIVERY_DATE = 'delivery_date';
+    public const ARG_ACTION_TYPE = 'action_type';
+    public const ARG_LINE = 'line';
+    public const ARG_CARRIER = 'carrier';
+    public const ARG_CARRIER_NAME = 'carrier_name';
+    public const ARG_CUSTOM_CARRIER = 'custom_carrier';
+    public const ARG_SHIPPING_METHOD = 'shipping_method';
+    public const ARG_TRACKING_NUMBER = 'tracking_number';
+    public const ARG_SHIPPING_PRICE = 'shipping_price';
+    public const ARG_SHIPPING_DATE = 'shipping_date';
+    public const ARG_DELIVERY_DATE = 'delivery_date';
 
     /**
      * @var integer max interval time for action synchronisation (3 days)
      */
-    const MAX_INTERVAL_TIME = 259200;
+    private const MAX_INTERVAL_TIME = 259200;
 
     /**
      * @var integer security interval time for action synchronisation (2 hours)
      */
-    const SECURITY_INTERVAL_TIME = 7200;
+    private const SECURITY_INTERVAL_TIME = 7200;
 
     /**
      * @var array Parameters to delete for Get call
@@ -244,7 +244,7 @@ class Action extends AbstractModel
      *
      * @return void
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init(LengowActionResource::class);
     }
@@ -462,7 +462,7 @@ class Action extends AbstractModel
      *
      * @throws LengowException
      */
-    public function sendAction(array $params, MagentoOrder $order, Order $lengowOrder)
+    public function sendAction(array $params, MagentoOrder $order, Order $lengowOrder): void
     {
         if (!$this->configHelper->debugModeIsActive()) {
             $result = $this->lengowConnector->queryApi(

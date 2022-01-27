@@ -29,7 +29,7 @@ class Ordererror extends AbstractDb
      *
      * @return void
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init(LengowOrderError::TABLE_ORDER_ERROR, LengowOrderError::FIELD_ID);
     }

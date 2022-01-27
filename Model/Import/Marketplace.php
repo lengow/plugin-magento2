@@ -165,7 +165,7 @@ class Marketplace extends AbstractModel
      *
      * @throws LengowException
      */
-    public function init(array $params = [])
+    public function init(array $params = []): void
     {
         $this->loadApiMarketplace();
         $this->name = strtolower($params['name']);
@@ -210,7 +210,7 @@ class Marketplace extends AbstractModel
                         ? (string) $argDescription->default_value
                         : '';
                     $acceptFreeValue = !isset($argDescription->accept_free_values)
-                        || (bool) $argDescription->accept_free_values;
+                        || $argDescription->accept_free_values;
                     $this->argValues[(string) $argKey] = [
                         'default_value' => $defaultValue,
                         'accept_free_values' => $acceptFreeValue,
@@ -230,7 +230,7 @@ class Marketplace extends AbstractModel
     /**
      * Load the json configuration of all marketplaces
      */
-    public function loadApiMarketplace()
+    public function loadApiMarketplace(): void
     {
         if (!self::$marketplaces) {
             self::$marketplaces = $this->syncHelper->getMarketplaces();
@@ -356,7 +356,8 @@ class Marketplace extends AbstractModel
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (Exception $e) {
-            $errorMessage = '[Magento error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            $errorMessage = '[Magento error]: "' . $e->getMessage()
+                . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
         }
         if (isset($errorMessage)) {
             $orderProcessState = (int) $lengowOrder->getData(LengowOrder::FIELD_ORDER_PROCESS_STATE);
@@ -391,7 +392,7 @@ class Marketplace extends AbstractModel
      *
      * @throws LengowException
      */
-    private function checkAction(string $action)
+    private function checkAction(string $action): void
     {
         if (!in_array($action, self::$validActions, true)) {
             throw new LengowException($this->dataHelper->setLogMessage('action %1 is not valid', [$action]));
@@ -410,7 +411,7 @@ class Marketplace extends AbstractModel
      *
      * @throws LengowException
      */
-    private function checkOrderData(Order $lengowOrder)
+    private function checkOrderData(Order $lengowOrder): void
     {
         if ($lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_SKU) === '') {
             throw new LengowException($this->dataHelper->setLogMessage('marketplace order reference is required'));
@@ -448,7 +449,7 @@ class Marketplace extends AbstractModel
      * @param string $action Lengow order actions type (ship or cancel)
      * @param MagentoOrder $order Magento order instance
      * @param LengowOrder $lengowOrder Lengow order instance
-     * @param Shipment $shipment Magento shipment instance
+     * @param Shipment|null $shipment Magento shipment instance
      * @param array $marketplaceArguments All marketplace arguments for a specific action
      *
      * @return array
@@ -457,8 +458,8 @@ class Marketplace extends AbstractModel
         string $action,
         MagentoOrder $order,
         Order $lengowOrder,
-        Shipment $shipment,
-        array $marketplaceArguments
+        Shipment $shipment = null,
+        array $marketplaceArguments = []
     ): array {
         $params = [];
         $actions = $this->getAction($action);
@@ -466,7 +467,7 @@ class Marketplace extends AbstractModel
         foreach ($marketplaceArguments as $arg) {
             switch ($arg) {
                 case LengowAction::ARG_TRACKING_NUMBER:
-                    $tracks = $shipment->getAllTracks();
+                    $tracks = $shipment ? $shipment->getAllTracks() : null;
                     if (!empty($tracks)) {
                         $lastTrack = end($tracks);
                     }
@@ -479,7 +480,7 @@ class Marketplace extends AbstractModel
                     if ((string) $lengowOrder->getData(LengowOrder::FIELD_CARRIER) !== '') {
                         $carrierCode = (string) $lengowOrder->getData(LengowOrder::FIELD_CARRIER);
                     } else {
-                        $tracks = $shipment->getAllTracks();
+                        $tracks = $shipment ? $shipment->getAllTracks() : null;
                         if (!empty($tracks)) {
                             $lastTrack = end($tracks);
                         }
@@ -519,7 +520,7 @@ class Marketplace extends AbstractModel
      *
      * @throws LengowException
      */
-    private function checkAndCleanParams(string $action, array $params)
+    private function checkAndCleanParams(string $action, array $params): array
     {
         $actions = $this->getAction($action);
         // check all required arguments

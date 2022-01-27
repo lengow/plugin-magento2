@@ -224,6 +224,7 @@
 "Plugin information","Information zum Plugin"
 "Magento version","Version von Magento"
 "Plugin version","Version des Plugins"
+"PHP version","PHP-Version"
 "Server IP","Server IP"
 "Authorisation by IP enabled","Autorisierung über IP aktiviert"
 "Authorised IP","Autorisierte IP"
