@@ -29,18 +29,6 @@ use Lengow\Connector\Model\Import as LengowImport;
  */
 class Connector
 {
-    /**
-     * @var string url of Lengow solution
-     */
-    // const LENGOW_URL = 'lengow.io';
-    public const LENGOW_URL = 'lengow.net';
-
-    /**
-     * @var string url of the Lengow API
-     */
-    // const LENGOW_API_URL = 'https://api.lengow.io';
-    private const LENGOW_API_URL = 'https://api.lengow.net';
-
     /* Lengow API routes */
     public const API_ACCESS_TOKEN = '/access/get_token';
     public const API_ORDER = '/v3.0/orders';
@@ -551,7 +539,7 @@ class Connector
             $opts[CURLOPT_TIMEOUT] = $this->lengowUrls[$api];
         }
         // get base url for a specific environment
-        $url = self::LENGOW_API_URL . $api;
+        $url = $this->getLengowApiUrl() . $api;
         $opts[CURLOPT_CUSTOMREQUEST] = strtoupper($type);
         $url = parse_url($url);
         if (isset($url['port'])) {
@@ -651,5 +639,14 @@ class Connector
             case self::FORMAT_JSON:
                 return json_decode($data, true);
         }
+    }
+
+    /**
+     * Returns the url to the Lengow-api, considering configured environment
+     * @return string
+     */
+    private function getLengowApiUrl()
+    {
+        return 'https://api.' . $this->configHelper->getLengowDomain();
     }
 }

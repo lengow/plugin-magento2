@@ -88,7 +88,7 @@ class Header extends Template
      */
     public function getLengowSolutionUrl(): string
     {
-        return '//my.' . LengowConnector::LENGOW_URL;
+        return '//my.' . $this->configHelper->getLengowDomain();
     }
 
     /**
