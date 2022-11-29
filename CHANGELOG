@@ -1,4 +1,14 @@
 =============================================================
+<<<<<<< Updated upstream
+=======
+Version 1.4.3
+=============================================================
+
+    - BugFix: [Import] Unblocking the CMS catalogue synchronisation for php 8.1
+    - BugFix: [Import] Unblocking import of customer name in orders for php 8.1
+
+=============================================================
+>>>>>>> Stashed changes
 Version 1.4.2
 =============================================================
 
