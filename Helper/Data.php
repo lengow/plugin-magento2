@@ -393,12 +393,12 @@ class Data extends AbstractHelper
 			|[\xC2-\xDF]((?![\x80-\xBF])|[\x80-\xBF]{2,})
 			|[\xE0-\xEF](([\x80-\xBF](?![\x80-\xBF]))|(?![\x80-\xBF]{2})|[\x80-\xBF]{3,})/S',
             '',
-            $str
+            $str ?? ''
         );
         $str = preg_replace(
             '/\xE0[\x80-\x9F][\x80-\xBF]|\xED[\xA0-\xBF][\x80-\xBF]/S',
             '',
-            $str
+            $str ?? ''
         );
         $str = preg_replace('/[\s]+/', ' ', $str);
         $str = trim($str);

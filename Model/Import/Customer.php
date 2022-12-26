@@ -646,7 +646,7 @@ class Customer extends MagentoResourceCustomer
      */
     private function cleanFullName(string $fullName = null): string
     {
-        $split = explode(' ', $fullName);
+        $split = explode(' ', $fullName ?? '');
         if (!empty($split)) {
             $fullName = (in_array($split[0], $this->currentMale, true)
                 || in_array($split[0], $this->currentFemale, true)
@@ -671,7 +671,7 @@ class Customer extends MagentoResourceCustomer
      */
     private function splitNames(string $fullName): array
     {
-        $split = explode(' ', $fullName);
+        $split = explode(' ', $fullName ?? '');
         if (!empty($split)) {
             $names['firstName'] = $split[0];
             $names['lastName'] = '';
