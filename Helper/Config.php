@@ -20,6 +20,7 @@
 namespace Lengow\Connector\Helper;
 
 use Exception;
+use Lengow\Connector\Model\Config\Source\Environment as EnvironmentSourceModel;
 use Magento\Catalog\Model\Product;
 use Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory as ConfigDataCollectionFactory;
 use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as CustomerGroupCollectionFactory;
@@ -42,7 +43,18 @@ use Magento\InventoryApi\Api\SourceRepositoryInterface;
 
 class Config extends AbstractHelper
 {
+    /**
+     * @var string domain of Lengow Pre-Prod environment
+     */
+    public const LENGOW_PRE_PROD_DOMAIN = 'lengow.net';
+
+    /**
+     * @var string domain of Lengow Prod environment
+     */
+    public const LENGOW_PROD_DOMAIN = 'lengow.io';
+
     /* Settings database key */
+    public const ENVIRONMENT = 'global_environment';
     public const ACCOUNT_ID = 'global_account_id';
     public const ACCESS_TOKEN = 'global_access_token';
     public const SECRET = 'global_secret_token';
@@ -116,6 +128,7 @@ class Config extends AbstractHelper
      * @var array params correspondence keys for toolbox
      */
     public static $genericParamKeys = [
+        self::ENVIRONMENT => 'environment',
         self::ACCOUNT_ID => 'account_id',
         self::ACCESS_TOKEN => 'access_token',
         self::SECRET => 'secret',
@@ -211,6 +224,12 @@ class Config extends AbstractHelper
      * @var array all Lengow options path
      */
     public static $lengowSettings = [
+        self::ENVIRONMENT => [
+            self::PARAM_PATH => 'lengow_global_options/store_credential/global_environment',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_EXPORT => false,
+        ],
         self::ACCOUNT_ID => [
             self::PARAM_PATH => 'lengow_global_options/store_credential/global_account_id',
             self::PARAM_GLOBAL => true,
@@ -1120,6 +1139,34 @@ class Config extends AbstractHelper
             }
         }
         return $rows;
+    }
+
+    /**
+     * Returns whether prod-environment is configured to be used
+     * @return bool
+     */
+    public function useProdEnvironment(): bool
+    {
+        $configuredEnvironment = $this->get(self::ENVIRONMENT);
+
+        if ($configuredEnvironment === EnvironmentSourceModel::PROD_ENVIRONMENT) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns domain of the configured Lengow-environment
+     * @return string
+     */
+    public function getLengowDomain(): string
+    {
+        if ($this->useProdEnvironment()) {
+            return static::LENGOW_PROD_DOMAIN;
+        }
+
+        return self::LENGOW_PRE_PROD_DOMAIN;
     }
 
     /**
