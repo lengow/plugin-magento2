@@ -24,7 +24,6 @@ use Magento\Backend\Model\Session as BackendSession;
 use Magento\Quote\Model\Quote\Item\AbstractItem;
 use Magento\SalesRule\Model\RulesApplier as RulesApplierModel;
 use Magento\SalesRule\Model\ResourceModel\Rule\CollectionFactory as RuleCollectionFactory;
-use Magento\SalesRule\Model\ResourceModel\Rule\Collection as RuleCollection;
 
 /*
  * Class RulesApplier
@@ -62,7 +61,7 @@ class RulesApplier
      * @param  RulesApplierModel  $subject  Magento RulesApplier base class
      * @param  Closure  $proceed  Callable (have to be called otherwise magento prevent the execution of the next plugins)
      * @param  AbstractItem  $item  Magento Abstract Item representing a Quote
-     * @param  RuleCollection  $rules  Magento RuleCollection assigned to the Quote
+     * @param  array  $rules  Magento Rule Collection assigned to the Quote
      * @param  bool  $skipValidation  Magento option to skip rule validation
      * @param  mixed  $couponCode  Magento Coupon Code
      *
@@ -72,14 +71,14 @@ class RulesApplier
         RulesApplierModel $subject,
         Closure $proceed,
         AbstractItem $item,
-        RuleCollection $rules,
+        array $rules,
         bool $skipValidation,
         $couponCode
     ) {
         if ($this->backendSession->getIsFromlengow()) {
-            $nRules = $this->ruleFactory->create()->addFieldToFilter('rule_id', ['eq' => 0]);
-            return $proceed($item, $nRules, $skipValidation, $couponCode);
+            $rules = $this->ruleFactory->create()->addFieldToFilter('rule_id', ['eq' => 0]);
         }
+
         return $proceed($item, $rules, $skipValidation, $couponCode);
     }
 }
