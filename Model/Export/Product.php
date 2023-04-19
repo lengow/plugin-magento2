@@ -22,7 +22,7 @@ namespace Lengow\Connector\Model\Export;
 use Exception;
 use Magento\Framework\App\ObjectManager;
 use Magento\GroupedProduct\Model\Product\Type\Grouped;
-use Magento\Catalog\Model\Product\Interceptor as ProductInterceptor;
+use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Store\Model\Store\Interceptor as StoreInterceptor;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
@@ -102,12 +102,12 @@ class Product
     private $shipping;
 
     /**
-     * @var ProductInterceptor Magento product instance
+     * @var ProductInterface Magento product instance
      */
     private $product;
 
     /**
-     * @var ProductInterceptor Magento product instance
+     * @var ProductInterface Magento product instance
      */
     private $parentProduct;
 
@@ -542,11 +542,11 @@ class Product
      * @param integer $productId Magento product is
      * @param boolean $forceReload force reload for product repository
      *
-     * @return ProductInterceptor|null
+     * @return ProductInterface|null
      *
      * @throws Exception
      */
-    private function getProduct(int $productId, bool $forceReload = false): ?ProductInterceptor
+    private function getProduct(int $productId, bool $forceReload = false): ?ProductInterface
     {
         if ($this->type === Configurable::TYPE_CODE) {
             $product = $this->getConfigurableProduct($productId);
@@ -559,11 +559,11 @@ class Product
     /**
      * Get parent product for simple product
      *
-     * @return ProductInterceptor|null
+     * @return ProductInterface|null
      *
      * @throws Exception
      */
-    private function getParentProduct(): ?ProductInterceptor
+    private function getParentProduct(): ?ProductInterface
     {
         $parentProduct = null;
         if ($this->type === 'simple') {
@@ -585,11 +585,11 @@ class Product
      *
      * @param integer $parentId Magento parent entity id
      *
-     * @return ProductInterceptor|null
+     * @return ProductInterface|null
      *
      * @throws Exception
      */
-    protected function getConfigurableProduct(int $parentId): ?ProductInterceptor
+    protected function getConfigurableProduct(int $parentId): ?ProductInterface
     {
         if (!isset($this->cacheConfigurableProducts[$parentId])) {
             if ($this->clearCacheConfigurable > 300) {
