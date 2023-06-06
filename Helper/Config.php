@@ -39,6 +39,7 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
 use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollectionFactory;
 use Magento\InventoryApi\Api\SourceRepositoryInterface;
+use Laminas\Validator\EmailAddress;
 
 class Config extends AbstractHelper
 {
@@ -1048,11 +1049,11 @@ class Config extends AbstractHelper
     {
         $reportEmailAddress = [];
         $emails = $this->get(self::REPORT_MAILS);
-        $emails = trim(str_replace(["\r\n", ',', ' '], ';', $emails), ';');
+        $emails = trim(str_replace(["\r\n", ',', ' '], ';', $emails ?? ''), ';');
         $emails = explode(';', $emails);
         foreach ($emails as $email) {
             try {
-                if ($email !== '' && \Zend_Validate::is($email, 'EmailAddress')) {
+                if ($email !== '' && (new EmailAddress())->isValid($email)) {
                     $reportEmailAddress[] = $email;
                 }
             } catch (Exception $e) {
@@ -1156,7 +1157,7 @@ class Config extends AbstractHelper
                 case self::RETURN_TYPE_ARRAY:
                     return !empty($value)
                         ? explode(';', trim(str_replace(["\r\n", ',', ' '], ';', $value), ';'))
-                        : array();
+                        : [];
             }
         }
         return $value;

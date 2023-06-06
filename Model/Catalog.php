@@ -149,7 +149,9 @@ class Catalog
         $catalogsLinked = true;
         $catalogsByStores = [];
         foreach ($catalogSelected as $catalog) {
-            $catalogsByStores[$catalog['shopId']] = $catalog['catalogId'];
+            if (isset($catalog['shopId']) && isset($catalog['catalogId'])) {
+                $catalogsByStores[$catalog['shopId']] = $catalog['catalogId'];
+            }
         }
         if (!empty($catalogsByStores)) {
             // save catalogs ids and active shop in lengow configuration
