@@ -1,4 +1,16 @@
 =============================================================
+Version 1.4.4
+=============================================================
+
+    - BugFix: [Import] Get email for send notification from module when value is null
+    - BugFix: [Import] Use Lamina_validator instead Send_validator for email validation
+    - BugFix: [Import] Unblocking import of customer address in orders
+    - BugFix: [Import] Fix error when importing orders caused by the CollectionFactory class by use array instead
+    - BugFix: [Import] Fix errors data is null when using the character replacement function
+    - BugFix: [Export] Fix error when user save catalog linked to CMS in first connexion
+    - BugFix: [Export] Use ProductInterface instead of ProductInterceptor
+
+=============================================================
 Version 1.4.3
 =============================================================
 

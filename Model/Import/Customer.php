@@ -698,9 +698,9 @@ class Customer extends MagentoResourceCustomer
      */
     private function getAddressStreet($addressData, bool $isShippingAddress = false): string
     {
-        $street = trim($addressData->first_line);
-        $secondLine = trim($addressData->second_line);
-        $complement = trim($addressData->complement);
+        $street = trim((string)$addressData->first_line);
+        $secondLine = trim((string)$addressData->second_line);
+        $complement = trim((string)$addressData->complement);
         if (empty($street)) {
             if (!empty($secondLine)) {
                 $street = $secondLine;

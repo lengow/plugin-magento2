@@ -708,6 +708,6 @@ class Data extends AbstractHelper
             'YU',
             'ZH',
         ];
-        return preg_replace($patterns, $replacements, $str);
+        return preg_replace($patterns, $replacements, $str ?? '');
     }
 }
