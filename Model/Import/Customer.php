@@ -620,8 +620,8 @@ class Customer extends MagentoResourceCustomer
     private function getNames($addressData): array
     {
         $names = [
-            'firstName' => trim($addressData->first_name),
-            'lastName' => trim($addressData->last_name),
+            'firstName' => empty($addressData->first_name) ? '' : trim($addressData->first_name),
+            'lastName' => empty($addressData->last_name) ? '' : trim($addressData->last_name),
             'fullName' => $this->cleanFullName($addressData->full_name),
         ];
         if (empty($names['lastName']) && empty($names['firstName'])) {
