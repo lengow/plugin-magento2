@@ -531,8 +531,7 @@ class Importorder extends AbstractModel
         // checks if a record already exists in the lengow order table
         $this->orderLengowId = $this->lengowOrder->getLengowOrderId(
             $this->marketplaceSku,
-            $this->marketplace->name,
-            $this->deliveryAddressId
+            $this->marketplace->name
         );
         // checks if an order already has an error in progress
         if ($this->orderLengowId && $this->orderErrorAlreadyExist()) {
@@ -541,8 +540,7 @@ class Importorder extends AbstractModel
         // recovery id if the command has already been imported
         $orderId = $this->lengowOrder->getOrderIdIfExist(
             $this->marketplaceSku,
-            $this->marketplace->name,
-            $this->deliveryAddressId
+            $this->marketplace->name
         );
         // update order state if already imported
         if ($orderId) {
@@ -641,7 +639,7 @@ class Importorder extends AbstractModel
     private function orderErrorAlreadyExist(): bool
     {
         // if log import exist and not finished
-        $orderError = $this->lengowOrder->orderIsInError($this->marketplaceSku, $this->deliveryAddressId);
+        $orderError = $this->lengowOrder->orderIsInError($this->marketplaceSku, $this->marketplace->name);
         if (!$orderError) {
             return false;
         }
