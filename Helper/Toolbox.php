@@ -53,6 +53,9 @@ class Toolbox extends AbstractHelper
     public const PARAM_TOKEN = 'token';
     public const PARAM_TOOLBOX_ACTION = 'toolbox_action';
     public const PARAM_TYPE = 'type';
+    public const PARAM_SHORT_PATH = 'short_path';
+
+
 
     /* Toolbox Actions */
     public const ACTION_DATA = 'data';
@@ -74,6 +77,7 @@ class Toolbox extends AbstractHelper
     public const DATA_TYPE_ORDER_STATUS = 'order_status';
     public const DATA_TYPE_SHOP = 'shop';
     public const DATA_TYPE_SYNCHRONIZATION = 'synchronization';
+    public const DATA_TYPE_MODIFIED_FILES = 'modified_files';
 
     /* Process type */
     public const PROCESS_TYPE_GET_DATA = 'get_data';
@@ -143,7 +147,7 @@ class Toolbox extends AbstractHelper
     public const ORDER_MERCHANT_ORDER_STATUS = 'merchant_order_status';
     public const ORDER_TOTAL_PAID = 'total_paid';
     public const ORDER_MERCHANT_TOTAL_PAID = 'merchant_total_paid';
-    public const ORDER_COMMISSION= 'commission';
+    public const ORDER_COMMISSION = 'commission';
     public const ORDER_CURRENCY = 'currency';
     public const ORDER_DATE = 'order_date';
     public const ORDER_ITEMS = 'order_items';
@@ -334,6 +338,13 @@ class Toolbox extends AbstractHelper
                 return $this->getChecklistData();
             case self::DATA_TYPE_CHECKSUM:
                 return $this->getChecksumData();
+            case self::DATA_TYPE_MODIFIED_FILES:
+                $shortPathParam = (string) $this->_request->getParam(
+                    self::PARAM_SHORT_PATH
+                );
+                return $this->getModifiedFilesData(
+                    base64_decode($shortPathParam)
+                );
             case self::DATA_TYPE_LOG:
                 return $this->getLogData();
             case self::DATA_TYPE_OPTION:
@@ -631,6 +642,52 @@ class Toolbox extends AbstractHelper
             self::CHECKSUM_NUMBER_FILES_DELETED => $fileDeletedCounter,
             self::CHECKSUM_FILE_MODIFIED => $fileModified,
             self::CHECKSUM_FILE_DELETED => $fileDeleted,
+        ];
+    }
+
+    /**
+     * Get files modified content details
+     *
+     * @return array
+     */
+    private function getModifiedFilesData(string $shortPathParam): array
+    {
+        $fileCounter = 0;
+        $fileModified = [];
+        $fileDeleted = [];
+        $sep = DIRECTORY_SEPARATOR;
+        $fileName = $this->moduleReader->getModuleDir('etc', SecurityHelper::MODULE_NAME) . $sep . self::FILE_CHECKMD5;
+        if (file_exists($fileName)) {
+            $md5Available = true;
+            if (($file = fopen($fileName, 'rb')) !== false) {
+                while (($data = fgetcsv($file, 1000, '|')) !== false) {
+                    $fileCounter++;
+                    $shortPath = $data[0];
+                    $filePath = $this->moduleReader->getModuleDir('', SecurityHelper::MODULE_NAME) . $data[0];
+                    if (file_exists($filePath)) {
+                        $fileMd = md5_file($filePath);
+                        if ($fileMd !== $data[1]) {
+                            if ($shortPathParam && ($shortPathParam !== $shortPath)) {
+                                continue;
+                            }
+                            $fileModified[] = [
+                                'sort_path' => $shortPath,
+                                'content_encoded' => base64_encode(file_get_contents($filePath))
+                            ];
+                        }
+                    } else {
+                        $fileDeleted[] = ['sort_path' => $shortPath];
+                    }
+                }
+                fclose($file);
+            }
+        } else {
+            $md5Available = false;
+        }
+
+        return [
+            self::CHECKSUM_FILE_MODIFIED => $fileModified,
+            self::CHECKSUM_FILE_DELETED => $fileDeleted
         ];
     }
 
