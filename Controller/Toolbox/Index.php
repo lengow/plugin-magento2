@@ -141,12 +141,14 @@ class Index extends Action
                             }
                         }
                         $this->getResponse()->setBody($this->jsonHelper->jsonEncode($result));
+                        $this->getResponse()->setHeader('Content-Type','application/json', true);
                         break;
                     default:
                         $type = $this->getRequest()->getParam(ToolboxHelper::PARAM_TYPE, ToolboxHelper::DATA_TYPE_CMS);
                         $this->getResponse()->setBody(
                             $this->jsonHelper->jsonEncode($this->toolboxHelper->getData($type))
                         );
+                        $this->getResponse()->setHeader('Content-Type','application/json', true);
                 }
             } else {
                 $errorMessage = __('Action: %1 is not a valid action', [$action]);

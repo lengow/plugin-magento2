@@ -674,7 +674,8 @@ class Toolbox extends AbstractHelper
                             }
                             $fileModified[] = [
                                 'sort_path' => $shortPath,
-                                'content_encoded' => base64_encode(file_get_contents($filePath))
+                                'content_encoded' => base64_encode(file_get_contents($filePath)),
+                                'checksum' => $fileMd
                             ];
                         }
                     } else {
