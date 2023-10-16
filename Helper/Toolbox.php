@@ -679,7 +679,7 @@ class Toolbox extends AbstractHelper
                             ];
                         }
                     } else {
-                        $fileDeleted[] = ['sort_path' => $shortPath];
+                        $fileDeleted[] = ['short_path' => $shortPath];
                     }
                 }
                 fclose($file);
