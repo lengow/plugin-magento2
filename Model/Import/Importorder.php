@@ -717,6 +717,17 @@ class Importorder extends AbstractModel
             );
             $orderUpdated = true;
         }
+        $vatNumberData = $this->getVatNumberFromOrderData();
+        if ($vatNumberData !== $order->getCustomerTaxvat()) {
+            $this->checkAndUpdateLengowOrderData($lengowOrder);
+            $orderUpdated = true;
+            $this->dataHelper->log(
+                DataHelper::CODE_IMPORT,
+                $this->dataHelper->setLogMessage("%1 order(s) updated", [$orderUpdated]),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+        }
         unset($order, $lengowOrder);
         return $orderUpdated;
     }
