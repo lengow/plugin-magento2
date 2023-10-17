@@ -949,6 +949,7 @@ class Importorder extends AbstractModel
                 LengowOrder::FIELD_ORDER_ITEM => $this->orderItems,
                 LengowOrder::FIELD_CUSTOMER_NAME => $this->getCustomerName(),
                 LengowOrder::FIELD_CUSTOMER_EMAIL => $this->getCustomerEmail(),
+                LengowOrder::FIELD_CUSTOMER_VAT_NUMBER => $this->getVatNumberFromOrderData(),
                 LengowOrder::FIELD_COMMISSION => (float) $this->orderData->commission,
                 LengowOrder::FIELD_CARRIER => $this->carrierName,
                 LengowOrder::FIELD_CARRIER_METHOD => $this->carrierMethod,
