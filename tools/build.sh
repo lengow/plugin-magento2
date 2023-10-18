@@ -109,4 +109,8 @@ echo "- todo.txt : ""$VERT""DONE""$NORMAL"""
 cd /tmp
 zip "-r" $ARCHIVE_NAME "app"
 echo "- Build archive : ""$VERT""DONE""$NORMAL"""
-mv $ARCHIVE_NAME ~/Bureau
+then
+    mv $ARCHIVE_NAME ~/Bureau
+else 
+    mv $ARCHIVE_NAME ~/shared
+fi
