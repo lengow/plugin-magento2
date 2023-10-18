@@ -22,14 +22,21 @@ remove_directory(){
 remove_files(){
     DIRECTORY=$1
     FILE=$2
-    find $DIRECTORY -name $FILE -nowarn -exec rm -rf {} \;
-    echo "- Delete $FILE : ""$VERT""DONE""$NORMAL"""
+    if [ -f "${DIRECTORY}/${FILE}" ]
+    then
+        find $DIRECTORY -name $FILE -nowarn -exec rm -rf {} \;
+        echo -e "- Delete ${FILE} : ${VERT}DONE${NORMAL}"
+    fi
+    if [ -d "${DIRECTORY}/${FILE}" ]
+    then
+        rm -Rf ${DIRECTORY}/${FILE}
+    fi
 }
 
 remove_directories(){
     DIRECTORY=$1
     find $DIRECTORY -maxdepth 1 -mindepth 1 -type d -exec rm -rf {} \;
-    echo "- Delete $FILE : ""$VERT""DONE""$NORMAL"""
+    echo "- Delete ${FILE} : ${VERT}DONE${NORMAL}"
 }
 # check parameters
 if [ -z "$1" ]; then
@@ -47,43 +54,56 @@ FOLDER_TEST="/tmp/app/code/Lengow/Connector/Test"
 FOLDER_TOOLS="/tmp/app/code/Lengow/Connector/tools"
 FOLDER_ETC="/tmp/app/code/Lengow/Connector/etc"
 
-VERT="\\033[1;32m"
-ROUGE="\\033[1;31m"
-NORMAL="\\033[0;39m"
-BLEU="\\033[1;36m"
+VERT="\e[32m"
+ROUGE="\e[31m"
+NORMAL="\e[39m"
+BLEU="\e[36m"
 
 # process
 echo
 echo "#####################################################"
 echo "##                                                 ##"
-echo "##       ""$BLEU""Lengow Magento""$NORMAL"" - Build Module          ##"
+echo -e "##       "${BLEU}Lengow Magento${NORMAL}" - Build Module             ##"
 echo "##                                                 ##"
 echo "#####################################################"
 echo
-FOLDER="$(dirname "$(dirname "$(dirname "$(pwd)")")")"
-echo $FOLDER
+PWD=$(pwd)
+FOLDER=$(dirname ${PWD})
+echo ${FOLDER}
+
 if [ ! -d "$FOLDER" ]; then
-	echo "Folder doesn't exist : ""$ROUGE""ERROR""$NORMAL"""
+	echo -e "Folder doesn't exist : ${ROUGE}ERROR${NORMAL}"
 	echo
 	exit 0
 fi
+PHP=$(which php8.1)
+echo ${PHP}
 
 # generate translations
-php translate.php
-echo "- Generate translations : ""$VERT""DONE""$NORMAL"""
+${PHP} translate.php
+echo -e "- Generate translations : ${VERT}DONE${NORMAL}"
 # create files checksum
-php checkmd5.php
-echo "- Create files checksum : ""$VERT""DONE""$NORMAL"""
+${PHP} checkmd5.php
+echo -e "- Create files checksum : ${VERT}DONE${NORMAL}"
 # remove TMP FOLDER
-remove_directory $FOLDER_TMP
+if [ -d "${FOLDER_TMP}" ]
+then
+    rm -Rf ${FOLDER_TMP}
+fi
 # create folder
+if [ -d /tmp/app ]
+then
+    rm -Rf /tmp/app
+fi
 mkdir /tmp/app
 # copy files
 cp -rRp $FOLDER $FOLDER_TMP
 # remove marketplaces.json
-remove_files $FOLDER_ETC "marketplaces.json"
+    remove_files $FOLDER_ETC "marketplaces.json"
 # remove dod
 remove_files $FOLDER_TMP "dod.md"
+# remove php-cs-fixer-cache
+remove_files $FOLDER_TMP ".php-cs-fixer.cache"
 # remove Readme
 remove_files $FOLDER_TMP "README.md"
 # remove .gitignore
@@ -98,17 +118,18 @@ remove_files $FOLDER_TMP ".idea"
 remove_files $FOLDER_TMP "Jenkinsfile"
 # clean tools folder
 remove_directory $FOLDER_TOOLS
-echo "- Remove Tools folder : ""$VERT""DONE""$NORMAL"""
+echo -e "- Remove Tools folder : ${VERT}DONE${NORMAL}"
 # remove Test folder
 remove_directory $FOLDER_TEST
-echo "- Remove Test folder : ""$VERT""DONE""$NORMAL"""
+echo -e "- Remove Test folder : ${VERT}DONE${NORMAL}"
 # remove todo.txt
 find $FOLDER_TMP -name "todo.txt" -delete
-echo "- todo.txt : ""$VERT""DONE""$NORMAL"""
+echo -e "- todo.txt : ${VERT}DONE${NORMAL}"
 # make zip
 cd /tmp
-zip "-r" $ARCHIVE_NAME "app"
-echo "- Build archive : ""$VERT""DONE""$NORMAL"""
+zip -r ${ARCHIVE_NAME} app
+echo -e "- Build archive : ${VERT}DONE${NORMAL}"
+if [ -d  "~/Bureau" ]
 then
     mv $ARCHIVE_NAME ~/Bureau
 else 
