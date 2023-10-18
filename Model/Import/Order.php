@@ -556,14 +556,14 @@ class Order extends AbstractModel
      * Check if an order has an error
      *
      * @param string $marketplaceSku marketplace sku
-     * @param integer $deliveryAddressId delivery address id
+     * @param string $marketplaceName marketplace name
      * @param int $type order error type (import or send)
      *
      * @return array|false
      */
     public function orderIsInError(
         string $marketplaceSku,
-        int $deliveryAddressId,
+        string $marketplaceName,
         int $type = LengowOrderError::TYPE_ERROR_IMPORT
     ) {
         // check if log already exists for the given order id
@@ -573,11 +573,11 @@ class Order extends AbstractModel
                 '`lengow_order`.id=main_table.order_lengow_id',
                 [
                     self::FIELD_MARKETPLACE_SKU => self::FIELD_MARKETPLACE_SKU,
-                    self::FIELD_DELIVERY_ADDRESS_ID => self::FIELD_DELIVERY_ADDRESS_ID,
+                    self::FIELD_MARKETPLACE_NAME => self::FIELD_MARKETPLACE_NAME,
                 ]
             )
             ->addFieldToFilter(self::FIELD_MARKETPLACE_SKU, $marketplaceSku)
-            ->addFieldToFilter(self::FIELD_DELIVERY_ADDRESS_ID, $deliveryAddressId)
+            ->addFieldToFilter(self::FIELD_MARKETPLACE_NAME, $marketplaceName)
             ->addFieldToFilter(LengowOrderError::FIELD_TYPE, $type)
             ->addFieldToFilter(LengowOrderError::FIELD_IS_FINISHED, ['eq' => 0])
             ->addFieldToSelect(LengowOrderError::FIELD_ID)
@@ -596,17 +596,15 @@ class Order extends AbstractModel
      *
      * @param string $marketplaceSku marketplace sku
      * @param string $marketplaceName marketplace name
-     * @param integer $deliveryAddressId delivery address id
-     *
+     * 
      * @return integer|false
      */
-    public function getOrderIdIfExist(string $marketplaceSku, string $marketplaceName, int $deliveryAddressId)
+    public function getOrderIdIfExist(string $marketplaceSku, string $marketplaceName)
     {
         // get order id Magento from our table
         $results = $this->lengowOrderCollection->create()
             ->addFieldToFilter(self::FIELD_MARKETPLACE_SKU, $marketplaceSku)
-            ->addFieldToFilter(self::FIELD_MARKETPLACE_NAME, $marketplaceName)
-            ->addFieldToFilter(self::FIELD_DELIVERY_ADDRESS_ID, $deliveryAddressId)
+            ->addFieldToFilter(self::FIELD_MARKETPLACE_NAME, $marketplaceName)            
             ->addFieldToSelect(self::FIELD_ORDER_ID)
             ->load()
             ->getData();
@@ -646,12 +644,11 @@ class Order extends AbstractModel
      *
      * @return integer|false
      */
-    public function getLengowOrderId(string $marketplaceSku, string $marketplaceName, int $deliveryAddressId)
+    public function getLengowOrderId(string $marketplaceSku, string $marketplaceName)
     {
         $results = $this->lengowOrderCollection->create()
             ->addFieldToFilter(self::FIELD_MARKETPLACE_SKU, $marketplaceSku)
-            ->addFieldToFilter(self::FIELD_MARKETPLACE_NAME, $marketplaceName)
-            ->addFieldToFilter(self::FIELD_DELIVERY_ADDRESS_ID, $deliveryAddressId)
+            ->addFieldToFilter(self::FIELD_MARKETPLACE_NAME, $marketplaceName)            
             ->addFieldToSelect(self::FIELD_ID)
             ->getData();
         if (!empty($results)) {
