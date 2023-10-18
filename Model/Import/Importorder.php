@@ -717,6 +717,17 @@ class Importorder extends AbstractModel
             );
             $orderUpdated = true;
         }
+        $vatNumberData = $this->getVatNumberFromOrderData();
+        if ($vatNumberData !== $order->getCustomerTaxvat()) {
+            $this->checkAndUpdateLengowOrderData($lengowOrder);
+            $orderUpdated = true;
+            $this->dataHelper->log(
+                DataHelper::CODE_IMPORT,
+                $this->dataHelper->setLogMessage("%1 order(s) updated", [$orderUpdated]),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+        }
         unset($order, $lengowOrder);
         return $orderUpdated;
     }
@@ -949,6 +960,7 @@ class Importorder extends AbstractModel
                 LengowOrder::FIELD_ORDER_ITEM => $this->orderItems,
                 LengowOrder::FIELD_CUSTOMER_NAME => $this->getCustomerName(),
                 LengowOrder::FIELD_CUSTOMER_EMAIL => $this->getCustomerEmail(),
+                LengowOrder::FIELD_CUSTOMER_VAT_NUMBER => $this->getVatNumberFromOrderData(),
                 LengowOrder::FIELD_COMMISSION => (float) $this->orderData->commission,
                 LengowOrder::FIELD_CARRIER => $this->carrierName,
                 LengowOrder::FIELD_CARRIER_METHOD => $this->carrierMethod,
