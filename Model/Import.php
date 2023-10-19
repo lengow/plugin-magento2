@@ -393,6 +393,16 @@ class Import
             );
             $this->limit = isset($params[self::PARAM_LIMIT]) ? (int) $params[self::PARAM_LIMIT] : 0;
         }
+        $this->dataHelper->log(
+            DataHelper::CODE_IMPORT,
+            $this->dataHelper->setLogMessage(
+                'Import initialized with params : %1',
+                [
+                    json_encode($params)
+                ]
+            ),
+            $this->logOutput
+        );
     }
 
     /**
