@@ -49,7 +49,7 @@ else
 fi
 
 # variables
-FOLDER_TMP="/tmp/app/code"
+FOLDER_TMP="/tmp/app/code/Lengow/Connector"
 FOLDER_TEST="/tmp/app/code/Lengow/Connector/Test"
 FOLDER_TOOLS="/tmp/app/code/Lengow/Connector/tools"
 FOLDER_ETC="/tmp/app/code/Lengow/Connector/etc"
@@ -96,8 +96,12 @@ then
     rm -Rf /tmp/app
 fi
 mkdir /tmp/app
+mkdir /tmp/app/code
+mkdir /tmp/app/code/Lengow
+mkdir /tmp/app/code/Lengow/Connector
+
 # copy files
-cp -rRp $FOLDER $FOLDER_TMP
+cp -rRp ${FOLDER}/. $FOLDER_TMP
 # remove marketplaces.json
     remove_files $FOLDER_ETC "marketplaces.json"
 # remove dod
