@@ -50,13 +50,13 @@
 /etc/config.xml|0dac84e40ca5df82535f0ebd41d0d630
 /etc/events.xml|b3cda32e21e9f92795365636d99f703d
 /Helper/Config.php|9155080e40b9303745cb9a0be5bec3c6
-/Helper/Import.php|e76314836ea1455a72f983c6da86a898
+/Helper/Import.php|177164519c5343dcdc338abac35e30ae
 /Helper/Sync.php|732242d1e2792cec8a7d9277dc3a6d4b
 /Helper/Toolbox.php|8816d4c3d164cd51e99f879cb325616c
 /Helper/Data.php|57be4d0eafe40074342277626ad63ef0
 /Helper/Security.php|7b684086abcb605bbff8dbc9ad8a4d39
 /i18n/fr_FR.csv|59f69f2732e9518db52698a38e735cef
-/i18n/en_GB.csv|a69a1ce7d20431ea7e1699c207094435
+/i18n/en_GB.csv|9fa9c3ac2ecfd3a5472b8ae6448d7baf
 /i18n/de_DE.csv|5df7d9c06779613bc021e3088813da73
 /Model/Carrier/Lengow.php|2fa83223a8a7989ac04e1e92fd0ca907
 /Model/Import.php|4492c5818193a0cfb199118dd010962d
