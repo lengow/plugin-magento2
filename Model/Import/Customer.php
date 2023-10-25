@@ -449,8 +449,13 @@ class Customer extends MagentoResourceCustomer
         string $marketplaceSku,
         bool $logOutput
     ): MagentoCustomer {
-        // generation of fictitious email
-        $customerEmail = $marketplaceSku . '-' . $orderData->marketplace . '@lengow.com';
+        if (ConfigHelper::IMPORT_ANONYMIZED_EMAIL) {
+            // generate fictitious customer email
+            $customerEmail = md5($marketplaceSku . '-' . $orderData->marketplace) . '@lengow.com';
+        } else {
+            // get real customer email
+            $customerEmail = $orderData->billing_address->email;
+        }
         $this->dataHelper->log(
             DataHelper::CODE_IMPORT,
             $this->dataHelper->setLogMessage('generate a unique email %1', [$customerEmail]),
@@ -476,7 +481,7 @@ class Customer extends MagentoResourceCustomer
     /**
      * Create or load customer based on API data
      *
-     * @param string $customerEmail fictitious customer email
+     * @param string $customerEmail customer email or fictitious customer email
      * @param integer $storeId Magento store id
      * @param object $billingData billing address data
      *
@@ -537,7 +542,7 @@ class Customer extends MagentoResourceCustomer
      */
     private function getOrCreateAddress(
         MagentoCustomer $customer,
-        $addressData,
+                        $addressData,
         bool $isShippingAddress = false
     ): Address {
         $names = $this->getNames($addressData);
@@ -620,20 +625,20 @@ class Customer extends MagentoResourceCustomer
     private function getNames($addressData): array
     {
         $names = [
-            'firstName' => trim((string) $addressData->first_name),
-            'lastName' => trim((string) $addressData->last_name),
-            'fullName' => $this->cleanFullName((string) $addressData->full_name),
+            'firstName' => trim($addressData->first_name),
+            'lastName' => trim($addressData->last_name),
+            'fullName' => $this->cleanFullName($addressData->full_name),
         ];
         if (empty($names['lastName']) && empty($names['firstName'])) {
-            $names = $this->splitNames((string) $names['fullName']);
+            $names = $this->splitNames($names['fullName']);
         } elseif (empty($names['firstName'])) {
-            $names = $this->splitNames((string) $names['lastName']);
+            $names = $this->splitNames($names['lastName']);
         } elseif (empty($names['lastName'])) {
-            $names = $this->splitNames((string) $names['firstName']);
+            $names = $this->splitNames($names['firstName']);
         }
         unset($names['fullName']);
-        $names['firstName'] = !empty($names['firstName']) ? ucfirst(strtolower((string) $names['firstName'])) : '__';
-        $names['lastName'] = !empty($names['lastName']) ? ucfirst(strtolower((string) $names['lastName'])) : '__';
+        $names['firstName'] = !empty($names['firstName']) ? ucfirst(strtolower($names['firstName'])) : '__';
+        $names['lastName'] = !empty($names['lastName']) ? ucfirst(strtolower($names['lastName'])) : '__';
         return $names;
     }
 
