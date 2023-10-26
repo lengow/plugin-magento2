@@ -2,8 +2,9 @@
 Version 1.4.5
 =============================================================
 
- - Feature:  Toolbox file changed details
- - Feature:  Log import params initialized
+ - Feature: [toolbox] Toolbox file changed details
+ - Feature: [import] Log import params initialized
+ - Feature: [import] Option anonymized email
  - Bugfix:   Vat number sync update
  - Bugfix:   Order duplicate when delivery_address_id changes
  - Bugfix:   php8.1 address strings data not be null for trim() etc ...

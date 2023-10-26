@@ -449,8 +449,14 @@ class Customer extends MagentoResourceCustomer
         string $marketplaceSku,
         bool $logOutput
     ): MagentoCustomer {
-        // generation of fictitious email
-        $customerEmail = $marketplaceSku . '-' . $orderData->marketplace . '@lengow.com';
+
+        if (ConfigHelper::IMPORT_ANONYMIZED_EMAIL) {
+            // generation of fictitious email
+            $customerEmail = md5($marketplaceSku . '-' . $orderData->marketplace) . '@lengow.com';
+        } else {
+            // get customer email
+            $customerEmail = $orderData->billing_address->email;
+        }
         $this->dataHelper->log(
             DataHelper::CODE_IMPORT,
             $this->dataHelper->setLogMessage('generate a unique email %1', [$customerEmail]),
@@ -476,7 +482,7 @@ class Customer extends MagentoResourceCustomer
     /**
      * Create or load customer based on API data
      *
-     * @param string $customerEmail fictitious customer email
+     * @param string $customerEmail fictitious customer email or customer email
      * @param integer $storeId Magento store id
      * @param object $billingData billing address data
      *
