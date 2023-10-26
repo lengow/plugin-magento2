@@ -450,7 +450,7 @@ class Customer extends MagentoResourceCustomer
         bool $logOutput
     ): MagentoCustomer {
 
-        if (ConfigHelper::IMPORT_ANONYMIZED_EMAIL) {
+        if ($this->configHelper->get(ConfigHelper::IMPORT_ANONYMIZED_EMAIL, $storeId)) {
             // generation of fictitious email
             $customerEmail = md5($marketplaceSku . '-' . $orderData->marketplace) . '@lengow.com';
         } else {
