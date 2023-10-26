@@ -47,6 +47,15 @@ else
 	VERSION="$1"
 	ARCHIVE_NAME='lengow.magento2.'$VERSION'.zip'
 fi
+# Check parameters
+if [ -z "$2" ]; then
+	echo 'Deploy environment is not set: preprod or prod'
+	echo
+	exit 0
+fi
+if [ ! -z "$2" ] && [ "$2" == "preprod" ]; then
+        ARCHIVE_NAME="preprod__${ARCHIVE_NAME}"        
+fi
 
 # variables
 FOLDER_TMP="/tmp/app/code/Lengow/Connector"
@@ -58,6 +67,7 @@ VERT="\e[32m"
 ROUGE="\e[31m"
 NORMAL="\e[39m"
 BLEU="\e[36m"
+DEPLOY_ENV=$2
 
 # process
 echo
@@ -78,6 +88,14 @@ if [ ! -d "$FOLDER" ]; then
 fi
 PHP=$(which php8.1)
 echo ${PHP}
+
+# Change config for preprod
+if [ ! -z "${DEPLOY_ENV}" ] && [ "${DEPLOY_ENV}" == "preprod" ]; then
+    sed -i 's/lengow.io/lengow.net/g' ${FOLDER}/Model/Connector.php 
+fi
+if [ ! -z "${DEPLOY_ENV}" ] && [ "${DEPLOY_ENV}" == "prod" ]; then
+    sed -i 's/lengow.net/lengow.io/g' ${FOLDER}/Model/Connector.php 
+fi
 
 # generate translations
 ${PHP} translate.php
