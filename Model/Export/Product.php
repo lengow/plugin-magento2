@@ -746,12 +746,18 @@ class Product
     private function getAttributeValue(string $field = null): ?string
     {
         $attributeValue = '';
+        $attributeValueParent = '';
+        $productParent = null;
+        $attributeParent = null;
+
         if ($this->parentProduct && in_array($field, $this->parentFields, true)) {
-            $product = $this->parentProduct;
-        } else {
-            $product = $this->product;
+            $productParent = $this->parentProduct;
+            $attributeParent = $productParent->getData($field);
         }
+
+        $product = $this->product;
         $attribute = $product->getData($field);
+
         if ($attribute !== null) {
             if (is_array($attribute)) {
                 foreach ($attribute as $key => $value) {
@@ -771,6 +777,30 @@ class Product
                     ->getFrontend()
                     ->getValue($product);
             }
+        }
+
+        if ($attributeParent !== null) {
+            if (is_array($attributeParent)) {
+                foreach ($attributeParent as $key => $value) {
+                    // checks whether an array-form product attribute contains another array
+                    if (is_array($value)) {
+                        $value = json_encode($value);
+                    }
+                    if (!is_numeric($key)) {
+                        $value = $key . ': ' . $value;
+                    }
+                    $attributeValueParent .= $value . ', ';
+                }
+                $attributeValueParent = rtrim($attributeValueParent, ', ');
+            } else {
+                $attributeValueParent = $productParent->getResource()
+                    ->getAttribute($field)
+                    ->getFrontend()
+                    ->getValue($productParent);
+            }
+        }
+        if (!empty($attributeParent) && !empty($attributeValueParent)) {
+            return is_array($attributeValueParent) ? json_encode($attributeValueParent) : $attributeValueParent;
         }
         return is_array($attributeValue) ? json_encode($attributeValue) : $attributeValue;
     }
