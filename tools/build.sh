@@ -36,7 +36,7 @@ remove_files(){
 remove_directories(){
     DIRECTORY=$1
     find $DIRECTORY -maxdepth 1 -mindepth 1 -type d -exec rm -rf {} \;
-    echo "- Delete ${FILE} : ${VERT}DONE${NORMAL}"
+    echo -e "- Delete ${DIRECTORY} : ${VERT}DONE${NORMAL}"
 }
 # check parameters
 if [ -z "$1" ]; then
