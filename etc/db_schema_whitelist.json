@@ -1,0 +1,114 @@
+{
+    "lengow_order": {
+        "column": {
+            "id": true,
+            "order_id": true,
+            "order_sku": true,
+            "store_id": true,
+            "delivery_address_id": true,
+            "delivery_country_iso": true,
+            "marketplace_sku": true,
+            "marketplace_name": true,
+            "marketplace_label": true,
+            "order_lengow_state": true,
+            "order_process_state": true,
+            "order_date": true,
+            "order_item": true,
+            "order_types": true,
+            "currency": true,
+            "total_paid": true,
+            "customer_vat_number": true,
+            "commission": true,
+            "customer_name": true,
+            "customer_email": true,
+            "carrier": true,
+            "carrier_method": true,
+            "carrier_tracking": true,
+            "carrier_id_relay": true,
+            "sent_marketplace": true,
+            "is_in_error": true,
+            "is_reimported": true,
+            "message": true,
+            "created_at": true,
+            "updated_at": true,
+            "extra": true
+        },
+        "index": {
+            "LENGOW_ORDER_STORE_ID": true,
+            "LENGOW_ORDER_MARKETPLACE_SKU": true,
+            "LENGOW_ORDER_MARKETPLACE_NAME": true,
+            "LENGOW_ORDER_ORDER_LENGOW_STATE": true,
+            "LENGOW_ORDER_TOTAL_PAID": true,
+            "FTI_9C9C6193045A39B1CD49763E087F362F": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "lengow_order_line": {
+        "column": {
+            "id": true,
+            "order_id": true,
+            "product_id": true,
+            "order_line_id": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "lengow_order_error": {
+        "column": {
+            "id": true,
+            "order_lengow_id": true,
+            "message": true,
+            "type": true,
+            "is_finished": true,
+            "mail": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "lengow_action": {
+        "column": {
+            "id": true,
+            "order_id": true,
+            "action_id": true,
+            "order_line_sku": true,
+            "action_type": true,
+            "retry": true,
+            "parameters": true,
+            "state": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {
+            "LENGOW_ACTION_ORDER_LINE_SKU_PARAMETERS": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "lengow_log": {
+        "column": {
+            "id": true,
+            "date": true,
+            "category": true,
+            "message": true
+        },
+        "index": {
+            "LENGOW_LOG_CATEGORY": true,
+            "LENGOW_LOG_MESSAGE": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "sales_order": {
+        "column": {
+            "from_lengow": true
+        }
+    }
+}

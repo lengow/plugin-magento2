@@ -47,8 +47,10 @@
 /etc/acl.xml|238cdf00e292e74243e5a67e59729436
 /etc/crontab.xml|ca97f746162b6bd4441d34475c9b0103
 /etc/module.xml|5cd418d61a351ed9098f297ac62a6133
+/etc/db_schema.xml|8e9872d44f4a8aa82d34682b4f7712cd
 /etc/config.xml|84e21940165b12b872e17fe366e42322
 /etc/events.xml|b3cda32e21e9f92795365636d99f703d
+/etc/db_schema_whitelist.json|a2313515d9e393386c04de1aaa592232
 /Helper/Config.php|ceacbfc532afcaac07c6ddeda193e161
 /Helper/Import.php|177164519c5343dcdc338abac35e30ae
 /Helper/Sync.php|732242d1e2792cec8a7d9277dc3a6d4b
@@ -104,10 +106,9 @@
 /Plugin/WeeeConfig.php|a56248ed5aec8e3e75498c2d3ca9b754
 /Plugin/SaveConfig.php|d02fb183b81dab5d8385b57a97bf1b91
 /Plugin/RulesApplier.php|1f95db521c78ab730b658d6726610b47
-/Setup/InstallSchema.php|ab1d50a5fab39563e0e1806b11850d6e
-/Setup/UpgradeSchema.php|69f51f72805bdbce2bd9025064b131ea
-/Setup/UpgradeData.php|8d8674d57e78f2243819126bc7a61a33
-/Setup/InstallData.php|59cb668f74ad8935175e51a458da2221
+/Setup/Patch/Data/InstallLengowData.php|98fd4ecd9c1257e0d787ebd8e4cee87c
+/Setup/Patch/Data/UpgradeLengowDataConfig.php|d02bc86ec2b4f12b1891624631890ded
+/Setup/Patch/Data/UpgradeLengowDataTracking.php|ad18b48a266825b0252680a256bb7dce
 /Ui/Component/Listing/Column/OrderType.php|39967f0da6e06f90893cad44112e01b8
 /Ui/Component/Listing/Column/OrdersActions.php|92b2365e1d6d5d1bcb8201399af8db10
 /Ui/Component/Listing/Column/LengowOrderStatus.php|010bd52445c37c0f73c62061e0359086

@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+  <table name="lengow_order" resource="default" engine="innodb" comment="Lengow orders table">
+    <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id"/>
+    <column xsi:type="int" name="order_id" padding="10" unsigned="true" nullable="true" identity="false" comment="Order Id"/>
+    <column xsi:type="varchar" name="order_sku" nullable="true" length="40" comment="Order sku"/>
+    <column xsi:type="int" name="store_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Store Id"/>
+    <column xsi:type="int" name="delivery_address_id" padding="10" unsigned="true" nullable="true" identity="false" comment="Delivery Address Id"/>
+    <column xsi:type="varchar" name="delivery_country_iso" nullable="true" length="3" comment="Delivery Country Iso"/>
+    <column xsi:type="varchar" name="marketplace_sku" nullable="false" length="100" comment="Marketplace Sku"/>
+    <column xsi:type="varchar" name="marketplace_name" nullable="false" length="100" comment="Marketplace Name"/>
+    <column xsi:type="varchar" name="marketplace_label" nullable="true" length="100" comment="Marketplace Label"/>
+    <column xsi:type="varchar" name="order_lengow_state" nullable="false" length="100" comment="Order Lengow State"/>
+    <column xsi:type="smallint" name="order_process_state" padding="5" unsigned="true" nullable="false" identity="false" comment="Order Process State"/>
+    <column xsi:type="timestamp" name="order_date" on_update="false" nullable="true" comment="Order Date"/>
+    <column xsi:type="smallint" name="order_item" padding="5" unsigned="true" nullable="true" identity="false" comment="Order Item"/>
+    <column xsi:type="text" name="order_types" nullable="true" comment="Order Types"/>
+    <column xsi:type="varchar" name="currency" nullable="true" length="3" comment="Currency"/>
+    <column xsi:type="decimal" name="total_paid" scale="2" precision="17" unsigned="true" nullable="true" comment="Total Paid"/>
+    <column xsi:type="text" name="customer_vat_number" nullable="true" comment="Customer Vat Number"/>
+    <column xsi:type="decimal" name="commission" scale="2" precision="17" unsigned="true" nullable="true" comment="Commission"/>
+    <column xsi:type="varchar" name="customer_name" nullable="true" length="255" comment="Customer Name"/>
+    <column xsi:type="varchar" name="customer_email" nullable="true" length="255" comment="Customer Email"/>
+    <column xsi:type="varchar" name="carrier" nullable="true" length="100" comment="Carrier"/>
+    <column xsi:type="varchar" name="carrier_method" nullable="true" length="100" comment="Carrier Method"/>
+    <column xsi:type="varchar" name="carrier_tracking" nullable="true" length="100" comment="Carrier Tracking"/>
+    <column xsi:type="varchar" name="carrier_id_relay" nullable="true" length="100" comment="Carrier Id Relay"/>
+    <column xsi:type="boolean" name="sent_marketplace" nullable="false" comment="Sent Marketplace"/>
+    <column xsi:type="boolean" name="is_in_error" nullable="false" comment="Is In Error"/>
+    <column xsi:type="boolean" name="is_reimported" nullable="true" comment="Is importable again"/>
+    <column xsi:type="text" name="message" nullable="true" comment="Message"/>
+    <column xsi:type="timestamp" name="created_at" on_update="false" nullable="true" comment="Created At"/>
+    <column xsi:type="timestamp" name="updated_at" on_update="false" nullable="true" comment="Updated At"/>
+    <column xsi:type="text" name="extra" nullable="true" comment="Extra"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="id"/>
+    </constraint>
+    <index referenceId="LENGOW_ORDER_STORE_ID" indexType="btree">
+      <column name="store_id"/>
+    </index>
+    <index referenceId="LENGOW_ORDER_MARKETPLACE_SKU" indexType="btree">
+      <column name="marketplace_sku"/>
+    </index>
+    <index referenceId="LENGOW_ORDER_MARKETPLACE_NAME" indexType="btree">
+      <column name="marketplace_name"/>
+    </index>
+    <index referenceId="LENGOW_ORDER_ORDER_LENGOW_STATE" indexType="btree">
+      <column name="order_lengow_state"/>
+    </index>
+    <index referenceId="LENGOW_ORDER_TOTAL_PAID" indexType="btree">
+      <column name="total_paid"/>
+    </index>
+    <index referenceId="FTI_9C9C6193045A39B1CD49763E087F362F" indexType="fulltext">
+      <column name="order_sku"/>
+      <column name="marketplace_sku"/>
+      <column name="marketplace_name"/>
+      <column name="marketplace_label"/>
+      <column name="customer_name"/>
+      <column name="customer_email"/>
+    </index>
+  </table>
+  <table name="lengow_order_line" resource="default" engine="innodb" comment="lengow_order_line">
+    <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id"/>
+    <column xsi:type="int" name="order_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Order Id"/>
+    <column xsi:type="int" name="product_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Product Id"/>
+    <column xsi:type="varchar" name="order_line_id" nullable="false" length="100" comment="Order Line Id"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="id"/>
+    </constraint>
+  </table>
+  <table name="lengow_order_error" resource="default" engine="innodb" comment="lengow_order_error">
+    <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id"/>
+    <column xsi:type="int" name="order_lengow_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Order Lengow Id"/>
+    <column xsi:type="text" name="message" nullable="true" comment="Message"/>
+    <column xsi:type="int" name="type" padding="10" unsigned="true" nullable="false" identity="false" comment="Type"/>
+    <column xsi:type="boolean" name="is_finished" nullable="false" comment="Is Finished"/>
+    <column xsi:type="boolean" name="mail" nullable="false" comment="Mail"/>
+    <column xsi:type="timestamp" name="created_at" on_update="false" nullable="true" comment="Created At"/>
+    <column xsi:type="timestamp" name="updated_at" on_update="false" nullable="true" comment="Updated At"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="id"/>
+    </constraint>
+  </table>
+  <table name="lengow_action" resource="default" engine="innodb" comment="lengow_action">
+    <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id"/>
+    <column xsi:type="int" name="order_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Order Id"/>
+    <column xsi:type="int" name="action_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Action Id"/>
+    <column xsi:type="varchar" name="order_line_sku" nullable="true" length="100" comment="Order Line Sku"/>
+    <column xsi:type="varchar" name="action_type" nullable="false" length="32" comment="Action Type"/>
+    <column xsi:type="smallint" name="retry" padding="5" unsigned="true" nullable="false" identity="false" default="0" comment="Retry"/>
+    <column xsi:type="text" name="parameters" nullable="false" comment="Parameters"/>
+    <column xsi:type="smallint" name="state" padding="5" unsigned="true" nullable="false" identity="false" comment="State"/>
+    <column xsi:type="timestamp" name="created_at" on_update="false" nullable="true" comment="Created At"/>
+    <column xsi:type="timestamp" name="updated_at" on_update="false" nullable="true" comment="Updated At"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="id"/>
+    </constraint>
+    <index referenceId="LENGOW_ACTION_ORDER_LINE_SKU_PARAMETERS" indexType="fulltext">
+      <column name="order_line_sku"/>
+      <column name="parameters"/>
+    </index>
+  </table>
+  <table name="lengow_log" resource="default" engine="innodb" comment="lengow_log">
+    <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id"/>
+    <column xsi:type="timestamp" name="date" on_update="false" nullable="true" comment="Date"/>
+    <column xsi:type="varchar" name="category" nullable="false" length="100" comment="Category"/>
+    <column xsi:type="text" name="message" nullable="false" comment="Message"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="id"/>
+    </constraint>
+    <index referenceId="LENGOW_LOG_CATEGORY" indexType="btree">
+      <column name="category"/>
+    </index>
+    <index referenceId="LENGOW_LOG_MESSAGE" indexType="fulltext">
+      <column name="message"/>
+    </index>
+  </table>
+  <table name="sales_order" resource="default">
+    <column xsi:type="int" name="from_lengow" padding="11" unsigned="false" nullable="true" identity="false" default="0" comment="From Lengow"/>
+  </table>
+</schema>

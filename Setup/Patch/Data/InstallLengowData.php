@@ -18,9 +18,10 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-namespace Lengow\Connector\Setup;
+namespace Lengow\Connector\Setup\Patch\Data;
 
 use Exception;
+use Lengow\Connector\Helper\Config as ConfigHelper;
 use Magento\Catalog\Model\Product;
 use Magento\Customer\Model\Customer;
 use Magento\Customer\Setup\CustomerSetupFactory;
@@ -28,19 +29,18 @@ use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
 use Magento\Eav\Model\Entity\Attribute\Source\Boolean as EavBool;
 use Magento\Eav\Setup\EavSetupFactory;
-use Magento\Framework\Setup\InstallDataInterface;
-use Magento\Framework\Setup\ModuleContextInterface;
-use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Status;
 use Magento\Sales\Setup\SalesSetupFactory;
-use Lengow\Connector\Helper\Config as ConfigHelper;
 
 /**
  * @codeCoverageIgnore
  */
-class InstallData implements InstallDataInterface
+class InstallLengowData implements DataPatchInterface, PatchRevertableInterface
 {
     /**
      * @var EavSetupFactory Magento EAV setup factory instance
@@ -73,6 +73,14 @@ class InstallData implements InstallDataInterface
     private $configHelper;
 
     /**
+     *
+     * @var ModuleDataSetupInterface $this->setup
+     */
+    private $setup;
+
+
+
+    /**
      * Init
      *
      * @param EavSetupFactory $eavSetupFactory Magento EAV setup factory instance
@@ -81,6 +89,8 @@ class InstallData implements InstallDataInterface
      * @param AttributeSetFactory $attributeSetFactory Magento attribute set factory instance
      * @param ObjectManagerInterface $objectManager Magento object manager instance
      * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param ModuleDataSetupInterface $this->setup
+     *
      */
     public function __construct(
         EavSetupFactory $eavSetupFactory,
@@ -88,7 +98,8 @@ class InstallData implements InstallDataInterface
         SalesSetupFactory $salesSetupFactory,
         AttributeSetFactory $attributeSetFactory,
         ObjectManagerInterface $objectManager,
-        ConfigHelper $configHelper
+        ConfigHelper $configHelper,
+        ModuleDataSetupInterface $setup
     ) {
         $this->eavSetupFactory = $eavSetupFactory;
         $this->customerSetupFactory = $customerSetupFactory;
@@ -96,24 +107,24 @@ class InstallData implements InstallDataInterface
         $this->attributeSetFactory = $attributeSetFactory;
         $this->objectManager = $objectManager;
         $this->configHelper = $configHelper;
+        $this->setup = $setup;
+
     }
 
     /**
      * Installs data for a module
      *
-     * @param ModuleDataSetupInterface $setup Magento module data setup instance
-     * @param ModuleContextInterface $context Magento module context instance
      *
      * @throws Exception
      *
      * @return void
      */
-    public function install(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
+    public function apply()
     {
-        $setup->startSetup();
-        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
-        $customerSetup = $this->customerSetupFactory->create(['resourceName' => 'customer_setup', 'setup' => $setup]);
-        $salesSetup = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
+        $this->setup->getConnection()->startSetup();
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $this->setup]);
+        $customerSetup = $this->customerSetupFactory->create(['resourceName' => 'customer_setup', 'setup' => $this->setup]);
+        $salesSetup = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $this->setup]);
 
         // create attribute lengow_product for product
         $entityTypeId = $customerSetup->getEntityTypeId(Product::ENTITY);
@@ -217,11 +228,11 @@ class InstallData implements InstallDataInterface
             }
         }
         // if not exists create new order state and status 'Lengow technical error'
-        $statusTable = $setup->getTable('sales_order_status');
-        $statusStateTable = $setup->getTable('sales_order_status_state');
+        $statusTable = $this->setup->getTable('sales_order_status');
+        $statusStateTable = $this->setup->getTable('sales_order_status_state');
         if (!$lengowTechnicalExists) {
             // insert statuses
-            $setup->getConnection()->insertArray(
+            $this->setup->getConnection()->insertArray(
                 $statusTable,
                 ['status', 'label'],
                 [
@@ -232,7 +243,7 @@ class InstallData implements InstallDataInterface
                 ]
             );
             // insert states and mapping of statuses to states
-            $setup->getConnection()->insertArray(
+            $this->setup->getConnection()->insertArray(
                 $statusStateTable,
                 ['status', 'state', 'is_default'],
                 [
@@ -245,6 +256,61 @@ class InstallData implements InstallDataInterface
             );
         }
 
-        $setup->endSetup();
+        $this->setup->getConnection()->endSetup();
+    }
+
+    /**
+     * Delete data for a module
+     *
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    public function revert()
+    {
+        $this->setup->getConnection()->startSetup();
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $this->setup]);
+        $customerSetup = $this->customerSetupFactory->create(['resourceName' => 'customer_setup', 'setup' => $this->setup]);
+        $salesSetup = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $this->setup]);
+
+        // remove attribute lengow_product for product
+        $entityTypeId = $customerSetup->getEntityTypeId(Product::ENTITY);
+        $eavSetup->removeAttributeAttribute($entityTypeId, 'lengow_product');
+
+        // remove attribute from_lengow for customer
+        $entityTypeId = $customerSetup->getEntityTypeId(Customer::ENTITY);
+        $eavSetup->removeAttribute($entityTypeId, 'from_lengow');
+
+        // create attribute from_lengow for order
+        $entityTypeId = $salesSetup->getEntityTypeId(Order::ENTITY);
+        $eavSetup->removeAttribute($entityTypeId, 'from_lengow');
+
+        $statusTable = $this->setup->getTable('sales_order_status');
+        $statusStateTable = $this->setup->getTable('sales_order_status_state');
+
+        $this->setup->getConnection()->query("DELETE FROM $statusTable WHERE status LIKE 'lengow_%'");
+        $this->setup->getConnection()->query("DELETE FROM $statusStateTable WHERE status LIKE 'lengow_%'");
+
+        $this->setup->getConnection()->endSetup();
+
+    }
+
+    /**
+     *
+     * @return type
+     */
+    public static function getDependencies()
+    {
+        return [];
+    }
+
+    /**
+     *
+     * @return array
+     */
+    public function getAliases(): array
+    {
+        return [];
     }
 }
