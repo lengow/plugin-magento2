@@ -452,7 +452,7 @@ class Customer extends MagentoResourceCustomer
 
         if ($this->configHelper->get(ConfigHelper::IMPORT_ANONYMIZED_EMAIL, $storeId)) {
             // generation of fictitious email
-            $customerEmail = md5($marketplaceSku . '-' . $orderData->marketplace) . '@lengow.com';
+            $customerEmail = hash('sha256', $marketplaceSku . '-' . $orderData->marketplace) . '@lengow.com';
         } else {
             // get customer email
             $customerEmail = $orderData->billing_address->email;
