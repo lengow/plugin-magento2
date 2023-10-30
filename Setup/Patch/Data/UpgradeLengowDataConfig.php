@@ -24,9 +24,11 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
-use Magento\Framework\Setup\Patch\PatchVersionInterface;
 
-class UpgradeLengowDataConfig implements DataPatchInterface, PatchVersionInterface
+/**
+ * Class UpgradeLengowDataConfig
+ */
+class UpgradeLengowDataConfig implements DataPatchInterface
 {
     /**
      *
@@ -44,9 +46,9 @@ class UpgradeLengowDataConfig implements DataPatchInterface, PatchVersionInterfa
     /**
      * Constructor
      *
-     * @param ConfigHelper $configHelper Lengow config helper instance
-     * @param ModuleDataSetupInterface $setup
-     * @param ModuleContextInterface $context
+     * @param ConfigHelper                  $configHelper Lengow config helper instance
+     * @param ModuleDataSetupInterface      $setup        Magento module setup
+     *
      */
     public function __construct(
         ConfigHelper $configHelper,
@@ -55,6 +57,9 @@ class UpgradeLengowDataConfig implements DataPatchInterface, PatchVersionInterfa
         $this->configHelper = $configHelper;
         $this->setup = $setup;
     }
+
+
+
 
     /**
      * @inheritdoc
@@ -68,20 +73,13 @@ class UpgradeLengowDataConfig implements DataPatchInterface, PatchVersionInterfa
         $this->setup->getConnection()->endSetup();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getVersion(): string
-    {
-        return '1.2.0';
-    }
 
     /**
      * {@inheritdoc}
      */
     public static function getDependencies(): array
     {
-        return [];
+        return [InstallLengowData::class];
     }
 
     /**

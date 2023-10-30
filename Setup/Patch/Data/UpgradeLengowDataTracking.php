@@ -23,9 +23,11 @@ namespace Lengow\Connector\Setup\Patch\Data;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
-use Magento\Framework\Setup\Patch\PatchVersionInterface;
 
-class UpgradeLengowDataTracking implements DataPatchInterface, PatchVersionInterface
+/**
+ * Class UpgradeLengowDataTracking
+ */
+class UpgradeLengowDataTracking implements DataPatchInterface
 {
     /**
      * @var ConfigHelper Lengow config helper instance
@@ -42,8 +44,8 @@ class UpgradeLengowDataTracking implements DataPatchInterface, PatchVersionInter
     /**
      * Constructor
      *
-     * @param ConfigHelper $configHelper Lengow config helper instance
-     * @param ModuleDataSetupInterface $setup
+     * @param ConfigHelper              $configHelper Lengow config helper instance
+     * @param ModuleDataSetupInterface  $setup        Magento module setup
      *
      */
     public function __construct(
@@ -66,24 +68,21 @@ class UpgradeLengowDataTracking implements DataPatchInterface, PatchVersionInter
             // clean config cache to valid configuration
             $this->configHelper->cleanConfigCache();
         }
+
         $this->setup->getConnection()->endSetup();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getVersion(): string
-    {
-        return '1.1.0';
-    }
+
 
     /**
      * {@inheritdoc}
      */
     public static function getDependencies(): array
     {
-        return [];
+        return [InstallLengowData::class,UpgradeLengowDataConfig::class];
     }
+
+
 
     /**
      * {@inheritdoc}
@@ -92,4 +91,5 @@ class UpgradeLengowDataTracking implements DataPatchInterface, PatchVersionInter
     {
         return [];
     }
+
 }

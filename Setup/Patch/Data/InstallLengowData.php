@@ -36,9 +36,10 @@ use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Status;
 use Magento\Sales\Setup\SalesSetupFactory;
+use Magento\Customer\Model\ResourceModel\Attribute as CustomerAttributeResourceModel;
 
 /**
- * @codeCoverageIgnore
+ * Class InstallLengowData
  */
 class InstallLengowData implements DataPatchInterface, PatchRevertableInterface
 {
@@ -78,18 +79,25 @@ class InstallLengowData implements DataPatchInterface, PatchRevertableInterface
      */
     private $setup;
 
+    /**
+     *
+     * @var CustomerAttributeResourceModel $customerAttributeResourceModel
+     */
+    private $customerAttributeResourceModel;
+
 
 
     /**
      * Init
      *
-     * @param EavSetupFactory $eavSetupFactory Magento EAV setup factory instance
-     * @param CustomerSetupFactory $customerSetupFactory Magento customer setup factory instance
-     * @param SalesSetupFactory $salesSetupFactory Magento sales setup factory instance
-     * @param AttributeSetFactory $attributeSetFactory Magento attribute set factory instance
-     * @param ObjectManagerInterface $objectManager Magento object manager instance
-     * @param ConfigHelper $configHelper Lengow config helper instance
-     * @param ModuleDataSetupInterface $this->setup
+     * @param EavSetupFactory                   $eavSetupFactory                Magento EAV setup factory instance
+     * @param CustomerSetupFactory              $customerSetupFactory           Magento customer setup factory instance
+     * @param SalesSetupFactory                 $salesSetupFactory              Magento sales setup factory instance
+     * @param AttributeSetFactory               $attributeSetFactory            Magento attribute set factory instance
+     * @param ObjectManagerInterface            $objectManager                  Magento object manager instance
+     * @param ConfigHelper                      $configHelper                   Lengow config helper instance
+     * @param ModuleDataSetupInterface          $setup                          Magento setup
+     * @param CustomerAttributeResourceModel    $customerAttributeResourceModel Magento attribute resource model
      *
      */
     public function __construct(
@@ -99,7 +107,8 @@ class InstallLengowData implements DataPatchInterface, PatchRevertableInterface
         AttributeSetFactory $attributeSetFactory,
         ObjectManagerInterface $objectManager,
         ConfigHelper $configHelper,
-        ModuleDataSetupInterface $setup
+        ModuleDataSetupInterface $setup,
+        CustomerAttributeResourceModel $customerAttributeResourceModel
     ) {
         $this->eavSetupFactory = $eavSetupFactory;
         $this->customerSetupFactory = $customerSetupFactory;
@@ -108,6 +117,7 @@ class InstallLengowData implements DataPatchInterface, PatchRevertableInterface
         $this->objectManager = $objectManager;
         $this->configHelper = $configHelper;
         $this->setup = $setup;
+        $this->customerAttributeResourceModel = $customerAttributeResourceModel;
 
     }
 
@@ -121,6 +131,7 @@ class InstallLengowData implements DataPatchInterface, PatchRevertableInterface
      */
     public function apply()
     {
+
         $this->setup->getConnection()->startSetup();
         $eavSetup = $this->eavSetupFactory->create(['setup' => $this->setup]);
         $customerSetup = $this->customerSetupFactory->create(['resourceName' => 'customer_setup', 'setup' => $this->setup]);
@@ -190,7 +201,7 @@ class InstallLengowData implements DataPatchInterface, PatchRevertableInterface
                         'used_in_forms' => ['adminhtml_customer'],
                     ]
                 );
-            $fromLengowCustomer->getResource()->save($fromLengowCustomer);
+            $this->customerAttributeResourceModel->save($fromLengowCustomer);
         }
 
         // create attribute from_lengow for order
@@ -300,10 +311,12 @@ class InstallLengowData implements DataPatchInterface, PatchRevertableInterface
      *
      * @return type
      */
-    public static function getDependencies()
+    public static function getDependencies(): array
     {
         return [];
     }
+
+
 
     /**
      *
@@ -313,4 +326,5 @@ class InstallLengowData implements DataPatchInterface, PatchRevertableInterface
     {
         return [];
     }
+
 }
