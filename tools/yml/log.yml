@@ -30,6 +30,7 @@ en:
       catalog_id_already_used: "catalog ID %1 is already used by shop %2 (%3)"
       find_one_order: "%1 order found for order ID: %2 and marketplace: %3 with account ID: %4"
       find_all_orders: "%1 order(s) found with account ID: %2"
+      init_params: "Import initialized with params : %1"
       sync_result: "%1 orders processed, %2 created, %3 updated, %4 failed, %5 ignored and %5 not formatted"
       import_failed: "import failed - %1"
       marketplace_update_failed: "marketplace update failed - %1"

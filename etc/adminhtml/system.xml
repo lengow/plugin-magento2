@@ -176,6 +176,11 @@
                         <field id="*/*/import_ship_mp_enabled">1</field>
                     </depends>
                 </field>
+                <field id="import_anonymized_email" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Import anonymized email</label>
+                    <comment>Activate anonymization email</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
                 <field id="import_b2b_without_tax" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Enable import of B2B orders without tax</label>
                     <comment>Activate this option to import B2B orders without tax</comment>

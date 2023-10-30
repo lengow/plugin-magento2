@@ -434,6 +434,7 @@
 "catalog ID %1 is already used by shop %2 (%3)","catalog ID %1 is already used by shop %2 (%3)"
 "%1 order found for order ID: %2 and marketplace: %3 with account ID: %4","%1 order found for order ID: %2 and marketplace: %3 with account ID: %4"
 "%1 order(s) found with account ID: %2","%1 order(s) found with account ID: %2"
+"Import initialized with params : %1","Import initialized with params : %1"
 "%1 orders processed, %2 created, %3 updated, %4 failed, %5 ignored and %5 not formatted","%1 orders processed, %2 created, %3 updated, %4 failed, %5 ignored and %5 not formatted"
 "import failed - %1","import failed - %1"
 "marketplace update failed - %1","marketplace update failed - %1"

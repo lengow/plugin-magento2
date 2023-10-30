@@ -381,23 +381,49 @@ class Import extends AbstractHelper
             foreach ($emails as $email) {
                 if ($email !== '') {
                     try {
-                        $mail = new \Zend_Mail();
-                        $mail->setSubject($subject);
-                        $mail->setBodyHtml($mailBody);
-                        $mail->setFrom(
-                            $this->scopeConfig->getValue(
-                                'trans_email/ident_general/email',
-                                ScopeInterface::SCOPE_STORE
-                            ),
-                            'Lengow'
-                        );
-                        $mail->addTo($email);
-                        $mail->send();
-                        $this->dataHelper->log(
-                            DataHelper::CODE_MAIL_REPORT,
-                            $this->dataHelper->setLogMessage('report email sent to %1', [$email]),
-                            $logOutput
-                        );
+                        if (class_exists('\Zend_Mail')) {
+                            $mail = new \Zend_Mail();
+                            $mail->setSubject($subject);
+                            $mail->setBodyHtml($mailBody);
+                            $mail->setFrom(
+                                $this->scopeConfig->getValue(
+                                    'trans_email/ident_general/email',
+                                    ScopeInterface::SCOPE_STORE
+                                ),
+                                'Lengow'
+                            );
+                            $mail->addTo($email);
+                            $mail->send();
+                            $this->dataHelper->log(
+                                DataHelper::CODE_MAIL_REPORT,
+                                $this->dataHelper->setLogMessage('report email sent to %1', [$email]),
+                                $logOutput
+                            );
+                        } else {
+                            $mail = new \Laminas\Mail\Message();
+                            $mail->setSubject($subject);
+                            $htmlPart = new \Laminas\Mime\Part($mailBody);
+                            $htmlPart->type = "text/html";
+                            $body = new \Laminas\Mime\Message();
+                            $body->setParts([$htmlPart]);
+                            $mail->setBody($body);
+                            $mail->setFrom(
+                                $this->scopeConfig->getValue(
+                                    'trans_email/ident_general/email',
+                                    ScopeInterface::SCOPE_STORE
+                                ),
+                                'Lengow'
+                            );
+                            $mail->addTo($email);
+                            $transport = new \Laminas\Mail\Transport\Sendmail();
+                            $transport->send($mail);
+                            $this->dataHelper->log(
+                                DataHelper::CODE_MAIL_REPORT,
+                                $this->dataHelper->setLogMessage('report email sent to %1', [$email]),
+                                $logOutput
+                            );
+                        }
+
                     } catch (Exception $e) {
                         $this->dataHelper->log(
                             DataHelper::CODE_MAIL_REPORT,

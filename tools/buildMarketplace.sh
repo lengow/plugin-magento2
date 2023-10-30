@@ -23,13 +23,17 @@ remove_files(){
     DIRECTORY=$1
     FILE=$2
     find $DIRECTORY -name $FILE -nowarn -exec rm -rf {} \;
-    echo "- Delete $FILE : ""$VERT""DONE""$NORMAL"""
+    echo -e "- Delete ${FILE} : ${VERT}DONE${NORMAL}"
+    if [ -d "${DIRECTORY}/${FILE}" ]
+    then
+        rm -Rf ${DIRECTORY}/${FILE}
+    fi
 }
 
 remove_directories(){
     DIRECTORY=$1
     find $DIRECTORY -maxdepth 1 -mindepth 1 -type d -exec rm -rf {} \;
-    echo "- Delete $FILE : ""$VERT""DONE""$NORMAL"""
+    echo -e "- Delete ${DIRECTORY} : ${VERT}DONE${NORMAL}"
 }
 # check parameters
 if [ -z "$1" ]; then
@@ -47,33 +51,35 @@ FOLDER_TEST="/tmp/Connector/Test"
 FOLDER_TOOLS="/tmp/Connector/tools"
 FOLDER_ETC="/tmp/Connector/etc"
 
-VERT="\\033[1;32m"
-ROUGE="\\033[1;31m"
-NORMAL="\\033[0;39m"
-BLEU="\\033[1;36m"
+VERT="\e[32m"
+ROUGE="\e[31m"
+NORMAL="\e[39m"
+BLEU="\e[36m"
 
 # process
 echo
 echo "#####################################################"
 echo "##                                                 ##"
-echo "##       ""$BLEU""Lengow Magento""$NORMAL"" - Build Module          ##"
+echo -e "##       "${BLEU}Lengow Magento${NORMAL}" - Build Module             ##"
 echo "##                                                 ##"
 echo "#####################################################"
 echo
 FOLDER="$(dirname "$(pwd)")"
 echo $FOLDER
+PHP=$(which php8.1)
+echo ${PHP}
 if [ ! -d "$FOLDER" ]; then
-	echo "Folder doesn't exist : ""$ROUGE""ERROR""$NORMAL"""
+	echo -e "Folder doesn't exist : ${ROUGE}ERROR${NORMAL}"
 	echogit
 	exit 0
 fi
-
+sed -i 's/lengow.net/lengow.io/g' ${FOLDER}/Model/Connector.php 
 # generate translations
-php translate.php
-echo "- Generate translations : ""$VERT""DONE""$NORMAL"""
+${PHP} translate.php
+echo -e "- Generate translations : ${VERT}DONE${NORMAL}"
 # create files checksum
-php checkmd5.php
-echo "- Create files checksum : ""$VERT""DONE""$NORMAL"""
+${PHP} checkmd5.php
+echo -e "- Create files checksum : ${VERT}DONE${NORMAL}"
 # remove TMP FOLDER
 remove_directory $FOLDER_TMP
 # create folder
@@ -101,12 +107,17 @@ remove_directory $FOLDER_TOOLS
 echo "- Remove Tools folder : ""$VERT""DONE""$NORMAL"""
 # remove Test folder
 remove_directory $FOLDER_TEST
-echo "- Remove Test folder : ""$VERT""DONE""$NORMAL"""
+echo -e "- Remove Test folder : ${VERT}DONE${NORMAL}"
 # remove todo.txt
 find $FOLDER_TMP -name "todo.txt" -delete
-echo "- todo.txt : ""$VERT""DONE""$NORMAL"""
+echo -e "- todo.txt : ${VERT}DONE${NORMAL}"
 # make zip
 cd /tmp
 zip "-r" $ARCHIVE_NAME "Connector"
-echo "- Build archive : ""$VERT""DONE""$NORMAL"""
-mv $ARCHIVE_NAME ~/Bureau
+echo -e "- Build archive : ${VERT}DONE${NORMAL}"
+if [ -d  "~/Bureau" ]
+then
+    mv $ARCHIVE_NAME ~/Bureau
+else 
+    mv $ARCHIVE_NAME ~/shared
+fi

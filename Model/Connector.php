@@ -32,13 +32,11 @@ class Connector
     /**
      * @var string url of Lengow solution
      */
-    // public const LENGOW_URL = 'lengow.io';
     public const LENGOW_URL = 'lengow.net';
 
     /**
      * @var string url of the Lengow API
      */
-    // private const LENGOW_API_URL = 'https://api.lengow.io';
     private const LENGOW_API_URL = 'https://api.lengow.net';
 
     /* Lengow API routes */
