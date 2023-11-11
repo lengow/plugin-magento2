@@ -384,8 +384,11 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function cleanData(string $str = null): string
+    public function cleanData(string $str = null): string|null
     {
+        if (!$str) {
+            return $str;
+        }
         $str = preg_replace(
             '/[\x00-\x08\x10\x0B\x0C\x0E-\x19\x7F]
 			|[\x00-\x7F][\x80-\xBF]+
@@ -448,8 +451,11 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function cleanHtml(string $str = null): string
+    public function cleanHtml(string $str = null): string | null
     {
+        if (!$str) {
+            return $str;
+        }
         $str = str_replace('<br />', ' ', nl2br($str));
         $str = trim(strip_tags(htmlspecialchars_decode($str)));
         $str = preg_replace('`[\s]+`sim', ' ', $str);
@@ -473,8 +479,11 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function replaceAccentedChars(string $str = null): string
+    public function replaceAccentedChars(string $str = null): string|null
     {
+        if (!$str) {
+            return $str;
+        }
         /* One source among others:
             http://www.tachyonsoft.com/uc0000.htm
             http://www.tachyonsoft.com/uc0001.htm
