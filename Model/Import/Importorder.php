@@ -718,6 +718,14 @@ class Importorder extends AbstractModel
         $vatNumberData = $this->getVatNumberFromOrderData();
         if ($vatNumberData !== $order->getCustomerTaxvat()) {
             $this->checkAndUpdateLengowOrderData($lengowOrder);
+            $this->lengowCustomer->updateCustomerVatNumber(
+                $order->getCustomerEmail(),
+                (int) $order->getStoreId(),
+                (string) $vatNumberData
+            );
+            $orderBillingAddress = $order->getBillingAddress();
+            $orderBillingAddress->setVatId($vatNumberData);
+            $orderBillingAddress->save();
             $orderUpdated = true;
             $this->dataHelper->log(
                 DataHelper::CODE_IMPORT,
@@ -930,6 +938,7 @@ class Importorder extends AbstractModel
      */
     private function getVatNumberFromOrderData(): ?string
     {
+
         return $this->orderData->billing_address->vat_number ?? $this->packageData->delivery->vat_number ?? null;
     }
 
@@ -1179,6 +1188,9 @@ class Importorder extends AbstractModel
             $quote = $this->createQuote($customer, $products);
             // create a Magento Order from a Quote
             $order = $this->makeOrder($quote, $orderLengow);
+
+
+
             // if no Magento order created
             if (!$order) {
                 throw new LengowException($this->dataHelper->setLogMessage('order could not be saved'));
@@ -1281,6 +1293,7 @@ class Importorder extends AbstractModel
                 'merchant_product_id' => $product->merchant_product_id->id,
                 'marketplace_product_id' => $product->marketplace_product_id,
             ];
+
             $productField = $product->merchant_product_id->field !== null
                 ? strtolower((string) $product->merchant_product_id->field)
                 : false;
@@ -1344,6 +1357,8 @@ class Importorder extends AbstractModel
                             'price_unit' => (float) ($product->amount / $product->quantity),
                             'quantity' => (int) $product->quantity,
                             'order_line_ids' => [$orderLineId],
+                            'tax_amount' => (float) $product->tax,
+                            'tax_unit' => (float)  ($product->tax / $product->quantity)
                         ];
                     }
                     $this->dataHelper->log(
@@ -1471,8 +1486,65 @@ class Importorder extends AbstractModel
                 $this->dataHelper->setLogMessage('quote does not contain any valid products')
             );
         }
+        if ($this->hasAdjustedQuoteTaxes($quote, $products)) {
+            $this->dataHelper->setLogMessage('quote taxes has been adjusted');
+        }
         $quote->save();
         return $quote;
+    }
+
+    /**
+     * check taxes amount quote adjustment between lengow and magento
+     *
+     * @param Quote $quote
+     * @param array $products
+     *
+     * @return bool
+     */
+    private function hasAdjustedQuoteTaxes($quote, $products): bool
+    {
+        $totalTaxQuote = (float) $quote->getShippingAddress()->getTaxAmount();
+        $totalTaxLengow = 0;
+        $taxDiff = false;
+        foreach ($quote->getAllVisibleItems() as $item) {
+            if (isset($products[$item->getProductId()])) {
+                if (!isset($products[$item->getProductId()])) {
+                    $taxDiff = false;
+                    continue;
+                }
+                $product = $products[$item->getProductId()];
+                $totalTaxLengow += $product['tax_amount'];
+                if (!$item->getTaxAmount() || !$product['tax_amount']) {
+                    $taxDiff = false;
+                    continue;
+                }
+                if ($product['tax_amount'] === (float) $item->getTaxAmount()) {
+                    $taxDiff = false;
+                    continue;
+                }
+                $taxDiff = true;
+                $item->setTaxAmount($product['tax_amount']);
+                $item->setBaseTaxAmount($product['tax_amount']);
+                $item->save();
+            }
+        }
+        if (!$taxDiff) {
+            return false;
+        }
+        if ($totalTaxQuote === $totalTaxLengow) {
+            return false;
+        }
+        $deltaDiff = $totalTaxLengow - $totalTaxQuote;
+        $shippingAddress = $quote->getShippingAddress();
+        $grandTotal = $shippingAddress->getGrandTotal();
+        $subTotalIncTax = $shippingAddress->getSubTotalIncTax();
+        $shippingAddress->setTaxAmount($totalTaxLengow)
+            ->setBaseTaxAmount($totalTaxLengow)
+            ->setGrandTotal($grandTotal + $deltaDiff)
+            ->setSubtotalIncTax($subTotalIncTax + $deltaDiff)
+            ->save();
+
+        return true;
     }
 
     /**
@@ -1591,6 +1663,7 @@ class Importorder extends AbstractModel
         $order->setShippingDescription(
             $order->getShippingDescription() . ' [marketplace shipping method : ' . $carrierName . ']'
         );
+
         $order->save();
         return $order;
     }
@@ -1687,3 +1760,4 @@ class Importorder extends AbstractModel
         }
     }
 }
+
