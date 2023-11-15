@@ -559,10 +559,14 @@ class Marketplace extends AbstractModel
             $titleCleaned = $this->cleanString($title);
             // search by Magento carrier code
             // strict search
-            $result = $this->searchCarrierCode($codeCleaned);
-            if (!$result) {
-                // approximate search
-                $result = $this->searchCarrierCode($codeCleaned, false);
+            if ($code !== Track::CUSTOM_CARRIER_CODE) {
+                $result = $this->searchCarrierCode($codeCleaned);
+                if (!$result) {
+                    // approximate search
+                    $result = $this->searchCarrierCode($codeCleaned, false);
+                }
+            } else {
+                $result = false;
             }
             // search by Magento carrier title if it is different from the Magento carrier code
             if (!$result && $titleCleaned !== $codeCleaned) {
