@@ -554,34 +554,37 @@ class Marketplace extends AbstractModel
      */
     private function matchCarrier(string $code, string $title): string
     {
-        if (!empty($this->carriers)) {
-            $codeCleaned = $this->cleanString($code);
-            $titleCleaned = $this->cleanString($title);
-            // search by Magento carrier code
-            // strict search
-            $result = $this->searchCarrierCode($codeCleaned);
-            if (!$result) {
-                // approximate search
-                $result = $this->searchCarrierCode($codeCleaned, false);
-            }
-            // search by Magento carrier title if it is different from the Magento carrier code
-            if (!$result && $titleCleaned !== $codeCleaned) {
-                // strict search
-                $result = $this->searchCarrierCode($titleCleaned);
-                if (!$result) {
-                    // approximate search
-                    $result = $this->searchCarrierCode($titleCleaned, false);
-                }
-            }
-            if ($result) {
-                return $result;
-            }
-        }
-        // no match
         if ($code === Track::CUSTOM_CARRIER_CODE) {
             return $title;
         }
-        return $code;
+
+        if (empty($this->carriers)) {
+            return '';
+        }
+
+        $codeCleaned  = $this->cleanString($code);
+        // strict search by code
+        $result = $this->searchCarrierCode($codeCleaned);
+        if (!$result) {
+            // approximate search by code
+            $result = $this->searchCarrierCode($codeCleaned, false);
+        }
+        if ($result) {
+            return $result;
+        }
+
+        $titleCleaned = $this->cleanString($title);
+        // search by Magento carrier title if it is different from the Magento carrier code
+        if ($titleCleaned !== $codeCleaned) {
+            // strict search by title
+            $result = $this->searchCarrierCode($titleCleaned);
+            if (!$result) {
+                // approximate search by title
+                $result = $this->searchCarrierCode($titleCleaned, false);
+            }
+        }
+
+        return (string) $result;
     }
 
     /**

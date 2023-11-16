@@ -1,4 +1,11 @@
 =============================================================
+Version 1.4.6
+=============================================================
+ - Feature: Update VAT number in billingAddress, OrderBillingAddress, Customer 
+ - BugFix:  Fix tax amount round in the quote creation
+ - BugFix:  Fix the matchCarrier
+
+=============================================================
 Version 1.4.5
 =============================================================
 
