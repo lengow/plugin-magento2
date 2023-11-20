@@ -19,12 +19,12 @@
 
 namespace Lengow\Connector\Helper;
 
+use Lengow\Connector\Helper\Config as ConfigHelper;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ProductMetadataInterface as ProductMetadata;
 use Magento\Framework\HTTP\PhpEnvironment\ServerAddress;
-use Magento\Framework\Module\ModuleListInterface as ModuleList;
-use Lengow\Connector\Helper\Config as ConfigHelper;
+use Magento\Framework\Module\Dir as ModuleDir;
 
 class Security extends AbstractHelper
 {
@@ -73,11 +73,6 @@ class Security extends AbstractHelper
     private $serverAddress;
 
     /**
-     * @var ModuleList Magento module list instance
-     */
-    private $moduleList;
-
-    /**
      * @var ProductMetadata Magento product metadata instance
      */
     private $productMetadata;
@@ -88,25 +83,31 @@ class Security extends AbstractHelper
     private $configHelper;
 
     /**
+     *
+     * @var ModuleDir $moduleDir
+     */
+    private $moduleDir;
+
+    /**
      * Constructor
      *
-     * @param Context $context Magento context instance
-     * @param ServerAddress $serverAddress Magento server address instance
-     * @param ModuleList $moduleList Magento module list instance
-     * @param ProductMetadata $productMetadata Magento product metadata instance
-     * @param ConfigHelper $configHelper Lengow config helper instance
+     * @param Context           $context          Magento context instance
+     * @param ServerAddress     $serverAddress    Magento server address instance
+     * @param ProductMetadata   $productMetadata  Magento product metadata instance
+     * @param ConfigHelper      $configHelper     Lengow config helper instance
+     * @param ModuleDir         $moduleDir        MagentoFramework Module Dir
      */
     public function __construct(
         Context $context,
         ServerAddress $serverAddress,
-        ModuleList $moduleList,
         ProductMetadata $productMetadata,
-        ConfigHelper $configHelper
+        ConfigHelper $configHelper,
+        ModuleDir $moduleDir
     ) {
         $this->serverAddress = $serverAddress;
-        $this->moduleList = $moduleList;
         $this->productMetadata = $productMetadata;
         $this->configHelper = $configHelper;
+        $this->moduleDir = $moduleDir;
         parent::__construct($context);
     }
 
@@ -122,7 +123,7 @@ class Security extends AbstractHelper
     {
         return (!(bool) $this->configHelper->get(ConfigHelper::AUTHORIZED_IP_ENABLED)
                 && $this->checkToken($token, $storeId)
-            ) || $this->checkIp();
+        ) || $this->checkIp();
     }
 
     /**
@@ -157,7 +158,7 @@ class Security extends AbstractHelper
      */
     public function getServerIp(): string
     {
-        return $this->serverAddress->getServerAddress();
+        return (string) $this->serverAddress->getServerAddress();
     }
 
     /**
@@ -167,7 +168,7 @@ class Security extends AbstractHelper
      */
     public function getRemoteIp(): string
     {
-        return $this->_remoteAddress->getRemoteAddress();
+        return (string) $this->_remoteAddress->getRemoteAddress();
     }
 
     /**
@@ -177,7 +178,17 @@ class Security extends AbstractHelper
      */
     public function getPluginVersion(): string
     {
-        return $this->moduleList->getOne(self::MODULE_NAME)['setup_version'];
+        $modulePath = $this->moduleDir->getDir(self::MODULE_NAME);
+
+        if (!file_exists($modulePath . '/composer.json')) {
+            return '';
+        }
+        $composerJson = json_decode(
+            file_get_contents($modulePath . '/composer.json'),
+            true
+        );
+
+        return $composerJson['version'] ?? '';
     }
 
     /**
@@ -187,6 +198,6 @@ class Security extends AbstractHelper
      */
     public function getMagentoVersion(): string
     {
-        return $this->productMetadata->getVersion();
+        return (string) $this->productMetadata->getVersion();
     }
 }
