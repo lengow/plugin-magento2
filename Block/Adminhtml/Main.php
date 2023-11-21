@@ -112,7 +112,8 @@ class Main extends Template
      */
     public function isPreprodPlugin(): bool
     {
-        return LengowConnector::LENGOW_URL === 'lengow.net';
+        return (LengowConnector::LENGOW_URL === 'lengow.net'
+            || !$this->configHelper->isProdEnvironment());
     }
 
     /**
@@ -132,6 +133,8 @@ class Main extends Template
      */
     public function getLengowSolutionUrl(): string
     {
+        $url =  LengowConnector::LENGOW_URL;
+        
         return '//my.' . LengowConnector::LENGOW_URL;
     }
 

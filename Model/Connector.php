@@ -32,12 +32,16 @@ class Connector
     /**
      * @var string url of Lengow solution
      */
-    public const LENGOW_URL = 'lengow.net';
+    public const LENGOW_URL = 'lengow.io';
 
     /**
      * @var string url of the Lengow API
      */
-    private const LENGOW_API_URL = 'https://api.lengow.net';
+    public const LENGOW_API_URL = 'https://api.lengow.io';
+
+    public const LIVE_SUFFIX = '.io';
+
+    public const TEST_SUFFIX = '.net';
 
     /* Lengow API routes */
     public const API_ACCESS_TOKEN = '/access/get_token';
@@ -410,6 +414,7 @@ class Connector
         return $this->call($api, $args, self::PATCH, $format, $body, $logOutput);
     }
 
+
     /**
      * The API method
      *
@@ -549,7 +554,7 @@ class Connector
             $opts[CURLOPT_TIMEOUT] = $this->lengowUrls[$api];
         }
         // get base url for a specific environment
-        $url = self::LENGOW_API_URL . $api;
+        $url = $this->configHelper->getLengowApiUrl() . $api;
         $opts[CURLOPT_CUSTOMREQUEST] = strtoupper($type);
         $url = parse_url($url);
         if (isset($url['port'])) {
