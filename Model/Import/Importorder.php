@@ -1486,9 +1486,13 @@ class Importorder extends AbstractModel
                 $this->dataHelper->setLogMessage('quote does not contain any valid products')
             );
         }
-        if ($this->hasAdjustedQuoteTaxes($quote, $products)) {
-            $this->dataHelper->setLogMessage('quote taxes has been adjusted');
+        if ($this->configHelper->get(ConfigHelper::CHECK_ROUNDING_ENABLED, $this->storeId)) {
+            $hasAdjustedTaxes = $this->hasAdjustedQuoteTaxes($quote, $products);
+            if ($hasAdjustedTaxes) {
+                $this->dataHelper->setLogMessage('quote taxes has been adjusted');
+            }
         }
+
         $quote->save();
         return $quote;
     }
@@ -1503,6 +1507,7 @@ class Importorder extends AbstractModel
      */
     private function hasAdjustedQuoteTaxes($quote, $products): bool
     {
+
         $totalTaxQuote = (float) $quote->getShippingAddress()->getTaxAmount();
         $totalTaxLengow = 0;
         $taxDiff = false;
