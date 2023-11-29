@@ -51,7 +51,7 @@
 /etc/config.xml|dff093ff5228e1f845067d015beeea4a
 /etc/events.xml|b3cda32e21e9f92795365636d99f703d
 /etc/db_schema_whitelist.json|a2313515d9e393386c04de1aaa592232
-/Helper/Config.php|4424c7e7d2e14f8472b1e6ca9cbf9c97
+/Helper/Config.php|f3273030733d3e9c389310c641302984
 /Helper/Import.php|177164519c5343dcdc338abac35e30ae
 /Helper/Sync.php|732242d1e2792cec8a7d9277dc3a6d4b
 /Helper/Toolbox.php|8816d4c3d164cd51e99f879cb325616c
