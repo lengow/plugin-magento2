@@ -1430,8 +1430,13 @@ class Importorder extends AbstractModel
             ->setSameAsBilling(0);
         $quote->assignCustomerWithAddressChange($customerRepo, $billingAddress, $shippingAddress);
         // check if store include tax (Product and shipping cost)
-        $priceIncludeTax = $this->taxConfig->priceIncludesTax($quote->getStore());
-        $shippingIncludeTax = $this->taxConfig->shippingPriceIncludesTax($quote->getStore());
+        $priceIncludeTax = ($this->taxConfig->priceIncludesTax($quote->getStore())
+                && $this->taxConfig->displayCartPricesInclTax($quote->getStore())
+                && $this->taxConfig->displaySalesPricesInclTax($quote->getStore()));
+
+        $shippingIncludeTax = ($this->taxConfig->shippingPriceIncludesTax($quote->getStore())
+            && $this->taxConfig->displayCartShippingInclTax($quote->getSotre())
+            && $this->taxConfig->displaySalesShippingInclTax($quote->getStore()));
         // if this order is b2b
         if ((int) $this->backendSession->getIsLengowB2b() === 1) {
             $priceIncludeTax = true;
@@ -1440,6 +1445,7 @@ class Importorder extends AbstractModel
         $quote->addLengowProducts($products, $priceIncludeTax);
         // get shipping cost with tax
         $shippingCost = $this->processingFee + $this->shippingCost;
+        $taxShippingCost = 0.0;
         // if shipping cost not include tax -> get shipping cost without tax
         if (!$shippingIncludeTax) {
             $shippingTaxClass = $this->scopeConfig->getValue(
@@ -1453,17 +1459,17 @@ class Importorder extends AbstractModel
                 $quote->getStore()
             );
             $taxShippingCost = $this->calculation->calcTaxAmount($shippingCost, $taxRate, true);
-            $shippingCost -= $taxShippingCost;
         }
+        $shippingCost -= $taxShippingCost;
         $quoteShippingAddress = $quote->getShippingAddress();
         // update shipping rates for current order
         $quoteShippingAddress->setCollectShippingRates(true);
         $quoteShippingAddress->setTotalsCollectedFlag(false)->collectShippingRates();
         $rates = $quoteShippingAddress->getShippingRatesCollection();
-        $shippingMethod = $this->updateRates($rates, $shippingCost);
+        $shippingMethod = $this->updateRates($rates, round($shippingCost, 3));
         // set shipping price and shipping method for current order
         $quoteShippingAddress
-            ->setShippingPrice($shippingCost)
+            ->setShippingPrice(round($shippingCost, 3))
             ->setShippingMethod($shippingMethod);
         // get payment data
         $paymentInfo = '';
@@ -1486,9 +1492,14 @@ class Importorder extends AbstractModel
                 $this->dataHelper->setLogMessage('quote does not contain any valid products')
             );
         }
-        if ($this->hasAdjustedQuoteTaxes($quote, $products)) {
-            $this->dataHelper->setLogMessage('quote taxes has been adjusted');
+        if ($this->configHelper->get(ConfigHelper::CHECK_ROUNDING_ENABLED, $this->storeId)) {
+            //exit('rouding check enabled');
+            $hasAdjustedTaxes = $this->hasAdjustedQuoteTaxes($quote, $products);
+            if ($hasAdjustedTaxes) {
+                $this->dataHelper->setLogMessage('quote taxes has been adjusted');
+            }
         }
+
         $quote->save();
         return $quote;
     }
@@ -1503,6 +1514,7 @@ class Importorder extends AbstractModel
      */
     private function hasAdjustedQuoteTaxes($quote, $products): bool
     {
+
         $totalTaxQuote = (float) $quote->getShippingAddress()->getTaxAmount();
         $totalTaxLengow = 0;
         $taxDiff = false;
@@ -1760,4 +1772,5 @@ class Importorder extends AbstractModel
         }
     }
 }
+
 

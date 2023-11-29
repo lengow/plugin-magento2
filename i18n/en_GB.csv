@@ -347,6 +347,8 @@
 "Choose a shipping method for imported orders","Choose a shipping method for imported orders"
 "Convert the currency of your order","Convert the currency of your order"
 "All orders imported into Magento will be automatically converted into the currency you've selected in Lengow","All orders imported into Magento will be automatically converted into the currency you've selected in Lengow"
+"Check rounding taxes","Check rounding taxes"
+"Check the rounding taxes between Magento and Lengow","Check the rounding taxes between Magento and Lengow"
 "Advanced import settings","Advanced import settings"
 "I would like to be notified when there are issues regarding order importation","I would like to be notified when there are issues regarding order importation"
 "Mail for the report email","Mail for the report email"
