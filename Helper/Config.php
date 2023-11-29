@@ -1168,8 +1168,8 @@ class Config extends AbstractHelper
     public function isProdEnvironment(): bool
     {
         $configuredEnvironment = $this->get(self::PLUGIN_ENV);
-
-        if ($configuredEnvironment === EnvironmentSourceModel::PROD_ENVIRONMENT) {
+        if (empty($configuredEnvironment)
+                || $configuredEnvironment === EnvironmentSourceModel::PROD_ENVIRONMENT) {
             return true;
         }
 
