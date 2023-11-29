@@ -1168,8 +1168,8 @@ class Config extends AbstractHelper
     public function isProdEnvironment(): bool
     {
         $configuredEnvironment = $this->get(self::PLUGIN_ENV);
-
-        if ($configuredEnvironment === EnvironmentSourceModel::PROD_ENVIRONMENT) {
+        if (empty($configuredEnvironment)
+                || $configuredEnvironment === EnvironmentSourceModel::PROD_ENVIRONMENT) {
             return true;
         }
 
@@ -1193,7 +1193,7 @@ class Config extends AbstractHelper
         } else {
             $url = str_replace(
                 LengowConnector::LIVE_SUFFIX,
-                LengowConnector::TEST_FUFFIX,
+                LengowConnector::TEST_SUFFIX,
                 $url
             );
         }
@@ -1234,7 +1234,7 @@ class Config extends AbstractHelper
      *
      * @return array|boolean|integer|float|string|string[]|null
      */
-    private function getValueWithCorrectType(string $key, string $value = null)
+    private function getValueWithCorrectType(string $key, ?string $value = null)
     {
         $keyParams = self::$lengowSettings[$key];
         if (isset($keyParams[self::PARAM_RETURN])) {
