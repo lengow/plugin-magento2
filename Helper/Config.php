@@ -1234,7 +1234,7 @@ class Config extends AbstractHelper
      *
      * @return array|boolean|integer|float|string|string[]|null
      */
-    private function getValueWithCorrectType(string $key, string $value = null)
+    private function getValueWithCorrectType(string $key, ?string $value = null)
     {
         $keyParams = self::$lengowSettings[$key];
         if (isset($keyParams[self::PARAM_RETURN])) {
