@@ -1,4 +1,11 @@
 =============================================================
+Version 1.4.7
+=============================================================
+ - Feature: Switch environment prod/pre-prod from Configration Admin
+ - BugFix:  Get plugin version from composer.json
+ - BugFix:  Tax calculation
+ 
+=============================================================
 Version 1.4.6
 =============================================================
  - Feature: Update VAT number in billingAddress, OrderBillingAddress, Customer 

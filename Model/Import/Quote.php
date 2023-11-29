@@ -242,7 +242,7 @@ class Quote extends MagentoQuote
                 $this->checkProductQuantity($magentoProduct, $product['quantity']);
                 // get product prices
                 $price = $product['price_unit'];
-                $tax = $product['tax_unit'] ?? 0.0;
+                $tax   = $product['tax_unit'] ?? 0.0;
                 if (!$priceIncludeTax) {
                     $taxRate = $this->taxCalculation->getCalculatedRate(
                         $magentoProduct->getTaxClassId(),

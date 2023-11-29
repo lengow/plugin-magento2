@@ -40,6 +40,8 @@ use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
 use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollectionFactory;
 use Magento\InventoryApi\Api\SourceRepositoryInterface;
 use Laminas\Validator\EmailAddress;
+use Lengow\Connector\Model\Connector as LengowConnector;
+use Lengow\Connector\Model\Config\Source\Environment as EnvironmentSourceModel;
 
 class Config extends AbstractHelper
 {
@@ -47,6 +49,7 @@ class Config extends AbstractHelper
     public const ACCOUNT_ID = 'global_account_id';
     public const ACCESS_TOKEN = 'global_access_token';
     public const SECRET = 'global_secret_token';
+    public const PLUGIN_ENV = 'global_environment';
     public const CMS_TOKEN = 'token';
     public const AUTHORIZED_IP_ENABLED = 'global_authorized_ip_enable';
     public const AUTHORIZED_IPS = 'global_authorized_ip';
@@ -120,6 +123,7 @@ class Config extends AbstractHelper
      */
     public static $genericParamKeys = [
         self::ACCOUNT_ID => 'account_id',
+        self::PLUGIN_ENV => 'global_environment',
         self::ACCESS_TOKEN => 'access_token',
         self::SECRET => 'secret',
         self::CMS_TOKEN => 'cms_token',
@@ -218,6 +222,12 @@ class Config extends AbstractHelper
     public static $lengowSettings = [
         self::ACCOUNT_ID => [
             self::PARAM_PATH => 'lengow_global_options/store_credential/global_account_id',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_EXPORT => false,
+        ],
+        self::PLUGIN_ENV => [
+            self::PARAM_PATH => 'lengow_global_options/store_credential/global_environment',
             self::PARAM_GLOBAL => true,
             self::PARAM_NO_CACHE => true,
             self::PARAM_EXPORT => false,
@@ -1150,6 +1160,71 @@ class Config extends AbstractHelper
     {
         return $this->_moduleManager->isEnabled($moduleName);
     }
+
+    /**
+     * Returns whether prod-environment is configured to be used
+     * @return bool
+     */
+    public function isProdEnvironment(): bool
+    {
+        $configuredEnvironment = $this->get(self::PLUGIN_ENV);
+
+        if ($configuredEnvironment === EnvironmentSourceModel::PROD_ENVIRONMENT) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * returns the url for my lengow
+     *
+     * @return string
+     */
+    public function getLengowUrl() : string
+    {
+        $url = LengowConnector::LENGOW_URL;
+        if ($this->isProdEnvironment()) {
+            $url = str_replace(
+                LengowConnector::TEST_SUFFIX,
+                LengowConnector::LIVE_SUFFIX,
+                $url
+            );
+        } else {
+            $url = str_replace(
+                LengowConnector::LIVE_SUFFIX,
+                LengowConnector::TEST_FUFFIX,
+                $url
+            );
+        }
+        return $url;
+    }
+
+    /**
+     * returns the url for api
+     *
+     * @return string
+     */
+    public function getLengowApiUrl(): string
+    {
+        $url = LengowConnector::LENGOW_API_URL;
+        if ($this->isProdEnvironment()) {
+            $url = str_replace(
+                LengowConnector::TEST_SUFFIX,
+                LengowConnector::LIVE_SUFFIX,
+                $url
+            );
+        } else {
+            $url = str_replace(
+                LengowConnector::LIVE_SUFFIX,
+                LengowConnector::TEST_SUFFIX,
+                $url
+            );
+        }
+        return $url;
+    }
+
+
 
     /**
      * Get configuration value in correct type

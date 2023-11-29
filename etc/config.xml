@@ -3,6 +3,7 @@
     <default>
         <lengow_global_options>
             <store_credential>
+                <global_environment>prod</global_environment>
                 <global_store_enable>0</global_store_enable>
             </store_credential>
             <advanced>
