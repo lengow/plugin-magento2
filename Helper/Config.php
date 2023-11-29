@@ -1193,7 +1193,7 @@ class Config extends AbstractHelper
         } else {
             $url = str_replace(
                 LengowConnector::LIVE_SUFFIX,
-                LengowConnector::TEST_FUFFIX,
+                LengowConnector::TEST_SUFFIX,
                 $url
             );
         }
