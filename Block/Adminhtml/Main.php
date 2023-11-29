@@ -132,9 +132,7 @@ class Main extends Template
      */
     public function getLengowSolutionUrl(): string
     {
-        $url =  LengowConnector::LENGOW_URL;
-
-        return '//my.' . LengowConnector::LENGOW_URL;
+        return '//my.' .$this->configHelper->getLengowUrl();
     }
 
     /**
