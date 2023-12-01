@@ -1181,8 +1181,9 @@ class Importorder extends AbstractModel
                 $this->logOutput
             );
             // if this order is B2B activate B2bTaxesApplicator
-            if ($this->configHelper->get(ConfigHelper::B2B_WITHOUT_TAX_ENABLED) && $orderLengow->isBusiness()) {
+            if ($this->configHelper->isB2bWithoutTaxEnabled($this->storeId) && $orderLengow->isBusiness()) {
                 $this->backendSession->setIsLengowB2b(1);
+                //$customer
             }
             // create Magento Quote
             $quote = $this->createQuote($customer, $products);
@@ -1772,5 +1773,6 @@ class Importorder extends AbstractModel
         }
     }
 }
+
 
 

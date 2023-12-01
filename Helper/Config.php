@@ -1224,7 +1224,17 @@ class Config extends AbstractHelper
         return $url;
     }
 
-
+    /**
+     * Check is b2b without is enabled from config
+     *
+     * @param int $storeId
+     *
+     * @return bool
+     */
+    public function isB2bWithoutTaxEnabled(int $storeId): bool
+    {
+        return (bool) $this->get(self::B2B_WITHOUT_TAX_ENABLED, $storeId);
+    }
 
     /**
      * Get configuration value in correct type
