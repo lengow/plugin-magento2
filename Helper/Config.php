@@ -40,6 +40,8 @@ use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
 use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollectionFactory;
 use Magento\InventoryApi\Api\SourceRepositoryInterface;
 use Laminas\Validator\EmailAddress;
+use Lengow\Connector\Model\Connector as LengowConnector;
+use Lengow\Connector\Model\Config\Source\Environment as EnvironmentSourceModel;
 
 class Config extends AbstractHelper
 {
@@ -47,6 +49,7 @@ class Config extends AbstractHelper
     public const ACCOUNT_ID = 'global_account_id';
     public const ACCESS_TOKEN = 'global_access_token';
     public const SECRET = 'global_secret_token';
+    public const PLUGIN_ENV = 'global_environment';
     public const CMS_TOKEN = 'token';
     public const AUTHORIZED_IP_ENABLED = 'global_authorized_ip_enable';
     public const AUTHORIZED_IPS = 'global_authorized_ip';
@@ -75,6 +78,7 @@ class Config extends AbstractHelper
     public const SYNCHRONIZATION_DAY_INTERVAL = 'import_days';
     public const DEFAULT_IMPORT_CARRIER_ID = 'import_default_shipping_method';
     public const CURRENCY_CONVERSION_ENABLED = 'import_currency_conversion_enable';
+    public const CHECK_ROUNDING_ENABLED = 'import_rounding_taxes_check_enable';
     public const B2B_WITHOUT_TAX_ENABLED = 'import_b2b_without_tax';
     public const SHIPPED_BY_MARKETPLACE_ENABLED = 'import_ship_mp_enabled';
     public const SHIPPED_BY_MARKETPLACE_STOCK_ENABLED = 'import_stock_ship_mp';
@@ -119,6 +123,7 @@ class Config extends AbstractHelper
      */
     public static $genericParamKeys = [
         self::ACCOUNT_ID => 'account_id',
+        self::PLUGIN_ENV => 'global_environment',
         self::ACCESS_TOKEN => 'access_token',
         self::SECRET => 'secret',
         self::CMS_TOKEN => 'cms_token',
@@ -149,6 +154,7 @@ class Config extends AbstractHelper
         self::SYNCHRONIZATION_DAY_INTERVAL => 'synchronization_day_interval',
         self::DEFAULT_IMPORT_CARRIER_ID => 'default_import_carrier_id',
         self::CURRENCY_CONVERSION_ENABLED => 'currency_conversion_enabled',
+        self::CHECK_ROUNDING_ENABLED => 'rounding_taxes_check_enable',
         self::B2B_WITHOUT_TAX_ENABLED => 'b2b_without_tax_enabled',
         self::SHIPPED_BY_MARKETPLACE_ENABLED => 'shipped_by_marketplace_enabled',
         self::SHIPPED_BY_MARKETPLACE_STOCK_ENABLED => 'shipped_by_marketplace_stock_enabled',
@@ -216,6 +222,12 @@ class Config extends AbstractHelper
     public static $lengowSettings = [
         self::ACCOUNT_ID => [
             self::PARAM_PATH => 'lengow_global_options/store_credential/global_account_id',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => true,
+            self::PARAM_EXPORT => false,
+        ],
+        self::PLUGIN_ENV => [
+            self::PARAM_PATH => 'lengow_global_options/store_credential/global_environment',
             self::PARAM_GLOBAL => true,
             self::PARAM_NO_CACHE => true,
             self::PARAM_EXPORT => false,
@@ -400,6 +412,12 @@ class Config extends AbstractHelper
         ],
         self::CURRENCY_CONVERSION_ENABLED => [
             self::PARAM_PATH => 'lengow_import_options/simple/import_currency_conversion_enable',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
+        ],
+        self::CHECK_ROUNDING_ENABLED => [
+            self::PARAM_PATH => 'lengow_import_options/simple/import_rounding_taxes_check_enable',
             self::PARAM_SHOP => true,
             self::PARAM_NO_CACHE => false,
             self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
@@ -1144,6 +1162,81 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Returns whether prod-environment is configured to be used
+     * @return bool
+     */
+    public function isProdEnvironment(): bool
+    {
+        $configuredEnvironment = $this->get(self::PLUGIN_ENV);
+        if (empty($configuredEnvironment)
+                || $configuredEnvironment === EnvironmentSourceModel::PROD_ENVIRONMENT) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * returns the url for my lengow
+     *
+     * @return string
+     */
+    public function getLengowUrl() : string
+    {
+        $url = LengowConnector::LENGOW_URL;
+        if ($this->isProdEnvironment()) {
+            $url = str_replace(
+                LengowConnector::TEST_SUFFIX,
+                LengowConnector::LIVE_SUFFIX,
+                $url
+            );
+        } else {
+            $url = str_replace(
+                LengowConnector::LIVE_SUFFIX,
+                LengowConnector::TEST_SUFFIX,
+                $url
+            );
+        }
+        return $url;
+    }
+
+    /**
+     * returns the url for api
+     *
+     * @return string
+     */
+    public function getLengowApiUrl(): string
+    {
+        $url = LengowConnector::LENGOW_API_URL;
+        if ($this->isProdEnvironment()) {
+            $url = str_replace(
+                LengowConnector::TEST_SUFFIX,
+                LengowConnector::LIVE_SUFFIX,
+                $url
+            );
+        } else {
+            $url = str_replace(
+                LengowConnector::LIVE_SUFFIX,
+                LengowConnector::TEST_SUFFIX,
+                $url
+            );
+        }
+        return $url;
+    }
+
+    /**
+     * Check is b2b without is enabled from config
+     *
+     * @param int $storeId
+     *
+     * @return bool
+     */
+    public function isB2bWithoutTaxEnabled(int $storeId): bool
+    {
+        return (bool) $this->get(self::B2B_WITHOUT_TAX_ENABLED, $storeId);
+    }
+
+    /**
      * Get configuration value in correct type
      *
      * @param string $key Lengow configuration key
@@ -1151,7 +1244,7 @@ class Config extends AbstractHelper
      *
      * @return array|boolean|integer|float|string|string[]|null
      */
-    private function getValueWithCorrectType(string $key, string $value = null)
+    private function getValueWithCorrectType(string $key, ?string $value = null)
     {
         $keyParams = self::$lengowSettings[$key];
         if (isset($keyParams[self::PARAM_RETURN])) {

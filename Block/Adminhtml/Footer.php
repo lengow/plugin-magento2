@@ -23,6 +23,7 @@ use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Model\Connector as LengowConnector;
+use Lengow\Connector\Helper\Config as ConfigHelper;
 
 class Footer extends Template
 {
@@ -30,6 +31,8 @@ class Footer extends Template
      * @var SecurityHelper Lengow security helper instance
      */
     private $securityHelper;
+
+    private $configHelper;
 
     /**
      * Constructor
@@ -41,9 +44,11 @@ class Footer extends Template
     public function __construct(
         Context $context,
         SecurityHelper $securityHelper,
+        ConfigHelper $configHelper,
         array $data = []
     ) {
         $this->securityHelper = $securityHelper;
+        $this->configHelper = $configHelper;
         parent::__construct($context, $data);
     }
 
@@ -64,7 +69,7 @@ class Footer extends Template
      */
     public function isPreprodPlugin(): string
     {
-        return LengowConnector::LENGOW_URL === 'lengow.net';
+        return !$this->configHelper->isProdEnvironment();
     }
 
     /**

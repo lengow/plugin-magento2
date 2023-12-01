@@ -379,6 +379,8 @@ fr:
     import_default_shipping_method_comment: "Choisissez un mode d'expédition pour les commandes importées"
     import_currency_conversion_enable_title: "Convertir la devise de votre commande"
     import_currency_conversion_enable_comment: "Toutes les commandes importées dans Magento seront automatiquement converties dans la devise sélectionnée dans Lengow"
+    import_check_rounding_taxes_enable_title: "Vérifier les arrondis de taxes (centimes)"
+    import_check_rounding_taxes_enable_comment: "Vérifier les arrondis de taxes en Magento et Lengow"
     import_advanced_setting: "Paramètres avancés d'import"
     import_report_mail_enable_title: "Je veux être notifié en cas de problème lors de l'importation de mes commandes"
     import_report_mail_address_title: "Email à utiliser pour l'envoi des emails de rapport"

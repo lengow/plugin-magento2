@@ -480,6 +480,40 @@ class Customer extends MagentoResourceCustomer
     }
 
     /**
+     * Update customer vat number
+     *
+     * @param string $customerEmail
+     * @param int $storeId
+     * @param type $billingData
+     * @return type
+     */
+    public function updateCustomerVatNumber(
+        string $customerEmail,
+        int $storeId,
+        string $vatNumber): MagentoCustomer
+    {
+        $idWebsite = $this->_storeManager->getStore($storeId)->getWebsiteId();
+        // first get by email
+        $customer = $this->_customerFactory->create();
+        $customer->setWebsiteId($idWebsite);
+        $customer->loadByEmail($customerEmail);
+
+
+        if ($customer && $customer->getId()) {
+            $customer->setTaxvat((string) $vatNumber)
+                ->save();
+            $billingAddress = $customer->getDefaultBillingAddress();
+            if ($billingAddress && $billingAddress->getId()) {
+                $billingAddress->setVatId((string) $vatNumber)
+                ->save();
+            }
+        }
+        
+        return $customer;
+
+    }
+
+    /**
      * Create or load customer based on API data
      *
      * @param string $customerEmail fictitious customer email or customer email

@@ -3,6 +3,7 @@
     <default>
         <lengow_global_options>
             <store_credential>
+                <global_environment>prod</global_environment>
                 <global_store_enable>0</global_store_enable>
             </store_credential>
             <advanced>
@@ -31,6 +32,7 @@
                 <import_customer_group>0</import_customer_group>
                 <import_default_shipping_method>lengow_lengow</import_default_shipping_method>
                 <import_currency_conversion_enable>1</import_currency_conversion_enable>
+                <import_rounding_taxes_check_enable>0</import_rounding_taxes_check_enable>
             </simple>
             <advanced>
                 <import_report_mail_enable>1</import_report_mail_enable>

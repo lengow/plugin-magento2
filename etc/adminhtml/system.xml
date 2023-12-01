@@ -13,6 +13,11 @@
             </group>
             <group id="store_credential" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="1">
                 <label>Identification settings</label>
+                <field id="global_environment" translate="label" type="select" sortOrder="5" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Environment</label>
+                    <source_model>Lengow\Connector\Model\Config\Source\Environment</source_model>
+                    <comment>Do not forget to change your credentials Access and Secret token</comment>
+                </field>
                 <field id="global_account_id" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Account ID</label>
                     <comment>Your Lengow Account ID</comment>
@@ -150,8 +155,13 @@
                     <comment>All orders imported into Magento will be automatically converted into the currency you've selected in Lengow</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                 <field id="import_rounding_taxes_check_enable" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>Check rounding taxes</label>
+                    <comment>Check the rounding taxes between magento and Lengow</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
             </group>
-            <group id="advanced" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+            <group id="advanced" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="1">
                 <label>Advanced import settings</label>
                 <field id="import_report_mail_enable" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>I would like to be notified when there are issues regarding order importation</label>
@@ -181,7 +191,7 @@
                     <comment>Activate anonymization email</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="import_b2b_without_tax" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="import_b2b_without_tax" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="1">
                     <label>Enable import of B2B orders without tax</label>
                     <comment>Activate this option to import B2B orders without tax</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -200,3 +210,4 @@
         </section>
     </system>
 </config>
+

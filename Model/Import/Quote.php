@@ -233,6 +233,7 @@ class Quote extends MagentoQuote
     public function addLengowProducts($products, bool $priceIncludeTax = true): Quote
     {
         foreach ($products as $product) {
+            /** @var \Magento\Catalog\Model\Product $magentoProduct **/
             $magentoProduct = $product['magento_product'];
             if ($magentoProduct->getId()) {
                 // check if the product is disabled
@@ -241,6 +242,7 @@ class Quote extends MagentoQuote
                 $this->checkProductQuantity($magentoProduct, $product['quantity']);
                 // get product prices
                 $price = $product['price_unit'];
+                $tax   = $product['tax_unit'] ?? 0.0;
                 if (!$priceIncludeTax) {
                     $taxRate = $this->taxCalculation->getCalculatedRate(
                         $magentoProduct->getTaxClassId(),
@@ -248,11 +250,11 @@ class Quote extends MagentoQuote
                         $this->getStore()
                     );
                     $tax = $this->calculation->calcTaxAmount($price, $taxRate, true);
-                    $price -= $tax;
                 }
-                $magentoProduct->setPrice($price);
-                $magentoProduct->setSpecialPrice($price);
-                $magentoProduct->setFinalPrice($price);
+                $price -= $tax;
+                $magentoProduct->setPrice(round($price, 3));
+                $magentoProduct->setSpecialPrice(round($price, 3));
+                $magentoProduct->setFinalPrice(round($price + $tax, 3));
                 $magentoProduct->setIsSuperMode(true);
                 // Warning Deprecated after magento 2.4.xx !
                 $magentoProduct->setPriceCalculation(false);
@@ -320,3 +322,4 @@ class Quote extends MagentoQuote
         }
     }
 }
+
