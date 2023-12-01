@@ -42,7 +42,7 @@
 /etc/frontend/routes.xml|fd7926ca314017e32250b7e108d09d75
 /etc/di.xml|0150289c46bb653bfbf8eb33519beb4a
 /etc/adminhtml/routes.xml|b37d51a18bc54f5a872c9797ed06ed5d
-/etc/adminhtml/system.xml|6a1019ecf44d3024849585375e666756
+/etc/adminhtml/system.xml|466dba002e4c51ba83428eb2e8acd744
 /etc/adminhtml/menu.xml|b77fedabb5e2fa4ac1e16faa8b07add4
 /etc/acl.xml|238cdf00e292e74243e5a67e59729436
 /etc/crontab.xml|ca97f746162b6bd4441d34475c9b0103
