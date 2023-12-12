@@ -177,6 +177,7 @@ fr:
       status_waiting_shipment: "En attente d'expédition"
       status_shipped: "Expédié"
       status_refunded: "Remboursé"
+      status_partially_refunded: "Partiellement Remboursé"
       status_closed: "Fermé"
       status_canceled: "Annulé"
       order_types: "Types"
