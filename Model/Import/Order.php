@@ -115,6 +115,7 @@ class Order extends AbstractModel
     public const STATE_REFUSED = 'refused';
     public const STATE_CANCELED = 'canceled';
     public const STATE_REFUNDED = 'refunded';
+    public const STATE_PARTIALLY_REFUNDED = 'partial_refunded';
 
     /* Order types */
     public const TYPE_PRIME = 'is_prime';
@@ -596,7 +597,7 @@ class Order extends AbstractModel
      *
      * @param string $marketplaceSku marketplace sku
      * @param string $marketplaceName marketplace name
-     * 
+     *
      * @return integer|false
      */
     public function getOrderIdIfExist(string $marketplaceSku, string $marketplaceName)
@@ -604,7 +605,7 @@ class Order extends AbstractModel
         // get order id Magento from our table
         $results = $this->lengowOrderCollection->create()
             ->addFieldToFilter(self::FIELD_MARKETPLACE_SKU, $marketplaceSku)
-            ->addFieldToFilter(self::FIELD_MARKETPLACE_NAME, $marketplaceName)            
+            ->addFieldToFilter(self::FIELD_MARKETPLACE_NAME, $marketplaceName)
             ->addFieldToSelect(self::FIELD_ORDER_ID)
             ->load()
             ->getData();
@@ -648,7 +649,7 @@ class Order extends AbstractModel
     {
         $results = $this->lengowOrderCollection->create()
             ->addFieldToFilter(self::FIELD_MARKETPLACE_SKU, $marketplaceSku)
-            ->addFieldToFilter(self::FIELD_MARKETPLACE_NAME, $marketplaceName)            
+            ->addFieldToFilter(self::FIELD_MARKETPLACE_NAME, $marketplaceName)
             ->addFieldToSelect(self::FIELD_ID)
             ->getData();
         if (!empty($results)) {

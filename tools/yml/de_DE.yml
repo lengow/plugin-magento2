@@ -177,6 +177,7 @@ de:
       status_waiting_shipment: "Warten auf Versand"
       status_shipped: "Versandt"
       status_refunded: "Erstattet"
+      status_partially_refunded: "Teilweise Erstattet"
       status_closed: " Abgeschlossen"
       status_canceled: "Abgebrochen"
       order_types: "Typen"
