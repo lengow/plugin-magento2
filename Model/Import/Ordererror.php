@@ -274,4 +274,39 @@ class Ordererror extends AbstractModel
         }
         return $results;
     }
+
+    /**
+     * Get Order to resend
+     *
+     * @param int $storeId
+     *
+     * @return array
+     */
+    public function getOrdersToResend(int $storeId)
+    {
+        $dateFrom = new \DateTime();
+        $dateFrom->sub(new \DateInterval(('P90D')));
+
+        $collection = $this->lengowOrderErrorCollection->create()
+            ->load()
+             ->join(
+                LengowOrder::TABLE_ORDER,
+                '`lengow_order`.id=main_table.order_lengow_id',
+                [LengowOrder::FIELD_MARKETPLACE_SKU => LengowOrder::FIELD_MARKETPLACE_SKU]
+            )
+            ->setCurPage(1)
+            ->setPageSize(500)
+            ->addFieldToFilter('store_id', ['eq' => $storeId])
+            ->addFieldToFilter(self::FIELD_IS_FINISHED, ['eq' => 0])
+            ->addFieldToFilter(self::FIELD_TYPE, ['eq' =>self::TYPE_ERROR_SEND])
+            ->addFieldToFilter(self::FIELD_CREATED_AT, ['gteq' => $dateFrom->format('Y-m-d H:i:s')])
+            ->setOrder(self::FIELD_ID, 'DESC');
+
+        
+        $results = $collection->getData();
+        if (empty($results)) {
+            return [];
+        }
+        return $results;
+    }
 }

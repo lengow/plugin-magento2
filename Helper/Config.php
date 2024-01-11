@@ -72,6 +72,7 @@ class Config extends AbstractHelper
     public const EXPORT_PARENT_IMAGE_ENABLED = 'export_parent_image';
     public const EXPORT_FILE_ENABLED = 'export_file_enable';
     public const EXPORT_MAGENTO_CRON_ENABLED = 'export_cron_enable';
+    public const RESEND_MAGENTO_CRON_ENABLED = 'resend_cron_enable';
     public const DEFAULT_EXPORT_SHIPPING_COUNTRY = 'export_default_shipping_country';
     public const DEFAULT_EXPORT_CARRIER_ID = 'export_default_shipping_method';
     public const DEFAULT_EXPORT_SHIPPING_PRICE = 'export_default_shipping_price';
@@ -148,6 +149,7 @@ class Config extends AbstractHelper
         self::EXPORT_PARENT_IMAGE_ENABLED => 'export_parent_image_enabled',
         self::EXPORT_FILE_ENABLED => 'export_file_enabled',
         self::EXPORT_MAGENTO_CRON_ENABLED => 'export_magento_cron_enable',
+        self::RESEND_MAGENTO_CRON_ENABLED => 'resend_magento_cron_enable',
         self::DEFAULT_EXPORT_SHIPPING_COUNTRY => 'default_export_shipping_country',
         self::DEFAULT_EXPORT_CARRIER_ID => 'default_export_carrier_id',
         self::DEFAULT_EXPORT_SHIPPING_PRICE => 'default_export_shipping_price',
@@ -449,6 +451,12 @@ class Config extends AbstractHelper
         self::SYNCHRONISATION_MAGENTO_CRON_ENABLED => [
             self::PARAM_PATH => 'lengow_import_options/advanced/import_cron_enable',
             self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
+        ],
+        self::RESEND_MAGENTO_CRON_ENABLED => [
+            self::PARAM_PATH => 'lengow_import_options/advanced/resend_cron_enable',
+            self::PARAM_SHOP => true,
             self::PARAM_NO_CACHE => false,
             self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
