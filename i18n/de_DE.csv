@@ -338,6 +338,8 @@
 "Save the feed on a file","Feed auf Datei sichern"
 "Enable Magento cron","Magentocron aktivieren"
 "Enable the scheduled task to export your feed every 4 hours","Geplante tasks aktivieren, um Ihren Feed alle 4 Stunden zu exportieren"
+"Enable Magento cron for resend actions","Magentocron aktivieren um Aktionen zurückzugeben"
+"Enable the scheduled task to resend actions every 15 minutes","Geplante tasks aktivieren, Aktionen starten alle 15 Minuten"
 "Import settings","Importeinstellungen"
 "Simple import settings","Einfache Importeinstellungen"
 "Synchronize all orders updated since","Synchronisieren Sie alle Bestellungen, die seit aktualisiert wurden"
