@@ -118,6 +118,7 @@ class LaunchResend
                         DataHelper::CODE_ACTION,
                         'order action resent : '.$orderResendData[LengowOrder::FIELD_MARKETPLACE_SKU]
                     );
+                    usleep(50000);
                 }
 
             } catch (Exception $e) {

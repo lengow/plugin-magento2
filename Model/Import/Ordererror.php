@@ -295,14 +295,14 @@ class Ordererror extends AbstractModel
                 [LengowOrder::FIELD_MARKETPLACE_SKU => LengowOrder::FIELD_MARKETPLACE_SKU]
             )
             ->setCurPage(1)
-            ->setPageSize(500)
+            ->setPageSize(150)
             ->addFieldToFilter('store_id', ['eq' => $storeId])
             ->addFieldToFilter(self::FIELD_IS_FINISHED, ['eq' => 0])
             ->addFieldToFilter(self::FIELD_TYPE, ['eq' =>self::TYPE_ERROR_SEND])
             ->addFieldToFilter(self::FIELD_CREATED_AT, ['gteq' => $dateFrom->format('Y-m-d H:i:s')])
             ->setOrder(self::FIELD_ID, 'DESC');
 
-        
+
         $results = $collection->getData();
         if (empty($results)) {
             return [];
