@@ -20,64 +20,86 @@
 namespace Lengow\Connector\Cron;
 
 use Exception;
-use Magento\Store\Model\StoreManagerInterface;
 use Lengow\Connector\Helper\Config as ConfigHelper;
-use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
 use Lengow\Connector\Helper\Data as DataHelper;
-use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
-use Lengow\Connector\Model\Import\Ordererror;
+use Lengow\Connector\Model\Import\Action as LengowAction;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
+use Lengow\Connector\Model\Import\Ordererror;
+use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
+use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
+use Magento\Sales\Model\Order\Shipment;
+use Magento\Sales\Model\OrderFactory as MagentoOrderFactory;
+use Magento\Store\Model\StoreManagerInterface;
 
 class LaunchResend
 {
     /**
      * @var StoreManagerInterface Magento store manager instance
      */
-    private $storeManager;
+    private StoreManagerInterface $storeManager;
 
     /**
      * @var ConfigHelper Lengow config helper instance
      */
-    private $configHelper;
+    private ConfigHelper $configHelper;
 
     /**
     * @var LengowOrderErrorFactory Lengow order error factory instance
     */
-    private $orderErrorFactory;
+    private LengowOrderErrorFactory $orderErrorFactory;
 
     /**
      *
      * @var LengowOrderFactory Lengow order factory instance
      */
-    private $lengowOrderFactory;
+    private LengowOrderFactory $lengowOrderFactory;
 
     /**
      *
      * @var DataHelper $dataHelper lengow data helper
      */
-    private $dataHelper;
+    private DataHelper $dataHelper;
+
+    /**
+     *
+     * @var MagentoOrderFactory OrderFactory
+     */
+    private MagentoOrderFactory $orderFactory;
+
+    /**
+     *
+     * @var LengowAction $lengowAction
+     */
+    private LengowAction $lengowAction;
 
     /**
      * Constructor
      *
-     * @param StoreManagerInterface     $storeManager       Magento store manager instance
-     * @param DataHelper                $dataHelper         Lengow data helper instance
-     * @param ConfigHelper              $configHelper       Lengow config helper instance
-     * @param LengowOrderErrorFactory   $orderErrorFactory  Lengow orderError factory instance
-     * @param LengowOrderFactory        $lengowOrderFactory Lengow order factory instance
+     * @param StoreManagerInterface         $storeManager       Magento store manager instance
+     * @param DataHelper                    $dataHelper         Lengow data helper instance
+     * @param ConfigHelper                  $configHelper       Lengow config helper instance
+     * @param LengowExportFactory           $exportFactory      Lengow export factory instance
+     * @param LengowOrderErrorFactory       $orderErrorFactory  Lengow order error factory
+     * @param LengowOrderFactory            $lengowOrderFactory Lengow Order factory
+     * @param MagentoOrderFactory           $orderFactory       Magento Order factory
+     * @param LengowAction                  $lengowAction       The Lengow Action
      */
     public function __construct(
-        StoreManagerInterface   $storeManager,
-        DataHelper              $dataHelper,
-        ConfigHelper            $configHelper,
-        LengowOrderErrorFactory $orderErrorFactory,
-        LengowOrderFactory      $lengowOrderFactory
+        StoreManagerInterface           $storeManager,
+        DataHelper                      $dataHelper,
+        ConfigHelper                    $configHelper,
+        LengowOrderErrorFactory         $orderErrorFactory,
+        LengowOrderFactory              $lengowOrderFactory,
+        MagentoOrderFactory             $orderFactory,
+        LengowAction                    $lengowAction
     ) {
         $this->storeManager         = $storeManager;
         $this->configHelper         = $configHelper;
         $this->dataHelper           = $dataHelper;
         $this->orderErrorFactory    = $orderErrorFactory;
         $this->lengowOrderFactory   = $lengowOrderFactory;
+        $this->orderFactory         = $orderFactory;
+        $this->lengowAction         = $lengowAction;
     }
 
     /**
@@ -91,32 +113,44 @@ class LaunchResend
         $storeCollection = $this->storeManager->getStores();
         foreach ($storeCollection as $store) {
             if (!$store->isActive()) {
+                echo "store not activce \n";
                 continue;
             }
             $resent = [];
             $storeId = (int) $store->getId();
             if (!$this->configHelper->get(ConfigHelper::RESEND_MAGENTO_CRON_ENABLED, $storeId)) {
+                echo "cron not enabled \n";
                 continue;
             }
             try {
                 // launch resend process
                 $ordersToResend = $this->orderErrorFactory->create()->getOrdersToResend($storeId);
-
                 $orderLengowModel = $this->lengowOrderFactory->create();
+
+                if (empty($ordersToResend)) {
+                    continue;
+                }
                 foreach ($ordersToResend as $orderResendData) {
+
                     if (in_array($orderResendData[Ordererror::FIELD_ORDER_LENGOW_ID], $resent)) {
                         continue;
                     }
-
+                    if (!$this->couldResend($orderResendData)) {
+                        $this->dataHelper->log(
+                            DataHelper::CODE_ACTION,
+                            'Order action could not be resend : ' . $orderResendData[LengowOrder::FIELD_MARKETPLACE_SKU]
+                        );
+                        continue;
+                    }
                     $this->dataHelper->log(
                         DataHelper::CODE_ACTION,
-                        'trying to resend : '.$orderResendData[LengowOrder::FIELD_MARKETPLACE_SKU]
+                        'trying to resend : ' . $orderResendData[LengowOrder::FIELD_MARKETPLACE_SKU]
                     );
                     $orderLengowModel->reSendOrder($orderResendData[Ordererror::FIELD_ORDER_LENGOW_ID]);
                     $resent[] = $orderResendData[Ordererror::FIELD_ORDER_LENGOW_ID];
                     $this->dataHelper->log(
                         DataHelper::CODE_ACTION,
-                        'order action resent : '.$orderResendData[LengowOrder::FIELD_MARKETPLACE_SKU]
+                        'order action resent : ' . $orderResendData[LengowOrder::FIELD_MARKETPLACE_SKU]
                     );
                     usleep(50000);
                 }
@@ -127,5 +161,50 @@ class LaunchResend
                 $this->dataHelper->log(DataHelper::CODE_ACTION, $errorMessage);
             }
         }
+    }
+
+    /**
+     * Check if the action could be resend
+     *
+     * @param array $orderResendData
+     *
+     * @return bool
+     */
+    private function couldResend($orderResendData): bool
+    {
+        $order  = $this->orderFactory->create()
+                       ->load($orderResendData[LengowOrder::FIELD_ORDER_ID]);
+        $action = $this->lengowAction
+            ->getLastOrderActionType($orderResendData[LengowOrder::FIELD_ORDER_ID]);
+        if (!$action) {
+            $action = $order->getData('status') === LengowOrder::STATE_CANCELED
+                ? LengowAction::TYPE_CANCEL
+                : LengowAction::TYPE_SHIP;
+        }
+
+        if ($order->getData('status') === LengowOrder::STATE_CANCELED
+                && $action === LengowAction::TYPE_CANCEL) {
+            return true;
+        }
+
+        if ($action === LengowAction::TYPE_SHIP) {
+            /** @var Shipment|void $shipment */
+            $shipment = $order->getShipmentsCollection()->getFirstItem();
+            if (is_null($shipment)) {
+                return false;
+            }
+            $tracks = $shipment ? $shipment->getAllTracks() : [];
+            if (empty($tracks)) {
+                return false;
+            }
+            $lastTrack =  end($tracks);
+            $trackingNumber = $lastTrack->getNumber() ?? '';
+
+            if (empty($trackingNumber)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

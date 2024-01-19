@@ -288,25 +288,31 @@ class Ordererror extends AbstractModel
         $dateFrom->sub(new \DateInterval(('P90D')));
 
         $collection = $this->lengowOrderErrorCollection->create()
+            ->setCurPage(1)
+            ->setPageSize(150)
             ->load()
              ->join(
                 LengowOrder::TABLE_ORDER,
                 '`lengow_order`.id=main_table.order_lengow_id',
-                [LengowOrder::FIELD_MARKETPLACE_SKU => LengowOrder::FIELD_MARKETPLACE_SKU]
+                [
+                    LengowOrder::FIELD_MARKETPLACE_SKU => LengowOrder::FIELD_MARKETPLACE_SKU,
+                    LengowOrder::FIELD_ORDER_ID        =>  LengowOrder::FIELD_ORDER_ID
+                ]
             )
-            ->setCurPage(1)
-            ->setPageSize(150)
             ->addFieldToFilter('store_id', ['eq' => $storeId])
             ->addFieldToFilter(self::FIELD_IS_FINISHED, ['eq' => 0])
-            ->addFieldToFilter(self::FIELD_TYPE, ['eq' =>self::TYPE_ERROR_SEND])
-            ->addFieldToFilter(self::FIELD_CREATED_AT, ['gteq' => $dateFrom->format('Y-m-d H:i:s')])
+            ->addFieldToFilter(self::FIELD_TYPE, ['eq' => self::TYPE_ERROR_SEND])
+            ->addFieldToFilter(
+                'main_table.'.self::FIELD_CREATED_AT,
+                ['gteq' => $dateFrom->format('Y-m-d H:i:s')]
+            )
             ->setOrder(self::FIELD_ID, 'DESC');
-
 
         $results = $collection->getData();
         if (empty($results)) {
             return [];
         }
+
         return $results;
     }
 }
