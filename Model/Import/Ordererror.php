@@ -285,7 +285,7 @@ class Ordererror extends AbstractModel
     public function getOrdersToResend(int $storeId)
     {
         $dateFrom = new \DateTime();
-        $dateFrom->sub(new \DateInterval(('P90D')));
+        $dateFrom->sub(new \DateInterval(('P10D')));
 
         $collection = $this->lengowOrderErrorCollection->create()
             ->setCurPage(1)
@@ -301,18 +301,32 @@ class Ordererror extends AbstractModel
             )
             ->addFieldToFilter('store_id', ['eq' => $storeId])
             ->addFieldToFilter(self::FIELD_IS_FINISHED, ['eq' => 0])
-            ->addFieldToFilter(self::FIELD_TYPE, ['eq' => self::TYPE_ERROR_SEND])
-            ->addFieldToFilter(
-                'main_table.'.self::FIELD_CREATED_AT,
-                ['gteq' => $dateFrom->format('Y-m-d H:i:s')]
-            )
+            ->addFieldToFilter(self::FIELD_TYPE, ['eq' =>self::TYPE_ERROR_SEND])
+            ->addFieldToFilter('main_table.'.self::FIELD_CREATED_AT, ['gteq' => $dateFrom->format('Y-m-d H:i:s')])
             ->setOrder(self::FIELD_ID, 'DESC');
+
 
         $results = $collection->getData();
         if (empty($results)) {
             return [];
         }
-
         return $results;
+    }
+
+    /**
+     * Returns the number of send errors
+     *
+     * @param int  $lengowOrderId
+     * @return int
+     */
+    public function getCountOrderSendErrors(int $lengowOrderId): int
+    {
+
+        $collection = $this->lengowOrderErrorCollection->create()
+            ->addFieldToFilter(self::FIELD_TYPE, ['eq' =>self::TYPE_ERROR_SEND])
+            ->addFieldToFilter(self::FIELD_ORDER_LENGOW_ID, ['eq' => $lengowOrderId])
+            ->load();
+
+        return (int) $collection->getSize();
     }
 }

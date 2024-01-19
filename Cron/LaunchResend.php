@@ -34,6 +34,10 @@ use Magento\Store\Model\StoreManagerInterface;
 class LaunchResend
 {
     /**
+     * @cont RESEND_MAX_TRIES
+     */
+    private const RESEND_MAX_TRIES = 10;
+    /**
      * @var StoreManagerInterface Magento store manager instance
      */
     private StoreManagerInterface $storeManager;
@@ -124,7 +128,8 @@ class LaunchResend
             }
             try {
                 // launch resend process
-                $ordersToResend = $this->orderErrorFactory->create()->getOrdersToResend($storeId);
+                $orderErrorModel = $this->orderErrorFactory->create();
+                $ordersToResend =  $orderErrorModel->getOrdersToResend($storeId);
                 $orderLengowModel = $this->lengowOrderFactory->create();
 
                 if (empty($ordersToResend)) {
@@ -132,10 +137,10 @@ class LaunchResend
                 }
                 foreach ($ordersToResend as $orderResendData) {
 
-                    if (in_array($orderResendData[Ordererror::FIELD_ORDER_LENGOW_ID], $resent)) {
+                    if($this->isAlreadySent($orderResendData, $resent)) {
                         continue;
                     }
-                    if (!$this->couldResend($orderResendData)) {
+                    if (!$this->couldResend($orderErrorModel, $orderResendData)) {
                         $this->dataHelper->log(
                             DataHelper::CODE_ACTION,
                             'Order action could not be resend : ' . $orderResendData[LengowOrder::FIELD_MARKETPLACE_SKU]
@@ -146,8 +151,13 @@ class LaunchResend
                         DataHelper::CODE_ACTION,
                         'trying to resend : ' . $orderResendData[LengowOrder::FIELD_MARKETPLACE_SKU]
                     );
+
                     $orderLengowModel->reSendOrder($orderResendData[Ordererror::FIELD_ORDER_LENGOW_ID]);
                     $resent[] = $orderResendData[Ordererror::FIELD_ORDER_LENGOW_ID];
+                    $orderErrorModel->finishOrderErrors(
+                        $orderResendData[Ordererror::FIELD_ORDER_LENGOW_ID],
+                        Ordererror::TYPE_ERROR_SEND
+                    );
                     $this->dataHelper->log(
                         DataHelper::CODE_ACTION,
                         'order action resent : ' . $orderResendData[LengowOrder::FIELD_MARKETPLACE_SKU]
@@ -166,12 +176,26 @@ class LaunchResend
     /**
      * Check if the action could be resend
      *
-     * @param array $orderResendData
+     * @param Ordererror    $orderErrorModel
+     * @param array         $orderResendData
      *
      * @return bool
      */
-    private function couldResend($orderResendData): bool
+    private function couldResend(Ordererror $orderErrorModel, array $orderResendData): bool
     {
+
+        $tries  = $orderErrorModel->getCountOrderSendErrors(
+            (int) $orderResendData[Ordererror::FIELD_ORDER_LENGOW_ID]
+        );
+
+        if ($tries >= self::RESEND_MAX_TRIES) {
+            $orderErrorModel->finishOrderErrors(
+                $orderResendData[Ordererror::FIELD_ORDER_LENGOW_ID],
+                Ordererror::TYPE_ERROR_SEND
+            );
+            return false;
+        }
+
         $order  = $this->orderFactory->create()
                        ->load($orderResendData[LengowOrder::FIELD_ORDER_ID]);
         $action = $this->lengowAction
@@ -190,6 +214,7 @@ class LaunchResend
         if ($action === LengowAction::TYPE_SHIP) {
             /** @var Shipment|void $shipment */
             $shipment = $order->getShipmentsCollection()->getFirstItem();
+            $message = $orderResendData[Ordererror::FIELD_MESSAGE] ?? '';
             if (is_null($shipment)) {
                 return false;
             }
@@ -197,14 +222,44 @@ class LaunchResend
             if (empty($tracks)) {
                 return false;
             }
+            /** @var \Magento\Shipping\Model\Order\Track $lastTrack */
             $lastTrack =  end($tracks);
             $trackingNumber = $lastTrack->getNumber() ?? '';
 
-            if (empty($trackingNumber)) {
-                return false;
+
+            if (strrpos($message, 'tracking_number') !== false
+                    || strrpos($message, 'trackingNumber') !== false) {
+
+                if (empty($trackingNumber)) {
+                    return false;
+                }
+            }
+
+            if (strrpos($message, 'tracking_url') !== false
+                    || strrpos($message, 'trackingUrl') !== false) {
+
+                if (empty($trackingNumber)) {
+                    return false;
+                }
             }
         }
 
         return true;
+    }
+
+    /**
+     * Check if the action is already sent during execute
+     *
+     * @param type $orderResendData
+     * @param type $resent
+     *
+     * @return bool
+     */
+    private function isAlreadySent(array $orderResendData, array $resent): bool
+    {
+        return in_array(
+            $orderResendData[Ordererror::FIELD_ORDER_LENGOW_ID],
+            $resent
+        );
     }
 }

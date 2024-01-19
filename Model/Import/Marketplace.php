@@ -485,7 +485,7 @@ class Marketplace extends AbstractModel
                             $lastTrack = end($tracks);
                         }
                         $carrierCode = isset($lastTrack)
-                            ? $this->matchCarrier($lastTrack->getCarrierCode(), $lastTrack->getTitle())
+                            ? $this->matchCarrier((string)$lastTrack->getCarrierCode(), (string)$lastTrack->getTitle())
                             : '';
                     }
                     $params[$arg] = $carrierCode;
