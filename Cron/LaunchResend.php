@@ -225,8 +225,6 @@ class LaunchResend
             /** @var \Magento\Shipping\Model\Order\Track $lastTrack */
             $lastTrack =  end($tracks);
             $trackingNumber = $lastTrack->getNumber() ?? '';
-
-
             if (strrpos($message, 'tracking_number') !== false
                     || strrpos($message, 'trackingNumber') !== false) {
 
@@ -234,7 +232,6 @@ class LaunchResend
                     return false;
                 }
             }
-
             if (strrpos($message, 'tracking_url') !== false
                     || strrpos($message, 'trackingUrl') !== false) {
 
