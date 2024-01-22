@@ -2,7 +2,7 @@
 Version 1.5.0
 =============================================================
  - BugFix: Default address when customer has new address
- - Feature: Cronjob for try to resend actions in errors 90 days max
+ - Feature: Cronjob for try to resend actions in errors 7 days max
 =============================================================
 Version 1.4.9
 =============================================================
