@@ -38,7 +38,7 @@ class Status implements ArrayInterface
             ['value' => LengowOrder::STATE_REFUSED, 'label' => __('Refunded')],
             ['value' => LengowOrder::STATE_CLOSED, 'label' => __('Closed')],
             ['value' => LengowOrder::STATE_CANCELED, 'label' => __('Canceled')],
-            ['value' => LengowOrder::STATE_PARTIAL_REFUNDED, 'label' => __('Partially Refunded')]
+            ['value' => LengowOrder::STATE_PARTIALLY_REFUNDED, 'label' => __('Partially Refunded')]
         ];
     }
 }

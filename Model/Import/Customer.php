@@ -469,15 +469,17 @@ class Customer extends MagentoResourceCustomer
         $billingAddress = $this->getOrCreateAddress($customer, $orderData->billing_address);
         if (!$billingAddress->getId()) {
             $customer->addAddress($billingAddress);
-            $billingAddress->setIsDefaultBilling('1')->save();
-
+            if ($customer->getDefaultBillingAddress()) {
+                $billingAddress->setIsDefaultBilling('1')->save();
+            }
         }
         // create or load default shipping address if not exist
         $shippingAddress = $this->getOrCreateAddress($customer, $shippingAddress, true);
         if (!$shippingAddress->getId()) {
             $customer->addAddress($shippingAddress);
-            $shippingAddress->setIsDefaultShipping('1')->save();
-
+            if ($customer->getDefaultShippingAddress()) {
+                $shippingAddress->setIsDefaultShipping('1')->save();
+            }
         }
         $customer->save();
         return $customer;
