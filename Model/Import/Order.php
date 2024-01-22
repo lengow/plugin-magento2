@@ -129,6 +129,11 @@ class Order extends AbstractModel
     public const LABEL_FULFILLMENT = 'Fulfillment';
 
     /**
+     * @const number of tries to sync order num
+     */
+    public const SYNCHRONIZE_TRIES = 5;
+
+    /**
      * @var MagentoOrderFactory Magento order factory instance
      */
     private $orderFactory;
@@ -1319,11 +1324,16 @@ class Order extends AbstractModel
             $lengowOrder->getData(self::FIELD_MARKETPLACE_SKU),
             $lengowOrder->getData(self::FIELD_MARKETPLACE_NAME)
         );
-        if ($orderIds) {
-            $magentoIds = [];
-            foreach ($orderIds as $orderId) {
-                $magentoIds[] = (int) $orderId[self::FIELD_ORDER_ID];
-            }
+        if (empty($orderIds)) {
+            return false;
+        }
+
+        $magentoIds = [];
+        foreach ($orderIds as $orderId) {
+            $magentoIds[] = (int) $orderId[self::FIELD_ORDER_ID];
+        }
+        $tries = self::SYNCHRONIZE_TRIES;
+        do {
             try {
                 $body = [
                     LengowImport::ARG_ACCOUNT_ID => $accountId,
@@ -1338,16 +1348,18 @@ class Order extends AbstractModel
                     $this->jsonHelper->jsonEncode($body),
                     $logOutput
                 );
+                return !($result === null
+                || (isset($result['detail']) && $result['detail'] === 'Pas trouvé.')
+                || isset($result['error']));
             } catch (Exception $e) {
                 $message = $this->dataHelper->decodeLogMessage($e->getMessage(), false);
                 $error = $this->dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
                 $this->dataHelper->log(DataHelper::CODE_CONNECTOR, $error, $logOutput);
-                return false;
+                usleep(250000);
+                $tries --;
             }
-            return !($result === null
-                || (isset($result['detail']) && $result['detail'] === 'Pas trouvé.')
-                || isset($result['error']));
-        }
+        } while ($tries > 0);
+
         return false;
     }
 
