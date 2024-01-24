@@ -287,22 +287,31 @@ class Ordererror extends AbstractModel
         $dateFrom = new \DateTime();
         $dateFrom->sub(new \DateInterval(('P10D')));
 
+        $tableLengowOrder =  $this->resourceConnection->getTableName(LengowOrder::TABLE_ORDER);
+        $tableSalesOrder  =  $this->resourceConnection->getTableName('sales_order');
+
         $collection = $this->lengowOrderErrorCollection->create()
             ->setCurPage(1)
             ->setPageSize(150)
             ->load()
-             ->join(
-                LengowOrder::TABLE_ORDER,
-                '`lengow_order`.id=main_table.order_lengow_id',
+            ->join(
+                $tableLengowOrder,
+                '`'.LengowOrder::TABLE_ORDER.'`.id=main_table.'.self::FIELD_ORDER_LENGOW_ID,
                 [
                     LengowOrder::FIELD_MARKETPLACE_SKU => LengowOrder::FIELD_MARKETPLACE_SKU,
                     LengowOrder::FIELD_ORDER_ID        =>  LengowOrder::FIELD_ORDER_ID
                 ]
             )
-            ->addFieldToFilter('store_id', ['eq' => $storeId])
+            ->join(
+                $this->resourceConnection->getTableName('sales_order'),
+                '`lengow_order`.order_id=sales_order.entity_id',
+                []
+            )
+            ->addFieldToFilter(LengowOrder::TABLE_ORDER.'.store_id', ['eq' => $storeId])
             ->addFieldToFilter(self::FIELD_IS_FINISHED, ['eq' => 0])
             ->addFieldToFilter(self::FIELD_TYPE, ['eq' =>self::TYPE_ERROR_SEND])
             ->addFieldToFilter('main_table.'.self::FIELD_CREATED_AT, ['gteq' => $dateFrom->format('Y-m-d H:i:s')])
+            ->addFieldToFilter($tableSalesOrder.'.'.self::FIELD_UPDATED_AT, ['gteq' => $dateFrom->format('Y-m-d H:i:s')])
             ->setOrder(self::FIELD_ID, 'DESC');
 
 
