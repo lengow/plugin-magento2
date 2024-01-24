@@ -303,8 +303,8 @@ class Ordererror extends AbstractModel
                 ]
             )
             ->join(
-                $this->resourceConnection->getTableName('sales_order'),
-                '`lengow_order`.order_id=sales_order.entity_id',
+                $tableSalesOrder,
+                '`lengow_order`.order_id='.$tableSalesOrder.'entity_id',
                 []
             )
             ->addFieldToFilter(LengowOrder::TABLE_ORDER.'.store_id', ['eq' => $storeId])
