@@ -285,7 +285,7 @@ class Ordererror extends AbstractModel
     public function getOrdersToResend(int $storeId)
     {
         $dateFrom = new \DateTime();
-        $dateFrom->sub(new \DateInterval(('P10D')));
+        $dateFrom->sub(new \DateInterval(('P7D')));
 
         $tableLengowOrder =  $this->resourceConnection->getTableName(LengowOrder::TABLE_ORDER);
         $tableSalesOrder  =  $this->resourceConnection->getTableName('sales_order');
@@ -304,7 +304,7 @@ class Ordererror extends AbstractModel
             )
             ->join(
                 $tableSalesOrder,
-                '`lengow_order`.order_id='.$tableSalesOrder.'entity_id',
+                '`'.LengowOrder::TABLE_ORDER.'`.order_id='.$tableSalesOrder.'entity_id',
                 []
             )
             ->addFieldToFilter(LengowOrder::TABLE_ORDER.'.store_id', ['eq' => $storeId])
