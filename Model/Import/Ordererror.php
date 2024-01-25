@@ -29,6 +29,7 @@ use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
 use Lengow\Connector\Model\ResourceModel\Ordererror as LengowOrderErrorResource;
 use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory as LengowOrderErrorCollectionFactory;
+use Magento\Framework\App\ResourceConnection;
 
 /**
  * Model import order error
@@ -70,6 +71,12 @@ class Ordererror extends AbstractModel
     private $lengowOrderErrorFactory;
 
     /**
+     *
+     * @var ResourceConnection $resourceConnection
+     */
+    private ResourceConnection $resourceConnection;
+
+    /**
      * @var array field list for the table lengow_order_line
      * required => Required fields when creating registration
      * update   => Fields allowed when updating registration
@@ -105,17 +112,20 @@ class Ordererror extends AbstractModel
      * @param DateTime $dateTime Magento datetime instance
      * @param LengowOrderErrorCollectionFactory $orderErrorCollection
      * @param LengowOrderErrorFactory $orderErrorFactory
+     * @param ResourceConnection $resourceConnection
      */
     public function __construct(
         Context $context,
         Registry $registry,
         DateTime $dateTime,
         LengowOrderErrorCollectionFactory $orderErrorCollection,
-        LengowOrderErrorFactory $orderErrorFactory
+        LengowOrderErrorFactory $orderErrorFactory,
+        ResourceConnection $resourceConnection
     ) {
         $this->dateTime = $dateTime;
         $this->lengowOrderErrorCollection = $orderErrorCollection;
         $this->lengowOrderErrorFactory = $orderErrorFactory;
+        $this->resourceConnection = $resourceConnection;
         parent::__construct($context, $registry);
     }
 
@@ -286,10 +296,10 @@ class Ordererror extends AbstractModel
     {
         $dateFrom = new \DateTime();
         $dateFrom->sub(new \DateInterval(('P7D')));
-
-        $tableLengowOrder =  $this->resourceConnection->getTableName(LengowOrder::TABLE_ORDER);
-        $tableSalesOrder  =  $this->resourceConnection->getTableName('sales_order');
-
+        $tableLengowOrder =  $this->resourceConnection->getConnection()
+            ->getTableName(LengowOrder::TABLE_ORDER);
+        $tableSalesOrder  =  $this->resourceConnection->getConnection()
+            ->getTableName('sales_order');
         $collection = $this->lengowOrderErrorCollection->create()
             ->setCurPage(1)
             ->setPageSize(150)
@@ -304,21 +314,20 @@ class Ordererror extends AbstractModel
             )
             ->join(
                 $tableSalesOrder,
-                '`'.LengowOrder::TABLE_ORDER.'`.order_id='.$tableSalesOrder.'entity_id',
+                '`'.LengowOrder::TABLE_ORDER.'`.order_id='.$tableSalesOrder.'.entity_id',
                 []
             )
             ->addFieldToFilter(LengowOrder::TABLE_ORDER.'.store_id', ['eq' => $storeId])
             ->addFieldToFilter(self::FIELD_IS_FINISHED, ['eq' => 0])
-            ->addFieldToFilter(self::FIELD_TYPE, ['eq' =>self::TYPE_ERROR_SEND])
+            ->addFieldToFilter(self::FIELD_TYPE, ['eq' => self::TYPE_ERROR_SEND])
             ->addFieldToFilter('main_table.'.self::FIELD_CREATED_AT, ['gteq' => $dateFrom->format('Y-m-d H:i:s')])
             ->addFieldToFilter($tableSalesOrder.'.'.self::FIELD_UPDATED_AT, ['gteq' => $dateFrom->format('Y-m-d H:i:s')])
             ->setOrder(self::FIELD_ID, 'DESC');
-
-
         $results = $collection->getData();
         if (empty($results)) {
             return [];
         }
+        
         return $results;
     }
 
@@ -332,7 +341,7 @@ class Ordererror extends AbstractModel
     {
 
         $collection = $this->lengowOrderErrorCollection->create()
-            ->addFieldToFilter(self::FIELD_TYPE, ['eq' =>self::TYPE_ERROR_SEND])
+            ->addFieldToFilter(self::FIELD_TYPE, ['eq' => self::TYPE_ERROR_SEND])
             ->addFieldToFilter(self::FIELD_ORDER_LENGOW_ID, ['eq' => $lengowOrderId])
             ->load();
 

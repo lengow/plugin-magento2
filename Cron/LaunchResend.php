@@ -95,7 +95,7 @@ class LaunchResend
         LengowOrderErrorFactory         $orderErrorFactory,
         LengowOrderFactory              $lengowOrderFactory,
         MagentoOrderFactory             $orderFactory,
-        LengowAction                    $lengowAction
+        LengowAction                    $lengowAction,
     ) {
         $this->storeManager         = $storeManager;
         $this->configHelper         = $configHelper;
@@ -104,6 +104,7 @@ class LaunchResend
         $this->lengowOrderFactory   = $lengowOrderFactory;
         $this->orderFactory         = $orderFactory;
         $this->lengowAction         = $lengowAction;
+
     }
 
     /**
@@ -225,19 +226,8 @@ class LaunchResend
             /** @var \Magento\Shipping\Model\Order\Track $lastTrack */
             $lastTrack =  end($tracks);
             $trackingNumber = $lastTrack->getNumber() ?? '';
-            if (strrpos($message, 'tracking_number') !== false
-                    || strrpos($message, 'trackingNumber') !== false) {
-
-                if (empty($trackingNumber)) {
-                    return false;
-                }
-            }
-            if (strrpos($message, 'tracking_url') !== false
-                    || strrpos($message, 'trackingUrl') !== false) {
-
-                if (empty($trackingNumber)) {
-                    return false;
-                }
+            if (empty($trackingNumber)) {
+                return false;
             }
         }
 
