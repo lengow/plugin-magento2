@@ -215,7 +215,6 @@ class LaunchResend
         if ($action === LengowAction::TYPE_SHIP) {
             /** @var Shipment|void $shipment */
             $shipment = $order->getShipmentsCollection()->getFirstItem();
-            $message = $orderResendData[Ordererror::FIELD_MESSAGE] ?? '';
             if (is_null($shipment)) {
                 return false;
             }
