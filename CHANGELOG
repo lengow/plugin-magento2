@@ -2,6 +2,7 @@
 Version 1.5.0
 =============================================================
  - BugFix: Default address when customer has new address
+ - BugFix: Matching carrier not found return code
  - Feature: Cronjob for try to resend actions in errors 7 days max
 =============================================================
 Version 1.4.9
