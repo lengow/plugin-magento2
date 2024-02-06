@@ -559,7 +559,7 @@ class Marketplace extends AbstractModel
         }
 
         if (empty($this->carriers)) {
-            return '';
+            return $code;
         }
 
         $codeCleaned  = $this->cleanString($code);
@@ -583,8 +583,11 @@ class Marketplace extends AbstractModel
                 $result = $this->searchCarrierCode($titleCleaned, false);
             }
         }
+        if ($result) {
+            return $result;
+        }
 
-        return (string) $result;
+        return $code;
     }
 
     /**

@@ -36,7 +36,7 @@ class LaunchResend
     /**
      * @cont RESEND_MAX_TRIES
      */
-    private const RESEND_MAX_TRIES = 10;
+    private const RESEND_MAX_TRIES = 3;
     /**
      * @var StoreManagerInterface Magento store manager instance
      */
@@ -163,7 +163,7 @@ class LaunchResend
                         DataHelper::CODE_ACTION,
                         'order action resent : ' . $orderResendData[LengowOrder::FIELD_MARKETPLACE_SKU]
                     );
-                    usleep(50000);
+                    usleep(250000);
                 }
 
             } catch (Exception $e) {
