@@ -1460,10 +1460,7 @@ class Importorder extends AbstractModel
                 $customer->getId(),
                 $quote->getStore()
             );
-            //var_dump($taxRate);
             $taxShippingCost = $this->calculation->calcTaxAmount($shippingCost, $taxRate, true);
-            //var_dump($taxShippingCost);
-            //exit;
         }
         $shippingCost -= $taxShippingCost;
         $quoteShippingAddress = $quote->getShippingAddress();
