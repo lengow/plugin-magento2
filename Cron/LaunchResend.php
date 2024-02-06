@@ -34,7 +34,7 @@ use Magento\Store\Model\StoreManagerInterface;
 class LaunchResend
 {
     /**
-     * @cont RESEND_MAX_TRIES
+     * @cont int RESEND_MAX_TRIES
      */
     private const RESEND_MAX_TRIES = 3;
     /**
@@ -189,7 +189,7 @@ class LaunchResend
             (int) $orderResendData[Ordererror::FIELD_ORDER_LENGOW_ID]
         );
 
-        if ($tries >= self::RESEND_MAX_TRIES) {
+        if ($tries > self::RESEND_MAX_TRIES) {
             $orderErrorModel->finishOrderErrors(
                 $orderResendData[Ordererror::FIELD_ORDER_LENGOW_ID],
                 Ordererror::TYPE_ERROR_SEND
