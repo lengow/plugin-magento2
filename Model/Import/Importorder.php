@@ -1454,6 +1454,7 @@ class Importorder extends AbstractModel
                 'store',
                 $quote->getStore()
             );
+
             $taxRate = $this->taxCalculation->getCalculatedRate(
                 $shippingTaxClass,
                 $customer->getId(),

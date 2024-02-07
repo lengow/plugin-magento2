@@ -7,5 +7,8 @@
         <job name="lengow_connector_launch_synchronization" instance="Lengow\Connector\Cron\LaunchSynchronization" method="execute">
             <schedule>*/30 * * * *</schedule>
         </job>
+        <job name="lengow_connector_launch_resend" instance="Lengow\Connector\Cron\LaunchResend" method="execute">
+            <schedule>*/15 * * * *</schedule>
+        </job>
     </group>
 </config>

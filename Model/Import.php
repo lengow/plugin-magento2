@@ -462,6 +462,7 @@ class Import
      */
     private function setIntervalTime(int $days = null, string $createdFrom = null, string $createdTo = null): void
     {
+        
         if ($createdFrom && $createdTo) {
             // retrieval of orders created from ... until ...
             $createdFromTimestamp = $this->dateTime->gmtTimestamp($createdFrom);

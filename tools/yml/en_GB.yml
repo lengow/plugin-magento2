@@ -370,6 +370,8 @@ en:
     export_file_enable_comment: "Save the feed on a file"
     export_cron_enable_lable: "Enable Magento cron"
     export_cron_enable_comment: "Enable the scheduled task to export your feed every 4 hours"
+    resend_cron_enable_label: "Enable Magento cron for resend actions"
+    resend_cron_enable_comment: "Enable the scheduled task to resend actions every 15 minutes"
     import_setting: "Import settings"
     import_simple_setting: "Simple import settings"
     import_days_title: "Synchronize all orders updated since"

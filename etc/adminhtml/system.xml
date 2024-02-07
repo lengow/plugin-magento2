@@ -127,6 +127,7 @@
                     <comment>Enable the scheduled task to export your feed every 4 hours</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+               
             </group>
         </section>
         <section id="lengow_import_options" translate="label" type="text" sortOrder="310" showInDefault="1" showInWebsite="0" showInStore="1">
@@ -204,6 +205,11 @@
                 <field id="import_cron_enable" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Enable Magento cron</label>
                     <comment>Enable the scheduled task to import your orders every 30 minutes</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="resend_cron_enable" translate="label comment" type="select" sortOrder="80" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>Enable Magento cron for resend actions</label>
+                    <comment>Enable the scheduled task to resend actions every 15 minutes</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
             </group>
