@@ -452,7 +452,7 @@ class Customer extends MagentoResourceCustomer
 
         if ($this->configHelper->get(ConfigHelper::IMPORT_ANONYMIZED_EMAIL, $storeId)) {
             // generation of fictitious email
-            $customerEmail = hash('sha256', $marketplaceSku . '-' . $orderData->marketplace) . '@lengow.com';
+            $customerEmail = substr(0,200,hash('sha256', $marketplaceSku . '-' . $orderData->marketplace)) . '@lengow.com';
         } else {
             // get customer email
             $customerEmail = $orderData->billing_address->email;
@@ -469,11 +469,17 @@ class Customer extends MagentoResourceCustomer
         $billingAddress = $this->getOrCreateAddress($customer, $orderData->billing_address);
         if (!$billingAddress->getId()) {
             $customer->addAddress($billingAddress);
+            if ($customer->getDefaultBillingAddress()) {
+                $billingAddress->setIsDefaultBilling('1')->save();
+            }
         }
         // create or load default shipping address if not exist
         $shippingAddress = $this->getOrCreateAddress($customer, $shippingAddress, true);
         if (!$shippingAddress->getId()) {
             $customer->addAddress($shippingAddress);
+            if ($customer->getDefaultShippingAddress()) {
+                $shippingAddress->setIsDefaultShipping('1')->save();
+            }
         }
         $customer->save();
         return $customer;
@@ -508,7 +514,7 @@ class Customer extends MagentoResourceCustomer
                 ->save();
             }
         }
-        
+
         return $customer;
 
     }

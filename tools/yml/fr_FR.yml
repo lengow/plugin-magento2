@@ -370,6 +370,8 @@ fr:
     export_file_enable_comment: "Sauvegardez les flux dans un fichier"
     export_cron_enable_lable: "Autorisez le process Cron de Magento"
     export_cron_enable_comment: "Si votre Cron est en place sur Magento, le fichier s'exportera automatiquement toutes les 4 heures"
+    resend_cron_enable_label: "Activer le cron pour les actions renvoyer"
+    resend_cron_enable_comment: "Si votre Cron est activé, les action d'envoi tenteront de se relancer toutes les 15 minutes"
     import_setting: "Paramètres d'import"
     import_simple_setting: "Paramètres d'import"
     import_days_title: "Synchroniser toutes les commandes mises à jour depuis"
