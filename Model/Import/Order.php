@@ -1352,11 +1352,13 @@ class Order extends AbstractModel
                 || (isset($result['detail']) && $result['detail'] === 'Pas trouvé.')
                 || isset($result['error']));
             } catch (Exception $e) {
-                $message = $this->dataHelper->decodeLogMessage($e->getMessage(), false);
-                $error = $this->dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
-                $this->dataHelper->log(DataHelper::CODE_CONNECTOR, $error, $logOutput);
-                usleep(250000);
                 $tries --;
+                if ($tries === 0) {
+                    $message = $this->dataHelper->decodeLogMessage($e->getMessage(), false);
+                    $error = $this->dataHelper->setLogMessage('API call failed - %1 - %2', [$e->getCode(), $message]);
+                    $this->dataHelper->log(DataHelper::CODE_CONNECTOR, $error, $logOutput);
+                }
+                usleep(250000);
             }
         } while ($tries > 0);
 
