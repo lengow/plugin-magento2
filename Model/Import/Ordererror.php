@@ -319,14 +319,14 @@ class Ordererror extends AbstractModel
                 []
             )
             ->addFieldToFilter(LengowOrder::TABLE_ORDER.'.store_id', ['eq' => $storeId])
-            ->addFieldToFilter(LengowOrder::TABLE_ORDER.'.'.LengowOrder::FIELD_IS_IN_ERROR, 1)
+            ->addFieldToFilter(LengowOrder::TABLE_ORDER.'.'.LengowOrder::FIELD_IS_IN_ERROR, ['eq' => 1])
             ->addFieldToFilter(self::FIELD_IS_FINISHED, ['eq' => 0])
             ->addFieldToFilter(self::FIELD_TYPE, ['eq' => self::TYPE_ERROR_SEND])
             ->addFieldToFilter('main_table.'.self::FIELD_CREATED_AT, ['gteq' => $dateFrom->format('Y-m-d H:i:s')])
             ->addFieldToFilter($tableSalesOrder.'.'.self::FIELD_UPDATED_AT, ['gteq' => $dateFrom->format('Y-m-d H:i:s')])
             ->setOrder(self::FIELD_ID, 'DESC');
         $results = $collection->getData();
-        
+
         if (empty($results)) {
             return [];
         }
