@@ -24,6 +24,7 @@ use Magento\Backend\Model\Session as BackendSession;
 use Magento\Quote\Model\Quote\Item\AbstractItem;
 use Magento\SalesRule\Model\RulesApplier as RulesApplierModel;
 use Magento\SalesRule\Model\ResourceModel\Rule\CollectionFactory as RuleCollectionFactory;
+use Magento\SalesRule\Model\ResourceModelRule\Collection as SalesRuleCollection;
 
 /*
  * Class RulesApplier
@@ -58,12 +59,12 @@ class RulesApplier
      * This method is executed each time magento call his own ApplyRule method
      * It allows lengow orders to be imported without any Cart Rules
      *
-     * @param  RulesApplierModel  $subject  Magento RulesApplier base class
-     * @param  Closure  $proceed  Callable (have to be called otherwise magento prevent the execution of the next plugins)
-     * @param  AbstractItem  $item  Magento Abstract Item representing a Quote
-     * @param  array  $rules  Magento Rule Collection assigned to the Quote
-     * @param  bool  $skipValidation  Magento option to skip rule validation
-     * @param  mixed  $couponCode  Magento Coupon Code
+     * @param  RulesApplierModel            $subject            Magento RulesApplier base class
+     * @param  Closure                      $proceed            Callable (have to be called otherwise magento prevent the execution of the next plugins)
+     * @param  AbstractItem                 $item               Magento Abstract Item representing a Quote
+     * @param  SalesRuleCollection|array    $rules              Magento Rule Collection assigned to the Quote
+     * @param  bool                         $skipValidation     Magento option to skip rule validation
+     * @param  mixed                        $couponCode         Magento Coupon Code
      *
      * @return mixed
      */
@@ -71,7 +72,7 @@ class RulesApplier
         RulesApplierModel $subject,
         Closure $proceed,
         AbstractItem $item,
-        array $rules,
+        $rules,
         bool $skipValidation,
         $couponCode
     ) {
