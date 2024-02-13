@@ -241,7 +241,7 @@ class Quote extends MagentoQuote
                 // check if the product has enough stock
                 $this->checkProductQuantity($magentoProduct, $product['quantity']);
                 // get product prices
-                $price = $product['price_unit'];
+                $priceProduct = $product['price_unit'] ?? 0.0;
                 $tax   = $product['tax_unit'] ?? 0.0;
                 if (!$priceIncludeTax) {
                     $taxRate = $this->taxCalculation->getCalculatedRate(
@@ -249,23 +249,29 @@ class Quote extends MagentoQuote
                         $this->getCustomer()->getId(),
                         $this->getStore()
                     );
-                    $tax = $this->calculation->calcTaxAmount($price, $taxRate, true);
+                    $tax = $this->calculation->calcTaxAmount($priceProduct, $taxRate, true);
                 }
-                $price -= $tax;
-                $magentoProduct->setPrice(round($price, 3));
-                $magentoProduct->setSpecialPrice(round($price, 3));
-                $magentoProduct->setFinalPrice(round($price + $tax, 3));
+
+                $priceProduct -= $tax;
+                $magentoProduct->setPrice(round($priceProduct, 3));
+                $magentoProduct->setSpecialPrice(round($priceProduct, 3));
+                $magentoProduct->setFinalPrice(round($priceProduct + $tax, 3));
                 $magentoProduct->setIsSuperMode(true);
                 // Warning Deprecated after magento 2.4.xx !
                 $magentoProduct->setPriceCalculation(false);
                 // option "import with product's title from Lengow"
                 $magentoProduct->setName($product['title']);
                 // add item to quote
+
+                $priceItem = $magentoProduct->getPrice();
+                if ($priceIncludeTax) {
+                    $priceItem = $magentoProduct->getFinalPrice();
+                }
                 $quoteItem = $this->_quoteItemFactory->create()
                     ->setProduct($magentoProduct)
                     ->setQty($product['quantity'])
-                    ->setCustomPrice($price)
-                    ->setOriginalCustomPrice($price);
+                    ->setCustomPrice($priceItem)
+                    ->setOriginalCustomPrice($priceItem);
                 $this->addItem($quoteItem);
             }
         }
