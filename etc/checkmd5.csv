@@ -1,4 +1,4 @@
-/composer.json|86ad731785a88342584628a24db4b78e
+/composer.json|7445307c3bbc2263781483cae305c39f
 /registration.php|dc6e50502663d362b5efdf9c829985c6
 /Block/Adminhtml/Header.php|c2389266bf3fc30d13fc3a5d0ca5e571
 /Block/Adminhtml/Sales/Order/Tab/Info.php|4ce087663f556696e71f434ac1f762b5
@@ -87,8 +87,8 @@
 /Model/Import/Action.php|8fd125877a21ddf5591b61aca2f0f0a8
 /Model/Import/Importorder.php|01336fc2c08cb96dea0bdc53ca845ddc
 /Model/Import/Ordererror.php|4ebd478d00a12adadbfe17761f27c1ad
-/Model/Import/Quote.php|6a13bf188a1e9042db09466449084b95
-/Model/Import/Customer.php|488579ded256fe0667bc0d913151760f
+/Model/Import/Quote.php|3775d2caa81a197b97b5db4cff4ebc59
+/Model/Import/Customer.php|97443d83109fc0517816138b7b01e1f0
 /Model/Catalog.php|2b7cb82722a383e5fdf258735fa4cd72
 /Model/Payment/Lengow.php|dd4f2d120fe6faa2d731cbf9eed66408
 /Model/Connector.php|ed9b39972bf91b4079a8a55db838f9ba
@@ -107,7 +107,7 @@
 /Observer/B2bTaxesApllicator.php|20c5c1032a50da3d1557a06c6e0b9371
 /Plugin/WeeeConfig.php|a56248ed5aec8e3e75498c2d3ca9b754
 /Plugin/SaveConfig.php|d02fb183b81dab5d8385b57a97bf1b91
-/Plugin/RulesApplier.php|1f95db521c78ab730b658d6726610b47
+/Plugin/RulesApplier.php|8f8bab88c6ffb669770a761bc0e734ec
 /Setup/Patch/Data/InstallLengowData.php|bc1eb3458ac9a39b63a43f83a94a2f1e
 /Setup/Patch/Data/UpgradeLengowDataConfig.php|741602056b4aa9eb3196617f22b46e60
 /Setup/Patch/Data/UpgradeLengowDataTracking.php|e70f26010c1768ffe1652feb7f9c21a0

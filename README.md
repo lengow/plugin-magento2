@@ -3,7 +3,7 @@
 - **Requires at least:** 2.4
 - **Tested up to:** 2.4.6
 - **Requires PHP:** 8.1
-- **Stable tag:** 1.5.0
+- **Stable tag:** 1.5.1
 - **License:** OSL-3.0
 - **License URI:** https://opensource.org/licenses/OSL-3.0
 
@@ -51,7 +51,7 @@ You can also start testing with lower permissions due to security reasons (644 f
     php bin/magento setup:upgrade
     php bin/magento setup:static-content:deploy
     php bin/magento maintenance:disable
-    
+
 4.) Go to "System" > "Cache Management" and click both the "Flush Magento Cache" as well as the "Flush Cache Storage" button. This is required to activate the extension.
 
 5.) Log in with your Lengow credentials and configure the plugin
@@ -91,13 +91,13 @@ Start by installing Yaml Parser:
 
     sudo apt-get install php5-dev libyaml-dev
     sudo pecl install yaml
-    
+
 To translate the project, use specific key in php code and modify the *.yml files in the directory: `Lengow/Connector/tools/yml/`
 
 Once the translations are finished, just run the translation update script in `Lengow/Connector/tools` folder
 
     php translate.php
-    
+
 The plugin is translated into English, French and German.
 
 ## Changelog
