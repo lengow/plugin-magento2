@@ -379,7 +379,9 @@ class Export
         $this->inactive = isset($params[self::PARAM_INACTIVE])
             ? (bool) $params[self::PARAM_INACTIVE]
             : (bool) $this->configHelper->get(ConfigHelper::INACTIVE_ENABLED, $this->storeId);
-        $this->outOfStock = $params[self::PARAM_OUT_OF_STOCK] ?? true;
+        $this->outOfStock = isset($params[self::PARAM_OUT_OF_STOCK])
+                ? (bool) $params[self::PARAM_OUT_OF_STOCK] 
+                : $this->configHelper->get(ConfigHelper::OUT_OF_STOCK_ENABLED, $this->storeId) ;
         $this->updateExportDate = !isset($params[self::PARAM_UPDATE_EXPORT_DATE])
             || $params[self::PARAM_UPDATE_EXPORT_DATE];
         $this->format = $this->setFormat($params[self::PARAM_FORMAT] ?? LengowFeed::FORMAT_CSV);
@@ -955,3 +957,4 @@ class Export
         return $productCollection;
     }
 }
+

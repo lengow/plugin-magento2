@@ -66,6 +66,7 @@ class Config extends AbstractHelper
     public const CATALOG_IDS = 'global_catalog_id';
     public const SELECTION_ENABLED = 'export_selection_enable';
     public const INACTIVE_ENABLED = 'export_product_status';
+    public const OUT_OF_STOCK_ENABLED = 'export_product_out_of_stock';
     public const EXPORT_PRODUCT_TYPES = 'export_product_type';
     public const EXPORT_ATTRIBUTES = 'export_attribute';
     public const EXPORT_PARENT_ATTRIBUTES = 'export_link_parent_attribute_to_child';
@@ -142,6 +143,7 @@ class Config extends AbstractHelper
         self::SHOP_ACTIVE => 'shop_active',
         self::CATALOG_IDS => 'catalog_ids',
         self::SELECTION_ENABLED => 'selection_enabled',
+        self::OUT_OF_STOCK_ENABLED => 'out_of_stock_enabled',
         self::INACTIVE_ENABLED => 'inactive_enabled',
         self::EXPORT_PRODUCT_TYPES => 'export_product_types',
         self::EXPORT_ATTRIBUTES => 'export_attributes',
@@ -344,6 +346,12 @@ class Config extends AbstractHelper
         ],
         self::INACTIVE_ENABLED => [
             self::PARAM_PATH => 'lengow_export_options/simple/export_product_status',
+            self::PARAM_SHOP => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
+        ],
+        self::OUT_OF_STOCK_ENABLED => [
+            self::PARAM_PATH => 'lengow_export_options/simple/export_product_out_of_stock',
             self::PARAM_SHOP => true,
             self::PARAM_NO_CACHE => false,
             self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
@@ -1272,3 +1280,4 @@ class Config extends AbstractHelper
         return $value;
     }
 }
+
