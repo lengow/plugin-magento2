@@ -532,8 +532,8 @@ class Sync extends AbstractHelper
     /**
      * Get an array of plugin links for a specific iso code
      *
-     * @param string|null $isoCode
-     * @param bool $default
+     * @param string|null $isoCode  the language iso code
+     * @param bool|null   $default  the default wanted
      *
      * @return array
      */
