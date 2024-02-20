@@ -537,7 +537,7 @@ class Sync extends AbstractHelper
      *
      * @return array
      */
-    public function getPluginLinks(?string $isoCode = null, ?bool$default = false): array
+    public function getPluginLinks(?string $isoCode = null, ?bool $default = false): array
     {
         $pluginData = $this->getPluginData();
         if (!$pluginData || $default) {
