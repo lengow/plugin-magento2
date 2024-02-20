@@ -2,6 +2,7 @@
 Version 1.5.2
 =============================================================
  - Feature: manage out of stock products export by configuration
+ - BugFix: fixed help center constants urls
 =============================================================
 Version 1.5.1
 =============================================================

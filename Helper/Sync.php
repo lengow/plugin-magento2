@@ -58,7 +58,7 @@ class Sync extends AbstractHelper
     public const LINK_TYPE_SUPPORT = 'support';
 
     /* Default plugin links */
-    private const LINK_HELP_CENTER = 'https://help.lengow.com/hc/en-us';
+    private const LINK_HELP_CENTER = 'https://help.lengow.com/hc/en-us/articles/10114751291932-Magento-2-Set-up-the-Plugin';
     private const LINK_CHANGELOG = 'https://help.lengow.com/hc/en-us/articles/360011215439';
     private const LINK_UPDATE_GUIDE = 'https://help.lengow.com/hc/en-us/articles/10114535417116-Magento-2-Update-the-plugin-version';
     private const LINK_SUPPORT = 'https://help.lengow.com/hc/en-us/requests/new';

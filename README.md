@@ -60,7 +60,7 @@ You can also start testing with lower permissions due to security reasons (644 f
 
 ### Where can I find Lengow documentation and user guides?
 
-For help setting up and configuring Lengow plugin please refer to our [user guide](https://help.lengow.com/hc/en-us/articles/360012204551)
+For help setting up and configuring Lengow plugin please refer to our [user guide](https://help.lengow.com/hc/en-us/articles/10114751291932-Magento-2-Set-up-the-Plugin)
 
 ### Where can I get support?
 
