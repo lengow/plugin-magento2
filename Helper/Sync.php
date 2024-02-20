@@ -533,13 +533,14 @@ class Sync extends AbstractHelper
      * Get an array of plugin links for a specific iso code
      *
      * @param string|null $isoCode
+     * @param bool $default
      *
      * @return array
      */
-    public function getPluginLinks(string $isoCode = null): array
+    public function getPluginLinks(?string $isoCode = null, ?bool$default = false): array
     {
         $pluginData = $this->getPluginData();
-        if (!$pluginData) {
+        if (!$pluginData || $default) {
             return $this->defaultPluginLinks;
         }
         // check if the links are available in the locale
@@ -561,3 +562,4 @@ class Sync extends AbstractHelper
         return $pluginLinks;
     }
 }
+

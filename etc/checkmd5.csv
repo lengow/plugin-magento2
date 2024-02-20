@@ -5,7 +5,7 @@
 /Block/Adminhtml/Product.php|81152137f15cbca93381a23c56009e33
 /Block/Adminhtml/System/Config/Check.php|8b586a60e6140da4d214e301d3c4490d
 /Block/Adminhtml/Footer.php|26524f5ac984b72a17098f0c0a9edfdd
-/Block/Adminhtml/Main.php|9544eaae465ccbf0d1904e73e3ce3ed7
+/Block/Adminhtml/Main.php|a3abe7e433c83b18b8b66173c33b36a7
 /Block/Adminhtml/Order/Header.php|56ea07c3236f300945d842ac96a4e154
 /Block/Adminhtml/Product/Header.php|9d841f906a40e5898cdd4d88742fb5f6
 /Block/Adminhtml/Product/Grid/Renderer/Lengow.php|cc2b23dd3f67b28516f0ea00afeb6d12
@@ -54,7 +54,7 @@
 /etc/db_schema_whitelist.json|a2313515d9e393386c04de1aaa592232
 /Helper/Config.php|52a5eb14fd1508fcfa56343bf3d3d9ac
 /Helper/Import.php|a2b7acdb0c3f3e1e3a5a0b845c220537
-/Helper/Sync.php|c75f4277e6375d29fe3b85b762463e13
+/Helper/Sync.php|f97742c5698a4ac86b7ff8861475d92b
 /Helper/Toolbox.php|8816d4c3d164cd51e99f879cb325616c
 /Helper/Data.php|57be4d0eafe40074342277626ad63ef0
 /Helper/Security.php|e6622f9e1df875bcca48f8c310dbdd0a
