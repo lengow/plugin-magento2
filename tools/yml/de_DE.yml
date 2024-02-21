@@ -354,6 +354,7 @@ de:
     export_simple_setting: "Einfache Exporteinstellungen"
     export_selection_enable_label: "Nur ausgewählte Produkte exportieren"
     export_product_type_label: "Produkttyp für den Export"
+    export_product_out_of_stock_label: "Export der nicht vorrätigen Produkte"
     export_product_status_label: "Deaktivierte Produkte exportieren"
     export_advanced_setting: "Erweiterte Exporteinstellungen"
     export_attribute_label: "Attribute für den Export auswählen"
