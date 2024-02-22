@@ -41,6 +41,7 @@ class ReturnTrackingNumber
     }
 
     /**
+     * will add the return tracking number
      *
      * @param Shpiment $subject
      * @param Track $track
@@ -48,10 +49,11 @@ class ReturnTrackingNumber
      */
     public function beforeAddTrack(Shipment $subject, Track $track)
     {
-        $returnNumber = $this->request->getPost('return_number');
-
+        $trackingsPosted = $this->request->getPost('tracking') ?? [];
+        $lastTraskPosted = end($trackingsPosted);
+        $returnNumber = $lastTraskPosted['return_number'] ?? '';
         if ($returnNumber) {
-            $track->setReturnNumber($returnNumber);
+            $track->setReturnTrackNumber($returnNumber);
         }
 
         return [$track];

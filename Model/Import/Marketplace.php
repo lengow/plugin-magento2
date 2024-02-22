@@ -464,6 +464,7 @@ class Marketplace extends AbstractModel
         $params = [];
         $actions = $this->getAction($action);
         // get all order data
+
         foreach ($marketplaceArguments as $arg) {
             switch ($arg) {
                 case LengowAction::ARG_TRACKING_NUMBER:
@@ -478,7 +479,8 @@ class Marketplace extends AbstractModel
                     if (!empty($tracks)) {
                         $lastTrack = end($tracks);
                     }
-                    $params[$arg] = isset($lastTrack) ? $lastTrack->getReturnNumber() : '';
+                   
+                    $params[$arg] = isset($lastTrack) ? $lastTrack->getReturnTrackNumber() : '';
                     break;
                 case LengowAction::ARG_CARRIER:
                 case LengowAction::ARG_CARRIER_NAME:

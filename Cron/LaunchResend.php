@@ -95,7 +95,7 @@ class LaunchResend
         LengowOrderErrorFactory         $orderErrorFactory,
         LengowOrderFactory              $lengowOrderFactory,
         MagentoOrderFactory             $orderFactory,
-        LengowAction                    $lengowAction,
+        LengowAction                    $lengowAction
     ) {
         $this->storeManager         = $storeManager;
         $this->configHelper         = $configHelper;

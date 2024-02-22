@@ -594,14 +594,16 @@ class Action extends AbstractModel
             if (!is_object($results) || isset($results->error)) {
                 break;
             }
-            // construct array actions
-            foreach ($results->results as $action) {
-                if (isset($action->id)) {
-                    $apiActions[$action->id] = $action;
+            if(isset($results->results)) {
+                 // construct array actions
+                foreach ($results->results as $action) {
+                    if (isset($action->id)) {
+                        $apiActions[$action->id] = $action;
+                    }
                 }
             }
             $page++;
-        } while ($results->next !== null);
+        } while (isset($results->next) && $results->next !== null);
         if (empty($apiActions)) {
             return false;
         }
