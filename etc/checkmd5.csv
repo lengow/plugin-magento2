@@ -38,7 +38,7 @@
 /Controller/Cron/Index.php|1a3f0a89795a2592863c07afa50d944c
 /Controller/Toolbox/Index.php|37f4741c9a62aafe3976038aee0f0786
 /Cron/LaunchExport.php|957dbe49b34376ce0f4716a8e0408507
-/Cron/LaunchResend.php|4ad8d6ad2cbed4d0185bab6df92e5918
+/Cron/LaunchResend.php|7777ab5ce8028e12f30ea1f92990a3a8
 /Cron/LaunchSynchronization.php|3d5fe13e29dab6216e6cab7aa5633e48
 /etc/frontend/routes.xml|fd7926ca314017e32250b7e108d09d75
 /etc/di.xml|70e3a19558bd139bb0e731d37071b58d
@@ -82,9 +82,9 @@
 /Model/Config/Source/Status.php|0a0b29e507f81b7f8f4eef5c93503155
 /Model/Import/Orderline.php|9b0273739fdd1bf2a1da0706e993b592
 /Model/Import/Order.php|8fee09bec9d53752498b57e6d3097a2f
-/Model/Import/Marketplace.php|867d85a07948655fd61159a2c39dc959
+/Model/Import/Marketplace.php|77b4ce362a11c3de4927e1db6565e974
 /Model/Import/Quote/Item.php|deea2328f2b0109b4bfe412c7edc90a5
-/Model/Import/Action.php|8e230ee618917512c20a5587e8e78bce
+/Model/Import/Action.php|f3cbca3ef988fda946a1d1c0a6b24b56
 /Model/Import/Importorder.php|01336fc2c08cb96dea0bdc53ca845ddc
 /Model/Import/Ordererror.php|4ebd478d00a12adadbfe17761f27c1ad
 /Model/Import/Quote.php|3775d2caa81a197b97b5db4cff4ebc59
@@ -105,7 +105,7 @@
 /Model/Export.php|6d2ccfbc5463de1f15f2d121b0498756
 /Observer/SendAction.php|41ac5a5bb84d99e7fca6d3c5c1ca6d30
 /Observer/B2bTaxesApllicator.php|20c5c1032a50da3d1557a06c6e0b9371
-/Plugin/ReturnTrackingNumber.php|d2c41abd1401fcdd2fdc7ce0639340da
+/Plugin/ReturnTrackingNumber.php|d2b2e3b28159face9c8e3014ca7c2d2f
 /Plugin/WeeeConfig.php|a56248ed5aec8e3e75498c2d3ca9b754
 /Plugin/SaveConfig.php|d02fb183b81dab5d8385b57a97bf1b91
 /Plugin/RulesApplier.php|8f8bab88c6ffb669770a761bc0e734ec
@@ -138,6 +138,7 @@
 /view/adminhtml/layout/lengow_legal_index.xml|d0f797e8d7e2828a32143d087e073893
 /view/adminhtml/layout/lengow_help_index.xml|3a512bf3a3b90154aa4fee68dcf0ae8e
 /view/adminhtml/layout/adminhtml_order_shipment_new.xml|67b89137fb6566eea119f147951ba372
+/view/adminhtml/layout/adminhtml_order_shipment_view.xml|65ed39ffe652b781f01c78bc76c7c826
 /view/adminhtml/layout/lengow_toolbox_index.xml|1aa4c1d0020935febc38e678ea1aee96
 /view/adminhtml/templates/log/main.phtml|ee2236823cdcf3d8d05c8bdfdce1d0cc
 /view/adminhtml/templates/home/catalog_failed.phtml|6d8e41e81a995fd770c8d603314ed7f7
@@ -157,6 +158,7 @@
 /view/adminhtml/templates/legal/main.phtml|606a3bf257c131e8781f93078d321079
 /view/adminhtml/templates/toolbox/content.phtml|cae6304266a913ee90c390eca5485c66
 /view/adminhtml/templates/toolbox/main.phtml|8f5641ad17206c7c2c52f72e8500b3d8
+/view/adminhtml/templates/order/tracking/view.phtml|972f0988e811e29fd42fe0dd7882d0d9
 /view/adminhtml/templates/order/main.phtml|c9797fff64fed3885c179acae9901290
 /view/adminhtml/templates/order/header.phtml|eeae06231578555b411fb9ae9631ba7f
 /view/adminhtml/templates/order/tracking.phtml|8922f113a55476bd375591144e603048
