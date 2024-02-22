@@ -802,4 +802,3 @@ class Action extends AbstractModel
         return $intervalTime;
     }
 }
-

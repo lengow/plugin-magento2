@@ -469,16 +469,16 @@ class Marketplace extends AbstractModel
                 case LengowAction::ARG_TRACKING_NUMBER:
                     $tracks = $shipment ? $shipment->getAllTracks() : null;
                     if (!empty($tracks)) {
-                        $firstTrack = reset($tracks);
+                        $lastTrack = end($tracks);
                     }
-                    $params[$arg] = isset($firstTrack) ? $firstTrack->getNumber() : '';
+                    $params[$arg] = isset($lastTrack) ? $lastTrack->getNumber() : '';
                     break;
                 case LengowAction::ARG_RETURN_TRACKING_NUMBER:
                     $tracks = $shipment ? $shipment->getAllTracks() : null;
                     if (!empty($tracks)) {
                         $lastTrack = end($tracks);
                     }
-                    $params[$arg] = isset($lastTrack) ? $lastTrack->getNumber() : '';
+                    $params[$arg] = isset($lastTrack) ? $lastTrack->getReturnNumber() : '';
                     break;
                 case LengowAction::ARG_CARRIER:
                 case LengowAction::ARG_CARRIER_NAME:
@@ -489,10 +489,10 @@ class Marketplace extends AbstractModel
                     } else {
                         $tracks = $shipment ? $shipment->getAllTracks() : null;
                         if (!empty($tracks)) {
-                            $firstTrack = reset($tracks);
+                            $lastTrack = end($tracks);
                         }
                         $carrierCode = isset($lastTrack)
-                            ? $this->matchCarrier((string)$firstTrack->getCarrierCode(), (string)$firstTrack->getTitle())
+                            ? $this->matchCarrier((string)$lastTrack->getCarrierCode(), (string)$lastTrack->getTitle())
                             : '';
                     }
                     $params[$arg] = $carrierCode;
@@ -656,4 +656,3 @@ class Marketplace extends AbstractModel
         return $found;
     }
 }
-

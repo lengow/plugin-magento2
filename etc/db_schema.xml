@@ -118,4 +118,7 @@
   <table name="sales_order" resource="default">
     <column xsi:type="int" name="from_lengow" padding="11" unsigned="false" nullable="true" identity="false" default="0" comment="From Lengow"/>
   </table>
+   <table name="sales_shipment_track" resource="default">
+    <column xsi:type="text" name="return_track_number" nullable="true" comment="Return Tracking Number"/>
+  </table>
 </schema>

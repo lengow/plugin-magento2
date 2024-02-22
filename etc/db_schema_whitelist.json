@@ -110,5 +110,10 @@
         "column": {
             "from_lengow": true
         }
+    },
+    "sales_shipment_track": {
+        "column": {
+            "return_track_number": true
+        }
     }
 }
