@@ -396,6 +396,8 @@ de:
     import_cron_enable_comment: "Geplante Tasks aktivieren, um Ihre Bestellungen alle 30 Minuten zu importieren"
     import_b2b_without_tax_label: "Import von B2B-Bestellungen ohne Steuern ermöglichen"
     import_b2b_without_tax_comment: "Aktivieren Sie diese Option, um B2B-Bestellungen ohne Steuer zu importieren"
+    import_return_tracking_number_enabled_label: "Senden Sie die Rücksendenummer"
+    import_return_tracking_number_enabled_comment: "Ermöglicht das Senden der Rücksendenummer beim Versand (Zalando)"
   lengow_log:
     exception:
       no_connection_webservice: "verbindung mit dem Lengow Webservice im Laden %1 (%2) funktionierte nicht."

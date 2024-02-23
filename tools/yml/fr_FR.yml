@@ -398,6 +398,8 @@ fr:
     import_cron_enable_comment: "Si votre Cron est en place sur Magento, les commandes seront importées automatiquement toutes les 30 minutes"
     import_b2b_without_tax_label: "Activer l'import des commandes B2B sans taxes"
     import_b2b_without_tax_comment: "Activer cette option pour importer les commandes B2B sans taxes"
+    import_return_tracking_number_enabled_label: "Envoyer le numéro de retour"
+    import_return_tracking_number_enabled_comment: "Permet d'envoyer le numéro de retour lors de l'expédition (Zalando)"
   lengow_log:
     exception:
       no_connection_webservice: "la connexion ne se fait pas avec Lengow pour la boutique %1 (%2)"

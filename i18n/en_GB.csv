@@ -366,6 +366,8 @@
 "Enable the scheduled task to import your orders every 30 minutes","Enable the scheduled task to import your orders every 30 minutes"
 "Enable import of B2B orders without tax","Enable import of B2B orders without tax"
 "Activate this option to import B2B orders without tax","Activate this option to import B2B orders without tax"
+"I want to send the return tracking number","I want to send the return tracking number"
+"Use this option to send the return tracking number during the shipment (Zalando)","Use this option to send the return tracking number during the shipment (Zalando)"
 "connection didn't work with Lengow's webservice in store %1 (%2)","connection didn't work with Lengow's webservice in store %1 (%2)"
 "Lengow webservice : %1 - "%2" in store %3 (%4)","Lengow webservice : %1 - "%2" in store %3 (%4)"
 "Lengow error: %1 does not feature in the marketplace list","Lengow error: %1 does not feature in the marketplace list"
