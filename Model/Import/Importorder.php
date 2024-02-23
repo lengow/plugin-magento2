@@ -1412,9 +1412,10 @@ class Importorder extends AbstractModel
     private function createQuote(MagentoCustomer $customer, array $products): Quote
     {
         $customerRepo = $this->customerRepository->getById($customer->getId());
+        $currentStore = $this->storeManager->getStore($this->storeId);
         $quote = $this->lengowQuoteFactory->create()
             ->setIsMultiShipping(false)
-            ->setStore($this->storeManager->getStore($this->storeId))
+            ->setStore($currentStore)
             ->setInventoryProcessed(false);
         // import customer addresses into quote
         // set billing Address
@@ -1452,13 +1453,13 @@ class Importorder extends AbstractModel
             $shippingTaxClass = $this->scopeConfig->getValue(
                 TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
                 'store',
-                $quote->getStore()
+                $currentStore
             );
 
             $taxRate = $this->taxCalculation->getCalculatedRate(
                 $shippingTaxClass,
                 $customer->getId(),
-                $quote->getStore()
+                $currentStore
             );
             $taxShippingCost = $this->calculation->calcTaxAmount($shippingCost, $taxRate, true);
         }

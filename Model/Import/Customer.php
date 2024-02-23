@@ -535,11 +535,12 @@ class Customer extends MagentoResourceCustomer
      */
     private function getOrCreateCustomer(string $customerEmail, int $storeId, $billingData): MagentoCustomer
     {
-        $idWebsite = $this->_storeManager->getStore($storeId)->getWebsiteId();
+        $currentStore = $this->_storeManager->getStore($storeId);
+        $idWebsite = $currentStore->getWebsiteId();
         // first get by email
         $customer = $this->_customerFactory->create();
 
-        $customer->setStore($this->_storeManager->getStore($storeId));
+        $customer->setStore($currentStore);
         $customer->setWebsiteId($idWebsite);
         $customer->loadByEmail($customerEmail);
         // add the client id group after uploading by mail because the data is all reset
@@ -548,7 +549,7 @@ class Customer extends MagentoResourceCustomer
         if (!$customer->getId()) {
             $customerNames = $this->getNames($billingData);
             $customer->setImportMode(true);
-            $customer->setStore($this->_storeManager->getStore($storeId));
+            $customer->setStore($currentStore);
             $customer->setWebsiteId($idWebsite);
             $customer->setCompany((string) $billingData->company);
             $customer->setLastname($customerNames['lastName']);
