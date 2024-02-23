@@ -22,6 +22,8 @@ namespace Lengow\Connector\Plugin;
 use Magento\Framework\App\RequestInterface;
 use Magento\Sales\Model\Order\Shipment\Track;
 use Magento\Sales\Model\Order\Shipment;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Lengow\Connector\Helper\Config as LengowConfig;
 
 class ReturnTrackingNumber
 {
@@ -33,25 +35,65 @@ class ReturnTrackingNumber
 
     /**
      *
-     * @param RequestInterface $request
+     * @var LengowConfig $lengowConfig
      */
-    public function __construct(RequestInterface $request)
-    {
+    protected LengowConfig $lengowConfig;
+
+    /**
+     *
+     * @var OrderRepositoryInterface $orderRepo
+     */
+    protected OrderRepositoryInterface $orderRepo;
+
+    /**
+     * ReturnTrackingNumber constructor
+     *
+     * @param RequestInterface          $request        Magento Request Interface
+     * @param LengowConfig              $lengowConfig   Lengow Config Helper
+     * @param OrderRepositoryInterface  $orderRepo      Magento Api order repository
+     */
+    public function __construct(
+        RequestInterface $request,
+        LengowConfig $lengowConfig,
+        OrderRepositoryInterface  $orderRepo
+    ) {
+
         $this->request = $request;
+        $this->lengowConfig = $lengowConfig;
+        $this->orderRepo = $orderRepo;
     }
 
     /**
      * will add the return tracking number
      *
-     * @param Shpiment $subject
-     * @param Track $track
-     * @return type
+     * @param Shipment  $subject    the Order shipment before save
+     * @param Track     $track      The Order shipment track before add
+     *
+     * @return array
      */
-    public function beforeAddTrack(Shipment $subject, Track $track)
+    public function beforeAddTrack(Shipment $subject, Track $track): array
     {
+        $orderId = (int) $this->request->getParam('order_id');
+        $isEnabled = false;
+
+        try {
+            $order = $this->orderRepo->get($orderId);
+            $isEnabled = (bool) $this->lengowConfig->get(
+                LengowConfig::RETURN_TRACKING_NUMBER_ENABLED,
+                $order->getStoreId()
+            );
+        } catch (\Exception $e) {
+            return [$track];
+        }
+        
+        if (!$isEnabled) {
+            return [$track];
+        }
+
         $trackingsPosted = $this->request->getPost('tracking') ?? [];
         $lastTraskPosted = end($trackingsPosted);
         $returnNumber = $lastTraskPosted['return_number'] ?? '';
+
         if ($returnNumber) {
             $track->setReturnTrackNumber($returnNumber);
         }

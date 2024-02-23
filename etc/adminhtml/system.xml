@@ -191,6 +191,11 @@
                         <field id="*/*/import_ship_mp_enabled">1</field>
                     </depends>
                 </field>
+                <field id="return_tracking_number_enabled" translate="label comment" type="select" sortOrder="45" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>I want to send the return tracking number</label>
+                    <comment>Use this option to send the return tracking number during the shipment (Zalando)</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
                 <field id="import_anonymized_email" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Import anonymized email</label>
                     <comment>Activate anonymization email</comment>

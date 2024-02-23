@@ -6,7 +6,7 @@
 
 // phpcs:disable PHPCompatibility.Miscellaneous.RemovedAlternativePHPTags.MaybeASPOpenTagFound
 /**
- * @var $block Magento\Shipping\Block\Adminhtml\Order\Tracking
+ * @var $block Lengow\Connector\Block\Adminhtml\Order\Tracking
  * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer
  */
 ?>
@@ -66,6 +66,7 @@ require(['prototype'], function(){
 
 script;
 ?>
+<?php /** @var \Lengow\Connector\Block\Adminhtml\Order\Tracking $block */ ?>
 <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>
 
 <script id="track_row_template" type="text/x-magento-template">
@@ -96,14 +97,16 @@ script;
                    value=""
                    disabled="disabled" />
         </td>
-        <td class="col-number">
-            <input class="input-text admin__control-text"
-                   type="text"
-                   name="tracking[<%- data.index %>][return_number]"
-                   id="return_trackingN<%- data.index %>"
-                   value=""
-                />
-        </td>
+        <?php if($block->canDisplayReturnNumber()): ?>
+            <td class="col-number">
+                <input class="input-text admin__control-text"
+                       type="text"
+                       name="tracking[<%- data.index %>][return_number]"
+                       id="return_trackingN<%- data.index %>"
+                       value=""
+                    />
+            </td>
+        <?php endif; ?>
         <td class="col-delete">
             <button
                 type="button"
@@ -122,14 +125,20 @@ script;
             <th class="col-carrier"><?= $block->escapeHtml(__('Carrier')) ?></th>
             <th class="col-title"><?= $block->escapeHtml(__('Title')) ?></th>
             <th class="col-number"><?= $block->escapeHtml(__('Number')) ?></th>
-            <th class="col-number"><?= $block->escapeHtml(__('Return Number')) ?></th>
+            <?php if($block->canDisplayReturnNumber()): ?>
+                <th class="col-number"><?= $block->escapeHtml(__('Return Number')) ?></th>
+            <?php endif ; ?>
             <th class="col-delete"><?= $block->escapeHtml(__('Action')) ?></th>
 
         </tr>
         </thead>
         <tfoot>
         <tr>
-            <td colspan="5" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
+            <?php if($block->canDisplayReturnNumber()): ?>
+                <td colspan="5" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
+            <?php else: ?>
+                  <td colspan="4" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
+            <?php endif; ?>
         </tr>
         </tfoot>
         <tbody id="track_row_container">

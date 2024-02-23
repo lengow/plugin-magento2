@@ -5,13 +5,14 @@
  */
 
 /**
- * @var $block Magento\Shipping\Block\Adminhtml\Order\Tracking\View
+ * @var $block Lengow\Connector\Block\Adminhtml\Order\Tracking\View
  * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer
  */
 
 /** @var \Magento\Shipping\Helper\Data $shippingHelper */
 $shippingHelper = $block->getData('shippingHelper');
 ?>
+<?php /** @var \Lengow\Connector\Block\Adminhtml\Order\Tracking\View $block */ ?>
 <div class="admin__control-table-wrapper">
 
     <form id="tracking-shipping-form" data-mage-init='{"validation": {}}'>
@@ -21,7 +22,9 @@ $shippingHelper = $block->getData('shippingHelper');
                     <th class="col-carrier"><?= $block->escapeHtml(__('Carrier')) ?></th>
                     <th class="col-title"><?= $block->escapeHtml(__('Title')) ?></th>
                     <th class="col-number"><?= $block->escapeHtml(__('Number')) ?></th>
-                    <th class="col-number"><?= $block->escapeHtml(__('Return Number')) ?></th>
+                    <?php if ($block->canDisplayReturnNumber()): ?>
+                        <th class="col-number"><?= $block->escapeHtml(__('Return Number')) ?></th>
+                    <?php endif; ?>
                     <th class="col-delete last"><?= $block->escapeHtml(__('Action')) ?></th>
                 </tr>
             </thead>
@@ -54,13 +57,15 @@ $shippingHelper = $block->getData('shippingHelper');
                                name="number"
                                value="" />
                     </td>
-                    <td class="col-number">
-                        <input class="input-text admin__control-text required-entry"
-                               type="text"
-                               id="return_tracking_number"
-                               name="return_number"
-                               value="" />
-                    </td>
+                    <?php if ($block->canDisplayReturnNumber()): ?>
+                        <td class="col-number">
+                            <input class="input-text admin__control-text required-entry"
+                                   type="text"
+                                   id="return_tracking_number"
+                                   name="return_number"
+                                   value="" />
+                        </td>
+                    <?php endif ?>
                     <td class="col-delete last"><?= $block->getSaveButtonHtml() ?></td>
                 </tr>
             </tfoot>
@@ -89,23 +94,11 @@ $shippingHelper = $block->getData('shippingHelper');
                         <div id="shipment_tracking_info_response_<?= (int) $_track->getId() ?>"></div>
                         <?php endif; ?>
                     </td>
-                     <td class="col-number">
-                        <?php if ($_track->isCustom()): ?>
+                    <?php if ($block->canDisplayReturnNumber()): ?>
+                        <td class="col-number">
                             <?= $block->escapeHtml($_track->getReturnTrackNumber()) ?>
-                        <?php else: ?>
-                        <a id="col-track-<?= (int) $_track->getId() ?>" href="#">
-                            <?= $block->escapeHtml($_track->getReturnTrackNumber()) ?>
-                         </a>
-                            <?= /* @noEscape */ $secureRenderer->renderEventListenerAsTag(
-                                'onclick',
-                                "event.preventDefault();
-                                popWin('{$block->escapeJs($shippingHelper->getTrackingPopupUrlBySalesModel($_track))}',
-                                'trackorder','width=800,height=600,resizable=yes,scrollbars=yes')",
-                                'a#col-track-' .  (int) $_track->getId()
-                            ) ?>
-                        <div id="shipment_tracking_info_response_<?= (int) $_track->getId() ?>"></div>
-                        <?php endif; ?>
-                    </td>
+                        </td>
+                    <?php endif; ?>
                     <td class="col-delete last">
                         <button class="action-delete" type="button" id="del-track-<?= (int) $_track->getId() ?>">
                             <span><?= $block->escapeHtml(__('Delete')) ?></span>
