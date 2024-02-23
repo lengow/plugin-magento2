@@ -538,9 +538,10 @@ class Customer extends MagentoResourceCustomer
         $idWebsite = $this->_storeManager->getStore($storeId)->getWebsiteId();
         // first get by email
         $customer = $this->_customerFactory->create();
-        $customer->loadByEmail($customerEmail);
+
         $customer->setStore($this->_storeManager->getStore($storeId));
         $customer->setWebsiteId($idWebsite);
+        $customer->loadByEmail($customerEmail);
         // add the client id group after uploading by mail because the data is all reset
         $customer->setGroupId($this->configHelper->get(ConfigHelper::SYNCHRONISATION_CUSTOMER_GROUP, $storeId));
         // create new subscriber without send a confirmation email
