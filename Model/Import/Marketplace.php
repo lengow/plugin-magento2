@@ -479,13 +479,14 @@ class Marketplace extends AbstractModel
                     if (!empty($tracks)) {
                         $lastTrack = end($tracks);
                     }
-                   
+
                     $params[$arg] = isset($lastTrack) ? $lastTrack->getReturnTrackNumber() : '';
                     break;
                 case LengowAction::ARG_CARRIER:
                 case LengowAction::ARG_CARRIER_NAME:
                 case LengowAction::ARG_SHIPPING_METHOD:
                 case LengowAction::ARG_CUSTOM_CARRIER:
+                case LengowAction::ARG_RETURN_CARRIER:
                     if ((string) $lengowOrder->getData(LengowOrder::FIELD_CARRIER) !== '') {
                         $carrierCode = (string) $lengowOrder->getData(LengowOrder::FIELD_CARRIER);
                     } else {
