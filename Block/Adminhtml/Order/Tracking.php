@@ -69,5 +69,3 @@ class Tracking extends OrderTracking
     }
 
 }
-
-

@@ -604,7 +604,7 @@ class Action extends AbstractModel
                 }
             }
             $page++;
-        } while (isset($results->next) && $results->next !== null);
+        } while (!empty($results->next));
         if (empty($apiActions)) {
             return false;
         }
