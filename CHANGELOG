@@ -4,6 +4,8 @@ Version 1.5.2
  - Feature: manage out of stock products export by configuration
  - Feature: Return tracking number during shipment (Zalando)
  - BugFix: fixed help center constants urls
+ - BugFix: customer creation affect store
+ - BugFix: anonimized email 32 chars max before the @
 =============================================================
 Version 1.5.1
 =============================================================
