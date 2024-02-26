@@ -1181,7 +1181,10 @@ class Importorder extends AbstractModel
                 $this->logOutput
             );
             // if this order is B2B activate B2bTaxesApplicator
-            if ($this->configHelper->isB2bWithoutTaxEnabled($this->storeId) && $orderLengow->isBusiness()) {
+            $orderTotalTaLengow = (float) $this->orderData->total_tax ?? 0;
+            if ($orderTotalTaxLengow == 0
+                    && $this->configHelper->isB2bWithoutTaxEnabled($this->storeId)
+                    && $orderLengow->isBusiness()) {
                 $this->backendSession->setIsLengowB2b(1);
                 //$customer
             }
@@ -1496,10 +1499,27 @@ class Importorder extends AbstractModel
             );
         }
         if ($this->configHelper->get(ConfigHelper::CHECK_ROUNDING_ENABLED, $this->storeId)) {
-            //exit('rouding check enabled');
+
             $hasAdjustedTaxes = $this->hasAdjustedQuoteTaxes($quote, $products);
             if ($hasAdjustedTaxes) {
                 $this->dataHelper->setLogMessage('quote taxes has been adjusted');
+            }
+            $shippingQuoteCost = $quote->getShippingAddress()->getShippingInclTax();
+            $shippingCostLengow = (float) $this->orderData->shipping ?? 0;
+            if ($shippingCostLengow !== $shippingQuoteCost) {
+                $deltaCost = $shippingCostLengow - $shippingQuoteCost;
+                $quote->getShippingAddress()->setShippingPrice($shippingCost+ $deltaCost);
+                $shippingMethod  = $this->updateRates($rates, round($shippingCost, 3));
+                $grandTotalQuote = $quote->getShippingAddress()->getGrandTotal() ;
+                $baseGrandTotalQuote = $quote->getShippingAddress()->getBaseGrandTotal();
+                // set shipping price and shipping method for current order
+                $quote->getShippingAddress()
+                    ->setShippingInclTax($shippingQuoteCost + $deltaCost)
+                    ->setShippingAmount($shippingCost + $deltaCost)
+                    ->setBaseGrandTotal($baseGrandTotalQuote + $deltaCost)
+                    ->setGrandTotal($grandTotalQuote + $deltaCost);
+                $quote->collectTotals()->save();
+                $this->dataHelper->setLogMessage('quote shipping amount has been adjusted');
             }
         }
 
