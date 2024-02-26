@@ -1509,7 +1509,6 @@ class Importorder extends AbstractModel
             if ($shippingCostLengow !== $shippingQuoteCost) {
                 $deltaCost = $shippingCostLengow - $shippingQuoteCost;
                 $quote->getShippingAddress()->setShippingPrice($shippingCost+ $deltaCost);
-                $shippingMethod  = $this->updateRates($rates, round($shippingCost, 3));
                 $grandTotalQuote = $quote->getShippingAddress()->getGrandTotal() ;
                 $baseGrandTotalQuote = $quote->getShippingAddress()->getBaseGrandTotal();
                 // set shipping price and shipping method for current order
