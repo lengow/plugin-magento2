@@ -1506,7 +1506,7 @@ class Importorder extends AbstractModel
             }
             $shippingQuoteCost = $quote->getShippingAddress()->getShippingInclTax();
             $shippingCostLengow = (float) $this->orderData->shipping ?? 0;
-            if ($shippingCostLengow !== $shippingQuoteCost) {
+            if ($shippingCostLengow && $shippingCostLengow !== $shippingQuoteCost) {
                 $deltaCost = $shippingCostLengow - $shippingQuoteCost;
                 $quote->getShippingAddress()->setShippingPrice($shippingCost+ $deltaCost);
                 $grandTotalQuote = $quote->getShippingAddress()->getGrandTotal() ;
