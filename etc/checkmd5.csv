@@ -90,7 +90,7 @@
 /Model/Import/Importorder.php|abc56d2a04d6942529ed231f29d334b4
 /Model/Import/Ordererror.php|4ebd478d00a12adadbfe17761f27c1ad
 /Model/Import/Quote.php|3775d2caa81a197b97b5db4cff4ebc59
-/Model/Import/Customer.php|2a343e6e412a6c0dfe28a006786c3ef1
+/Model/Import/Customer.php|e05dc9c68e7eca5d709f4173e5128321
 /Model/Catalog.php|2b7cb82722a383e5fdf258735fa4cd72
 /Model/Payment/Lengow.php|dd4f2d120fe6faa2d731cbf9eed66408
 /Model/Connector.php|ed9b39972bf91b4079a8a55db838f9ba
