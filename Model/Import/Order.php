@@ -99,6 +99,7 @@ class Order extends AbstractModel
     public const FIELD_CREATED_AT = 'created_at';
     public const FIELD_UPDATED_AT = 'updated_at';
     public const FIELD_EXTRA = 'extra';
+    public const FIELD_B2B_VALUE='B2B';
 
     /* Order process states */
     public const PROCESS_STATE_NEW = 0;
@@ -555,15 +556,15 @@ class Order extends AbstractModel
         $billingInfo = $extraData['billing_address'] ?? [];
         if (isset($paymentInfo['payment_terms'])) {
             $fiscalNumber = $paymentInfo['payment_terms']['fiscalnb'] ?? '';
-            $vat_number   = $paymentInfo['payment_terms']['vat_number'] ?? '';
-            $siret_number = $paymentInfo['payment_terms']['siret_number'] ?? '';
+            $vatNumber   = $paymentInfo['payment_terms']['vat_number'] ?? '';
+            $siretNumber = $paymentInfo['payment_terms']['siret_number'] ?? '';
 
             if (!empty($fiscalNumber)
-                    || !empty($vat_number)
-                    || !empty($siret_number)) {
+                    || !empty($vatNumber)
+                    || !empty($siretNumber)) {
                 $this->setData(
                     self::FIELD_ORDER_TYPES,
-                    json_encode([self::TYPE_BUSINESS => true])
+                    json_encode([self::TYPE_BUSINESS => self::FIELD_B2B_VALUE])
                 )->save();
                 return true;
             }
@@ -572,7 +573,7 @@ class Order extends AbstractModel
             && !empty($billingInfo['company'])) {
             $this->setData(
                 self::FIELD_ORDER_TYPES,
-                json_encode([self::TYPE_BUSINESS => true])
+                json_encode([self::TYPE_BUSINESS => self::FIELD_B2B_VALUE])
             )->save();
             return true;
         }
