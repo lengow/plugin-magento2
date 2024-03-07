@@ -569,7 +569,7 @@ class Order extends AbstractModel
             }
         }
         if (!empty($billingInfo['vat_number'])
-            || !empty($billingInfo['company'])) {
+            && !empty($billingInfo['company'])) {
             $this->setData(
                 self::FIELD_ORDER_TYPES,
                 json_encode([self::TYPE_BUSINESS => true])
