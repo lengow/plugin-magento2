@@ -1182,7 +1182,7 @@ class Importorder extends AbstractModel
             );
             // if this order is B2B activate B2bTaxesApplicator
             $orderTotalTaxLengow = (float) $this->orderData->total_tax ?? 0;
-            if ($orderTotalTaxLengow === 0
+            if ($orderTotalTaxLengow == 0
                     && $this->configHelper->isB2bWithoutTaxEnabled($this->storeId)
                     && $orderLengow->isBusiness()) {
                 $this->backendSession->setIsLengowB2b(1);

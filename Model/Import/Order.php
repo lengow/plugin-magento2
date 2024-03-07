@@ -537,13 +537,47 @@ class Order extends AbstractModel
     /**
      * Check if order is B2B
      *
+     * @param array $paymentInfo
+     *
      * @return boolean
      */
     public function isBusiness(): bool
     {
         $orderTypes = (string) $this->getData(self::FIELD_ORDER_TYPES);
         $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : [];
-        return isset($orderTypes[self::TYPE_BUSINESS]);
+
+        if (isset($orderTypes[self::TYPE_BUSINESS])) {
+            return true;
+        }
+
+        $extraData = json_decode($this->getData(self::FIELD_EXTRA), true);
+        $paymentInfo = $extraData['payments'][0] ?? [];
+        $billingInfo = $extraData['billing_address'] ?? [];
+        if (isset($paymentInfo['payment_terms'])) {
+            $fiscalNumber = $paymentInfo['payment_terms']['fiscalnb'] ?? '';
+            $vat_number   = $paymentInfo['payment_terms']['vat_number'] ?? '';
+            $siret_number = $paymentInfo['payment_terms']['siret_number'] ?? '';
+
+            if (!empty($fiscalNumber)
+                    || !empty($vat_number)
+                    || !empty($siret_number)) {
+                $this->setData(
+                    self::FIELD_ORDER_TYPES,
+                    json_encode([self::TYPE_BUSINESS => true])
+                )->save();
+                return true;
+            }
+        }
+        if (!empty($billingInfo['vat_number'])
+            || !empty($billingInfo['company'])) {
+            $this->setData(
+                self::FIELD_ORDER_TYPES,
+                json_encode([self::TYPE_BUSINESS => true])
+            )->save();
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -1407,3 +1441,5 @@ class Order extends AbstractModel
         return count($results);
     }
 }
+
+
