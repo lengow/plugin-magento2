@@ -123,6 +123,11 @@ class Index extends Action
     {
         set_time_limit(0);
         ini_set('memory_limit', '1G');
+        $this->getResponse()->setHeader(
+            'Cache-Control',
+            'no-store, no-cache, must-revalidate, max-age=0'
+        );
+        $this->getResponse()->setHeader('Pragma', 'no-cache');
         // get params data
         $mode = $this->getRequest()->getParam(LengowExport::PARAM_MODE);
         $token = $this->getRequest()->getParam(LengowExport::PARAM_TOKEN);
