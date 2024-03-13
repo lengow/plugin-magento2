@@ -268,6 +268,38 @@ class Marketplace extends AbstractModel
     }
 
     /**
+     *
+     * @return bool
+     */
+    public function hasReturnTrackingNumber() : bool
+    {
+        $action = $this->getAction(LengowAction::TYPE_SHIP);
+        if (!$action) {
+            return false;
+        }
+        $arguments = $this->getMarketplaceArguments(LengowAction::TYPE_SHIP);
+
+        return in_array(LengowAction::ARG_RETURN_TRACKING_NUMBER, $arguments);
+
+    }
+
+    /**
+     *
+     * @return bool
+     */
+    public function hasReturnTrackingCarrier() : bool
+    {
+        $action =  $this->getAction(LengowAction::TYPE_SHIP);
+        if (!$action) {
+            return false;
+        }
+        $arguments = $this->getMarketplaceArguments(LengowAction::TYPE_SHIP);
+
+        return in_array(LengowAction::ARG_RETURN_TRACKING_CARRIER, $arguments);
+
+    }
+
+    /**
      * Get the default value for argument
      *
      * @param string $name The argument's name

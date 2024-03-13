@@ -42,7 +42,6 @@
                 <import_anonymized_email>0</import_anonymized_email>
                 <import_debug_mode_enable>0</import_debug_mode_enable>
                 <import_cron_enable>0</import_cron_enable>
-                <return_tracking_number_enabled>0</return_tracking_number_enabled>
             </advanced>
         </lengow_import_options>
         <payment>

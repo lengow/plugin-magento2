@@ -20,38 +20,38 @@
 namespace Lengow\Connector\Block\Adminhtml\Order;
 
 use Magento\Shipping\Block\Adminhtml\Order\Tracking as OrderTracking;
-use Lengow\Connector\Helper\Config as LengowConfig;
 use Magento\Backend\Block\Template\Context as TemplateContext;
 use Magento\Shipping\Model\Config as ShippingConfig;
 use Magento\Framework\Registry;
+use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 
 class Tracking extends OrderTracking
 {
+
     /**
      *
-     * @var LengowConfig $lengowConfig
+     * @var LengowOrderFactory $lengowOrderFactory
      */
-    protected LengowConfig $lengowConfig;
+    protected LengowOrderFactory $lengowOrderFactory;
 
     /**
      * Tracking constructor
      *
-     * @param TemplateContext $context
-     * @param ShippingConfig $shippingConfig
-     * @param Registry $registry
-     * @param LengowConfig $lengowConfig
-     * @param array $data
+     * @param TemplateContext       $context
+     * @param ShippingConfig        $shippingConfig
+     * @param Registry              $registry
+     * @param LengowOrderFactory    $lengowOrderFactory
+     * @param array                 $data
      */
     public function __construct(
         TemplateContext $context,
         ShippingConfig $shippingConfig,
         Registry $registry,
-        LengowConfig $lengowConfig,
+        LengowOrderFactory$lengowOrderFactory,
         array $data = []
     )
     {
-
-        $this->lengowConfig = $lengowConfig;
+        $this->lengowOrderFactory = $lengowOrderFactory;
         parent::__construct($context, $shippingConfig, $registry, $data);
     }
 
@@ -61,11 +61,22 @@ class Tracking extends OrderTracking
      */
     public function canDisplayReturnNumber(): bool
     {
-       return (bool) $this->lengowConfig->get(
-            LengowConfig::RETURN_TRACKING_NUMBER_ENABLED,
-            $this->getShipment()->getStoreId()
-        ) ;
 
+        try {
+            $lengowOrder = $this->lengowOrderFactory->create();
+            $lengowOrderId = (int) $lengowOrder->getLengowOrderIdByOrderId(
+                (int) $this->_request->getParam('order_id')
+            );
+            $lengowOrder->load($lengowOrderId);
+
+            return $lengowOrder->getMarketPlace()->hasReturnTrackingNumber();
+
+        } catch (\Exception $e) {
+
+            return false;
+        }
     }
 
 }
+
+

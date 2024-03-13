@@ -100,7 +100,7 @@ class Config extends AbstractHelper
     public const LAST_UPDATE_PLUGIN_DATA = 'last_plugin_data_update';
     public const LAST_UPDATE_AUTHORIZATION_TOKEN = 'last_authorization_token_update';
     public const LAST_UPDATE_PLUGIN_MODAL = 'last_plugin_modal_update';
-    public const RETURN_TRACKING_NUMBER_ENABLED = 'return_tracking_number_enabled';
+
 
     /* Configuration parameters */
     public const PARAM_EXPORT = 'export';
@@ -178,8 +178,8 @@ class Config extends AbstractHelper
         self::LAST_UPDATE_SETTING => 'last_update_setting',
         self::LAST_UPDATE_PLUGIN_DATA => 'last_update_plugin_data',
         self::LAST_UPDATE_AUTHORIZATION_TOKEN => 'last_update_authorization_token',
-        self::LAST_UPDATE_PLUGIN_MODAL => 'last_update_plugin_modal',
-        self::RETURN_TRACKING_NUMBER_ENABLED => 'return_tracking_number_enabled'
+        self::LAST_UPDATE_PLUGIN_MODAL => 'last_update_plugin_modal'
+
     ];
 
     /**
@@ -454,12 +454,6 @@ class Config extends AbstractHelper
         ],
         self::IMPORT_ANONYMIZED_EMAIL => [
             self::PARAM_PATH => 'lengow_import_options/advanced/import_anonymized_email',
-            self::PARAM_GLOBAL => true,
-            self::PARAM_NO_CACHE => false,
-            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
-        ],
-        self::RETURN_TRACKING_NUMBER_ENABLED => [
-            self::PARAM_PATH => 'lengow_import_options/advanced/return_tracking_number_enabled',
             self::PARAM_GLOBAL => true,
             self::PARAM_NO_CACHE => false,
             self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,

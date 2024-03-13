@@ -53,6 +53,7 @@ use Lengow\Connector\Model\Import\Ordererror as LengowOrderError;
 use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
 use Lengow\Connector\Model\Import\Orderline as LengowOrderLine;
 use Lengow\Connector\Model\Import\OrderlineFactory as LengowOrderLineFactory;
+use Lengow\Connector\Model\Import\Marketplace as LengowMarketplace;
 use Lengow\Connector\Model\ResourceModel\Order as LengowOrderResource;
 use Lengow\Connector\Model\ResourceModel\Order\CollectionFactory as LengowOrderCollectionFactory;
 use Lengow\Connector\Model\ResourceModel\Ordererror\CollectionFactory as LengowOrderErrorCollectionFactory;
@@ -1088,6 +1089,17 @@ class Order extends AbstractModel
             return true;
         }
         return false;
+    }
+
+    /**
+     *
+     * @return LengowMarketplace
+     */
+    public function getMarketPlace():  LengowMarketplace
+    {
+        return $this->importHelper->getMarketplaceSingleton(
+            $this->getData(self::FIELD_MARKETPLACE_NAME)
+        );
     }
 
     /**
