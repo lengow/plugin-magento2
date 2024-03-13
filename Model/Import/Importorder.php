@@ -1454,13 +1454,13 @@ class Importorder extends AbstractModel
             $shippingTaxClass = $this->scopeConfig->getValue(
                 TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
                 'store',
-                $currentStore
+                $currentStore->getId()
             );
 
             $taxRate = $this->taxCalculation->getCalculatedRate(
                 $shippingTaxClass,
                 $customer->getId(),
-                $currentStore
+                $currentStore->getId()
             );
             $taxShippingCost = $this->calculation->calcTaxAmount($shippingCost, $taxRate, true);
         }
