@@ -1453,8 +1453,8 @@ class Importorder extends AbstractModel
         if (!$shippingIncludeTax) {
             $shippingTaxClass = $this->scopeConfig->getValue(
                 TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
-                'store',
-                $currentStore->getId()
+                \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE,
+                $currentStore->getWebsiteId()
             );
 
             $taxRate = $this->taxCalculation->getCalculatedRate(
