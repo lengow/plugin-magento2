@@ -26,6 +26,7 @@ use Magento\Framework\Registry;
 use Magento\Shipping\Model\CarrierFactory;
 use Magento\Shipping\Helper\Data as ShippingHelper;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 
 class View extends OrderTrackingView
@@ -35,6 +36,12 @@ class View extends OrderTrackingView
      * @var LengowOrderFactory $lengowOrderFactory
      */
     protected LengowOrderFactory $lengowOrderFactory;
+
+    /**
+     *
+     * @var LengowOrder $lengowOrder
+     */
+    protected $lengowOrder;
 
 
     /**
@@ -77,18 +84,49 @@ class View extends OrderTrackingView
     {
 
        try {
-            $lengowOrder = $this->lengowOrderFactory->create();
-            $orderId = $this->getShipment()->getOrderId();
-            $lengowOrderId = (int) $lengowOrder->getLengowOrderIdByOrderId(
-                $orderId
-            );
-            $lengowOrder->load($lengowOrderId);
-
-            return $lengowOrder->getMarketPlace()->hasReturnTrackingNumber();
+            return $this->getLengowOrder()
+                ->getMarketPlace()
+                ->hasReturnTrackingNumber();
 
         } catch (\Exception $e) {
 
             return false;
         }
+    }
+
+     /**
+     *
+     * @return bool
+     */
+    public function canDisplayReturnCarrier(): bool
+    {
+
+       try {
+            return $this->getLengowOrder()
+                ->getMarketPlace()
+                ->hasReturnTrackingCarrier();
+
+        } catch (\Exception $e) {
+
+            return false;
+        }
+    }
+
+    /**
+     *
+     * @return LengowOrder
+     */
+    protected function getLengowOrder(): LengowOrder
+    {
+        if ($this->lengowOrder instanceof LengowOrder) {
+            return $this->lengowOrder;
+        }
+        $this->lengowOrder = $this->lengowOrderFactory->create();
+        $orderId = $this->getShipment()->getOrderId();
+        $lengowOrderId = (int) $this->lengowOrder->getLengowOrderIdByOrderId(
+            $orderId
+        );
+
+        return $this->lengowOrder->load($lengowOrderId);
     }
 }

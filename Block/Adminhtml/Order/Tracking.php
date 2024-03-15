@@ -24,6 +24,7 @@ use Magento\Backend\Block\Template\Context as TemplateContext;
 use Magento\Shipping\Model\Config as ShippingConfig;
 use Magento\Framework\Registry;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class Tracking extends OrderTracking
 {
@@ -33,6 +34,12 @@ class Tracking extends OrderTracking
      * @var LengowOrderFactory $lengowOrderFactory
      */
     protected LengowOrderFactory $lengowOrderFactory;
+
+    /**
+     *
+     * @var LengowOrder $lengowOrder
+     */
+    protected $lengowOrder;
 
     /**
      * Tracking constructor
@@ -61,20 +68,53 @@ class Tracking extends OrderTracking
      */
     public function canDisplayReturnNumber(): bool
     {
-
         try {
-            $lengowOrder = $this->lengowOrderFactory->create();
-            $lengowOrderId = (int) $lengowOrder->getLengowOrderIdByOrderId(
-                (int) $this->_request->getParam('order_id')
-            );
-            $lengowOrder->load($lengowOrderId);
 
-            return $lengowOrder->getMarketPlace()->hasReturnTrackingNumber();
+            return $this->getLengowOrder()
+                ->getMarketPlace()
+                ->hasReturnTrackingNumber();
 
         } catch (\Exception $e) {
 
             return false;
         }
+    }
+
+    /**
+     *
+     * @return bool
+     */
+    public function canDisplayReturnCarrier(): bool
+    {
+
+        try {
+
+            return $this->getLengowOrder()
+                ->getMarketPlace()
+                ->hasReturnTrackingCarrier();
+
+        } catch (\Exception $e) {
+           
+            return false;
+        }
+    }
+
+
+    /**
+     *
+     * @return LengowOrder
+     */
+    protected function getLengowOrder(): LengowOrder
+    {
+        if ($this->lengowOrder instanceof LengowOrder) {
+            return $this->lengowOrder;
+        }
+        $this->lengowOrder = $this->lengowOrderFactory->create();
+        $lengowOrderId = (int) $this->lengowOrder->getLengowOrderIdByOrderId(
+            (int) $this->_request->getParam('order_id')
+        );
+
+        return $this->lengowOrder->load($lengowOrderId);
     }
 
 }

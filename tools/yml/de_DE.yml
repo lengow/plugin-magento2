@@ -168,6 +168,8 @@ de:
       no_order_will_be_sent: "Bestellfehler-Reports werden per Email nicht gesendet"
       change_this: "Ändern Sie dies?"
       ajax_timeout: "Während der Synchronisierung der Bestellungen kam es zu einem Time-Out-Fehler. Bitte aktualisieren Sie die Seite."
+      return_number: "Rücksendenummer"
+      return_carrier: "Beförderer für die Rückreise"
     table:
       lengow_action: "Aktionen"
       action_success: "Erfolg"

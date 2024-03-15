@@ -295,7 +295,7 @@ class Marketplace extends AbstractModel
         }
         $arguments = $this->getMarketplaceArguments(LengowAction::TYPE_SHIP);
 
-        return in_array(LengowAction::ARG_RETURN_TRACKING_CARRIER, $arguments);
+        return in_array(LengowAction::ARG_RETURN_CARRIER, $arguments);
 
     }
 
@@ -518,7 +518,6 @@ class Marketplace extends AbstractModel
                 case LengowAction::ARG_CARRIER_NAME:
                 case LengowAction::ARG_SHIPPING_METHOD:
                 case LengowAction::ARG_CUSTOM_CARRIER:
-                case LengowAction::ARG_RETURN_CARRIER:
                     if ((string) $lengowOrder->getData(LengowOrder::FIELD_CARRIER) !== '') {
                         $carrierCode = (string) $lengowOrder->getData(LengowOrder::FIELD_CARRIER);
                     } else {
@@ -532,6 +531,19 @@ class Marketplace extends AbstractModel
                     }
                     $params[$arg] = $carrierCode;
                     break;
+                case LengowAction::ARG_RETURN_CARRIER:
+                    $tracks = $shipment ? $shipment->getAllTracks() : null;
+                    if (!empty($tracks)) {
+                        $lastTrack = end($tracks);
+                    }
+                    $returnCarrierCode = isset($lastTrack)
+                        ? $this->matchCarrier(strtolower((string) $lastTrack->getReturnCarrierCode()), '')
+                        : '';
+
+                    $params[$arg] = $returnCarrierCode;
+                    break;
+
+
                 case LengowAction::ARG_SHIPPING_PRICE:
                     $params[$arg] = $order->getShippingInclTax();
                     break;
@@ -549,6 +561,7 @@ class Marketplace extends AbstractModel
                     break;
             }
         }
+
         return $params;
     }
 

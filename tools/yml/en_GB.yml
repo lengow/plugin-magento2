@@ -168,6 +168,8 @@ en:
       no_order_will_be_sent: "No order issue reports will be sent by mail"
       change_this: "Change this?"
       ajax_timeout: "The synchronisation of the orders was blocked by a timeout. Please reload the page."
+      return_number: "Return Number"
+      return_carrier: "Return Carrier"
     table:
       lengow_action: "Actions"
       action_success: "Success"

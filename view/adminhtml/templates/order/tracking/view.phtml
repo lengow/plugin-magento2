@@ -22,6 +22,9 @@ $shippingHelper = $block->getData('shippingHelper');
                     <th class="col-carrier"><?= $block->escapeHtml(__('Carrier')) ?></th>
                     <th class="col-title"><?= $block->escapeHtml(__('Title')) ?></th>
                     <th class="col-number"><?= $block->escapeHtml(__('Number')) ?></th>
+                    <?php if ($block->canDisplayReturnCarrier()): ?>
+                        <th class="col-number"><?= $block->escapeHtml(__('Return Carrier')) ?></th>
+                    <?php endif; ?>
                     <?php if ($block->canDisplayReturnNumber()): ?>
                         <th class="col-number"><?= $block->escapeHtml(__('Return Number')) ?></th>
                     <?php endif; ?>
@@ -57,9 +60,20 @@ $shippingHelper = $block->getData('shippingHelper');
                                name="number"
                                value="" />
                     </td>
+                    <?php if ($block->canDisplayReturnCarrier()): ?>
+                    <td class="col-title">
+                        <input class="input-text admin__control-text"
+                               type="text"
+                               id="return_carrier"
+                               name="return_carrier_code"
+                               value="" />
+
+                    </td>
+
+                    <?php endif; ?>
                     <?php if ($block->canDisplayReturnNumber()): ?>
                         <td class="col-number">
-                            <input class="input-text admin__control-text required-entry"
+                            <input class="input-text admin__control-text"
                                    type="text"
                                    id="return_tracking_number"
                                    name="return_number"
@@ -94,6 +108,11 @@ $shippingHelper = $block->getData('shippingHelper');
                         <div id="shipment_tracking_info_response_<?= (int) $_track->getId() ?>"></div>
                         <?php endif; ?>
                     </td>
+                    <?php if ($block->canDisplayReturnCarrier()): ?>
+                        <td class="col-number">
+                            <?= $block->escapeHtml($_track->getReturnCarrierCode()) ?>
+                        </td>
+                    <?php endif; ?>
                     <?php if ($block->canDisplayReturnNumber()): ?>
                         <td class="col-number">
                             <?= $block->escapeHtml($_track->getReturnTrackNumber()) ?>

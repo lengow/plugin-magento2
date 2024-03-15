@@ -168,6 +168,8 @@ fr:
       no_order_will_be_sent: "Les rapport d'erreurs de vos commandes ne seront pas envoyés par email "
       change_this: "Vous voulez modifier cela ?"
       ajax_timeout: "La synchronisation des commandes a été bloquée par un timeout. Merci de recharger la page."
+      return_number: "Num. de Retour"
+      return_carrier: "Transp. de retour"
     table:
       lengow_action: "Actions"
       action_success: "Succès"

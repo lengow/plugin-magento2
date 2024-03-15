@@ -29,6 +29,7 @@ require(['prototype'], function(){
             $('trackingC' + this.index).disabled = false;
             $('trackingT' + this.index).disabled = false;
             $('trackingN' + this.index).disabled = false;
+
             this.bindCurrierOnchange();
         },
         deleteRow : function(event) {
@@ -50,11 +51,18 @@ require(['prototype'], function(){
         currierOnchange : function(event) {
             var elem = Event.element(event);
             var option = elem.options[elem.selectedIndex];
+            var elemReturn = $('return_trackingT' + elem.getAttribute('data-index'));
             if (option.value && option.value != 'custom') {
                 elem.valueInput.value = option.text;
+                if (typeof elemReturn != 'undefined') {
+                    elemReturn.value = option.value.toUpperCase();
+                }
             }
             else {
                 elem.valueInput.value = '';
+                if (typeof elemReturn != 'undefined') {
+                    elemReturn.value = '';
+                }
             }
         }
     };
@@ -75,6 +83,7 @@ script;
             <select name="tracking[<%- data.index %>][carrier_code]"
                     id="trackingC<%- data.index %>"
                     class="select admin__control-select carrier"
+                    data-index="<%- data.index %>"
                     disabled="disabled">
                 <?php foreach ($block->getCarriers() as $_code => $_name): ?>
                     <option value="<?= $block->escapeHtmlAttr($_code) ?>"><?= $block->escapeHtml($_name) ?></option>
@@ -97,7 +106,17 @@ script;
                    value=""
                    disabled="disabled" />
         </td>
-        <?php if($block->canDisplayReturnNumber()): ?>
+        <?php if($block->canDisplayReturnCarrier()): ?>
+           <td class="col-title">
+                <input class="input-text admin__control-text"
+                   type="text"
+                   name="tracking[<%- data.index %>][return_carrier_code]"
+                   id="return_trackingT<%- data.index %>"
+                   value=""
+                    />
+            </td>
+        <?php endif; ?>
+         <?php if($block->canDisplayReturnNumber()): ?>
             <td class="col-number">
                 <input class="input-text admin__control-text"
                        type="text"
@@ -125,6 +144,9 @@ script;
             <th class="col-carrier"><?= $block->escapeHtml(__('Carrier')) ?></th>
             <th class="col-title"><?= $block->escapeHtml(__('Title')) ?></th>
             <th class="col-number"><?= $block->escapeHtml(__('Number')) ?></th>
+            <?php if($block->canDisplayReturnCarrier()): ?>
+                <th class="col-number"><?= $block->escapeHtml(__('Return Carrier')) ?></th>
+            <?php endif ; ?>
             <?php if($block->canDisplayReturnNumber()): ?>
                 <th class="col-number"><?= $block->escapeHtml(__('Return Number')) ?></th>
             <?php endif ; ?>
@@ -134,7 +156,9 @@ script;
         </thead>
         <tfoot>
         <tr>
-            <?php if($block->canDisplayReturnNumber()): ?>
+            <?php if($block->canDisplayReturnNumber()&& $block->canDisplayReturnCarrier()): ?>
+                <td colspan="6" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
+            <?php elseif($block->canDisplayReturnNumber()): ?>
                 <td colspan="5" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
             <?php else: ?>
                   <td colspan="4" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>

@@ -61,9 +61,14 @@ class ReturnTrackingNumber
         $trackingsPosted = $this->request->getPost('tracking') ?? [];
         $lastTraskPosted = end($trackingsPosted);
         $returnNumber = $lastTraskPosted['return_number'] ?? '';
+        $returnCarrierCode = $lastTraskPosted['return_carrier_code'] ?? '';
 
         if ($returnNumber) {
             $track->setReturnTrackNumber($returnNumber);
+        }
+
+        if ($returnCarrierCode) {
+            $track->setReturnCarrierCode($returnCarrierCode);
         }
 
         return [$track];

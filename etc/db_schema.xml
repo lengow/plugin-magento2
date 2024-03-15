@@ -120,5 +120,6 @@
   </table>
    <table name="sales_shipment_track" resource="default">
     <column xsi:type="text" name="return_track_number" nullable="true" comment="Return Tracking Number"/>
+    <column xsi:type="text" name="return_carrier_code" nullable="true" comment="Return Carrier Code"/>
   </table>
 </schema>
