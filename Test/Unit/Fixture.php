@@ -21,7 +21,7 @@ namespace Lengow\Connector\Test\Unit;
 
 use Exception;
 
-class Fixture extends \PHPUnit_Framework_TestCase
+class Fixture extends \PHPUnit\Framework\TestCase
 {
     /**
      * Call protected/private method of a class.

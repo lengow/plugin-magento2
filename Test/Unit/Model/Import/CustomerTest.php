@@ -27,7 +27,7 @@ use Lengow\Connector\Model\Import\Customer;
 use Magento\Directory\Model\ResourceModel\Region\Collection as RegionCollection;
 use Magento\Customer\Model\Address;
 
-class CustomerTest extends \PHPUnit_Framework_TestCase
+class CustomerTest extends \PHPUnit\Framework\TestCase
 {
 
     /**
@@ -55,7 +55,7 @@ class CustomerTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $this->_objectManager = new ObjectManager($this);
         $this->_configHelper = $this->_objectManager->getObject(ConfigHelper::class);

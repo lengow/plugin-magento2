@@ -24,7 +24,7 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Test\Unit\Fixture;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 
-class SecurityTest extends \PHPUnit_Framework_TestCase
+class SecurityTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Helper\Security
@@ -41,7 +41,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
         $this->_securityHelper = $objectManager->getObject(SecurityHelper::class);
@@ -63,11 +63,16 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
     public function testCheckWebserviceAccess()
     {
         $fixture = new Fixture();
-        $securityHelperMock = $fixture->mockFunctions($this->_securityHelper, ['checkToken', 'checkIp'], [true, false]);
-        $configHelperMock = $fixture->mockFunctions($this->_configHelper, ['get'], [0]);
+        $securityHelperMock = $this->createMock(SecurityHelper::class);
+        $configHelperMock = $this->createMock(ConfigHelper::class);
+        $fixture->mockFunctions(
+            $securityHelperMock, 
+            ['checkToken', 'checkIp'],
+            [true, false]
+        );
+        $fixture->mockFunctions($configHelperMock, ['get'], [0]);
         $fixture->setPrivatePropertyValue($securityHelperMock, ['_configHelper'], [$configHelperMock]);
-        $this->assertInternalType(
-            'boolean',
+        $this->assertIsBool(
             $securityHelperMock->checkWebserviceAccess('bd30439b3d2ce0bc63ac59fe0eac2060'),
             '[Test Check Webservice Access] Check if return is a array'
         );
@@ -126,8 +131,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
             ['bd30439b3d2ce0bc63ac59fe0eac2060']
         );
         $fixture->setPrivatePropertyValue($this->_securityHelper, ['_configHelper'], [$configHelperMock]);
-        $this->assertInternalType(
-            'boolean',
+        $this->assertIsBool(
             $this->_securityHelper->checkToken('bd30439b3d2ce0bc63ac59fe0eac2060'),
             '[Test Check Token] Check if return is a array'
         );

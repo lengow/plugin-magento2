@@ -23,7 +23,7 @@ use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Lengow\Connector\Model\Export\Price;
 use Lengow\Connector\Test\Unit\Fixture;
 
-class PriceTest extends \PHPUnit_Framework_TestCase
+class PriceTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Model\Export\Price
@@ -35,7 +35,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
         $this->_price = $objectManager->getObject(Price::class);

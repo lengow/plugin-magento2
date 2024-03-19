@@ -25,7 +25,7 @@ use Magento\Framework\App\Helper\Context;
 use Lengow\Connector\Test\Unit\Fixture;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 
-class SyncTest extends \PHPUnit_Framework_TestCase
+class SyncTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Helper\Sync
@@ -47,7 +47,7 @@ class SyncTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
         $this->_syncHelper = $objectManager->getObject(SyncHelper::class);
@@ -75,8 +75,7 @@ class SyncTest extends \PHPUnit_Framework_TestCase
             ['_syncActions'],
             [['order', 'action', 'catalog', 'option']]
         );
-        $this->assertInternalType(
-            'boolean',
+        $this->assertIsBool(
             $this->_syncHelper->isSyncAction('catalog'),
             '[Test Is Sync Action] Check if return is a boolean'
         );
@@ -99,8 +98,7 @@ class SyncTest extends \PHPUnit_Framework_TestCase
         $classMock = $fixture->getFakeClass();
         $configHelperMock = $fixture->mockFunctions($classMock, ['isNewMerchant'], [true]);
         $fixture->setPrivatePropertyValue($this->_syncHelper, ['_configHelper'], [$configHelperMock]);
-        $this->assertInternalType(
-            'boolean',
+        $this->assertIsBool(
             $this->_syncHelper->pluginIsBlocked(),
             '[Test Plugin Is Blocked] Check if return is a boolean'
         );
@@ -140,23 +138,24 @@ class SyncTest extends \PHPUnit_Framework_TestCase
     {
         $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
-        $configHelperMock = $fixture->mockFunctions($classMock, ['isNewMerchant'], [true]);
+        $configHelperMock = $this->createMock(ConfigHelper::class);
+        $syncHelperMock = $this->createMock(SyncHelper::class);
+        $fixture->mockFunctions($configHelperMock, ['isNewMerchant'], [true]);
         $fixture->setPrivatePropertyValue(
-            $this->_syncHelper,
+            $syncHelperMock,
             ['_configHelper', 'statusAccount'],
             [$configHelperMock, null]
         );
+
         $this->assertFalse(
-            $this->_syncHelper->getStatusAccount(),
+            $syncHelperMock->getStatusAccount(),
             '[Test Get Status Account] Check if return is false for new merchant'
         );
 
+        
         $updatedAt = date('Y-m-d H:i:s', time() - 1000);
         $statusAccount = '{"type":"free_trial","day":12,"expired":false}';
-        $configHelperMock2 = $this->getMockBuilder(get_class($classMock))
-            ->setMethods(['get', 'isNewMerchant'])
-            ->disableOriginalConstructor()
-            ->getMock();
+        $configHelperMock2 = $this->createMock(ConfigHelper::class);
         $configHelperMock2->expects($this->any())->method('get')->willReturnOnConsecutiveCalls(
             $updatedAt,
             $statusAccount,
@@ -169,11 +168,12 @@ class SyncTest extends \PHPUnit_Framework_TestCase
             ['_configHelper', 'statusAccount'],
             [$configHelperMock2, null]
         );
-        $this->assertInternalType(
-            'array',
+
+        $this->assertIsArray(
             $this->_syncHelper->getStatusAccount(),
             '[Test Get Status Account] Check if return is a array'
         );
+
         $fixture->setPrivatePropertyValue($this->_syncHelper, ['statusAccount'], [null]);
         $this->assertEquals(
             json_decode($statusAccount, true),

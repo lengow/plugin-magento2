@@ -23,7 +23,7 @@ use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Lengow\Connector\Model\Export\Category;
 use Lengow\Connector\Test\Unit\Fixture;
 
-class CategoryTest extends \PHPUnit_Framework_TestCase
+class CategoryTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Model\Export\Category
@@ -35,7 +35,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
         $this->_category = $objectManager->getObject(Category::class);
@@ -61,8 +61,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
             ['_categoryBreadcrumb'],
             ['Default Category > Men > Tops > Hoodies & Sweatshirts']
         );
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $this->_category->getCategoryBreadcrumb(),
             '[Test Get Variation List] Check if return is a string'
         );
@@ -107,8 +106,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
         $productMock = $fixture->mockFunctions($classMock, ['getCategoryCollection'], [$categoryCollectionMock]);
         $storeMock = $fixture->mockFunctions($classMock, ['getRootCategoryId'], [0]);
         $fixture->setPrivatePropertyValue($this->_category, ['_store', '_product'], [$storeMock, $productMock]);
-        $this->assertInternalType(
-            'array',
+        $this->assertInternalIsArray(
             $fixture->invokeMethod($this->_category, '_getDefaultCategory'),
             '[Test Get Default Category] Check if return is a array'
         );
@@ -155,8 +153,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
             'Tops',
             'Hoodies & Sweatshirts'
         );
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $fixture->invokeMethod($categoryMock, '_getBreadcrumb', [0, '1/2/3/4/5']),
             '[Test Get Variation List] Check if return is a string'
         );
@@ -212,8 +209,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
             ['_store', '_categoryRepository'],
             [$storeMock, $categoryRepositoryMock]
         );
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $fixture->invokeMethod($this->_category, '_getName', [0]),
             '[Test Get Variation List] Check if return is a string'
         );

@@ -25,7 +25,7 @@ use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Magento\Store\Model\Store;
 use Lengow\Connector\Test\Unit\Fixture;
 
-class ExportTest extends \PHPUnit_Framework_TestCase
+class ExportTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Model\Export
@@ -47,7 +47,7 @@ class ExportTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
         $this->_export = $objectManager->getObject(Export::class);

@@ -23,7 +23,7 @@ use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Lengow\Connector\Model\Export\Shipping;
 use Lengow\Connector\Test\Unit\Fixture;
 
-class ShippingTest extends \PHPUnit_Framework_TestCase
+class ShippingTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Model\Export\Shipping
@@ -35,7 +35,7 @@ class ShippingTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
         $this->_shipping = $objectManager->getObject(Shipping::class);

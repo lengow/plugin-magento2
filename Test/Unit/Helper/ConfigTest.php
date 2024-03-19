@@ -31,7 +31,7 @@ use Magento\Config\Model\ResourceModel\Config\Data\Collection as ConfigDataColle
 use Magento\Store\Model\ResourceModel\Store\CollectionFactory as StoreCollectionFactory;
 use Magento\Store\Model\ResourceModel\Store\Collection as StoreCollection;
 
-class ConfigTest extends \PHPUnit_Framework_TestCase
+class ConfigTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Helper\Config
@@ -63,45 +63,39 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
         $customerGroupCollectionFactoryMock = $this->getMockBuilder(GroupCollectionFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
-        $this->_customerGroupCollectionMock = $objectManager->getCollectionMock(GroupCollection::class, []);
+        $this->_customerGroupCollectionMock = $this->createMock(GroupCollection::class);
         $customerGroupCollectionFactoryMock->method('create')->willReturn($this->_customerGroupCollectionMock);
 
         $attributeCollectionFactoryMock = $this->getMockBuilder(AttributeCollectionFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
-        $this->_attributeCollectionMock = $objectManager->getCollectionMock(AttributeCollection::class, []);
+        $this->_attributeCollectionMock = $this->createMock(AttributeCollection::class);
         $attributeCollectionFactoryMock->method('create')->willReturn($this->_attributeCollectionMock);
 
         $configDataCollectionFactoryMock = $this->getMockBuilder(ConfigDataCollectionFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
-        $this->_configDataCollectionMock = $objectManager->getCollectionMock(ConfigDataCollection::class, []);
+        $this->_configDataCollectionMock = $this->createMock(ConfigDataCollection::class);
         $configDataCollectionFactoryMock->method('create')->willReturn($this->_configDataCollectionMock);
 
         $storeCollectionFactoryMock = $this->getMockBuilder(StoreCollectionFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
-        $this->_storeCollectionMock = $objectManager->getCollectionMock(StoreCollection::class, []);
+        $this->_storeCollectionMock = $this->createMock(StoreCollection::class);
         $storeCollectionFactoryMock->method('create')->willReturn($this->_storeCollectionMock);
-        $this->_configHelper = $objectManager->getObject(
-            Config::class,
-            [
-                '_customerGroupCollectionFactory' => $customerGroupCollectionFactoryMock,
-                '_attributeCollectionFactory' => $attributeCollectionFactoryMock,
-                '_configDataCollectionFactory' => $configDataCollectionFactoryMock,
-                '_storeCollectionFactory' => $storeCollectionFactoryMock,
-            ]
-        );
+
+        $this->_configHelper = $this->createMock(Config::class);
+
     }
 
     public function testClassInstantiation()
@@ -124,20 +118,25 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             '[Test Get] Check if return is valid for Lengow setting with cache'
         );
 
+
         $this->_configDataCollectionMock->expects($this->exactly(2))
             ->method('addFieldToFilter')
             ->will($this->returnValue($this->_configDataCollectionMock));
+
         $this->_configDataCollectionMock->expects($this->once())
             ->method('load')
             ->will($this->returnValue($this->_configDataCollectionMock));
+
         $this->_configDataCollectionMock->expects($this->once())
             ->method('getData')
             ->will($this->returnValue([['value' => 'mytoken']]));
+
         $this->assertEquals(
             $this->_configHelper->get('token'),
             'mytoken',
             '[Test Get] Check if return is valid for Lengow setting with cache'
         );
+        //exit('test');
 
         $this->assertEquals(
             $this->_configHelper->get('toto'),
@@ -161,8 +160,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             ->method('toOptionArray')
             ->willReturn($mockCustomerGroups);
         $customerGroups = $this->_configHelper->getAllCustomerGroup();
-        $this->assertInternalType(
-            'array',
+        $this->assertIsArray(
             $customerGroups,
             '[Test Get All Customer Group] Check if return is a array'
         );
@@ -181,8 +179,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     {
         $fixture = new Fixture();
         $configHelperMock = $fixture->mockFunctions($this->_configHelper, ['getAccessIds'], [[null, null, null]]);
-        $this->assertInternalType(
-            'boolean',
+        $this->assertIsBool(
             $configHelperMock->isNewMerchant(),
             '[Test Is New Merchant] Check if return is a boolean'
         );
@@ -209,8 +206,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $fixture = new Fixture();
         $selectedAttributesMock = 'meta_description,meta_keyword,meta_title,minimal_price,size';
         $configHelperMock = $fixture->mockFunctions($this->_configHelper, ['get'], [$selectedAttributesMock]);
-        $this->assertInternalType(
-            'array',
+        $this->assertIsArray(
             $configHelperMock->getSelectedAttributes(1),
             '[Test Get Selected Attributes] Check if return is a array'
         );

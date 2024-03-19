@@ -26,7 +26,7 @@ use Magento\Framework\App\Helper\Context;
 use Lengow\Connector\Test\Unit\Fixture;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 
-class ImportTest extends \PHPUnit_Framework_TestCase
+class ImportTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Helper\Import
@@ -53,7 +53,7 @@ class ImportTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
         $this->_importHelper = $objectManager->getObject(ImportHelper::class);
@@ -132,17 +132,17 @@ class ImportTest extends \PHPUnit_Framework_TestCase
         $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
 
-        $configHelperMock = $this->getMockBuilder(get_class($classMock))
-            ->setMethods(['get'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $importHelperMock = $fixture->mockFunctions($this->_importHelper, ['setImportEnd'], [true]);
-        $configHelperMock->expects($this->any())->method('get')->willReturnOnConsecutiveCalls(
+        $configHelperMock = $this->createMock(ConfigHelper::class);
+        $importHelperMock = $this->createMock(ImportHelper::class);
+        $configHelperMock->expects($this->any())
+            ->method('get')
+            ->willReturnOnConsecutiveCalls(
             '1507715696',
             '',
             0,
             time() - 10
         );
+
         $fixture->setPrivatePropertyValue($importHelperMock, ['_configHelper'], [$configHelperMock]);
 
         $this->assertEquals(
@@ -150,7 +150,7 @@ class ImportTest extends \PHPUnit_Framework_TestCase
             $importHelperMock->isInProcess(),
             '[Test Get Last Import] Check if return import is in process or not 1'
         );
-
+        
         $this->assertEquals(
             false,
             $importHelperMock->isInProcess(),

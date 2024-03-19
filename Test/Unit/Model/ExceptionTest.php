@@ -22,7 +22,7 @@ namespace Lengow\Connector\Test\Unit\Model;
 use Lengow\Connector\Model\Exception;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 
-class ExceptionTest extends \PHPUnit_Framework_TestCase
+class ExceptionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Exception
@@ -34,7 +34,7 @@ class ExceptionTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
         $this->_exception = $objectManager->getObject(Exception::class);

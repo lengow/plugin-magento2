@@ -25,7 +25,7 @@ use Lengow\Connector\Model\Export\Feed;
 use Lengow\Connector\Test\Unit\Fixture;
 use Lengow\Connector\Helper\Data as DataHelper;
 
-class FeedTest extends \PHPUnit_Framework_TestCase
+class FeedTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Model\Export\Feed
@@ -47,7 +47,7 @@ class FeedTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
         $this->_feed = $objectManager->getObject(Feed::class);
@@ -71,8 +71,7 @@ class FeedTest extends \PHPUnit_Framework_TestCase
     {
         $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_feed, ['_format' ], ['csv']);
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $fixture->invokeMethod($this->_feed, '_getHtmlHeader'),
             '[Test Get Html Header] Check if return is a string value'
         );
@@ -116,8 +115,7 @@ class FeedTest extends \PHPUnit_Framework_TestCase
         $dataMock = ['id', 'sku', 'name', 'child_name', 'quantity', 'status'];
         $fixture->setPrivatePropertyValue($this->_feed, ['_dataHelper'], [$this->_dataHelper]);
         $fixture->setPrivatePropertyValue($this->_feed, ['_format'], ['csv']);
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $fixture->invokeMethod($this->_feed, '_getHeader', [$dataMock]),
             '[Test Get Header] Check if return is a string value'
         );
@@ -159,8 +157,7 @@ class FeedTest extends \PHPUnit_Framework_TestCase
     {
         $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_feed, ['_format'], ['csv']);
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $fixture->invokeMethod($this->_feed, '_getFooter'),
             '[Test Get Footer] Check if return is a string value'
         );
@@ -204,8 +201,7 @@ class FeedTest extends \PHPUnit_Framework_TestCase
         $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_feed, ['_dataHelper'], [$this->_dataHelper]);
         $fixture->setPrivatePropertyValue($this->_feed, ['_format'], ['csv']);
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $fixture->invokeMethod($this->_feed, '_getBody', [$dataMock, false, 4]),
             '[Test Get Body] Check if return is a string value'
         );

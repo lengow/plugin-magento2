@@ -23,7 +23,7 @@ use Lengow\Connector\Test\Unit\Fixture;
 use Lengow\Connector\Block\Adminhtml\Header;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 
-class HeaderTest extends \PHPUnit_Framework_TestCase
+class HeaderTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Block\Adminhtml\Header
@@ -35,11 +35,14 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
-        $contextMock = $this->getMock('Magento\Backend\Block\Template\Context', [], [], '', false);
+        $contextMock = $this->createMock(\Magento\Backend\Block\Template\Context::class);
+
+
         $this->_header = $objectManager->getObject(Header::class, ['context' => $contextMock]);
+
     }
 
     public function testClassInstantiation()
@@ -57,8 +60,7 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
     public function testFreeTrialIsEnabled()
     {
         $fixture = new Fixture();
-        $this->assertInternalType(
-            'boolean',
+        $this->assertIsBool(
             $this->_header->freeTrialIsEnabled(),
             '[Test Free Trial Is Enabled] Check if return is a boolean'
         );
@@ -110,8 +112,7 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
     public function testGetFreeTrialDays()
     {
         $fixture = new Fixture();
-        $this->assertInternalType(
-            'integer',
+        $this->assertIsInt(
             $this->_header->getFreeTrialDays(),
             '[Test Get Free Trial Days] Check if return is a integer'
         );

@@ -29,7 +29,7 @@ use Lengow\Connector\Model\Export\Product;
 use Lengow\Connector\Test\Unit\Fixture;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
-class ProductTest extends \PHPUnit_Framework_TestCase
+class ProductTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Magento\Catalog\Model\Product
@@ -71,7 +71,7 @@ class ProductTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
         $this->_product = $objectManager->getObject(Product::class);
