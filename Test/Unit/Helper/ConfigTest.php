@@ -70,31 +70,38 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
             ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
-        $this->_customerGroupCollectionMock = $this->createMock(GroupCollection::class);
+        $this->_customerGroupCollectionMock = $objectManager->getCollectionMock(GroupCollection::class, []);
         $customerGroupCollectionFactoryMock->method('create')->willReturn($this->_customerGroupCollectionMock);
 
         $attributeCollectionFactoryMock = $this->getMockBuilder(AttributeCollectionFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
-        $this->_attributeCollectionMock = $this->createMock(AttributeCollection::class);
+        $this->_attributeCollectionMock = $objectManager->getCollectionMock(AttributeCollection::class, []);
         $attributeCollectionFactoryMock->method('create')->willReturn($this->_attributeCollectionMock);
 
         $configDataCollectionFactoryMock = $this->getMockBuilder(ConfigDataCollectionFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
-        $this->_configDataCollectionMock = $this->createMock(ConfigDataCollection::class);
+        $this->_configDataCollectionMock = $objectManager->getCollectionMock(ConfigDataCollection::class, []);
         $configDataCollectionFactoryMock->method('create')->willReturn($this->_configDataCollectionMock);
 
         $storeCollectionFactoryMock = $this->getMockBuilder(StoreCollectionFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
-        $this->_storeCollectionMock = $this->createMock(StoreCollection::class);
+        $this->_storeCollectionMock = $objectManager->getCollectionMock(StoreCollection::class, []);
         $storeCollectionFactoryMock->method('create')->willReturn($this->_storeCollectionMock);
-
-        $this->_configHelper = $this->createMock(Config::class);
+        $this->_configHelper = $objectManager->getObject(
+            Config::class,
+            [
+                'customerGroupCollectionFactory' => $customerGroupCollectionFactoryMock,
+                'attributeCollectionFactory' => $attributeCollectionFactoryMock,
+                'configDataCollectionFactory' => $configDataCollectionFactoryMock,
+                'storeCollectionFactory' => $storeCollectionFactoryMock,
+            ]
+        );
 
     }
 
@@ -131,12 +138,13 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
             ->method('getData')
             ->will($this->returnValue([['value' => 'mytoken']]));
 
+
         $this->assertEquals(
             $this->_configHelper->get('token'),
             'mytoken',
             '[Test Get] Check if return is valid for Lengow setting with cache'
         );
-        //exit('test');
+
 
         $this->assertEquals(
             $this->_configHelper->get('toto'),

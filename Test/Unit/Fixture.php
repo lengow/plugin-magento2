@@ -71,11 +71,16 @@ class Fixture extends \PHPUnit\Framework\TestCase
      * @param array $propertyNames Class properties
      * @param array $propertyValues Class value properties
      */
-    public function setPrivatePropertyValue(&$object, $propertyNames, $propertyValues)
+    public function setPrivatePropertyValue($object, $propertyNames, $propertyValues, $orignalObject = null)
     {
         $ii = 0;
         try {
-            $reflection = new \ReflectionClass(get_class($object));
+            if (!is_null($orignalObject)) {
+                 $reflection = new \ReflectionClass(get_class($orignalObject));
+            } else {
+                $reflection = new \ReflectionClass(get_class($object));
+            }
+
         } catch (Exception $e) {
             $reflection = false;
         }
@@ -92,6 +97,8 @@ class Fixture extends \PHPUnit\Framework\TestCase
             }
         }
     }
+
+
 
     /**
      * Get a fake class for mock function
@@ -120,11 +127,13 @@ class Fixture extends \PHPUnit\Framework\TestCase
                 ->setConstructorArgs($constructArgs)
                 ->getMock();
         } else {
+
             $mockFunction = $this->getMockBuilder(get_class($object))
                 ->setMethods($methodNames)
                 ->disableOriginalConstructor()
                 ->getMock();
         }
+
         foreach ($methodNames as $methodName) {
             $mockFunction->expects($this->any())->method($methodName)->will($this->returnValue($returns[$ii]));
             $ii++;

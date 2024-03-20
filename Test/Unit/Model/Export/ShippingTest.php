@@ -56,9 +56,9 @@ class ShippingTest extends \PHPUnit\Framework\TestCase
     public function testGetShippingMethod()
     {
         $fixture = new Fixture();
-        $fixture->setPrivatePropertyValue($this->_shipping, ['_shippingMethod'], ['ups']);
-        $this->assertInternalType(
-            'string',
+
+        $fixture->setPrivatePropertyValue($this->_shipping, ['shippingMethod'], ['ups']);
+        $this->assertIsString(
             $this->_shipping->getShippingMethod(),
             '[Test Get Variation List] Check if return is a string'
         );
@@ -75,9 +75,8 @@ class ShippingTest extends \PHPUnit\Framework\TestCase
     public function testGetShippingCost()
     {
         $fixture = new Fixture();
-        $fixture->setPrivatePropertyValue($this->_shipping, ['_shippingCost'], [4.99]);
-        $this->assertInternalType(
-            'float',
+        $fixture->setPrivatePropertyValue($this->_shipping, ['shippingCost'], [4.99]);
+        $this->assertIsFloat(
             $this->_shipping->getShippingCost(),
             '[Test Get Shipping Cost] Check if return is a float'
         );
@@ -120,8 +119,7 @@ class ShippingTest extends \PHPUnit\Framework\TestCase
             ['_store', '_configHelper'],
             [$storeMock, $configHelperMock]
         );
-        $this->assertInternalType(
-            'array',
+        $this->assertIsArray(
             $fixture->invokeMethod($this->_shipping, '_getShippingData'),
             '[Test Get Shipping Data] Check if return is a array'
         );
@@ -218,8 +216,7 @@ class ShippingTest extends \PHPUnit\Framework\TestCase
             ['_magentoShipping', '_priceCurrency', '_shippingIsFixed'],
             [$magentoShippingMock4, $priceCurrencyMock, true]
         );
-        $this->assertInternalType(
-            'float',
+        $this->assertIsFloat(
             $fixture->invokeMethod($shippingMock, '_getProductShippingCost'),
             '[Test Get Shipping Data] Check if return is a float'
         );

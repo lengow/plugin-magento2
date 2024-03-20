@@ -95,7 +95,7 @@ class ImportTest extends \PHPUnit\Framework\TestCase
             '1507715697',
             '1507715696'
         );
-        $fixture->setPrivatePropertyValue($this->_importHelper, ['_configHelper'], [$configHelperMock]);
+        $fixture->setPrivatePropertyValue($this->_importHelper, ['configHelper'], [$configHelperMock]);
 
         $this->assertEquals(
             ['type' => 'cron', 'timestamp' => '1507715696'],
@@ -132,41 +132,45 @@ class ImportTest extends \PHPUnit\Framework\TestCase
         $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
 
-        $configHelperMock = $this->createMock(ConfigHelper::class);
-        $importHelperMock = $this->createMock(ImportHelper::class);
-        $configHelperMock->expects($this->any())
-            ->method('get')
-            ->willReturnOnConsecutiveCalls(
+        $configHelperMock = $this->getMockBuilder(get_class($classMock))
+            ->addMethods(['get','set'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+
+        $fixture->mockFunctions($this->_importHelper, ['setImportEnd'], [true]);
+        $configHelperMock->expects($this->any())->method('get')->willReturnOnConsecutiveCalls(
             '1507715696',
             '',
             0,
             time() - 10
         );
 
-        $fixture->setPrivatePropertyValue($importHelperMock, ['_configHelper'], [$configHelperMock]);
+        $fixture->setPrivatePropertyValue($this->_importHelper, ['configHelper'], [$configHelperMock]);
 
         $this->assertEquals(
             false,
-            $importHelperMock->isInProcess(),
+            $this->_importHelper->isInProcess(),
             '[Test Get Last Import] Check if return import is in process or not 1'
         );
-        
+
         $this->assertEquals(
             false,
-            $importHelperMock->isInProcess(),
+            $this->_importHelper->isInProcess(),
             '[Test Get Last Import] Check if return import is in process or not 2'
         );
 
         $this->assertEquals(
             false,
-            $importHelperMock->isInProcess(),
+            $this->_importHelper->isInProcess(),
             '[Test Get Last Import] Check if return import is in process or not 3'
         );
 
         $this->assertEquals(
             true,
-            $importHelperMock->isInProcess(),
+            $this->_importHelper->isInProcess(),
             '[Test Get Last Import] Check if return import is in process or not 4'
         );
+        
     }
 }

@@ -159,8 +159,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
             ],
             [100, 50, 25, 10, 10, 5]
         );
-        $this->assertInternalType(
-            'array',
+        $this->assertIsArray(
             $this->_product->getCounters(),
             '[Test Get All Counter] Check if return is a array'
         );
@@ -186,10 +185,10 @@ class ProductTest extends \PHPUnit\Framework\TestCase
     public function testClean()
     {
         $fixture = new Fixture();
-        $classMock = $fixture->getFakeClass();
-        $priceMock = $fixture->mockFunctions($classMock, ['clean'], [true]);
-        $shippingMock = $fixture->mockFunctions($classMock, ['clean'], [true]);
-        $categoryMock = $fixture->mockFunctions($classMock, ['clean'], [true]);
+        $productMock = $this->createMock(Product::class);
+        $priceMock    = $fixture->mockFunctions($productMock, ['clean'], [true]);
+        $shippingMock = $fixture->mockFunctions($productMock, ['clean'], [true]);
+        $categoryMock = $fixture->mockFunctions($productMock, ['clean'], [true]);
         $fixture->setPrivatePropertyValue(
             $this->_product,
             [
@@ -223,7 +222,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
                 $categoryMock,
             ]
         );
-        $this->_product->clean();
+        $productMock->clean();
         $this->assertNull(
             $fixture->getPrivatePropertyValue($this->_product, '_product'),
             '[Test Clean] Check if _product attribute is null'
@@ -497,8 +496,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
                 'http://www.site.com/pub/media/catalog/product',
             ]
         );
-        $this->assertInternalType(
-            'array',
+        $this->assertIsArray(
             $fixture->invokeMethod($this->_product, '_getImages'),
             '[Test Get Images] Check if return is a array'
         );
@@ -716,8 +714,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
             [$parentCollectionMock]
         );
         $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['simple']);
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $fixture->invokeMethod($this->_product, '_getVariationList'),
             '[Test Get Variation List] Check if return is a string'
         );
@@ -775,8 +772,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
             [$collectionMock, 4]
         );
         $fixture->setPrivatePropertyValue($this->_product, ['_type', '_product'], ['simple', $productMock]);
-        $this->assertInternalType(
-            'array',
+        $this->assertIsArray(
             $fixture->invokeMethod($this->_product, '_getChildrenIds'),
             '[Test Get Children Ids] Check if return is a array'
         );
@@ -827,8 +823,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
             ['_type', '_product', '_store', '_stockRegistry', '_childrenIds'],
             ['simple', $productMock, $storeMock, $stockRegistryMock, [1, 2, 3]]
         );
-        $this->assertInternalType(
-            'integer',
+        $this->assertIsInt(
             $fixture->invokeMethod($this->_product, '_getQuantity'),
             '[Test Get Quantity] Check if return is a integer'
         );

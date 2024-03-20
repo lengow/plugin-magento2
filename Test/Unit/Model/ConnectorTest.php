@@ -71,16 +71,19 @@ class ConnectorTest extends \PHPUnit\Framework\TestCase
     {
         $fixture = new Fixture();
         $mockConnect = ['token' => '123TEST', 'account_id' => '123', 'user_id' => '123'];
-        $connectorMock = $fixture->mockFunctions($this->_connector, ['callAction'], [$mockConnect]);
+        $connectorMock = $this->createMock(Connector::class);
+        $mock1 = $fixture->mockFunctions($connectorMock, ['callAction'], [$mockConnect]);
         $this->assertEquals(
-            $connectorMock->connect(),
+            $mock1->connect(),
             $mockConnect,
             '[Test Connect] Check if return is valid when connection is ok'
         );
 
-        $connectorMock2 = $fixture->mockFunctions($this->_connector, ['callAction'], [null]);
+        $connectorMock2 = $this->createMock(Connector::class);
+        $fixture->setPrivateMethods($connectorMock2, ['callAction']);
+        $mock2 = $fixture->mockFunctions($connectorMock2, ['callAction'], [null]);
         $this->assertNotTrue(
-            $connectorMock2->connect(),
+            $mock2->connect(),
             '[Test Connect] Check if return is valid when connection is failed'
         );
     }
@@ -150,7 +153,7 @@ class ConnectorTest extends \PHPUnit\Framework\TestCase
             ['get'],
             ['{"id": 1,"name": "A green door","price": 12.50,"tags": ["home", "green"]}']
         );
-        $fixture->setPrivatePropertyValue($connectorMock, ['_configHelper'], [$configHelperMock]);
+        $fixture->setPrivatePropertyValue($connectorMock, ['configHelper'], [$configHelperMock]);
         $this->assertNotTrue(
             $this->_connector->queryApi('plop', '/v3.0/cms'),
             '[Test Query API] Check if type is valid'
@@ -168,61 +171,68 @@ class ConnectorTest extends \PHPUnit\Framework\TestCase
      */
     public function testIsValidAuth()
     {
+
         $fixture = new Fixture();
-        $classMock = $fixture->getFakeClass();
-        $connectorMock = $fixture->mockFunctions($this->_connector, ['isCurlActivated'], [false]);
+        $connectorMock = $this->createMock(Connector::class);
+        $configHelperMock = $this->createMock(ConfigHelper::class);
+        $fixture->mockFunctions($connectorMock, ['isCurlActivated'], [false]);
+        $fixture->setPrivatePropertyValue($connectorMock, ['configHelper'], [$configHelperMock]);
+
         $this->assertNotTrue(
             $connectorMock->isValidAuth(),
             '[Test Is Valid Auth] Check if API Authentication is refused when curl is not installed'
         );
-
-        $connectorMock2 = $fixture->mockFunctions(
-            $this->_connector,
+        $connectorMock2 = $this->createMock(Connector::class);
+        $fixture->mockFunctions(
+            $connectorMock2,
             ['isCurlActivated', 'init', 'connect'],
             [true, null, ['token' => '123', 'account_id' => '123', 'user_id' => '123']]
         );
-        $configHelperMock = $fixture->mockFunctions($classMock, ['getAccessIds'], [[null, null, null]]);
-        $fixture->setPrivatePropertyValue($connectorMock2, ['_configHelper'], [$configHelperMock]);
+
+        $fixture->mockFunctions($configHelperMock, ['getAccessIds'], [[null, null, null]]);
+        $fixture->setPrivatePropertyValue($connectorMock2, ['configHelper'], [$configHelperMock]);
+
         $this->assertNotTrue(
             $connectorMock2->isValidAuth(),
             '[Test Is Valid Auth] Check if API Authentication is refused when account id is null'
         );
 
-        $configHelperMock2 = $fixture->mockFunctions($classMock, ['getAccessIds'], [[0, 'accessToken', 'secretToken']]);
-        $fixture->setPrivatePropertyValue($connectorMock2, ['_configHelper'], [$configHelperMock2]);
+        $configHelperMock2 = $this->createMock(ConfigHelper::class);
+        $fixture->mockFunctions($configHelperMock2, ['getAccessIds'], [[0, 'accessToken', 'secretToken']]);
+        $fixture->setPrivatePropertyValue($connectorMock2, ['configHelper'], [$configHelperMock2]);
         $this->assertNotTrue(
             $connectorMock2->isValidAuth(),
             '[Test Is Valid Auth] Check if API Authentication is false when account id is equal 0'
         );
-
-        $configHelperMock3 = $fixture->mockFunctions(
-            $classMock,
+        $configHelperMock3 = $this->createMock(ConfigHelper::class);
+        $fixture->mockFunctions(
+            $configHelperMock3,
             ['getAccessIds'],
             [['accountId', 'accessToken', 'secretToken']]
         );
-        $fixture->setPrivatePropertyValue($connectorMock2, ['_configHelper'], [$configHelperMock3]);
+        $fixture->setPrivatePropertyValue($connectorMock2, ['configHelper'], [$configHelperMock3]);
         $this->assertNotTrue(
             $connectorMock2->isValidAuth(),
             '[Test Is Valid Auth] Check if API Authentication is refused when account id is not a number'
         );
-
-        $configHelperMock4 = $fixture->mockFunctions(
-            $classMock,
+        $configHelperMock4 = $this->createMock(ConfigHelper::class);
+        $fixture->mockFunctions(
+            $configHelperMock4,
             ['getAccessIds'],
             [[123, 'accessToken', 'secretToken']]
         );
-        $fixture->setPrivatePropertyValue($connectorMock2, ['_configHelper'], [$configHelperMock4]);
+        $fixture->setPrivatePropertyValue($connectorMock2, ['configHelper'], [$configHelperMock4]);
         $this->assertTrue(
             $connectorMock2->isValidAuth(),
             '[Test Is Valid Auth] Check if API Authentication is valid'
         );
-
-        $connectorMock3 = $fixture->mockFunctions(
-            $this->_connector,
+        $configHelperMock5 = $this->createMock(ConfigHelper::class);
+        $fixture->mockFunctions(
+            $configHelperMock5,
             ['isCurlActivated', 'init', 'connect'],
             [true, null, false]
         );
-        $fixture->setPrivatePropertyValue($connectorMock3, ['_configHelper'], [$configHelperMock4]);
+        $fixture->setPrivatePropertyValue($connectorMock3, ['configHelper'], [$configHelperMock5]);
         $this->assertNotTrue(
             $connectorMock3->isValidAuth(),
             '[Test Is Valid Auth] Check if API Authentication is refused when credentials are not valid'

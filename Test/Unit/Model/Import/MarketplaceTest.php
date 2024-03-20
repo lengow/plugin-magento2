@@ -57,8 +57,7 @@ class MarketplaceTest extends \PHPUnit\Framework\TestCase
     {
         $fixture = new Fixture();
         $fixture->setPrivatePropertyValue($this->_marketplace, ['statesLengow'], [['Shipped' => 'shipped']]);
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $this->_marketplace->getStateLengow('Shipped'),
             '[Test Get State Lengow] Check if return is a string'
         );
@@ -122,8 +121,7 @@ class MarketplaceTest extends \PHPUnit\Framework\TestCase
             ],
         ];
         $fixture->setPrivatePropertyValue($this->_marketplace, ['actions'], [$actions]);
-        $this->assertInternalType(
-            'boolean',
+        $this->assertIsBool(
             $this->_marketplace->containOrderLine('ship'),
             '[Test Contain Order Line] Check if return is a boolean'
         );
@@ -161,8 +159,7 @@ class MarketplaceTest extends \PHPUnit\Framework\TestCase
     public function testMatchCarrier()
     {
         $fixture = new Fixture();
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $fixture->invokeMethod($this->_marketplace, '_matchCarrier', ['custom', 'my carrier']),
             '[Test Match Carrier] Check if return is a string'
         );
@@ -211,8 +208,7 @@ class MarketplaceTest extends \PHPUnit\Framework\TestCase
     public function testCleanString()
     {
         $fixture = new Fixture();
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $fixture->invokeMethod($this->_marketplace, '_cleanString', ['custom']),
             '[Test Clean String] Check if return is a string'
         );
@@ -229,7 +225,7 @@ class MarketplaceTest extends \PHPUnit\Framework\TestCase
     public function testSearchValue()
     {
         $fixture = new Fixture();
-        $this->assertInternalType(
+        $this->assertIsBool(
             'boolean',
             $fixture->invokeMethod($this->_marketplace, '_searchValue', ['custom', 'custom']),
             '[Test Search Value] Check if return is a boolean'

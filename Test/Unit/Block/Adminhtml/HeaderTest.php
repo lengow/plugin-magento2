@@ -70,7 +70,7 @@ class HeaderTest extends \PHPUnit\Framework\TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_header,
-            ['_statusAccount'],
+            ['statusAccount'],
             [['type' => 'free_trial', 'expired' => false]]
         );
         $this->assertTrue(
@@ -79,7 +79,7 @@ class HeaderTest extends \PHPUnit\Framework\TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_header,
-            ['_statusAccount'],
+            ['statusAccount'],
             [['type' => 'free_trial', 'expired' => true]]
         );
         $this->assertFalse(
@@ -88,7 +88,7 @@ class HeaderTest extends \PHPUnit\Framework\TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_header,
-            ['_statusAccount'],
+            ['statusAccount'],
             [['type' => '', 'expired' => false]]
         );
         $this->assertFalse(
@@ -97,7 +97,7 @@ class HeaderTest extends \PHPUnit\Framework\TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_header,
-            ['_statusAccount'],
+            ['statusAccount'],
             [['type' => '', 'expired' => true]]
         );
         $this->assertFalse(
@@ -121,7 +121,7 @@ class HeaderTest extends \PHPUnit\Framework\TestCase
             $this->_header->getFreeTrialDays(),
             '[Test Get Free Trial Days] Check if return is valid when status account is empty'
         );
-        $fixture->setPrivatePropertyValue($this->_header, ['_statusAccount'], [['day' => 12]]);
+        $fixture->setPrivatePropertyValue($this->_header, ['statusAccount'], [['day' => 12]]);
         $this->assertEquals(
             12,
             $this->_header->getFreeTrialDays(),

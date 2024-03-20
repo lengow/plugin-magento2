@@ -60,6 +60,7 @@ class CustomerTest extends \PHPUnit\Framework\TestCase
         $this->_objectManager = new ObjectManager($this);
         $this->_configHelper = $this->_objectManager->getObject(ConfigHelper::class);
         $this->_customer = $this->_objectManager->getObject(Customer::class);
+        $this->_addressFactoryMock = $this->createMock(AddressFactory::class);
     }
 
     public function testClassInstantiation()
@@ -162,8 +163,10 @@ class CustomerTest extends \PHPUnit\Framework\TestCase
             [1]
         );
 
+
         $addressFactoryMock = $fixture->mockFunctions($this->_addressFactoryMock, ['create'], [$address]);
         $regionCollectionMock = $this->_objectManager->getCollectionMock(RegionCollection::class, []);
+
         $regionCollectionMock->expects($this->once())
             ->method('addRegionCodeFilter')
             ->will($this->returnValue($regionCollectionMock));
@@ -202,5 +205,6 @@ class CustomerTest extends \PHPUnit\Framework\TestCase
             $fixture->invokeMethod($this->_customer, '_convertAddress', [$address1]),
             '[Test _convertAddress] @return \Magento\Customer\Model\Address'
         );
+        
     }
 }

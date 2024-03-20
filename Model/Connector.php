@@ -429,7 +429,7 @@ class Connector
      *
      * @throws LengowException
      */
-    private function call(
+    protected function call(
         string $api,
         array $args = [],
         string $type = self::GET,
@@ -476,7 +476,7 @@ class Connector
      *
      * @throws LengowException
      */
-    private function callAction(string $api, array $args, string $type, string $format, string $body, bool $logOutput)
+    protected function callAction(string $api, array $args, string $type, string $format, string $body, bool $logOutput)
     {
         $result = $this->makeRequest($type, $api, $args, $this->token, $body, $logOutput);
         return $this->format($result, $format);
@@ -491,7 +491,7 @@ class Connector
      *
      * @throws LengowException
      */
-    private function getAuthorizationToken(bool $logOutput): string
+    protected function getAuthorizationToken(bool $logOutput): string
     {
         // reset temporary token for the new authorization
         $this->token = null;

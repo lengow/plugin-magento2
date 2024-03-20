@@ -71,7 +71,7 @@ class ExportTest extends \PHPUnit\Framework\TestCase
     {
         $fixture = new Fixture();
         $selectedAttributes = ['meta_description', 'meta_keyword', 'meta_title', 'minimal_price', 'size'];
-        $defaultFields = $fixture->getPrivatePropertyValue($this->_export, '_defaultFields');
+        $defaultFields = $fixture->getPrivatePropertyValue($this->_export, 'defaultFields');
         $fieldsMock = [];
         foreach ($defaultFields as $key => $field) {
             $fieldsMock[] = $key;
@@ -82,9 +82,8 @@ class ExportTest extends \PHPUnit\Framework\TestCase
             ['getSelectedAttributes'],
             [$selectedAttributes]
         );
-        $fixture->setPrivatePropertyValue($this->_export, ['_configHelper'], [$configHelperMock]);
-        $this->assertInternalType(
-            'array',
+        $fixture->setPrivatePropertyValue($this->_export, ['configHelper'], [$configHelperMock]);
+        $this->assertIsArray(
             $fixture->invokeMethod($this->_export, '_getFields'),
             '[Test Get Fields] Check if return is a array'
         );
@@ -276,8 +275,7 @@ class ExportTest extends \PHPUnit\Framework\TestCase
     public function testGetProductModulo()
     {
         $fixture = new Fixture();
-        $this->assertInternalType(
-            'integer',
+        $this->assertIsInt(
             $fixture->invokeMethod($this->_export, '_getProductModulo', [1000]),
             '[Test Get Product Modulo] Check if return is a integer value'
         );
@@ -300,8 +298,7 @@ class ExportTest extends \PHPUnit\Framework\TestCase
     {
         $fixture = new Fixture();
         $fields = ['id', 'name', 'child_name', 'active', 'price_before_discount_excl_tax', 'shipping_method', 'type'];
-        $this->assertInternalType(
-            'integer',
+        $this->assertIsInt(
             $fixture->invokeMethod($this->_export, '_getMaxCharacterSize', [$fields]),
             '[Test Get Max Character Size] Check if return is a integer value'
         );
@@ -318,8 +315,7 @@ class ExportTest extends \PHPUnit\Framework\TestCase
     public function testMicrotimeFloat()
     {
         $fixture = new Fixture();
-        $this->assertInternalType(
-            'float',
+        $this->assertIsFloat(
             $fixture->invokeMethod($this->_export, '_microtimeFloat'),
             '[Test Microtime Float] Check if return is a float value'
         );

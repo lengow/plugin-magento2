@@ -67,7 +67,7 @@ class MainTest extends \PHPUnit\Framework\TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_main,
-            ['_statusAccount'],
+            ['statusAccount'],
             [['type' => 'free_trial', 'expired' => false]]
         );
         $this->assertFalse(
@@ -76,7 +76,7 @@ class MainTest extends \PHPUnit\Framework\TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_main,
-            ['_statusAccount'],
+            ['statusAccount'],
             [['type' => 'free_trial', 'expired' => true]]
         );
         $this->assertTrue(
@@ -85,7 +85,7 @@ class MainTest extends \PHPUnit\Framework\TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_main,
-            ['_statusAccount'],
+            ['statusAccount'],
             [['type' => '', 'expired' => true]]
         );
         $this->assertFalse(

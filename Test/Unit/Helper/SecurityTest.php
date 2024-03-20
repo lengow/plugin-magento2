@@ -46,6 +46,7 @@ class SecurityTest extends \PHPUnit\Framework\TestCase
         $objectManager = new ObjectManager($this);
         $this->_securityHelper = $objectManager->getObject(SecurityHelper::class);
         $this->_configHelper = $objectManager->getObject(ConfigHelper::class);
+
     }
 
     public function testClassInstance()
@@ -63,21 +64,21 @@ class SecurityTest extends \PHPUnit\Framework\TestCase
     public function testCheckWebserviceAccess()
     {
         $fixture = new Fixture();
-        $securityHelperMock = $this->createMock(SecurityHelper::class);
-        $configHelperMock = $this->createMock(ConfigHelper::class);
-        $fixture->mockFunctions(
-            $securityHelperMock, 
-            ['checkToken', 'checkIp'],
-            [true, false]
+        $securityHelperMock = $fixture->mockFunctions($this->_securityHelper, ['checkToken', 'checkIp'], [true, false]);
+        $configHelperMock = $fixture->mockFunctions($this->_configHelper, ['get','set'], [0, null]);
+        $fixture->setPrivatePropertyValue(
+            $securityHelperMock,
+            ['configHelper'],
+            [$configHelperMock],
+            $this->_securityHelper
         );
-        $fixture->mockFunctions($configHelperMock, ['get'], [0]);
-        $fixture->setPrivatePropertyValue($securityHelperMock, ['_configHelper'], [$configHelperMock]);
         $this->assertIsBool(
             $securityHelperMock->checkWebserviceAccess('bd30439b3d2ce0bc63ac59fe0eac2060'),
             '[Test Check Webservice Access] Check if return is a array'
         );
+
         $this->assertTrue(
-            $securityHelperMock->checkWebserviceAccess('bd30439b3d2ce0bc63ac59fe0eac2060'),
+            $this->_securityHelper->checkWebserviceAccess('bd30439b3d2ce0bc63ac59fe0eac2060'),
             '[Test Check Webservice Access] Check return with valid token authorisation'
         );
         $securityHelperMock2 = $fixture->mockFunctions(
@@ -85,17 +86,19 @@ class SecurityTest extends \PHPUnit\Framework\TestCase
             ['checkToken', 'checkIp'],
             [false, false]
         );
-        $fixture->setPrivatePropertyValue($securityHelperMock2, ['_configHelper'], [$configHelperMock]);
+
+        $fixture->setPrivatePropertyValue($securityHelperMock2, ['configHelper'], [$configHelperMock], $this->_securityHelper);
         $this->assertNotTrue(
             $securityHelperMock2->checkWebserviceAccess('bd30439b3d2ce0bc63ac59fe0eac2060'),
             '[Test Check Webservice Access] Check return with invalid token authorisation'
         );
+
         $securityHelperMock3 = $fixture->mockFunctions(
             $this->_securityHelper,
             ['checkToken', 'checkIp'],
             [false, true]
         );
-        $fixture->setPrivatePropertyValue($securityHelperMock3, ['_configHelper'], [$configHelperMock]);
+        $fixture->setPrivatePropertyValue($securityHelperMock3, ['configHelper'], [$configHelperMock], $this->_securityHelper);
         $this->assertTrue(
             $securityHelperMock3->checkWebserviceAccess('bd30439b3d2ce0bc63ac59fe0eac2060'),
             '[Test Check Webservice Access] Check return with invalid token authorisation but valid ip (Lengow access)'
@@ -106,17 +109,18 @@ class SecurityTest extends \PHPUnit\Framework\TestCase
             [true, false]
         );
         $configHelperMock2 = $fixture->mockFunctions($this->_configHelper, ['get'], [1]);
-        $fixture->setPrivatePropertyValue($securityHelperMock4, ['_configHelper'], [$configHelperMock2]);
+        $fixture->setPrivatePropertyValue($securityHelperMock4, ['configHelper'], [$configHelperMock2], $this->_securityHelper);
         $this->assertNotTrue(
             $securityHelperMock4->checkWebserviceAccess('bd30439b3d2ce0bc63ac59fe0eac2060'),
             '[Test Check Webservice Access] Check return when ip authorisation is enable but not valid'
         );
         $securityHelperMock5 = $fixture->mockFunctions($this->_securityHelper, ['checkToken', 'checkIp'], [true, true]);
-        $fixture->setPrivatePropertyValue($securityHelperMock5, ['_configHelper'], [$configHelperMock2]);
+        $fixture->setPrivatePropertyValue($securityHelperMock5, ['configHelper'], [$configHelperMock2], $this->_securityHelper);
         $this->assertTrue(
             $securityHelperMock5->checkWebserviceAccess('bd30439b3d2ce0bc63ac59fe0eac2060'),
             '[Test Check Webservice Access] Check return when ip authorisation is enable and valid'
         );
+        
     }
 
     /**
@@ -130,7 +134,7 @@ class SecurityTest extends \PHPUnit\Framework\TestCase
             ['getToken'],
             ['bd30439b3d2ce0bc63ac59fe0eac2060']
         );
-        $fixture->setPrivatePropertyValue($this->_securityHelper, ['_configHelper'], [$configHelperMock]);
+        $fixture->setPrivatePropertyValue($this->_securityHelper, ['configHelper'], [$configHelperMock]);
         $this->assertIsBool(
             $this->_securityHelper->checkToken('bd30439b3d2ce0bc63ac59fe0eac2060'),
             '[Test Check Token] Check if return is a array'

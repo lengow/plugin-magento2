@@ -61,8 +61,7 @@ class PriceTest extends \PHPUnit\Framework\TestCase
             ['_priceExclTax', '_priceInclTax', '_priceBeforeDiscountExclTax', '_priceBeforeDiscountInclTax'],
             [80, 96, 100, 120]
         );
-        $this->assertInternalType(
-            'array',
+        $this->assertIsArray(
             $this->_price->getPrices(),
             '[Test Get Prices] Check if return is a array'
         );
@@ -89,8 +88,7 @@ class PriceTest extends \PHPUnit\Framework\TestCase
             ['_discountAmount', '_discountPercent', '_discountStartDate', '_discountEndDate'],
             [80, 96, '2017-02-20 00:00:00', '2017-03-20 23:59:59']
         );
-        $this->assertInternalType(
-            'array',
+        $this->assertIsArray(
             $this->_price->getDiscounts(),
             '[Test Get Discounts] Check if return is a array'
         );
@@ -174,8 +172,7 @@ class PriceTest extends \PHPUnit\Framework\TestCase
         $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
         $fixture->setPrivatePropertyValue($this->_price, ['_priceBeforeDiscountInclTax', '_priceInclTax'], [120, 120]);
-        $this->assertInternalType(
-            'array',
+        $this->assertIsArray(
             $fixture->invokeMethod($this->_price, '_getAllDiscounts'),
             '[Test Get All Discounts] Check if return is a array'
         );
@@ -230,8 +227,7 @@ class PriceTest extends \PHPUnit\Framework\TestCase
             ['_product', '_catalogueRule', '_dateTime', '_store'],
             [$productMock, $catalogueRuleMock, $dateTimeMock, $storeMock]
         );
-        $this->assertInternalType(
-            'array',
+        $this->assertIsArray(
             $fixture->invokeMethod($this->_price, '_getAllDiscountDates'),
             '[Test Get All Discounts] Check if return is a array'
         );

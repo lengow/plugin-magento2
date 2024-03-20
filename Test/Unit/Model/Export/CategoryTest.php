@@ -56,18 +56,19 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
     public function testGetCategoryBreadcrumb()
     {
         $fixture = new Fixture();
+        $categoryMock = $this->createMock(Category::class);
         $fixture->setPrivatePropertyValue(
-            $this->_category,
-            ['_categoryBreadcrumb'],
+            $categoryMock,
+            ['categoryBreadcrumb'],
             ['Default Category > Men > Tops > Hoodies & Sweatshirts']
         );
         $this->assertIsString(
-            $this->_category->getCategoryBreadcrumb(),
+            $categoryMock->getCategoryBreadcrumb(),
             '[Test Get Variation List] Check if return is a string'
         );
         $this->assertEquals(
             'Default Category > Men > Tops > Hoodies & Sweatshirts',
-            $this->_category->getCategoryBreadcrumb(),
+            $categoryMock->getCategoryBreadcrumb(),
             '[Test Get Shipping Cost] Check if return is valid'
         );
     }
@@ -80,7 +81,7 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
         $fixture = new Fixture();
         $fixture->setPrivatePropertyValue(
             $this->_category,
-            ['_product', '_categoryBreadcrumb'],
+            ['product', '_categoryBreadcrumb'],
             ['product', 'Default Category > Men > Tops > Hoodies & Sweatshirts']
         );
         $this->_category->clean();
@@ -105,8 +106,8 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
         $categoryCollectionMock = $fixture->mockFunctions($classMock, ['addPathsFilter'], [$pathFilterMock]);
         $productMock = $fixture->mockFunctions($classMock, ['getCategoryCollection'], [$categoryCollectionMock]);
         $storeMock = $fixture->mockFunctions($classMock, ['getRootCategoryId'], [0]);
-        $fixture->setPrivatePropertyValue($this->_category, ['_store', '_product'], [$storeMock, $productMock]);
-        $this->assertInternalIsArray(
+        $fixture->setPrivatePropertyValue($this->_category, ['store', 'product'], [$storeMock, $productMock]);
+        $this->assertIsArray(
             $fixture->invokeMethod($this->_category, '_getDefaultCategory'),
             '[Test Get Default Category] Check if return is a array'
         );

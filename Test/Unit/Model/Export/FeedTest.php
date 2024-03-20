@@ -262,8 +262,7 @@ class FeedTest extends \PHPUnit\Framework\TestCase
         $fixture->setPrivatePropertyValue($this->_feed, ['_dataHelper'], [$this->_dataHelper]);
         $fixture->setPrivatePropertyValue($this->_feed, ['_format'], ['csv']);
         $string = "price_before_DISCOUNT_excl_tax for_test'with_more_58_characters";
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $fixture->invokeMethod($this->_feed, '_formatFields', [$string]),
             '[Test Format Fields] Check if return is a string value'
         );
@@ -305,8 +304,7 @@ class FeedTest extends \PHPUnit\Framework\TestCase
     {
         $fixture = new Fixture();
         ;
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $fixture->invokeMethod($this->_feed, '_indentYaml', ['test', 10]),
             '[Test Indent Yaml] Check if return is a string value'
         );
