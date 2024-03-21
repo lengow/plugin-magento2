@@ -143,6 +143,11 @@ require(['prototype', 'jquery', 'Magento_Ui/js/modal/confirm'], function(prototy
 function selectCarrier(elem) {
     var option = elem.options[elem.selectedIndex];
     $('tracking_title').value = option.value && option.value != 'custom' ? option.text : '';
+    var elemReturn =  $('return_carrier');
+    if (typeof elemReturn != 'undefined' && elemReturn != null) {
+        elemReturn.value = option.value && option.value != 'custom' ? option.value.toUpperCase() : '';
+    }
+
 }
 
 function saveTrackingInfo(node, url) {
@@ -150,6 +155,10 @@ function saveTrackingInfo(node, url) {
 
     if (form.validation() && form.validation('isValid')) {
         submitAndReloadArea(node, url);
+        var elemReturn =  $('return_tracking_number');
+        if (typeof elemReturn != 'undefined' && elemReturn != null) {
+            setTimeout(() => {window.location.reload();}, 500);
+        }       
     }
 }
 
@@ -177,3 +186,4 @@ window.saveTrackingInfo = saveTrackingInfo;
 script;
 ?>
 <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>
+

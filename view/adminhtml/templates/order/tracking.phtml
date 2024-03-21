@@ -54,7 +54,7 @@ require(['prototype'], function(){
             var elemReturn = $('return_trackingT' + elem.getAttribute('data-index'));
             if (option.value && option.value != 'custom') {
                 elem.valueInput.value = option.text;
-                if (typeof elemReturn != 'undefined') {
+                if (typeof elemReturn != 'undefined' && elemReturn != null) {
                     elemReturn.value = option.value.toUpperCase();
                 }
             }
@@ -185,3 +185,4 @@ require([
 script;
 ?>
 <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>
+

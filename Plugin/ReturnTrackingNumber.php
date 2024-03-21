@@ -56,12 +56,16 @@ class ReturnTrackingNumber
      */
     public function beforeAddTrack(Shipment $subject, Track $track): array
     {
-
-
         $trackingsPosted = $this->request->getPost('tracking') ?? [];
-        $lastTraskPosted = end($trackingsPosted);
-        $returnNumber = $lastTraskPosted['return_number'] ?? '';
-        $returnCarrierCode = $lastTraskPosted['return_carrier_code'] ?? '';
+
+        if (count($trackingsPosted)) {
+            $lastTraskPosted = end($trackingsPosted);
+            $returnNumber = $lastTraskPosted['return_number'] ?? '';
+            $returnCarrierCode = $lastTraskPosted['return_carrier_code'] ?? '';
+        } else {
+            $returnNumber = $this->request->getPost('return_number') ?? '';
+            $returnCarrierCode = $this->request->getPost('return_carrier_code') ?? '';
+        }
 
         if ($returnNumber) {
             $track->setReturnTrackNumber($returnNumber);
@@ -73,6 +77,6 @@ class ReturnTrackingNumber
 
         return [$track];
     }
-
 }
+
 
