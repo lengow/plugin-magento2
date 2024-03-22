@@ -23,7 +23,6 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Sales\Model\Order\Shipment\Track;
 use Magento\Sales\Model\Order\Shipment;
 
-
 class ReturnTrackingNumber
 {
 
