@@ -356,31 +356,6 @@ class Order extends AbstractModel
 
     /**
      * Constructor
-     *
-     * @param MagentoOrderFactory $orderFactory Magento order factory instance
-     * @param Context $context Magento context instance
-     * @param Registry $registry Magento registry instance
-     * @param InvoiceService $invoiceService Magento invoice service
-     * @param Transaction $transaction Magento transaction
-     * @param DateTime $dateTime Magento datetime instance
-     * @param ConvertOrder $convertOrder Magento convert order instance
-     * @param TrackFactory $trackFactory Magento shipment track factory instance
-     * @param JsonHelper $jsonHelper Magento json helper
-     * @param DataHelper $dataHelper Lengow data helper instance
-     * @param ImportHelper $importHelper Lengow import helper instance
-     * @param ConfigHelper $configHelper Lengow config helper instance
-     * @param LengowOrderErrorFactory $lengowOrderErrorFactory Lengow order error factory instance
-     * @param LengowOrderErrorCollectionFactory $lengowOrderErrorCollection Lengow order error collection instance
-     * @param LengowOrderFactory $lengowOrderFactory Lengow order factory instance
-     * @param LengowOrderCollectionFactory $lengowOrderCollection Lengow order collection factory instance
-     * @param LengowOrderLineFactory $lengowOrderLineFactory Lengow order line factory instance
-     * @param LengowActionFactory $lengowActionFactory Lengow action factory instance
-     * @param LengowConnector $lengowConnector Lengow connector instance
-     * @param LengowAction $lengowAction Lengow action instance
-     * @param LengowImportFactory $lengowImportFactory Lengow import factory instance
-     * @param SecurityHelper $securityHelper Lengow security helper
-     * @param AbstractResource|null $resource Magento abstract resource instance
-     * @param AbstractDb|null $resourceCollection Magento abstract db instance
      */
     public function __construct(
         MagentoOrderFactory $orderFactory,
@@ -434,7 +409,6 @@ class Order extends AbstractModel
     /**
      * Initialize order model
      *
-     * @return void
      */
     protected function _construct(): void
     {
@@ -509,8 +483,6 @@ class Order extends AbstractModel
 
     /**
      * Get updated fields
-     *
-     * @return array
      */
     public function getUpdatedFields(): array
     {
@@ -525,8 +497,6 @@ class Order extends AbstractModel
 
     /**
      * Check if order is express
-     *
-     * @return boolean
      */
     public function isExpress(): bool
     {
@@ -537,8 +507,6 @@ class Order extends AbstractModel
 
     /**
      * Check if order is B2B
-     *
-     * @return boolean
      */
     public function isBusiness(): bool
     {
@@ -549,8 +517,6 @@ class Order extends AbstractModel
 
     /**
      * Check if order is delivered by marketplace
-     *
-     * @return boolean
      */
     public function isDeliveredByMarketplace(): bool
     {
@@ -561,18 +527,12 @@ class Order extends AbstractModel
 
     /**
      * Check if an order has an error
-     *
-     * @param string $marketplaceSku marketplace sku
-     * @param string $marketplaceName marketplace name
-     * @param int $type order error type (import or send)
-     *
-     * @return array|false
      */
     public function orderIsInError(
         string $marketplaceSku,
         string $marketplaceName,
         int $type = LengowOrderError::TYPE_ERROR_IMPORT
-    ) {
+    ): array {
         // check if log already exists for the given order id
         $results = $this->lengowOrderErrorCollection->create()
             ->join(
@@ -593,20 +553,15 @@ class Order extends AbstractModel
             ->load()
             ->getData();
         if (empty($results)) {
-            return false;
+            return [];
         }
         return $results[0];
     }
 
     /**
      * If order is already Imported
-     *
-     * @param string $marketplaceSku marketplace sku
-     * @param string $marketplaceName marketplace name
-     *
-     * @return integer|false
      */
-    public function getOrderIdIfExist(string $marketplaceSku, string $marketplaceName)
+    public function getOrderIdIfExist(string $marketplaceSku, string $marketplaceName): int
     {
         // get order id Magento from our table
         $results = $this->lengowOrderCollection->create()
@@ -618,18 +573,13 @@ class Order extends AbstractModel
         if (!empty($results)) {
             return $results[0][self::FIELD_ORDER_ID];
         }
-        return false;
+        return 0;
     }
 
     /**
      * Get Lengow ID with order ID Magento and delivery address ID
-     *
-     * @param integer $orderId Magento order id
-     * @param string $deliveryAddressId delivery address id
-     *
-     * @return string|false
      */
-    public function getOrderIdWithDeliveryAddress(int $orderId, string $deliveryAddressId)
+    public function getOrderIdWithDeliveryAddress(int $orderId, string $deliveryAddressId): string
     {
         $results = $this->lengowOrderCollection->create()
             ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)
@@ -639,19 +589,13 @@ class Order extends AbstractModel
         if (!empty($results)) {
             return $results[0][self::FIELD_ID];
         }
-        return false;
+        return '';
     }
 
     /**
      * Get ID record from lengow orders table
-     *
-     * @param string $marketplaceSku marketplace sku
-     * @param string $marketplaceName marketplace name
-     * @param integer $deliveryAddressId delivery address id
-     *
-     * @return integer|false
      */
-    public function getLengowOrderId(string $marketplaceSku, string $marketplaceName)
+    public function getLengowOrderId(string $marketplaceSku, string $marketplaceName): int
     {
         $results = $this->lengowOrderCollection->create()
             ->addFieldToFilter(self::FIELD_MARKETPLACE_SKU, $marketplaceSku)
@@ -661,17 +605,13 @@ class Order extends AbstractModel
         if (!empty($results)) {
             return (int) $results[0][self::FIELD_ID];
         }
-        return false;
+        return 0;
     }
 
     /**
      * Get ID record from lengow orders table with Magento order Id
-     *
-     * @param integer $orderId Magento order id
-     *
-     * @return integer|false
      */
-    public function getLengowOrderIdWithOrderId(int $orderId)
+    public function getLengowOrderIdWithOrderId(int $orderId): int
     {
         $results = $this->lengowOrderCollection->create()
             ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)
@@ -680,15 +620,11 @@ class Order extends AbstractModel
         if (!empty($results)) {
             return (int) $results[0][self::FIELD_ID];
         }
-        return false;
+        return 0;
     }
 
     /**
      * Get Magento equivalent to lengow order state
-     *
-     * @param string $orderStateLengow Lengow state
-     *
-     * @return string
      */
     public function getOrderState(string $orderStateLengow): string
     {
@@ -712,15 +648,8 @@ class Order extends AbstractModel
 
     /**
      * Update order state to marketplace state
-     *
-     * @param MagentoOrder|OrderInterface $order Magento order instance
-     * @param Order $lengowOrder Lengow order instance
-     * @param string $orderStateLengow lengow order status
-     * @param mixed $packageData package data
-     *
-     * @return string|false
      */
-    public function updateState($order, Order $lengowOrder, string $orderStateLengow, $packageData)
+    public function updateState($order, Order $lengowOrder, string $orderStateLengow, $packageData): string
     {
         // finish actions if lengow order is shipped, closed, cancel or refunded
         $orderProcessState = $this->getOrderProcessState($orderStateLengow);
@@ -779,15 +708,13 @@ class Order extends AbstractModel
                 }
             }
         } catch (Exception $e) {
-            return false;
+            return '';
         }
-        return false;
+        return '';
     }
 
     /**
      * Cancel order
-     *
-     * @param MagentoOrder $order Magento order instance
      */
     public function toCancel(MagentoOrder $order): void
     {
@@ -798,8 +725,6 @@ class Order extends AbstractModel
 
     /**
      * Create invoice
-     *
-     * @param MagentoOrder|OrderInterface $order Magento order instance
      *
      * @throws Exception
      */
@@ -821,11 +746,6 @@ class Order extends AbstractModel
 
     /**
      * Ship order
-     *
-     * @param MagentoOrder|OrderInterface $order Magento order instance
-     * @param string|null $carrierName carrier name
-     * @param string|null $carrierMethod carrier method
-     * @param string|null $trackingNumber tracking number
      *
      * @throws Exception
      */
@@ -873,12 +793,8 @@ class Order extends AbstractModel
 
     /**
      * Get marketplace sku by Magento order id from lengow orders table
-     *
-     * @param integer $orderId Magento order id
-     *
-     * @return string|false
      */
-    public function getMarketplaceSkuByOrderId(int $orderId)
+    public function getMarketplaceSkuByOrderId(int $orderId): string
     {
         $results = $this->lengowOrderCollection->create()
             ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)
@@ -887,17 +803,13 @@ class Order extends AbstractModel
         if (!empty($results)) {
             return $results[0][self::FIELD_MARKETPLACE_SKU];
         }
-        return false;
+        return '';
     }
 
     /**
      * Get Lengow Order by Magento order id from lengow orders table
-     *
-     * @param integer $orderId Magento order id
-     *
-     * @return integer|false
      */
-    public function getLengowOrderIdByOrderId(int $orderId)
+    public function getLengowOrderIdByOrderId(int $orderId): int
     {
         $results = $this->lengowOrderCollection->create()
             ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)
@@ -905,15 +817,13 @@ class Order extends AbstractModel
         if (!empty($results)) {
             return (int) $results[0][self::FIELD_ID];
         }
-        return false;
+        return 0;
     }
 
     /**
      * Get all unset orders
-     *
-     * @return array|false
      */
-    public function getUnsentOrders()
+    public function getUnsentOrders(): array
     {
         $results = $this->lengowOrderCollection->create()
             ->join(
@@ -933,17 +843,13 @@ class Order extends AbstractModel
         if (!empty($results)) {
             return $results;
         }
-        return false;
+        return [];
     }
 
     /**
      * Re-import order lengow
-     *
-     * @param integer $orderLengowId Lengow order id
-     *
-     * @return array|false
      */
-    public function reImportOrder(int $orderLengowId)
+    public function reImportOrder(int $orderLengowId): array
     {
         $orderLengow = $this->lengowOrderFactory->create()->load($orderLengowId);
         if ((int) $orderLengow->getData(self::FIELD_ORDER_PROCESS_STATE) === 0
@@ -961,15 +867,11 @@ class Order extends AbstractModel
             $lengowImport->init($params);
             return $lengowImport->exec();
         }
-        return false;
+        return [];
     }
 
     /**
      * Re-send order lengow
-     *
-     * @param integer $orderLengowId Lengow order id
-     *
-     * @return boolean
      */
     public function reSendOrder(int $orderLengowId): bool
     {
@@ -996,12 +898,8 @@ class Order extends AbstractModel
 
     /**
      * Get order process state
-     *
-     * @param string $state state to be matched
-     *
-     * @return integer|false
      */
-    public function getOrderProcessState(string $state)
+    public function getOrderProcessState(string $state): int
     {
         switch ($state) {
             case self::STATE_ACCEPTED:
@@ -1014,19 +912,14 @@ class Order extends AbstractModel
             case self::STATE_REFUNDED:
                 return self::PROCESS_STATE_FINISH;
             default:
-                return false;
+                return 0;
         }
     }
 
     /**
      * Cancel and re-import order
-     *
-     * @param MagentoOrder $order Magento order instance
-     * @param Order $lengowOrder Lengow order instance
-     *
-     * @return integer|false
      */
-    public function cancelAndReImportOrder(MagentoOrder $order, Order $lengowOrder)
+    public function cancelAndReImportOrder(MagentoOrder $order, Order $lengowOrder): int
     {
         if (!$this->isReimported($lengowOrder)) {
             return false;
@@ -1071,15 +964,11 @@ class Order extends AbstractModel
                 self::FIELD_IS_IN_ERROR => 0,
             ]
         );
-        return false;
+        return 0;
     }
 
     /**
      * Mark Lengow order as is_reimported in lengow_order table
-     *
-     * @param Order $lengowOrder Lengow order instance
-     *
-     * @return boolean
      */
     public function isReimported(Order $lengowOrder): bool
     {
@@ -1092,8 +981,7 @@ class Order extends AbstractModel
     }
 
     /**
-     *
-     * @return LengowMarketplace
+     * Returns the Marketplace
      */
     public function getMarketPlace():  LengowMarketplace
     {
@@ -1104,12 +992,6 @@ class Order extends AbstractModel
 
     /**
      * Send Order action
-     *
-     * @param string $action Lengow Actions (ship or cancel)
-     * @param MagentoOrder $order Magento order instance
-     * @param Shipment|null $shipment Magento Shipment instance
-     *
-     * @return boolean
      */
     public function callAction(string $action, MagentoOrder $order, Shipment $shipment = null): bool
     {
@@ -1222,14 +1104,8 @@ class Order extends AbstractModel
 
     /**
      * Get order line by API
-     *
-     * @param string $marketplaceSku marketplace sku
-     * @param string $marketplaceName marketplace name
-     * @param integer $deliveryAddressId delivery address id
-     *
-     * @return array|false
      */
-    public function getOrderLineByApi(string $marketplaceSku, string $marketplaceName, int $deliveryAddressId)
+    public function getOrderLineByApi(string $marketplaceSku, string $marketplaceName, int $deliveryAddressId): array
     {
         $orderLines = [];
         $results = $this->lengowConnector->queryApi(
@@ -1253,18 +1129,13 @@ class Order extends AbstractModel
             }
             $orderLines[(int) $package->delivery->id] = $productLines;
         }
-        return $orderLines[$deliveryAddressId] ?? false;
+        return $orderLines[$deliveryAddressId] ?? [];
     }
 
     /**
      * Get order ids from lengow order ID
-     *
-     * @param string $marketplaceSku marketplace sku
-     * @param string $marketplaceName marketplace name
-     *
-     * @return array|false
      */
-    public function getAllOrderIds(string $marketplaceSku, string $marketplaceName)
+    public function getAllOrderIds(string $marketplaceSku, string $marketplaceName): array
     {
         $results = $this->lengowOrderCollection->create()
             ->addFieldToFilter(self::FIELD_MARKETPLACE_SKU, $marketplaceSku)
@@ -1274,15 +1145,13 @@ class Order extends AbstractModel
         if (!empty($results)) {
             return $results;
         }
-        return false;
+        return [];
     }
 
     /**
      * Get all Lengow order ids
-     *
-     * @return array|false
      */
-    public function getAllLengowOrderIds()
+    public function getAllLengowOrderIds(): array
     {
         $results = $this->lengowOrderCollection->create()
             ->addFieldToSelect(self::FIELD_ID)
@@ -1290,16 +1159,11 @@ class Order extends AbstractModel
         if (!empty($results)) {
             return $results;
         }
-        return false;
+        return [];
     }
 
     /**
      * Retrieves all the Lengow order from a marketplace reference
-     *
-     * @param string $marketplaceSku marketplace sku
-     * @param string $marketplaceName marketplace name
-     *
-     * @return array
      */
     public function getAllLengowOrders(string $marketplaceSku, string $marketplaceName): array
     {
@@ -1312,12 +1176,6 @@ class Order extends AbstractModel
 
     /**
      * Synchronize order with Lengow API
-     *
-     * @param Order $lengowOrder Lengow order instance
-     * @param LengowConnector|null $connector
-     * @param boolean $logOutput see log or not
-     *
-     * @return boolean
      */
     public function synchronizeOrder(
         Order $lengowOrder,
@@ -1379,8 +1237,6 @@ class Order extends AbstractModel
 
     /**
      * Count order imported by Lengow in Magento
-     *
-     * @return integer
      */
     public function countOrderImportedByLengow(): int
     {
@@ -1393,8 +1249,6 @@ class Order extends AbstractModel
 
     /**
      * Count order lengow with error
-     *
-     * @return integer
      */
     public function countOrderWithError(): int
     {
@@ -1407,8 +1261,6 @@ class Order extends AbstractModel
 
     /**
      * Count order lengow to be sent
-     *
-     * @return integer
      */
     public function countOrderToBeSent(): int
     {

@@ -131,14 +131,6 @@ class Marketplace extends AbstractModel
 
     /**
      * Constructor
-     *
-     * @param Context $context Magento context instance
-     * @param Registry $registry Magento registry instance
-     * @param TimezoneInterface $timezone Magento datetime timezone instance
-     * @param DataHelper $dataHelper Lengow data helper instance
-     * @param SyncHelper $syncHelper Lengow sync helper instance
-     * @param LengowAction $orderAction Lengow action instance
-     * @param LengowOrderErrorFactory $orderErrorFactory Lengow order error factory instance
      */
     public function __construct(
         Context $context,
@@ -159,9 +151,6 @@ class Marketplace extends AbstractModel
 
     /**
      * Construct a new Marketplace instance with marketplace API
-     *
-     * @param array $params options
-     * string name Marketplace name
      *
      * @throws LengowException
      */
@@ -239,10 +228,6 @@ class Marketplace extends AbstractModel
 
     /**
      * Get the real lengow's state
-     *
-     * @param string $name The marketplace state
-     *
-     * @return string The lengow state
      */
     public function getStateLengow(string $name): string
     {
@@ -254,27 +239,22 @@ class Marketplace extends AbstractModel
 
     /**
      * Get the action with parameters
-     *
-     * @param string $action order action (ship or cancel)
-     *
-     * @return array|false
      */
-    public function getAction(string $action)
+    public function getAction(string $action): array
     {
         if (array_key_exists($action, $this->actions)) {
             return $this->actions[$action];
         }
-        return false;
+        return [];
     }
 
     /**
-     *
-     * @return bool
+     * Check if has the field
      */
     public function hasReturnTrackingNumber() : bool
     {
         $action = $this->getAction(LengowAction::TYPE_SHIP);
-        if (!$action) {
+        if (empty($action)) {
             return false;
         }
         $arguments = $this->getMarketplaceArguments(LengowAction::TYPE_SHIP);
@@ -284,13 +264,12 @@ class Marketplace extends AbstractModel
     }
 
     /**
-     *
-     * @return bool
+     * Check if has the field
      */
     public function hasReturnTrackingCarrier() : bool
     {
         $action =  $this->getAction(LengowAction::TYPE_SHIP);
-        if (!$action) {
+        if (empty($action)) {
             return false;
         }
         $arguments = $this->getMarketplaceArguments(LengowAction::TYPE_SHIP);
@@ -301,12 +280,8 @@ class Marketplace extends AbstractModel
 
     /**
      * Get the default value for argument
-     *
-     * @param string $name The argument's name
-     *
-     * @return string|false
      */
-    public function getDefaultValue(string $name)
+    public function getDefaultValue(string $name): string
     {
         if (array_key_exists($name, $this->argValues)) {
             $defaultValue = $this->argValues[$name]['default_value'];
@@ -314,15 +289,11 @@ class Marketplace extends AbstractModel
                 return $defaultValue;
             }
         }
-        return false;
+        return '';
     }
 
     /**
      * Is marketplace contain order Line
-     *
-     * @param string $action order action (ship or cancel)
-     *
-     * @return bool
      */
     public function containOrderLine(string $action): bool
     {
@@ -346,14 +317,6 @@ class Marketplace extends AbstractModel
 
     /**
      * Call Action with marketplace
-     *
-     * @param string $action order action (ship or cancel)
-     * @param MagentoOrder $order Magento order instance
-     * @param LengowOrder $lengowOrder Lengow order instance
-     * @param Shipment|null $shipment Magento shipment instance
-     * @param string|null $orderLineId Lengow order line id
-     *
-     * @return boolean
      */
     public function callAction(
         string $action,
@@ -420,8 +383,6 @@ class Marketplace extends AbstractModel
     /**
      * Check if the action is valid and present on the marketplace
      *
-     * @param string $action Lengow order actions type (ship or cancel)
-     *
      * @throws LengowException
      */
     private function checkAction(string $action): void
@@ -439,8 +400,6 @@ class Marketplace extends AbstractModel
     /**
      * Check if the essential data of the order are present
      *
-     * @param Order $lengowOrder Lengow order instance
-     *
      * @throws LengowException
      */
     private function checkOrderData(Order $lengowOrder): void
@@ -455,10 +414,6 @@ class Marketplace extends AbstractModel
 
     /**
      * Get all marketplace arguments for a specific action
-     *
-     * @param string $action Lengow order actions type (ship or cancel)
-     *
-     * @return array
      */
     private function getMarketplaceArguments(string $action): array
     {
@@ -477,14 +432,6 @@ class Marketplace extends AbstractModel
 
     /**
      * Get all available values from an order
-     *
-     * @param string $action Lengow order actions type (ship or cancel)
-     * @param MagentoOrder $order Magento order instance
-     * @param LengowOrder $lengowOrder Lengow order instance
-     * @param Shipment|null $shipment Magento shipment instance
-     * @param array $marketplaceArguments All marketplace arguments for a specific action
-     *
-     * @return array
      */
     private function getAllParams(
         string $action,
@@ -495,8 +442,8 @@ class Marketplace extends AbstractModel
     ): array {
         $params = [];
         $actions = $this->getAction($action);
-        // get all order data
 
+        // get all order data
         foreach ($marketplaceArguments as $arg) {
             switch ($arg) {
                 case LengowAction::ARG_TRACKING_NUMBER:
@@ -542,8 +489,6 @@ class Marketplace extends AbstractModel
 
                     $params[$arg] = $returnCarrierCode;
                     break;
-
-
                 case LengowAction::ARG_SHIPPING_PRICE:
                     $params[$arg] = $order->getShippingInclTax();
                     break;
@@ -567,11 +512,6 @@ class Marketplace extends AbstractModel
 
     /**
      * Get all available values from an order
-     *
-     * @param string $action Lengow order actions type (ship or cancel)
-     * @param array $params all available values
-     *
-     * @return array
      *
      * @throws LengowException
      */
@@ -601,11 +541,6 @@ class Marketplace extends AbstractModel
 
     /**
      * Match carrier's name with accepted values
-     *
-     * @param string $code carrier code
-     * @param string $title carrier title
-     *
-     * @return string
      */
     private function matchCarrier(string $code, string $title): string
     {
@@ -648,9 +583,6 @@ class Marketplace extends AbstractModel
     /**
      * Cleaning a string before search
      *
-     * @param string $string string to clean
-     *
-     * @return string
      */
     private function cleanString(string $string): string
     {
@@ -660,11 +592,6 @@ class Marketplace extends AbstractModel
 
     /**
      * Search carrier code in a chain
-     *
-     * @param string $search string cleaned to search
-     * @param boolean $strict strict search
-     *
-     * @return string|false
      */
     private function searchCarrierCode(string $search, bool $strict = true)
     {
@@ -687,12 +614,6 @@ class Marketplace extends AbstractModel
 
     /**
      * Strict or approximate search for a chain
-     *
-     * @param string $pattern search pattern
-     * @param string $subject string to search
-     * @param boolean $strict strict search
-     *
-     * @return boolean
      */
     private function searchValue(string $pattern, string $subject, bool $strict = true): bool
     {

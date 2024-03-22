@@ -31,10 +31,7 @@ use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 class View extends OrderTrackingView
 {
-    /**
-     *
-     * @var LengowOrderFactory $lengowOrderFactory
-     */
+
     protected LengowOrderFactory $lengowOrderFactory;
 
     /**
@@ -43,17 +40,8 @@ class View extends OrderTrackingView
      */
     protected $lengowOrder;
 
-
     /**
      * View constructor
-     *
-     * @param TemplateContext $context
-     * @param ShippingConfig $shippingConfig
-     * @param Registry $registry
-     * @param CarrierFactory $carrierFactory
-     * @param LengowOrderFactory $lengowOrderFactory
-     * @param array $data
-     * @param ShippingHelper|null $shippingHelper
      */
     public function __construct(
         TemplateContext $context,
@@ -77,8 +65,7 @@ class View extends OrderTrackingView
     }
 
     /**
-     *
-     * @return bool
+     * check if we can display the field
      */
     public function canDisplayReturnNumber(): bool
     {
@@ -94,9 +81,8 @@ class View extends OrderTrackingView
         }
     }
 
-     /**
-     *
-     * @return bool
+    /**
+     * check if we can display the field
      */
     public function canDisplayReturnCarrier(): bool
     {
@@ -113,8 +99,7 @@ class View extends OrderTrackingView
     }
 
     /**
-     *
-     * @return LengowOrder
+     * returns the lengow order
      */
     protected function getLengowOrder(): LengowOrder
     {

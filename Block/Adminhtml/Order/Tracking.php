@@ -29,10 +29,7 @@ use Lengow\Connector\Model\Import\Order as LengowOrder;
 class Tracking extends OrderTracking
 {
 
-    /**
-     *
-     * @var LengowOrderFactory $lengowOrderFactory
-     */
+
     protected LengowOrderFactory $lengowOrderFactory;
 
     /**
@@ -63,8 +60,7 @@ class Tracking extends OrderTracking
     }
 
     /**
-     *
-     * @return bool
+     * check if we can display the field
      */
     public function canDisplayReturnNumber(): bool
     {
@@ -81,8 +77,7 @@ class Tracking extends OrderTracking
     }
 
     /**
-     *
-     * @return bool
+     * check if we can display the field
      */
     public function canDisplayReturnCarrier(): bool
     {
@@ -94,15 +89,14 @@ class Tracking extends OrderTracking
                 ->hasReturnTrackingCarrier();
 
         } catch (\Exception $e) {
-           
+
             return false;
         }
     }
 
 
     /**
-     *
-     * @return LengowOrder
+     * returns the lengow order
      */
     protected function getLengowOrder(): LengowOrder
     {
@@ -118,5 +112,3 @@ class Tracking extends OrderTracking
     }
 
 }
-
-
