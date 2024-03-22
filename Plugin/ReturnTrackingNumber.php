@@ -26,18 +26,11 @@ use Magento\Sales\Model\Order\Shipment;
 
 class ReturnTrackingNumber
 {
-    /**
-     *
-     * @var RequestInterface $request
-     */
+
     protected RequestInterface $request;
 
-
-
     /**
-     * ReturnTrackingNumber constructor
-     *
-     * @param RequestInterface          $request        Magento Request Interface
+     * Constructor
      */
     public function __construct(
         RequestInterface $request
@@ -47,12 +40,7 @@ class ReturnTrackingNumber
     }
 
     /**
-     * will add the return tracking number
-     *
-     * @param Shipment  $subject    the Order shipment before save
-     * @param Track     $track      The Order shipment track before add
-     *
-     * @return array
+     * will add the return tracking informations
      */
     public function beforeAddTrack(Shipment $subject, Track $track): array
     {
@@ -78,5 +66,3 @@ class ReturnTrackingNumber
         return [$track];
     }
 }
-
-
