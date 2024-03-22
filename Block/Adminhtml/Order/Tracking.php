@@ -39,13 +39,7 @@ class Tracking extends OrderTracking
     protected $lengowOrder;
 
     /**
-     * Tracking constructor
-     *
-     * @param TemplateContext       $context
-     * @param ShippingConfig        $shippingConfig
-     * @param Registry              $registry
-     * @param LengowOrderFactory    $lengowOrderFactory
-     * @param array                 $data
+     * Constructor
      */
     public function __construct(
         TemplateContext $context,
