@@ -571,7 +571,7 @@ class Order extends AbstractModel
             ->load()
             ->getData();
         if (!empty($results)) {
-            return $results[0][self::FIELD_ORDER_ID];
+            return (int) $results[0][self::FIELD_ORDER_ID];
         }
         return 0;
     }
@@ -587,7 +587,7 @@ class Order extends AbstractModel
             ->addFieldToSelect(self::FIELD_ID)
             ->getData();
         if (!empty($results)) {
-            return $results[0][self::FIELD_ID];
+            return (string) $results[0][self::FIELD_ID];
         }
         return '';
     }
