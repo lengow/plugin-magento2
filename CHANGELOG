@@ -1,8 +1,9 @@
 =============================================================
-Version 1.5.2
+Version 1.5.2-beta
 =============================================================
  - Feature: manage out of stock products export by configuration
  - BugFix: fixed help center constants urls
+ - BugFix : B2B without tax for UE
 =============================================================
 Version 1.5.1
 =============================================================

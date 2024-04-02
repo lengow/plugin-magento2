@@ -94,6 +94,11 @@ class Index extends Action
     public function execute()
     {
         $token = $this->getRequest()->getParam(ToolboxHelper::PARAM_TOKEN);
+        $this->getResponse()->setHeader(
+            'Cache-Control',
+            'no-store, no-cache, must-revalidate, max-age=0'
+        );
+        $this->getResponse()->setHeader('Pragma', 'no-cache');
         if ($this->securityHelper->checkWebserviceAccess($token)) {
             // check if toolbox action is valid
             $action = $this->getRequest()->getParam(ToolboxHelper::PARAM_TOOLBOX_ACTION, ToolboxHelper::ACTION_DATA);

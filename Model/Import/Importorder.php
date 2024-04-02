@@ -1181,9 +1181,11 @@ class Importorder extends AbstractModel
                 $this->logOutput
             );
             // if this order is B2B activate B2bTaxesApplicator
-            if ($this->configHelper->isB2bWithoutTaxEnabled($this->storeId) && $orderLengow->isBusiness()) {
+            $orderTotalTaxLengow = (float) $this->orderData->total_tax ?? 0;
+            if ($orderTotalTaxLengow == 0
+                    && $this->configHelper->isB2bWithoutTaxEnabled($this->storeId)
+                    && $orderLengow->isBusiness()) {
                 $this->backendSession->setIsLengowB2b(1);
-                //$customer
             }
             // create Magento Quote
             $quote = $this->createQuote($customer, $products);
@@ -1412,9 +1414,10 @@ class Importorder extends AbstractModel
     private function createQuote(MagentoCustomer $customer, array $products): Quote
     {
         $customerRepo = $this->customerRepository->getById($customer->getId());
+        $currentStore = $this->storeManager->getStore($this->storeId);
         $quote = $this->lengowQuoteFactory->create()
             ->setIsMultiShipping(false)
-            ->setStore($this->storeManager->getStore($this->storeId))
+            ->setStore($currentStore)
             ->setInventoryProcessed(false);
         // import customer addresses into quote
         // set billing Address
@@ -1451,8 +1454,8 @@ class Importorder extends AbstractModel
         if (!$shippingIncludeTax) {
             $shippingTaxClass = $this->scopeConfig->getValue(
                 TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
-                'store',
-                $quote->getStore()
+                \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE,
+                $quote->getStore()->getWebsiteId()
             );
 
             $taxRate = $this->taxCalculation->getCalculatedRate(
@@ -1495,10 +1498,26 @@ class Importorder extends AbstractModel
             );
         }
         if ($this->configHelper->get(ConfigHelper::CHECK_ROUNDING_ENABLED, $this->storeId)) {
-            //exit('rouding check enabled');
+
             $hasAdjustedTaxes = $this->hasAdjustedQuoteTaxes($quote, $products);
             if ($hasAdjustedTaxes) {
                 $this->dataHelper->setLogMessage('quote taxes has been adjusted');
+            }
+            $shippingQuoteCost = $quote->getShippingAddress()->getShippingInclTax();
+            $shippingCostLengow = (float) $this->orderData->shipping ?? 0;
+            if ($shippingCostLengow && $shippingCostLengow !== $shippingQuoteCost) {
+                $deltaCost = $shippingCostLengow - $shippingQuoteCost;
+                $quote->getShippingAddress()->setShippingPrice($shippingCost+ $deltaCost);
+                $grandTotalQuote = $quote->getShippingAddress()->getGrandTotal() ;
+                $baseGrandTotalQuote = $quote->getShippingAddress()->getBaseGrandTotal();
+                // set shipping price and shipping method for current order
+                $quote->getShippingAddress()
+                    ->setShippingInclTax($shippingQuoteCost + $deltaCost)
+                    ->setShippingAmount($shippingCost + $deltaCost)
+                    ->setBaseGrandTotal($baseGrandTotalQuote + $deltaCost)
+                    ->setGrandTotal($grandTotalQuote + $deltaCost);
+                $quote->collectTotals()->save();
+                $this->dataHelper->setLogMessage('quote shipping amount has been adjusted');
             }
         }
 
