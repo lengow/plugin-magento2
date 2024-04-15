@@ -1685,12 +1685,6 @@ class Importorder extends AbstractModel
         // modify order dates to use actual dates
         $order->setCreatedAt($this->orderDate);
         $order->setUpdatedAt($this->orderDate);
-
-//        $order->setTotalPaid($this->orderAmount);
-//        $order->setTotalInvoiced($this->orderAmount);
-//        $order->setBaseTotalPaid($this->orderAmount);
-//        $order->setTotalDue(0);
-
         $order->save();
         // update Lengow order record
         $orderLengow->updateOrder(
