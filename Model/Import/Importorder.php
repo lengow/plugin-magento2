@@ -1535,7 +1535,9 @@ class Importorder extends AbstractModel
      */
     private function hasAdjustedQuoteTaxes($quote, $products): bool
     {
-        $totalTaxQuote = (float) $quote->getShippingAddress()->getTaxAmount();
+
+        $shippingAddress = $quote->getShippingAddress();
+        $totalTaxQuote = (float) $shippingAddress->getTaxAmount();
         $totalTaxLengow = 0;
         $totalProducts = 0;
         $taxDiff = false;
@@ -1573,8 +1575,8 @@ class Importorder extends AbstractModel
                 $item->setPrice($product['price_unit']);
                 $item->setPriceInclTax($product['amount']);
                 $item->setBasePriceInclTax($product['amount']);
-                $item->setCustomPrice($product['amount']);
-                $item->setOriginalCustomPrice($product['amount']);
+                $item->setCustomPrice($product['amount'] - $product['tax_amount']);
+                $item->setOriginalCustomPrice($product['amount'] - $product['tax_amount']);
                 $item->setBaseRowTotalInclTax($product['amount']);
                 $item->save();
             }
@@ -1586,28 +1588,11 @@ class Importorder extends AbstractModel
 
         if (
             $totalTaxQuote === $totalTaxLengow
-            && $totalProducts === $quote->getGrandTotal()
+            && $totalProducts === $shippingAddress->getSubtotal()
         ) {
             return false;
         }
-
-        $shippingAddress = $quote->getShippingAddress();
-        $quote->setGrandTotal($totalProducts)
-            ->setSubtotal($totalProducts)
-            ->setBaseSubtotal($totalProducts)
-            ->setBaseGrandTotal($totalProducts)
-            ->save();
-
-        $shippingAddress->setTaxAmount($totalTaxLengow)
-            ->setBaseTaxAmount($totalTaxLengow)
-            ->setGrandTotal($totalProducts)
-            ->setBaseGrandTotal($totalProducts)
-            ->setBaseSubtotalWithDiscount($totalProducts)
-            ->setBaseSubtotalTotalInclTax($totalProducts)
-            ->setSubtotal($totalProducts - $totalTaxLengow)
-            ->setBaseSubtotal($totalProducts - $totalTaxLengow)
-            ->setSubtotalInclTax($totalProducts)
-            ->save();
+        $quote->collectTotals()->save();
 
         return true;
     }
@@ -1680,6 +1665,9 @@ class Importorder extends AbstractModel
             'base_currency_code' => $currencyIsoA3,
             'store_currency_code' => $currencyIsoA3,
             'order_currency_code' => $currencyIsoA3,
+            'marketplace' => $orderLengow->getMarketplaceName(),
+            'marketplace_number' =>  $orderLengow->getMarketplaceSku()
+
         ];
         try {
             $order = $this->quoteManagement->submit($quote, $additionalData);
@@ -1697,6 +1685,12 @@ class Importorder extends AbstractModel
         // modify order dates to use actual dates
         $order->setCreatedAt($this->orderDate);
         $order->setUpdatedAt($this->orderDate);
+
+//        $order->setTotalPaid($this->orderAmount);
+//        $order->setTotalInvoiced($this->orderAmount);
+//        $order->setBaseTotalPaid($this->orderAmount);
+//        $order->setTotalDue(0);
+
         $order->save();
         // update Lengow order record
         $orderLengow->updateOrder(
@@ -1825,6 +1819,7 @@ class Importorder extends AbstractModel
         }
     }
 }
+
 
 
 
