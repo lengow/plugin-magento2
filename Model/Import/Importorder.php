@@ -1180,11 +1180,12 @@ class Importorder extends AbstractModel
                 $this->marketplaceSku,
                 $this->logOutput
             );
-
-            if ($this->configHelper->isB2bWithoutTaxEnabled($this->storeId)
+            // if this order is B2B activate B2bTaxesApplicator
+            $orderTotalTaxLengow = (float) $this->orderData->total_tax ?? 0;
+            if ($orderTotalTaxLengow == 0
+                    && $this->configHelper->isB2bWithoutTaxEnabled($this->storeId)
                     && $orderLengow->isBusiness()) {
                 $this->backendSession->setIsLengowB2b(1);
-                //$customer
             }
             // create Magento Quote
             $quote = $this->createQuote($customer, $products);
@@ -1454,7 +1455,7 @@ class Importorder extends AbstractModel
             $shippingTaxClass = $this->scopeConfig->getValue(
                 TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
                 \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE,
-                $currentStore->getWebsiteId()
+                $quote->getStore()->getWebsiteId()
             );
 
             $taxRate = $this->taxCalculation->getCalculatedRate(
@@ -1502,6 +1503,22 @@ class Importorder extends AbstractModel
             if ($hasAdjustedTaxes) {
                 $this->dataHelper->setLogMessage('quote taxes has been adjusted');
             }
+            $shippingQuoteCost = $quote->getShippingAddress()->getShippingInclTax();
+            $shippingCostLengow = (float) $this->orderData->shipping ?? 0;
+            if ($shippingCostLengow && $shippingCostLengow !== $shippingQuoteCost) {
+                $deltaCost = $shippingCostLengow - $shippingQuoteCost;
+                $quote->getShippingAddress()->setShippingPrice($shippingCost+ $deltaCost);
+                $grandTotalQuote = $quote->getShippingAddress()->getGrandTotal() ;
+                $baseGrandTotalQuote = $quote->getShippingAddress()->getBaseGrandTotal();
+                // set shipping price and shipping method for current order
+                $quote->getShippingAddress()
+                    ->setShippingInclTax($shippingQuoteCost + $deltaCost)
+                    ->setShippingAmount($shippingCost + $deltaCost)
+                    ->setBaseGrandTotal($baseGrandTotalQuote + $deltaCost)
+                    ->setGrandTotal($grandTotalQuote + $deltaCost);
+                $quote->collectTotals()->save();
+                $this->dataHelper->setLogMessage('quote shipping amount has been adjusted');
+            }
         }
 
         $quote->save();
@@ -1519,46 +1536,63 @@ class Importorder extends AbstractModel
     private function hasAdjustedQuoteTaxes($quote, $products): bool
     {
 
-        $totalTaxQuote = (float) $quote->getShippingAddress()->getTaxAmount();
+        $shippingAddress = $quote->getShippingAddress();
+        $totalTaxQuote = (float) $shippingAddress->getTaxAmount();
         $totalTaxLengow = 0;
+        $totalProducts = 0;
         $taxDiff = false;
+
         foreach ($quote->getAllVisibleItems() as $item) {
             if (isset($products[$item->getProductId()])) {
+
                 if (!isset($products[$item->getProductId()])) {
                     $taxDiff = false;
                     continue;
                 }
+
                 $product = $products[$item->getProductId()];
                 $totalTaxLengow += $product['tax_amount'];
+                $totalProducts += $product['amount'];
+
                 if (!$item->getTaxAmount() || !$product['tax_amount']) {
                     $taxDiff = false;
                     continue;
                 }
-                if ($product['tax_amount'] === (float) $item->getTaxAmount()) {
+
+                if (
+                    $product['tax_amount'] === (float) $item->getTaxAmount()
+                    && $product['amount'] === $item->getRowTotalInclTax()
+                ) {
                     $taxDiff = false;
                     continue;
                 }
+
                 $taxDiff = true;
                 $item->setTaxAmount($product['tax_amount']);
                 $item->setBaseTaxAmount($product['tax_amount']);
+                $item->setRowTotal($product['amount'] - $product['tax_amount']);
+                $item->setRowTotalInclTax($product['amount']);
+                $item->setPrice($product['price_unit']);
+                $item->setPriceInclTax($product['amount']);
+                $item->setBasePriceInclTax($product['amount']);
+                $item->setCustomPrice($product['amount'] - $product['tax_amount']);
+                $item->setOriginalCustomPrice($product['amount'] - $product['tax_amount']);
+                $item->setBaseRowTotalInclTax($product['amount']);
                 $item->save();
             }
         }
+
         if (!$taxDiff) {
             return false;
         }
-        if ($totalTaxQuote === $totalTaxLengow) {
+
+        if (
+            $totalTaxQuote === $totalTaxLengow
+            && $totalProducts === $shippingAddress->getSubtotal()
+        ) {
             return false;
         }
-        $deltaDiff = $totalTaxLengow - $totalTaxQuote;
-        $shippingAddress = $quote->getShippingAddress();
-        $grandTotal = $shippingAddress->getGrandTotal();
-        $subTotalIncTax = $shippingAddress->getSubTotalIncTax();
-        $shippingAddress->setTaxAmount($totalTaxLengow)
-            ->setBaseTaxAmount($totalTaxLengow)
-            ->setGrandTotal($grandTotal + $deltaDiff)
-            ->setSubtotalIncTax($subTotalIncTax + $deltaDiff)
-            ->save();
+        $quote->collectTotals()->save();
 
         return true;
     }
@@ -1631,6 +1665,9 @@ class Importorder extends AbstractModel
             'base_currency_code' => $currencyIsoA3,
             'store_currency_code' => $currencyIsoA3,
             'order_currency_code' => $currencyIsoA3,
+            'marketplace' => $orderLengow->getMarketplaceName(),
+            'marketplace_number' =>  $orderLengow->getMarketplaceSku()
+
         ];
         try {
             $order = $this->quoteManagement->submit($quote, $additionalData);
@@ -1776,6 +1813,7 @@ class Importorder extends AbstractModel
         }
     }
 }
+
 
 
 
