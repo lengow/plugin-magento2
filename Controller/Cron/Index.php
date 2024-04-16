@@ -111,7 +111,14 @@ class Index extends Action
      */
     public function execute()
     {
+
         $token = $this->getRequest()->getParam(LengowImport::PARAM_TOKEN);
+        $this->getResponse()->setHeader(
+            'Cache-Control',
+            'no-store, no-cache, must-revalidate, max-age=0'
+        );
+        $this->getResponse()->setHeader('Pragma', 'no-cache');
+
         if ($this->securityHelper->checkWebserviceAccess($token)) {
             // get all store data for synchronisation with Lengow
             if ($this->getRequest()->getParam(LengowImport::PARAM_GET_SYNC) === '1') {

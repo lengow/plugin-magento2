@@ -91,7 +91,7 @@ class Main extends Template
         $interfaceLocale = $authSession->getUser()
             ? $authSession->getUser()->getInterfaceLocale()
             : DataHelper::DEFAULT_ISO_CODE;
-        $this->pluginLinks = $syncHelper->getPluginLinks($interfaceLocale);
+        $this->pluginLinks = $syncHelper->getPluginLinks($interfaceLocale, true);
         parent::__construct($context, $data);
     }
 
@@ -336,3 +336,4 @@ class Main extends Template
         return $this->lengowOrder->countOrderToBeSent();
     }
 }
+

@@ -99,6 +99,7 @@ class Order extends AbstractModel
     public const FIELD_CREATED_AT = 'created_at';
     public const FIELD_UPDATED_AT = 'updated_at';
     public const FIELD_EXTRA = 'extra';
+    public const FIELD_B2B_VALUE='B2B';
 
     /* Order process states */
     public const PROCESS_STATE_NEW = 0;
@@ -537,13 +538,47 @@ class Order extends AbstractModel
     /**
      * Check if order is B2B
      *
+     * @param array $paymentInfo
+     *
      * @return boolean
      */
     public function isBusiness(): bool
     {
         $orderTypes = (string) $this->getData(self::FIELD_ORDER_TYPES);
         $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : [];
-        return isset($orderTypes[self::TYPE_BUSINESS]);
+
+        if (isset($orderTypes[self::TYPE_BUSINESS])) {
+            return true;
+        }
+
+        $extraData = json_decode($this->getData(self::FIELD_EXTRA), true);
+        $paymentInfo = $extraData['payments'][0] ?? [];
+        $billingInfo = $extraData['billing_address'] ?? [];
+        if (isset($paymentInfo['payment_terms'])) {
+            $fiscalNumber = $paymentInfo['payment_terms']['fiscalnb'] ?? '';
+            $vatNumber   = $paymentInfo['payment_terms']['vat_number'] ?? '';
+            $siretNumber = $paymentInfo['payment_terms']['siret_number'] ?? '';
+
+            if (!empty($fiscalNumber)
+                    || !empty($vatNumber)
+                    || !empty($siretNumber)) {
+                $this->setData(
+                    self::FIELD_ORDER_TYPES,
+                    json_encode([self::TYPE_BUSINESS => self::FIELD_B2B_VALUE])
+                )->save();
+                return true;
+            }
+        }
+        if (!empty($billingInfo['vat_number'])
+            && !empty($billingInfo['company'])) {
+            $this->setData(
+                self::FIELD_ORDER_TYPES,
+                json_encode([self::TYPE_BUSINESS => self::FIELD_B2B_VALUE])
+            )->save();
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -1407,3 +1442,5 @@ class Order extends AbstractModel
         return count($results);
     }
 }
+
+

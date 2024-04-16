@@ -58,9 +58,9 @@ class Sync extends AbstractHelper
     public const LINK_TYPE_SUPPORT = 'support';
 
     /* Default plugin links */
-    private const LINK_HELP_CENTER = 'https://help.lengow.com/hc/en-us/articles/360012204551';
+    private const LINK_HELP_CENTER = 'https://help.lengow.com/hc/en-us/articles/10114751291932-Magento-2-Set-up-the-Plugin';
     private const LINK_CHANGELOG = 'https://help.lengow.com/hc/en-us/articles/360011215439';
-    private const LINK_UPDATE_GUIDE = 'https://help.lengow.com/hc/en-us/articles/360012204551#12-update-the-plugin-version';
+    private const LINK_UPDATE_GUIDE = 'https://help.lengow.com/hc/en-us/articles/10114535417116-Magento-2-Update-the-plugin-version';
     private const LINK_SUPPORT = 'https://help.lengow.com/hc/en-us/requests/new';
 
     /* Api iso codes */
@@ -532,14 +532,15 @@ class Sync extends AbstractHelper
     /**
      * Get an array of plugin links for a specific iso code
      *
-     * @param string|null $isoCode
+     * @param string|null $isoCode  the language iso code
+     * @param bool|null   $default  the default wanted
      *
      * @return array
      */
-    public function getPluginLinks(string $isoCode = null): array
+    public function getPluginLinks(?string $isoCode = null, ?bool $default = false): array
     {
         $pluginData = $this->getPluginData();
-        if (!$pluginData) {
+        if (!$pluginData || $default) {
             return $this->defaultPluginLinks;
         }
         // check if the links are available in the locale
@@ -561,3 +562,4 @@ class Sync extends AbstractHelper
         return $pluginLinks;
     }
 }
+
