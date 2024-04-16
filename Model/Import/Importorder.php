@@ -1536,46 +1536,63 @@ class Importorder extends AbstractModel
     private function hasAdjustedQuoteTaxes($quote, $products): bool
     {
 
-        $totalTaxQuote = (float) $quote->getShippingAddress()->getTaxAmount();
+        $shippingAddress = $quote->getShippingAddress();
+        $totalTaxQuote = (float) $shippingAddress->getTaxAmount();
         $totalTaxLengow = 0;
+        $totalProducts = 0;
         $taxDiff = false;
+
         foreach ($quote->getAllVisibleItems() as $item) {
             if (isset($products[$item->getProductId()])) {
+
                 if (!isset($products[$item->getProductId()])) {
                     $taxDiff = false;
                     continue;
                 }
+
                 $product = $products[$item->getProductId()];
                 $totalTaxLengow += $product['tax_amount'];
+                $totalProducts += $product['amount'];
+
                 if (!$item->getTaxAmount() || !$product['tax_amount']) {
                     $taxDiff = false;
                     continue;
                 }
-                if ($product['tax_amount'] === (float) $item->getTaxAmount()) {
+
+                if (
+                    $product['tax_amount'] === (float) $item->getTaxAmount()
+                    && $product['amount'] === $item->getRowTotalInclTax()
+                ) {
                     $taxDiff = false;
                     continue;
                 }
+
                 $taxDiff = true;
                 $item->setTaxAmount($product['tax_amount']);
                 $item->setBaseTaxAmount($product['tax_amount']);
+                $item->setRowTotal($product['amount'] - $product['tax_amount']);
+                $item->setRowTotalInclTax($product['amount']);
+                $item->setPrice($product['price_unit']);
+                $item->setPriceInclTax($product['amount']);
+                $item->setBasePriceInclTax($product['amount']);
+                $item->setCustomPrice($product['amount'] - $product['tax_amount']);
+                $item->setOriginalCustomPrice($product['amount'] - $product['tax_amount']);
+                $item->setBaseRowTotalInclTax($product['amount']);
                 $item->save();
             }
         }
+
         if (!$taxDiff) {
             return false;
         }
-        if ($totalTaxQuote === $totalTaxLengow) {
+
+        if (
+            $totalTaxQuote === $totalTaxLengow
+            && $totalProducts === $shippingAddress->getSubtotal()
+        ) {
             return false;
         }
-        $deltaDiff = $totalTaxLengow - $totalTaxQuote;
-        $shippingAddress = $quote->getShippingAddress();
-        $grandTotal = $shippingAddress->getGrandTotal();
-        $subTotalIncTax = $shippingAddress->getSubTotalIncTax();
-        $shippingAddress->setTaxAmount($totalTaxLengow)
-            ->setBaseTaxAmount($totalTaxLengow)
-            ->setGrandTotal($grandTotal + $deltaDiff)
-            ->setSubtotalIncTax($subTotalIncTax + $deltaDiff)
-            ->save();
+        $quote->collectTotals()->save();
 
         return true;
     }
@@ -1648,6 +1665,9 @@ class Importorder extends AbstractModel
             'base_currency_code' => $currencyIsoA3,
             'store_currency_code' => $currencyIsoA3,
             'order_currency_code' => $currencyIsoA3,
+            'marketplace' => $orderLengow->getMarketplaceName(),
+            'marketplace_number' =>  $orderLengow->getMarketplaceSku()
+
         ];
         try {
             $order = $this->quoteManagement->submit($quote, $additionalData);
@@ -1793,6 +1813,7 @@ class Importorder extends AbstractModel
         }
     }
 }
+
 
 
 
