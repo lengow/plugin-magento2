@@ -38,7 +38,7 @@
 /Controller/Cron/Index.php|333a8383a7b0fe4f4d44614dadae8c34
 /Controller/Toolbox/Index.php|dc6b97a886f4e1a1bccd8ad059547cc0
 /Cron/LaunchExport.php|957dbe49b34376ce0f4716a8e0408507
-/Cron/LaunchResend.php|4ad8d6ad2cbed4d0185bab6df92e5918
+/Cron/LaunchResend.php|f473c50d6edc133c4bf9658596faf3c9
 /Cron/LaunchSynchronization.php|3d5fe13e29dab6216e6cab7aa5633e48
 /etc/frontend/routes.xml|fd7926ca314017e32250b7e108d09d75
 /etc/di.xml|0150289c46bb653bfbf8eb33519beb4a
