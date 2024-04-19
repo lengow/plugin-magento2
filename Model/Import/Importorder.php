@@ -1186,6 +1186,8 @@ class Importorder extends AbstractModel
                     && $this->configHelper->isB2bWithoutTaxEnabled($this->storeId)
                     && $orderLengow->isBusiness()) {
                 $this->backendSession->setIsLengowB2b(1);
+            } else {
+                $this->backendSession->setIsLengowB2b(0);
             }
             // create Magento Quote
             $quote = $this->createQuote($customer, $products);
@@ -1444,6 +1446,7 @@ class Importorder extends AbstractModel
         // if this order is b2b
         if ((int) $this->backendSession->getIsLengowB2b() === 1) {
             $priceIncludeTax = true;
+            $shippingIncludeTax = true;
         }
         // add product in quote
         $quote->addLengowProducts($products, $priceIncludeTax);
