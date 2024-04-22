@@ -1573,6 +1573,7 @@ class Importorder extends AbstractModel
                 $taxDiff = true;
                 $item->setTaxAmount($product['tax_amount']);
                 $item->setBaseTaxAmount($product['tax_amount']);
+                $item->setBaseRowTotal($product['amount'] - $product['tax_amount']);
                 $item->setRowTotal($product['amount'] - $product['tax_amount']);
                 $item->setRowTotalInclTax($product['amount']);
                 $item->setPrice($product['price_unit']);
@@ -1580,6 +1581,9 @@ class Importorder extends AbstractModel
                 $item->setBasePriceInclTax($product['amount']);
                 $item->setCustomPrice($product['amount'] - $product['tax_amount']);
                 $item->setOriginalCustomPrice($product['amount'] - $product['tax_amount']);
+                $item->setBasePrice($product['amount'] - $product['tax_amount']);
+                $item->setOriginalPrice($product['amount'] - $product['tax_amount']);
+                $item->setBaseOriginalPrice($product['amount'] - $product['tax_amount']);
                 $item->setBaseRowTotalInclTax($product['amount']);
                 $item->save();
             }
