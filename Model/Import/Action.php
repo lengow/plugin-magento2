@@ -80,6 +80,8 @@ class Action extends AbstractModel
     public const ARG_CUSTOM_CARRIER = 'custom_carrier';
     public const ARG_SHIPPING_METHOD = 'shipping_method';
     public const ARG_TRACKING_NUMBER = 'tracking_number';
+    public const ARG_RETURN_TRACKING_NUMBER = 'return_tracking_number';
+    public const ARG_RETURN_CARRIER = 'return_carrier';
     public const ARG_SHIPPING_PRICE = 'shipping_price';
     public const ARG_SHIPPING_DATE = 'shipping_date';
     public const ARG_DELIVERY_DATE = 'delivery_date';
@@ -593,14 +595,16 @@ class Action extends AbstractModel
             if (!is_object($results) || isset($results->error)) {
                 break;
             }
-            // construct array actions
-            foreach ($results->results as $action) {
-                if (isset($action->id)) {
-                    $apiActions[$action->id] = $action;
+            if(isset($results->results)) {
+                 // construct array actions
+                foreach ($results->results as $action) {
+                    if (isset($action->id)) {
+                        $apiActions[$action->id] = $action;
+                    }
                 }
             }
             $page++;
-        } while ($results->next !== null);
+        } while (!empty($results->next));
         if (empty($apiActions)) {
             return false;
         }

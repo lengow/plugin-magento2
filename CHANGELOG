@@ -1,4 +1,9 @@
 =============================================================
+Version 1.6.0
+=============================================================
+- Feature: Return tracking management during shipment (Zalando and Otto)
+- BugFix: No shippingTax for b2b orders (tax exempted)
+=============================================================
 Version 1.5.2
 =============================================================
  - Feature: manage out of stock products export by configuration

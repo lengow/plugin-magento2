@@ -1186,6 +1186,8 @@ class Importorder extends AbstractModel
                     && $this->configHelper->isB2bWithoutTaxEnabled($this->storeId)
                     && $orderLengow->isBusiness()) {
                 $this->backendSession->setIsLengowB2b(1);
+            } else {
+                $this->backendSession->setIsLengowB2b(0);
             }
             // create Magento Quote
             $quote = $this->createQuote($customer, $products);
@@ -1444,6 +1446,7 @@ class Importorder extends AbstractModel
         // if this order is b2b
         if ((int) $this->backendSession->getIsLengowB2b() === 1) {
             $priceIncludeTax = true;
+            $shippingIncludeTax = true;
         }
         // add product in quote
         $quote->addLengowProducts($products, $priceIncludeTax);
@@ -1461,7 +1464,7 @@ class Importorder extends AbstractModel
             $taxRate = $this->taxCalculation->getCalculatedRate(
                 $shippingTaxClass,
                 $customer->getId(),
-                $quote->getStore()
+                $currentStore->getId()
             );
             $taxShippingCost = $this->calculation->calcTaxAmount($shippingCost, $taxRate, true);
         }
@@ -1570,6 +1573,7 @@ class Importorder extends AbstractModel
                 $taxDiff = true;
                 $item->setTaxAmount($product['tax_amount']);
                 $item->setBaseTaxAmount($product['tax_amount']);
+                $item->setBaseRowTotal($product['amount'] - $product['tax_amount']);
                 $item->setRowTotal($product['amount'] - $product['tax_amount']);
                 $item->setRowTotalInclTax($product['amount']);
                 $item->setPrice($product['price_unit']);
@@ -1577,6 +1581,9 @@ class Importorder extends AbstractModel
                 $item->setBasePriceInclTax($product['amount']);
                 $item->setCustomPrice($product['amount'] - $product['tax_amount']);
                 $item->setOriginalCustomPrice($product['amount'] - $product['tax_amount']);
+                $item->setBasePrice($product['amount'] - $product['tax_amount']);
+                $item->setOriginalPrice($product['amount'] - $product['tax_amount']);
+                $item->setBaseOriginalPrice($product['amount'] - $product['tax_amount']);
                 $item->setBaseRowTotalInclTax($product['amount']);
                 $item->save();
             }
