@@ -148,6 +148,8 @@
 "No order issue reports will be sent by mail","No order issue reports will be sent by mail"
 "Change this?","Change this?"
 "The synchronisation of the orders was blocked by a timeout. Please reload the page.","The synchronisation of the orders was blocked by a timeout. Please reload the page."
+"Return Number","Return Number"
+"Return Carrier","Return Carrier"
 "Actions","Actions"
 "Success","Success"
 "Error","Error"
