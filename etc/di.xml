@@ -15,6 +15,9 @@
     <type name="Magento\Tax\Model\Config">
         <plugin name="lengow_shipping_tax_config" type="Lengow\Connector\Plugin\ShippingTaxConfigPlugin" sortOrder="1" disabled="false" />
     </type>
+    <type name="Magento\Quote\Model\Quote\TotalsCollector">
+        <plugin name="lengow_quote_totals" type="Lengow\Connector\Plugin\TotalsCollectorPlugin" sortOrder="1" disabled="false" />
+    </type>
     <virtualType name="LengowGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
         <arguments>
             <argument name="collection" xsi:type="object" shared="false">Lengow\Connector\Model\ResourceModel\Log\Collection</argument>
@@ -83,6 +86,6 @@
             <argument name="methodCode" xsi:type="const">Lengow\Connector\Model\Payment\Lengow::CODE</argument>
         </arguments>
     </virtualType>
-    <preference for="Magento\Shipping\Block\Adminhtml\Order\Tracking" type="Lengow\Connector\Block\Adminhtml\Order\Tracking" />
-    <preference for="Magento\Shipping\Block\Adminhtml\Order\Tracking\View" type="\Lengow\Connector\Block\Adminhtml\Order\Tracking\View" />
+    <!--<preference for="Magento\Shipping\Block\Adminhtml\Order\Tracking" type="Lengow\Connector\Block\Adminhtml\Order\Tracking" />-->
+    <!--<preference for="Magento\Shipping\Block\Adminhtml\Order\Tracking\View" type="\Lengow\Connector\Block\Adminhtml\Order\Tracking\View" />-->
 </config>
