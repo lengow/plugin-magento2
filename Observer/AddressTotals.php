@@ -11,7 +11,7 @@
  *
  * @category    Lengow
  * @package     Lengow_Connector
- * @subpackage  Observer
+ * @subpackage  Plugin
  * @author      Team module <team-module@lengow.com>
  * @copyright   2020 Lengow SAS
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
@@ -113,6 +113,17 @@ class AddressTotals implements ObserverInterface
                     && $amount !== $shippingLengow)
             {
                 $total->setData($type, $shippingLengow);
+            }
+            if ($type === 'shipping_amount'
+                    || $type=== 'base_shipping_amount'
+                    || $type==='shipping_tax_calculation_amount'
+                    || $type==='base_shipping_tax_calculation_amount') {
+                $shippingTaxAmount = $total->getData('shipping_tax_amount');
+                $shippingLengowExclTax = $shippingLengow - $shippingTaxAmount;
+                if ($shippingLengowExclTax !== $amount) {
+                    $total->setData($type, $shippingLengowExclTax);
+                }
+
             }
         }
         $observer->getEvent()->setTotal($total);

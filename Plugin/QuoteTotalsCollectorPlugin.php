@@ -24,9 +24,9 @@ use Magento\Backend\Model\Session as BackendSession;
 use Magento\Quote\Model\Quote;
 
 /**
- * TotalsCollectorPlugin
+ * QuoteTotalsCollectorPlugin
  */
-class TotalsCollectorPlugin
+class QuoteTotalsCollectorPlugin
 {
 
     /**
@@ -43,7 +43,7 @@ class TotalsCollectorPlugin
 
     /**
      *
-     * TotalsCollectorPlugin constructor
+     * QuoteTotalsCollectorPlugin constructor
      */
     public function __construct(
         ConfigHelper $configHelper,

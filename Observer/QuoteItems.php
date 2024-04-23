@@ -11,7 +11,7 @@
  *
  * @category    Lengow
  * @package     Lengow_Connector
- * @subpackage  Observer
+ * @subpackage  Plugin
  * @author      Team module <team-module@lengow.com>
  * @copyright   2020 Lengow SAS
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
@@ -80,7 +80,7 @@ class QuoteItems implements ObserverInterface
             if (!isset($products[$item->getProductId()])) {
                 continue;
             }
-            
+
             $product = $products[$item->getProductId()];
 
             if (!$item->getTaxAmount() || !$product['tax_amount']) {

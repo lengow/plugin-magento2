@@ -1,4 +1,4 @@
-/composer.json|b6bc1cf93b44f006834a770f6aaaff48
+/composer.json|81bf1096eb5945dfca8a525f70ba0d14
 /registration.php|dc6e50502663d362b5efdf9c829985c6
 /Block/Adminhtml/Header.php|c2389266bf3fc30d13fc3a5d0ca5e571
 /Block/Adminhtml/Sales/Order/Tab/Info.php|4ce087663f556696e71f434ac1f762b5
@@ -43,7 +43,7 @@
 /Cron/LaunchResend.php|a0031908614eb611ee65dd0386091445
 /Cron/LaunchSynchronization.php|3d5fe13e29dab6216e6cab7aa5633e48
 /etc/frontend/routes.xml|fd7926ca314017e32250b7e108d09d75
-/etc/di.xml|135da723eaacc0eb0f00e4815a91703d
+/etc/di.xml|00201bca5066841eb2927997c14509db
 /etc/adminhtml/routes.xml|b37d51a18bc54f5a872c9797ed06ed5d
 /etc/adminhtml/system.xml|507f35cf34ba2eec5f2dd7bccc43acd7
 /etc/adminhtml/menu.xml|b77fedabb5e2fa4ac1e16faa8b07add4
@@ -52,7 +52,7 @@
 /etc/module.xml|b00102e294cc5b6e928a1cb49d691506
 /etc/db_schema.xml|40aa69621419c790e8efec01655efad2
 /etc/config.xml|9e89d05e2890cf92f8d987522bfbbf6b
-/etc/events.xml|b3cda32e21e9f92795365636d99f703d
+/etc/events.xml|0bfe737f7e471df74f3d4873a9712e07
 /etc/db_schema_whitelist.json|deba8059bea724bd1818062765ed45e1
 /Helper/Config.php|52a5eb14fd1508fcfa56343bf3d3d9ac
 /Helper/Import.php|a2b7acdb0c3f3e1e3a5a0b845c220537
@@ -64,7 +64,7 @@
 /i18n/en_GB.csv|326d8a6ca50dd6bfaa3c881508870fe3
 /i18n/de_DE.csv|53b4d64f0c8a63c286dd9f51537b2dd0
 /Model/Carrier/Lengow.php|2fa83223a8a7989ac04e1e92fd0ca907
-/Model/Import.php|1cc5eec7f13533cd9ff0f83c383facad
+/Model/Import.php|e4271861eb13fedad96d31091e07e867
 /Model/Log.php|333700e3e9a446010914c5134ac6c1f4
 /Model/Export/Feed.php|e56a7f9f4844fb46e01c43cb079766d3
 /Model/Export/Product.php|dc7bc5a359f1d4e62e49480ebd3c81c2
@@ -87,7 +87,7 @@
 /Model/Import/Marketplace.php|82b0e25b263752f771741e248bdb0aaf
 /Model/Import/Quote/Item.php|deea2328f2b0109b4bfe412c7edc90a5
 /Model/Import/Action.php|973b469457416b7fdd2e42ffef42a66a
-/Model/Import/Importorder.php|d8dd1e9fadeb0cd075c1f66692eaca54
+/Model/Import/Importorder.php|a9363ddf307fa410119a4580884ced9b
 /Model/Import/Ordererror.php|4ebd478d00a12adadbfe17761f27c1ad
 /Model/Import/Quote.php|3775d2caa81a197b97b5db4cff4ebc59
 /Model/Import/Customer.php|5ee6a1202cbff1686132c2ed9eb3387c
@@ -107,10 +107,13 @@
 /Model/Export.php|6d2ccfbc5463de1f15f2d121b0498756
 /Observer/SendAction.php|41ac5a5bb84d99e7fca6d3c5c1ca6d30
 /Observer/B2bTaxesApllicator.php|e4b7c9d1d9b1c02d0484f618ab9a0364
+/Observer/QuoteItems.php|de29f166ca2a0c4dc5e24ba119b558ad
+/Observer/AddressTotals.php|064bfe0f9da19af5fb934af54a0bad4d
 /Plugin/ReturnTrackingNumber.php|c1cca95586a511bc7e6eea02160fce5c
 /Plugin/WeeeConfig.php|a56248ed5aec8e3e75498c2d3ca9b754
 /Plugin/SaveConfig.php|d02fb183b81dab5d8385b57a97bf1b91
 /Plugin/RulesApplier.php|8f8bab88c6ffb669770a761bc0e734ec
+/Plugin/TotalsCollectorPlugin.php|b9299413d8bf5ba90a35e83b29d80486
 /Plugin/ShippingTaxConfigPlugin.php|758849e37303d526a08d23f4480c821e
 /Setup/Patch/Data/InstallLengowData.php|bc1eb3458ac9a39b63a43f83a94a2f1e
 /Setup/Patch/Data/UpgradeLengowDataConfig.php|741602056b4aa9eb3196617f22b46e60
