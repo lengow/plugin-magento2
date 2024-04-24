@@ -1023,7 +1023,7 @@ class Order extends AbstractModel
     public function getMarketPlace():  LengowMarketplace
     {
         return $this->importHelper->getMarketplaceSingleton(
-            $this->getData(self::FIELD_MARKETPLACE_NAME)
+            (string) $this->getData(self::FIELD_MARKETPLACE_NAME)
         );
     }
 
