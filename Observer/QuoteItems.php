@@ -93,20 +93,27 @@ class QuoteItems implements ObserverInterface
             ) {
                 continue;
             }
-            $item->setTaxAmount($product['tax_amount']);
-            $item->setBaseTaxAmount($product['tax_amount']);
-            $item->setBaseRowTotal($product['amount'] - $product['tax_amount']);
-            $item->setRowTotal($product['amount'] - $product['tax_amount']);
-            $item->setRowTotalInclTax($product['amount']);
-            $item->setPrice($product['price_unit']);
-            $item->setPriceInclTax($product['amount']);
-            $item->setBasePriceInclTax($product['amount']);
-            $item->setCustomPrice($product['amount'] - $product['tax_amount']);
-            $item->setOriginalCustomPrice($product['amount'] - $product['tax_amount']);
-            $item->setBasePrice($product['amount'] - $product['tax_amount']);
-            $item->setOriginalPrice($product['amount'] - $product['tax_amount']);
-            $item->setBaseOriginalPrice($product['amount'] - $product['tax_amount']);
-            $item->setBaseRowTotalInclTax($product['amount']);
+            $originalPrice = $product['price_unit'] - $product['tax_unit'];
+            $rowTotalInclTax = $product['amount'];
+            $rowTotalExclTax = $product['amount'] - $product['tax_amount'];
+            $taxAmount = $product['tax_amount'];
+            $unitPriceInclTax = $product['price_unit'];
+
+            $item->setTaxAmount($taxAmount);
+            $item->setBaseTaxAmount($taxAmount);
+            $item->setBaseRowTotal($rowTotalExclTax);
+            $item->setRowTotal($rowTotalExclTax);
+            $item->setRowTotalInclTax($rowTotalInclTax);
+            $item->setBaseRowTotalInclTax($rowTotalInclTax);
+            $item->setPrice($originalPrice);
+            $item->setPriceInclTax($unitPriceInclTax);
+            $item->setBasePriceInclTax($unitPriceInclTax);
+            $item->setCustomPrice($originalPrice);
+            $item->setOriginalCustomPrice($originalPrice);
+            $item->setBasePrice($originalPrice);
+            $item->setOriginalPrice($originalPrice);
+            $item->setBaseOriginalPrice($originalPrice);
+
         }
     }
 }

@@ -1,4 +1,4 @@
-/composer.json|81bf1096eb5945dfca8a525f70ba0d14
+/composer.json|5837f873eaab87e1782b11628043154b
 /registration.php|dc6e50502663d362b5efdf9c829985c6
 /Block/Adminhtml/Header.php|c2389266bf3fc30d13fc3a5d0ca5e571
 /Block/Adminhtml/Sales/Order/Tab/Info.php|4ce087663f556696e71f434ac1f762b5
@@ -107,7 +107,7 @@
 /Model/Export.php|6d2ccfbc5463de1f15f2d121b0498756
 /Observer/SendAction.php|e02e706c25f7104d3c85fa668bb45f4e
 /Observer/B2bTaxesApllicator.php|03bd0111da812911734c663899a5d44d
-/Observer/QuoteItems.php|fcd98e2b4ebbe77982174253c06b29de
+/Observer/QuoteItems.php|d6872862885aba28e3bc8b6fa714c878
 /Observer/AddressTotals.php|16b66109a61ce52dd9d35aac4355c3a8
 /Plugin/InvoiceTotalsCollectorPlugin.php|2f7e8763ddde0625bcd8630b801c2309
 /Plugin/ReturnTrackingNumber.php|c1cca95586a511bc7e6eea02160fce5c
@@ -129,7 +129,7 @@
 /Ui/Component/Listing/Column/Country.php|0f736fedf67df86827e7d6f446d6c107
 /Ui/Component/Listing/Column/TotalPaid.php|f21fc29dc8c9b17a5443b02a2c918859
 /Ui/Component/Listing/Column/ActionParameters.php|f1f828c45c2f15c5ec6f98035364b828
-/view/frontend/layout/default.xml|52691c169f2e1e870cb418313f2ec063
+/view/frontend/layout/default.xml|ee6aab0d5c07e54401618226c030b9f4
 /view/frontend/templates/tracker.phtml|d67e14527799d4b93f9de1777e3d84e9
 /view/adminhtml/requirejs-config.js|48a64e3f8dae5277a5471b53a03fa1a3
 /view/adminhtml/ui_component/lengow_product_listing.xml|d41d8cd98f00b204e9800998ecf8427e
