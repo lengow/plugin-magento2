@@ -38,6 +38,7 @@ use Magento\Framework\Validator\Factory as ValidatorFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Helper\NameParser as NameParserHelper;
 
 /**
  * Model import customer
@@ -88,6 +89,12 @@ class Customer extends MagentoResourceCustomer
      * @var ConfigHelper Lengow config helper instance
      */
     private $configHelper;
+
+    /**
+     *
+     * @var NameParserHelper $nameParserHelper
+     */
+    private $nameParserHelper;
 
     /**
      * @var DataHelper Lengow data helper instance
@@ -407,7 +414,8 @@ class Customer extends MagentoResourceCustomer
         CustomerRepositoryInterface $customerRepository,
         RegionCollectionFactory $regionCollectionFactory,
         Random $mathRandom,
-        EncryptorInterface $encryptor
+        EncryptorInterface $encryptor,
+        NameParserHelper $nameParserHelper
     ) {
         $this->dataHelper = $dataHelper;
         $this->configHelper = $configHelper;
@@ -418,6 +426,7 @@ class Customer extends MagentoResourceCustomer
         $this->_regionCollectionFactory = $regionCollectionFactory;
         $this->_mathRandom = $mathRandom;
         $this->_encryptor = $encryptor;
+        $this->nameParserHelper = $nameParserHelper;
         parent::__construct(
             $context,
             $entitySnapshot,
@@ -676,7 +685,12 @@ class Customer extends MagentoResourceCustomer
             'fullName' => $this->cleanFullName((string) $addressData->full_name),
         ];
         if (empty($names['lastName']) && empty($names['firstName'])) {
-            $names = $this->splitNames((string) $names['fullName']);
+            $this->nameParserHelper
+                ->setFullName((string) $addressData->full_name)
+                ->parse();
+
+            $names['firstName'] = $this->nameParserHelper->getFirstName();
+            $names['lastName']  = $this->nameParserHelper->getLastName();
         } elseif (empty($names['firstName'])) {
             $names = $this->splitNames((string) $names['lastName']);
         } elseif (empty($names['lastName'])) {
@@ -685,6 +699,7 @@ class Customer extends MagentoResourceCustomer
         unset($names['fullName']);
         $names['firstName'] = !empty($names['firstName']) ? ucfirst(strtolower((string) $names['firstName'])) : '__';
         $names['lastName'] = !empty($names['lastName']) ? ucfirst(strtolower((string) $names['lastName'])) : '__';
+        
         return $names;
     }
 
@@ -943,4 +958,5 @@ class Customer extends MagentoResourceCustomer
         return $this->dataHelper->replaceAccentedChars(html_entity_decode($string));
     }
 }
+
 

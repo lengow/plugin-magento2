@@ -1,4 +1,4 @@
-/composer.json|5837f873eaab87e1782b11628043154b
+/composer.json|e42208536209ea28139174c8e2d2e836
 /registration.php|dc6e50502663d362b5efdf9c829985c6
 /Block/Adminhtml/Header.php|c2389266bf3fc30d13fc3a5d0ca5e571
 /Block/Adminhtml/Sales/Order/Tab/Info.php|4ce087663f556696e71f434ac1f762b5
@@ -45,7 +45,7 @@
 /etc/frontend/routes.xml|fd7926ca314017e32250b7e108d09d75
 /etc/di.xml|7c7687508f23c1b501f78bb2b3b9e235
 /etc/adminhtml/routes.xml|b37d51a18bc54f5a872c9797ed06ed5d
-/etc/adminhtml/system.xml|507f35cf34ba2eec5f2dd7bccc43acd7
+/etc/adminhtml/system.xml|e693d3c96203e13e498cd0ceb3eec80b
 /etc/adminhtml/menu.xml|b77fedabb5e2fa4ac1e16faa8b07add4
 /etc/acl.xml|238cdf00e292e74243e5a67e59729436
 /etc/crontab.xml|83daadd1679f9c3a6bb7e19792894644
@@ -56,7 +56,8 @@
 /etc/db_schema_whitelist.json|deba8059bea724bd1818062765ed45e1
 /Helper/Config.php|52a5eb14fd1508fcfa56343bf3d3d9ac
 /Helper/Import.php|a2b7acdb0c3f3e1e3a5a0b845c220537
-/Helper/Sync.php|0f303dca9a5f56649a4df8c673b92a4e
+/Helper/NameParser.php|35ee4188baf53f58f8772a4eb0e716ae
+/Helper/Sync.php|2097d0f37f46ea7499aaea2ff2ea94ab
 /Helper/Toolbox.php|8816d4c3d164cd51e99f879cb325616c
 /Helper/Data.php|57be4d0eafe40074342277626ad63ef0
 /Helper/Security.php|e6622f9e1df875bcca48f8c310dbdd0a
@@ -90,7 +91,7 @@
 /Model/Import/Importorder.php|a9363ddf307fa410119a4580884ced9b
 /Model/Import/Ordererror.php|4ebd478d00a12adadbfe17761f27c1ad
 /Model/Import/Quote.php|3775d2caa81a197b97b5db4cff4ebc59
-/Model/Import/Customer.php|5ee6a1202cbff1686132c2ed9eb3387c
+/Model/Import/Customer.php|864cb9ea10e8cf866d87e5ea7050c916
 /Model/Catalog.php|2b7cb82722a383e5fdf258735fa4cd72
 /Model/Payment/Lengow.php|dd4f2d120fe6faa2d731cbf9eed66408
 /Model/Connector.php|ed9b39972bf91b4079a8a55db838f9ba
@@ -116,6 +117,7 @@
 /Plugin/RulesApplier.php|8f8bab88c6ffb669770a761bc0e734ec
 /Plugin/ShippingTaxConfigPlugin.php|758849e37303d526a08d23f4480c821e
 /Plugin/QuoteTotalsCollectorPlugin.php|868bab68703475eb66751c042388c414
+/Setup/Patch/Data/DisableLengowDataTracking.php|cae1dba2c77707cac36f41a4d5ca7fb4
 /Setup/Patch/Data/InstallLengowData.php|bc1eb3458ac9a39b63a43f83a94a2f1e
 /Setup/Patch/Data/UpgradeLengowDataConfig.php|741602056b4aa9eb3196617f22b46e60
 /Setup/Patch/Data/UpgradeLengowDataTracking.php|e70f26010c1768ffe1652feb7f9c21a0
@@ -129,8 +131,6 @@
 /Ui/Component/Listing/Column/Country.php|0f736fedf67df86827e7d6f446d6c107
 /Ui/Component/Listing/Column/TotalPaid.php|f21fc29dc8c9b17a5443b02a2c918859
 /Ui/Component/Listing/Column/ActionParameters.php|f1f828c45c2f15c5ec6f98035364b828
-/view/frontend/layout/default.xml|ee6aab0d5c07e54401618226c030b9f4
-/view/frontend/templates/tracker.phtml|d67e14527799d4b93f9de1777e3d84e9
 /view/adminhtml/requirejs-config.js|48a64e3f8dae5277a5471b53a03fa1a3
 /view/adminhtml/ui_component/lengow_product_listing.xml|d41d8cd98f00b204e9800998ecf8427e
 /view/adminhtml/ui_component/lengow_order_listing.xml|92555b03b50e85a2608ee0b9e033279f
