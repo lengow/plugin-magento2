@@ -91,7 +91,8 @@ class QuoteTotalsCollectorPlugin
                 }
             }
 
-            if (($type === 'grand_total' || $type==='base_grand_total') && $amount !==$totalLengow) {
+            if (($type === 'grand_total' || $type==='base_grand_total')
+                    && $amount !==$totalLengow) {
                 $result->setData($type, $totalLengow);
             }
         }

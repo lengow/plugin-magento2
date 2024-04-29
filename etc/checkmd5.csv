@@ -116,7 +116,7 @@
 /Plugin/SaveConfig.php|d02fb183b81dab5d8385b57a97bf1b91
 /Plugin/RulesApplier.php|8f8bab88c6ffb669770a761bc0e734ec
 /Plugin/ShippingTaxConfigPlugin.php|758849e37303d526a08d23f4480c821e
-/Plugin/QuoteTotalsCollectorPlugin.php|868bab68703475eb66751c042388c414
+/Plugin/QuoteTotalsCollectorPlugin.php|04f477c86f9280d89a3ff40dde71b7e0
 /Setup/Patch/Data/DisableLengowDataTracking.php|cae1dba2c77707cac36f41a4d5ca7fb4
 /Setup/Patch/Data/InstallLengowData.php|bc1eb3458ac9a39b63a43f83a94a2f1e
 /Setup/Patch/Data/UpgradeLengowDataConfig.php|741602056b4aa9eb3196617f22b46e60
