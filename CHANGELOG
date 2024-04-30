@@ -3,7 +3,7 @@ Version 1.6.1
 =============================================================
 - BugFix: Rounding amounts en Lengow Orders
 - BugFix: Name parser on fullName (amazon orders)
-- Feautre: Disable Lengow Tracker
+- Feature: Disable Lengow Tracker
 =============================================================
 Version 1.6.0
 =============================================================

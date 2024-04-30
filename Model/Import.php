@@ -908,6 +908,7 @@ class Import
             }
             // set current order to cancel hook updateOrderStatus
             $this->backendSession->setCurrentOrderLengow($marketplaceSku);
+            // set the current order data for plugins and observers
             $this->backendSession->setCurrentOrderLengowData($orderData);
             // if order contains no package
             if (empty($orderData->packages)) {
