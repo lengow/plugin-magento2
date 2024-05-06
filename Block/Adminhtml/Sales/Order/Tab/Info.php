@@ -299,6 +299,37 @@ class Info extends Template implements TabInterface
                 'label' => __('Customer email'),
                 'value' => $this->lengowOrder->getData(LengowOrder::FIELD_CUSTOMER_EMAIL),
             ];
+
+            try {
+                $decoded = json_decode(
+                    $this->lengowOrder->getData(LengowOrder::FIELD_EXTRA),
+                    true,
+                    512,
+                    JSON_THROW_ON_ERROR
+                );
+
+                $shippingPhone = $decoded['packages'][0]['delivery']['phone_mobile']
+                    ?? $decoded['packages'][0]['delivery']['phone_home']
+                    ?? $decoded['packages'][0]['delivery']['phone_office'];
+                if (!empty($shippingPhone)) {
+                    $fields[] = [
+                        'label' => __('Customer shipping phone'),
+                        'value' => $shippingPhone,
+                    ];
+                }
+
+                $billingPhone = $decoded['billing_address']['phone_mobile']
+                    ?? $decoded['billing_address']['phone_home']
+                    ?? $decoded['billing_address']['phone_office'];
+                if (!empty($billingPhone) && $billingPhone !== $shippingPhone) {
+                    $fields[] = [
+                        'label' => __('Customer billing phone'),
+                        'value' => $billingPhone,
+                    ];
+                }
+            } catch (\JsonException $e) {
+            }
+
             $fields[] = [
                 'label' => __('Carrier from marketplace'),
                 'value' => $this->lengowOrder->getData(LengowOrder::FIELD_CARRIER),

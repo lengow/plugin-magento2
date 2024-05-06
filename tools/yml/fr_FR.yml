@@ -145,6 +145,8 @@ fr:
       currency: "Devise"
       commission: "Commission"
       customer_email: "Email client"
+      customer_shipping_phone: "Téléphone de livraison client"
+      customer_billing_phone: "Téléphone de facturation client"
       carrier: "Transporteur de la marketplace"
       carrier_method: "Mode d'expédition de la marketplace"
       carrier_tracking: "Numéro de tracking"
@@ -399,7 +401,7 @@ fr:
     import_cron_enable_title: "Autorisez le process Cron de Magento"
     import_cron_enable_comment: "Si votre Cron est en place sur Magento, les commandes seront importées automatiquement toutes les 30 minutes"
     import_b2b_without_tax_label: "Activer l'import des commandes B2B sans taxes"
-    import_b2b_without_tax_comment: "Activer cette option pour importer les commandes B2B sans taxes"    
+    import_b2b_without_tax_comment: "Activer cette option pour importer les commandes B2B sans taxes"
   lengow_log:
     exception:
       no_connection_webservice: "la connexion ne se fait pas avec Lengow pour la boutique %1 (%2)"

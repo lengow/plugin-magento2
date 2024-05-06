@@ -125,6 +125,8 @@
 "Currency","Währung"
 "Commission","Kommission"
 "Customer email","Kunden-EMail"
+"Customer shipping phone","Versand telefon des Kunden"
+"Customer billing phone","Abrechnung telefon des Kunden"
 "Carrier from marketplace"," Spediteur des Marktplatzes"
 "Shipping method from marketplace","Versandart des Marktplatzes"
 "Tracking number","Sendungsverfolgungsnummer"

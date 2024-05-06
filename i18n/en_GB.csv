@@ -125,6 +125,8 @@
 "Currency","Currency"
 "Commission","Commission"
 "Customer email","Customer email"
+"Customer shipping phone","Customer shipping phone"
+"Customer billing phone","Customer billing phone"
 "Carrier from marketplace","Carrier from marketplace"
 "Shipping method from marketplace","Shipping method from marketplace"
 "Tracking number","Tracking number"
