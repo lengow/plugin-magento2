@@ -127,6 +127,7 @@
 "Customer email","Email client"
 "Customer shipping phone","Téléphone de livraison client"
 "Customer billing phone","Téléphone de facturation client"
+"Max shipping date","Date limite de livraison"
 "Carrier from marketplace","Transporteur de la marketplace"
 "Shipping method from marketplace","Mode d'expédition de la marketplace"
 "Tracking number","Numéro de tracking"

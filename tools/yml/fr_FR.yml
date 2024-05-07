@@ -147,6 +147,7 @@ fr:
       customer_email: "Email client"
       customer_shipping_phone: "Téléphone de livraison client"
       customer_billing_phone: "Téléphone de facturation client"
+      max_shipping_date: "Date limite de livraison"
       carrier: "Transporteur de la marketplace"
       carrier_method: "Mode d'expédition de la marketplace"
       carrier_tracking: "Numéro de tracking"
