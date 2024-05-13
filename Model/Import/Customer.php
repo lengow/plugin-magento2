@@ -39,6 +39,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\NameParser as NameParserHelper;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 /**
  * Model import customer
@@ -475,9 +476,16 @@ class Customer extends MagentoResourceCustomer
             $marketplaceSku
         );
         // create or load customer if not exist
-        $customer = $this->getOrCreateCustomer($customerEmail, $storeId, $orderData->billing_address);
+        $customer = $this->getOrCreateCustomer(
+            $customerEmail,
+            $storeId,
+            $this->hydrateAddress($orderData, $orderData->billing_address)
+        );
         // create or load default billing address if not exist
-        $billingAddress = $this->getOrCreateAddress($customer, $orderData->billing_address);
+        $billingAddress = $this->getOrCreateAddress(
+            $customer,
+            $this->hydrateAddress($orderData, $orderData->billing_address)
+        );
         if (!$billingAddress->getId()) {
             $customer->addAddress($billingAddress);
             if ($customer->getDefaultBillingAddress()) {
@@ -485,7 +493,11 @@ class Customer extends MagentoResourceCustomer
             }
         }
         // create or load default shipping address if not exist
-        $shippingAddress = $this->getOrCreateAddress($customer, $shippingAddress, true);
+        $shippingAddress = $this->getOrCreateAddress(
+            $customer,
+            $this->hydrateAddress($orderData, $shippingAddress),
+            true
+        );
         if (!$shippingAddress->getId()) {
             $customer->addAddress($shippingAddress);
             if ($customer->getDefaultShippingAddress()) {
@@ -699,7 +711,7 @@ class Customer extends MagentoResourceCustomer
         unset($names['fullName']);
         $names['firstName'] = !empty($names['firstName']) ? ucfirst(strtolower((string) $names['firstName'])) : '__';
         $names['lastName'] = !empty($names['lastName']) ? ucfirst(strtolower((string) $names['lastName'])) : '__';
-        
+
         return $names;
     }
 
@@ -956,6 +968,58 @@ class Customer extends MagentoResourceCustomer
     {
         $string = strtolower(str_replace([' ', '-', '_', '.'], '', trim($string)));
         return $this->dataHelper->replaceAccentedChars(html_entity_decode($string));
+    }
+
+    /**
+     * hydrates address data
+     *
+     * @param Object $orderData
+     * @param Object $address
+     */
+    private function hydrateAddress($orderData, $address)
+    {
+
+        $notProvided = __('Not provided by the marketplace');
+        $notPhone = '0000000000';
+        $status = (string) $orderData->lengow_status;
+        $isDeliveredByMp = false;
+        if ($status !== LengowOrder::STATE_SHIPPED) {
+            return $address;
+        }
+       
+        $types = $orderData->order_types;
+        foreach ($types as $orderType) {
+            if ($orderType->type === LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE) {
+                $isDeliveredByMp = true;
+            }
+        }
+
+        if (!$isDeliveredByMp) {
+            return $address;
+        }
+
+
+        if (is_null($address->first_name)
+                && is_null($address->last_name)
+                && is_null($address->full_name)) {
+            $address->first_name = $notProvided;
+            $address->last_name = $notProvided;
+            $address->full_name = $notProvided;
+        }
+
+        if (is_null($address->first_line)
+                && is_null($address->full_address)) {
+            $address->first_line = $notProvided;
+            $address->full_address = $notProvided;
+        }
+
+        if (is_null($address->phone_home)
+                && is_null($address->phone_mobile)) {
+            $address->phone_home = $notPhone;
+            $address->phone_mobile = $notPhone;
+        }
+
+        return $address;
     }
 }
 
