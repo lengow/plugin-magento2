@@ -43,7 +43,7 @@
 /Cron/LaunchResend.php|a0031908614eb611ee65dd0386091445
 /Cron/LaunchSynchronization.php|3d5fe13e29dab6216e6cab7aa5633e48
 /etc/frontend/routes.xml|fd7926ca314017e32250b7e108d09d75
-/etc/di.xml|7c7687508f23c1b501f78bb2b3b9e235
+/etc/di.xml|c1ce9cb218f6bbb0f7f85aca3f5c4cd6
 /etc/adminhtml/routes.xml|b37d51a18bc54f5a872c9797ed06ed5d
 /etc/adminhtml/system.xml|e693d3c96203e13e498cd0ceb3eec80b
 /etc/adminhtml/menu.xml|b77fedabb5e2fa4ac1e16faa8b07add4
@@ -61,9 +61,9 @@
 /Helper/Toolbox.php|8816d4c3d164cd51e99f879cb325616c
 /Helper/Data.php|57be4d0eafe40074342277626ad63ef0
 /Helper/Security.php|e6622f9e1df875bcca48f8c310dbdd0a
-/i18n/fr_FR.csv|ec554e0dc7c20bd80d185863f16bcdc1
-/i18n/en_GB.csv|326d8a6ca50dd6bfaa3c881508870fe3
-/i18n/de_DE.csv|53b4d64f0c8a63c286dd9f51537b2dd0
+/i18n/fr_FR.csv|c73c199bb3f5eea65d0b1ab2240dd0e3
+/i18n/en_GB.csv|ab06b716feba1887bb5a3c412a79be91
+/i18n/de_DE.csv|5d0538d8923a6bd80d4d04541061027c
 /Model/Carrier/Lengow.php|2fa83223a8a7989ac04e1e92fd0ca907
 /Model/Import.php|6304a10aed3596ee2b153a113bf66a78
 /Model/Log.php|333700e3e9a446010914c5134ac6c1f4
@@ -85,13 +85,13 @@
 /Model/Config/Source/Status.php|0a0b29e507f81b7f8f4eef5c93503155
 /Model/Import/Orderline.php|9b0273739fdd1bf2a1da0706e993b592
 /Model/Import/Order.php|d8e209bc2ca93bc1320c43e60a3947a7
-/Model/Import/Marketplace.php|82b0e25b263752f771741e248bdb0aaf
+/Model/Import/Marketplace.php|904ba8fe558dbaaab4225c98e09b4a62
 /Model/Import/Quote/Item.php|deea2328f2b0109b4bfe412c7edc90a5
 /Model/Import/Action.php|973b469457416b7fdd2e42ffef42a66a
 /Model/Import/Importorder.php|a9363ddf307fa410119a4580884ced9b
 /Model/Import/Ordererror.php|4ebd478d00a12adadbfe17761f27c1ad
 /Model/Import/Quote.php|3775d2caa81a197b97b5db4cff4ebc59
-/Model/Import/Customer.php|864cb9ea10e8cf866d87e5ea7050c916
+/Model/Import/Customer.php|ebea34b6f1fa184f0f10de46e248c520
 /Model/Catalog.php|2b7cb82722a383e5fdf258735fa4cd72
 /Model/Payment/Lengow.php|dd4f2d120fe6faa2d731cbf9eed66408
 /Model/Connector.php|ed9b39972bf91b4079a8a55db838f9ba
@@ -110,6 +110,7 @@
 /Observer/B2bTaxesApllicator.php|03bd0111da812911734c663899a5d44d
 /Observer/QuoteItems.php|d6872862885aba28e3bc8b6fa714c878
 /Observer/AddressTotals.php|16b66109a61ce52dd9d35aac4355c3a8
+/Plugin/CreditmemoTotalsCollectorPlugin.php|d06eeae58b642aec52e418089ecab46d
 /Plugin/InvoiceTotalsCollectorPlugin.php|2f7e8763ddde0625bcd8630b801c2309
 /Plugin/ReturnTrackingNumber.php|c1cca95586a511bc7e6eea02160fce5c
 /Plugin/WeeeConfig.php|a56248ed5aec8e3e75498c2d3ca9b754

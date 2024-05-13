@@ -150,6 +150,7 @@
 "The synchronisation of the orders was blocked by a timeout. Please reload the page.","Während der Synchronisierung der Bestellungen kam es zu einem Time-Out-Fehler. Bitte aktualisieren Sie die Seite."
 "Return Number","Rücksendenummer"
 "Return Carrier","Beförderer für die Rückreise"
+"Not provided by the marketplace","Nicht vom Marktplatz bereitgestellt"
 "Actions","Aktionen"
 "Success","Erfolg"
 "Error","Fehler"

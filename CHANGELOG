@@ -2,7 +2,10 @@
 Version 1.6.1
 =============================================================
 - BugFix: Rounding amounts en Lengow Orders
+- BugFix: Rounding amounts on credit memo (refund)
 - BugFix: Name parser on fullName (amazon orders)
+- BugFix: FBA orders not imported from amazon_us
+- BUgFix: Matching carrier for manomano
 - Feature: Disable Lengow Tracker
 =============================================================
 Version 1.6.0
