@@ -1268,6 +1268,7 @@ class Importorder extends AbstractModel
     private function getProducts(): array
     {
         $lengowProducts = [];
+        $this->backendSession->setCurrentOrderLengowProducts([]);
         foreach ($this->packageData->cart as $product) {
             $found = false;
             $magentoProduct = false;
@@ -1366,6 +1367,7 @@ class Importorder extends AbstractModel
                             'tax_unit' => (float)  ($product->tax / $product->quantity)
                         ];
                     }
+                    $this->backendSession->setCurrentOrderLengowProducts($lengowProducts);
                     $this->dataHelper->log(
                         DataHelper::CODE_IMPORT,
                         $this->dataHelper->setLogMessage(
@@ -1500,109 +1502,11 @@ class Importorder extends AbstractModel
                 $this->dataHelper->setLogMessage('quote does not contain any valid products')
             );
         }
-        if ($this->configHelper->get(ConfigHelper::CHECK_ROUNDING_ENABLED, $this->storeId)) {
 
-            $hasAdjustedTaxes = $this->hasAdjustedQuoteTaxes($quote, $products);
-            if ($hasAdjustedTaxes) {
-                $this->dataHelper->setLogMessage('quote taxes has been adjusted');
-            }
-            $shippingQuoteCost = $quote->getShippingAddress()->getShippingInclTax();
-            $shippingCostLengow = (float) $this->orderData->shipping ?? 0;
-            if ($shippingCostLengow && $shippingCostLengow !== $shippingQuoteCost) {
-                $deltaCost = $shippingCostLengow - $shippingQuoteCost;
-                $quote->getShippingAddress()->setShippingPrice($shippingCost+ $deltaCost);
-                $grandTotalQuote = $quote->getShippingAddress()->getGrandTotal() ;
-                $baseGrandTotalQuote = $quote->getShippingAddress()->getBaseGrandTotal();
-                // set shipping price and shipping method for current order
-                $quote->getShippingAddress()
-                    ->setShippingInclTax($shippingQuoteCost + $deltaCost)
-                    ->setShippingAmount($shippingCost + $deltaCost)
-                    ->setBaseGrandTotal($baseGrandTotalQuote + $deltaCost)
-                    ->setGrandTotal($grandTotalQuote + $deltaCost);
-                $quote->collectTotals()->save();
-                $this->dataHelper->setLogMessage('quote shipping amount has been adjusted');
-            }
-        }
-
-        $quote->save();
         return $quote;
     }
 
-    /**
-     * check taxes amount quote adjustment between lengow and magento
-     *
-     * @param Quote $quote
-     * @param array $products
-     *
-     * @return bool
-     */
-    private function hasAdjustedQuoteTaxes($quote, $products): bool
-    {
 
-        $shippingAddress = $quote->getShippingAddress();
-        $totalTaxQuote = (float) $shippingAddress->getTaxAmount();
-        $totalTaxLengow = 0;
-        $totalProducts = 0;
-        $taxDiff = false;
-
-        foreach ($quote->getAllVisibleItems() as $item) {
-            if (isset($products[$item->getProductId()])) {
-
-                if (!isset($products[$item->getProductId()])) {
-                    $taxDiff = false;
-                    continue;
-                }
-
-                $product = $products[$item->getProductId()];
-                $totalTaxLengow += $product['tax_amount'];
-                $totalProducts += $product['amount'];
-
-                if (!$item->getTaxAmount() || !$product['tax_amount']) {
-                    $taxDiff = false;
-                    continue;
-                }
-
-                if (
-                    $product['tax_amount'] === (float) $item->getTaxAmount()
-                    && $product['amount'] === $item->getRowTotalInclTax()
-                ) {
-                    $taxDiff = false;
-                    continue;
-                }
-
-                $taxDiff = true;
-                $item->setTaxAmount($product['tax_amount']);
-                $item->setBaseTaxAmount($product['tax_amount']);
-                $item->setBaseRowTotal($product['amount'] - $product['tax_amount']);
-                $item->setRowTotal($product['amount'] - $product['tax_amount']);
-                $item->setRowTotalInclTax($product['amount']);
-                $item->setPrice($product['price_unit']);
-                $item->setPriceInclTax($product['amount']);
-                $item->setBasePriceInclTax($product['amount']);
-                $item->setCustomPrice($product['amount'] - $product['tax_amount']);
-                $item->setOriginalCustomPrice($product['amount'] - $product['tax_amount']);
-                $item->setBasePrice($product['amount'] - $product['tax_amount']);
-                $item->setOriginalPrice($product['amount'] - $product['tax_amount']);
-                $item->setBaseOriginalPrice($product['amount'] - $product['tax_amount']);
-                $item->setBaseRowTotalInclTax($product['amount']);
-                $item->save();
-            }
-        }
-
-        if (!$taxDiff) {
-            return false;
-        }
-
-        if (
-            $totalTaxQuote === $totalTaxLengow
-            && $totalProducts === $shippingAddress->getSubtotal()
-        ) {
-            return false;
-        }
-        $quote->collectTotals()->save();
-
-        return true;
-    }
 
     /**
      * Update Rates with shipping cost

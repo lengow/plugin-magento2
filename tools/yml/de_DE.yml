@@ -170,6 +170,7 @@ de:
       ajax_timeout: "Während der Synchronisierung der Bestellungen kam es zu einem Time-Out-Fehler. Bitte aktualisieren Sie die Seite."
       return_number: "Rücksendenummer"
       return_carrier: "Beförderer für die Rückreise"
+      not_provided: "Nicht vom Marktplatz bereitgestellt"
     table:
       lengow_action: "Aktionen"
       action_success: "Erfolg"

@@ -13,4 +13,10 @@
     <event name="sales_quote_collect_totals_before">
         <observer name="lengow_connector_b2b_taxes_applicator" instance="Lengow\Connector\Observer\B2bTaxesApllicator"/>
     </event>
+    <event name="sales_quote_collect_totals_after">
+        <observer name="lengow_connector_qyote_item" instance="Lengow\Connector\Observer\QuoteItems"/>
+    </event>
+    <event name="sales_quote_address_collect_totals_after">
+        <observer name="lengow_connector_address_collect_totals_observer" instance="Lengow\Connector\Observer\AddressTotals" />
+    </event>
 </config>
