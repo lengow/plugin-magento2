@@ -7,6 +7,7 @@ Version 1.6.1
 - BugFix: FBA orders not imported from amazon_us
 - BUgFix: Matching carrier for manomano
 - Feature: Disable Lengow Tracker
+- Feature:  Add phone number to the order information in the "Lengow" tab
 =============================================================
 Version 1.6.0
 =============================================================
