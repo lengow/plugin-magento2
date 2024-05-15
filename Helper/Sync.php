@@ -216,8 +216,15 @@ class Sync extends AbstractHelper
      */
     public function getSyncData(): array
     {
+        $domainName = self::CMS_TYPE;
+        if (!empty($_SERVER['SERVER_NAME'])) {
+            $domainName = $_SERVER['SERVER_NAME'];
+        } elseif (!empty($_SERVER['HTTP_HOST'])) {
+            $domainName = $_SERVER['HTTP_HOST'];
+        }
+
         $data = [
-            'domain_name' => $_SERVER['SERVER_NAME'],
+            'domain_name' => $domainName,
             'token' => $this->configHelper->getToken(),
             'type' => self::CMS_TYPE,
             'version' => $this->securityHelper->getMagentoVersion(),
@@ -227,6 +234,7 @@ class Sync extends AbstractHelper
             'toolbox_url' => $this->dataHelper->getToolboxUrl(),
             'shops' => [],
         ];
+
         $stores = $this->configHelper->getAllStore();
         foreach ($stores as $store) {
             $storeId = (int) $store->getId();

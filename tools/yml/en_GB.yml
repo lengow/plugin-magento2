@@ -170,6 +170,7 @@ en:
       ajax_timeout: "The synchronisation of the orders was blocked by a timeout. Please reload the page."
       return_number: "Return Number"
       return_carrier: "Return Carrier"
+      not_provided: "Not provided by the marketplace"
     table:
       lengow_action: "Actions"
       action_success: "Success"
