@@ -362,6 +362,7 @@ class Export
      */
     public function init(array $params): void
     {
+        $this->dataHelper->registerShutdownFunction();
         $this->storeId = isset($params[self::PARAM_STORE_ID]) ? (int) $params[self::PARAM_STORE_ID] : 0;
         try {
             $this->store = $this->storeManager->getStore($this->storeId);
@@ -380,7 +381,7 @@ class Export
             ? (bool) $params[self::PARAM_INACTIVE]
             : (bool) $this->configHelper->get(ConfigHelper::INACTIVE_ENABLED, $this->storeId);
         $this->outOfStock = isset($params[self::PARAM_OUT_OF_STOCK])
-                ? (bool) $params[self::PARAM_OUT_OF_STOCK] 
+                ? (bool) $params[self::PARAM_OUT_OF_STOCK]
                 : $this->configHelper->get(ConfigHelper::OUT_OF_STOCK_ENABLED, $this->storeId) ;
         $this->updateExportDate = !isset($params[self::PARAM_UPDATE_EXPORT_DATE])
             || $params[self::PARAM_UPDATE_EXPORT_DATE];
@@ -422,6 +423,7 @@ class Export
      **/
     public function exec(): void
     {
+
         try {
             // start timer
             $timeStart = $this->microtimeFloat();

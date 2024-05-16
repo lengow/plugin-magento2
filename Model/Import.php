@@ -358,6 +358,7 @@ class Import
      */
     public function init(array $params): void
     {
+        $this->dataHelper->registerShutdownFunction();
         // get generic params for synchronisation
         $this->debugMode = isset($params[self::PARAM_DEBUG_MODE])
             ? (bool) $params[self::PARAM_DEBUG_MODE]
@@ -412,6 +413,7 @@ class Import
      */
     public function exec(): array
     {
+
         $syncOk = true;
         // checks if a synchronization is not already in progress
         if (!$this->canExecuteSynchronization()) {
