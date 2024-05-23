@@ -423,7 +423,6 @@ class Export
      **/
     public function exec(): void
     {
-
         try {
             // start timer
             $timeStart = $this->microtimeFloat();
