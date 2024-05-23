@@ -413,7 +413,6 @@ class Import
      */
     public function exec(): array
     {
-
         $syncOk = true;
         // checks if a synchronization is not already in progress
         if (!$this->canExecuteSynchronization()) {
