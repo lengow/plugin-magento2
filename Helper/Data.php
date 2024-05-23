@@ -710,4 +710,42 @@ class Data extends AbstractHelper
         ];
         return preg_replace($patterns, $replacements, $str ?? '');
     }
+
+    /**
+     * Logs potential PHP fatal error on shutdown.
+     * Can be useful when the script crash silently
+     */
+    public function registerShutdownFunction()
+    {
+        ini_set('log_errors_max_len', 10240);
+        register_shutdown_function(
+            function () {
+                $error = error_get_last();
+                if ($error) {
+                    $labels = [
+                        E_ERROR => "E_ERROR",
+                        E_WARNING => "E_WARNING",
+                        E_PARSE => "E_PARSE",
+                        E_NOTICE => "E_NOTICE",
+                        E_CORE_ERROR => "E_CORE_ERROR",
+                        E_CORE_WARNING => "E_CORE_WARNING",
+                        E_COMPILE_ERROR => "E_COMPILE_ERROR",
+                        E_COMPILE_WARNING => "E_COMPILE_WARNING",
+                        E_USER_ERROR => "E_USER_ERROR",
+                        E_USER_WARNING => "E_USER_WARNING",
+                        E_USER_NOTICE => "E_USER_NOTICE",
+                        E_STRICT => "E_STRICT",
+                        E_RECOVERABLE_ERROR => "E_RECOVERABLE_ERROR",
+                        E_DEPRECATED => "E_DEPRECATED",
+                        E_USER_DEPRECATED => "E_USER_DEPRECATED",
+                        E_ALL => "E_ALL"
+                    ];
+                    $this->log(
+                        $labels[$error['type']] ?? 'PHP',
+                        $error['message'] . PHP_EOL . 'in ' . $error['file'] . ' on line ' . $error['line']
+                    );
+                }
+            }
+        );
+    }
 }
