@@ -102,8 +102,6 @@ class CreditmemoTotalsCollectorPlugin
             return $result;
         }
 
-
-
         $lengowOrderId = $this->lengowOrderFactory->create()
             ->getLengowOrderIdByOrderId($order->getId());
         $lengowOrder = $this->lengowOrderFactory->create()->load($lengowOrderId);
@@ -111,12 +109,14 @@ class CreditmemoTotalsCollectorPlugin
             $lengowOrder->getData(LengowOrder::FIELD_EXTRA)
         );
 
+        $shippingLengow = (float) $lengowOrderData->shipping;
+        if ($this->hasPostAdjustedAmounts($shippingLengow)) {
+            return $result;
+        }
 
         $totalLengow = (float) $lengowOrderData->total_order;
         $taxLengow = (float) $lengowOrderData->total_tax;
-        $shippingLengow = (float) $lengowOrderData->shipping;
         $subtotalLengow = $totalLengow - $taxLengow - $shippingLengow;
-
         foreach ($result->getData() as $type => $amount) {
 
             if ($amount === 0) {
@@ -146,7 +146,8 @@ class CreditmemoTotalsCollectorPlugin
     /**
      * check if hasPostDifferentItemsQty
      *
-     * @param  \Magento\Sales\Model\Order $order
+     * @param Order $order
+     *
      * @return bool
      */
     protected function hasPostDifferentItemsQty(Order $order): bool
@@ -162,6 +163,35 @@ class CreditmemoTotalsCollectorPlugin
                     return true;
                 }
             }
+        }
+
+        return false;
+    }
+
+    /**
+     * check if hasPostAdjustedAmounts
+     *
+     * @param float $shippingLengow
+     *
+     * @return bool
+     */
+    protected function hasPostAdjustedAmounts(float $shippingLengow) : bool
+    {
+        if (is_null($this->request->getParam('creditmemo'))) {
+            return false;
+        }
+        $creditMemo = $this->request->getParam('creditmemo');
+        $shippingRefund = (float) $creditMemo['shipping_amount'];
+        if ($shippingRefund !== $shippingLengow) {
+            return true;
+        }
+        $adjustementPos = (float) $creditMemo['adjustment_positive'];
+        if ($adjustementPos > 0) {
+            return true;
+        }
+        $adjustementNeg = (float) $creditMemo['adjustment_negative'];
+        if ($adjustementNeg > 0) {
+            return true;
         }
 
         return false;
