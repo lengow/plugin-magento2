@@ -358,6 +358,7 @@ class Import
      */
     public function init(array $params): void
     {
+        $this->dataHelper->registerShutdownFunction();
         // get generic params for synchronisation
         $this->debugMode = isset($params[self::PARAM_DEBUG_MODE])
             ? (bool) $params[self::PARAM_DEBUG_MODE]
