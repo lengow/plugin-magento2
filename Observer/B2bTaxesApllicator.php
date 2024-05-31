@@ -11,7 +11,7 @@
  *
  * @category    Lengow
  * @package     Lengow_Connector
- * @subpackage  Observer
+ * @subpackage  Plugin
  * @author      Team module <team-module@lengow.com>
  * @copyright   2020 Lengow SAS
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
@@ -54,7 +54,6 @@ class B2bTaxesApllicator implements ObserverInterface
             foreach ($items as $item) {
                 $item->getProduct()->setTaxClassId(0);
             }
-            $this->backendSession->setIsLengowB2b(0);
         }
     }
 }

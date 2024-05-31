@@ -168,6 +168,9 @@ fr:
       no_order_will_be_sent: "Les rapport d'erreurs de vos commandes ne seront pas envoyés par email "
       change_this: "Vous voulez modifier cela ?"
       ajax_timeout: "La synchronisation des commandes a été bloquée par un timeout. Merci de recharger la page."
+      return_number: "Numéro de Retour"
+      return_carrier: "Transp. de retour"
+      not_provided: "Non fourni par la marketplace"
     table:
       lengow_action: "Actions"
       action_success: "Succès"
@@ -397,7 +400,7 @@ fr:
     import_cron_enable_title: "Autorisez le process Cron de Magento"
     import_cron_enable_comment: "Si votre Cron est en place sur Magento, les commandes seront importées automatiquement toutes les 30 minutes"
     import_b2b_without_tax_label: "Activer l'import des commandes B2B sans taxes"
-    import_b2b_without_tax_comment: "Activer cette option pour importer les commandes B2B sans taxes"
+    import_b2b_without_tax_comment: "Activer cette option pour importer les commandes B2B sans taxes"    
   lengow_log:
     exception:
       no_connection_webservice: "la connexion ne se fait pas avec Lengow pour la boutique %1 (%2)"

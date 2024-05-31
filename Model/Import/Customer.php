@@ -38,6 +38,8 @@ use Magento\Framework\Validator\Factory as ValidatorFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
+use Lengow\Connector\Helper\NameParser as NameParserHelper;
+use Lengow\Connector\Model\Import\Order as LengowOrder;
 
 /**
  * Model import customer
@@ -88,6 +90,12 @@ class Customer extends MagentoResourceCustomer
      * @var ConfigHelper Lengow config helper instance
      */
     private $configHelper;
+
+    /**
+     *
+     * @var NameParserHelper $nameParserHelper
+     */
+    private $nameParserHelper;
 
     /**
      * @var DataHelper Lengow data helper instance
@@ -407,7 +415,8 @@ class Customer extends MagentoResourceCustomer
         CustomerRepositoryInterface $customerRepository,
         RegionCollectionFactory $regionCollectionFactory,
         Random $mathRandom,
-        EncryptorInterface $encryptor
+        EncryptorInterface $encryptor,
+        NameParserHelper $nameParserHelper
     ) {
         $this->dataHelper = $dataHelper;
         $this->configHelper = $configHelper;
@@ -418,6 +427,7 @@ class Customer extends MagentoResourceCustomer
         $this->_regionCollectionFactory = $regionCollectionFactory;
         $this->_mathRandom = $mathRandom;
         $this->_encryptor = $encryptor;
+        $this->nameParserHelper = $nameParserHelper;
         parent::__construct(
             $context,
             $entitySnapshot,
@@ -452,10 +462,9 @@ class Customer extends MagentoResourceCustomer
 
         if ($this->configHelper->get(ConfigHelper::IMPORT_ANONYMIZED_EMAIL, $storeId)) {
             // generation of fictitious email
-            $customerEmail = substr(
-                0,
-                200,
-                hash('sha256', $marketplaceSku . '-' . $orderData->marketplace . '-'. $storeId)) . '@lengow.com';
+            $hashMail = hash('sha256', $marketplaceSku . '-' . $orderData->marketplace . '-'. $storeId);
+            $mailsuffix = substr($hashMail, 0, 32);
+            $customerEmail = $mailsuffix. '@lengow.com';
         } else {
             // get customer email
             $customerEmail = $orderData->billing_address->email ?? $orderData->packages[0]->delivery->email ?? '';
@@ -467,9 +476,16 @@ class Customer extends MagentoResourceCustomer
             $marketplaceSku
         );
         // create or load customer if not exist
-        $customer = $this->getOrCreateCustomer($customerEmail, $storeId, $orderData->billing_address);
+        $customer = $this->getOrCreateCustomer(
+            $customerEmail,
+            $storeId,
+            $this->hydrateAddress($orderData, $orderData->billing_address)
+        );
         // create or load default billing address if not exist
-        $billingAddress = $this->getOrCreateAddress($customer, $orderData->billing_address);
+        $billingAddress = $this->getOrCreateAddress(
+            $customer,
+            $this->hydrateAddress($orderData, $orderData->billing_address)
+        );
         if (!$billingAddress->getId()) {
             $customer->addAddress($billingAddress);
             if ($customer->getDefaultBillingAddress()) {
@@ -477,7 +493,11 @@ class Customer extends MagentoResourceCustomer
             }
         }
         // create or load default shipping address if not exist
-        $shippingAddress = $this->getOrCreateAddress($customer, $shippingAddress, true);
+        $shippingAddress = $this->getOrCreateAddress(
+            $customer,
+            $this->hydrateAddress($orderData, $shippingAddress),
+            true
+        );
         if (!$shippingAddress->getId()) {
             $customer->addAddress($shippingAddress);
             if ($customer->getDefaultShippingAddress()) {
@@ -535,10 +555,12 @@ class Customer extends MagentoResourceCustomer
      */
     private function getOrCreateCustomer(string $customerEmail, int $storeId, $billingData): MagentoCustomer
     {
-        $idWebsite = $this->_storeManager->getStore($storeId)->getWebsiteId();
+        $currentStore = $this->_storeManager->getStore($storeId);
+        $idWebsite = $currentStore->getWebsiteId();
         // first get by email
         $customer = $this->_customerFactory->create();
         $customer->setWebsiteId($idWebsite);
+        $customer->setStore($currentStore);
         $customer->loadByEmail($customerEmail);
         // add the client id group after uploading by mail because the data is all reset
         $customer->setGroupId($this->configHelper->get(ConfigHelper::SYNCHRONISATION_CUSTOMER_GROUP, $storeId));
@@ -547,6 +569,7 @@ class Customer extends MagentoResourceCustomer
             $customerNames = $this->getNames($billingData);
             $customer->setImportMode(true);
             $customer->setWebsiteId($idWebsite);
+            $customer->setStore($currentStore);
             $customer->setCompany((string) $billingData->company);
             $customer->setLastname($customerNames['lastName']);
             $customer->setFirstname($customerNames['firstName']);
@@ -674,7 +697,12 @@ class Customer extends MagentoResourceCustomer
             'fullName' => $this->cleanFullName((string) $addressData->full_name),
         ];
         if (empty($names['lastName']) && empty($names['firstName'])) {
-            $names = $this->splitNames((string) $names['fullName']);
+            $this->nameParserHelper
+                ->setFullName((string) $addressData->full_name)
+                ->parse();
+
+            $names['firstName'] = $this->nameParserHelper->getFirstName();
+            $names['lastName']  = $this->nameParserHelper->getLastName();
         } elseif (empty($names['firstName'])) {
             $names = $this->splitNames((string) $names['lastName']);
         } elseif (empty($names['lastName'])) {
@@ -683,6 +711,7 @@ class Customer extends MagentoResourceCustomer
         unset($names['fullName']);
         $names['firstName'] = !empty($names['firstName']) ? ucfirst(strtolower((string) $names['firstName'])) : '__';
         $names['lastName'] = !empty($names['lastName']) ? ucfirst(strtolower((string) $names['lastName'])) : '__';
+
         return $names;
     }
 
@@ -940,4 +969,58 @@ class Customer extends MagentoResourceCustomer
         $string = strtolower(str_replace([' ', '-', '_', '.'], '', trim($string)));
         return $this->dataHelper->replaceAccentedChars(html_entity_decode($string));
     }
+
+    /**
+     * hydrates address data
+     *
+     * @param Object $orderData
+     * @param Object $address
+     */
+    private function hydrateAddress($orderData, $address)
+    {
+
+        $notProvided = __('Not provided by the marketplace');
+        $notPhone = '0000000000';
+        $status = (string) $orderData->lengow_status;
+        $isDeliveredByMp = false;
+        if ($status !== LengowOrder::STATE_SHIPPED) {
+            return $address;
+        }
+       
+        $types = $orderData->order_types;
+        foreach ($types as $orderType) {
+            if ($orderType->type === LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE) {
+                $isDeliveredByMp = true;
+            }
+        }
+
+        if (!$isDeliveredByMp) {
+            return $address;
+        }
+
+
+        if (is_null($address->first_name)
+                && is_null($address->last_name)
+                && is_null($address->full_name)) {
+            $address->first_name = $notProvided;
+            $address->last_name = $notProvided;
+            $address->full_name = $notProvided;
+        }
+
+        if (is_null($address->first_line)
+                && is_null($address->full_address)) {
+            $address->first_line = $notProvided;
+            $address->full_address = $notProvided;
+        }
+
+        if (is_null($address->phone_home)
+                && is_null($address->phone_mobile)) {
+            $address->phone_home = $notPhone;
+            $address->phone_mobile = $notPhone;
+        }
+
+        return $address;
+    }
 }
+
+

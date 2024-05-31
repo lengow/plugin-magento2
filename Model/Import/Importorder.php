@@ -1181,9 +1181,13 @@ class Importorder extends AbstractModel
                 $this->logOutput
             );
             // if this order is B2B activate B2bTaxesApplicator
-            if ($this->configHelper->isB2bWithoutTaxEnabled($this->storeId) && $orderLengow->isBusiness()) {
+            $orderTotalTaxLengow = (float) $this->orderData->total_tax ?? 0;
+            if ($orderTotalTaxLengow == 0
+                    && $this->configHelper->isB2bWithoutTaxEnabled($this->storeId)
+                    && $orderLengow->isBusiness()) {
                 $this->backendSession->setIsLengowB2b(1);
-                //$customer
+            } else {
+                $this->backendSession->setIsLengowB2b(0);
             }
             // create Magento Quote
             $quote = $this->createQuote($customer, $products);
@@ -1264,6 +1268,7 @@ class Importorder extends AbstractModel
     private function getProducts(): array
     {
         $lengowProducts = [];
+        $this->backendSession->setCurrentOrderLengowProducts([]);
         foreach ($this->packageData->cart as $product) {
             $found = false;
             $magentoProduct = false;
@@ -1362,6 +1367,7 @@ class Importorder extends AbstractModel
                             'tax_unit' => (float)  ($product->tax / $product->quantity)
                         ];
                     }
+                    $this->backendSession->setCurrentOrderLengowProducts($lengowProducts);
                     $this->dataHelper->log(
                         DataHelper::CODE_IMPORT,
                         $this->dataHelper->setLogMessage(
@@ -1412,9 +1418,10 @@ class Importorder extends AbstractModel
     private function createQuote(MagentoCustomer $customer, array $products): Quote
     {
         $customerRepo = $this->customerRepository->getById($customer->getId());
+        $currentStore = $this->storeManager->getStore($this->storeId);
         $quote = $this->lengowQuoteFactory->create()
             ->setIsMultiShipping(false)
-            ->setStore($this->storeManager->getStore($this->storeId))
+            ->setStore($currentStore)
             ->setInventoryProcessed(false);
         // import customer addresses into quote
         // set billing Address
@@ -1441,6 +1448,7 @@ class Importorder extends AbstractModel
         // if this order is b2b
         if ((int) $this->backendSession->getIsLengowB2b() === 1) {
             $priceIncludeTax = true;
+            $shippingIncludeTax = true;
         }
         // add product in quote
         $quote->addLengowProducts($products, $priceIncludeTax);
@@ -1451,14 +1459,14 @@ class Importorder extends AbstractModel
         if (!$shippingIncludeTax) {
             $shippingTaxClass = $this->scopeConfig->getValue(
                 TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
-                'store',
-                $quote->getStore()
+                \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE,
+                $quote->getStore()->getWebsiteId()
             );
 
             $taxRate = $this->taxCalculation->getCalculatedRate(
                 $shippingTaxClass,
                 $customer->getId(),
-                $quote->getStore()
+                $currentStore->getId()
             );
             $taxShippingCost = $this->calculation->calcTaxAmount($shippingCost, $taxRate, true);
         }
@@ -1494,72 +1502,11 @@ class Importorder extends AbstractModel
                 $this->dataHelper->setLogMessage('quote does not contain any valid products')
             );
         }
-        if ($this->configHelper->get(ConfigHelper::CHECK_ROUNDING_ENABLED, $this->storeId)) {
-            //exit('rouding check enabled');
-            $hasAdjustedTaxes = $this->hasAdjustedQuoteTaxes($quote, $products);
-            if ($hasAdjustedTaxes) {
-                $this->dataHelper->setLogMessage('quote taxes has been adjusted');
-            }
-        }
 
-        $quote->save();
         return $quote;
     }
 
-    /**
-     * check taxes amount quote adjustment between lengow and magento
-     *
-     * @param Quote $quote
-     * @param array $products
-     *
-     * @return bool
-     */
-    private function hasAdjustedQuoteTaxes($quote, $products): bool
-    {
 
-        $totalTaxQuote = (float) $quote->getShippingAddress()->getTaxAmount();
-        $totalTaxLengow = 0;
-        $taxDiff = false;
-        foreach ($quote->getAllVisibleItems() as $item) {
-            if (isset($products[$item->getProductId()])) {
-                if (!isset($products[$item->getProductId()])) {
-                    $taxDiff = false;
-                    continue;
-                }
-                $product = $products[$item->getProductId()];
-                $totalTaxLengow += $product['tax_amount'];
-                if (!$item->getTaxAmount() || !$product['tax_amount']) {
-                    $taxDiff = false;
-                    continue;
-                }
-                if ($product['tax_amount'] === (float) $item->getTaxAmount()) {
-                    $taxDiff = false;
-                    continue;
-                }
-                $taxDiff = true;
-                $item->setTaxAmount($product['tax_amount']);
-                $item->setBaseTaxAmount($product['tax_amount']);
-                $item->save();
-            }
-        }
-        if (!$taxDiff) {
-            return false;
-        }
-        if ($totalTaxQuote === $totalTaxLengow) {
-            return false;
-        }
-        $deltaDiff = $totalTaxLengow - $totalTaxQuote;
-        $shippingAddress = $quote->getShippingAddress();
-        $grandTotal = $shippingAddress->getGrandTotal();
-        $subTotalIncTax = $shippingAddress->getSubTotalIncTax();
-        $shippingAddress->setTaxAmount($totalTaxLengow)
-            ->setBaseTaxAmount($totalTaxLengow)
-            ->setGrandTotal($grandTotal + $deltaDiff)
-            ->setSubtotalIncTax($subTotalIncTax + $deltaDiff)
-            ->save();
-
-        return true;
-    }
 
     /**
      * Update Rates with shipping cost
@@ -1629,6 +1576,9 @@ class Importorder extends AbstractModel
             'base_currency_code' => $currencyIsoA3,
             'store_currency_code' => $currencyIsoA3,
             'order_currency_code' => $currencyIsoA3,
+            'marketplace' => $orderLengow->getMarketplaceName(),
+            'marketplace_number' =>  $orderLengow->getMarketplaceSku()
+
         ];
         try {
             $order = $this->quoteManagement->submit($quote, $additionalData);
@@ -1774,6 +1724,7 @@ class Importorder extends AbstractModel
         }
     }
 }
+
 
 
 

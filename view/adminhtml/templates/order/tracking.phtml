@@ -1,0 +1,188 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// phpcs:disable PHPCompatibility.Miscellaneous.RemovedAlternativePHPTags.MaybeASPOpenTagFound
+/**
+ * @var $block Lengow\Connector\Block\Adminhtml\Order\Tracking
+ * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer
+ */
+?>
+<?php $scriptString = <<<script
+
+require(['prototype'], function(){
+
+    //<![CDATA[
+    var trackingControl;
+    trackingControl = {
+        index : 0,
+        add : function () {
+            this.index++;
+            var data = {index:this.index};
+            Element.insert($('track_row_container'), {
+                bottom: this.template({
+                    data: data
+                })
+            });
+            $('trackingC' + this.index).disabled = false;
+            $('trackingT' + this.index).disabled = false;
+            $('trackingN' + this.index).disabled = false;
+
+            this.bindCurrierOnchange();
+        },
+        deleteRow : function(event) {
+            var row = Event.findElement(event, 'tr');
+            if (row) {
+                row.parentNode.removeChild(row)
+            }
+        },
+        bindCurrierOnchange : function() {
+            var elems = $('tracking_numbers_table').select('.select');
+            elems.each(function (elem) {
+                if (!elem.onchangeBound) {
+                    elem.onchangeBound = true;
+                    elem.valueInput = $(elem.parentNode.parentNode).select('.number-title')[0];
+                    elem.observe('change', this.currierOnchange);
+                }
+            }.bind(this));
+        },
+        currierOnchange : function(event) {
+            var elem = Event.element(event);
+            var option = elem.options[elem.selectedIndex];
+            var elemReturn = $('return_trackingT' + elem.getAttribute('data-index'));
+            if (option.value && option.value != 'custom') {
+                elem.valueInput.value = option.text;
+                if (typeof elemReturn != 'undefined' && elemReturn != null) {
+                    elemReturn.value = option.value.toUpperCase();
+                }
+            }
+            else {
+                elem.valueInput.value = '';
+                if (typeof elemReturn != 'undefined') {
+                    elemReturn.value = '';
+                }
+            }
+        }
+    };
+
+    window.trackingControl = trackingControl;
+    //]]>
+
+});
+
+script;
+?>
+<?php /** @var \Lengow\Connector\Block\Adminhtml\Order\Tracking $block */ ?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>
+
+<script id="track_row_template" type="text/x-magento-template">
+    <tr>
+        <td class="col-carrier">
+            <select name="tracking[<%- data.index %>][carrier_code]"
+                    id="trackingC<%- data.index %>"
+                    class="select admin__control-select carrier"
+                    data-index="<%- data.index %>"
+                    disabled="disabled">
+                <?php foreach ($block->getCarriers() as $_code => $_name): ?>
+                    <option value="<?= $block->escapeHtmlAttr($_code) ?>"><?= $block->escapeHtml($_name) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </td>
+        <td class="col-title">
+            <input class="input-text admin__control-text number-title"
+                   type="text"
+                   name="tracking[<%- data.index %>][title]"
+                   id="trackingT<%- data.index %>"
+                   value=""
+                   disabled="disabled" />
+        </td>
+        <td class="col-number">
+            <input class="input-text admin__control-text required-entry"
+                   type="text"
+                   name="tracking[<%- data.index %>][number]"
+                   id="trackingN<%- data.index %>"
+                   value=""
+                   disabled="disabled" />
+        </td>
+        <?php if($block->canDisplayReturnCarrier()): ?>
+           <td class="col-title">
+                <input class="input-text admin__control-text"
+                   type="text"
+                   name="tracking[<%- data.index %>][return_carrier_code]"
+                   id="return_trackingT<%- data.index %>"
+                   value=""
+                    />
+            </td>
+        <?php endif; ?>
+         <?php if($block->canDisplayReturnNumber()): ?>
+            <td class="col-number">
+                <input class="input-text admin__control-text"
+                       type="text"
+                       name="tracking[<%- data.index %>][return_number]"
+                       id="return_trackingN<%- data.index %>"
+                       value=""
+                    />
+            </td>
+        <?php endif; ?>
+        <td class="col-delete">
+            <button
+                type="button"
+                class="action-default action-delete"
+                onclick="trackingControl.deleteRow(event);return false">
+                <span><?= $block->escapeHtml(__('Delete')) ?></span>
+            </button>
+        </td>
+    </tr>
+</script>
+
+<div class="admin__control-table-wrapper">
+    <table class="data-table admin__control-table" id="tracking_numbers_table">
+        <thead>
+        <tr class="headings">
+            <th class="col-carrier"><?= $block->escapeHtml(__('Carrier')) ?></th>
+            <th class="col-title"><?= $block->escapeHtml(__('Title')) ?></th>
+            <th class="col-number"><?= $block->escapeHtml(__('Number')) ?></th>
+            <?php if($block->canDisplayReturnCarrier()): ?>
+                <th class="col-number"><?= $block->escapeHtml(__('Return Carrier')) ?></th>
+            <?php endif ; ?>
+            <?php if($block->canDisplayReturnNumber()): ?>
+                <th class="col-number"><?= $block->escapeHtml(__('Return Number')) ?></th>
+            <?php endif ; ?>
+            <th class="col-delete"><?= $block->escapeHtml(__('Action')) ?></th>
+
+        </tr>
+        </thead>
+        <tfoot>
+        <tr>
+            <?php if($block->canDisplayReturnNumber()&& $block->canDisplayReturnCarrier()): ?>
+                <td colspan="6" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
+            <?php elseif($block->canDisplayReturnNumber()): ?>
+                <td colspan="5" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
+            <?php else: ?>
+                  <td colspan="4" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
+            <?php endif; ?>
+        </tr>
+        </tfoot>
+        <tbody id="track_row_container">
+        </tbody>
+    </table>
+</div>
+<?php $scriptString = <<<script
+
+require([
+    'mage/template',
+    'prototype'
+], function (mageTemplate) {
+
+    //<![CDATA[
+    trackingControl.template = mageTemplate('#track_row_template');
+    //]]>
+
+});
+
+script;
+?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>
+

@@ -168,6 +168,9 @@ de:
       no_order_will_be_sent: "Bestellfehler-Reports werden per Email nicht gesendet"
       change_this: "Ändern Sie dies?"
       ajax_timeout: "Während der Synchronisierung der Bestellungen kam es zu einem Time-Out-Fehler. Bitte aktualisieren Sie die Seite."
+      return_number: "Rücksendenummer"
+      return_carrier: "Beförderer für die Rückreise"
+      not_provided: "Nicht vom Marktplatz bereitgestellt"
     table:
       lengow_action: "Aktionen"
       action_success: "Erfolg"
@@ -395,7 +398,7 @@ de:
     import_cron_enable_title: "Magentocron aktivieren"
     import_cron_enable_comment: "Geplante Tasks aktivieren, um Ihre Bestellungen alle 30 Minuten zu importieren"
     import_b2b_without_tax_label: "Import von B2B-Bestellungen ohne Steuern ermöglichen"
-    import_b2b_without_tax_comment: "Aktivieren Sie diese Option, um B2B-Bestellungen ohne Steuer zu importieren"
+    import_b2b_without_tax_comment: "Aktivieren Sie diese Option, um B2B-Bestellungen ohne Steuer zu importieren"   
   lengow_log:
     exception:
       no_connection_webservice: "verbindung mit dem Lengow Webservice im Laden %1 (%2) funktionierte nicht."

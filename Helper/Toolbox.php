@@ -332,6 +332,7 @@ class Toolbox extends AbstractHelper
      */
     public function getData(string $type = self::DATA_TYPE_CMS): array
     {
+        $this->dataHelper->registerShutdownFunction();
         switch ($type) {
             case self::DATA_TYPE_ALL:
                 return $this->getAllData();

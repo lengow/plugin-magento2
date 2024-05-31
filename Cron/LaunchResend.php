@@ -95,7 +95,7 @@ class LaunchResend
         LengowOrderErrorFactory         $orderErrorFactory,
         LengowOrderFactory              $lengowOrderFactory,
         MagentoOrderFactory             $orderFactory,
-        LengowAction                    $lengowAction,
+        LengowAction                    $lengowAction
     ) {
         $this->storeManager         = $storeManager;
         $this->configHelper         = $configHelper;
@@ -118,13 +118,11 @@ class LaunchResend
         $storeCollection = $this->storeManager->getStores();
         foreach ($storeCollection as $store) {
             if (!$store->isActive()) {
-                echo "store not activce \n";
                 continue;
             }
             $resent = [];
             $storeId = (int) $store->getId();
             if (!$this->configHelper->get(ConfigHelper::RESEND_MAGENTO_CRON_ENABLED, $storeId)) {
-                echo "cron not enabled \n";
                 continue;
             }
             try {

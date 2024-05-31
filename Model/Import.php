@@ -358,6 +358,7 @@ class Import
      */
     public function init(array $params): void
     {
+        $this->dataHelper->registerShutdownFunction();
         // get generic params for synchronisation
         $this->debugMode = isset($params[self::PARAM_DEBUG_MODE])
             ? (bool) $params[self::PARAM_DEBUG_MODE]
@@ -462,7 +463,7 @@ class Import
      */
     private function setIntervalTime(int $days = null, string $createdFrom = null, string $createdTo = null): void
     {
-        
+
         if ($createdFrom && $createdTo) {
             // retrieval of orders created from ... until ...
             $createdFromTimestamp = $this->dateTime->gmtTimestamp($createdFrom);
@@ -908,6 +909,8 @@ class Import
             }
             // set current order to cancel hook updateOrderStatus
             $this->backendSession->setCurrentOrderLengow($marketplaceSku);
+            // set the current order data for plugins and observers
+            $this->backendSession->setCurrentOrderLengowData($orderData);
             // if order contains no package
             if (empty($orderData->packages)) {
                 $message = $this->dataHelper->setLogMessage(
@@ -988,6 +991,8 @@ class Import
             }
             // clean current order in session
             $this->backendSession->setCurrentOrderLengow(false);
+            $this->backendSession->setCurrentOrderLengowData([]);
+            $this->backendSession->setCurrentOrderLengowProducts([]);
             // reset backend session b2b attribute
             $this->backendSession->setIsLengowB2b(0);
             if ($importFinished) {

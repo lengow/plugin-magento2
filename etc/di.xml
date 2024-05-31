@@ -9,6 +9,21 @@
     <type name="Magento\Weee\Model\Config">
         <plugin name="remove_fpt_on_order" type="Lengow\Connector\Plugin\WeeeConfig" sortOrder="1" disabled="false"/>
     </type>
+    <type name="Magento\Sales\Model\Order\Shipment">
+        <plugin name="add_return_tracking_number" type="Lengow\Connector\Plugin\ReturnTrackingNumber" sortOrder="1" disabled="false" />
+    </type>
+    <type name="Magento\Tax\Model\Config">
+        <plugin name="lengow_shipping_tax_config" type="Lengow\Connector\Plugin\ShippingTaxConfigPlugin" sortOrder="1" disabled="false" />
+    </type>
+    <type name="Magento\Quote\Model\Quote\TotalsCollector">
+        <plugin name="lengow_quote_totals" type="Lengow\Connector\Plugin\QuoteTotalsCollectorPlugin" sortOrder="1" disabled="false" />
+    </type>
+    <type name="Magento\Sales\Model\Order\Invoice">
+        <plugin name="lengow_invoice_totals" type="Lengow\Connector\Plugin\InvoiceTotalsCollectorPlugin" sortOrder="1" disabled="false" />
+    </type>
+     <type name="Magento\Sales\Model\Order\Creditmemo">
+        <plugin name="lengow_creditmemo_totals" type="Lengow\Connector\Plugin\CreditmemoTotalsCollectorPlugin" sortOrder="1" disabled="false" />
+    </type>
     <virtualType name="LengowGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
         <arguments>
             <argument name="collection" xsi:type="object" shared="false">Lengow\Connector\Model\ResourceModel\Log\Collection</argument>
@@ -77,4 +92,6 @@
             <argument name="methodCode" xsi:type="const">Lengow\Connector\Model\Payment\Lengow::CODE</argument>
         </arguments>
     </virtualType>
+    <preference for="Magento\Shipping\Block\Adminhtml\Order\Tracking" type="Lengow\Connector\Block\Adminhtml\Order\Tracking" />
+    <preference for="Magento\Shipping\Block\Adminhtml\Order\Tracking\View" type="\Lengow\Connector\Block\Adminhtml\Order\Tracking\View" />
 </config>

@@ -168,6 +168,9 @@ en:
       no_order_will_be_sent: "No order issue reports will be sent by mail"
       change_this: "Change this?"
       ajax_timeout: "The synchronisation of the orders was blocked by a timeout. Please reload the page."
+      return_number: "Return Number"
+      return_carrier: "Return Carrier"
+      not_provided: "Not provided by the marketplace"
     table:
       lengow_action: "Actions"
       action_success: "Success"
@@ -397,7 +400,7 @@ en:
     import_cron_enable_title: "Enable Magento cron"
     import_cron_enable_comment: "Enable the scheduled task to import your orders every 30 minutes"
     import_b2b_without_tax_label: "Enable import of B2B orders without tax"
-    import_b2b_without_tax_comment: "Activate this option to import B2B orders without tax"
+    import_b2b_without_tax_comment: "Activate this option to import B2B orders without tax"   
   lengow_log:
     exception:
       no_connection_webservice: "connection didn't work with Lengow's webservice in store %1 (%2)"
