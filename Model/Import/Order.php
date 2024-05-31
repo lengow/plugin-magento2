@@ -1154,7 +1154,7 @@ class Order extends AbstractModel
             ]
         );
         if (!isset($results->results) || (isset($results->count) && (int) $results->count === 0)) {
-            return false;
+            return [];
         }
         $orderData = $results->results[0];
         foreach ($orderData->packages as $package) {

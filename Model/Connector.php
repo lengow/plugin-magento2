@@ -211,7 +211,12 @@ class Connector
             return false;
         }
         list($accountId, $accessToken, $secret) = $this->configHelper->getAccessIds();
-        if ($accountId === null) {
+        if (empty($accountId)
+                || empty($accessToken)
+                || empty($secret)) {
+            return false;
+        }
+        if (!is_numeric($accountId)) {
             return false;
         }
         try {
@@ -318,6 +323,9 @@ class Connector
             $authorizationToken = $this->getAuthorizationToken($logOutput);
             $this->configHelper->set(ConfigHelper::AUTHORIZATION_TOKEN, $authorizationToken);
             $this->configHelper->set(ConfigHelper::LAST_UPDATE_AUTHORIZATION_TOKEN, time());
+        }
+        if (is_null($authorizationToken)) {
+            throw new LengowException('Authorization Token is NULL');
         }
         $this->token = $authorizationToken;
     }

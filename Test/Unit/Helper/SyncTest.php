@@ -147,6 +147,7 @@ class SyncTest extends \PHPUnit\Framework\TestCase
             ['configHelper', 'statusAccount'],
             [$configHelperMock, null]
         );
+
         $this->assertNull(
             $this->_syncHelper->getStatusAccount(),
             '[Test Get Status Account] Check if return is false for new merchant'
@@ -155,29 +156,34 @@ class SyncTest extends \PHPUnit\Framework\TestCase
         $updatedAt = date('Y-m-d H:i:s', time() - 1000);
         $statusAccount = '{"type":"free_trial","day":12,"expired":false}';
         $configHelperMock2 = $this->getMockBuilder(get_class($this->_configHelper))
-            ->onlyMethods(['get', 'isNewMerchant'])
+            ->setMethods(['get', 'isNewMerchant'])
             ->disableOriginalConstructor()
             ->getMock();
-        $configHelperMock2->expects($this->any())->method('get')->willReturnOnConsecutiveCalls(
-            $updatedAt,
-            $statusAccount,
-            $updatedAt,
-            $statusAccount
+        $configHelperMock2->expects($this->any())
+            ->method('get')
+            ->willReturnOnConsecutiveCalls(
+                strtotime($updatedAt),
+                $statusAccount,
+                strtotime($updatedAt),
+                $statusAccount
         );
+
+
 
         $configHelperMock2->expects($this->any())->method('isNewMerchant')->will($this->returnValue(false));
         $fixture->setPrivatePropertyValue(
             $this->_syncHelper,
             ['configHelper', 'statusAccount'],
-            [$configHelperMock2, $statusAccount]
+            [$configHelperMock2, null]
         );
 
         $this->assertIsArray(
             $this->_syncHelper->getStatusAccount(),
-            '[Test Get Status Account] Check if return is a array'
+            '[Test Get Status Account] Check if return is an array'
         );
-        exit('test');
+
         $fixture->setPrivatePropertyValue($this->_syncHelper, ['statusAccount'], [null]);
+
         $this->assertEquals(
             json_decode($statusAccount, true),
             $this->_syncHelper->getStatusAccount(),
@@ -189,7 +195,7 @@ class SyncTest extends \PHPUnit\Framework\TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $configHelperMock3->expects($this->any())->method('get')->willReturnOnConsecutiveCalls(
-            $updatedAt,
+            strtotime($updatedAt),
             $statusAccount,
             null
         );
@@ -197,30 +203,33 @@ class SyncTest extends \PHPUnit\Framework\TestCase
         $connectorMock = $fixture->mockFunctions($this->_connector, ['queryApi'], [null]);
         $fixture->setPrivatePropertyValue(
             $this->_syncHelper,
-            ['configHelper', '_connector', 'statusAccount'],
+            ['configHelper', 'connector', 'statusAccount'],
             [$configHelperMock3, $connectorMock, null]
         );
+
         $this->assertEquals(
             json_decode($statusAccount, true),
             $this->_syncHelper->getStatusAccount(true),
             '[Test Get Status Account] Check if return is valid without cache, no API response but status in database'
         );
+
         $fixture->setPrivatePropertyValue($this->_syncHelper, ['statusAccount'], [null]);
-        $this->assertFalse(
+        $this->assertNull(
             $this->_syncHelper->getStatusAccount(true),
             '[Test Get Status Account] Check if return is valid with no cache, no API and no status in database'
         );
-        exit('test');
+
+
 
         $apiStatusAccount = '{"isFreeTrial":true,"leftDaysBeforeExpired":12,"isExpired":false}';
         $apiStatusAccount2 = '{"isFreeTrial":true,"leftDaysBeforeExpired":null,"isExpired":true}';
         $apiStatusAccount3 = '{"isFreeTrial":false,"leftDaysBeforeExpired":null,"isExpired":false}';
 
-        $configHelperMock4 = $fixture->mockFunctions($classMock, ['isNewMerchant', 'set'], [false, null]);
-        $connectorMock2 = $fixture->mockFunctions($classMock, ['queryApi'], [json_decode($apiStatusAccount)]);
+        $configHelperMock4 = $fixture->mockFunctions($this->_configHelper, ['isNewMerchant', 'set'], [false, null]);
+        $connectorMock2 = $fixture->mockFunctions($this->_connector, ['queryApi'], [json_decode($apiStatusAccount)]);
         $fixture->setPrivatePropertyValue(
             $this->_syncHelper,
-            ['_configHelper', '_connector', 'statusAccount'],
+            ['configHelper', 'connector', 'statusAccount'],
             [$configHelperMock4, $connectorMock2, null]
         );
         $this->assertEquals(
@@ -228,21 +237,22 @@ class SyncTest extends \PHPUnit\Framework\TestCase
             $this->_syncHelper->getStatusAccount(true),
             '[Test Get Status Account] Check if return is valid with API response and free trial not expired'
         );
-        $connectorMock3 = $fixture->mockFunctions($classMock, ['queryApi'], [json_decode($apiStatusAccount2)]);
+        $connectorMock3 = $fixture->mockFunctions($this->_connector, ['queryApi'], [json_decode($apiStatusAccount2)]);
         $fixture->setPrivatePropertyValue(
             $this->_syncHelper,
-            ['_configHelper', '_connector', 'statusAccount'],
+            ['configHelper', 'connector', 'statusAccount'],
             [$configHelperMock4, $connectorMock3, null]
         );
+
         $this->assertEquals(
             ['type' => 'free_trial', 'day' => 0, 'expired' => true],
             $this->_syncHelper->getStatusAccount(true),
             '[Test Get Status Account] Check if return is valid with API response and free trial expired'
         );
-        $connectorMock4 = $fixture->mockFunctions($classMock, ['queryApi'], [json_decode($apiStatusAccount3)]);
+        $connectorMock4 = $fixture->mockFunctions($this->_connector, ['queryApi'], [json_decode($apiStatusAccount3)]);
         $fixture->setPrivatePropertyValue(
             $this->_syncHelper,
-            ['_configHelper', '_connector', 'statusAccount'],
+            ['configHelper', 'connector', 'statusAccount'],
             [$configHelperMock4, $connectorMock4, null]
         );
         $this->assertEquals(
@@ -251,10 +261,10 @@ class SyncTest extends \PHPUnit\Framework\TestCase
             '[Test Get Status Account] Check if return is valid with API response when account is not a free trial'
         );
 
-        $connectorMock5 = $fixture->mockFunctions($classMock, ['queryApi'], [json_decode($apiStatusAccount2)]);
+        $connectorMock5 = $fixture->mockFunctions($this->_connector, ['queryApi'], [json_decode($apiStatusAccount2)]);
         $fixture->setPrivatePropertyValue(
             $this->_syncHelper,
-            ['_configHelper', '_connector', 'statusAccount'],
+            ['configHelper', 'connector', 'statusAccount'],
             [$configHelperMock4, $connectorMock5, null]
         );
         $this->_syncHelper->getStatusAccount(true);
@@ -263,5 +273,7 @@ class SyncTest extends \PHPUnit\Framework\TestCase
             $this->_syncHelper->getStatusAccount(true),
             '[Test Get Status Account] Check if return is valid with static cache'
         );
+        
+
     }
 }
