@@ -56,21 +56,24 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
     public function testGetCategoryBreadcrumb()
     {
         $fixture = new Fixture();
-        $categoryMock = $this->createMock(Category::class);
+
         $fixture->setPrivatePropertyValue(
-            $categoryMock,
+            $this->_category,
             ['categoryBreadcrumb'],
             ['Default Category > Men > Tops > Hoodies & Sweatshirts']
         );
+
         $this->assertIsString(
-            $categoryMock->getCategoryBreadcrumb(),
+            $this->_category->getCategoryBreadcrumb(),
             '[Test Get Variation List] Check if return is a string'
         );
+
         $this->assertEquals(
             'Default Category > Men > Tops > Hoodies & Sweatshirts',
-            $categoryMock->getCategoryBreadcrumb(),
+            $this->_category->getCategoryBreadcrumb(),
             '[Test Get Shipping Cost] Check if return is valid'
         );
+
     }
 
     /**
