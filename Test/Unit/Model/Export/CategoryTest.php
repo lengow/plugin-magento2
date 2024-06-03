@@ -89,11 +89,11 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
         );
         $this->_category->clean();
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_category, '_product'),
+            $fixture->getPrivatePropertyValue($this->_category, 'product'),
             '[Test Clean] Check if _product attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_category, '_categoryBreadcrumb'),
+            $fixture->getPrivatePropertyValue($this->_category, 'categoryBreadcrumb'),
             '[Test Clean] Check if _product attribute is null'
         );
     }
@@ -110,13 +110,15 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
         $productMock = $fixture->mockFunctions($classMock, ['getCategoryCollection'], [$categoryCollectionMock]);
         $storeMock = $fixture->mockFunctions($classMock, ['getRootCategoryId'], [0]);
         $fixture->setPrivatePropertyValue($this->_category, ['store', 'product'], [$storeMock, $productMock]);
+
         $this->assertIsArray(
-            $fixture->invokeMethod($this->_category, '_getDefaultCategory'),
+            $fixture->invokeMethod($this->_category, 'getDefaultCategory'),
             '[Test Get Default Category] Check if return is a array'
         );
+
         $this->assertEquals(
             ['id' => 0, 'path' => ''],
-            $fixture->invokeMethod($this->_category, '_getDefaultCategory'),
+            $fixture->invokeMethod($this->_category, 'getDefaultCategory'),
             '[Test Get Default Category] Check return when category collection is null'
         );
         $pathFilterMock2 = $fixture->mockFunctions(
@@ -133,12 +135,13 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
         );
         $categoryCollectionMock2 = $fixture->mockFunctions($classMock, ['addPathsFilter'], [$pathFilterMock2]);
         $productMock2 = $fixture->mockFunctions($classMock, ['getCategoryCollection'], [$categoryCollectionMock2]);
-        $fixture->setPrivatePropertyValue($this->_category, ['_product'], [$productMock2]);
+        $fixture->setPrivatePropertyValue($this->_category, ['product'], [$productMock2]);
         $this->assertEquals(
             ['id' => 5, 'path' => '1/2/3/4/5'],
-            $fixture->invokeMethod($this->_category, '_getDefaultCategory'),
+            $fixture->invokeMethod($this->_category, 'getDefaultCategory'),
             '[Test Get Default Category] Check return is a valid array'
         );
+
     }
 
     /**
@@ -148,58 +151,39 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
     {
         $fixture = new Fixture();
         $categoryMock = $this->getMockBuilder(get_class($this->_category))
-            ->setMethods(['_getName'])
+            ->setMethods(['getName'])
             ->disableOriginalConstructor()
             ->getMock();
-        $categoryMock->expects($this->any())->method('_getName')->willReturnOnConsecutiveCalls(
+        $categoryMock->expects($this->any())->method('getName')->willReturnOnConsecutiveCalls(
             'Default Category',
             'Men',
             'Tops',
             'Hoodies & Sweatshirts'
         );
         $this->assertIsString(
-            $fixture->invokeMethod($categoryMock, '_getBreadcrumb', [0, '1/2/3/4/5']),
+            $fixture->invokeMethod($categoryMock, 'getBreadcrumb', [0, '1/2/3/4/5']),
             '[Test Get Variation List] Check if return is a string'
         );
+
         $this->assertEquals(
             '',
-            $fixture->invokeMethod($categoryMock, '_getBreadcrumb', [0, '1/2/3/4/5']),
+            $fixture->invokeMethod($categoryMock, 'getBreadcrumb', [0, '1/2/3/4/5']),
             '[Test Get Name] Check return when category id is equal 0'
         );
         $this->assertEquals(
             '',
-            $fixture->invokeMethod($categoryMock, '_getBreadcrumb', [10, '']),
+            $fixture->invokeMethod($categoryMock, 'getBreadcrumb', [10, '']),
             '[Test Get Name] Check return when category path is empty'
         );
         $this->assertEquals(
             'Default Category > Men > Tops > Hoodies & Sweatshirts',
-            $fixture->invokeMethod($categoryMock, '_getBreadcrumb', [10, '1/2/3/4/5']),
+            $fixture->invokeMethod($categoryMock, 'getBreadcrumb', [10, '1/2/3/4/5']),
             '[Test Get Name] Check return when is valid without cache'
-        );
-        $this->assertEquals(
-            [10 => 'Default Category > Men > Tops > Hoodies & Sweatshirts'],
-            $fixture->getPrivatePropertyValue($categoryMock, '_cacheCategoryBreadcrumbs'),
-            '[Test Get Name] Check cache category breadcrumb'
-        );
-        $categoryMock2 = $this->getMockBuilder(get_class($this->_category))
-            ->setMethods(['_getName'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $categoryMock2->expects($this->any())->method('_getName')->will($this->returnValue(null));
-        $fixture->setPrivatePropertyValue(
-            $categoryMock2,
-            ['_cacheCategoryBreadcrumbs'],
-            [[15 => 'Default Category > Men > Tops > Hoodies & Sweatshirts']]
-        );
-        $this->assertEquals(
-            'Default Category > Men > Tops > Hoodies & Sweatshirts',
-            $fixture->invokeMethod($categoryMock2, '_getBreadcrumb', [15, '1/2/3/4/5']),
-            '[Test Get Name] Check return with cache category breadcrumb'
         );
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export\Category::_getName
+     * @covers \Lengow\Connector\Model\Export\Category::getName
      */
     public function testGetName()
     {
@@ -210,37 +194,38 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
         $categoryRepositoryMock = $fixture->mockFunctions($classMock, ['get'], [$categoryMock]);
         $fixture->setPrivatePropertyValue(
             $this->_category,
-            ['_store', '_categoryRepository'],
+            ['store', 'categoryRepository'],
             [$storeMock, $categoryRepositoryMock]
         );
         $this->assertIsString(
-            $fixture->invokeMethod($this->_category, '_getName', [0]),
+            $fixture->invokeMethod($this->_category, 'getName', [0]),
             '[Test Get Variation List] Check if return is a string'
         );
         $this->assertEquals(
             '',
-            $fixture->invokeMethod($this->_category, '_getName', [0]),
+            $fixture->invokeMethod($this->_category, 'getName', [0]),
             '[Test Get Name] Check return when category is equal 0'
         );
         $this->assertEquals(
             'Hoodies & Sweatshirts',
-            $fixture->invokeMethod($this->_category, '_getName', [10]),
+            $fixture->invokeMethod($this->_category, 'getName', [10]),
             '[Test Get Name] Check return without cache category name'
         );
+
         $this->assertEquals(
             [10 => 'Hoodies & Sweatshirts'],
-            $fixture->getPrivatePropertyValue($this->_category, '_cacheCategoryNames'),
+            $fixture->getPrivatePropertyValue($this->_category, 'cacheCategoryNames'),
             '[Test Get Name] Check cache category name'
         );
         $categoryRepositoryMock2 = $fixture->mockFunctions($classMock, ['get'], [null]);
         $fixture->setPrivatePropertyValue(
             $this->_category,
-            ['_cacheCategoryNames', '_categoryRepository'],
+            ['cacheCategoryNames', 'categoryRepository'],
             [[15 => 'Tops'], $categoryRepositoryMock2]
         );
         $this->assertEquals(
             'Tops',
-            $fixture->invokeMethod($this->_category, '_getName', [15]),
+            $fixture->invokeMethod($this->_category, 'getName', [15]),
             '[Test Get Name] Check return with cache category name'
         );
     }

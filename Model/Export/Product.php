@@ -551,7 +551,15 @@ class Product
         if ($this->type === Configurable::TYPE_CODE) {
             $product = $this->getConfigurableProduct($productId);
         } else {
-            $product = $this->productRepository->getById($productId, false, $this->store->getId(), $forceReload);
+            $product = $this->productRepository->getById(
+                $productId,
+                false,
+                $this->store->getId(),
+                $forceReload
+            );
+        }
+        if (!$product instanceof ProductInterface) {
+            return null;
         }
         return $product;
     }
@@ -604,6 +612,11 @@ class Product
                 return null;
             }
         }
+        $productParentCached = $this->cacheConfigurableProducts[$parentId];
+        if (!$productParentCached instanceof ProductInterface) {
+            return null;
+        }
+
         return $this->cacheConfigurableProducts[$parentId];
     }
 

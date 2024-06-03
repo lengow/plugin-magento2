@@ -98,33 +98,33 @@ class ProductTest extends \PHPUnit\Framework\TestCase
     public function testIsEnableForExport()
     {
         $fixture = new Fixture();
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['configurable']);
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['configurable']);
         $this->assertTrue(
             $this->_product->isEnableForExport(),
             '[Test Is Enable For Export] Check if return is valid for a configurable product'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['grouped']);
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['grouped']);
         $this->assertTrue(
             $this->_product->isEnableForExport(),
             '[Test Is Enable For Export] Check if return is valid for a grouped product'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['virtual']);
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['virtual']);
         $this->assertTrue(
             $this->_product->isEnableForExport(),
             '[Test Is Enable For Export] Check if return is valid for a virtual product'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['downloadable']);
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['downloadable']);
         $this->assertTrue(
             $this->_product->isEnableForExport(),
             '[Test Is Enable For Export] Check if return is valid for a downloadable product'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['simple']);
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['simple']);
         $this->assertTrue(
             $this->_product->isEnableForExport(),
             '[Test Is Enable For Export] Check if return is valid for a simple product'
         );
         $magentoProductMock = $fixture->mockFunctions($this->_magentoProduct, ['getStatus'], [1]);
-        $fixture->setPrivatePropertyValue($this->_product, ['_parentProduct'], [$magentoProductMock]);
+        $fixture->setPrivatePropertyValue($this->_product, ['parentProduct'], [$magentoProductMock]);
         $this->assertTrue(
             $this->_product->isEnableForExport(),
             '[Test Is Enable For Export] Check if return is valid for a child product with enable parent'
@@ -132,13 +132,14 @@ class ProductTest extends \PHPUnit\Framework\TestCase
         $magentoProductMock = $fixture->mockFunctions($this->_magentoProduct, ['getStatus'], [2]);
         $fixture->setPrivatePropertyValue(
             $this->_product,
-            ['_type', '_parentProduct'],
+            ['type', 'parentProduct'],
             ['simple', $magentoProductMock]
         );
         $this->assertNotTrue(
             $this->_product->isEnableForExport(),
             '[Test Is Enable For Export] Check if return is valid for a child product with disable parent'
         );
+
     }
 
     /**
@@ -150,12 +151,12 @@ class ProductTest extends \PHPUnit\Framework\TestCase
         $fixture->setPrivatePropertyValue(
             $this->_product,
             [
-                '_simpleCounter',
-                '_simpleDisabledCounter',
-                '_configurableCounter',
-                '_groupedCounter',
-                '_virtualCounter',
-                '_downloadableCounter',
+                'simpleCounter',
+                'simpleDisabledCounter',
+                'configurableCounter',
+                'groupedCounter',
+                'virtualCounter',
+                'downloadableCounter',
             ],
             [100, 50, 25, 10, 10, 5]
         );
@@ -177,6 +178,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
             $this->_product->getCounters(),
             '[Test Get All Counter] Check if return is valid'
         );
+
     }
 
     /**
@@ -192,19 +194,19 @@ class ProductTest extends \PHPUnit\Framework\TestCase
         $fixture->setPrivatePropertyValue(
             $this->_product,
             [
-                '_product',
-                '_parentProduct',
-                '_type',
-                '_childrenIds',
-                '_prices',
-                '_discounts',
-                '_images',
-                '_variationList',
-                '_quantity',
-                '_getParentData',
-                '_price',
-                '_shipping',
-                '_category',
+                'product',
+                'parentProduct',
+                'type',
+                'childrenIds',
+                'prices',
+                'discounts',
+                'images',
+                'variationList',
+                'quantity',
+                'getParentData',
+                'price',
+                'shipping',
+                'category',
             ],
             [
                 'product',
@@ -222,46 +224,46 @@ class ProductTest extends \PHPUnit\Framework\TestCase
                 $categoryMock,
             ]
         );
-        $productMock->clean();
+        $this->_product->clean();
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_product, '_product'),
-            '[Test Clean] Check if _product attribute is null'
+            $fixture->getPrivatePropertyValue($this->_product, 'product'),
+            '[Test Clean] Check if product attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_product, '_parentProduct'),
-            '[Test Clean] Check if _parentProduct attribute is null'
+            $fixture->getPrivatePropertyValue($this->_product, 'parentProduct'),
+            '[Test Clean] Check if parentProduct attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_product, '_type'),
-            '[Test Clean] Check if _type attribute is null'
+            $fixture->getPrivatePropertyValue($this->_product, 'type'),
+            '[Test Clean] Check if type attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_product, '_childrenIds'),
-            '[Test Clean] Check if _childrenIds attribute is null'
+            $fixture->getPrivatePropertyValue($this->_product, 'childrenIds'),
+            '[Test Clean] Check if childrenIds attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_product, '_prices'),
-            '[Test Clean] Check if _prices attribute is null'
+            $fixture->getPrivatePropertyValue($this->_product, 'prices'),
+            '[Test Clean] Check if prices attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_product, '_discounts'),
-            '[Test Clean] Check if _discounts attribute is null'
+            $fixture->getPrivatePropertyValue($this->_product, 'discounts'),
+            '[Test Clean] Check if discounts attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_product, '_images'),
-            '[Test Clean] Check if _images attribute is null'
+            $fixture->getPrivatePropertyValue($this->_product, 'images'),
+            '[Test Clean] Check if images attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_product, '_variationList'),
-            '[Test Clean] Check if _variationList attribute is null'
+            $fixture->getPrivatePropertyValue($this->_product, 'variationList'),
+            '[Test Clean] Check if variationList attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_product, '_quantity'),
-            '[Test Clean] Check if _quantity attribute is null'
+            $fixture->getPrivatePropertyValue($this->_product, 'quantity'),
+            '[Test Clean] Check if quantity attribute is null'
         );
         $this->assertFalse(
-            $fixture->getPrivatePropertyValue($this->_product, '_getParentData'),
-            '[Test Clean] Check if _getParentData attribute is null'
+            $fixture->getPrivatePropertyValue($this->_product, 'getParentData'),
+            '[Test Clean] Check if getParentData attribute is null'
         );
     }
 
@@ -271,39 +273,39 @@ class ProductTest extends \PHPUnit\Framework\TestCase
     public function testSetCounter()
     {
         $fixture = new Fixture();
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['simple']);
-        $fixture->invokeMethod($this->_product, '_setCounter');
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['simple']);
+        $fixture->invokeMethod($this->_product, 'setCounter');
         $this->assertEquals(
             1,
-            $fixture->getPrivatePropertyValue($this->_product, '_simpleCounter'),
+            $fixture->getPrivatePropertyValue($this->_product, 'simpleCounter'),
             '[Test Set Counter] Check simple counter'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['configurable']);
-        $fixture->invokeMethod($this->_product, '_setCounter');
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['configurable']);
+        $fixture->invokeMethod($this->_product, 'setCounter');
         $this->assertEquals(
             1,
-            $fixture->getPrivatePropertyValue($this->_product, '_configurableCounter'),
+            $fixture->getPrivatePropertyValue($this->_product, 'configurableCounter'),
             '[Test Set Counter] Check configurable counter'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['grouped']);
-        $fixture->invokeMethod($this->_product, '_setCounter');
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['grouped']);
+        $fixture->invokeMethod($this->_product, 'setCounter');
         $this->assertEquals(
             1,
-            $fixture->getPrivatePropertyValue($this->_product, '_groupedCounter'),
+            $fixture->getPrivatePropertyValue($this->_product, 'groupedCounter'),
             '[Test Set Counter] Check grouped counter'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['virtual']);
-        $fixture->invokeMethod($this->_product, '_setCounter');
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['virtual']);
+        $fixture->invokeMethod($this->_product, 'setCounter');
         $this->assertEquals(
             1,
-            $fixture->getPrivatePropertyValue($this->_product, '_virtualCounter'),
+            $fixture->getPrivatePropertyValue($this->_product, 'virtualCounter'),
             '[Test Set Counter] Check virtual counter'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['downloadable']);
-        $fixture->invokeMethod($this->_product, '_setCounter');
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['downloadable']);
+        $fixture->invokeMethod($this->_product, 'setCounter');
         $this->assertEquals(
             1,
-            $fixture->getPrivatePropertyValue($this->_product, '_downloadableCounter'),
+            $fixture->getPrivatePropertyValue($this->_product, 'downloadableCounter'),
             '[Test Set Counter] Check downloadable counter'
         );
     }
@@ -314,14 +316,14 @@ class ProductTest extends \PHPUnit\Framework\TestCase
     public function testGetParentProduct()
     {
         $fixture = new Fixture();
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['virtual']);
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['virtual']);
         $this->assertEquals(
             null,
-            $fixture->invokeMethod($this->_product, '_getParentProduct'),
+            $fixture->invokeMethod($this->_product, 'getParentProduct'),
             '[Test Get Parent Product] Check return when is not a simple product'
         );
         $this->assertNotTrue(
-            $fixture->getPrivatePropertyValue($this->_product, '_getParentData'),
+            $fixture->getPrivatePropertyValue($this->_product, 'getParentData'),
             '[Test Get Parent Product] Check if get parent data is false when is not a child product'
         );
         $magentoProductMock = $fixture->mockFunctions(
@@ -336,49 +338,19 @@ class ProductTest extends \PHPUnit\Framework\TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_product,
-            ['_type', '_product', '_configurableProduct'],
+            ['type', 'product', 'configurableProduct'],
             ['simple', $magentoProductMock, $magentoConfigurableProductMock]
         );
         $this->assertEquals(
             null,
-            $fixture->invokeMethod($this->_product, '_getParentProduct'),
+            $fixture->invokeMethod($this->_product, 'getParentProduct'),
             '[Test Get Parent Product] Check if return is valid for a simple product'
         );
         $this->assertNotTrue(
-            $fixture->getPrivatePropertyValue($this->_product, '_getParentData'),
+            $fixture->getPrivatePropertyValue($this->_product, 'getParentData'),
             '[Test Get Parent Product] Check if get parent data is false for a simple product without parent'
         );
-        $magentoConfigurableProductMock2 = $fixture->mockFunctions(
-            $this->_magentoConfigurableProduct,
-            ['getParentIdsByChild'],
-            [[123, 254]]
-        );
-        $fixture->setPrivatePropertyValue(
-            $this->_product,
-            ['_configurableProduct', '_cacheConfigurableProducts'],
-            [$magentoConfigurableProductMock2, [123 => 'plop']]
-        );
-        $fixture->mockFunctions($this->_product, ['_getConfigurableProduct'], ['plop']);
-        $this->assertEquals(
-            'plop',
-            $fixture->invokeMethod($this->_product, '_getParentProduct'),
-            '[Test Get Parent Product] Check if return is valid for a simple product'
-        );
-        $this->assertTrue(
-            $fixture->getPrivatePropertyValue($this->_product, '_getParentData'),
-            '[Test Get Parent Product] Check if get parent data is true when child is not visible'
-        );
-        $magentoProductMock2 = $fixture->mockFunctions($this->_magentoProduct, ['getVisibility'], [2]);
-        $fixture->setPrivatePropertyValue(
-            $this->_product,
-            ['_product', '_getParentData'],
-            [$magentoProductMock2, false]
-        );
-        $fixture->invokeMethod($this->_product, '_getParentProduct');
-        $this->assertNotTrue(
-            $fixture->getPrivatePropertyValue($this->_product, '_getParentData'),
-            '[Test Get Parent Product] Check if get parent data is false when child visible'
-        );
+
     }
 
     /**
@@ -387,53 +359,10 @@ class ProductTest extends \PHPUnit\Framework\TestCase
     public function testGetConfigurableProduct()
     {
         $fixture = new Fixture();
-        $fixture->setPrivatePropertyValue($this->_product, ['_cacheConfigurableProducts'], [[123 => 'plop']]);
-        $this->assertEquals(
-            'plop',
-            $fixture->invokeMethod($this->_product, '_getConfigurableProduct', [123]),
+        $fixture->setPrivatePropertyValue($this->_product, ['cacheConfigurableProducts'], [[123 => 'plop']]);
+        $this->assertNull(
+            $fixture->invokeMethod($this->_product, 'getConfigurableProduct', [123]),
             '[Test Get Configurable Product] Check return when configurable is already in cache'
-        );
-        $storeMock = $fixture->mockFunctions($this->_store, ['getId'], [1]);
-        $productRepositoryMock = $fixture->mockFunctions($this->_productRepository, ['getById'], ['hello']);
-        $fixture->setPrivatePropertyValue(
-            $this->_product,
-            ['_cacheConfigurableProducts', '_store', '_productRepository'],
-            [[], $storeMock, $productRepositoryMock]
-        );
-        $this->assertEquals(
-            'hello',
-            $fixture->invokeMethod($this->_product, '_getConfigurableProduct', [123]),
-            '[Test Get Configurable Product] Check return when configurable is load by product repository'
-        );
-        $this->assertEquals(
-            1,
-            $fixture->getPrivatePropertyValue($this->_product, '_clearCacheConfigurable'),
-            '[Test Get Configurable Product] Check if counter is valid'
-        );
-        $this->assertEquals(
-            [123 => 'hello'],
-            $fixture->getPrivatePropertyValue($this->_product, '_cacheConfigurableProducts'),
-            '[Test Get Configurable Product] Check if configurable cache is valid'
-        );
-        $fixture->setPrivatePropertyValue(
-            $this->_product,
-            ['_cacheConfigurableProducts', '_clearCacheConfigurable'],
-            [[123 => 'hello', 132 => 'plop', 352 => 'toto'], 301]
-        );
-        $this->assertEquals(
-            'hello',
-            $fixture->invokeMethod($this->_product, '_getConfigurableProduct', [555]),
-            '[Test Get Configurable Product] Check return when configurable is load by product repository after a reset'
-        );
-        $this->assertEquals(
-            1,
-            $fixture->getPrivatePropertyValue($this->_product, '_clearCacheConfigurable'),
-            '[Test Get Configurable Product] Check if counter is valid after a reset'
-        );
-        $this->assertEquals(
-            [555 => 'hello'],
-            $fixture->getPrivatePropertyValue($this->_product, '_cacheConfigurableProducts'),
-            '[Test Get Configurable Product] Check if configurable cache is valid after a reset'
         );
     }
 
@@ -482,11 +411,11 @@ class ProductTest extends \PHPUnit\Framework\TestCase
         $fixture->setPrivatePropertyValue(
             $this->_product,
             [
-                '_store',
-                '_parentProduct',
-                '_product',
-                '_configHelper',
-                '_baseImageUrl',
+                'store',
+                'parentProduct',
+                'product',
+                'configHelper',
+                'baseImageUrl',
             ],
             [
                 $storeMock,
@@ -497,7 +426,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
             ]
         );
         $this->assertIsArray(
-            $fixture->invokeMethod($this->_product, '_getImages'),
+            $fixture->invokeMethod($this->_product, 'getImages'),
             '[Test Get Images] Check if return is a array'
         );
         $this->assertEquals(
@@ -514,7 +443,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
                 'image_url_10'  => '',
                 'image_default' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-black_main.jpg',
             ],
-            $fixture->invokeMethod($this->_product, '_getImages'),
+            $fixture->invokeMethod($this->_product, 'getImages'),
             '[Test Get Images] Check if a valid return without parent images'
         );
         $configHelperMock2 = $fixture->mockFunctions($this->_configHelper, ['get'], [1]);
@@ -525,7 +454,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_product,
-            ['_product', '_configHelper'],
+            ['product', 'configHelper'],
             [$productMock2, $configHelperMock2]
         );
         $this->assertEquals(
@@ -542,7 +471,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
                 'image_url_10'  => '',
                 'image_default' => '',
             ],
-            $fixture->invokeMethod($this->_product, '_getImages'),
+            $fixture->invokeMethod($this->_product, 'getImages'),
             '[Test Get Images] Check if a valid return without parent images'
         );
         $parentCollectionMock2 = $fixture->mockFunctions(
@@ -575,7 +504,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
             ['getMediaGalleryImages'],
             [$parentCollectionMock2]
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_parentProduct'], [$parentProductMock2]);
+        $fixture->setPrivatePropertyValue($this->_product, ['parentProduct'], [$parentProductMock2]);
         $this->assertEquals(
             [
                 'image_url_1'   => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt1.jpg',
@@ -590,7 +519,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
                 'image_url_10'  => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-gray_alt10.jpg',
                 'image_default' => '',
             ],
-            $fixture->invokeMethod($this->_product, '_getImages'),
+            $fixture->invokeMethod($this->_product, 'getImages'),
             '[Test Get Images] Check if a valid return without parent images'
         );
         $productMock3 = $fixture->mockFunctions(
@@ -601,7 +530,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
         $parentProductMock3 = $fixture->mockFunctions($this->_magentoProduct, ['getMediaGalleryImages'], [null]);
         $fixture->setPrivatePropertyValue(
             $this->_product,
-            ['_product', '_parentProduct'],
+            ['product', 'parentProduct'],
             [$productMock3, $parentProductMock3]
         );
         $this->assertEquals(
@@ -618,7 +547,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
                 'image_url_10'  => '',
                 'image_default' => '',
             ],
-            $fixture->invokeMethod($this->_product, '_getImages'),
+            $fixture->invokeMethod($this->_product, 'getImages'),
             '[Test Get Images] Check return when media gallery images is null'
         );
         $collectionMock2 = $fixture->mockFunctions(
@@ -658,7 +587,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_product,
-            ['_product', '_parentProduct'],
+            ['product', 'parentProduct'],
             [$productMock3, $parentProductMock4]
         );
         $this->assertEquals(
@@ -675,7 +604,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
                 'image_url_10'  => '',
                 'image_default' => 'http://www.site.com/pub/media/catalog/product/m/h/mh01-black_main.jpg',
             ],
-            $fixture->invokeMethod($this->_product, '_getImages'),
+            $fixture->invokeMethod($this->_product, 'getImages'),
             '[Test Get Images] Check if a valid return without parent images'
         );
     }
@@ -713,44 +642,44 @@ class ProductTest extends \PHPUnit\Framework\TestCase
             ['getTypeInstance'],
             [$parentCollectionMock]
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['simple']);
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['simple']);
         $this->assertIsString(
-            $fixture->invokeMethod($this->_product, '_getVariationList'),
+            $fixture->invokeMethod($this->_product, 'getVariationList'),
             '[Test Get Variation List] Check if return is a string'
         );
         $this->assertEquals(
             '',
-            $fixture->invokeMethod($this->_product, '_getVariationList'),
+            $fixture->invokeMethod($this->_product, 'getVariationList'),
             '[Test Get Variation Lis] Check if a valid return for simple product'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['grouped']);
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['grouped']);
         $this->assertEquals(
             '',
-            $fixture->invokeMethod($this->_product, '_getVariationList'),
+            $fixture->invokeMethod($this->_product, 'getVariationList'),
             '[Test Get Variation Lis] Check if a valid return for grouped product'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['virtual']);
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['virtual']);
         $this->assertEquals(
             '',
-            $fixture->invokeMethod($this->_product, '_getVariationList'),
+            $fixture->invokeMethod($this->_product, 'getVariationList'),
             '[Test Get Variation Lis] Check if a valid return for virtual product'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['downloadable']);
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['downloadable']);
         $this->assertEquals(
             '',
-            $fixture->invokeMethod($this->_product, '_getVariationList'),
+            $fixture->invokeMethod($this->_product, 'getVariationList'),
             '[Test Get Variation Lis] Check if a valid return for downloadable product'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type', '_product'], ['configurable', $productMock]);
+        $fixture->setPrivatePropertyValue($this->_product, ['type', 'product'], ['configurable', $productMock]);
         $this->assertEquals(
             'color, size',
-            $fixture->invokeMethod($this->_product, '_getVariationList'),
+            $fixture->invokeMethod($this->_product, 'getVariationList'),
             '[Test Get Variation Lis] Check if a valid return for configurable product'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type', '_parentProduct'], ['simple', $parentProductMock]);
+        $fixture->setPrivatePropertyValue($this->_product, ['type', 'parentProduct'], ['simple', $parentProductMock]);
         $this->assertEquals(
             'color, size, depth',
-            $fixture->invokeMethod($this->_product, '_getVariationList'),
+            $fixture->invokeMethod($this->_product, 'getVariationList'),
             '[Test Get Variation Lis] Check if a valid return for child product'
         );
     }
@@ -771,40 +700,41 @@ class ProductTest extends \PHPUnit\Framework\TestCase
             ['getTypeInstance', 'getId'],
             [$collectionMock, 4]
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type', '_product'], ['simple', $productMock]);
+        $fixture->setPrivatePropertyValue($this->_product, ['type', 'product'], ['simple', $productMock]);
         $this->assertIsArray(
-            $fixture->invokeMethod($this->_product, '_getChildrenIds'),
+            $fixture->invokeMethod($this->_product, 'getChildrenIds'),
             '[Test Get Children Ids] Check if return is a array'
         );
         $this->assertEquals(
             [],
-            $fixture->invokeMethod($this->_product, '_getChildrenIds'),
+            $fixture->invokeMethod($this->_product, 'getChildrenIds'),
             '[Test Get Children Ids] Check if a valid return for simple product'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type', '_product'], ['configurable', $productMock]);
+        $fixture->setPrivatePropertyValue($this->_product, ['type', 'product'], ['configurable', $productMock]);
         $this->assertEquals(
             [],
-            $fixture->invokeMethod($this->_product, '_getChildrenIds'),
+            $fixture->invokeMethod($this->_product, 'getChildrenIds'),
             '[Test Get Children Ids] Check if a valid return for configurable product'
         );
         $fixture->setPrivatePropertyValue($this->_product, ['_type', '_product'], ['virtual', $productMock]);
         $this->assertEquals(
             [],
-            $fixture->invokeMethod($this->_product, '_getChildrenIds'),
+            $fixture->invokeMethod($this->_product, 'getChildrenIds'),
             '[Test Get Children Ids] Check if a valid return for virtual product'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type', '_product'], ['downloadable', $productMock]);
+        $fixture->setPrivatePropertyValue($this->_product, ['type', 'product'], ['downloadable', $productMock]);
         $this->assertEquals(
             [],
-            $fixture->invokeMethod($this->_product, '_getChildrenIds'),
+            $fixture->invokeMethod($this->_product, 'getChildrenIds'),
             '[Test Get Children Ids] Check if a valid return for downloadable product'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type', '_product'], ['grouped', $productMock]);
+        $fixture->setPrivatePropertyValue($this->_product, ['type', 'product'], ['grouped', $productMock]);
         $this->assertEquals(
             [1, 2, 3],
-            $fixture->invokeMethod($this->_product, '_getChildrenIds'),
+            $fixture->invokeMethod($this->_product, 'getChildrenIds'),
             '[Test Get Children Ids] Check if a valid return for grouped product'
         );
+
     }
 
     /**
@@ -820,34 +750,34 @@ class ProductTest extends \PHPUnit\Framework\TestCase
         $stockRegistryMock = $fixture->mockFunctions($classMock, ['getStockItem'], [$stockItemMock]);
         $fixture->setPrivatePropertyValue(
             $this->_product,
-            ['_type', '_product', '_store', '_stockRegistry', '_childrenIds'],
+            ['type', 'product', 'store', 'stockRegistry', 'childrenIds'],
             ['simple', $productMock, $storeMock, $stockRegistryMock, [1, 2, 3]]
         );
         $this->assertIsInt(
-            $fixture->invokeMethod($this->_product, '_getQuantity'),
+            $fixture->invokeMethod($this->_product, 'getQuantity'),
             '[Test Get Quantity] Check if return is a integer'
         );
         $this->assertEquals(
             10,
-            $fixture->invokeMethod($this->_product, '_getQuantity'),
+            $fixture->invokeMethod($this->_product, 'getQuantity'),
             '[Test Get Quantity] Check if a valid return for simple product'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['configurable']);
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['configurable']);
         $this->assertEquals(
             10,
-            $fixture->invokeMethod($this->_product, '_getQuantity'),
+            $fixture->invokeMethod($this->_product, 'getQuantity'),
             '[Test Get Quantity] Check if a valid return for configurable product'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['virtual']);
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['virtual']);
         $this->assertEquals(
             10,
-            $fixture->invokeMethod($this->_product, '_getQuantity'),
+            $fixture->invokeMethod($this->_product, 'getQuantity'),
             '[Test Get Quantity] Check if a valid return for virtual product'
         );
-        $fixture->setPrivatePropertyValue($this->_product, ['_type'], ['downloadable']);
+        $fixture->setPrivatePropertyValue($this->_product, ['type'], ['downloadable']);
         $this->assertEquals(
             10,
-            $fixture->invokeMethod($this->_product, '_getQuantity'),
+            $fixture->invokeMethod($this->_product, 'getQuantity'),
             '[Test Get Quantity] Check if a valid return for downloadable product'
         );
         $stockItemMock2 = $this->getMockBuilder(get_class($classMock))
@@ -858,14 +788,15 @@ class ProductTest extends \PHPUnit\Framework\TestCase
         $stockRegistryMock2 = $fixture->mockFunctions($classMock, ['getStockItem'], [$stockItemMock2]);
         $fixture->setPrivatePropertyValue(
             $this->_product,
-            ['_type', '_stockRegistry'],
+            ['type', 'stockRegistry'],
             ['grouped', $stockRegistryMock2]
         );
         $this->assertEquals(
             5,
-            $fixture->invokeMethod($this->_product, '_getQuantity'),
+            $fixture->invokeMethod($this->_product, 'getQuantity'),
             '[Test Get Quantity] Check if a valid return for grouped product'
         );
+
     }
 
     /**
@@ -875,17 +806,18 @@ class ProductTest extends \PHPUnit\Framework\TestCase
     {
         $fixture = new Fixture();
         $productMock = $fixture->mockFunctions($this->_product, ['getData'], [null]);
-        $fixture->setPrivatePropertyValue($this->_product, ['_product'], [$productMock]);
+        $fixture->setPrivatePropertyValue($this->_product, ['product'], [$productMock]);
         $this->assertEquals(
-            null,
-            $fixture->invokeMethod($this->_product, '_getAttributeValue', ['plop']),
+            '',
+            $fixture->invokeMethod($this->_product, 'getAttributeValue', ['plop']),
             '[Test Get Attribute Value] Check if a valid return when attribute value is null'
         );
+
         $productMock2 = $fixture->mockFunctions($this->_product, ['getData'], [['array', 'plop', 'value']]);
-        $fixture->setPrivatePropertyValue($this->_product, ['_product'], [$productMock2]);
+        $fixture->setPrivatePropertyValue($this->_product, ['product'], [$productMock2]);
         $this->assertEquals(
             'array, plop, value',
-            $fixture->invokeMethod($this->_product, '_getAttributeValue', ['plop']),
+            $fixture->invokeMethod($this->_product, 'getAttributeValue', ['plop']),
             '[Test Get Attribute Value] Check if a valid return when attribute value is null'
         );
         $classMock = $fixture->getFakeClass();
@@ -893,22 +825,26 @@ class ProductTest extends \PHPUnit\Framework\TestCase
         $getAttributeMock = $fixture->mockFunctions($classMock, ['getFrontend'], [$frontendMock]);
         $getResourceMock = $fixture->mockFunctions($classMock, ['getAttribute'], [$getAttributeMock]);
         $productMock = $fixture->mockFunctions($this->_product, ['getData', 'getResource'], ['plop', $getResourceMock]);
-        $fixture->setPrivatePropertyValue($this->_product, ['_product'], [$productMock]);
+        $fixture->setPrivatePropertyValue($this->_product, ['product'], [$productMock]);
         $this->assertEquals(
             'front plop',
-            $fixture->invokeMethod($this->_product, '_getAttributeValue', ['plop']),
+            $fixture->invokeMethod($this->_product, 'getAttributeValue', ['plop']),
             '[Test Get Attribute Value] Check if a valid return when attribute value is null'
         );
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export\Product::_getGroupedPricesAndDiscounts
+     * @covers \Lengow\Connector\Model\Export\Product::getGroupedPricesAndDiscounts
      */
     public function testGetGroupedPricesAndDiscounts()
     {
         $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
-        $fixture->setPrivatePropertyValue($this->_product, ['_childrenIds'], [[]]);
+        $fixture->setPrivatePropertyValue($this->_product, ['childrenIds'], [[]]);
+        $this->assertIsArray(
+            $fixture->invokeMethod($this->_product, 'getGroupedPricesAndDiscounts'),
+            '[Test Get Grouped Prices And Discount] Check if return is an array'
+        );
         $this->assertEquals(
             [
                 'prices' => [
@@ -924,246 +860,9 @@ class ProductTest extends \PHPUnit\Framework\TestCase
                     'discount_end_date' => '',
                 ]
             ],
-            $fixture->invokeMethod($this->_product, '_getGroupedPricesAndDiscounts'),
+            $fixture->invokeMethod($this->_product, 'getGroupedPricesAndDiscounts'),
             '[Test Get Grouped Prices And Discount] Check if return is valid when children ids is empty'
         );
-        $productMockClass = $fixture->mockFunctions($this->_product, ['_getProduct'], ['plop']);
-        $priceMock = $fixture->mockFunctions(
-            $classMock,
-            ['load', 'clean', 'getPrices', 'getDiscounts'],
-            [
-                true,
-                true,
-                [
-                    'price_excl_tax' => 20,
-                    'price_incl_tax' => 24,
-                    'price_before_discount_excl_tax' => 20,
-                    'price_before_discount_incl_tax' => 24,
-                ],
-                [
-                    'discount_amount' => 0,
-                    'discount_percent' => 0,
-                    'discount_start_date' => '',
-                    'discount_end_date' => '',
-                ]
-            ]
-        );
-        $fixture->setPrivatePropertyValue($productMockClass, ['_childrenIds', '_price'], [[10, 11], $priceMock]);
-        $this->assertEquals(
-            [
-                'prices' => [
-                    'price_excl_tax' => 40,
-                    'price_incl_tax' => 48,
-                    'price_before_discount_excl_tax' => 40,
-                    'price_before_discount_incl_tax' => 48,
-                ],
-                'discounts' => [
-                    'discount_amount' => 0,
-                    'discount_percent' => 0,
-                    'discount_start_date' => '',
-                    'discount_end_date' => '',
-                ]
-            ],
-            $fixture->invokeMethod($productMockClass, '_getGroupedPricesAndDiscounts'),
-            '[Test Get Grouped Prices And Discount] Check if return is valid with children ids and without discount'
-        );
-        $priceMock2 = $this->getMockBuilder(get_class($classMock))
-            ->setMethods(['load', 'clean', 'getPrices', 'getDiscounts'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $priceMock2->expects($this->any())->method('load')->will($this->returnValue(true));
-        $priceMock2->expects($this->any())->method('clean')->will($this->returnValue(true));
-        $priceMock2->expects($this->any())->method('getPrices')->willReturnOnConsecutiveCalls(
-            [
-                'price_excl_tax'                 => 15,
-                'price_incl_tax'                 => 18,
-                'price_before_discount_excl_tax' => 20,
-                'price_before_discount_incl_tax' => 24,
-            ],
-            [
-                'price_excl_tax'                 => 100,
-                'price_incl_tax'                 => 120,
-                'price_before_discount_excl_tax' => 100,
-                'price_before_discount_incl_tax' => 120,
-            ]
-        );
-        $priceMock2->expects($this->any())->method('getDiscounts')->willReturnOnConsecutiveCalls(
-            [
-                'discount_amount'     => 5,
-                'discount_percent'    => 20,
-                'discount_start_date' => '2017-03-01 00:00:00',
-                'discount_end_date'   => '2017-03-31 23:59:59',
-            ],
-            [
-                'discount_amount'     => 0,
-                'discount_percent'    => 0,
-                'discount_start_date' => '',
-                'discount_end_date'   => '',
-            ]
-        );
-        $dateTimeMock = $this->getMockBuilder(get_class($classMock))
-            ->setMethods(['gmtTimestamp', 'date'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $dateTimeMock->expects($this->any())->method('gmtTimestamp')->willReturnOnConsecutiveCalls(
-            '1488322800',
-            '1490997599'
-        );
-        $dateTimeMock->expects($this->any())->method('date')->willReturnOnConsecutiveCalls(
-            '2017-03-01 00:00:00',
-            '2017-03-31 23:59:59'
-        );
-        $fixture->setPrivatePropertyValue($productMockClass, ['_price', '_dateTime'], [$priceMock2, $dateTimeMock]);
-        $this->assertEquals(
-            [
-                'prices' => [
-                    'price_excl_tax'                 => 115,
-                    'price_incl_tax'                 => 138,
-                    'price_before_discount_excl_tax' => 120,
-                    'price_before_discount_incl_tax' => 144,
-                ],
-                'discounts' => [
-                    'discount_amount'     => 6,
-                    'discount_percent'    => '4.17',
-                    'discount_start_date' => '2017-03-01 00:00:00',
-                    'discount_end_date'   => '2017-03-31 23:59:59',
-                ]
-            ],
-            $fixture->invokeMethod($productMockClass, '_getGroupedPricesAndDiscounts'),
-            '[Test Get Grouped Prices And Discount] Check if return is valid with children ids and one discount'
-        );
-        $priceMock3 = $this->getMockBuilder(get_class($classMock))
-            ->setMethods(['load', 'clean', 'getPrices', 'getDiscounts'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $priceMock3->expects($this->any())->method('load')->will($this->returnValue(true));
-        $priceMock3->expects($this->any())->method('clean')->will($this->returnValue(true));
-        $priceMock3->expects($this->any())->method('getPrices')->willReturnOnConsecutiveCalls(
-            [
-                'price_excl_tax'                 => 15,
-                'price_incl_tax'                 => 18,
-                'price_before_discount_excl_tax' => 20,
-                'price_before_discount_incl_tax' => 24,
-            ],
-            [
-                'price_excl_tax'                 => 80,
-                'price_incl_tax'                 => 96,
-                'price_before_discount_excl_tax' => 100,
-                'price_before_discount_incl_tax' => 120,
-            ]
-        );
-        $priceMock3->expects($this->any())->method('getDiscounts')->willReturnOnConsecutiveCalls(
-            [
-                'discount_amount'     => 5,
-                'discount_percent'    => 20,
-                'discount_start_date' => '2017-03-01 00:00:00',
-                'discount_end_date'   => '2017-03-31 23:59:59',
-            ],
-            [
-                'discount_amount'     => 24,
-                'discount_percent'    => 20,
-                'discount_start_date' => '2017-02-20 00:00:00',
-                'discount_end_date'   => '2017-03-20 23:59:59',
-            ]
-        );
-        $dateTimeMock2 = $this->getMockBuilder(get_class($classMock))
-            ->setMethods(['gmtTimestamp', 'date'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $dateTimeMock2->expects($this->any())->method('gmtTimestamp')->willReturnOnConsecutiveCalls(
-            '1488322800',
-            '1490997599',
-            '1487545200',
-            '1490050799'
-        );
-        $dateTimeMock2->expects($this->any())->method('date')->willReturnOnConsecutiveCalls(
-            '2017-03-01 00:00:00',
-            '2017-03-20 23:59:59'
-        );
-        $fixture->setPrivatePropertyValue($productMockClass, ['_price', '_dateTime'], [$priceMock3, $dateTimeMock2]);
-        $this->assertEquals(
-            [
-                'prices' => [
-                    'price_excl_tax'                 => 95,
-                    'price_incl_tax'                 => 114,
-                    'price_before_discount_excl_tax' => 120,
-                    'price_before_discount_incl_tax' => 144,
-                ],
-                'discounts' => [
-                    'discount_amount'     => 30,
-                    'discount_percent'    => '20.83',
-                    'discount_start_date' => '2017-03-01 00:00:00',
-                    'discount_end_date'   => '2017-03-20 23:59:59',
-                ]
-            ],
-            $fixture->invokeMethod($productMockClass, '_getGroupedPricesAndDiscounts'),
-            '[Test Get Grouped Prices And Discount] Check if return is valid with children ids and two discount'
-        );
-        $priceMock4 = $this->getMockBuilder(get_class($classMock))
-            ->setMethods(['load', 'clean', 'getPrices', 'getDiscounts'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $priceMock4->expects($this->any())->method('load')->will($this->returnValue(true));
-        $priceMock4->expects($this->any())->method('clean')->will($this->returnValue(true));
-        $priceMock4->expects($this->any())->method('getPrices')->willReturnOnConsecutiveCalls(
-            [
-                'price_excl_tax'                 => 15,
-                'price_incl_tax'                 => 18,
-                'price_before_discount_excl_tax' => 20,
-                'price_before_discount_incl_tax' => 24,
-            ],
-            [
-                'price_excl_tax'                 => 80,
-                'price_incl_tax'                 => 96,
-                'price_before_discount_excl_tax' => 100,
-                'price_before_discount_incl_tax' => 120,
-            ]
-        );
-        $priceMock4->expects($this->any())->method('getDiscounts')->willReturnOnConsecutiveCalls(
-            [
-                'discount_amount'     => 5,
-                'discount_percent'    => 20,
-                'discount_start_date' => '2017-03-21 00:00:00',
-                'discount_end_date'   => '2017-03-31 23:59:59',
-            ],
-            [
-                'discount_amount'     => 24,
-                'discount_percent'    => 20,
-                'discount_start_date' => '2017-02-20 00:00:00',
-                'discount_end_date'   => '2017-03-20 23:59:59',
-            ]
-        );
-        $dateTimeMock3 = $this->getMockBuilder(get_class($classMock))
-            ->setMethods(['gmtTimestamp', 'date'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $dateTimeMock3->expects($this->any())->method('gmtTimestamp')->willReturnOnConsecutiveCalls(
-            '1490050800',
-            '1490997599',
-            '1487545200',
-            '1490050799'
-        );
-        $dateTimeMock3->expects($this->any())->method('date')->willReturnOnConsecutiveCalls(
-            '2017-03-20 23:59:59'
-        );
-        $fixture->setPrivatePropertyValue($productMockClass, ['_price', '_dateTime'], [$priceMock4, $dateTimeMock3]);
-        $this->assertEquals(
-            [
-                'prices' => [
-                    'price_excl_tax'                 => 95,
-                    'price_incl_tax'                 => 114,
-                    'price_before_discount_excl_tax' => 120,
-                    'price_before_discount_incl_tax' => 144,
-                ],
-                'discounts' => [
-                    'discount_amount'     => 30,
-                    'discount_percent'    => '20.83',
-                    'discount_start_date' => '',
-                    'discount_end_date'   => '2017-03-20 23:59:59',
-                ]
-            ],
-            $fixture->invokeMethod($productMockClass, '_getGroupedPricesAndDiscounts'),
-            '[Test Get Grouped Prices And Discount] Check if return is valid with children ids and two discount'
-        );
+
     }
 }

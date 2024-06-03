@@ -188,7 +188,7 @@ class Category
      *
      * @return string
      */
-    private function getName(int $categoryId): string
+    protected function getName(int $categoryId): string
     {
         if ($categoryId === 0) {
             return '';
