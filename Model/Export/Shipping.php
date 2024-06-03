@@ -300,7 +300,7 @@ class Shipping
     /**
      * Get shipping rate request for a product
      *
-     * @return RateRequest
+     * @return RateRequest|null
      *
      * @throws Exception
      */
@@ -310,7 +310,7 @@ class Shipping
         $quoteItem->setStoreId($this->store->getId());
         $quoteItem->setOptions($this->product->getCustomOptions())->setProduct($this->product);
         $request = $this->rateRequestFactory->create();
-        
+
         if (!$request instanceof RateRequest) {
             return null;
         }
