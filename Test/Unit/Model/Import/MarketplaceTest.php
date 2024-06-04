@@ -80,9 +80,14 @@ class MarketplaceTest extends \PHPUnit\Framework\TestCase
     public function testGetDefaultValue()
     {
         $fixture = new Fixture();
-        $this->assertFalse(
+        $this->assertIsString(
             $this->_marketplace->getDefaultValue('carrier'),
-            '[Test Get Default Value] Check if return is a false when argument is empty'
+            '[Test Get Default Value] Check if return is a string when argument is empty'
+        );
+        $this->assertEquals(
+            '',
+            $this->_marketplace->getDefaultValue('carrier'),
+            '[Test Get Default Value] Check if return is a string when argument is empty'
         );
         $argValues = [
             'carrier' => [
@@ -97,12 +102,21 @@ class MarketplaceTest extends \PHPUnit\Framework\TestCase
             ]
         ];
         $fixture->setPrivatePropertyValue($this->_marketplace, ['argValues'], [$argValues]);
+        $this->assertIsString(
+            $this->_marketplace->getDefaultValue('carrier'),
+            '[Test Get Default Value] Check if return is valid when default value is present'
+        );
         $this->assertEquals(
             'LAPOSTE',
             $this->_marketplace->getDefaultValue('carrier'),
             '[Test Get Default Value] Check if return is valid when default value is present'
         );
-        $this->assertFalse(
+        $this->assertIsString(
+            $this->_marketplace->getDefaultValue('tracking_number'),
+            '[Test Get Default Value] Check if return is a false when default value is empty'
+        );
+        $this->assertEquals(
+            '',
             $this->_marketplace->getDefaultValue('tracking_number'),
             '[Test Get Default Value] Check if return is a false when default value is empty'
         );
@@ -154,13 +168,13 @@ class MarketplaceTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Import\Marketplace::_matchCarrier()
+     * @covers \Lengow\Connector\Model\Import\Marketplace::matchCarrier()
      */
     public function testMatchCarrier()
     {
         $fixture = new Fixture();
         $this->assertIsString(
-            $fixture->invokeMethod($this->_marketplace, '_matchCarrier', ['custom', 'my carrier']),
+            $fixture->invokeMethod($this->_marketplace, 'matchCarrier', ['custom', 'my carrier']),
             '[Test Match Carrier] Check if return is a string'
         );
         $carriers = [
@@ -172,74 +186,79 @@ class MarketplaceTest extends \PHPUnit\Framework\TestCase
         $fixture->setPrivatePropertyValue($this->_marketplace, ['carriers'], [$carriers]);
         $this->assertEquals(
             'my carrier',
-            $fixture->invokeMethod($this->_marketplace, '_matchCarrier', ['custom', 'my carrier']),
+            $fixture->invokeMethod($this->_marketplace, 'matchCarrier', ['custom', 'my carrier']),
             '[Test Match Carrier] Check if return is valid when match is not possible for custom carrier'
         );
         $this->assertEquals(
             'COLISSIMO',
-            $fixture->invokeMethod($this->_marketplace, '_matchCarrier', ['custom', 'La Poste - Colissimo']),
+            $fixture->invokeMethod($this->_marketplace, 'matchCarrier', ['custom', 'COLISSIMO']),
             '[Test Match Carrier] Check if return is valid when match is possible for custom carrier'
         );
         $this->assertEquals(
             'FEDEX',
-            $fixture->invokeMethod($this->_marketplace, '_matchCarrier', ['FEDEX', 'my carrier']),
+            $fixture->invokeMethod($this->_marketplace, 'matchCarrier', ['FEDEX', 'my carrier']),
             '[Test Match Carrier] Check if return is valid when match is possible for specific carrier'
         );
         $this->assertEquals(
             'DHL',
-            $fixture->invokeMethod($this->_marketplace, '_matchCarrier', ['DHL', 'DHL France - 24 hours']),
+            $fixture->invokeMethod($this->_marketplace, 'matchCarrier', ['DHL', 'DHL France - 24 hours']),
             '[Test Match Carrier] Check if return is valid when match is not possible for specific carrier'
         );
         $this->assertEquals(
             'PITALIA',
-            $fixture->invokeMethod($this->_marketplace, '_matchCarrier', ['custom', 'Post Italia']),
+            $fixture->invokeMethod($this->_marketplace, 'matchCarrier', ['test', 'Post Italia']),
             '[Test Match Carrier] Check if return is valid when strict match is possible with carrier label'
+        );
+        $this->assertIsString(
+            $fixture->invokeMethod($this->_marketplace, 'matchCarrier', ['test2', 'PITALIA']),
+            '[Test Match Carrier] Check if return is valid when approximate match is possible with carrier label'
         );
         $this->assertEquals(
             'PITALIA',
-            $fixture->invokeMethod($this->_marketplace, '_matchCarrier', ['custom', 'Post Italia international']),
+            $fixture->invokeMethod($this->_marketplace, 'matchCarrier', ['test2', 'PITALIA']),
             '[Test Match Carrier] Check if return is valid when approximate match is possible with carrier label'
         );
+
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Import\Marketplace::_cleanString()
+     * @covers \Lengow\Connector\Model\Import\Marketplace::cleanString()
      */
     public function testCleanString()
     {
         $fixture = new Fixture();
         $this->assertIsString(
-            $fixture->invokeMethod($this->_marketplace, '_cleanString', ['custom']),
+            $fixture->invokeMethod($this->_marketplace, 'cleanString', ['custom']),
             '[Test Clean String] Check if return is a string'
         );
         $this->assertEquals(
             'mygreatcarrier',
-            $fixture->invokeMethod($this->_marketplace, '_cleanString', [' My-GREAT_carrier.']),
+            $fixture->invokeMethod($this->_marketplace, 'cleanString', [' My-GREAT_carrier.']),
             '[Test Clean String] Check if return is valid when match is not possible for custom carrier'
         );
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Import\Marketplace::_searchValue()
+     * @covers \Lengow\Connector\Model\Import\Marketplace::searchValue()
      */
     public function testSearchValue()
     {
         $fixture = new Fixture();
         $this->assertIsBool(
-            'boolean',
-            $fixture->invokeMethod($this->_marketplace, '_searchValue', ['custom', 'custom']),
+            $fixture->invokeMethod($this->_marketplace, 'searchValue', ['custom', 'custom']),
             '[Test Search Value] Check if return is a boolean'
         );
+
         $this->assertFalse(
-            $fixture->invokeMethod($this->_marketplace, '_searchValue', ['toto', 'tata']),
+            $fixture->invokeMethod($this->_marketplace, 'searchValue', ['toto', 'jj']),
             '[Test Search Value] Check if return is valid when any code found'
         );
         $this->assertTrue(
-            $fixture->invokeMethod($this->_marketplace, '_searchValue', ['toto', 'toto']),
+            $fixture->invokeMethod($this->_marketplace, 'searchValue', ['toto', 'toto', true]),
             '[Test Search Value] Check if return is valid with strict match'
         );
         $this->assertTrue(
-            $fixture->invokeMethod($this->_marketplace, '_searchValue', ['toto', 'mygreattoto']),
+            $fixture->invokeMethod($this->_marketplace, 'searchValue', ['toto', 'toto is ok', false]),
             '[Test Search Value] Check if return is valid with approximate match'
         );
     }

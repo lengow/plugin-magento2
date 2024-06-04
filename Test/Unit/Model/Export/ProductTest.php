@@ -268,7 +268,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export\Product::_setCounter
+     * @covers \Lengow\Connector\Model\Export\Product::setCounter
      */
     public function testSetCounter()
     {
@@ -311,7 +311,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export\Product::_getParentProduct
+     * @covers \Lengow\Connector\Model\Export\Product::getParentProduct
      */
     public function testGetParentProduct()
     {
@@ -610,7 +610,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export\Product::_getVariationList
+     * @covers \Lengow\Connector\Model\Export\Product::getVariationList
      */
     public function testGetVariationList()
     {
@@ -738,7 +738,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export\Product::_getQuantity
+     * @covers \Lengow\Connector\Model\Export\Product::getQuantity
      */
     public function testGetQuantity()
     {
@@ -800,7 +800,7 @@ class ProductTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export\Product::_getAttributeValue
+     * @covers \Lengow\Connector\Model\Export\Product::getAttributeValue
      */
     public function testGetAttributeValue()
     {

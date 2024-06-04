@@ -65,7 +65,7 @@ class FeedTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Feed::_getHtmlHeader
+     * @covers \Lengow\Connector\Model\Export\Feed::getHtmlHeader
      */
     public function testGetHtmlHeader()
     {
@@ -108,7 +108,7 @@ class FeedTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Feed::_getHeader
+     * @covers \Lengow\Connector\Model\Export\Feed::getHeader
      */
     public function testGetHeader()
     {
@@ -152,7 +152,7 @@ class FeedTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Feed::_getFooter
+     * @covers \Lengow\Connector\Model\Export\Feed::getFooter
      */
     public function testGetFooter()
     {
@@ -195,7 +195,7 @@ class FeedTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Feed::_getBody
+     * @covers \Lengow\Connector\Model\Export\Feed::getBody
      */
     public function testGetBody()
     {
@@ -257,7 +257,7 @@ class FeedTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Feed::_formatFields
+     * @covers \Lengow\Connector\Model\Export\Feed::formatFields
      */
     public function testFormatFields()
     {
@@ -301,7 +301,7 @@ class FeedTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Feed::_indentYaml
+     * @covers \Lengow\Connector\Model\Export\Feed::indentYaml
      */
     public function testIndentYaml()
     {

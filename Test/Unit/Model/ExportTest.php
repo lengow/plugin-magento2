@@ -130,7 +130,7 @@ class ExportTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export::_setProductIds
+     * @covers \Lengow\Connector\Model\Export::setProductIds
      */
     public function testSetProductIds()
     {
@@ -153,7 +153,7 @@ class ExportTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export::_setProductTypes
+     * @covers \Lengow\Connector\Model\Export::setProductTypes
      */
     public function testSetProductTypes()
     {
@@ -183,7 +183,7 @@ class ExportTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export::_setLogOutput
+     * @covers \Lengow\Connector\Model\Export::setLogOutput
      */
     public function testSetLogOutput()
     {
@@ -273,7 +273,7 @@ class ExportTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export::_getProductModulo
+     * @covers \Lengow\Connector\Model\Export::getProductModulo
      */
     public function testGetProductModulo()
     {
@@ -295,7 +295,7 @@ class ExportTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export::_getMaxCharacterSize
+     * @covers \Lengow\Connector\Model\Export::getMaxCharacterSize
      */
     public function testGetMaxCharacterSize()
     {
@@ -313,7 +313,7 @@ class ExportTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export::_microtimeFloat
+     * @covers \Lengow\Connector\Model\Export::microtimeFloat
      */
     public function testMicrotimeFloat()
     {
