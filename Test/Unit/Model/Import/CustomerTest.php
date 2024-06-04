@@ -180,4 +180,109 @@ class CustomerTest extends \PHPUnit\Framework\TestCase
             '[Test splitNames] set three words'
         );
     }
+
+    /**
+     * @covers \Lengow\Connector\Model\Import\Customer::hydrateAddress()
+     */
+    public function testHydrateAddress()
+    {
+        $fixture = new Fixture();
+
+        $adressData = '{
+                "id": 572984019,
+                "type": "billing",
+                "first_line": null,
+                "zipcode": "75228-6481",
+                "city": "DALLAS",
+                "vat_number": null,
+                "common_country_iso_a2": "US",
+                "company": null,
+                "civility": null,
+                "first_name": null,
+                "last_name": null,
+                "second_line": null,
+                "complement": null,
+                "phone_home": null,
+                "phone_office": null,
+                "phone_mobile": null,
+                "full_address": null,
+                "full_name": null,
+                "email": "m1z9b3mk8gb1c26@marketplace.amazon.com",
+                "metas": null,
+                "state_region": "TX"
+        }';
+
+        $orderData = '{
+            "lengow_status": "shipped",
+            "order_types": [],
+            "original_total_buyer_amount": null,
+            "original_total_buyer_tax": null,
+            "original_buyer_currency": null
+        }';
+
+        $this->assertIsObject(
+            $fixture->invokeMethod($this->_customer, 'hydrateAddress', [json_decode($orderData), json_decode($adressData)]),
+            '[Test hydrateAddress]'
+        );
+
+        $this->assertEquals(
+            json_decode($adressData),
+            $fixture->invokeMethod($this->_customer, 'hydrateAddress', [json_decode($orderData), json_decode($adressData)]),
+            '[Test hydrateAddress]'
+        );
+
+        $dataHydrated = '{
+                "id": 572984019,
+                "type": "billing",
+                "first_line": null,
+                "zipcode": "75228-6481",
+                "city": "DALLAS",
+                "vat_number": null,
+                "common_country_iso_a2": "US",
+                "company": null,
+                "civility": null,
+                "first_name": null,
+                "last_name": null,
+                "second_line": null,
+                "complement": null,
+                "phone_home": "0000000000",
+                "phone_office": null,
+                "phone_mobile": "0000000000",
+                "full_address": null,
+                "full_name": "",
+                "email": "m1z9b3mk8gb1c26@marketplace.amazon.com",
+                "metas": null,
+                "state_region": "TX"
+        }';
+        $orderData2 = '{
+            "lengow_status": "shipped",
+            "order_types": [
+                {
+                    "type": "is_delivered_by_marketplace",
+                    "label": "Fulfillment"
+                },
+                {
+                    "type": "is_express",
+                    "label": "Express"
+                }
+            ],
+            "original_total_buyer_amount": null,
+            "original_total_buyer_tax": null,
+            "original_buyer_currency": null
+        }';
+        $addressWaited = json_decode($dataHydrated);
+        $notProvided = __('Not provided by the marketplace');
+        $addressWaited->first_name = $notProvided;
+        $addressWaited->last_name = $notProvided;
+        $addressWaited->full_name = $notProvided;
+        $addressWaited->first_line = $notProvided;
+        $addressWaited->full_address = $notProvided;
+
+
+        $this->assertEquals(
+            $addressWaited,
+            $fixture->invokeMethod($this->_customer, 'hydrateAddress', [json_decode($orderData2), json_decode($adressData)]),
+            '[Test hydrateAddress]'
+        );
+    }
 }
