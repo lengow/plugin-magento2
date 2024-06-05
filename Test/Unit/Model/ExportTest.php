@@ -93,7 +93,6 @@ class ExportTest extends \PHPUnit\Framework\TestCase
             $fixture->invokeMethod($this->_export, 'getFields'),
             '[Test Get Fields] Check if return is valid'
         );
-
     }
 
     /**
@@ -179,7 +178,6 @@ class ExportTest extends \PHPUnit\Framework\TestCase
             $fixture->invokeMethod($this->_export, 'setProductTypes', ['configurable,plop,simple']),
             '[Test Set Product Types] get product types when product types parameter is set with special character'
         );
-
     }
 
     /**

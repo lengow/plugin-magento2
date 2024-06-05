@@ -104,6 +104,7 @@ class Category
      */
     public function getCategoryBreadcrumb(): string
     {
+
         return $this->categoryBreadcrumb;
     }
 
@@ -125,6 +126,7 @@ class Category
      */
     private function getDefaultCategory(): array
     {
+
         $currentLevel = 0;
         $defaultCategory = [];
         // get category collection for one product

@@ -179,7 +179,5 @@ class OrderTest extends \PHPUnit\Framework\TestCase
             $this->_order->getOrderLineByApi('123-test-456', 'amazon_fr', 54321),
             '[Test Get Order Line By Api] Check if return is valid for order with two packages'
         );
-        
-
     }
 }

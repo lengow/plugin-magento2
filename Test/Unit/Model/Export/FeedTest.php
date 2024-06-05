@@ -104,7 +104,6 @@ class FeedTest extends \PHPUnit\Framework\TestCase
             $fixture->invokeMethod($this->_feed, 'getHtmlHeader'),
             '[Test Get Html Header] Check if return is valid for fake format'
         );
-
     }
 
     /**
@@ -191,7 +190,6 @@ class FeedTest extends \PHPUnit\Framework\TestCase
             $fixture->invokeMethod($this->_feed, 'getFooter'),
             '[Test Get Footer] Check if return is valid for fake format'
         );
-
     }
 
     /**

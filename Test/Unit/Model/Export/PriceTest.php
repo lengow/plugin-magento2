@@ -250,6 +250,5 @@ class PriceTest extends \PHPUnit\Framework\TestCase
             $fixture->invokeMethod($this->_price, 'getAllDiscountDates'),
             '[Test Get All Discounts] Check return with special dates but no catalogue rules'
         );
-
     }
 }

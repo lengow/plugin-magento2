@@ -519,8 +519,8 @@ class Customer extends MagentoResourceCustomer
     public function updateCustomerVatNumber(
         string $customerEmail,
         int $storeId,
-        string $vatNumber): MagentoCustomer
-    {
+        string $vatNumber
+    ): MagentoCustomer {
         $idWebsite = $this->_storeManager->getStore($storeId)->getWebsiteId();
         // first get by email
         $customer = $this->_customerFactory->create();
@@ -539,7 +539,6 @@ class Customer extends MagentoResourceCustomer
         }
 
         return $customer;
-
     }
 
     /**
@@ -689,8 +688,9 @@ class Customer extends MagentoResourceCustomer
      *
      * @return array
      */
-    private function getNames($addressData): array
+    protected function getNames($addressData): array
     {
+
         $names = [
             'firstName' => trim((string) $addressData->first_name),
             'lastName' => trim((string) $addressData->last_name),
@@ -986,7 +986,7 @@ class Customer extends MagentoResourceCustomer
         if ($status !== LengowOrder::STATE_SHIPPED) {
             return $address;
         }
-       
+
         $types = $orderData->order_types;
         foreach ($types as $orderType) {
             if ($orderType->type === LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE) {
@@ -1018,9 +1018,7 @@ class Customer extends MagentoResourceCustomer
             $address->phone_home = $notPhone;
             $address->phone_mobile = $notPhone;
         }
-
+        
         return $address;
     }
 }
-
-

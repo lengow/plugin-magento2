@@ -211,6 +211,7 @@ class Connector
             return false;
         }
         list($accountId, $accessToken, $secret) = $this->configHelper->getAccessIds();
+
         if (empty($accountId)
                 || empty($accessToken)
                 || empty($secret)) {
@@ -219,6 +220,7 @@ class Connector
         if (!is_numeric($accountId)) {
             return false;
         }
+
         try {
             $this->init(['access_token' => $accessToken, 'secret' => $secret]);
             $this->connect(false, $logOutput);
@@ -327,6 +329,7 @@ class Connector
         if (is_null($authorizationToken)) {
             throw new LengowException('Authorization Token is NULL');
         }
+
         $this->token = $authorizationToken;
     }
 

@@ -218,7 +218,6 @@ class MarketplaceTest extends \PHPUnit\Framework\TestCase
             $fixture->invokeMethod($this->_marketplace, 'matchCarrier', ['test2', 'PITALIA']),
             '[Test Match Carrier] Check if return is valid when approximate match is possible with carrier label'
         );
-
     }
 
     /**

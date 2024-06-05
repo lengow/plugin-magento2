@@ -1308,5 +1308,3 @@ class Order extends AbstractModel
         return count($results);
     }
 }
-
-

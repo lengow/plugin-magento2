@@ -139,7 +139,6 @@ class ProductTest extends \PHPUnit\Framework\TestCase
             $this->_product->isEnableForExport(),
             '[Test Is Enable For Export] Check if return is valid for a child product with disable parent'
         );
-
     }
 
     /**
@@ -178,7 +177,6 @@ class ProductTest extends \PHPUnit\Framework\TestCase
             $this->_product->getCounters(),
             '[Test Get All Counter] Check if return is valid'
         );
-
     }
 
     /**
@@ -350,7 +348,6 @@ class ProductTest extends \PHPUnit\Framework\TestCase
             $fixture->getPrivatePropertyValue($this->_product, 'getParentData'),
             '[Test Get Parent Product] Check if get parent data is false for a simple product without parent'
         );
-
     }
 
     /**
@@ -734,7 +731,6 @@ class ProductTest extends \PHPUnit\Framework\TestCase
             $fixture->invokeMethod($this->_product, 'getChildrenIds'),
             '[Test Get Children Ids] Check if a valid return for grouped product'
         );
-
     }
 
     /**
@@ -796,7 +792,6 @@ class ProductTest extends \PHPUnit\Framework\TestCase
             $fixture->invokeMethod($this->_product, 'getQuantity'),
             '[Test Get Quantity] Check if a valid return for grouped product'
         );
-
     }
 
     /**
@@ -863,6 +858,5 @@ class ProductTest extends \PHPUnit\Framework\TestCase
             $fixture->invokeMethod($this->_product, 'getGroupedPricesAndDiscounts'),
             '[Test Get Grouped Prices And Discount] Check if return is valid when children ids is empty'
         );
-
     }
 }

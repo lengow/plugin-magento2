@@ -119,7 +119,7 @@ class SyncTest extends \PHPUnit\Framework\TestCase
                 ['type' => 'free_trial', 'day' => 12, 'expired' => false],
                 ['type' => 'free_trial', 'day' => 0, 'expired' => true],
                 ['type' => '', 'day' => 0, 'expired' => false]
-        );
+            );
         $fixture->setPrivatePropertyValue($syncHelperMock, ['configHelper'], [$configHelperMock2], $this->_syncHelper);
         $this->assertFalse(
             $syncHelperMock->pluginIsBlocked(),
@@ -166,7 +166,7 @@ class SyncTest extends \PHPUnit\Framework\TestCase
                 $statusAccount,
                 strtotime($updatedAt),
                 $statusAccount
-        );
+            );
 
 
 
@@ -273,7 +273,5 @@ class SyncTest extends \PHPUnit\Framework\TestCase
             $this->_syncHelper->getStatusAccount(true),
             '[Test Get Status Account] Check if return is valid with static cache'
         );
-        
-
     }
 }

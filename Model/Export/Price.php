@@ -316,7 +316,7 @@ class Price
             $date = new \DateTime($timestamp);
             return $date->format(DataHelper::DATE_FULL);
         }
-
+        
         return $this->timezone->date($timestamp)->format(DataHelper::DATE_FULL);
     }
 }

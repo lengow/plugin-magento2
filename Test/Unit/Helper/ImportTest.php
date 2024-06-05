@@ -171,6 +171,5 @@ class ImportTest extends \PHPUnit\Framework\TestCase
             $this->_importHelper->isInProcess(),
             '[Test Get Last Import] Check if return import is in process or not 4'
         );
-        
     }
 }

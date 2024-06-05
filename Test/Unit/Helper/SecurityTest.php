@@ -46,7 +46,6 @@ class SecurityTest extends \PHPUnit\Framework\TestCase
         $objectManager = new ObjectManager($this);
         $this->_securityHelper = $objectManager->getObject(SecurityHelper::class);
         $this->_configHelper = $objectManager->getObject(ConfigHelper::class);
-
     }
 
     public function testClassInstance()
@@ -120,7 +119,6 @@ class SecurityTest extends \PHPUnit\Framework\TestCase
             $securityHelperMock5->checkWebserviceAccess('bd30439b3d2ce0bc63ac59fe0eac2060'),
             '[Test Check Webservice Access] Check return when ip authorisation is enable and valid'
         );
-        
     }
 
     /**

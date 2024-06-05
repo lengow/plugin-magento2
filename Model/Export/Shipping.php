@@ -300,7 +300,7 @@ class Shipping
     /**
      * Get shipping rate request for a product
      *
-     * @return RateRequest|null
+     * @return RateRequest
      *
      * @throws Exception
      */
@@ -310,7 +310,6 @@ class Shipping
         $quoteItem->setStoreId($this->store->getId());
         $quoteItem->setOptions($this->product->getCustomOptions())->setProduct($this->product);
         $request = $this->rateRequestFactory->create();
-
         if (!$request instanceof RateRequest) {
             return null;
         }
@@ -334,7 +333,7 @@ class Shipping
         $request->setWebsiteId($this->store->getWebsiteId());
         $request->setBaseCurrency($this->store->getBaseCurrency());
         $request->setPackageCurrency($this->store->getCurrentCurrency());
-
+        
         return $request;
     }
 }

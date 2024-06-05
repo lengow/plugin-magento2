@@ -73,7 +73,6 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
             $this->_category->getCategoryBreadcrumb(),
             '[Test Get Shipping Cost] Check if return is valid'
         );
-
     }
 
     /**
@@ -96,7 +95,6 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
             $fixture->getPrivatePropertyValue($this->_category, 'categoryBreadcrumb'),
             '[Test Clean] Check if _product attribute is null'
         );
-
     }
 
     /**
@@ -142,7 +140,6 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
             $fixture->invokeMethod($this->_category, 'getDefaultCategory'),
             '[Test Get Default Category] Check return is a valid array'
         );
-
     }
 
     /**
@@ -181,8 +178,6 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
             $fixture->invokeMethod($categoryMock, 'getBreadcrumb', [10, '1/2/3/4/5']),
             '[Test Get Name] Check return when is valid without cache'
         );
-
-
     }
 
     /**

@@ -76,7 +76,7 @@ class Fixture extends \PHPUnit\Framework\TestCase
         $ii = 0;
         try {
             if (!is_null($orignalObject)) {
-                 $reflection = new \ReflectionClass(get_class($orignalObject));
+                $reflection = new \ReflectionClass(get_class($orignalObject));
             } else {
                 $reflection = new \ReflectionClass(get_class($object));
             }

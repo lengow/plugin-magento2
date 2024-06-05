@@ -84,7 +84,7 @@ class ConnectorTest extends \PHPUnit\Framework\TestCase
             ->willReturnOnConsecutiveCalls(
                 $token,
                 strtotime($updatedAt)
-        );
+            );
         $fixture->setPrivatePropertyValue(
             $connectorMock,
             ['configHelper'],
@@ -95,7 +95,6 @@ class ConnectorTest extends \PHPUnit\Framework\TestCase
             $connectorMock->connect(),
             '[Test Connect] Check if return is valid when connection is ok'
         );
-
     }
 
     /**
@@ -119,7 +118,6 @@ class ConnectorTest extends \PHPUnit\Framework\TestCase
             $fixture->invokeMethod($this->_connector, "format", ['simple,plop,/1233;variable', 'stream']),
             '[Test Format] Check no specific format format'
         );
-
     }
 
     /**
@@ -156,7 +154,6 @@ class ConnectorTest extends \PHPUnit\Framework\TestCase
             $connectorMock->queryApi('GET', '/v3.0/cms'),
             '[Test Query API] Check if call is valid'
         );
-
     }
 
     /**
@@ -249,7 +246,7 @@ class ConnectorTest extends \PHPUnit\Framework\TestCase
         );
         $connectorMock3->method('connect')
             ->willThrowException(new LengowException('token is null'));
-        $dataHelperMock = $fixture->mockFunctions($this->_dataHelper,['log'],[null]);
+        $dataHelperMock = $fixture->mockFunctions($this->_dataHelper, ['log'], [null]);
         $fixture->setPrivatePropertyValue(
             $connectorMock3,
             ['configHelper','dataHelper'],
@@ -261,6 +258,5 @@ class ConnectorTest extends \PHPUnit\Framework\TestCase
             $connectorMock3->isValidAuth(),
             '[Test Is Valid Auth] Check if API Authentication is refused when credentials are not valid'
         );
-
     }
 }

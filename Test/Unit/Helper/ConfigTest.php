@@ -102,7 +102,6 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
                 'storeCollectionFactory' => $storeCollectionFactoryMock,
             ]
         );
-
     }
 
     public function testClassInstantiation()

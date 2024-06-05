@@ -42,7 +42,6 @@ class HeaderTest extends \PHPUnit\Framework\TestCase
 
 
         $this->_header = $objectManager->getObject(Header::class, ['context' => $contextMock]);
-
     }
 
     public function testClassInstantiation()
