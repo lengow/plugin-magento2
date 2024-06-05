@@ -106,7 +106,7 @@ script;
                    value=""
                    disabled="disabled" />
         </td>
-        <?php if($block->canDisplayReturnCarrier()): ?>
+        <?php if ($block->canDisplayReturnCarrier()): ?>
            <td class="col-title">
                 <input class="input-text admin__control-text"
                    type="text"
@@ -116,7 +116,7 @@ script;
                     />
             </td>
         <?php endif; ?>
-         <?php if($block->canDisplayReturnNumber()): ?>
+         <?php if ($block->canDisplayReturnNumber()): ?>
             <td class="col-number">
                 <input class="input-text admin__control-text"
                        type="text"
@@ -144,10 +144,10 @@ script;
             <th class="col-carrier"><?= $block->escapeHtml(__('Carrier')) ?></th>
             <th class="col-title"><?= $block->escapeHtml(__('Title')) ?></th>
             <th class="col-number"><?= $block->escapeHtml(__('Number')) ?></th>
-            <?php if($block->canDisplayReturnCarrier()): ?>
+            <?php if ($block->canDisplayReturnCarrier()): ?>
                 <th class="col-number"><?= $block->escapeHtml(__('Return Carrier')) ?></th>
             <?php endif ; ?>
-            <?php if($block->canDisplayReturnNumber()): ?>
+            <?php if ($block->canDisplayReturnNumber()): ?>
                 <th class="col-number"><?= $block->escapeHtml(__('Return Number')) ?></th>
             <?php endif ; ?>
             <th class="col-delete"><?= $block->escapeHtml(__('Action')) ?></th>
@@ -156,9 +156,9 @@ script;
         </thead>
         <tfoot>
         <tr>
-            <?php if($block->canDisplayReturnNumber()&& $block->canDisplayReturnCarrier()): ?>
+            <?php if ($block->canDisplayReturnNumber() && $block->canDisplayReturnCarrier()): ?>
                 <td colspan="6" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
-            <?php elseif($block->canDisplayReturnNumber()): ?>
+            <?php elseif ($block->canDisplayReturnNumber()): ?>
                 <td colspan="5" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
             <?php else: ?>
                   <td colspan="4" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>

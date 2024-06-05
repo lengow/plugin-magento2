@@ -118,7 +118,6 @@ class InstallLengowData implements DataPatchInterface, PatchRevertableInterface
         $this->configHelper = $configHelper;
         $this->setup = $setup;
         $this->customerAttributeResourceModel = $customerAttributeResourceModel;
-
     }
 
     /**
@@ -304,7 +303,6 @@ class InstallLengowData implements DataPatchInterface, PatchRevertableInterface
         $this->setup->getConnection()->query("DELETE FROM $statusStateTable WHERE status LIKE 'lengow_%'");
 
         $this->setup->getConnection()->endSetup();
-
     }
 
     /**
@@ -326,5 +324,4 @@ class InstallLengowData implements DataPatchInterface, PatchRevertableInterface
     {
         return [];
     }
-
 }

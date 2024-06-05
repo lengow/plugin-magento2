@@ -100,5 +100,4 @@ class DisableLengowDataTracking implements DataPatchInterface
     {
         return [];
     }
-
 }

@@ -26,16 +26,15 @@ use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Magento\Framework\App\Request\Http as RequestHttp;
 use Magento\Sales\Model\Order;
 
-
 /**
  * CreditmemoTotalsCollectorPlugin class
  */
 class CreditmemoTotalsCollectorPlugin
 {
      /**
-     *
-     * @var ConfigHelper $configHelper
-     */
+      *
+      * @var ConfigHelper $configHelper
+      */
     protected $configHelper;
 
     /**
@@ -93,12 +92,13 @@ class CreditmemoTotalsCollectorPlugin
         }
 
         if (! (bool) $this->configHelper->get(
-                ConfigHelper::CHECK_ROUNDING_ENABLED,
-                $order->getStore()->getId())) {
+            ConfigHelper::CHECK_ROUNDING_ENABLED,
+            $order->getStore()->getId()
+        )) {
             return $result;
         }
 
-        if($this->hasPostDifferentItemsQty($order)) {
+        if ($this->hasPostDifferentItemsQty($order)) {
             return $result;
         }
 

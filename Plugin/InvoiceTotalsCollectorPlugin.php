@@ -96,8 +96,5 @@ class InvoiceTotalsCollectorPlugin
             }
         }
         return $result;
-
     }
-
-
 }

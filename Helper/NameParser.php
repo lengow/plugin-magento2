@@ -641,4 +641,3 @@ class NameParser extends AbstractHelper
           }';
     }
 }
-

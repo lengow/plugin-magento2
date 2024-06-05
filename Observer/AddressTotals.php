@@ -110,8 +110,7 @@ class AddressTotals implements ObserverInterface
             }
             if (($type === 'shipping_incl_tax'
                     || $type === 'base_shipping_incl_tax')
-                    && $amount !== $shippingLengow)
-            {
+                    && $amount !== $shippingLengow) {
                 $total->setData($type, $shippingLengow);
             }
             if ($type === 'shipping_amount'

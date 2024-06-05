@@ -29,9 +29,9 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 class QuoteItems implements ObserverInterface
 {
      /**
-     *
-     * @var ConfigHelper $configHelper
-     */
+      *
+      * @var ConfigHelper $configHelper
+      */
     protected $configHelper;
 
     /**
@@ -87,8 +87,7 @@ class QuoteItems implements ObserverInterface
                 continue;
             }
 
-            if (
-                $product['tax_amount'] === (float) $item->getTaxAmount()
+            if ($product['tax_amount'] === (float) $item->getTaxAmount()
                 && $product['amount'] === $item->getRowTotalInclTax()
             ) {
                 continue;

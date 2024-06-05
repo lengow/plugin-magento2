@@ -1280,4 +1280,3 @@ class Config extends AbstractHelper
         return $value;
     }
 }
-

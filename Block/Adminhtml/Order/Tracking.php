@@ -47,8 +47,7 @@ class Tracking extends OrderTracking
         Registry $registry,
         LengowOrderFactory$lengowOrderFactory,
         array $data = []
-    )
-    {
+    ) {
         $this->lengowOrderFactory = $lengowOrderFactory;
         parent::__construct($context, $shippingConfig, $registry, $data);
     }
@@ -104,5 +103,4 @@ class Tracking extends OrderTracking
 
         return $this->lengowOrder->load($lengowOrderId);
     }
-
 }
