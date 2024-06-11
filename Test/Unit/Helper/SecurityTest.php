@@ -41,7 +41,7 @@ class SecurityTest extends \PHPUnit\Framework\TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp() : void
+    public function setUp(): void
     {
         $objectManager = new ObjectManager($this);
         $this->_securityHelper = $objectManager->getObject(SecurityHelper::class);

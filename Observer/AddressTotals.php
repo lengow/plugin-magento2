@@ -23,9 +23,6 @@ use Magento\Backend\Model\Session as BackendSession;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
-/**
- * AddressTotals
- */
 class AddressTotals implements ObserverInterface
 {
 

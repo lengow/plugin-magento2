@@ -23,9 +23,6 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
-/**
- * QuoteItems
- */
 class QuoteItems implements ObserverInterface
 {
      /**

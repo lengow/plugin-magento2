@@ -608,6 +608,7 @@ class Product
             }
         }
         $productParentCached = $this->cacheConfigurableProducts[$parentId];
+
         if (!$productParentCached instanceof ProductInterface) {
             return null;
         }

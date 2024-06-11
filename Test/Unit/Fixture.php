@@ -43,7 +43,7 @@ class Fixture extends \PHPUnit\Framework\TestCase
             return false;
         }
     }
-
+    
     /**
      * Return value of a private property using ReflectionClass
      *
@@ -97,8 +97,6 @@ class Fixture extends \PHPUnit\Framework\TestCase
             }
         }
     }
-
-
 
     /**
      * Get a fake class for mock function

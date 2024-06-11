@@ -26,9 +26,6 @@ use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Magento\Framework\App\Request\Http as RequestHttp;
 use Magento\Sales\Model\Order;
 
-/**
- * CreditmemoTotalsCollectorPlugin class
- */
 class CreditmemoTotalsCollectorPlugin
 {
      /**

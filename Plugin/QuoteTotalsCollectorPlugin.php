@@ -23,9 +23,6 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Magento\Backend\Model\Session as BackendSession;
 use Magento\Quote\Model\Quote;
 
-/**
- * QuoteTotalsCollectorPlugin
- */
 class QuoteTotalsCollectorPlugin
 {
 

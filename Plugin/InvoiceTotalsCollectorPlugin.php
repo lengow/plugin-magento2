@@ -14,7 +14,6 @@ use Magento\Sales\Model\Order\Invoice;
 /**
  * Description of InvoiceTotalsCollectorPlugin
  *
- * @author alexis.hermanns
  */
 class InvoiceTotalsCollectorPlugin
 {

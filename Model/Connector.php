@@ -212,9 +212,7 @@ class Connector
         }
         list($accountId, $accessToken, $secret) = $this->configHelper->getAccessIds();
 
-        if (empty($accountId)
-                || empty($accessToken)
-                || empty($secret)) {
+        if (empty($accountId) || empty($accessToken) || empty($secret)) {
             return false;
         }
         if (!is_numeric($accountId)) {
