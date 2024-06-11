@@ -384,7 +384,13 @@ class Sync extends AbstractHelper
             return self::$statusAccount;
         }
         $status = null;
-        $result = $this->connector->queryApi(LengowConnector::GET, LengowConnector::API_PLAN, [], '', $logOutput);
+        $result = $this->connector->queryApi(
+            LengowConnector::GET,
+            LengowConnector::API_RESTRICTIONS,
+            [],
+            '',
+            $logOutput
+        );
         if (isset($result->isFreeTrial)) {
             $status = [
                 'type' => $result->isFreeTrial ? 'free_trial' : '',
