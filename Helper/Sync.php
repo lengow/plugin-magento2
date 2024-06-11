@@ -576,4 +576,3 @@ class Sync extends AbstractHelper
         return $pluginLinks;
     }
 }
-

@@ -28,7 +28,6 @@ use Magento\Shipping\Helper\Data as ShippingHelper;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 
-
 class View extends OrderTrackingView
 {
 
@@ -70,7 +69,7 @@ class View extends OrderTrackingView
     public function canDisplayReturnNumber(): bool
     {
 
-       try {
+        try {
             return $this->getLengowOrder()
                 ->getMarketPlace()
                 ->hasReturnTrackingNumber();
@@ -87,7 +86,7 @@ class View extends OrderTrackingView
     public function canDisplayReturnCarrier(): bool
     {
 
-       try {
+        try {
             return $this->getLengowOrder()
                 ->getMarketPlace()
                 ->hasReturnTrackingCarrier();

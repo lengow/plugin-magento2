@@ -260,7 +260,6 @@ class Marketplace extends AbstractModel
         $arguments = $this->getMarketplaceArguments(LengowAction::TYPE_SHIP);
 
         return in_array(LengowAction::ARG_RETURN_TRACKING_NUMBER, $arguments);
-
     }
 
     /**
@@ -275,7 +274,6 @@ class Marketplace extends AbstractModel
         $arguments = $this->getMarketplaceArguments(LengowAction::TYPE_SHIP);
 
         return in_array(LengowAction::ARG_RETURN_CARRIER, $arguments);
-
     }
 
     /**
