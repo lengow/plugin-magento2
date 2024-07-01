@@ -220,13 +220,13 @@ class AddBundleToCart implements ObserverInterface
                         $productCount++;
                         $quoteItem->setPrice($quoteItem->getPrice() + $deltaPrice['delta_line']);
                         $diff -= $deltaPrice['delta_line'];
-                        if ($productCount === count($childrenIds) && $diff > 0) {
+                        if ($productCount === count($childrenIds) && abs($diff) > 0) {
                             $quoteItem->setPrice($quoteItem->getPrice() + $diff);
                             $diff = 0;
                         }
                         $bundleItems[$productId]['price'] = $quoteItem->getPrice();
                         $bundleItems[$productId]['qty'] = $quoteItem->getQty();
-
+                        $bundleItems[$productId]['tax_percent'] = $quoteItem->getTaxPercent();
                     }
                 }
             }

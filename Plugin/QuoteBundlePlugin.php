@@ -56,7 +56,7 @@ class QuoteBundlePlugin
     /**
      * aroundMethod plugn execution
      */
-    public function beforeAfterSave(Item $subject)
+    public function afterBeforeSave(Item $subject)
     {
 
 
@@ -79,15 +79,15 @@ class QuoteBundlePlugin
 
         $subject->setPriceInclTax($sessionPrice);
         $subject->setBasePriceInclTax($sessionPrice);
-        $subject->setCustomPrice($sessionPrice);
+        $subject->setCustomPriceInclTax($sessionPrice);
         $subject->setOriginalCustomPrice($sessionPrice);
         $subject->setOriginalPrice($sessionPrice);
         $subject->setRowTotal($sessionPrice * $sessionQty);
         $subject->setRowTotalInclTax($sessionPrice * $sessionQty);
-        $subject->setCustomRowTotal($sessionPrice * $sessionQty);
+        $subject->setCustomRowTotalIncTax($sessionPrice * $sessionQty);
         unset($bundleQuoteItems[$productId]);
         $this->backendSession->setBundleItems($bundleQuoteItems);
-        $subject->save();
+        //$subject->save();
 
         return $subject;
     }
