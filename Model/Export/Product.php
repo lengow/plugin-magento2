@@ -40,6 +40,7 @@ use Lengow\Connector\Model\Export\Price as LengowPrice;
 use Lengow\Connector\Model\Export\Shipping as LengowShipping;
 use Lengow\Connector\Model\Export\Category as LengowCategory;
 use Lengow\Connector\Helper\Security as SecurityHelper;
+use Magento\BundleImportExport\Model\Export\Product\Type\Bundle;
 
 /**
  * Lengow export product
@@ -308,6 +309,7 @@ class Product
      */
     public function load(array $params): void
     {
+        
         $this->type = $params['product_type'];
         $this->product = $this->getProduct($params['product_id']);
         $this->parentProduct = $this->getParentProduct();
@@ -328,6 +330,7 @@ class Product
         $this->category->load(['product' => $this->getParentData ? $this->parentProduct : $this->product]);
         $this->shipping->load(['product' => $this->product]);
         $this->setCounter();
+        
     }
 
     /**
@@ -733,7 +736,50 @@ class Product
             }
             return min($quantities) > 0 ? (int) min($quantities) : 0;
         }
+        if ($this->type === 'bundle') {
+            $quantities = [];
+            $bundleOptions = $this->getBundleOptionsProductIds($this->product);
+            foreach ($bundleOptions as $option) {
+                foreach ($option as $productId) {                   
+                    $quantities[$productId] = $this->stockRegistry->getStockItem($productId, $this->store->getId())->getQty();
+                }
+            }           
+            return min($quantities) > 0 ? (int) min($quantities) : 0;;
+        }
         return (int) $this->stockRegistry->getStockItem($this->product->getId(), $this->store->getId())->getQty();
+    }
+
+
+    /**
+     * get all the selection products used in bundle product
+     * @param $product
+     * @return mixed
+     */
+    private function getBundleOptionsProductIds($product)
+    {
+       
+        $bundleOptions = [];
+        $selectionCollection = $product->getTypeInstance()
+            ->getSelectionsCollection(
+                $product->getTypeInstance()->getOptionsIds($product),
+                $product
+            );
+        
+        foreach ($selectionCollection as $selection) {
+            if (!$selection->getIsDefault()) {
+                continue;
+            }
+            $bundleOptions[$selection->getOptionId()][] = $selection->getProductId();
+        }
+        if (empty($bundleOptions)) {
+            foreach ($selectionCollection as $selection) {
+                if (isset($bundleOptions[$selection->getOptionId()])){
+                    continue;
+                }
+                $bundleOptions[$selection->getOptionId()][] = $selection->getProductId();
+            }
+        }
+        return $bundleOptions;
     }
 
     /**

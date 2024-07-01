@@ -63,9 +63,6 @@ class QuoteTotalsCollectorPlugin
             return $collect($quote);
         }
 
-        if (! (bool) $this->configHelper->get(ConfigHelper::CHECK_ROUNDING_ENABLED, $quote->getStore()->getId())) {
-            return $collect($quote);
-        }
 
         if (! $this->backendSession->getCurrentOrderLengowData()) {
             return $collect($quote);
@@ -73,29 +70,34 @@ class QuoteTotalsCollectorPlugin
         $lengowOrderData = $this->backendSession->getCurrentOrderLengowData();
         $result = $collect($quote);
 
-        $totalLengow = (float) $lengowOrderData->total_order;
-        $taxLengow = (float) $lengowOrderData->total_tax;
-        $shippingLengow = (float) $lengowOrderData->shipping;
-        $subtotalLengow = $totalLengow - $taxLengow - $shippingLengow;
+        $mustCheckRound = (bool)  $this->configHelper->get(
+            ConfigHelper::CHECK_ROUNDING_ENABLED, $quote->getStore()->getId()
+        );
+        if ($mustCheckRound) {
+            $totalLengow = (float) $lengowOrderData->total_order;
+            $taxLengow = (float) $lengowOrderData->total_tax;
+            $shippingLengow = (float) $lengowOrderData->shipping;
+            $subtotalLengow = $totalLengow - $taxLengow - $shippingLengow;
 
-        foreach ($result->getData() as $type => $amount) {
+            foreach ($result->getData() as $type => $amount) {
 
+                if ($type === 'subtotal'
+                        || $type === 'base_subtotal'
+                        || $type === 'base_subtotal_with_discount'
+                        || $type === 'subtotal_with_discount') {
 
-            if ($type === 'subtotal'
-                    || $type === 'base_subtotal'
-                    || $type === 'base_subtotal_with_discount'
-                    || $type === 'subtotal_with_discount') {
+                    if ($subtotalLengow !== $amount) {
+                        $result->setData($type, $subtotalLengow);
+                    }
+                }
 
-                if ($subtotalLengow !== $amount) {
-                    $result->setData($type, $subtotalLengow);
+                if (($type === 'grand_total' || $type==='base_grand_total')
+                        && $amount !==$totalLengow) {
+                    $result->setData($type, $totalLengow);
                 }
             }
-
-            if (($type === 'grand_total' || $type==='base_grand_total')
-                    && $amount !==$totalLengow) {
-                $result->setData($type, $totalLengow);
-            }
         }
+
 
         return $result;
     }

@@ -1417,6 +1417,7 @@ class Importorder extends AbstractModel
      */
     private function createQuote(MagentoCustomer $customer, array $products): Quote
     {
+        $this->backendSession->setBundleItems([]);
         $customerRepo = $this->customerRepository->getById($customer->getId());
         $currentStore = $this->storeManager->getStore($this->storeId);
         $quote = $this->lengowQuoteFactory->create()

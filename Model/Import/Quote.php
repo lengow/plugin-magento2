@@ -267,12 +267,30 @@ class Quote extends MagentoQuote
                 if ($priceIncludeTax) {
                     $priceItem = $magentoProduct->getFinalPrice();
                 }
-                $quoteItem = $this->_quoteItemFactory->create()
+
+                if ($magentoProduct->getTypeId() === 'bundle') {
+
+                    $bundleOptions = $this->getBundleOptions($magentoProduct);
+
+                    $params = [
+                        'product' => $magentoProduct->getId(),
+                        'bundle_option' => $bundleOptions,
+                        'qty' => $product['quantity'],
+                    ];
+                    $requestAddBundle = new \Magento\Framework\DataObject($params);
+                    $this->addProduct($magentoProduct, $requestAddBundle);
+
+
+                } else {
+                    $quoteItem = $this->_quoteItemFactory->create()
                     ->setProduct($magentoProduct)
                     ->setQty($product['quantity'])
                     ->setCustomPrice($priceItem)
                     ->setOriginalCustomPrice($priceItem);
-                $this->addItem($quoteItem);
+                    $this->addItem($quoteItem);
+
+                }
+
             }
         }
 
@@ -326,6 +344,37 @@ class Quote extends MagentoQuote
                 );
             }
         }
+    }
+    /**
+     * get all the selection products used in bundle product
+     * @param $product
+     * @return mixed
+     */
+    private function getBundleOptions($product)
+    {
+
+        $bundleOptions = [];
+        $selectionCollection = $product->getTypeInstance()
+            ->getSelectionsCollection(
+                $product->getTypeInstance()->getOptionsIds($product),
+                $product
+            );
+
+        foreach ($selectionCollection as $selection) {
+            if (!$selection->getIsDefault()){
+                continue;
+            }
+            $bundleOptions[$selection->getOptionId()][] = $selection->getSelectionId();
+        }
+        if (empty($bundleOptions)) {
+            foreach ($selectionCollection as $selection) {
+                if (isset($bundleOptions[$selection->getOptionId()])){
+                    continue;
+                }
+                $bundleOptions[$selection->getOptionId()][] = $selection->getSelectionId();
+            }
+        }
+        return $bundleOptions;
     }
 }
 
