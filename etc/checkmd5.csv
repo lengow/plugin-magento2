@@ -56,7 +56,7 @@
 /etc/db_schema_whitelist.json|deba8059bea724bd1818062765ed45e1
 /Helper/Config.php|da3f324fae491ec4a93968c27219233e
 /Helper/Import.php|a2b7acdb0c3f3e1e3a5a0b845c220537
-/Helper/NameParser.php|e56f5c47d83974aa72cda96c8b5a6da5
+/Helper/NameParser.php|89244879415034cf8d573077815fe518
 /Helper/Sync.php|03073e30895d3d03a70a4ff932704b4e
 /Helper/Toolbox.php|89d0a37f1c759c5539dddcb11a5cfef2
 /Helper/Data.php|4b3678157d435ce9c54c6856cdf244e4
@@ -119,9 +119,9 @@
 /Plugin/ShippingTaxConfigPlugin.php|8ffc155fe5a8a5fdc5d1296d5df60f03
 /Plugin/QuoteTotalsCollectorPlugin.php|610a6e00431e476ca29481db7220e05f
 /Setup/Patch/Data/DisableLengowDataTracking.php|24251447b26011f84f06a93e5ac4a4ad
-/Setup/Patch/Data/InstallLengowData.php|92fb3137ab354c75bf8509cdc84cbf65
-/Setup/Patch/Data/UpgradeLengowDataConfig.php|741602056b4aa9eb3196617f22b46e60
-/Setup/Patch/Data/UpgradeLengowDataTracking.php|dd4e66cdb4aed20dd7a49beb6aa79798
+/Setup/Patch/Data/InstallLengowData.php|835a292d64b6f3299e11542b4bf8188b
+/Setup/Patch/Data/UpgradeLengowDataConfig.php|4e7ce9f6550199f6c84930344e53d4c1
+/Setup/Patch/Data/UpgradeLengowDataTracking.php|7dd2762f30fb605f6bde6ec3b8c092ac
 /Ui/Component/Listing/Column/OrderType.php|39967f0da6e06f90893cad44112e01b8
 /Ui/Component/Listing/Column/OrdersActions.php|92b2365e1d6d5d1bcb8201399af8db10
 /Ui/Component/Listing/Column/LengowOrderStatus.php|010bd52445c37c0f73c62061e0359086
