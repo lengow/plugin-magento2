@@ -23,9 +23,6 @@ namespace Lengow\Connector\Helper;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 
-/**
- * NameParser class
- */
 class NameParser extends AbstractHelper
 {
 

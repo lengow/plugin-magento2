@@ -38,9 +38,6 @@ use Magento\Sales\Model\Order\Status;
 use Magento\Sales\Setup\SalesSetupFactory;
 use Magento\Customer\Model\ResourceModel\Attribute as CustomerAttributeResourceModel;
 
-/**
- * Class InstallLengowData
- */
 class InstallLengowData implements DataPatchInterface, PatchRevertableInterface
 {
     /**

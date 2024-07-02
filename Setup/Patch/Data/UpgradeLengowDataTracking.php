@@ -24,9 +24,6 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 
-/**
- * Class UpgradeLengowDataTracking
- */
 class UpgradeLengowDataTracking implements DataPatchInterface
 {
     /**
