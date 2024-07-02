@@ -1,4 +1,9 @@
 =============================================================
+Version 1.6.3
+=============================================================
+- BugFix: fix blank page when order has not status history
+- Feature: change api plan to api restrictions
+=============================================================
 Version 1.6.2
 =============================================================
  - BugFix: credit memo amounts (refund)
