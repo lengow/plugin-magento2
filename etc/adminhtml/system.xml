@@ -196,7 +196,7 @@
                     <comment>Activate anonymization email</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                 <field id="import_anonymized_encrypt_email" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                 <field id="import_anonymized_encrypt_email" translate="label" type="select" sortOrder="35" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Import anonymized email encrypted</label>
                     <comment>Activate anonymization email and encryption</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
