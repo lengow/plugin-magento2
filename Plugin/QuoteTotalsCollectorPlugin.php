@@ -23,9 +23,6 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Magento\Backend\Model\Session as BackendSession;
 use Magento\Quote\Model\Quote;
 
-/**
- * QuoteTotalsCollectorPlugin
- */
 class QuoteTotalsCollectorPlugin
 {
 
@@ -56,7 +53,7 @@ class QuoteTotalsCollectorPlugin
     /**
      * aroundMethod plugn execution
      */
-    public function aroundCollect(TotalsCollector $subject, Callable $collect, Quote $quote)
+    public function aroundCollect(TotalsCollector $subject, callable $collect, Quote $quote)
     {
 
         if (! (bool)$this->backendSession->getIsFromlengow()) {
@@ -99,5 +96,4 @@ class QuoteTotalsCollectorPlugin
 
         return $result;
     }
-
 }

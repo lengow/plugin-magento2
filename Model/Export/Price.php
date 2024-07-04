@@ -294,15 +294,29 @@ class Price
             $startTimestamp = (int) $catalogueRules[0]['from_time'];
             $endTimestamp = (int) $catalogueRules[0]['to_time'];
             $discountStartDate = $startTimestamp !== 0
-                ? $this->timezone->date($startTimestamp)->format(DataHelper::DATE_FULL)
+                ? $this->getFormatedDate($startTimestamp)
                 : '';
             $discountEndDate = $endTimestamp !== 0
-                ? $this->timezone->date($endTimestamp)->format(DataHelper::DATE_FULL)
+                ? $this->getFormatedDate($endTimestamp)
                 : '';
         }
         return [
             'discount_start_date' => $discountStartDate,
             'discount_end_date' => $discountEndDate,
         ];
+    }
+
+    /**
+     *
+     * @param int $timestamp
+     */
+    protected function getFormatedDate(int $timestamp): string
+    {
+        if (is_null($this->timezone->date($timestamp))) {
+            $date = new \DateTime($timestamp);
+            return $date->format(DataHelper::DATE_FULL);
+        }
+        
+        return $this->timezone->date($timestamp)->format(DataHelper::DATE_FULL);
     }
 }

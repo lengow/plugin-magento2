@@ -258,18 +258,23 @@ class Shipping
     {
         $shippingCost = 0;
         $conversion = $this->currency !== $this->storeCurrency;
+        $result = null;
         try {
             $shippingRateRequest = $this->getShippingRateRequest();
         } catch (Exception $e) {
             // without $shippingRateRequest, we can't find shipping cost
             return $shippingCost;
         }
-        $shippingFactory = $this->shippingFactory->create();
-        $result = $shippingFactory->collectCarrierRates($this->shippingCarrier, $shippingRateRequest)
-            ->getResult();
+        if (!is_null($shippingRateRequest)) {
+            $shippingFactory = $this->shippingFactory->create();
+            $ratesCollected = $shippingFactory->collectCarrierRates($this->shippingCarrier, $shippingRateRequest);
+            $result = $ratesCollected->getResult();
+        }
+
         if ($result === null || $result->getError()) {
             return false;
         }
+
         $rates = $result->getAllRates();
         if (!empty($rates)) {
             foreach ($rates as $rate) {
@@ -299,12 +304,15 @@ class Shipping
      *
      * @throws Exception
      */
-    private function getShippingRateRequest(): RateRequest
+    protected function getShippingRateRequest(): ?RateRequest
     {
         $quoteItem = $this->quoteItemFactory->create();
         $quoteItem->setStoreId($this->store->getId());
         $quoteItem->setOptions($this->product->getCustomOptions())->setProduct($this->product);
         $request = $this->rateRequestFactory->create();
+        if (!$request instanceof RateRequest) {
+            return null;
+        }
         if (!$request->getOrig()) {
             $request->setCountryId($this->shippingCountryCode)
                 ->setRegionId('')
@@ -325,6 +333,7 @@ class Shipping
         $request->setWebsiteId($this->store->getWebsiteId());
         $request->setBaseCurrency($this->store->getBaseCurrency());
         $request->setPackageCurrency($this->store->getCurrentCurrency());
+        
         return $request;
     }
 }

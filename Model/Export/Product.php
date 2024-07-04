@@ -546,12 +546,15 @@ class Product
      *
      * @throws Exception
      */
-    private function getProduct(int $productId, bool $forceReload = false): ?ProductInterface
+    protected function getProduct(int $productId, bool $forceReload = false): ?ProductInterface
     {
         if ($this->type === Configurable::TYPE_CODE) {
             $product = $this->getConfigurableProduct($productId);
         } else {
             $product = $this->productRepository->getById($productId, false, $this->store->getId(), $forceReload);
+        }
+        if (!$product instanceof ProductInterface) {
+            return null;
         }
         return $product;
     }
@@ -604,7 +607,13 @@ class Product
                 return null;
             }
         }
-        return $this->cacheConfigurableProducts[$parentId];
+        $productParentCached = $this->cacheConfigurableProducts[$parentId];
+
+        if (!$productParentCached instanceof ProductInterface) {
+            return null;
+        }
+
+        return $productParentCached;
     }
 
     /**

@@ -23,9 +23,6 @@ use Magento\Backend\Model\Session as BackendSession;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
-/**
- * AddressTotals
- */
 class AddressTotals implements ObserverInterface
 {
 
@@ -110,8 +107,7 @@ class AddressTotals implements ObserverInterface
             }
             if (($type === 'shipping_incl_tax'
                     || $type === 'base_shipping_incl_tax')
-                    && $amount !== $shippingLengow)
-            {
+                    && $amount !== $shippingLengow) {
                 $total->setData($type, $shippingLengow);
             }
             if ($type === 'shipping_amount'

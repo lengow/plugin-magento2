@@ -23,7 +23,7 @@ use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Lengow\Connector\Test\Unit\Fixture;
 use Lengow\Connector\Model\Import\Order;
 
-class OrderTest extends \PHPUnit_Framework_TestCase
+class OrderTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Model\Import\Order
@@ -35,7 +35,7 @@ class OrderTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
         $this->_order = $objectManager->getObject(Order::class);
@@ -100,18 +100,21 @@ class OrderTest extends \PHPUnit_Framework_TestCase
         $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
         $connectorMock = $fixture->mockFunctions($classMock, ['queryApi'], [null]);
-        $fixture->setPrivatePropertyValue($this->_order, ['_connector'], [$connectorMock]);
-        $this->assertFalse(
+        $fixture->setPrivatePropertyValue($this->_order, ['lengowConnector'], [$connectorMock]);
+        $this->assertEquals(
+            [],
             $this->_order->getOrderLineByApi('123-test-456', 'amazon_fr', 54321),
             '[Test Get Order Line By Api] Check if return is valid when API is down'
         );
         $apiOrder = '{"count":0, "next":null, "previous":null, "results":[]}';
         $connectorMock2 = $fixture->mockFunctions($classMock, ['queryApi'], [json_decode($apiOrder)]);
-        $fixture->setPrivatePropertyValue($this->_order, ['_connector'], [$connectorMock2]);
-        $this->assertFalse(
+        $fixture->setPrivatePropertyValue($this->_order, ['lengowConnector'], [$connectorMock2]);
+        $this->assertEquals(
+            [],
             $this->_order->getOrderLineByApi('123-test-456', 'amazon_fr', 54321),
             '[Test Get Order Line By Api] Check if return is valid when order is not found by the API'
         );
+
         $apiOrder2 = '{
             "count": 1,
             "next": null,
@@ -132,13 +135,14 @@ class OrderTest extends \PHPUnit_Framework_TestCase
             }]
         }';
         $connectorMock3 = $fixture->mockFunctions($classMock, ['queryApi'], [json_decode($apiOrder2)]);
-        $fixture->setPrivatePropertyValue($this->_order, ['_connector'], [$connectorMock3]);
+        $fixture->setPrivatePropertyValue($this->_order, ['lengowConnector'], [$connectorMock3]);
         $this->assertEquals(
             [['order_line_id' => '123-test-456-1'], ['order_line_id' => '123-test-456-2']],
             $this->_order->getOrderLineByApi('123-test-456', 'amazon_fr', 54321),
             '[Test Get Order Line By Api] Check if return is valid for order with one package and good delivery id'
         );
-        $this->assertFalse(
+        $this->assertEquals(
+            [],
             $this->_order->getOrderLineByApi('123-test-456', 'amazon_fr', 12345),
             '[Test Get Order Line By Api] Check if return is valid for order with one package and bad delivery id'
         );
@@ -169,7 +173,7 @@ class OrderTest extends \PHPUnit_Framework_TestCase
             }]
         }';
         $connectorMock4 = $fixture->mockFunctions($classMock, ['queryApi'], [json_decode($apiOrder3)]);
-        $fixture->setPrivatePropertyValue($this->_order, ['_connector'], [$connectorMock4]);
+        $fixture->setPrivatePropertyValue($this->_order, ['lengowConnector'], [$connectorMock4]);
         $this->assertEquals(
             [['order_line_id' => '123-test-456-1']],
             $this->_order->getOrderLineByApi('123-test-456', 'amazon_fr', 54321),
