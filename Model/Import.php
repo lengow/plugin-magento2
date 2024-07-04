@@ -388,7 +388,7 @@ class Import
         } else {
             // set the time interval
             $this->setIntervalTime(
-                isset($params[self::PARAM_DAYS]) ? (int) $params[self::PARAM_DAYS] : null,
+                isset($params[self::PARAM_DAYS]) ? (float) $params[self::PARAM_DAYS] : null,
                 $params[self::PARAM_CREATED_FROM] ?? null,
                 $params[self::PARAM_CREATED_TO] ?? null
             );
@@ -833,16 +833,20 @@ class Import
                                 ->format(DataHelper::DATE_ISO_8601),
                         ];
                     }
+                    $filterParams = [
+                        self::ARG_CATALOG_IDS => implode(',', $this->storeCatalogIds),
+                        self::ARG_NO_CURRENCY_CONVERSION => $noCurrencyConversion,
+                        self::ARG_ACCOUNT_ID => $this->accountId,
+                        self::ARG_PAGE => $page,
+                    ];
+                    if (!empty($this->marketplaceName)) {
+                        $filterParams[self::ARG_MARKETPLACE] = $this->marketplaceName;
+                    }
                     $results = $this->lengowConnector->get(
                         Connector::API_ORDER,
                         array_merge(
                             $timeParams,
-                            [
-                                self::ARG_CATALOG_IDS => implode(',', $this->storeCatalogIds),
-                                self::ARG_NO_CURRENCY_CONVERSION => $noCurrencyConversion,
-                                self::ARG_ACCOUNT_ID => $this->accountId,
-                                self::ARG_PAGE => $page,
-                            ]
+                            $filterParams
                         ),
                         Connector::FORMAT_STREAM,
                         '',
