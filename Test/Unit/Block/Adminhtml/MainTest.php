@@ -23,7 +23,7 @@ use Lengow\Connector\Test\Unit\Fixture;
 use Lengow\Connector\Block\Adminhtml\Main;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 
-class MainTest extends \PHPUnit_Framework_TestCase
+class MainTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Block\Adminhtml\Main
@@ -35,10 +35,10 @@ class MainTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
-        $contextMock = $this->getMock('Magento\Backend\Block\Template\Context', [], [], '', false);
+        $contextMock = $this->createMock(\Magento\Backend\Block\Template\Context::class);
         $this->_main = $objectManager->getObject(Main::class, ['context' => $contextMock]);
     }
 
@@ -57,8 +57,7 @@ class MainTest extends \PHPUnit_Framework_TestCase
     public function testFreeTrialIsExpired()
     {
         $fixture = new Fixture();
-        $this->assertInternalType(
-            'boolean',
+        $this->assertIsBool(
             $this->_main->freeTrialIsExpired(),
             '[Test Free Trial Is Expired] Check if return is a boolean'
         );
@@ -68,7 +67,7 @@ class MainTest extends \PHPUnit_Framework_TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_main,
-            ['_statusAccount'],
+            ['statusAccount'],
             [['type' => 'free_trial', 'expired' => false]]
         );
         $this->assertFalse(
@@ -77,7 +76,7 @@ class MainTest extends \PHPUnit_Framework_TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_main,
-            ['_statusAccount'],
+            ['statusAccount'],
             [['type' => 'free_trial', 'expired' => true]]
         );
         $this->assertTrue(
@@ -86,7 +85,7 @@ class MainTest extends \PHPUnit_Framework_TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_main,
-            ['_statusAccount'],
+            ['statusAccount'],
             [['type' => '', 'expired' => true]]
         );
         $this->assertFalse(

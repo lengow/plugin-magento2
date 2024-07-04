@@ -336,4 +336,3 @@ class Main extends Template
         return $this->lengowOrder->countOrderToBeSent();
     }
 }
-

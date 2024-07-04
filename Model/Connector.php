@@ -49,7 +49,7 @@ class Connector
     public const API_ORDER_MOI = '/v3.0/orders/moi/';
     public const API_ORDER_ACTION = '/v3.0/orders/actions/';
     public const API_MARKETPLACE = '/v3.0/marketplaces';
-    public const API_PLAN = '/v3.0/plans';
+    public const API_RESTRICTIONS = '/v1.0/restrictions';
     public const API_CMS = '/v3.1/cms';
     public const API_CMS_CATALOG = '/v3.1/cms/catalogs/';
     public const API_CMS_MAPPING = '/v3.1/cms/mapping/';
@@ -128,7 +128,7 @@ class Connector
         self::API_ORDER_MOI => 10,
         self::API_ORDER_ACTION => 15,
         self::API_MARKETPLACE => 15,
-        self::API_PLAN => 5,
+        self::API_RESTRICTIONS => 5,
         self::API_CMS => 5,
         self::API_CMS_CATALOG => 10,
         self::API_CMS_MAPPING => 10,
@@ -211,9 +211,14 @@ class Connector
             return false;
         }
         list($accountId, $accessToken, $secret) = $this->configHelper->getAccessIds();
-        if ($accountId === null) {
+
+        if (empty($accountId) || empty($accessToken) || empty($secret)) {
             return false;
         }
+        if (!is_numeric($accountId)) {
+            return false;
+        }
+
         try {
             $this->init(['access_token' => $accessToken, 'secret' => $secret]);
             $this->connect(false, $logOutput);
@@ -319,6 +324,10 @@ class Connector
             $this->configHelper->set(ConfigHelper::AUTHORIZATION_TOKEN, $authorizationToken);
             $this->configHelper->set(ConfigHelper::LAST_UPDATE_AUTHORIZATION_TOKEN, time());
         }
+        if (is_null($authorizationToken)) {
+            throw new LengowException('Authorization Token is NULL');
+        }
+
         $this->token = $authorizationToken;
     }
 
@@ -429,7 +438,7 @@ class Connector
      *
      * @throws LengowException
      */
-    private function call(
+    protected function call(
         string $api,
         array $args = [],
         string $type = self::GET,
@@ -476,7 +485,7 @@ class Connector
      *
      * @throws LengowException
      */
-    private function callAction(string $api, array $args, string $type, string $format, string $body, bool $logOutput)
+    protected function callAction(string $api, array $args, string $type, string $format, string $body, bool $logOutput)
     {
         $result = $this->makeRequest($type, $api, $args, $this->token, $body, $logOutput);
         return $this->format($result, $format);
@@ -491,7 +500,7 @@ class Connector
      *
      * @throws LengowException
      */
-    private function getAuthorizationToken(bool $logOutput): string
+    protected function getAuthorizationToken(bool $logOutput): string
     {
         // reset temporary token for the new authorization
         $this->token = null;

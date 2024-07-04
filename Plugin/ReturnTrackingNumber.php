@@ -33,7 +33,6 @@ class ReturnTrackingNumber
      */
     public function __construct(
         RequestInterface $request
-
     ) {
         $this->request = $request;
     }

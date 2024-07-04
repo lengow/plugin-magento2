@@ -54,7 +54,7 @@ if [ -z "$2" ]; then
 	exit 0
 fi
 if [ ! -z "$2" ] && [ "$2" == "preprod" ]; then
-        ARCHIVE_NAME="preprod__${ARCHIVE_NAME}"        
+        ARCHIVE_NAME="preprod__${ARCHIVE_NAME}"
 fi
 
 # variables
@@ -91,10 +91,12 @@ echo ${PHP}
 
 # Change config for preprod
 if [ ! -z "${DEPLOY_ENV}" ] && [ "${DEPLOY_ENV}" == "preprod" ]; then
-    sed -i 's/lengow.io/lengow.net/g' ${FOLDER}/Model/Connector.php 
+    sed -i 's/lengow.io/lengow.net/g' ${FOLDER}/Model/Connector.php
+    sed -i 's/lengow.local/lengow.net/g' ${FOLDER}/Model/Connector.php
 fi
 if [ ! -z "${DEPLOY_ENV}" ] && [ "${DEPLOY_ENV}" == "prod" ]; then
-    sed -i 's/lengow.net/lengow.io/g' ${FOLDER}/Model/Connector.php 
+    sed -i 's/lengow.net/lengow.io/g' ${FOLDER}/Model/Connector.php
+    sed -i 's/lengow.local/lengow.io/g' ${FOLDER}/Model/Connector.php
 fi
 
 # generate translations
@@ -142,8 +144,8 @@ remove_files $FOLDER_TMP "Jenkinsfile"
 remove_directory $FOLDER_TOOLS
 echo -e "- Remove Tools folder : ${VERT}DONE${NORMAL}"
 # remove Test folder
-remove_directory $FOLDER_TEST
-echo -e "- Remove Test folder : ${VERT}DONE${NORMAL}"
+#remove_directory $FOLDER_TEST
+#echo -e "- Remove Test folder : ${VERT}DONE${NORMAL}"
 # remove todo.txt
 find $FOLDER_TMP -name "todo.txt" -delete
 echo -e "- todo.txt : ${VERT}DONE${NORMAL}"
@@ -154,6 +156,6 @@ echo -e "- Build archive : ${VERT}DONE${NORMAL}"
 if [ -d  "~/Bureau" ]
 then
     mv $ARCHIVE_NAME ~/Bureau
-else 
+else
     mv $ARCHIVE_NAME ~/shared
 fi

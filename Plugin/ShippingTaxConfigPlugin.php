@@ -19,7 +19,6 @@
  */
 namespace Lengow\Connector\Plugin;
 
-
 use Magento\Tax\Model\Config as TaxConfig;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Backend\Model\Session as BackendSession;

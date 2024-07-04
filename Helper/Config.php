@@ -85,6 +85,7 @@ class Config extends AbstractHelper
     public const SHIPPED_BY_MARKETPLACE_ENABLED = 'import_ship_mp_enabled';
     public const SHIPPED_BY_MARKETPLACE_STOCK_ENABLED = 'import_stock_ship_mp';
     public const IMPORT_ANONYMIZED_EMAIL = 'import_anonymized_email';
+    public const IMPORT_ANONYMIZED_ENCRYPT_EMAIL = 'import_anonymized_encrypt_email';
     public const SYNCHRONISATION_MAGENTO_CRON_ENABLED = 'import_cron_enable';
     public const SYNCHRONISATION_CUSTOMER_GROUP = 'import_customer_group';
     public const SYNCHRONIZATION_IN_PROGRESS = 'import_in_progress';
@@ -163,6 +164,7 @@ class Config extends AbstractHelper
         self::SHIPPED_BY_MARKETPLACE_ENABLED => 'shipped_by_marketplace_enabled',
         self::SHIPPED_BY_MARKETPLACE_STOCK_ENABLED => 'shipped_by_marketplace_stock_enabled',
         self::IMPORT_ANONYMIZED_EMAIL => 'import_anonymized_email',
+        self::IMPORT_ANONYMIZED_ENCRYPT_EMAIL => 'import_anonymized_encrypt_email',
         self::SYNCHRONISATION_MAGENTO_CRON_ENABLED => 'synchronization_magento_cron_enabled',
         self::SYNCHRONISATION_CUSTOMER_GROUP => 'synchronization_customer_group',
         self::SYNCHRONIZATION_IN_PROGRESS => 'synchronization_in_progress',
@@ -452,6 +454,12 @@ class Config extends AbstractHelper
         ],
         self::IMPORT_ANONYMIZED_EMAIL => [
             self::PARAM_PATH => 'lengow_import_options/advanced/import_anonymized_email',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
+        ],
+        self::IMPORT_ANONYMIZED_ENCRYPT_EMAIL => [
+            self::PARAM_PATH => 'lengow_import_options/advanced/import_anonymized_encrypt_email',
             self::PARAM_GLOBAL => true,
             self::PARAM_NO_CACHE => false,
             self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
@@ -1280,4 +1288,3 @@ class Config extends AbstractHelper
         return $value;
     }
 }
-

@@ -22,7 +22,7 @@ namespace Lengow\Connector\Test\Unit\Model\Config\Source;
 use Lengow\Connector\Model\Config\Source\Type;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 
-class TypeTest extends \PHPUnit_Framework_TestCase
+class TypeTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Model\Config\Source\Type
@@ -34,7 +34,7 @@ class TypeTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
         $this->_type = $objectManager->getObject(Type::class);
@@ -62,8 +62,7 @@ class TypeTest extends \PHPUnit_Framework_TestCase
             ['value' => 'virtual', 'label' => __('Virtual')],
         ];
         $options = $this->_type->toOptionArray();
-        $this->assertInternalType(
-            'array',
+        $this->assertIsArray(
             $options,
             '[Test To Option Array] Check if return is a array'
         );

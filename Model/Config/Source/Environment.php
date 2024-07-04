@@ -14,7 +14,7 @@
  * @subpackage  Model
  * @author      Team module <team-module@lengow.com>
  * @copyright   2022 Lengow SAS
- * 
+ *
  */
 namespace Lengow\Connector\Model\Config\Source;
 

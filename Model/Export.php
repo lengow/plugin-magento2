@@ -958,4 +958,3 @@ class Export
         return $productCollection;
     }
 }
-
