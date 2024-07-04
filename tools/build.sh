@@ -92,9 +92,11 @@ echo ${PHP}
 # Change config for preprod
 if [ ! -z "${DEPLOY_ENV}" ] && [ "${DEPLOY_ENV}" == "preprod" ]; then
     sed -i 's/lengow.io/lengow.net/g' ${FOLDER}/Model/Connector.php
+    sed -i 's/lengow.local/lengow.net/g' ${FOLDER}/Model/Connector.php
 fi
 if [ ! -z "${DEPLOY_ENV}" ] && [ "${DEPLOY_ENV}" == "prod" ]; then
     sed -i 's/lengow.net/lengow.io/g' ${FOLDER}/Model/Connector.php
+    sed -i 's/lengow.local/lengow.io/g' ${FOLDER}/Model/Connector.php
 fi
 
 # generate translations
