@@ -1,9 +1,9 @@
 # Lengow for Magento 2
 
 - **Requires at least:** 2.4
-- **Tested up to:** 2.4.6
+- **Tested up to:** 2.4.7
 - **Requires PHP:** 8.1
-- **Stable tag:** 1.6.0
+- **Stable tag:** 1.6.3
 - **License:** OSL-3.0
 - **License URI:** https://opensource.org/licenses/OSL-3.0
 

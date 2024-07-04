@@ -3,6 +3,7 @@ Version 1.6.3
 =============================================================
 - BugFix: fix blank page when order has not status history
 - Feature: change api plan to api restrictions
+- Feature: config for anonymize emails and encrypt anonymized emails
 =============================================================
 Version 1.6.2
 =============================================================
