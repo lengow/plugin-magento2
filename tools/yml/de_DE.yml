@@ -400,9 +400,9 @@ de:
     import_b2b_without_tax_label: "Import von B2B-Bestellungen ohne Steuern ermöglichen"
     import_b2b_without_tax_comment: "Aktivieren Sie diese Option, um B2B-Bestellungen ohne Steuer zu importieren"
     import_anonymized_email: "Anonymisierte E-Mails importieren"
-    import_anonymized_email_comment: "Aktivieren Sie diese Option, um anonymisierte E-Mails zu importieren"
+    import_anonymized_email_comment: "Aktivieren Sie diese Option, um anonymisierte E-Mails zu importieren <br>Beispiel: 1-123456789-amazon_fr@lengow.com"
     import_anonymized_encrypt_email: "Importieren anonymisierter und verschlüsselter E-Mails"
-    import_anonymized_encrypt_email_comment: "Aktivieren Sie diese Option, um anonymisierte und verschlüsselte E-Mails zu importieren"
+    import_anonymized_encrypt_email_comment: "Aktivieren Sie diese Option, um anonymisierte und verschlüsselte E-Mails zu importieren <br>Beispiel: f462bcb6107186e28159a5a9bac660ba@lengow.com"
   lengow_log:
     exception:
       no_connection_webservice: "verbindung mit dem Lengow Webservice im Laden %1 (%2) funktionierte nicht."
