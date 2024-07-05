@@ -480,7 +480,7 @@ class Import
             $intervalTime = $intervalTime > self::MAX_INTERVAL_TIME ? self::MAX_INTERVAL_TIME : $intervalTime;
         } else {
             // order recovery updated since ... days
-            $importDays = (int) $this->configHelper->get(ConfigHelper::SYNCHRONIZATION_DAY_INTERVAL);
+            $importDays = (float) $this->configHelper->get(ConfigHelper::SYNCHRONIZATION_DAY_INTERVAL);
             $intervalTime = $importDays * 86400;
             // add security for older versions of the plugin
             $intervalTime = $intervalTime < self::MIN_INTERVAL_TIME ? self::MIN_INTERVAL_TIME : $intervalTime;
