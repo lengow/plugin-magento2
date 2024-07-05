@@ -1,4 +1,25 @@
 =============================================================
+Version 1.6.3
+=============================================================
+- BugFix: fix blank page when order has not status history
+- Feature: change api plan to api restrictions
+- Feature: config for anonymize emails and encrypt anonymized emails
+=============================================================
+Version 1.6.2
+=============================================================
+ - BugFix: credit memo amounts (refund)
+ - Feature: log php error shutdown
+=============================================================
+Version 1.6.1
+=============================================================
+- BugFix: Rounding amounts en Lengow Orders
+- BugFix: Rounding amounts on credit memo (refund)
+- BugFix: Name parser on fullName (amazon orders)
+- BugFix: FBA orders not imported from amazon_us
+- BUgFix: Matching carrier for manomano
+- Feature: Disable Lengow Tracker
+- Feature:  Add phone number to the order information in the "Lengow" tab
+=============================================================
 Version 1.6.0
 =============================================================
 - Feature: Return tracking management during shipment (Zalando and Otto)

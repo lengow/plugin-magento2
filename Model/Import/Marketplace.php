@@ -260,7 +260,6 @@ class Marketplace extends AbstractModel
         $arguments = $this->getMarketplaceArguments(LengowAction::TYPE_SHIP);
 
         return in_array(LengowAction::ARG_RETURN_TRACKING_NUMBER, $arguments);
-
     }
 
     /**
@@ -275,7 +274,6 @@ class Marketplace extends AbstractModel
         $arguments = $this->getMarketplaceArguments(LengowAction::TYPE_SHIP);
 
         return in_array(LengowAction::ARG_RETURN_CARRIER, $arguments);
-
     }
 
     /**
@@ -607,8 +605,31 @@ class Marketplace extends AbstractModel
             }
             if ($found) {
                 $result = $key;
+                break;
             }
         }
+
+        if ($result) {
+            return $result;
+        }
+
+        if (!$strict) {
+            // if no previous results, try to match the provided carrier code instead
+            foreach ($this->carriers as $key => $label) {
+                $keyCleaned = $this->cleanString($key);
+                $labelCleaned = $this->cleanString($label);
+
+                $found = $this->searchValue($search, $keyCleaned, false);
+                if (!$found && $labelCleaned !== $keyCleaned) {
+                    $found = $this->searchValue($search, $labelCleaned, false);
+                }
+                if ($found) {
+                    $result = $key;
+                    break;
+                }
+            }
+        }
+
         return $result;
     }
 

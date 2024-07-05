@@ -48,8 +48,8 @@ class LaunchResend
     private ConfigHelper $configHelper;
 
     /**
-    * @var LengowOrderErrorFactory Lengow order error factory instance
-    */
+     * @var LengowOrderErrorFactory Lengow order error factory instance
+     */
     private LengowOrderErrorFactory $orderErrorFactory;
 
     /**
@@ -104,7 +104,6 @@ class LaunchResend
         $this->lengowOrderFactory   = $lengowOrderFactory;
         $this->orderFactory         = $orderFactory;
         $this->lengowAction         = $lengowAction;
-
     }
 
     /**
@@ -136,7 +135,7 @@ class LaunchResend
                 }
                 foreach ($ordersToResend as $orderResendData) {
 
-                    if($this->isAlreadySent($orderResendData, $resent)) {
+                    if ($this->isAlreadySent($orderResendData, $resent)) {
                         continue;
                     }
                     if (!$this->couldResend($orderErrorModel, $orderResendData)) {

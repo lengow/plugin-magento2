@@ -54,12 +54,12 @@
                         <field id="*/*/global_authorized_ip_enable">1</field>
                     </depends>
                 </field>
-                <field id="global_tracking_enable" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="global_tracking_enable" translate="label comment" type="select" sortOrder="30" showInDefault="0" showInWebsite="0" showInStore="0">
                     <label>Enable Lengow tracking</label>
                     <comment>This tracker allows you to retrieve order statistics generated on your site directly in Lengow.</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="global_tracking_id" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="global_tracking_id" translate="label comment" type="select" sortOrder="40" showInDefault="0" showInWebsite="0" showInStore="0">
                     <label>Tracker Product ID</label>
                     <comment>The name of the unique identifier entered in the Lengow</comment>
                     <source_model>Lengow\Connector\Model\Config\Source\Tracking</source_model>
@@ -195,6 +195,14 @@
                     <label>Import anonymized email</label>
                     <comment>Activate anonymization email</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                 <field id="import_anonymized_encrypt_email" translate="label" type="select" sortOrder="35" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Import anonymized email encrypted</label>
+                    <comment>Activate anonymization email and encryption</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="*/*/import_anonymized_email">1</field>
+                    </depends>
                 </field>
                 <field id="import_b2b_without_tax" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="1">
                     <label>Enable import of B2B orders without tax</label>

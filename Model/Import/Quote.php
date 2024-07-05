@@ -328,4 +328,3 @@ class Quote extends MagentoQuote
         }
     }
 }
-

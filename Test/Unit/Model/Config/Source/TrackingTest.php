@@ -22,7 +22,7 @@ namespace Lengow\Connector\Test\Unit\Model\Config\Source;
 use Lengow\Connector\Model\Config\Source\Tracking;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 
-class TrackingTest extends \PHPUnit_Framework_TestCase
+class TrackingTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Model\Config\Source\Tracking
@@ -34,7 +34,7 @@ class TrackingTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
         $this->_tracking = $objectManager->getObject(Tracking::class);
@@ -59,8 +59,7 @@ class TrackingTest extends \PHPUnit_Framework_TestCase
             ['value' => 'entity_id', 'label' => __('ID product')]
         ];
         $trackingOptions = $this->_tracking->toOptionArray();
-        $this->assertInternalType(
-            'array',
+        $this->assertIsArray(
             $trackingOptions,
             '[Test To Option Array] Check if return is a array'
         );

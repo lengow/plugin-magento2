@@ -24,7 +24,10 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 
-class UpgradeLengowDataTracking implements DataPatchInterface
+/**
+ * Class UpgradeLengowDataTracking
+ */
+class DisableLengowDataTracking implements DataPatchInterface
 {
     /**
      * @var ConfigHelper Lengow config helper instance
@@ -60,9 +63,14 @@ class UpgradeLengowDataTracking implements DataPatchInterface
     {
         $this->setup->getConnection()->startSetup();
         $trackingEnable = (bool) $this->configHelper->get(ConfigHelper::TRACKING_ENABLED);
-        if (!$trackingEnable && !$this->configHelper->isNewMerchant()) {
-            $this->configHelper->set(ConfigHelper::TRACKING_ENABLED, 1);
+        $trackingId = (int) $this->configHelper->get(ConfigHelper::TRACKING_ID);
+        if ($trackingEnable) {
+            $this->configHelper->set(ConfigHelper::TRACKING_ENABLED, 0);
             // clean config cache to valid configuration
+            $this->configHelper->cleanConfigCache();
+        }
+        if ($trackingId) {
+            $this->configHelper->set(ConfigHelper::TRACKING_ID, 0);
             $this->configHelper->cleanConfigCache();
         }
 
@@ -76,7 +84,11 @@ class UpgradeLengowDataTracking implements DataPatchInterface
      */
     public static function getDependencies(): array
     {
-        return [InstallLengowData::class,UpgradeLengowDataConfig::class];
+        return [
+            InstallLengowData::class,
+            UpgradeLengowDataConfig::class,
+            UpgradeLengowDataTracking::class
+        ];
     }
 
 

@@ -27,7 +27,7 @@ use Lengow\Connector\Model\Import\Customer;
 use Magento\Directory\Model\ResourceModel\Region\Collection as RegionCollection;
 use Magento\Customer\Model\Address;
 
-class CustomerTest extends \PHPUnit_Framework_TestCase
+class CustomerTest extends \PHPUnit\Framework\TestCase
 {
 
     /**
@@ -55,11 +55,12 @@ class CustomerTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $this->_objectManager = new ObjectManager($this);
         $this->_configHelper = $this->_objectManager->getObject(ConfigHelper::class);
         $this->_customer = $this->_objectManager->getObject(Customer::class);
+        $this->_addressFactoryMock = $this->createMock(AddressFactory::class);
     }
 
     public function testClassInstantiation()
@@ -72,135 +73,216 @@ class CustomerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Import\Customer::_getNames()
+     * @covers \Lengow\Connector\Model\Import\Customer::getNames()
      */
     public function testGetNames()
     {
         $fixture = new Fixture();
 
-        $values = ['firstname' => 'first_name', 'lastname' => 'last_name', 'fullname' => 'full_name'];
+        $values = ['firstName' => 'John', 'lastName' => 'Doe'];
+        $adressData = '{
+            "company": null,
+            "civility": null,
+            "first_name": "John",
+            "last_name": "Doe",
+            "second_line": null,
+            "complement": null,
+            "phone_home": null,
+            "phone_office": null,
+            "phone_mobile": null,
+            "full_address": null,
+            "full_name": "John Doe",
+            "email": "john.doe@test-mail.com"
+        }';
+
+        $this->assertIsArray(
+            $fixture->invokeMethod($this->_customer, 'getNames', [json_decode($adressData)]),
+            '[Test getNames] is array'
+        );
+
         $this->assertEquals(
             $values,
-            $fixture->invokeMethod($this->_customer, '_getNames', [$values]),
-            '[Test _getNames] set complete address'
+            $fixture->invokeMethod($this->_customer, 'getNames', [json_decode($adressData)]),
+            '[Test getNames] set complete address'
         );
-
-        $values = ['firstname' => '', 'lastname' => 'last_name', 'fullname' => 'full_name'];
-        $this->assertEquals(
-            ['firstname' => 'last_name', 'lastname' => '__'],
-            $fixture->invokeMethod($this->_customer, '_getNames', [$values]),
-            '[Test _getNames] set empty firstname address'
+        $adressData2 = '{
+            "company": null,
+            "civility": null,
+            "first_name": null,
+            "last_name": null,
+            "second_line": null,
+            "complement": null,
+            "phone_home": null,
+            "phone_office": null,
+            "phone_mobile": null,
+            "full_address": null,
+            "full_name": "John Doe",
+            "email": "john.doe@test-mail.com"
+        }';
+        $this->assertIsArray(
+            $fixture->invokeMethod($this->_customer, 'getNames', [json_decode($adressData)]),
+            '[Test getNames] is array'
         );
-
-        $values = ['firstname' => 'first_name', 'lastname' => '', 'fullname' => 'full_name'];
-        $this->assertEquals(
-            ['firstname' => 'first_name', 'lastname' => '__'],
-            $fixture->invokeMethod($this->_customer, '_getNames', [$values]),
-            '[Test _getNames] set empty lastname address'
-        );
-
-        $values = ['firstname' => 'first_name', 'lastname' => 'last_name', 'fullname' => ''];
         $this->assertEquals(
             $values,
-            $fixture->invokeMethod($this->_customer, '_getNames', [$values]),
-            '[Test _getNames] set empty fullname address'
+            $fixture->invokeMethod($this->_customer, 'getNames', [json_decode($adressData)]),
+            '[Test _getNames] set empty address'
         );
 
-        $values = ['firstname' => '', 'lastname' => '', 'fullname' => 'full_name'];
-        $this->assertEquals(
-            ['firstname' => 'full_name', 'lastname' => '__'],
-            $fixture->invokeMethod($this->_customer, '_getNames', [$values]),
-            '[Test _getNames] set empty firstname and lastname address'
+         $adressData3 = '{
+            "company": null,
+            "civility": null,
+            "first_name": null,
+            "last_name": null,
+            "second_line": null,
+            "complement": null,
+            "phone_home": null,
+            "phone_office": null,
+            "phone_mobile": null,
+            "full_address": null,
+            "full_name": "",
+            "email": "john.doe@test-mail.com"
+        }';
+        $this->assertIsArray(
+            $fixture->invokeMethod($this->_customer, 'getNames', [json_decode($adressData3)]),
+            '[Test getNames] is array'
         );
-
-        $values = ['firstname' => '', 'lastname' => '', 'fullname' => ''];
+        $valuesEmpty = ['firstName' => '__', 'lastName' => '__'];
         $this->assertEquals(
-            ['firstname' => '__', 'lastname' => '__'],
-            $fixture->invokeMethod($this->_customer, '_getNames', [$values]),
+            $valuesEmpty,
+            $fixture->invokeMethod($this->_customer, 'getNames', [json_decode($adressData3)]),
             '[Test _getNames] set empty address'
         );
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Import\Customer::_splitNames()
+     * @covers \Lengow\Connector\Model\Import\Customer::splitNames()
      */
     public function testSplitNames()
     {
         $fixture = new Fixture();
 
         $this->assertEquals(
-            ['firstname' => 'hihi', 'lastname' => ''],
-            $fixture->invokeMethod($this->_customer, '_splitNames', ['hihi']),
-            '[Test _splitNames] set one word'
+            ['firstName' => 'hihi', 'lastName' => ''],
+            $fixture->invokeMethod($this->_customer, 'splitNames', ['hihi']),
+            '[Test splitNames] set one word'
         );
 
         $this->assertEquals(
-            ['firstname' => 'plop', 'lastname' => 'machin'],
-            $fixture->invokeMethod($this->_customer, '_splitNames', ['plop machin']),
-            '[Test _splitNames] set two words'
+            ['firstName' => 'plop', 'lastName' => 'machin'],
+            $fixture->invokeMethod($this->_customer, 'splitNames', ['plop machin']),
+            '[Test splitNames] set two words'
         );
 
         $this->assertEquals(
-            ['firstname' => 'plop', 'lastname' => 'machin bidule'],
-            $fixture->invokeMethod($this->_customer, '_splitNames', ['plop machin bidule']),
-            '[Test _splitNames] set three words'
+            ['firstName' => 'plop', 'lastName' => 'machin bidule'],
+            $fixture->invokeMethod($this->_customer, 'splitNames', ['plop machin bidule']),
+            '[Test splitNames] set three words'
         );
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Import\Customer::_convertAddress()
+     * @covers \Lengow\Connector\Model\Import\Customer::hydrateAddress()
      */
-    public function testConvertAddress()
+    public function testHydrateAddress()
     {
         $fixture = new Fixture();
 
-        $address = $this->_objectManager->getObject(Address::class);
-        $region = $this->_objectManager->getObject(Region::class);
-        $regionMock = $fixture->mockFunctions(
-            $region,
-            ['getId'],
-            [1]
-        );
+        $adressData = '{
+                "id": 572984019,
+                "type": "billing",
+                "first_line": null,
+                "zipcode": "75228-6481",
+                "city": "DALLAS",
+                "vat_number": null,
+                "common_country_iso_a2": "US",
+                "company": null,
+                "civility": null,
+                "first_name": null,
+                "last_name": null,
+                "second_line": null,
+                "complement": null,
+                "phone_home": null,
+                "phone_office": null,
+                "phone_mobile": null,
+                "full_address": null,
+                "full_name": null,
+                "email": "m1z9b3mk8gb1c26@marketplace.amazon.com",
+                "metas": null,
+                "state_region": "TX"
+        }';
 
-        $addressFactoryMock = $fixture->mockFunctions($this->_addressFactoryMock, ['create'], [$address]);
-        $regionCollectionMock = $this->_objectManager->getCollectionMock(RegionCollection::class, []);
-        $regionCollectionMock->expects($this->once())
-            ->method('addRegionCodeFilter')
-            ->will($this->returnValue($regionCollectionMock));
-        $regionCollectionMock->expects($this->once())
-            ->method('addCountryFilter')
-            ->will($this->returnValue($regionCollectionMock));
-        $regionCollectionMock->expects($this->once())
-            ->method('getFirstItem')
-            ->will($this->returnValue($regionMock));
-        $fixture->setPrivatePropertyValue(
-            $this->_customer,
-            ['_addressFactory', '_regionCollection'],
-            [$addressFactoryMock, $regionCollectionMock]
-        );
+        $orderData = '{
+            "lengow_status": "shipped",
+            "order_types": [],
+            "original_total_buyer_amount": null,
+            "original_total_buyer_tax": null,
+            "original_buyer_currency": null
+        }';
 
-        $address1 = [
-            'company' => 'company',
-            'civility' => 'Madame',
-            'email' => '123456-ABCCC--1508407265-natdec@magento22.docker',
-            'last_name' => 'Doe',
-            'first_name' => 'Jane',
-            'first_line' => '22 rue des olivettes',
-            'full_name' => 'machin bidule',
-            'second_line' => 'apt 666 porte 5',
-            'complement' => 'code 12345678',
-            'zipcode' => '44000',
-            'city' => 'NANTES',
-            'common_country_iso_a2' => 'FR',
-            'phone_home' => '0812345678',
-            'phone_office' => '0866666666',
-            'phone_mobile' => '0611224455',
-        ];
+        $this->assertIsObject(
+            $fixture->invokeMethod($this->_customer, 'hydrateAddress', [json_decode($orderData), json_decode($adressData)]),
+            '[Test hydrateAddress]'
+        );
 
         $this->assertEquals(
-            $address,
-            $fixture->invokeMethod($this->_customer, '_convertAddress', [$address1]),
-            '[Test _convertAddress] @return \Magento\Customer\Model\Address'
+            json_decode($adressData),
+            $fixture->invokeMethod($this->_customer, 'hydrateAddress', [json_decode($orderData), json_decode($adressData)]),
+            '[Test hydrateAddress]'
+        );
+
+        $dataHydrated = '{
+                "id": 572984019,
+                "type": "billing",
+                "first_line": null,
+                "zipcode": "75228-6481",
+                "city": "DALLAS",
+                "vat_number": null,
+                "common_country_iso_a2": "US",
+                "company": null,
+                "civility": null,
+                "first_name": null,
+                "last_name": null,
+                "second_line": null,
+                "complement": null,
+                "phone_home": "0000000000",
+                "phone_office": null,
+                "phone_mobile": "0000000000",
+                "full_address": null,
+                "full_name": "",
+                "email": "m1z9b3mk8gb1c26@marketplace.amazon.com",
+                "metas": null,
+                "state_region": "TX"
+        }';
+        $orderData2 = '{
+            "lengow_status": "shipped",
+            "order_types": [
+                {
+                    "type": "is_delivered_by_marketplace",
+                    "label": "Fulfillment"
+                },
+                {
+                    "type": "is_express",
+                    "label": "Express"
+                }
+            ],
+            "original_total_buyer_amount": null,
+            "original_total_buyer_tax": null,
+            "original_buyer_currency": null
+        }';
+        $addressWaited = json_decode($dataHydrated);
+        $notProvided = __('Not provided by the marketplace');
+        $addressWaited->first_name = $notProvided;
+        $addressWaited->last_name = $notProvided;
+        $addressWaited->full_name = $notProvided;
+        $addressWaited->first_line = $notProvided;
+        $addressWaited->full_address = $notProvided;
+
+
+        $this->assertEquals(
+            $addressWaited,
+            $fixture->invokeMethod($this->_customer, 'hydrateAddress', [json_decode($orderData2), json_decode($adressData)]),
+            '[Test hydrateAddress]'
         );
     }
 }
