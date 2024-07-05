@@ -467,7 +467,12 @@ class Import
         if ($createdFrom && $createdTo) {
             // retrieval of orders created from ... until ...
             $createdFromTimestamp = $this->dateTime->gmtTimestamp($createdFrom);
-            $createdToTimestamp = $this->dateTime->gmtTimestamp($createdTo) + 86399;
+            if ($createdFrom === $createdTo) {
+                $createdToTimestamp = $createdFromTimestamp + (self::MIN_INTERVAL_TIME - 1);
+            } else {
+                $createdToTimestamp = $this->dateTime->gmtTimestamp($createdTo);
+            }
+            $createdToTimestamp = $this->dateTime->gmtTimestamp($createdTo);
             $intervalTime = $createdToTimestamp - $createdFromTimestamp;
             $this->createdFrom = $createdFromTimestamp;
             $this->createdTo = $intervalTime > self::MAX_INTERVAL_TIME
