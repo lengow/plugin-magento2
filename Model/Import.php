@@ -457,11 +457,11 @@ class Import
     /**
      * Set interval time for order synchronisation
      *
-     * @param integer|null $days Import period
+     * @param float|null $days Import period
      * @param string|null $createdFrom Import of orders since
      * @param string|null $createdTo Import of orders until
      */
-    private function setIntervalTime(int $days = null, string $createdFrom = null, string $createdTo = null): void
+    private function setIntervalTime(float $days = null, string $createdFrom = null, string $createdTo = null): void
     {
 
         if ($createdFrom && $createdTo) {
