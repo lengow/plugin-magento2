@@ -796,18 +796,7 @@ class Product
                 ];
             }
         }
-        // first product selection in many options
-        if (empty($bundleOptions)) {
-            foreach ($selectionCollection as $selection) {
-                if (isset($bundleOptions[$selection->getOptionId()])){
-                    continue;
-                }
-                $bundleOptions[$selection->getOptionId()][] = [
-                    'product_id' =>$selection->getProductId(),
-                    'default_qty' => $selection->getSelectionQty()
-                ];
-            }
-        }
+
         return $bundleOptions;
     }
 

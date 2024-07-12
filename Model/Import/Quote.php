@@ -382,15 +382,6 @@ class Quote extends MagentoQuote
                 $bundleOptions[$selection->getOptionId()][] = $selection->getSelectionId();
             }
         }
-        // first product selection in many options
-        if (empty($bundleOptions)) {
-            foreach ($selectionCollection as $selection) {
-                if (isset($bundleOptions[$selection->getOptionId()])){
-                    continue;
-                }
-                $bundleOptions[$selection->getOptionId()][] = $selection->getSelectionId();
-            }
-        }
 
         return $bundleOptions;
     }
