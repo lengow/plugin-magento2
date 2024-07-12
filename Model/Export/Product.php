@@ -783,16 +783,16 @@ class Product
                     continue;
                 }
                 $bundleOptions[$selection->getOptionId()][] = [
-                    'product_id' =>$selection->getProductId(),
-                    'default_qty' => $selection->getSelectionQty()
+                    'product_id' => (int)  $selection->getProductId(),
+                    'default_qty' => (int) $selection->getSelectionQty()
                 ];
             }
         } else {
             // all product selection in one option
             foreach ($selectionCollection as $selection) {
                 $bundleOptions[$selection->getOptionId()][] = [
-                    'product_id' =>$selection->getProductId(),
-                    'default_qty' => $selection->getSelectionQty()
+                    'product_id' => (int) $selection->getProductId(),
+                    'default_qty' => (int) $selection->getSelectionQty()
                 ];
             }
         }

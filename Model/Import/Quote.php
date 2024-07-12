@@ -373,13 +373,13 @@ class Quote extends MagentoQuote
                 if (!$selection->getIsDefault()){
                     continue;
                 }
-                $bundleOptions[$selection->getOptionId()][] = $selection->getSelectionId();
+                $bundleOptions[$selection->getOptionId()][] = (int) $selection->getSelectionId();
             }
 
         } else {
             // all selection in one option
             foreach ($selectionCollection as $selection) {
-                $bundleOptions[$selection->getOptionId()][] = $selection->getSelectionId();
+                $bundleOptions[$selection->getOptionId()][] = (int) $selection->getSelectionId();
             }
         }
 
