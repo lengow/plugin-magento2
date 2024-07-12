@@ -354,6 +354,7 @@ class Quote extends MagentoQuote
     {
 
         $bundleOptions = [];
+        $optionIds = [];
         $selectionCollection = $product->getTypeInstance()
             ->getSelectionsCollection(
                 $product->getTypeInstance()->getOptionsIds($product),
@@ -361,11 +362,27 @@ class Quote extends MagentoQuote
             );
 
         foreach ($selectionCollection as $selection) {
-            if (!$selection->getIsDefault()){
+            if (in_array($selection->getOptionId(), $optionIds)) {
                 continue;
             }
-            $bundleOptions[$selection->getOptionId()][] = $selection->getSelectionId();
+            $optionIds[] = $selection->getOptionId();
         }
+        // default prodcut selection in many options
+        if (count($optionIds) > 1) {
+            foreach ($selectionCollection as $selection) {
+                if (!$selection->getIsDefault()){
+                    continue;
+                }
+                $bundleOptions[$selection->getOptionId()][] = $selection->getSelectionId();
+            }
+
+        } else {
+            // all selection in one option
+            foreach ($selectionCollection as $selection) {
+                $bundleOptions[$selection->getOptionId()][] = $selection->getSelectionId();
+            }
+        }
+        // first product selection in many options
         if (empty($bundleOptions)) {
             foreach ($selectionCollection as $selection) {
                 if (isset($bundleOptions[$selection->getOptionId()])){
@@ -374,6 +391,7 @@ class Quote extends MagentoQuote
                 $bundleOptions[$selection->getOptionId()][] = $selection->getSelectionId();
             }
         }
+
         return $bundleOptions;
     }
 }

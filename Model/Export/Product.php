@@ -309,7 +309,7 @@ class Product
      */
     public function load(array $params): void
     {
-        
+
         $this->type = $params['product_type'];
         $this->product = $this->getProduct($params['product_id']);
         $this->parentProduct = $this->getParentProduct();
@@ -330,7 +330,7 @@ class Product
         $this->category->load(['product' => $this->getParentData ? $this->parentProduct : $this->product]);
         $this->shipping->load(['product' => $this->product]);
         $this->setCounter();
-        
+
     }
 
     /**
@@ -740,10 +740,14 @@ class Product
             $quantities = [];
             $bundleOptions = $this->getBundleOptionsProductIds($this->product);
             foreach ($bundleOptions as $option) {
-                foreach ($option as $productId) {                   
-                    $quantities[$productId] = $this->stockRegistry->getStockItem($productId, $this->store->getId())->getQty();
+
+                foreach ($option as $dataProduct) {
+                    $productId = $dataProduct['product_id'];
+                    $defaultQty = ($dataProduct['default_qty'] > 0) ? $dataProduct['default_qty'] : 1;
+                    $stockQty = $this->stockRegistry->getStockItem($productId, $this->store->getId())->getQty();
+                    $quantities[$productId] = floor($stockQty / $defaultQty);
                 }
-            }           
+            }
             return min($quantities) > 0 ? (int) min($quantities) : 0;;
         }
         return (int) $this->stockRegistry->getStockItem($this->product->getId(), $this->store->getId())->getQty();
@@ -757,26 +761,51 @@ class Product
      */
     private function getBundleOptionsProductIds($product)
     {
-       
+
         $bundleOptions = [];
+        $optionIds = [];
         $selectionCollection = $product->getTypeInstance()
             ->getSelectionsCollection(
                 $product->getTypeInstance()->getOptionsIds($product),
                 $product
             );
-        
         foreach ($selectionCollection as $selection) {
-            if (!$selection->getIsDefault()) {
+            if (in_array($selection->getOptionId(), $optionIds)) {
                 continue;
             }
-            $bundleOptions[$selection->getOptionId()][] = $selection->getProductId();
+            $optionIds[] = $selection->getOptionId();
         }
+
+        // default prodcut selection in many options
+        if (count($optionIds) > 1) {
+            foreach ($selectionCollection as $selection) {
+                if (!$selection->getIsDefault()) {
+                    continue;
+                }
+                $bundleOptions[$selection->getOptionId()][] = [
+                    'product_id' =>$selection->getProductId(),
+                    'default_qty' => $selection->getSelectionQty()
+                ];
+            }
+        } else {
+            // all product selection in one option
+            foreach ($selectionCollection as $selection) {
+                $bundleOptions[$selection->getOptionId()][] = [
+                    'product_id' =>$selection->getProductId(),
+                    'default_qty' => $selection->getSelectionQty()
+                ];
+            }
+        }
+        // first product selection in many options
         if (empty($bundleOptions)) {
             foreach ($selectionCollection as $selection) {
                 if (isset($bundleOptions[$selection->getOptionId()])){
                     continue;
                 }
-                $bundleOptions[$selection->getOptionId()][] = $selection->getProductId();
+                $bundleOptions[$selection->getOptionId()][] = [
+                    'product_id' =>$selection->getProductId(),
+                    'default_qty' => $selection->getSelectionQty()
+                ];
             }
         }
         return $bundleOptions;

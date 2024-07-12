@@ -171,10 +171,11 @@ class AddBundleToCart implements ObserverInterface
                 continue;
             }
             $priceDiff = $price - $bundleChildrenTotal[$bundleId];
-            $deltaLine = floor($priceDiff / count($bundleChildrenCount[$bundleId]));
+            $ratePriceDiff = 1  - ($bundleChildrenTotal[$bundleId] / $price);
+
             $bundlePricesDelta[$bundleId] = [
-                'delta_line' => $deltaLine,
                 'price_diff' => $priceDiff,
+                'rate_diff' => $ratePriceDiff,
                 'children_ids' => implode(',', $bundleChildrenCount[$bundleId]),
                 'bundle_id' => $bundleId,
                 'bundle_price' => $price
@@ -206,11 +207,12 @@ class AddBundleToCart implements ObserverInterface
                     $bundleItems[$productId]['price'] = $quoteItem->getPrice();
                     $bundleItems[$productId]['qty'] = $quoteItem->getQty();
                     $diff = $deltaPrices[$productId]['price_diff'] ?? 0;
+                    $rateDiff = $deltaPrices[$productId]['rate_diff'] ?? 0;
                 }
             }
             if ($productType === 'simple') {
                 foreach ($deltaPrices as $bundleId => $deltaPrice) {
-                    if ($diff ==0) {
+                    if ($diff === 0 || $rateDiff === 0) {
                         continue;
                     }
                     $childrenIds = explode(',', $deltaPrice['children_ids']);
@@ -218,6 +220,7 @@ class AddBundleToCart implements ObserverInterface
 
                     if (in_array($productId, $childrenIds)) {
                         $productCount++;
+                        $deltaPrice['delta_line'] = round($deltaPrice['rate_diff'] * $quoteItem->getPrice(), 3);
                         $quoteItem->setPrice($quoteItem->getPrice() + $deltaPrice['delta_line']);
                         $diff -= $deltaPrice['delta_line'];
                         if ($productCount === count($childrenIds) && abs($diff) > 0) {
