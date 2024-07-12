@@ -175,7 +175,7 @@ class AddBundleToCart implements ObserverInterface
 
             $bundlePricesDelta[$bundleId] = [
                 'price_diff' => $priceDiff,
-                'rate_diff' => $ratePriceDiff,
+                'rate_diff' => round($ratePriceDiff, 3),
                 'children_ids' => implode(',', $bundleChildrenCount[$bundleId]),
                 'bundle_id' => $bundleId,
                 'bundle_price' => $price
@@ -187,7 +187,7 @@ class AddBundleToCart implements ObserverInterface
     }
 
     /**
-     *
+     * Dispatches prices diferences to quote items
      */
     protected function ventilateDeltaPrices(array $quoteItems, array $deltaPrices): array
     {
@@ -235,6 +235,8 @@ class AddBundleToCart implements ObserverInterface
             }
         }
 
+
         return $bundleItems;
     }
 }
+
