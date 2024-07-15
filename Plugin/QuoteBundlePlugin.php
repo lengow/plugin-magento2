@@ -54,7 +54,7 @@ class QuoteBundlePlugin
     }
 
     /**
-     * aroundMethod plugn execution
+     * afterBeforeSave  plugin execution method
      */
     public function afterBeforeSave(Item $subject)
     {
@@ -74,20 +74,37 @@ class QuoteBundlePlugin
         if (!isset($bundleQuoteItems[$productId])) {
             return $subject;
         }
-        $sessionPrice = $bundleQuoteItems[$productId]['price'];
-        $sessionQty = $bundleQuoteItems[$productId]['qty'];
+
+
+        $sessionPrice = (float) $bundleQuoteItems[$productId]['price'];
+        $sessionQty = (int) $bundleQuoteItems[$productId]['qty'];
+        $taxPercent = (float) $subject->getTaxPercent();
+
+
+
+
+        $originalPrice = round(($sessionPrice / (100 + $taxPercent))   * 100, 3);
+        $taxAmount = round($sessionPrice - $originalPrice, 3);
+
 
         $subject->setPriceInclTax($sessionPrice);
         $subject->setBasePriceInclTax($sessionPrice);
         $subject->setCustomPriceInclTax($sessionPrice);
-        $subject->setOriginalCustomPrice($sessionPrice);
-        $subject->setOriginalPrice($sessionPrice);
-        $subject->setRowTotal($sessionPrice * $sessionQty);
+        $subject->setOriginalCustomPrice($originalPrice);
+        $subject->setOriginalPrice($originalPrice);
+        $subject->setBaseOriginalPrice($originalPrice);
+        $subject->setPrice($originalPrice);
+        $subject->setBasePrice($originalPrice);
+        $subject->setCustomPrice($originalPrice);
+        $subject->setTaxAmount($taxAmount);
+        $subject->setBaseTaxAmount($taxAmount);
+        $subject->setBaseRowTotal($originalPrice * $sessionQty);
+        $subject->setRowTotal($originalPrice * $sessionQty);
         $subject->setRowTotalInclTax($sessionPrice * $sessionQty);
+        $subject->setBaseRowTotalInclTax($sessionPrice * $sessionQty);
         $subject->setCustomRowTotalIncTax($sessionPrice * $sessionQty);
         unset($bundleQuoteItems[$productId]);
         $this->backendSession->setBundleItems($bundleQuoteItems);
-        //$subject->save();
 
         return $subject;
     }

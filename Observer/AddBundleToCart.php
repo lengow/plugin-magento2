@@ -204,8 +204,7 @@ class AddBundleToCart implements ObserverInterface
             if ($productType === 'bundle') {
                 if (isset($deltaPrices[$productId])) {
                     $quoteItem->setPrice($deltaPrices[$productId]['bundle_price']);
-                    $bundleItems[$productId]['price'] = $quoteItem->getPrice();
-                    $bundleItems[$productId]['qty'] = $quoteItem->getQty();
+                    $this->addBundleData($bundleItems, $quoteItem);
                     $diff = $deltaPrices[$productId]['price_diff'] ?? 0;
                     $rateDiff = $deltaPrices[$productId]['rate_diff'] ?? 0;
                 }
@@ -227,9 +226,7 @@ class AddBundleToCart implements ObserverInterface
                             $quoteItem->setPrice($quoteItem->getPrice() + $diff);
                             $diff = 0;
                         }
-                        $bundleItems[$productId]['price'] = $quoteItem->getPrice();
-                        $bundleItems[$productId]['qty'] = $quoteItem->getQty();
-                        $bundleItems[$productId]['tax_percent'] = $quoteItem->getTaxPercent();
+                        $this->addBundleData($bundleItems, $quoteItem);
                     }
                 }
             }
@@ -237,6 +234,20 @@ class AddBundleToCart implements ObserverInterface
 
 
         return $bundleItems;
+    }
+
+    /**
+     * Add bundle data
+     */
+    protected function addBundleData(&$bundleItems, $quoteItem)
+    {
+        $productId = $quoteItem->getProductId();
+        if (!isset($bundleItems[$productId])) {
+            $bundleItems[$productId] = [];
+        }
+        $bundleItems[$productId]['price'] = $quoteItem->getPrice();
+        $bundleItems[$productId]['qty'] = $quoteItem->getQty();
+        $bundleItems[$productId]['tax_percent'] = $quoteItem->getTaxPercent();
     }
 }
 
