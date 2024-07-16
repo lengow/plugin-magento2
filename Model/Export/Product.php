@@ -322,6 +322,11 @@ class Product
             $groupedPrices = $this->getGroupedPricesAndDiscounts();
             $this->prices = $groupedPrices['prices'];
             $this->discounts = $groupedPrices['discounts'];
+        } elseif($this->type === 'bundle') {
+            $bundlePrices = $this->getBundlePricesAndDiscounts();
+            $this->prices = $bundlePrices['prices'];
+            $this->discounts = $bundlePrices['discounts'];
+
         } else {
             $this->price->load(['product' => $this->product]);
             $this->prices = $this->price->getPrices();
@@ -937,4 +942,89 @@ class Product
         ];
         return ['prices' => $prices, 'discounts' => $discounts];
     }
+
+    /**
+     * Will return bundle prices and discounts
+     */
+    private function getBundlePricesAndDiscounts()
+    {
+
+        $bundleOptions = $this->getBundleOptionsProductIds($this->product);
+
+        $prices = [
+            'price_excl_tax' => 0,
+            'price_incl_tax' => 0,
+            'price_before_discount_excl_tax' => 0,
+            'price_before_discount_incl_tax' => 0,
+        ];
+        $childrenDiscounts = [];
+        foreach ($bundleOptions as $option) {
+            foreach ($option as $dataProduct) {
+                if (in_array($dataProduct['product_id'], $this->childrenIds)) {
+                    continue;
+                }
+                $this->childrenIds[] = $dataProduct['product_id'];
+            }
+        }
+
+        if (!empty($this->childrenIds)) {
+            foreach ($this->childrenIds as $index => $childrenId) {
+
+                $children = $this->getProduct($childrenId, true);
+                $this->price->load(['product' => $children]);
+                $childrenPrices = $this->price->getPrices();
+
+                foreach ($childrenPrices as $key => $value) {
+                    $prices[$key] += $value;
+                }
+                $this->price->clean();
+                $this->price->load(['product' => $this->product]);
+                $childrenDiscount = $this->price->getDiscounts();
+                $this->price->clean();
+                unset($this->childrenIds[$index]);
+
+            }
+        }
+
+        if (!empty($childrenDiscount['discount_percent'])){
+            $discountAmount = round(
+                $prices['price_before_discount_incl_tax'] * $childrenDiscount['discount_percent'] / 100,
+                3
+            );
+        } else {
+            $discountAmount = $childrenDiscount['discount_amount'] ?? 0;
+        }
+
+        if (!empty($childrenDiscount['discount_start_date'])) {
+            $discountStart = new \DateTime($childrenDiscount['discount_start_date']);
+            $end = $childrenDiscount['discount_end_date'] ?? 'now';
+            $discountEnd = new \DateTime($end);
+            if (empty($childrenDiscount['discount_end_date'])) {
+                $discountEnd->add(new \DateInterval('P1Y'));
+            }
+
+            $now = new \DateTime();
+            $discountPercent = $childrenDiscount['discount_percent'] ?? 0;
+            if ($now < $discountStart) {
+                $discountAmount = 0;
+                $discountPercent = 0;
+            }
+
+            if (!empty($childrenDiscount['discount_end_date']) && $now > $discountEnd) {
+                $discountAmount = 0;
+                $discountPercent = 0;
+            }
+            $discounts = [
+                'discount_start_date' => $this->timezone->date($discountStart->getTimestamp())->format(DataHelper::DATE_FULL),
+                'discount_end_date' => $this->timezone->date($discountEnd->getTimestamp())->format(DataHelper::DATE_FULL),
+            ];
+
+        }
+        $discounts['discount_amount'] = $discountAmount;
+        $discounts['discount_percent'] = $discountPercent;
+
+        return ['prices' => $prices, 'discounts' => $discounts];
+
+    }
 }
+
