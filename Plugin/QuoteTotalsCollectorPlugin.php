@@ -42,8 +42,7 @@ class QuoteTotalsCollectorPlugin
     protected $backendSession;
 
     /**
-     *
-     * QuoteTotalsCollectorPlugin constructor
+     * Plugin constructor
      */
     public function __construct(
         ConfigHelper $configHelper,
@@ -54,7 +53,7 @@ class QuoteTotalsCollectorPlugin
     }
 
     /**
-     * aroundMethod plugn execution
+     * aroundMethod plugin execution
      */
     public function aroundCollect(TotalsCollector $subject, Callable $collect, Quote $quote)
     {

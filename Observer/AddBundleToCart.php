@@ -24,7 +24,7 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
 /**
- * AddressTotals
+ * AddBundleToCart
  */
 class AddBundleToCart implements ObserverInterface
 {
@@ -42,7 +42,7 @@ class AddBundleToCart implements ObserverInterface
     protected $backendSession;
 
     /**
-     * AddressTotals constructor
+     * Observer constructor
      */
     public function __construct(
         ConfigHelper $configHelper,
@@ -62,16 +62,12 @@ class AddBundleToCart implements ObserverInterface
         if (!(bool)$this->backendSession->getIsFromlengow()) {
             return;
         }
-
         $quoteItems = $observer->getEvent()->getItems();
-
-
         list($bundleProductChildrenIds, $bundlePrices) = $this->processBundleData($quoteItems);
         list($bundleChildrenTotal, $bundleChildrenCount) = $this->processChildrenData(
             $quoteItems,
             $bundleProductChildrenIds
         );
-
         $bundlePricesDelta = $this->processDeltaPrices(
             $bundleChildrenTotal,
             $bundlePrices,
@@ -81,7 +77,6 @@ class AddBundleToCart implements ObserverInterface
             return;
         }
         $this->backendSession->setBundleItems($this->ventilateDeltaPrices($quoteItems, $bundlePricesDelta));
-
     }
 
     /**
@@ -114,7 +109,6 @@ class AddBundleToCart implements ObserverInterface
         }
 
         return [$bundleChildrenTotal, $bundleChildrenCount];
-
     }
 
 
@@ -146,8 +140,8 @@ class AddBundleToCart implements ObserverInterface
 
             }
         }
-        return [$bundleProductChildrenIds, $bundlePrices];
 
+        return [$bundleProductChildrenIds, $bundlePrices];
     }
 
     /**
@@ -183,7 +177,6 @@ class AddBundleToCart implements ObserverInterface
         }
 
         return $bundlePricesDelta;
-
     }
 
     /**
@@ -215,8 +208,6 @@ class AddBundleToCart implements ObserverInterface
                         continue;
                     }
                     $childrenIds = explode(',', $deltaPrice['children_ids']);
-
-
                     if (in_array($productId, $childrenIds)) {
                         $productCount++;
                         $deltaPrice['delta_line'] = round($deltaPrice['rate_diff'] * $quoteItem->getPrice(), 3);
@@ -231,7 +222,6 @@ class AddBundleToCart implements ObserverInterface
                 }
             }
         }
-
 
         return $bundleItems;
     }
