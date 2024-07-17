@@ -957,13 +957,14 @@ class Product
             'price_before_discount_excl_tax' => 0,
             'price_before_discount_incl_tax' => 0,
         ];
-        $childrenDiscounts = [];
+        $childrenQty = [];
         foreach ($bundleOptions as $option) {
             foreach ($option as $dataProduct) {
                 if (in_array($dataProduct['product_id'], $this->childrenIds)) {
                     continue;
                 }
                 $this->childrenIds[] = $dataProduct['product_id'];
+                $childrenQty[$dataProduct['product_id']] = $dataProduct['default_qty'];
             }
         }
 
@@ -975,7 +976,8 @@ class Product
                 $childrenPrices = $this->price->getPrices();
 
                 foreach ($childrenPrices as $key => $value) {
-                    $prices[$key] += $value;
+                    $defaultQty = $childrenQty[$childrenId] ?? 1;
+                    $prices[$key] += $value * $defaultQty;
                 }
                 $this->price->clean();
                 $this->price->load(['product' => $this->product]);
