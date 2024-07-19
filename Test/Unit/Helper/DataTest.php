@@ -22,7 +22,7 @@ namespace Lengow\Connector\Test\Unit\Helper;
 use Lengow\Connector\Helper\Data;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 
-class DataTest extends \PHPUnit_Framework_TestCase
+class DataTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Helper\Data
@@ -34,7 +34,7 @@ class DataTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
         $this->_dataHelper = $objectManager->getObject(Data::class);
@@ -54,8 +54,7 @@ class DataTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetLogMessage()
     {
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $this->_dataHelper->setLogMessage('Check setLogMessage without parameter'),
             '[Test Get All Customer Group] Check if return is a string'
         );
@@ -86,8 +85,7 @@ class DataTest extends \PHPUnit_Framework_TestCase
      */
     public function testDecodeLogMessage()
     {
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $this->_dataHelper->decodeLogMessage('Check decodeLogMessage [ with special character'),
             '[Test Set Log Message] Check if return is a string'
         );
@@ -133,8 +131,7 @@ class DataTest extends \PHPUnit_Framework_TestCase
      */
     public function testCleanData()
     {
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $this->_dataHelper->cleanData('plop'),
             '[Test Clean Data] Check if return is a string'
         );
@@ -150,8 +147,7 @@ class DataTest extends \PHPUnit_Framework_TestCase
      */
     public function testCleanHtml()
     {
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $this->_dataHelper->cleanHtml('plop'),
             '[Test Clean Html] Check if return is a string'
         );
@@ -167,8 +163,7 @@ class DataTest extends \PHPUnit_Framework_TestCase
      */
     public function testReplaceAccentedChars()
     {
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $this->_dataHelper->replaceAccentedChars('plop'),
             '[Test Replace Accented Char] Check if return is a string'
         );

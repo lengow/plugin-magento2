@@ -183,7 +183,7 @@ class Info extends Template implements TabInterface
      */
     public function getOrderStatus(): string
     {
-        return $this->order->getStatus();
+        return (string) $this->order->getStatus();
     }
 
     /**
@@ -193,7 +193,10 @@ class Info extends Template implements TabInterface
      */
     public function getOrderImportedDate(): string
     {
-        return $this->order->getStatusHistoryCollection()->getFirstItem()->getCreatedAt();
+        if (is_null($this->order->getStatusHistoryCollection()->getFirstItem())) {
+            return '';
+        }
+        return (string) $this->order->getStatusHistoryCollection()->getFirstItem()->getCreatedAt();
     }
 
     /**
@@ -213,7 +216,7 @@ class Info extends Template implements TabInterface
      */
     public function debugModeIsEnabled(): bool
     {
-        return $this->configHelper->debugModeIsActive();
+        return (bool) $this->configHelper->debugModeIsActive();
     }
 
     /**

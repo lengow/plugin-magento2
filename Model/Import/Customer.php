@@ -462,9 +462,15 @@ class Customer extends MagentoResourceCustomer
 
         if ($this->configHelper->get(ConfigHelper::IMPORT_ANONYMIZED_EMAIL, $storeId)) {
             // generation of fictitious email
-            $hashMail = hash('sha256', $marketplaceSku . '-' . $orderData->marketplace . '-'. $storeId);
-            $mailsuffix = substr($hashMail, 0, 32);
-            $customerEmail = $mailsuffix. '@lengow.com';
+            $anonymousEmail = strtolower($storeId .'-'.$marketplaceSku . '-' . $orderData->marketplace).'@lengow.com';
+            if ($this->configHelper->get(ConfigHelper::IMPORT_ANONYMIZED_ENCRYPT_EMAIL, $storeId)) {
+                $hashMail = hash('sha256', $anonymousEmail);
+                $mailPrefix = substr($hashMail, 0, 32);
+                $customerEmail = $mailPrefix. '@lengow.com';
+            } else {
+                $customerEmail = $anonymousEmail;
+            }
+
         } else {
             // get customer email
             $customerEmail = $orderData->billing_address->email ?? $orderData->packages[0]->delivery->email ?? '';
@@ -519,8 +525,8 @@ class Customer extends MagentoResourceCustomer
     public function updateCustomerVatNumber(
         string $customerEmail,
         int $storeId,
-        string $vatNumber): MagentoCustomer
-    {
+        string $vatNumber
+    ): MagentoCustomer {
         $idWebsite = $this->_storeManager->getStore($storeId)->getWebsiteId();
         // first get by email
         $customer = $this->_customerFactory->create();
@@ -539,7 +545,6 @@ class Customer extends MagentoResourceCustomer
         }
 
         return $customer;
-
     }
 
     /**
@@ -689,8 +694,9 @@ class Customer extends MagentoResourceCustomer
      *
      * @return array
      */
-    private function getNames($addressData): array
+    protected function getNames($addressData): array
     {
+
         $names = [
             'firstName' => trim((string) $addressData->first_name),
             'lastName' => trim((string) $addressData->last_name),
@@ -986,7 +992,7 @@ class Customer extends MagentoResourceCustomer
         if ($status !== LengowOrder::STATE_SHIPPED) {
             return $address;
         }
-       
+
         $types = $orderData->order_types;
         foreach ($types as $orderType) {
             if ($orderType->type === LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE) {
@@ -1018,9 +1024,7 @@ class Customer extends MagentoResourceCustomer
             $address->phone_home = $notPhone;
             $address->phone_mobile = $notPhone;
         }
-
+        
         return $address;
     }
 }
-
-

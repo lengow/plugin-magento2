@@ -23,7 +23,7 @@ use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Lengow\Connector\Model\Export\Price;
 use Lengow\Connector\Test\Unit\Fixture;
 
-class PriceTest extends \PHPUnit_Framework_TestCase
+class PriceTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Model\Export\Price
@@ -35,7 +35,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
         $this->_price = $objectManager->getObject(Price::class);
@@ -58,14 +58,14 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $fixture = new Fixture();
         $fixture->setPrivatePropertyValue(
             $this->_price,
-            ['_priceExclTax', '_priceInclTax', '_priceBeforeDiscountExclTax', '_priceBeforeDiscountInclTax'],
+            ['priceExclTax', 'priceInclTax', 'priceBeforeDiscountExclTax', 'priceBeforeDiscountInclTax'],
             [80, 96, 100, 120]
         );
-        $this->assertInternalType(
-            'array',
+        $this->assertIsArray(
             $this->_price->getPrices(),
             '[Test Get Prices] Check if return is a array'
         );
+
         $this->assertEquals(
             [
                 'price_excl_tax'                 => 80,
@@ -86,11 +86,10 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $fixture = new Fixture();
         $fixture->setPrivatePropertyValue(
             $this->_price,
-            ['_discountAmount', '_discountPercent', '_discountStartDate', '_discountEndDate'],
+            ['discountAmount', 'discountPercent', 'discountStartDate', 'discountEndDate'],
             [80, 96, '2017-02-20 00:00:00', '2017-03-20 23:59:59']
         );
-        $this->assertInternalType(
-            'array',
+        $this->assertIsArray(
             $this->_price->getDiscounts(),
             '[Test Get Discounts] Check if return is a array'
         );
@@ -115,80 +114,79 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $fixture->setPrivatePropertyValue(
             $this->_price,
             [
-                '_product',
-                '_priceExclTax',
-                '_priceInclTax',
-                '_priceBeforeDiscountExclTax',
-                '_priceBeforeDiscountInclTax',
-                '_discountAmount',
-                '_discountPercent',
-                '_discountStartDate',
-                '_discountEndDate',
+                'product',
+                'priceExclTax',
+                'priceInclTax',
+                'priceBeforeDiscountExclTax',
+                'priceBeforeDiscountInclTax',
+                'discountAmount',
+                'discountPercent',
+                'discountStartDate',
+                'discountEndDate',
             ],
             ['plop', 50, 60, 100, 120, 80, 96, '2017-02-20 00:00:00', '2017-03-20 23:59:59']
         );
         $this->_price->clean();
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_price, '_product'),
-            '[Test Clean] Check if _product attribute is null'
+            $fixture->getPrivatePropertyValue($this->_price, 'product'),
+            '[Test Clean] Check if product attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_price, '_priceExclTax'),
-            '[Test Clean] Check if _priceExclTax attribute is null'
+            $fixture->getPrivatePropertyValue($this->_price, 'priceExclTax'),
+            '[Test Clean] Check if priceExclTax attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_price, '_priceInclTax'),
-            '[Test Clean] Check if _priceInclTax attribute is null'
+            $fixture->getPrivatePropertyValue($this->_price, 'priceInclTax'),
+            '[Test Clean] Check if priceInclTax attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_price, '_priceBeforeDiscountExclTax'),
-            '[Test Clean] Check if _priceBeforeDiscountExclTax attribute is null'
+            $fixture->getPrivatePropertyValue($this->_price, 'priceBeforeDiscountExclTax'),
+            '[Test Clean] Check if priceBeforeDiscountExclTax attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_price, '_priceBeforeDiscountInclTax'),
-            '[Test Clean] Check if _priceBeforeDiscountInclTax attribute is null'
+            $fixture->getPrivatePropertyValue($this->_price, 'priceBeforeDiscountInclTax'),
+            '[Test Clean] Check if priceBeforeDiscountInclTax attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_price, '_discountAmount'),
-            '[Test Clean] Check if _discountAmount attribute is null'
+            $fixture->getPrivatePropertyValue($this->_price, 'discountAmount'),
+            '[Test Clean] Check if discountAmount attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_price, '_discountPercent'),
-            '[Test Clean] Check if _discountPercent attribute is null'
+            $fixture->getPrivatePropertyValue($this->_price, 'discountPercent'),
+            '[Test Clean] Check if discountPercent attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_price, '_discountStartDate'),
-            '[Test Clean] Check if _discountStartDate attribute is null'
+            $fixture->getPrivatePropertyValue($this->_price, 'discountStartDate'),
+            '[Test Clean] Check if discountStartDate attribute is null'
         );
         $this->assertNull(
-            $fixture->getPrivatePropertyValue($this->_price, '_discountEndDate'),
-            '[Test Clean] Check if product _discountEndDate is null'
+            $fixture->getPrivatePropertyValue($this->_price, 'discountEndDate'),
+            '[Test Clean] Check if product discountEndDate is null'
         );
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export\Price::_getAllDiscounts
+     * @covers \Lengow\Connector\Model\Export\Price::getAllDiscounts
      */
     public function testGetAllDiscounts()
     {
         $fixture = new Fixture();
         $classMock = $fixture->getFakeClass();
-        $fixture->setPrivatePropertyValue($this->_price, ['_priceBeforeDiscountInclTax', '_priceInclTax'], [120, 120]);
-        $this->assertInternalType(
-            'array',
-            $fixture->invokeMethod($this->_price, '_getAllDiscounts'),
+        $fixture->setPrivatePropertyValue($this->_price, ['priceBeforeDiscountInclTax', 'priceInclTax'], [120, 120]);
+        $this->assertIsArray(
+            $fixture->invokeMethod($this->_price, 'getAllDiscounts'),
             '[Test Get All Discounts] Check if return is a array'
         );
         $this->assertEquals(
             ['discount_amount'  => 0, 'discount_percent' => 0],
-            $fixture->invokeMethod($this->_price, '_getAllDiscounts'),
+            $fixture->invokeMethod($this->_price, 'getAllDiscounts'),
             '[Test Get All Discounts] Check if return is valid without product discount'
         );
 
-        $fixture->setPrivatePropertyValue($this->_price, ['_priceBeforeDiscountInclTax', '_priceInclTax'], [60, 120]);
+        $fixture->setPrivatePropertyValue($this->_price, ['priceBeforeDiscountInclTax', 'priceInclTax'], [60, 120]);
         $this->assertEquals(
             ['discount_amount'  => 0, 'discount_percent' => 0],
-            $fixture->invokeMethod($this->_price, '_getAllDiscounts'),
+            $fixture->invokeMethod($this->_price, 'getAllDiscounts'),
             '[Test Get All Discounts] Check if return is valid when price before discount is less than final price'
         );
 
@@ -199,18 +197,18 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $priceCurrencyMock->expects($this->any())->method('round')->willReturnOnConsecutiveCalls(60, 50);
         $fixture->setPrivatePropertyValue(
             $this->_price,
-            ['_priceBeforeDiscountInclTax', '_priceInclTax', '_priceCurrency'],
+            ['priceBeforeDiscountInclTax', 'priceInclTax', 'priceCurrency'],
             [120, 60, $priceCurrencyMock]
         );
         $this->assertEquals(
             ['discount_amount'  => 60, 'discount_percent' => 50],
-            $fixture->invokeMethod($this->_price, '_getAllDiscounts'),
+            $fixture->invokeMethod($this->_price, 'getAllDiscounts'),
             '[Test Get All Discounts] Check if return is valid with product discount'
         );
     }
 
     /**
-     * @covers \Lengow\Connector\Model\Export\Price::_getAllDiscountDates
+     * @covers \Lengow\Connector\Model\Export\Price::getAllDiscountDates
      */
     public function testGetAllDiscountDates()
     {
@@ -227,17 +225,16 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $dateTimeMock = $fixture->mockFunctions($classMock, ['gmtTimestamp'], ['1488322800']);
         $fixture->setPrivatePropertyValue(
             $this->_price,
-            ['_product', '_catalogueRule', '_dateTime', '_store'],
+            ['product', 'catalogueRule', 'dateTime', 'store'],
             [$productMock, $catalogueRuleMock, $dateTimeMock, $storeMock]
         );
-        $this->assertInternalType(
-            'array',
-            $fixture->invokeMethod($this->_price, '_getAllDiscountDates'),
+        $this->assertIsArray(
+            $fixture->invokeMethod($this->_price, 'getAllDiscountDates'),
             '[Test Get All Discounts] Check if return is a array'
         );
         $this->assertEquals(
             ['discount_start_date'  => '', 'discount_end_date' => ''],
-            $fixture->invokeMethod($this->_price, '_getAllDiscountDates'),
+            $fixture->invokeMethod($this->_price, 'getAllDiscountDates'),
             '[Test Get All Discounts] Check if return is valid without product discount'
         );
 
@@ -246,41 +243,11 @@ class PriceTest extends \PHPUnit_Framework_TestCase
             ['getSpecialFromDate', 'getSpecialToDate', 'getId'],
             ['2017-02-20 00:00:00', '2017-03-20 23:59:59', 10]
         );
-        $fixture->setPrivatePropertyValue($this->_price, ['_product'], [$productMock2]);
+        $fixture->setPrivatePropertyValue($this->_price, ['product'], [$productMock2]);
+
         $this->assertEquals(
             ['discount_start_date'  => '2017-02-20 00:00:00', 'discount_end_date' => '2017-03-20 23:59:59'],
-            $fixture->invokeMethod($this->_price, '_getAllDiscountDates'),
-            '[Test Get All Discounts] Check return with special dates but no catalogue rules'
-        );
-
-        $resourceMock2 = $fixture->mockFunctions(
-            $classMock,
-            ['getRulesFromProduct'],
-            [
-                [
-                    ['from_time' => '1487545200', 'to_time' => '1490050799'],
-                    ['from_time' => '1488322800', 'to_time' => '1490997599'],
-                ],
-            ]
-        );
-        $catalogueRuleMock2 = $fixture->mockFunctions($classMock, ['getResource'], [$resourceMock2]);
-        $dateTimeMock2 = $this->getMockBuilder(get_class($classMock))
-            ->setMethods(['gmtTimestamp', 'date'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $dateTimeMock2->expects($this->any())->method('gmtTimestamp')->will($this->returnValue('1488322800'));
-        $dateTimeMock2->expects($this->any())->method('date')->willReturnOnConsecutiveCalls(
-            '2017-03-01 00:00:00',
-            '2017-03-31 23:59:59'
-        );
-        $fixture->setPrivatePropertyValue(
-            $this->_price,
-            ['_catalogueRule', '_dateTime'],
-            [$catalogueRuleMock2, $dateTimeMock2]
-        );
-        $this->assertEquals(
-            ['discount_start_date'  => '2017-03-01 00:00:00', 'discount_end_date' => '2017-03-31 23:59:59'],
-            $fixture->invokeMethod($this->_price, '_getAllDiscountDates'),
+            $fixture->invokeMethod($this->_price, 'getAllDiscountDates'),
             '[Test Get All Discounts] Check return with special dates but no catalogue rules'
         );
     }

@@ -386,4 +386,3 @@ class Quote extends MagentoQuote
         return $bundleOptions;
     }
 }
-

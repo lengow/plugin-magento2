@@ -86,7 +86,7 @@ script;
                     data-index="<%- data.index %>"
                     disabled="disabled">
                 <?php foreach ($block->getCarriers() as $_code => $_name): ?>
-                    <option value="<?= $block->escapeHtmlAttr($_code) ?>"><?= $block->escapeHtml($_name) ?></option>
+                    <option value="<?= $escaper->escapeHtmlAttr($_code) ?>"><?= $escaper->escapeHtml($_name) ?></option>
                 <?php endforeach; ?>
             </select>
         </td>
@@ -106,7 +106,7 @@ script;
                    value=""
                    disabled="disabled" />
         </td>
-        <?php if($block->canDisplayReturnCarrier()): ?>
+        <?php if ($block->canDisplayReturnCarrier()): ?>
            <td class="col-title">
                 <input class="input-text admin__control-text"
                    type="text"
@@ -116,7 +116,7 @@ script;
                     />
             </td>
         <?php endif; ?>
-         <?php if($block->canDisplayReturnNumber()): ?>
+         <?php if ($block->canDisplayReturnNumber()): ?>
             <td class="col-number">
                 <input class="input-text admin__control-text"
                        type="text"
@@ -131,7 +131,7 @@ script;
                 type="button"
                 class="action-default action-delete"
                 onclick="trackingControl.deleteRow(event);return false">
-                <span><?= $block->escapeHtml(__('Delete')) ?></span>
+                <span><?= $escaper->escapeHtml(__('Delete')) ?></span>
             </button>
         </td>
     </tr>
@@ -141,24 +141,24 @@ script;
     <table class="data-table admin__control-table" id="tracking_numbers_table">
         <thead>
         <tr class="headings">
-            <th class="col-carrier"><?= $block->escapeHtml(__('Carrier')) ?></th>
-            <th class="col-title"><?= $block->escapeHtml(__('Title')) ?></th>
-            <th class="col-number"><?= $block->escapeHtml(__('Number')) ?></th>
-            <?php if($block->canDisplayReturnCarrier()): ?>
-                <th class="col-number"><?= $block->escapeHtml(__('Return Carrier')) ?></th>
+            <th class="col-carrier"><?= $escaper->escapeHtml(__('Carrier')) ?></th>
+            <th class="col-title"><?= $escaper->escapeHtml(__('Title')) ?></th>
+            <th class="col-number"><?= $escaper->escapeHtml(__('Number')) ?></th>
+            <?php if ($block->canDisplayReturnCarrier()): ?>
+                <th class="col-number"><?= $escaper->escapeHtml(__('Return Carrier')) ?></th>
             <?php endif ; ?>
-            <?php if($block->canDisplayReturnNumber()): ?>
-                <th class="col-number"><?= $block->escapeHtml(__('Return Number')) ?></th>
+            <?php if ($block->canDisplayReturnNumber()): ?>
+                <th class="col-number"><?= $escaper->escapeHtml(__('Return Number')) ?></th>
             <?php endif ; ?>
-            <th class="col-delete"><?= $block->escapeHtml(__('Action')) ?></th>
+            <th class="col-delete"><?= $escaper->escapeHtml(__('Action')) ?></th>
 
         </tr>
         </thead>
         <tfoot>
         <tr>
-            <?php if($block->canDisplayReturnNumber()&& $block->canDisplayReturnCarrier()): ?>
+            <?php if ($block->canDisplayReturnNumber() && $block->canDisplayReturnCarrier()): ?>
                 <td colspan="6" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
-            <?php elseif($block->canDisplayReturnNumber()): ?>
+            <?php elseif ($block->canDisplayReturnNumber()): ?>
                 <td colspan="5" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
             <?php else: ?>
                   <td colspan="4" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>

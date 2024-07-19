@@ -25,9 +25,6 @@ use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 
-/**
- * Class UpgradeLengowDataConfig
- */
 class UpgradeLengowDataConfig implements DataPatchInterface
 {
     /**

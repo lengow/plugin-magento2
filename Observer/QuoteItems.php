@@ -23,15 +23,12 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 
-/**
- * QuoteItems
- */
 class QuoteItems implements ObserverInterface
 {
      /**
-     *
-     * @var ConfigHelper $configHelper
-     */
+      *
+      * @var ConfigHelper $configHelper
+      */
     protected $configHelper;
 
     /**
@@ -87,8 +84,7 @@ class QuoteItems implements ObserverInterface
                 continue;
             }
 
-            if (
-                $product['tax_amount'] === (float) $item->getTaxAmount()
+            if ($product['tax_amount'] === (float) $item->getTaxAmount()
                 && $product['amount'] === $item->getRowTotalInclTax()
             ) {
                 continue;

@@ -23,7 +23,7 @@ use Lengow\Connector\Test\Unit\Fixture;
 use Lengow\Connector\Block\Adminhtml\Header;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 
-class HeaderTest extends \PHPUnit_Framework_TestCase
+class HeaderTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Lengow\Connector\Block\Adminhtml\Header
@@ -35,10 +35,12 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      */
-    public function setUp()
+    public function setUp() : void
     {
         $objectManager = new ObjectManager($this);
-        $contextMock = $this->getMock('Magento\Backend\Block\Template\Context', [], [], '', false);
+        $contextMock = $this->createMock(\Magento\Backend\Block\Template\Context::class);
+
+
         $this->_header = $objectManager->getObject(Header::class, ['context' => $contextMock]);
     }
 
@@ -57,8 +59,7 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
     public function testFreeTrialIsEnabled()
     {
         $fixture = new Fixture();
-        $this->assertInternalType(
-            'boolean',
+        $this->assertIsBool(
             $this->_header->freeTrialIsEnabled(),
             '[Test Free Trial Is Enabled] Check if return is a boolean'
         );
@@ -68,7 +69,7 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_header,
-            ['_statusAccount'],
+            ['statusAccount'],
             [['type' => 'free_trial', 'expired' => false]]
         );
         $this->assertTrue(
@@ -77,7 +78,7 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_header,
-            ['_statusAccount'],
+            ['statusAccount'],
             [['type' => 'free_trial', 'expired' => true]]
         );
         $this->assertFalse(
@@ -86,7 +87,7 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_header,
-            ['_statusAccount'],
+            ['statusAccount'],
             [['type' => '', 'expired' => false]]
         );
         $this->assertFalse(
@@ -95,7 +96,7 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
         );
         $fixture->setPrivatePropertyValue(
             $this->_header,
-            ['_statusAccount'],
+            ['statusAccount'],
             [['type' => '', 'expired' => true]]
         );
         $this->assertFalse(
@@ -110,8 +111,7 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
     public function testGetFreeTrialDays()
     {
         $fixture = new Fixture();
-        $this->assertInternalType(
-            'integer',
+        $this->assertIsInt(
             $this->_header->getFreeTrialDays(),
             '[Test Get Free Trial Days] Check if return is a integer'
         );
@@ -120,7 +120,7 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
             $this->_header->getFreeTrialDays(),
             '[Test Get Free Trial Days] Check if return is valid when status account is empty'
         );
-        $fixture->setPrivatePropertyValue($this->_header, ['_statusAccount'], [['day' => 12]]);
+        $fixture->setPrivatePropertyValue($this->_header, ['statusAccount'], [['day' => 12]]);
         $this->assertEquals(
             12,
             $this->_header->getFreeTrialDays(),
