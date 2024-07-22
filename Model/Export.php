@@ -403,8 +403,8 @@ class Export
     {
         $productCollection = $this->productCollectionFactory->create()
             ->setStoreId($this->storeId)
-            ->addStoreFilter($this->storeId)
-            ->addAttributeToFilter('type_id', ['nlike' => 'bundle']);
+            ->addStoreFilter($this->storeId);
+            
         return $productCollection->getSize();
     }
 

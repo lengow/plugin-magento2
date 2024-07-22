@@ -966,9 +966,17 @@ class Product
             'price_before_discount_excl_tax' => 0,
             'price_before_discount_incl_tax' => 0,
         ];
+        $discounts = [
+            'discount_amount' => 0,
+            'discount_percent' => 0,
+            'discount_start_date' => null,
+            'discount_end_date' => null,
+        ];
+
         $childrenQty = [];
         foreach ($bundleOptions as $option) {
             foreach ($option as $dataProduct) {
+
                 if (in_array($dataProduct['product_id'], $this->childrenIds)) {
                     continue;
                 }
@@ -1005,6 +1013,7 @@ class Product
         } else {
             $discountAmount = $childrenDiscount['discount_amount'] ?? 0;
         }
+        $discountPercent = $childrenDiscount['discount_percent'] ?? 0;
 
         if (!empty($childrenDiscount['discount_start_date'])) {
             $discountStart = new \DateTime($childrenDiscount['discount_start_date']);
@@ -1015,7 +1024,7 @@ class Product
             }
 
             $now = new \DateTime();
-            $discountPercent = $childrenDiscount['discount_percent'] ?? 0;
+
             if ($now < $discountStart) {
                 $discountAmount = 0;
                 $discountPercent = 0;
@@ -1030,12 +1039,15 @@ class Product
                 'discount_end_date' => $this->timezone->date($discountEnd->getTimestamp())->format(DataHelper::DATE_FULL),
             ];
 
+
         }
         $discounts['discount_amount'] = $discountAmount;
         $discounts['discount_percent'] = $discountPercent;
+
 
         return ['prices' => $prices, 'discounts' => $discounts];
 
     }
 }
+
 
