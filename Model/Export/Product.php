@@ -1004,16 +1004,24 @@ class Product
 
             }
         }
-
-        if (!empty($childrenDiscount['discount_percent'])){
+        $discountPercent = $childrenDiscount['discount_percent'] ?? 0;
+        $discountAmount = 0;
+        $discountAmountHT = 0;
+        if ($discountPercent > 0) {
             $discountAmount = round(
                 $prices['price_before_discount_incl_tax'] * $childrenDiscount['discount_percent'] / 100,
                 3
             );
+            $discountAmountHT = round(
+                $prices['price_before_discount_excl_tax'] * $childrenDiscount['discount_percent'] / 100,
+                3
+            );
+
         } else {
             $discountAmount = $childrenDiscount['discount_amount'] ?? 0;
+            $discountAmountHT = $childrenDiscount['discount_amount'] ?? 0;
         }
-        $discountPercent = $childrenDiscount['discount_percent'] ?? 0;
+
 
         if (!empty($childrenDiscount['discount_start_date'])) {
             $discountStart = new \DateTime($childrenDiscount['discount_start_date']);
@@ -1022,17 +1030,17 @@ class Product
             if (empty($childrenDiscount['discount_end_date'])) {
                 $discountEnd->add(new \DateInterval('P1Y'));
             }
-
             $now = new \DateTime();
-
             if ($now < $discountStart) {
                 $discountAmount = 0;
                 $discountPercent = 0;
+                $discountAmountHT = 0;
             }
 
             if (!empty($childrenDiscount['discount_end_date']) && $now > $discountEnd) {
                 $discountAmount = 0;
                 $discountPercent = 0;
+                $discountAmountHT = 0;
             }
             $discounts = [
                 'discount_start_date' => $this->timezone->date($discountStart->getTimestamp())->format(DataHelper::DATE_FULL),
@@ -1043,6 +1051,8 @@ class Product
         }
         $discounts['discount_amount'] = $discountAmount;
         $discounts['discount_percent'] = $discountPercent;
+        $prices['price_incl_tax'] = $prices['price_before_discount_incl_tax'] - $discountAmount;
+        $prices['price_excl_tax'] = $prices['price_before_discount_excl_tax'] - $discountAmountHT;
 
 
         return ['prices' => $prices, 'discounts' => $discounts];
