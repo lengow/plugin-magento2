@@ -62,7 +62,6 @@ class InvoiceTotalsCollectorPlugin
         $subtotalLengow = $totalLengow - $taxLengow - $shippingLengow;
         $subtotalInclTaxLengow = $totalLengow - $shippingLengow;
 
-
         foreach ($result->getData() as $type => $amount) {
             if ($amount === 0) {
                 continue;
@@ -85,6 +84,7 @@ class InvoiceTotalsCollectorPlugin
                 $result->setData($type, $subtotalInclTaxLengow);
             }
         }
+
         return $result;
     }
 

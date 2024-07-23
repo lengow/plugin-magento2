@@ -450,6 +450,5 @@ class Quote extends MagentoQuote
         }
 
         return $bundleOptionsQties;
-
     }
 }
