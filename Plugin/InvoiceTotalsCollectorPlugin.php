@@ -50,20 +50,11 @@ class InvoiceTotalsCollectorPlugin
      */
     public function afterCollectTotals(Invoice $subject, Invoice $result)
     {
-
-
-        if (! (bool)$this->backendSession->getIsFromlengow()) {
-            return $result;
-        }
-
         $storeId = $subject->getOrder()->getStoreId();
-        if (! (bool) $this->configHelper->get(ConfigHelper::CHECK_ROUNDING_ENABLED, $storeId)) {
+        if (! $this->mustCkeck($storeId)) {
             return $result;
         }
 
-        if (! $this->backendSession->getCurrentOrderLengowData()) {
-            return $result;
-        }
         $lengowOrderData = $this->backendSession->getCurrentOrderLengowData();
         $totalLengow = (float) $lengowOrderData->total_order;
         $taxLengow = (float) $lengowOrderData->total_tax;
@@ -95,5 +86,25 @@ class InvoiceTotalsCollectorPlugin
             }
         }
         return $result;
+    }
+
+    /**
+     * check if we must check rounding
+     */
+    private function mustCkeck(int $storeId): bool
+    {
+        $isActive = (bool) $this->configHelper->get(ConfigHelper::CHECK_ROUNDING_ENABLED, $storeId);
+        $hasBundle = $this->backendSession->getHasBundleItems();
+        if (!$this->backendSession->getIsFromlengow()) {
+            return false;
+        }
+        if (! $this->backendSession->getCurrentOrderLengowData()) {
+            return false;
+        }
+        if (!$isActive && !$hasBundle) {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -404,7 +404,7 @@ class Export
         $productCollection = $this->productCollectionFactory->create()
             ->setStoreId($this->storeId)
             ->addStoreFilter($this->storeId);
-            
+
         return $productCollection->getSize();
     }
 

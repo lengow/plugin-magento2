@@ -77,6 +77,7 @@ class AddBundleToCart implements ObserverInterface
             return;
         }
         $this->backendSession->setBundleItems($this->ventilateDeltaPrices($quoteItems, $bundlePricesDelta));
+        $this->backendSession->setHasBundleItems(true);
     }
 
     /**
@@ -119,13 +120,15 @@ class AddBundleToCart implements ObserverInterface
     {
         $bundleProductChildrenIds = [];
         $bundlePrices = [];
+        $currentQuoteProducts = $this->backendSession->getCurrentOrderLengowProducts();
+
         foreach ($quoteItems as $quoteItem) {
             $productType = $quoteItem->getProductType();
             if ($productType === 'bundle') {
                 $bundleProductId = $quoteItem->getProductId();
                 $bundleQtyOptions = $quoteItem->getQtyOptions();
                 $bundleChildrenCount[$bundleProductId] = count($bundleQtyOptions);
-                $bundlePrice = $quoteItem->getProduct()->getPrice();
+                $bundlePrice = (float) $currentQuoteProducts[$bundleProductId]['price_unit'];
                 foreach ($bundleQtyOptions as $bundleOption) {
                     $childrenId = $bundleOption['product_id'];
                     $bundleProductChildrenIds[$childrenId] = [
@@ -154,6 +157,7 @@ class AddBundleToCart implements ObserverInterface
     ): array
     {
         $bundlePricesDelta = [];
+
         foreach ($bundlePrices as $bundleId => $price) {
             if (!isset($bundleChildrenTotal[$bundleId])) {
                 continue;
@@ -175,6 +179,7 @@ class AddBundleToCart implements ObserverInterface
                 'bundle_price' => $price
             ];
         }
+
 
         return $bundlePricesDelta;
     }

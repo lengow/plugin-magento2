@@ -83,22 +83,10 @@ class CreditmemoTotalsCollectorPlugin
         if (is_null($order)) {
             return $result;
         }
-
-        if (! (bool)$order->getFromLengow()) {
+        $storeId = $order->getStore()->getId();
+        if (!$this->mustCkeck($storeId, $order)) {
             return $result;
         }
-
-        if (! (bool) $this->configHelper->get(
-            ConfigHelper::CHECK_ROUNDING_ENABLED,
-            $order->getStore()->getId()
-        )) {
-            return $result;
-        }
-
-        if ($this->hasPostDifferentItemsQty($order)) {
-            return $result;
-        }
-
         $lengowOrderId = $this->lengowOrderFactory->create()
             ->getLengowOrderIdByOrderId($order->getId());
         $lengowOrder = $this->lengowOrderFactory->create()->load($lengowOrderId);
@@ -192,5 +180,41 @@ class CreditmemoTotalsCollectorPlugin
         }
 
         return false;
+    }
+
+    /**
+     *
+     */
+    private function hasBundleItems(Order $order): bool {
+        $items = $order->getAllVisibleItems();
+        foreach ($items as $item) {
+            if ($item->getProductType() === 'bundle') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+     /**
+     * check if we must check rounding
+     */
+    private function mustCkeck(int $storeId, Order $order): bool
+    {
+        $isActive = (bool) $this->configHelper->get(ConfigHelper::CHECK_ROUNDING_ENABLED, $storeId);
+        $hasBundle = $this->hasBundleItems($order);
+
+        if (!$order->getFromLengow()) {
+            return false;
+        }
+
+        if ($this->hasPostDifferentItemsQty($order)) {
+            return false;
+        }
+        if (!$isActive && !$hasBundle) {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -994,6 +994,7 @@ class Import
             $this->backendSession->setCurrentOrderLengowData([]);
             $this->backendSession->setCurrentOrderLengowProducts([]);
             $this->backendSession->setBundleItems([]);
+            $this->backendSession->setHasBundleItems(false);
             // reset backend session b2b attribute
             $this->backendSession->setIsLengowB2b(0);
             if ($importFinished) {

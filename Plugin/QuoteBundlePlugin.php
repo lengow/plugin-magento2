@@ -58,23 +58,17 @@ class QuoteBundlePlugin
      */
     public function afterBeforeSave(Item $subject)
     {
-
-
         if (! (bool)$this->backendSession->getIsFromlengow()) {
             return $subject;
         }
-
         if (! $this->backendSession->getBundleItems()) {
             return $subject;
         }
-
         $bundleQuoteItems = $this->backendSession->getBundleItems();
         $productId = $subject->getProductId();
-
         if (!isset($bundleQuoteItems[$productId])) {
             return $subject;
         }
-
         $sessionPrice = (float) $bundleQuoteItems[$productId]['price'];
         $quoteQty = (int) $subject->getQty();
         $taxPercent = (float) $subject->getTaxPercent();

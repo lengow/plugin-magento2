@@ -56,19 +56,15 @@ class AddressTotals implements ObserverInterface
     public function execute(Observer $observer)
     {
 
-        if (!(bool)$this->backendSession->getIsFromlengow()) {
-            return;
-        }
+
 
         $quote = $observer->getEvent()->getQuote();
         $total = $observer->getEvent()->getTotal();
         $lengowOrderData = $this->backendSession->getCurrentOrderLengowData();
         $storeId =  $quote->getStore()->getId();
-
-        if (!(bool) $this->configHelper->get(ConfigHelper::CHECK_ROUNDING_ENABLED, $storeId)) {
-            return ;
+        if (!$this->mustCkeck($storeId)) {
+            return;
         }
-
         if (!$lengowOrderData) {
             return;
         }
@@ -123,5 +119,20 @@ class AddressTotals implements ObserverInterface
             }
         }
         $observer->getEvent()->setTotal($total);
+    }
+
+    private function mustCkeck(int $storeId): bool
+    {
+        $isActive = (bool) $this->configHelper->get(ConfigHelper::CHECK_ROUNDING_ENABLED, $storeId);
+        $hasBundle = $this->backendSession->getHasBundleItems();
+        if (!$this->backendSession->getIsFromlengow()) {
+            return false;
+        }
+        if (!$isActive && !$hasBundle) {
+            return false;
+        }
+
+
+        return true;
     }
 }

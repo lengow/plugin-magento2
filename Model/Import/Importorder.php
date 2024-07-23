@@ -1418,6 +1418,7 @@ class Importorder extends AbstractModel
     private function createQuote(MagentoCustomer $customer, array $products): Quote
     {
         $this->backendSession->setBundleItems([]);
+        $this->backendSession->setHasBundleItems(false);
         $customerRepo = $this->customerRepository->getById($customer->getId());
         $currentStore = $this->storeManager->getStore($this->storeId);
         $quote = $this->lengowQuoteFactory->create()
@@ -1496,6 +1497,8 @@ class Importorder extends AbstractModel
             'marketplace' => $this->orderData->marketplace . $paymentInfo,
         ]);
         $quote->collectTotals()->save();
+
+
         // stop order creation when a quote is empty
         if (!$quote->getAllVisibleItems()) {
             $quote->setIsActive(false);
