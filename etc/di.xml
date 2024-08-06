@@ -15,6 +15,9 @@
     <type name="Magento\Tax\Model\Config">
         <plugin name="lengow_shipping_tax_config" type="Lengow\Connector\Plugin\ShippingTaxConfigPlugin" sortOrder="1" disabled="false" />
     </type>
+     <type name="Magento\Quote\Model\Quote\Item">
+        <plugin name="lengow_bundle_quote_item" type="Lengow\Connector\Plugin\QuoteBundlePlugin" sortOrder="1" disabled="false" />
+    </type>
     <type name="Magento\Quote\Model\Quote\TotalsCollector">
         <plugin name="lengow_quote_totals" type="Lengow\Connector\Plugin\QuoteTotalsCollectorPlugin" sortOrder="1" disabled="false" />
     </type>

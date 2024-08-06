@@ -171,6 +171,7 @@ class Export
         'downloadable',
         'grouped',
         'virtual',
+        'bundle'
     ];
 
     /**
@@ -402,8 +403,8 @@ class Export
     {
         $productCollection = $this->productCollectionFactory->create()
             ->setStoreId($this->storeId)
-            ->addStoreFilter($this->storeId)
-            ->addAttributeToFilter('type_id', ['nlike' => 'bundle']);
+            ->addStoreFilter($this->storeId);
+
         return $productCollection->getSize();
     }
 
@@ -908,6 +909,7 @@ class Export
     private function getQuery(): ProductCollection
     {
         // export only specific products types for one store
+
         $productCollection = $this->productCollectionFactory->create()
             ->setStoreId($this->storeId)
             ->addStoreFilter($this->storeId)
@@ -955,6 +957,7 @@ class Export
                 $productCollection->getSelect()->limit($this->limit);
             }
         }
+
         return $productCollection;
     }
 }

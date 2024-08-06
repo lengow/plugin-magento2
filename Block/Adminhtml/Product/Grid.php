@@ -148,8 +148,7 @@ class Grid extends Extended
                 '{{table}}.stock_id=1',
                 'left'
             )
-            ->addStoreFilter($this->dataHelper->getStore())
-            ->addAttributeToFilter('type_id', ['nlike' => 'bundle']);
+            ->addStoreFilter($this->dataHelper->getStore());
         $collection->joinAttribute(
             'lengow_product',
             'catalog_product/lengow_product',
@@ -198,7 +197,7 @@ class Grid extends Extended
      */
     protected function _prepareColumns(): MagentoGridExtended
     {
-        // create type filter without bundle type product
+
         $types = $this->sourceType->toOptionArray();
         $type = [];
         foreach ($types as $value) {
@@ -384,3 +383,4 @@ class Grid extends Extended
         );
     }
 }
+

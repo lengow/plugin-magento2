@@ -19,4 +19,7 @@
     <event name="sales_quote_address_collect_totals_after">
         <observer name="lengow_connector_address_collect_totals_observer" instance="Lengow\Connector\Observer\AddressTotals" />
     </event>
+    <event name="sales_quote_product_add_after">
+        <observer name="lengow_connector_checkout_cart_product_add_after" instance="Lengow\Connector\Observer\AddBundleToCart" />
+    </event>    
 </config>

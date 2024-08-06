@@ -36,6 +36,8 @@ class Type implements ArrayInterface
             ['value' => 'downloadable', 'label' => __('Downloadable')],
             ['value' => 'grouped', 'label' => __('Grouped')],
             ['value' => 'virtual', 'label' => __('Virtual')],
+            ['value' => 'bundle', 'label' => __('Bundle')]
+            
         ];
     }
 }

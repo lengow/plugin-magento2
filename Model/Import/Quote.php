@@ -267,12 +267,29 @@ class Quote extends MagentoQuote
                 if ($priceIncludeTax) {
                     $priceItem = $magentoProduct->getFinalPrice();
                 }
-                $quoteItem = $this->_quoteItemFactory->create()
+
+                if ($magentoProduct->getTypeId() === 'bundle') {
+                    $bundleOptions = $this->getBundleOptions($magentoProduct);
+                    $params = [
+                        'product' => $magentoProduct->getId(),
+                        'bundle_option' => $bundleOptions,
+                        'qty' => $product['quantity'],
+                    ];
+
+                    $requestAddBundle = new \Magento\Framework\DataObject($params);
+                    $this->addProduct($magentoProduct, $requestAddBundle);
+
+
+                } else {
+                    $quoteItem = $this->_quoteItemFactory->create()
                     ->setProduct($magentoProduct)
                     ->setQty($product['quantity'])
                     ->setCustomPrice($priceItem)
                     ->setOriginalCustomPrice($priceItem);
-                $this->addItem($quoteItem);
+                    $this->addItem($quoteItem);
+
+                }
+
             }
         }
 
@@ -310,21 +327,128 @@ class Quote extends MagentoQuote
      */
     public function checkProductQuantity(ProductInterceptor $product, int $quantity): void
     {
-        $stockItem = $product->getExtensionAttributes()->getStockItem();
-        if ($stockItem && $stockItem->getManageStock()) {
-            // get salable quantity
-            $stockStatus = $this->stockRegistry->getStockStatus(
-                $product->getId(),
-                $product->getStore()->getWebsiteId()
-            );
-            if ($stockStatus && $quantity > (float) $stockStatus->getQty()) {
-                throw new LengowException(
-                    $this->dataHelper->setLogMessage(
-                        'product id %1 can not be added to the quote because the stock is insufficient',
-                        [$product->getId()]
-                    )
+        if ($product->getTypeId() === 'bundle') {
+            $bundleOptionsQties = $this->getBundleOptionsQties($product);
+
+            foreach ($bundleOptionsQties as $optionId => $bundleOptionsQty) {
+
+                foreach ($bundleOptionsQty as $productId => $defaultQty) {
+                    $quantityToAdd = $quantity * $defaultQty;
+                    $productToAdd = $this->productRepository->getById($productId);
+                    $stockItem = $productToAdd->getExtensionAttributes()->getStockItem();
+                    if ($stockItem && $stockItem->getManageStock()) {
+                        // get salable quantity
+                        $stockStatus = $this->stockRegistry->getStockStatus(
+                            $productToAdd->getId(),
+                            $productToAdd->getStore()->getWebsiteId()
+                        );
+                        if ($stockStatus && $quantityToAdd > (float) $stockStatus->getQty()) {
+                            throw new LengowException(
+                                $this->dataHelper->setLogMessage(
+                                    'product id %1 can not be added to the quote because the stock is insufficient',
+                                    [$product->getId()]
+                                )
+                            );
+                        }
+                    }
+                }
+            }
+
+        } else {
+            $stockItem = $product->getExtensionAttributes()->getStockItem();
+            if ($stockItem && $stockItem->getManageStock()) {
+                // get salable quantity
+                $stockStatus = $this->stockRegistry->getStockStatus(
+                    $product->getId(),
+                    $product->getStore()->getWebsiteId()
                 );
+                if ($stockStatus && $quantity > (float) $stockStatus->getQty()) {
+                    throw new LengowException(
+                        $this->dataHelper->setLogMessage(
+                            'product id %1 can not be added to the quote because the stock is insufficient',
+                            [$product->getId()]
+                        )
+                    );
+                }
             }
         }
+
+    }
+    /**
+     * get all the selection products used in bundle product
+     * @param $product
+     * @return mixed
+     */
+    private function getBundleOptions($product)
+    {
+
+        $bundleOptions = [];
+        $optionIds = [];
+        $selectionCollection = $product->getTypeInstance()
+            ->getSelectionsCollection(
+                $product->getTypeInstance()->getOptionsIds($product),
+                $product
+            );
+
+        foreach ($selectionCollection as $selection) {
+            if (in_array($selection->getOptionId(), $optionIds)) {
+                continue;
+            }
+            $optionIds[] = $selection->getOptionId();
+        }
+        // default prodcut selection in many options
+        if (count($optionIds) > 1) {
+            foreach ($selectionCollection as $selection) {
+                if (!$selection->getIsDefault()){
+                    continue;
+                }
+                $bundleOptions[$selection->getOptionId()][] = (int) $selection->getSelectionId();
+            }
+
+        } else {
+            // all selection in one option
+            foreach ($selectionCollection as $selection) {
+                $bundleOptions[$selection->getOptionId()][] = (int) $selection->getSelectionId();
+            }
+        }
+
+        return $bundleOptions;
+    }
+
+    private function getBundleOptionsQties($product)
+    {
+        $bundleOptionsQties = [];
+        $optionIds = [];
+        $selectionCollection = $product->getTypeInstance()
+            ->getSelectionsCollection(
+                $product->getTypeInstance()->getOptionsIds($product),
+                $product
+            );
+
+        foreach ($selectionCollection as $selection) {
+            if (in_array($selection->getOptionId(), $optionIds)) {
+                continue;
+            }
+            $optionIds[] = $selection->getOptionId();
+        }
+        // default prodcut selection in many options
+        if (count($optionIds) > 1) {
+            foreach ($selectionCollection as $selection) {
+                if (!$selection->getIsDefault()){
+                    continue;
+                }
+                $productId = (int) $selection->getProductId();
+                $bundleOptionsQties[$selection->getOptionId()][$productId] = (int) $selection->getDefaultQty();
+            }
+
+        } else {
+            // all selection in one option
+            foreach ($selectionCollection as $selection) {
+                $productId = (int) $selection->getProductId();
+                $bundleOptionsQties[$selection->getOptionId()][$productId] = (int) $selection->getDefaultQty();
+            }
+        }
+
+        return $bundleOptionsQties;
     }
 }
