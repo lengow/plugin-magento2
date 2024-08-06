@@ -23,6 +23,7 @@ use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Block\Widget\Tab\TabInterface;
 use Magento\Framework\Registry;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Sales\Model\Order as MagentoOrder;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Config as ConfigHelper;
@@ -73,6 +74,11 @@ class Info extends Template implements TabInterface
     private $lengowOrderFactory;
 
     /**
+     * @var TimezoneInterface
+     */
+    private TimezoneInterface $timezone;
+
+    /**
      * Construct
      *
      * @param Context $context Magento Context instance
@@ -81,6 +87,7 @@ class Info extends Template implements TabInterface
      * @param ConfigHelper $configHelper Lengow config helper instance
      * @param LengowOrderFactory $lengowOrderFactory Lengow order factory instance
      * @param LengowAction $lengowAction Lengow action instance
+     * @param TimezoneInterface $timezone
      * @param array $data
      */
     public function __construct(
@@ -90,6 +97,7 @@ class Info extends Template implements TabInterface
         ConfigHelper $configHelper,
         LengowOrderFactory $lengowOrderFactory,
         LengowAction $lengowAction,
+        TimezoneInterface $timezone,
         array $data = []
     ) {
         $this->coreRegistry = $coreRegistry;
@@ -99,6 +107,7 @@ class Info extends Template implements TabInterface
         $this->lengowAction = $lengowAction;
         $this->order = $this->getOrder();
         $this->lengowOrder = $this->getLengowOrder();
+        $this->timezone = $timezone;
         parent::__construct($context, $data);
     }
 
@@ -302,6 +311,34 @@ class Info extends Template implements TabInterface
                 'label' => __('Customer email'),
                 'value' => $this->lengowOrder->getData(LengowOrder::FIELD_CUSTOMER_EMAIL),
             ];
+
+            try {
+                $jsonArray = json_decode(
+                    $this->lengowOrder->getData(LengowOrder::FIELD_EXTRA),
+                    true,
+                    512,
+                    JSON_THROW_ON_ERROR
+                );
+            } catch (\JsonException $e) {
+                $jsonArray = [];
+            }
+
+            $shippingPhone = $this->getShippingPhone($jsonArray);
+            if (!empty($shippingPhone)) {
+                $fields[] = [
+                    'label' => __('Customer shipping phone'),
+                    'value' => $shippingPhone,
+                ];
+            }
+
+            $billingPhone = $this->getBillingPhone($jsonArray);
+            if (!empty($billingPhone) && $billingPhone !== $shippingPhone) {
+                $fields[] = [
+                    'label' => __('Customer billing phone'),
+                    'value' => $billingPhone,
+                ];
+            }
+
             $fields[] = [
                 'label' => __('Carrier from marketplace'),
                 'value' => $this->lengowOrder->getData(LengowOrder::FIELD_CARRIER),
@@ -310,6 +347,20 @@ class Info extends Template implements TabInterface
                 'label' => __('Shipping method from marketplace'),
                 'value' => $this->lengowOrder->getData(LengowOrder::FIELD_CARRIER_METHOD),
             ];
+
+            $maxShippingDate = $this->getMaxShippingDate($jsonArray);
+            if (!empty($maxShippingDate)) {
+                $customDate = $this->timezone->formatDate(
+                    new \DateTime($maxShippingDate),
+                    \IntlDateFormatter::FULL
+                );
+
+                $fields[] = [
+                    'label' => __('Max shipping date'),
+                    'value' => $customDate,
+                ];
+            }
+
             $fields[] = [
                 'label' => __('Tracking number'),
                 'value' => $this->lengowOrder->getData(LengowOrder::FIELD_CARRIER_TRACKING),
@@ -349,5 +400,52 @@ class Info extends Template implements TabInterface
             ];
         }
         return $fields;
+    }
+
+    /**
+     * @param array $jsonArray
+     * @return string|null
+     */
+    protected function getShippingPhone(array $jsonArray): ?string
+    {
+        return $jsonArray['packages'][0]['delivery']['phone_mobile']
+            ?? $jsonArray['packages'][0]['delivery']['phone_home']
+            ?? $jsonArray['packages'][0]['delivery']['phone_office']
+            ?? null;
+    }
+
+    /**
+     * @param array $jsonArray
+     * @return string|null
+     */
+    protected function getBillingPhone(array $jsonArray): ?string
+    {
+        return $jsonArray['billing_address']['phone_mobile']
+            ?? $jsonArray['billing_address']['phone_home']
+            ?? $jsonArray['billing_address']['phone_office']
+            ?? null;
+    }
+
+    /**
+     * @param array $jsonArray
+     * @return string|null
+     */
+    protected function getMaxShippingDate(array $jsonArray): ?string
+    {
+        $items = $jsonArray['packages'][0]['cart'] ?? [];
+        $maxShippingDate = null;
+        foreach ($items as $item) {
+            if (empty($item['max_shipping_date'])) {
+                continue;
+            }
+
+            if (!isset($maxShippingDate)) {
+                $maxShippingDate = $item['max_shipping_date'];
+            } elseif ($maxShippingDate > $item['max_shipping_date']) {
+                $maxShippingDate = $item['max_shipping_date'];
+            }
+        }
+
+        return $maxShippingDate;
     }
 }
