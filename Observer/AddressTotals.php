@@ -72,6 +72,9 @@ class AddressTotals implements ObserverInterface
         if (!$lengowOrderData) {
             return;
         }
+        if (is_null($lengowOrderData->total_order) || is_null($lengowOrderData->total_tax) || is_null($lengowOrderData->shipping)) {
+            return;
+        }
 
         $totalLengow = (float) $lengowOrderData->total_order;
         $taxLengow = (float) $lengowOrderData->total_tax;

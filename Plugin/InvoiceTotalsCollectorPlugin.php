@@ -65,6 +65,9 @@ class InvoiceTotalsCollectorPlugin
             return $result;
         }
         $lengowOrderData = $this->backendSession->getCurrentOrderLengowData();
+        if (is_null($lengowOrderData->total_order) || is_null($lengowOrderData->total_tax) || is_null($lengowOrderData->shipping)) {
+            return $result;
+        }
         $totalLengow = (float) $lengowOrderData->total_order;
         $taxLengow = (float) $lengowOrderData->total_tax;
         $shippingLengow = (float) $lengowOrderData->shipping;
