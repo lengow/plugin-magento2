@@ -69,6 +69,7 @@ class QuoteTotalsCollectorPlugin
         }
         $lengowOrderData = $this->backendSession->getCurrentOrderLengowData();
         $result = $collect($quote);
+        //not fix rounding if total_order, total_tax or shipping is null
         if (is_null($lengowOrderData->total_order) || is_null($lengowOrderData->total_tax) || is_null($lengowOrderData->shipping)) {
             return $result;
         }
