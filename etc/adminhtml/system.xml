@@ -16,16 +16,13 @@
                  <field id="developer_mode_enabled" translate="label" type="select" sortOrder="2" showInDefault="0" showInWebsite="0" showInStore="0">
                     <label>Developer mode</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <frontend_model>Lengow\Connector\Block\Adminhtml\System\Config\Disable</frontend_model>
                     <comment></comment>
                 </field>
                 <field id="global_environment" translate="label" type="select" sortOrder="5" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Environment</label>
                     <source_model>Lengow\Connector\Model\Config\Source\Environment</source_model>
                     <comment>Do not forget to change your credentials Access and Secret token</comment>
-                    <depends>
-                        <field id="*/*/developer_mode_enabled">0</field>
-                    </depends>
+                    <frontend_model>Lengow\Connector\Block\Adminhtml\System\Config\Disable</frontend_model>
                 </field>
                 <field id="global_account_id" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Account ID</label>
