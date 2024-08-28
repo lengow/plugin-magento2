@@ -116,6 +116,14 @@ class Main extends Template
     }
 
     /**
+     * Get developer mode warning
+     */
+    public function isDeveloperModePlugin(): bool
+    {
+        return $this->configHelper->isDeveloperMode();
+    }
+
+    /**
      * Check if debug mode is active
      *
      * @return boolean

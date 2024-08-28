@@ -34,10 +34,17 @@ class Connector
      */
     public const LENGOW_URL = 'lengow.io';
 
+    //public const LENGOW_URL_DEV = 'lengow.net';
+
     /**
      * @var string url of the Lengow API
      */
     public const LENGOW_API_URL = 'https://api.lengow.io';
+
+    /**
+     * @var string url of the Lengow API for dev
+     */
+    public const LENGOW_API_URL_DEV = 'https://my.test.aws.lgw.io';
 
     public const LIVE_SUFFIX = '.io';
 

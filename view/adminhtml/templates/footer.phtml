@@ -21,7 +21,9 @@ $showPluginUpgradeModal = $block->showPluginUpgradeModal();
             <?= $block->escapeHtml(__('Legal notices')) ?>
         </a> |
         <?= $block->escapeHtml(__('Lengow Magento Plugin')) ?> - v.<?= $block->getPluginVersion() ?>
-        <?php if($block->isPreprodPlugin()): ?>
+        <?php if ($block->isDeveloperModePlugin()): ?>
+            <span class="lgw-label-preprod">developer mode</span>
+        <?php elseif($block->isPreprodPlugin()): ?>
             <span class="lgw-label-preprod">preprod</span>
         <?php endif; ?>
         |

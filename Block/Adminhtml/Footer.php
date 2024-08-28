@@ -73,6 +73,14 @@ class Footer extends Template
     }
 
     /**
+     * Get developer mode warning
+     */
+    public function isDeveloperModePlugin(): bool
+    {
+        return $this->configHelper->isDeveloperMode();
+    }
+
+    /**
      * Get plugin copyright
      *
      * @return string

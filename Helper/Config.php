@@ -49,6 +49,7 @@ class Config extends AbstractHelper
     public const ACCOUNT_ID = 'global_account_id';
     public const ACCESS_TOKEN = 'global_access_token';
     public const SECRET = 'global_secret_token';
+    public const DEVELOPER_MODE_ENABLED = 'developer_mode_enabled';
     public const PLUGIN_ENV = 'global_environment';
     public const CMS_TOKEN = 'token';
     public const AUTHORIZED_IP_ENABLED = 'global_authorized_ip_enable';
@@ -126,6 +127,7 @@ class Config extends AbstractHelper
      */
     public static $genericParamKeys = [
         self::ACCOUNT_ID => 'account_id',
+        self::DEVELOPER_MODE_ENABLED => 'developer_mode_enabled',
         self::PLUGIN_ENV => 'global_environment',
         self::ACCESS_TOKEN => 'access_token',
         self::SECRET => 'secret',
@@ -231,6 +233,13 @@ class Config extends AbstractHelper
             self::PARAM_GLOBAL => true,
             self::PARAM_NO_CACHE => true,
             self::PARAM_EXPORT => false,
+        ],
+        self::DEVELOPER_MODE_ENABLED => [
+            self::PARAM_PATH => 'lengow_global_options/store_credential/developer_mode_enabled',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => false,
+            self::PARAM_EXPORT_TOOLBOX => false,
+            self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
         ],
         self::PLUGIN_ENV => [
             self::PARAM_PATH => 'lengow_global_options/store_credential/global_environment',
@@ -1201,6 +1210,14 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Returns whether developer mode is enabled
+     */
+    public function isDeveloperMode(): bool
+    {
+        return (bool) $this->get(self::DEVELOPER_MODE_ENABLED);
+    }
+
+    /**
      * returns the url for my lengow
      *
      * @return string
@@ -1231,6 +1248,9 @@ class Config extends AbstractHelper
      */
     public function getLengowApiUrl(): string
     {
+        if ($this->get(self::DEVELOPER_MODE_ENABLED)) {
+            return LengowConnector::LENGOW_API_URL_DEV;
+        }
         $url = LengowConnector::LENGOW_API_URL;
         if ($this->isProdEnvironment()) {
             $url = str_replace(
