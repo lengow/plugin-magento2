@@ -1,7 +1,6 @@
 # Changelog
 
-## [1.7.0](https://github.com/lengow/plugin-magento2/compare/v1.6.2...v1.7.0) (2024-08-28)
-
+## [1.6.4](https://github.com/lengow/plugin-magento2/compare/v1.6.2...v1.6.4) (2024-08-28)
 
 ### Features
 
