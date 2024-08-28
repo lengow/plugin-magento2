@@ -134,6 +134,8 @@ remove_files $FOLDER_TMP "README.md"
 remove_files $FOLDER_TMP ".gitignore"
 # remove .git
 remove_files $FOLDER_TMP ".git"
+# remove .github
+rm -Rf "$FOLDER_TMP/.github"
 # remove .DS_Store
 remove_files $FOLDER_TMP ".DS_Store"
 # remove .idea

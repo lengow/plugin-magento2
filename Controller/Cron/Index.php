@@ -111,7 +111,8 @@ class Index extends Action
      */
     public function execute()
     {
-
+        set_time_limit(0);
+        ini_set('memory_limit', '1024M');
         $token = $this->getRequest()->getParam(LengowImport::PARAM_TOKEN);
         $this->getResponse()->setHeader(
             'Cache-Control',
@@ -150,7 +151,7 @@ class Index extends Action
                             ->getParam(LengowImport::PARAM_DEBUG_MODE);
                     }
                     if ($this->getRequest()->getParam(LengowImport::PARAM_DAYS) !== null) {
-                        $params[LengowImport::PARAM_DAYS] = (int) $this->getRequest()
+                        $params[LengowImport::PARAM_DAYS] = (float) $this->getRequest()
                             ->getParam(LengowImport::PARAM_DAYS);
                     }
                     if ($this->getRequest()->getParam(LengowImport::PARAM_CREATED_FROM) !== null) {
