@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.6.4](https://github.com/lengow/plugin-magento2/compare/v1.6.2...v1.6.4) (2024-08-28)
+
+### Features
+
+* **cicd:** [INFRA-2890] Setup a basic CI ([#22](https://github.com/lengow/plugin-magento2/issues/22)) ([5704361](https://github.com/lengow/plugin-magento2/commit/57043611bd597bb2808c631a7603889e26256636))
+
+
+### Bug Fixes
+
+* Release 1.6.4 ([#25](https://github.com/lengow/plugin-magento2/issues/25)) ([75aaa3d](https://github.com/lengow/plugin-magento2/commit/75aaa3df87cce34aadc9a1fd5dab2c91d049ace1))
+
+
+### Miscellaneous
+
+* **clean:** Precise Changelog format ([5704361](https://github.com/lengow/plugin-magento2/commit/57043611bd597bb2808c631a7603889e26256636))
+* **clean:** Remove obsolete files ([5704361](https://github.com/lengow/plugin-magento2/commit/57043611bd597bb2808c631a7603889e26256636))
+
+## Changelog
+
 =============================================================
 Version 1.6.3
 =============================================================
