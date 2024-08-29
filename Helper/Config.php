@@ -1224,6 +1224,9 @@ class Config extends AbstractHelper
      */
     public function getLengowUrl() : string
     {
+        if ($this->get(self::DEVELOPER_MODE_ENABLED)) {
+            return LengowConnector::LENGOW_URL_DEV;
+        }
         $url = LengowConnector::LENGOW_URL;
         if ($this->isProdEnvironment()) {
             $url = str_replace(

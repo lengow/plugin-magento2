@@ -34,7 +34,10 @@ class Connector
      */
     public const LENGOW_URL = 'lengow.io';
 
-    //public const LENGOW_URL_DEV = 'lengow.net';
+    /**
+     * @var string url of Lengow solution for dev
+     */
+    public const LENGOW_URL_DEV = 'my.test.aws.lgw.io';
 
     /**
      * @var string url of the Lengow API
@@ -44,7 +47,7 @@ class Connector
     /**
      * @var string url of the Lengow API for dev
      */
-    public const LENGOW_API_URL_DEV = 'http://my.test.aws.lgw.io';
+    public const LENGOW_API_URL_DEV = 'https://internal.api.test.aws.lgw.io';
 
     public const LIVE_SUFFIX = '.io';
 
