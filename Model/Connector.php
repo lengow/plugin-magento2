@@ -44,7 +44,7 @@ class Connector
     /**
      * @var string url of the Lengow API for dev
      */
-    public const LENGOW_API_URL_DEV = 'https://my.test.aws.lgw.io';
+    public const LENGOW_API_URL_DEV = 'http://my.test.aws.lgw.io';
 
     public const LIVE_SUFFIX = '.io';
 
