@@ -643,8 +643,10 @@ class Import
         }
         try {
             // get orders from Lengow API
-            $orders = $this->getOrdersFromApi($store);
-            $numberOrdersFound = count($orders);
+            $orders = $this->getOrdersFromApi($store, $numberOrdersFound);
+            // current() will trigger the first api call & populate $numberOrdersFound
+            // leaving the cursor at the first element
+            $orders->current();
             if ($this->importOneOrder) {
                 $this->dataHelper->log(
                     DataHelper::CODE_IMPORT,
@@ -759,12 +761,14 @@ class Import
      * Call Lengow order API
      *
      * @param Store $store Magento store instance
+     * @param int|null $count ref . that will be set on the first iteration.
+     *  You can populate the count before iterating by calling $generator->current();
      *
-     * @return array
+     * @return \Generator<array>
      *
-     * @throws LengowException
+     * @throws Exception
      */
-    private function getOrdersFromApi(Store $store): array
+    private function getOrdersFromApi(Store $store, ?int &$count = null): \Generator
     {
         $page = 1;
         $orders = [];
@@ -891,14 +895,19 @@ class Import
                     )
                 );
             }
+
+            if (null === $count) {
+                $count = $results->count;
+            }
+
             // construct array orders
             foreach ($results->results as $order) {
-                $orders[] = $order;
+                yield $order;
             }
+
             $page++;
             $finish = $results->next === null || $this->importOneOrder;
         } while ($finish !== true);
-        return $orders;
     }
 
     /**
