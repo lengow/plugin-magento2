@@ -7,6 +7,9 @@
 
 * **lengow:** [ECP-107] Change lengow's logo for the new logo ([#28](https://github.com/lengow/plugin-magento2/issues/28)) ([87306fb](https://github.com/lengow/plugin-magento2/commit/87306fbc13e9e6a955799299242815e754b419d5))
 
+### Miscellaneous
+use a generator to fetch orders from lengow instead of fetching all at once
+
 ## [1.6.4](https://github.com/lengow/plugin-magento2/compare/v1.6.2...v1.6.4) (2024-08-28)
 
 ### Features
