@@ -1,4 +1,4 @@
-/composer.json|3f6170964a6a64b4092510cfd6601099
+/composer.json|bd1c72a698f2a462d417b0ccc0a13f38
 /registration.php|dc6e50502663d362b5efdf9c829985c6
 /Block/Adminhtml/Header.php|c2389266bf3fc30d13fc3a5d0ca5e571
 /Block/Adminhtml/Sales/Order/Tab/Info.php|05694184af6d7e7fe04ad014d0defd33
@@ -65,7 +65,7 @@
 /i18n/en_GB.csv|1918ad20c592f05d22130c5aeb27f142
 /i18n/de_DE.csv|53e64201d26583a804c1029e5b5d1741
 /Model/Carrier/Lengow.php|2fa83223a8a7989ac04e1e92fd0ca907
-/Model/Import.php|ae3ed35d9d68f0b4f9f63a4b39e5d62a
+/Model/Import.php|a3b830f88471ac6cf6991983ced61de1
 /Model/Log.php|333700e3e9a446010914c5134ac6c1f4
 /Model/Export/Feed.php|e56a7f9f4844fb46e01c43cb079766d3
 /Model/Export/Product.php|281d9bb2ab6b4847afff29d6ba61d01a
@@ -185,7 +185,7 @@
 /view/adminhtml/web/images/modal-close.png|32cadb3a7cfff33ff4d79b53b817f8e2
 /view/adminhtml/web/images/home-orders.png|db05b21ec6b166d844b42c0e807cb265
 /view/adminhtml/web/images/plugin-update.png|a350fb0045bd61298a90268d0026e022
-/view/adminhtml/web/images/lengow-blue.png|fae0834ea05ab923912a47bbcb3af59b
+/view/adminhtml/web/images/lengow-blue.png|33ff5e10a4ae11fd3c0fc780e1be15ea
 /view/adminhtml/web/images/unplugged.png|55b5eeee08952d538185a659abbbb932
 /view/adminhtml/web/images/connected-magento.png|51fd81b41072f5cb3922102f27875be2
 /view/adminhtml/web/images/plane.png|7d27896af3e0f3cf6e353cccef8f8267
@@ -421,7 +421,7 @@
 /view/adminhtml/web/images/home-settings.png|4f7751e943137d3c10b71da358f7b1d7
 /view/adminhtml/web/images/lengow-white-big.png|6e6178f2db21104a157aebb27f9a5ca2
 /view/adminhtml/web/images/home-products.png|99ff45448ea094f8c70b58a0cd4d9303
-/view/adminhtml/web/images/connected-lengow.png|c80e8065bd5d1568efca50388622fd42
+/view/adminhtml/web/images/connected-lengow.png|0a6a7a3e04ed7f6281f7c24a25cae074
 /view/adminhtml/web/css/font-awesome.css|bf4b58c946c9234e4a6b9f7a70d38006
 /view/adminhtml/web/css/select2.css|8969ac4614d64a13dfc32e1eb4e731f7
 /view/adminhtml/web/css/lengow-pages.css|3a3714b40c980ab5397876cc9e0d385c
