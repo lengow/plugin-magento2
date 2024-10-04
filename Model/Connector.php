@@ -513,7 +513,7 @@ class Connector
             $wait = $this->getWaitLimitOrderRequests();
         }
 
-        if ($wait > 0) {
+        if (!is_null($wait) && $wait > 0) {
             $this->dataHelper->log(
                 DataHelper::CODE_CONNECTOR,
                 $this->dataHelper->setLogMessage('API call blocked due to rate limiting - wait %1 seconds', [$wait])
