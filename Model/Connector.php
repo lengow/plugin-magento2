@@ -73,6 +73,9 @@ class Connector
     public const CODE_404 = 404;
     public const CODE_500 = 500;
     public const CODE_504 = 504;
+    public const REQUEST_LIMIT = 500;
+
+
 
     /**
      * @var array success HTTP codes for request
@@ -487,8 +490,85 @@ class Connector
      */
     protected function callAction(string $api, array $args, string $type, string $format, string $body, bool $logOutput)
     {
+        $this->rateLimitingRequests($api);
         $result = $this->makeRequest($type, $api, $args, $this->token, $body, $logOutput);
         return $this->format($result, $format);
+    }
+
+    /**
+     * Rate limiting for Lengow API
+     */
+    protected function rateLimitingRequests(string $api): void
+    {
+
+        switch($api) {
+            case self::API_ORDER:
+                $wait = $this->getWaitLimitOrderRequests();
+                break;
+            case self::API_ORDER_ACTION:
+                $wait = $this->getWaitLimitActionRequests();
+                break;
+            case self::API_ORDER_MOI:
+                $wait = $this->getWaitLimitOrderRequests();
+                break;
+            default:
+                $wait = null;
+                break;
+        }
+
+        if (!is_null($wait) && $wait > 0) {
+            $this->dataHelper->log(
+                DataHelper::CODE_CONNECTOR,
+                $this->dataHelper->setLogMessage('API call blocked due to rate limiting - wait %1 seconds', [$wait])
+            );
+            sleep($wait);
+        }
+    }
+
+    /**
+     * Limit the number of order requests
+     */
+    protected function getWaitLimitOrderRequests(): ?int
+    {
+        static $nbRequest = 0;
+        static $timeStart = null;
+        if (is_null($timeStart)) {
+            $timeStart = time();
+        }
+        $nbRequest++;
+        if ($nbRequest >= self::REQUEST_LIMIT) {
+            $timeDiff = time() - $timeStart;
+            $nbRequest = 0;
+            $timeStart = time();
+            if ($timeDiff < 60) {
+                return (60 - $timeDiff);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Limit the number of action requests
+     */
+    protected function getWaitLimitActionRequests(): ?int
+    {
+        static $nbRequest = 0;
+        static $timeStart = null;
+        if (is_null($timeStart)) {
+            $timeStart = time();
+        }
+        $nbRequest++;
+        if ($nbRequest >= self::REQUEST_LIMIT) {
+            $timeDiff = time() - $timeStart;
+            $nbRequest = 0;
+            $timeStart = time();
+            if ($timeDiff < 60) {
+                return (60 - $timeDiff);
+            }
+        }
+
+        return null;
     }
 
     /**
