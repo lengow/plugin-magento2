@@ -500,17 +500,20 @@ class Connector
      */
     protected function rateLimitingRequests(string $api): void
     {
-        $wait = 0;
-        if ($api === self::API_ORDER) {
-            $wait = $this->getWaitLimitOrderRequests();
-        }
 
-        else if ($api === self::API_ORDER_ACTION) {
-            $wait = $this->getWaitLimitActionRequests();
-        }
-
-        else if ($api === self::API_ORDER_MOI) {
-            $wait = $this->getWaitLimitOrderRequests();
+        switch($api) {
+            case self::API_ORDER:
+                $wait = $this->getWaitLimitOrderRequests();
+                break;
+            case self::API_ORDER_ACTION:
+                $wait = $this->getWaitLimitActionRequests();
+                break;
+            case self::API_ORDER_MOI:
+                $wait = $this->getWaitLimitOrderRequests();
+                break;
+            default:
+                $wait = null;
+                break;
         }
 
         if (!is_null($wait) && $wait > 0) {
