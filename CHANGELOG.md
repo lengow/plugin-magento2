@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.6](https://github.com/lengow/plugin-magento2/compare/v1.6.5...v1.6.6) (2024-10-08)
+
+
+### Miscellaneous
+
+* **ci-cd:** automatically update release-please version in files ([#30](https://github.com/lengow/plugin-magento2/issues/30)) ([f597212](https://github.com/lengow/plugin-magento2/commit/f597212a950c9e3604b2d6182fe3407769eb724e))
+* **cicd:** Add a CI job to generate plugin checksums ([#31](https://github.com/lengow/plugin-magento2/issues/31)) ([1a966b4](https://github.com/lengow/plugin-magento2/commit/1a966b484bbc1c170edac1b7438796bac82760c6))
+
 ## [1.6.5](https://github.com/lengow/plugin-magento2/compare/v1.6.4...v1.6.5) (2024-09-23)
 
 
