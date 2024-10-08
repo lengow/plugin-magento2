@@ -60,6 +60,8 @@ jobs:
               {"type":"refactor","section":"Refactoring","hidden":false},
               {"type":"misc","section":"Miscellaneous","hidden":false}
             ]
+          extra-files: |
+            README.md
       - name: Checkout appropriate branch
         if: ${{ !startsWith(github.head_ref, 'release-please') }}
         uses: actions/checkout@v4
