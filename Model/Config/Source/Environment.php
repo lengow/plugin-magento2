@@ -39,7 +39,7 @@ class Environment implements OptionSourceInterface
     public function toOptionArray(): array
     {
         return [
-            ['value' => static::PRE_PROD_ENVIRONMENT, 'label' => __('Pre-Prod')],
+            ['value' => static::PRE_PROD_ENVIRONMENT, 'label' => __('Sandbox')],
             ['value' => static::PROD_ENVIRONMENT, 'label' => __('Production')]
         ];
     }
