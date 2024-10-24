@@ -493,10 +493,9 @@ class Customer extends MagentoResourceCustomer
             $this->hydrateAddress($orderData, $orderData->billing_address)
         );
         if (!$billingAddress->getId()) {
+            $billingAddress->setIsDefaultBilling('1')->save();
             $customer->addAddress($billingAddress);
-            if ($customer->getDefaultBillingAddress()) {
-                $billingAddress->setIsDefaultBilling('1')->save();
-            }
+            $customer->setDefaultBilling($billingAddress->getId());
         }
         // create or load default shipping address if not exist
         $shippingAddress = $this->getOrCreateAddress(
@@ -505,10 +504,9 @@ class Customer extends MagentoResourceCustomer
             true
         );
         if (!$shippingAddress->getId()) {
+            $shippingAddress->setIsDefaultShipping('1')->save();
             $customer->addAddress($shippingAddress);
-            if ($customer->getDefaultShippingAddress()) {
-                $shippingAddress->setIsDefaultShipping('1')->save();
-            }
+            $customer->setDefaultShipping($shippingAddress->getId());
         }
         $customer->save();
         return $customer;
@@ -584,6 +582,7 @@ class Customer extends MagentoResourceCustomer
             $customer->setForceConfirmed(true);
             $customer->setPasswordHash($this->_encryptor->getHash($this->generatePassword(), true));
             $customer->addData(['from_lengow' => true]);
+            $customer->save();
         }
         return $customer;
     }
@@ -1024,7 +1023,7 @@ class Customer extends MagentoResourceCustomer
             $address->phone_home = $notPhone;
             $address->phone_mobile = $notPhone;
         }
-        
+
         return $address;
     }
 }
