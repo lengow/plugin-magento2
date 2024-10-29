@@ -1,4 +1,4 @@
-/composer.json|f0cc69500d538b9d8356f8a986be5133
+/composer.json|70fd0b3fe0cbf804d4215c14f253e0a2
 /registration.php|dc6e50502663d362b5efdf9c829985c6
 /Block/Adminhtml/Header.php|c2389266bf3fc30d13fc3a5d0ca5e571
 /Block/Adminhtml/Sales/Order/Tab/Info.php|05694184af6d7e7fe04ad014d0defd33
@@ -61,9 +61,9 @@
 /Helper/Toolbox.php|89d0a37f1c759c5539dddcb11a5cfef2
 /Helper/Data.php|4b3678157d435ce9c54c6856cdf244e4
 /Helper/Security.php|e6622f9e1df875bcca48f8c310dbdd0a
-/i18n/fr_FR.csv|969dd8672f1c0ce1c09a6320976e12ef
-/i18n/en_GB.csv|1918ad20c592f05d22130c5aeb27f142
-/i18n/de_DE.csv|53e64201d26583a804c1029e5b5d1741
+/i18n/fr_FR.csv|820721ad29e293cc71ac4952e0df3466
+/i18n/en_GB.csv|49f7831e407033c8440f29b15b66c8f0
+/i18n/de_DE.csv|67826a5dd52062005fd825d18b0816d6
 /Model/Carrier/Lengow.php|2fa83223a8a7989ac04e1e92fd0ca907
 /Model/Import.php|a3b830f88471ac6cf6991983ced61de1
 /Model/Log.php|333700e3e9a446010914c5134ac6c1f4
@@ -75,7 +75,7 @@
 /Model/Export/Price.php|94245723ad4b5fb862dfe679e59be2e8
 /Model/Exception.php|54edeb8720951a9e4cdc0011f8e2572f
 /Model/Config/Source/Group.php|ed2893f7c2a38224f6351574048f0c59
-/Model/Config/Source/Environment.php|e3ea5e763f2525001877adfb9956b21c
+/Model/Config/Source/Environment.php|e890591b3d4006471e7b3c6de5d012f9
 /Model/Config/Source/Action.php|8ef383f602c2ae31b67dd013c88e91f8
 /Model/Config/Source/Attribute.php|9d1afe33d2a059ccf33e156ba4e2e78c
 /Model/Config/Source/Actionstatus.php|cf009e4c60897ebab703dc73d7da3ed9
@@ -91,10 +91,9 @@
 /Model/Import/Importorder.php|33dfe18a90030e0462a387b136c16e46
 /Model/Import/Ordererror.php|4ebd478d00a12adadbfe17761f27c1ad
 /Model/Import/Quote.php|9ac480d69638f6a9136b79db9f52ec95
-/Model/Import/Customer.php|5b8adaf51e4d82fa41779646796910a9
+/Model/Import/Customer.php|dad40817cbfcd8e189fb503cde9d5180
 /Model/Catalog.php|2b7cb82722a383e5fdf258735fa4cd72
 /Model/Payment/Lengow.php|dd4f2d120fe6faa2d731cbf9eed66408
-/Model/test-call-action.php|6ccee5ad98acae585af4b3ef94375767
 /Model/Connector.php|1e16c5e30aa4d973b00a48545bfbac2a
 /Model/ResourceModel/Orderline.php|b0e59b0f9a3c00baae9e3ba8d951383a
 /Model/ResourceModel/Order.php|5b1e4f364f44e627be64fdb519591b36
@@ -152,13 +151,13 @@
 /view/adminhtml/templates/log/main.phtml|ee2236823cdcf3d8d05c8bdfdce1d0cc
 /view/adminhtml/templates/home/catalog_failed.phtml|6d8e41e81a995fd770c8d603314ed7f7
 /view/adminhtml/templates/home/new.phtml|183f9ddbebdfa45b59003fb4f40b09ef
-/view/adminhtml/templates/home/cms_result.phtml|5b2da43459a4fdc52dea7792d0171420
+/view/adminhtml/templates/home/cms_result.phtml|7faf49bfd29de94f34f0443a169774dc
 /view/adminhtml/templates/home/catalog.phtml|bd697ac65bffc59c3a263ab74601d4a8
 /view/adminhtml/templates/home/cms.phtml|1b0ed623df7ed1aae77bfb2b9bf3e798
 /view/adminhtml/templates/home/main.phtml|0cde0e9ade6bfd0f4c401f2a7dd90ef7
 /view/adminhtml/templates/help/content.phtml|b4c5ed88758458d40eebacd8ca0ab19d
 /view/adminhtml/templates/help/main.phtml|725f74753d014d0300f6614b36168035
-/view/adminhtml/templates/footer.phtml|b3ad3d334932d8776820b7ad1ad22cb4
+/view/adminhtml/templates/footer.phtml|135edf829ef3a2432b5da5230138c111
 /view/adminhtml/templates/product/main.phtml|47500de3d150d182d59b5be0e7ad757e
 /view/adminhtml/templates/product/header.phtml|3b4a5150fbc9a3cde8470566f08ece09
 /view/adminhtml/templates/sales/order/tab/info.phtml|977c569a5eb89e1fd7c751959946e776

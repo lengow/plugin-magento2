@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.7](https://github.com/lengow/plugin-magento2/compare/v1.6.6...v1.6.7) (2024-10-28)
+
+
+### Bug Fixes
+
+* **import:** [PST-21918] fix NoSuchEntityException when customer has no default address ([#35](https://github.com/lengow/plugin-magento2/issues/35)) ([905e07b](https://github.com/lengow/plugin-magento2/commit/905e07bbcc8f5299801b62d20391502b73f51ad6))
+* **settings:** [PST-21910] change preprod to sandbox word ([#34](https://github.com/lengow/plugin-magento2/issues/34)) ([d77cd3e](https://github.com/lengow/plugin-magento2/commit/d77cd3e6ba03516a3159649475a96d77d104cdc0))
+
 ## [1.6.6](https://github.com/lengow/plugin-magento2/compare/v1.6.5...v1.6.6) (2024-10-14)
 
 
