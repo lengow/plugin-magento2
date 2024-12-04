@@ -71,10 +71,11 @@ class QuoteBundlePlugin
         }
         $sessionPrice = (float) $bundleQuoteItems[$productId]['price'];
         $quoteQty = (int) $subject->getQty();
+        $bundleQty = (int) $bundleQuoteItems[$productId]['qty'];
         $taxPercent = (float) $subject->getTaxPercent();
         $sessionPriceUnit = round($sessionPrice / $quoteQty, 3);
         $originalPrice = round(($sessionPriceUnit / (100 + $taxPercent))   * 100, 3);
-        $taxAmount = round($sessionPrice - ($originalPrice * $quoteQty), 3);
+        $taxAmount = round($sessionPrice - ($originalPrice), 3);
         $subject->setPriceInclTax($sessionPriceUnit);
         $subject->setBasePriceInclTax($sessionPriceUnit);
         $subject->setCustomPriceInclTax($sessionPriceUnit);
@@ -86,7 +87,8 @@ class QuoteBundlePlugin
         $subject->setCustomPrice($originalPrice);
         $subject->setTaxAmount($taxAmount);
         $subject->setBaseTaxAmount($taxAmount);
-        $subject->setBaseRowTotal($originalPrice * $quoteQty);
+        $quoteQty *= $bundleQty;
+        $subject->setBaseRowTotal($originalPrice * $quoteQty );
         $subject->setRowTotal($originalPrice * $quoteQty);
         $subject->setRowTotalInclTax($sessionPriceUnit * $quoteQty);
         $subject->setBaseRowTotalInclTax($sessionPriceUnit * $quoteQty);

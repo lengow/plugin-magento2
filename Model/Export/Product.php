@@ -751,6 +751,7 @@ class Product
             return min($quantities) > 0 ? (int) min($quantities) : 0;
         }
         if ($this->type === 'bundle') {
+
             $quantities = [];
             $bundleOptions = $this->getBundleOptionsProductIds($this->product);
             foreach ($bundleOptions as $option) {
@@ -879,6 +880,9 @@ class Product
         }
         if (!empty($attributeParent) && !empty($attributeValueParent)) {
             return is_array($attributeValueParent) ? json_encode($attributeValueParent) : $attributeValueParent;
+        }
+        if ($this->product->getTypeId() === 'bundle' && $field === 'quantity_and_stock_status') {
+            $attributeValue =  str_replace('qty: 0','qty: '.$this->getQuantity(), $attributeValue);
         }
         return is_array($attributeValue) ? json_encode($attributeValue) : $attributeValue;
     }
