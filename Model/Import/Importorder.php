@@ -1443,7 +1443,7 @@ class Importorder extends AbstractModel
                 && $this->taxConfig->displaySalesPricesInclTax($quote->getStore()));
 
         $shippingIncludeTax = ($this->taxConfig->shippingPriceIncludesTax($quote->getStore())
-            && $this->taxConfig->displayCartShippingInclTax($quote->getSotre())
+            && $this->taxConfig->displayCartShippingInclTax($quote->getStore())
             && $this->taxConfig->displaySalesShippingInclTax($quote->getStore()));
         // if this order is b2b
         if ((int) $this->backendSession->getIsLengowB2b() === 1) {
