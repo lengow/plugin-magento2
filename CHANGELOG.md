@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.8](https://github.com/lengow/plugin-magento2/compare/v1.6.7...v1.6.8) (2025-02-24)
+
+
+### Bug Fixes
+
+* **tax:** [PCMT-178] fix the function name ([#39](https://github.com/lengow/plugin-magento2/issues/39)) ([50b76cc](https://github.com/lengow/plugin-magento2/commit/50b76ccfa2dfeddac0f923cd598de2841d317391))
+
 ## [1.6.7](https://github.com/lengow/plugin-magento2/compare/v1.6.6...v1.6.7) (2024-10-28)
 
 
