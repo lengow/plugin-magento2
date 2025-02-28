@@ -1334,7 +1334,7 @@ class Importorder extends AbstractModel
                 }
                 // search by id or sku
                 if (!$magentoProduct || !$magentoProduct->getId()) {
-                    if (preg_match('/^[0-9]*$/', $attributeValue)) {
+                    if (preg_match('/^[1-9][0-9]*$/', $attributeValue)) {
                         $magentoProduct = $this->productFactory
                             ->create()
                             ->setStoreId($this->storeId)
