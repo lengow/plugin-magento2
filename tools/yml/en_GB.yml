@@ -404,6 +404,8 @@ en:
     import_cron_enable_comment: "Enable the scheduled task to import your orders every 30 minutes"
     import_b2b_without_tax_label: "Enable import of B2B orders without tax"
     import_b2b_without_tax_comment: "Activate this option to import B2B orders without tax"
+    import_product_match_by_label: "Product Match Method"
+    import_product_match_by_comment: "Define how products should be matched during import."
     import_anonymized_email: "Import anonymized email"
     import_anonymized_email_comment: "Activate anonymization email <br>example: 1-123456789-amazon_fr@lengow.com"
     import_anonymized_encrypt_email: "Import anonymized email encrypted <br>example: f462bcb6107186e28159a5a9bac660ba@lengow.com"
