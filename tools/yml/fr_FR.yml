@@ -404,6 +404,8 @@ fr:
     import_cron_enable_comment: "Si votre Cron est en place sur Magento, les commandes seront importées automatiquement toutes les 30 minutes"
     import_b2b_without_tax_label: "Activer l'import des commandes B2B sans taxes"
     import_b2b_without_tax_comment: "Activer cette option pour importer les commandes B2B sans taxes"
+    import_product_match_by_label: "Méthode de correspondance des produits"
+    import_product_match_by_comment: "Définir comment les produits doivent être correspondus lors de l'importation."
     import_anonymized_email: "Importer les e-mails anonymisés"
     import_anonymized_email_comment: "Active l'anonymisation des e-mails lors de l'importation des commandes <br>exemple: 1-123456789-amazon_fr@lengow.com"
     import_anonymized_encrypt_email: "Importer les e-mails anonymisés et encryptés"

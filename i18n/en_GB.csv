@@ -372,6 +372,8 @@
 "Enable the scheduled task to import your orders every 30 minutes","Enable the scheduled task to import your orders every 30 minutes"
 "Enable import of B2B orders without tax","Enable import of B2B orders without tax"
 "Activate this option to import B2B orders without tax","Activate this option to import B2B orders without tax"
+"Product Match Method","Product Match Method"
+"Define how products should be matched during import.","Define how products should be matched during import."
 "Import anonymized email","Import anonymized email"
 "Activate anonymization email <br>example: 1-123456789-amazon_fr@lengow.com","Activate anonymization email <br>example: 1-123456789-amazon_fr@lengow.com"
 "Import anonymized email encrypted <br>example: f462bcb6107186e28159a5a9bac660ba@lengow.com","Import anonymized email encrypted <br>example: f462bcb6107186e28159a5a9bac660ba@lengow.com"
