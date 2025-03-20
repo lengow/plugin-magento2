@@ -1,5 +1,10 @@
 # Changelog
 
+### Bug Fixes
+*
+## [1.6.9](https://github.com/lengow/plugin-magento2/compare/v1.6.8...v1.6.9) (2025-03-20)
+* **import:** [PCMT-191] option for product matching ([#41](https://github.com/lengow/plugin-magento2/issues/41)) ([22d8d94](https://github.com/lengow/plugin-magento2/commit/22d8d9478cd6594206ddc28e585ed86a3c6eb616))
+
 ## [1.6.8](https://github.com/lengow/plugin-magento2/compare/v1.6.7...v1.6.8) (2025-02-24)
 
 
