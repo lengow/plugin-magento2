@@ -1,11 +1,7 @@
 # Changelog
 
-## [1.6.10](https://github.com/lengow/plugin-magento2/compare/v1.6.9...v1.6.10) (2025-03-20)
-
-
 ### Bug Fixes
-
-* **config:** [PCMT-248] fix validate nb days with number and dot ([#43](https://github.com/lengow/plugin-magento2/issues/43)) ([276ac5b](https://github.com/lengow/plugin-magento2/commit/276ac5bf62f33ca7170c09a9211bca5183844dbd))
+*
 ## [1.6.9](https://github.com/lengow/plugin-magento2/compare/v1.6.8...v1.6.9) (2025-03-20)
 * **import:** [PCMT-191] option for product matching ([#41](https://github.com/lengow/plugin-magento2/issues/41)) ([22d8d94](https://github.com/lengow/plugin-magento2/commit/22d8d9478cd6594206ddc28e585ed86a3c6eb616))
 
