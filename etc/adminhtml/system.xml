@@ -143,7 +143,7 @@
                 <field id="import_days" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Synchronize all orders updated since</label>
                     <comment>Choose a number of days (Max 10 days)</comment>
-                    <validate>validate-digits validate-digits-range digits-range-1-10</validate>
+                    <validate>validate-number-and-dot</validate>
                 </field>
                 <field id="import_customer_group" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="1">
                     <label>Customer group</label>
