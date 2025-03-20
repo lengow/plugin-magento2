@@ -1,4 +1,4 @@
-/composer.json|f38a1462b06dfdcf35df3cc0bc314421
+/composer.json|3b5264ce1d3bcdcfcc74b8b0188dbdbf
 /registration.php|dc6e50502663d362b5efdf9c829985c6
 /Block/Widget/Grid/Extended.php|2f60a620c1c13cddb698b81850bb7377
 /Block/Widget/Grid/Massaction/Extended.php|45c7a2c6dc1d0f7c0a2f0aaa98072667
@@ -52,7 +52,7 @@
 /etc/frontend/routes.xml|fd7926ca314017e32250b7e108d09d75
 /etc/adminhtml/routes.xml|b37d51a18bc54f5a872c9797ed06ed5d
 /etc/adminhtml/menu.xml|b77fedabb5e2fa4ac1e16faa8b07add4
-/etc/adminhtml/system.xml|f839abc81451d245c666843c637e0753
+/etc/adminhtml/system.xml|b146931201ec60b0609937e11ef1158c
 /etc/config.xml|9e89d05e2890cf92f8d987522bfbbf6b
 /Helper/Toolbox.php|89d0a37f1c759c5539dddcb11a5cfef2
 /Helper/NameParser.php|89244879415034cf8d573077815fe518
