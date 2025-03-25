@@ -1,3 +1,68 @@
+# Changelog
+
+
+### Bug Fixes
+## [1.6.10](https://github.com/lengow/plugin-magento2/compare/v1.6.9...v1.6.10) (2025-03-20)
+[PCMT-248] : fix config number and dot
+
+* ([276ac5b](https://github.com/lengow/plugin-magento2/commit/276ac5bf62f33ca7170c09a9211bca5183844dbd))
+## [1.6.9](https://github.com/lengow/plugin-magento2/compare/v1.6.8...v1.6.9) (2025-03-20)
+* **import:** [PCMT-191] option for product matching ([#41](https://github.com/lengow/plugin-magento2/issues/41)) ([22d8d94](https://github.com/lengow/plugin-magento2/commit/22d8d9478cd6594206ddc28e585ed86a3c6eb616))
+
+## [1.6.8](https://github.com/lengow/plugin-magento2/compare/v1.6.7...v1.6.8) (2025-02-24)
+
+
+### Bug Fixes
+
+* **tax:** [PCMT-178] fix the function name ([#39](https://github.com/lengow/plugin-magento2/issues/39)) ([50b76cc](https://github.com/lengow/plugin-magento2/commit/50b76ccfa2dfeddac0f923cd598de2841d317391))
+
+## [1.6.7](https://github.com/lengow/plugin-magento2/compare/v1.6.6...v1.6.7) (2024-10-28)
+
+
+### Bug Fixes
+
+* **import:** [PST-21918] fix NoSuchEntityException when customer has no default address ([#35](https://github.com/lengow/plugin-magento2/issues/35)) ([905e07b](https://github.com/lengow/plugin-magento2/commit/905e07bbcc8f5299801b62d20391502b73f51ad6))
+* **settings:** [PST-21910] change preprod to sandbox word ([#34](https://github.com/lengow/plugin-magento2/issues/34)) ([d77cd3e](https://github.com/lengow/plugin-magento2/commit/d77cd3e6ba03516a3159649475a96d77d104cdc0))
+
+## [1.6.6](https://github.com/lengow/plugin-magento2/compare/v1.6.5...v1.6.6) (2024-10-14)
+
+
+### Miscellaneous
+
+* **lengow:** [PST-21841] rate limit request for lengow API at 500 per minutes
+* **ci-cd:** automatically update release-please version in files ([#30](https://github.com/lengow/plugin-magento2/issues/30)) ([f597212](https://github.com/lengow/plugin-magento2/commit/f597212a950c9e3604b2d6182fe3407769eb724e))
+* **cicd:** Add a CI job to generate plugin checksums ([#31](https://github.com/lengow/plugin-magento2/issues/31)) ([1a966b4](https://github.com/lengow/plugin-magento2/commit/1a966b484bbc1c170edac1b7438796bac82760c6))
+
+## [1.6.5](https://github.com/lengow/plugin-magento2/compare/v1.6.4...v1.6.5) (2024-09-23)
+
+
+### Bug Fixes
+
+* **lengow:** [ECP-107] Change lengow's logo for the new logo ([#28](https://github.com/lengow/plugin-magento2/issues/28)) ([87306fb](https://github.com/lengow/plugin-magento2/commit/87306fbc13e9e6a955799299242815e754b419d5))
+
+
+### Miscellaneous
+use a generator to fetch orders from lengow instead of fetching all at once
+
+## [1.6.4](https://github.com/lengow/plugin-magento2/compare/v1.6.2...v1.6.4) (2024-08-28)
+
+### Features
+
+* **cicd:** [INFRA-2890] Setup a basic CI ([#22](https://github.com/lengow/plugin-magento2/issues/22)) ([5704361](https://github.com/lengow/plugin-magento2/commit/57043611bd597bb2808c631a7603889e26256636))
+
+
+### Bug Fixes
+
+* Release 1.6.4 ([#25](https://github.com/lengow/plugin-magento2/issues/25)) ([75aaa3d](https://github.com/lengow/plugin-magento2/commit/75aaa3df87cce34aadc9a1fd5dab2c91d049ace1))
+
+
+### Miscellaneous
+
+* **clean:** Precise Changelog format ([5704361](https://github.com/lengow/plugin-magento2/commit/57043611bd597bb2808c631a7603889e26256636))
+* **clean:** Remove obsolete files ([5704361](https://github.com/lengow/plugin-magento2/commit/57043611bd597bb2808c631a7603889e26256636))
+
+## Changelog
+
 =============================================================
 Version 1.6.3
 =============================================================

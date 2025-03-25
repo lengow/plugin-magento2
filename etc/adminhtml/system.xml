@@ -142,8 +142,8 @@
                 <label>Simple import settings</label>
                 <field id="import_days" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Synchronize all orders updated since</label>
-                    <comment>Choose a number of days (Max 10 days)</comment>
-                    <validate>validate-digits validate-digits-range digits-range-1-10</validate>
+                    <comment>Choose a number of days (Maximum 10 days)</comment>
+                    <validate>validate-number-and-dot</validate>
                 </field>
                 <field id="import_customer_group" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="1">
                     <label>Customer group</label>
@@ -208,6 +208,11 @@
                     <label>Enable import of B2B orders without tax</label>
                     <comment>Activate this option to import B2B orders without tax</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="import_product_match_by" translate="label" type="select" sortOrder="55" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>Product Match Method</label>
+                    <comment>Define how products should be matched during import.</comment>
+                    <source_model>Lengow\Connector\Model\Config\Source\ProductMatchBy</source_model>
                 </field>
                 <field id="import_debug_mode_enable" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Activate Debug Mode</label>

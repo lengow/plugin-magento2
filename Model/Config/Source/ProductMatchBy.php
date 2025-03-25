@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2022 Lengow SAS
+ * Copyright 2025 Lengow SAS
  *
  * NOTICE OF LICENSE
  *
@@ -13,34 +13,22 @@
  * @package     Lengow_Connector
  * @subpackage  Model
  * @author      Team module <team-module@lengow.com>
- * @copyright   2022 Lengow SAS
- *
+ * @copyright   2025 Lengow SAS
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
+
 namespace Lengow\Connector\Model\Config\Source;
 
 use Magento\Framework\Data\OptionSourceInterface;
 
-class Environment implements OptionSourceInterface
+class ProductMatchBy implements OptionSourceInterface
 {
-    /**
-     * @const PRE_PROD_ENVIRONMENT
-     */
-    public const PRE_PROD_ENVIRONMENT = 'pre-prod';
-
-    /**
-     * @const PROD_ENVIRONMENT
-     *
-     */
-    public const PROD_ENVIRONMENT = 'prod';
-
-    /**
-     * @return array[]
-     */
-    public function toOptionArray(): array
+    public function toOptionArray()
     {
         return [
-            ['value' => static::PRE_PROD_ENVIRONMENT, 'label' => __('Sandbox')],
-            ['value' => static::PROD_ENVIRONMENT, 'label' => __('Production')]
+            ['value' => '', 'label' => __('-- Default --')],
+            ['value' => 'id', 'label' => __('ID')],
+            ['value' => 'sku', 'label' => __('SKU')]
         ];
     }
 }

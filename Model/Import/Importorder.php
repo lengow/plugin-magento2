@@ -1300,9 +1300,14 @@ class Importorder extends AbstractModel
                 'marketplace_product_id' => $product->marketplace_product_id,
             ];
 
+            $matchBy = $this->configHelper->get(ConfigHelper::IMPORT_PRODUCT_MATCH_BY, $this->storeId);
             $productField = $product->merchant_product_id->field !== null
                 ? strtolower((string) $product->merchant_product_id->field)
                 : false;
+            if (!empty($matchBy)) {
+                $productField = $matchBy;
+            }
+
             // search product foreach value
             foreach ($productIds as $attributeName => $attributeValue) {
                 // remove _FBA from product id
@@ -1334,13 +1339,13 @@ class Importorder extends AbstractModel
                 }
                 // search by id or sku
                 if (!$magentoProduct || !$magentoProduct->getId()) {
-                    if (preg_match('/^[0-9]*$/', $attributeValue)) {
+                    if ((empty($matchBy) || 'id' === $matchBy) && preg_match('/^[0-9]*$/', $attributeValue)) {
                         $magentoProduct = $this->productFactory
                             ->create()
                             ->setStoreId($this->storeId)
                             ->load((int) $attributeValue);
                     }
-                    if (!$magentoProduct || !$magentoProduct->getId()) {
+                    if ((empty($matchBy) || 'sku' === $matchBy) && !$magentoProduct || !$magentoProduct->getId()) {
                         $attributeValue = str_replace('\_', '_', $attributeValue);
                         $magentoProduct = $this->productFactory->create()->setStoreId($this->storeId)->load(
                             $this->productFactory->create()->getIdBySku($attributeValue)
@@ -1445,7 +1450,7 @@ class Importorder extends AbstractModel
                 && $this->taxConfig->displaySalesPricesInclTax($quote->getStore()));
 
         $shippingIncludeTax = ($this->taxConfig->shippingPriceIncludesTax($quote->getStore())
-            && $this->taxConfig->displayCartShippingInclTax($quote->getSotre())
+            && $this->taxConfig->displayCartShippingInclTax($quote->getStore())
             && $this->taxConfig->displaySalesShippingInclTax($quote->getStore()));
         // if this order is b2b
         if ((int) $this->backendSession->getIsLengowB2b() === 1) {

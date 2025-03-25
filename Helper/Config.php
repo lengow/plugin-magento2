@@ -82,6 +82,7 @@ class Config extends AbstractHelper
     public const CURRENCY_CONVERSION_ENABLED = 'import_currency_conversion_enable';
     public const CHECK_ROUNDING_ENABLED = 'import_rounding_taxes_check_enable';
     public const B2B_WITHOUT_TAX_ENABLED = 'import_b2b_without_tax';
+    public const IMPORT_PRODUCT_MATCH_BY = 'import_product_match_by';
     public const SHIPPED_BY_MARKETPLACE_ENABLED = 'import_ship_mp_enabled';
     public const SHIPPED_BY_MARKETPLACE_STOCK_ENABLED = 'import_stock_ship_mp';
     public const IMPORT_ANONYMIZED_EMAIL = 'import_anonymized_email';
@@ -161,6 +162,7 @@ class Config extends AbstractHelper
         self::CURRENCY_CONVERSION_ENABLED => 'currency_conversion_enabled',
         self::CHECK_ROUNDING_ENABLED => 'rounding_taxes_check_enable',
         self::B2B_WITHOUT_TAX_ENABLED => 'b2b_without_tax_enabled',
+        self::IMPORT_PRODUCT_MATCH_BY => 'import_product_match_by',
         self::SHIPPED_BY_MARKETPLACE_ENABLED => 'shipped_by_marketplace_enabled',
         self::SHIPPED_BY_MARKETPLACE_STOCK_ENABLED => 'shipped_by_marketplace_stock_enabled',
         self::IMPORT_ANONYMIZED_EMAIL => 'import_anonymized_email',
@@ -439,6 +441,11 @@ class Config extends AbstractHelper
             self::PARAM_GLOBAL => true,
             self::PARAM_NO_CACHE => false,
             self::PARAM_RETURN => self::RETURN_TYPE_BOOLEAN,
+        ],
+        self::IMPORT_PRODUCT_MATCH_BY => [
+            self::PARAM_PATH => 'lengow_import_options/advanced/import_product_match_by',
+            self::PARAM_GLOBAL => true,
+            self::PARAM_NO_CACHE => false
         ],
         self::SHIPPED_BY_MARKETPLACE_ENABLED => [
             self::PARAM_PATH => 'lengow_import_options/advanced/import_ship_mp_enabled',

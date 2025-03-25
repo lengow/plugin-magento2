@@ -1,0 +1,81 @@
+name: Release
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  PROJECT_NAME: ${{ github.event.repository.name }}
+  SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+jobs:
+  get-next-version:
+    name: Determine Next Version
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.merged }}
+    outputs:
+      next-version: ${{ steps.semver.outputs.next || steps.semver.outputs.current }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get next version
+        id: semver
+        uses: ietf-tools/semver-action@main
+        with:
+          token: ${{ github.token }}
+          patchList: fix, refactor, misc
+          noVersionBumpBehavior: current
+          noNewCommitBehavior: current
+
+  release-please:
+    name: Create a Release and a version tag
+    needs: [get-next-version]
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.merged }}
+    outputs:
+      image-tag: ${{ steps.release-please.outputs.tag_name }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Release please
+        uses: google-github-actions/release-please-action@v3
+        id: release-please
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: php
+          package-name: plugin-magento2
+          default-branch: main
+          changelog-types: |
+            [
+              {"type":"feat","section":"Features","hidden":false},
+              {"type":"fix","section":"Bug Fixes","hidden":false},
+              {"type":"refactor","section":"Refactoring","hidden":false},
+              {"type":"misc","section":"Miscellaneous","hidden":false}
+            ]
+          extra-files: |
+            README.md
+      - name: Checkout appropriate branch
+        if: ${{ !startsWith(github.head_ref, 'release-please') }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: release-please--branches--main--components--plugin-magento2
+      - name: Generate MD5 Hashes
+        if: ${{ !startsWith(github.head_ref, 'release-please') }}
+        run: php tools/checkmd5.php
+      - name: Commit MD5 Hashes
+        if: ${{ !startsWith(github.head_ref, 'release-please') }}
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add etc/checkmd5.csv
+          git commit -m "misc(checksum): Update md5 checksums"
+          git push

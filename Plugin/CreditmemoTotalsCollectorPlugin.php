@@ -94,6 +94,11 @@ class CreditmemoTotalsCollectorPlugin
             $lengowOrder->getData(LengowOrder::FIELD_EXTRA)
         );
 
+        //not fix rounding if total_order, total_tax or shipping is null
+        if (is_null($lengowOrderData->total_order) || is_null($lengowOrderData->total_tax) || is_null($lengowOrderData->shipping)) {
+            return $result;
+        }
+
         $shippingLengow = (float) $lengowOrderData->shipping;
         if ($this->hasPostAdjustedAmounts($shippingLengow)) {
             return $result;

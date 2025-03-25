@@ -79,7 +79,7 @@ $credentialsValid = $cmsData['data']['isCredentialsValid'];
             <?php else: ?>
                 <p><?= $block->escapeHtml(__('Unable to connect with credentials provided.')) ?></p>
                 <?php if($block->isPreprodPlugin()): ?>
-                    <p><?= $block->escapeHtml(__('Please verify that these credentials match Lengow\'s pre-production environment.')) ?></p>
+                    <p><?= $block->escapeHtml(__('Please verify that these credentials match Lengow\'s sandbox environment.')) ?></p>
                 <?php else: ?>
                     <p><?= $block->escapeHtml(__('Please verify that these credentials match Lengow\'s production environment.')) ?></p>
                 <?php endif; ?>

@@ -1,0 +1,17 @@
+name: Auto Request Review
+
+on:
+  - pull_request
+
+jobs:
+  auto-request-review:
+    name: Assign Reviewers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Request review based on files changes and/or groups the author belongs to
+        uses: necojackarc/auto-request-review@v0.11.0
+        with:
+          token: ${{ secrets.AUTO_ASSIGN_REVIEWERS }}
+          config: .github/reviewers.yml
