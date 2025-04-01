@@ -120,6 +120,9 @@ class AddressTotals implements ObserverInterface
                 if ($shippingLengowExclTax !== $amount) {
                     $total->setData($type, $shippingLengowExclTax);
                 }
+                if ($shippingTaxAmount) {
+                    $total->setData('tax_amount', $taxLengow + $shippingTaxAmount);
+                }
 
             }
         }
