@@ -137,7 +137,6 @@ class AddressTotals implements ObserverInterface
             return false;
         }
 
-
         return true;
     }
 }

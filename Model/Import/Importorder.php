@@ -1503,7 +1503,6 @@ class Importorder extends AbstractModel
         ]);
         $quote->collectTotals()->save();
 
-
         // stop order creation when a quote is empty
         if (!$quote->getAllVisibleItems()) {
             $quote->setIsActive(false);

@@ -909,7 +909,6 @@ class Export
     private function getQuery(): ProductCollection
     {
         // export only specific products types for one store
-
         $productCollection = $this->productCollectionFactory->create()
             ->setStoreId($this->storeId)
             ->addStoreFilter($this->storeId)
