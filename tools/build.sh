@@ -98,6 +98,7 @@ if [ ! -z "${DEPLOY_ENV}" ] && [ "${DEPLOY_ENV}" == "prod" ]; then
     sed -i 's/lengow.net/lengow.io/g' ${FOLDER}/Model/Connector.php
     sed -i 's/lengow.local/lengow.io/g' ${FOLDER}/Model/Connector.php
 fi
+sleep 3
 
 # generate translations
 ${PHP} translate.php
@@ -119,6 +120,8 @@ mkdir /tmp/app
 mkdir /tmp/app/code
 mkdir /tmp/app/code/Lengow
 mkdir /tmp/app/code/Lengow/Connector
+
+sleep 3
 
 # copy files
 cp -rRp ${FOLDER}/. $FOLDER_TMP
@@ -146,11 +149,14 @@ remove_files $FOLDER_TMP "Jenkinsfile"
 remove_directory $FOLDER_TOOLS
 echo -e "- Remove Tools folder : ${VERT}DONE${NORMAL}"
 # remove Test folder
-#remove_directory $FOLDER_TEST
-#echo -e "- Remove Test folder : ${VERT}DONE${NORMAL}"
+if [ ! -z "${DEPLOY_ENV}" ] && [ "${DEPLOY_ENV}" == "prod" ]; then
+    remove_directory $FOLDER_TEST
+    echo -e "- Remove Test folder : ${VERT}DONE${NORMAL}"
+fi
 # remove todo.txt
 find $FOLDER_TMP -name "todo.txt" -delete
 echo -e "- todo.txt : ${VERT}DONE${NORMAL}"
+sleep 3
 # make zip
 cd /tmp
 zip -r ${ARCHIVE_NAME} app
@@ -161,3 +167,4 @@ then
 else
     mv $ARCHIVE_NAME ~/shared
 fi
+echo "End of build Magento2 archive module"

@@ -148,7 +148,7 @@ class ConnectorTest extends \PHPUnit\Framework\TestCase
             $this->_connector->queryApi('plop', '/v3.0/cms'),
             '[Test Query API] Check if type is valid'
         );
-        //var_dump($this->_connector->queryApi('GET', '/v3.0/cms'));exit;
+
         $this->assertEquals(
             json_decode('{"id": 1,"name": "A green door","price": 12.50,"tags": ["home", "green"]}'),
             $connectorMock->queryApi('GET', '/v3.0/cms'),
