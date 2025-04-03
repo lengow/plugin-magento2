@@ -2,6 +2,13 @@
 
 
 ### Bug Fixes
+## [1.7.0](https://github.com/lengow/plugin-magento2/compare/v1.6.10...v1.7.0) (2025-04-01)
+
+
+### Features
+
+* **orders:** [ECP-88] Bundle product manage ([#24](https://github.com/lengow/plugin-magento2/issues/24)) ([5b6f817](https://github.com/lengow/plugin-magento2/commit/5b6f817b15d60df4c37598302aefed9391ab4913))
+
 ## [1.6.10](https://github.com/lengow/plugin-magento2/compare/v1.6.9...v1.6.10) (2025-03-20)
 [PCMT-248] : fix config number and dot
 
