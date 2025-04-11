@@ -82,7 +82,6 @@ class LaunchResend
      * @param StoreManagerInterface         $storeManager       Magento store manager instance
      * @param DataHelper                    $dataHelper         Lengow data helper instance
      * @param ConfigHelper                  $configHelper       Lengow config helper instance
-     * @param LengowExportFactory           $exportFactory      Lengow export factory instance
      * @param LengowOrderErrorFactory       $orderErrorFactory  Lengow order error factory
      * @param LengowOrderFactory            $lengowOrderFactory Lengow Order factory
      * @param MagentoOrderFactory           $orderFactory       Magento Order factory
@@ -107,7 +106,9 @@ class LaunchResend
     }
 
     /**
-     * Launch export products for each store
+     * Retrieves orders to be resent, and processes them
+     *
+     * @return void
      */
     public function execute(): void
     {
