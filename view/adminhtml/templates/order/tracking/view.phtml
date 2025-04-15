@@ -18,49 +18,59 @@ $shippingHelper = $block->getData('shippingHelper');
     <form id="tracking-shipping-form" data-mage-init='{"validation": {}}'>
         <table class="data-table admin__control-table" id="shipment_tracking_info">
             <thead>
-                <tr class="headings">
-                    <th class="col-carrier"><?= $escaper->escapeHtml(__('Carrier')) ?></th>
-                    <th class="col-title"><?= $escaper->escapeHtml(__('Title')) ?></th>
-                    <th class="col-number"><?= $escaper->escapeHtml(__('Number')) ?></th>
-                    <?php if ($block->canDisplayReturnCarrier()): ?>
-                        <th class="col-number"><?= $escaper->escapeHtml(__('Return Carrier')) ?></th>
-                    <?php endif; ?>
-                    <?php if ($block->canDisplayReturnNumber()): ?>
-                        <th class="col-number"><?= $escaper->escapeHtml(__('Return Number')) ?></th>
-                    <?php endif; ?>
-                    <th class="col-delete last"><?= $escaper->escapeHtml(__('Action')) ?></th>
-                </tr>
+            <tr class="headings">
+                <th class="col-carrier"><?= $escaper->escapeHtml(__('Carrier')) ?></th>
+                <th class="col-title"><?= $escaper->escapeHtml(__('Title')) ?></th>
+                <th class="col-shipping"><?= $escaper->escapeHtml(__('Shipping')) ?></th>
+                <th class="col-number"><?= $escaper->escapeHtml(__('Number')) ?></th>
+                <?php if ($block->canDisplayReturnCarrier()): ?>
+                    <th class="col-number"><?= $escaper->escapeHtml(__('Return Carrier')) ?></th>
+                <?php endif; ?>
+                <?php if ($block->canDisplayReturnNumber()): ?>
+                    <th class="col-number"><?= $escaper->escapeHtml(__('Return Number')) ?></th>
+                <?php endif; ?>
+                <th class="col-delete last"><?= $escaper->escapeHtml(__('Action')) ?></th>
+            </tr>
             </thead>
             <tfoot>
-                <tr>
-                    <td class="col-carrier">
-                        <select name="carrier" class="select admin__control-select">
-                            <?php foreach ($block->getCarriers() as $_code => $_name): ?>
+            <tr>
+                <td class="col-carrier">
+                    <select name="carrier" class="select admin__control-select">
+                        <?php foreach ($block->getCarriers() as $_code => $_name): ?>
                             <option value="<?= $escaper->escapeHtmlAttr($_code) ?>">
                                 <?= $escaper->escapeHtml($_name) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <?= /* @noEscape */ $secureRenderer->renderEventListenerAsTag(
-                            'onchange',
-                            'selectCarrier(this)',
-                            "select[name='carrier']"
-                        ) ?>
-                    </td>
-                    <td class="col-title">
-                        <input class="input-text admin__control-text"
-                               type="text"
-                               id="tracking_title"
-                               name="title"
-                               value="" />
-                    </td>
-                    <td class="col-number">
-                        <input class="input-text admin__control-text required-entry"
-                               type="text"
-                               id="tracking_number"
-                               name="number"
-                               value="" />
-                    </td>
-                    <?php if ($block->canDisplayReturnCarrier()): ?>
+                        <?php endforeach; ?>
+                    </select>
+                    <?= /* @noEscape */ $secureRenderer->renderEventListenerAsTag(
+                        'onchange',
+                        'selectCarrier(this)',
+                        "select[name='carrier']"
+                    ) ?>
+                </td>
+                <td class="col-title">
+                    <input class="input-text admin__control-text"
+                           type="text"
+                           id="tracking_title"
+                           name="title"
+                           value="" />
+                </td>
+                <td class="col-shipping">
+                    <select name="shipping_method_mktp" class="select admin__control-select">
+                        <?php foreach ($block->getShippingsByMarketplace() as $_code): ?>
+                            <option value="<?= $escaper->escapeHtmlAttr($_code) ?>">
+                                <?= $escaper->escapeHtml($_code) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </td>
+                <td class="col-number">
+                    <input class="input-text admin__control-text required-entry"
+                           type="text"
+                           id="tracking_number"
+                           name="number"
+                           value="" />
+                </td>
+                <?php if ($block->canDisplayReturnCarrier()): ?>
                     <td class="col-title">
                         <input class="input-text admin__control-text"
                                type="text"
@@ -70,69 +80,70 @@ $shippingHelper = $block->getData('shippingHelper');
 
                     </td>
 
-                    <?php endif; ?>
-                    <?php if ($block->canDisplayReturnNumber()): ?>
-                        <td class="col-number">
-                            <input class="input-text admin__control-text"
-                                   type="text"
-                                   id="return_tracking_number"
-                                   name="return_number"
-                                   value="" />
-                        </td>
-                    <?php endif ?>
-                    <td class="col-delete last"><?= $block->getSaveButtonHtml() ?></td>
-                </tr>
-            </tfoot>
-        <?php if ($_tracks = $block->getShipment()->getAllTracks()): ?>
-            <tbody>
-            <?php $i = 0; foreach ($_tracks as $_track): $i++ ?>
-                <tr class="<?= /* @noEscape */ ($i%2 == 0) ? 'even' : 'odd' ?>">
-                    <td class="col-carrier">
-                        <?= $escaper->escapeHtml($block->getCarrierTitle($_track->getCarrierCode())) ?>
-                    </td>
-                    <td class="col-title"><?= $escaper->escapeHtml($_track->getTitle()) ?></td>
+                <?php endif; ?>
+                <?php if ($block->canDisplayReturnNumber()): ?>
                     <td class="col-number">
-                        <?php if ($_track->isCustom()): ?>
-                            <?= $escaper->escapeHtml($_track->getNumber()) ?>
-                        <?php else: ?>
-                        <a id="col-track-<?= (int) $_track->getId() ?>" href="#">
-                            <?= $escaper->escapeHtml($_track->getNumber()) ?>
-                         </a>
-                            <?= /* @noEscape */ $secureRenderer->renderEventListenerAsTag(
+                        <input class="input-text admin__control-text"
+                               type="text"
+                               id="return_tracking_number"
+                               name="return_number"
+                               value="" />
+                    </td>
+                <?php endif ?>
+                <td class="col-delete last"><?= $block->getSaveButtonHtml() ?></td>
+            </tr>
+            </tfoot>
+            <?php if ($_tracks = $block->getShipment()->getAllTracks()): ?>
+                <tbody>
+                <?php $i = 0; foreach ($_tracks as $_track): $i++ ?>
+                    <tr class="<?= /* @noEscape */ ($i%2 == 0) ? 'even' : 'odd' ?>">
+                        <td class="col-carrier">
+                            <?= $escaper->escapeHtml($block->getCarrierTitle($_track->getCarrierCode())) ?>
+                        </td>
+                        <td class="col-title"><?= $escaper->escapeHtml($_track->getTitle()) ?></td>
+                        <td class="col-shipping"><?= $escaper->escapeHtml($_track->getShippingMethodMktp()) ?></td>
+                        <td class="col-number">
+                            <?php if ($_track->isCustom()): ?>
+                                <?= $escaper->escapeHtml($_track->getNumber()) ?>
+                            <?php else: ?>
+                                <a id="col-track-<?= (int) $_track->getId() ?>" href="#">
+                                    <?= $escaper->escapeHtml($_track->getNumber()) ?>
+                                </a>
+                                <?= /* @noEscape */ $secureRenderer->renderEventListenerAsTag(
                                 'onclick',
                                 "event.preventDefault();
                                 popWin('{$block->escapeJs($shippingHelper->getTrackingPopupUrlBySalesModel($_track))}',
                                 'trackorder','width=800,height=600,resizable=yes,scrollbars=yes')",
                                 'a#col-track-' .  (int) $_track->getId()
                             ) ?>
-                        <div id="shipment_tracking_info_response_<?= (int) $_track->getId() ?>"></div>
+                                <div id="shipment_tracking_info_response_<?= (int) $_track->getId() ?>"></div>
+                            <?php endif; ?>
+                        </td>
+                        <?php if ($block->canDisplayReturnCarrier()): ?>
+                            <td class="col-number">
+                                <?= $escaper->escapeHtml($_track->getReturnCarrierCode()) ?>
+                            </td>
                         <?php endif; ?>
-                    </td>
-                    <?php if ($block->canDisplayReturnCarrier()): ?>
-                        <td class="col-number">
-                            <?= $escaper->escapeHtml($_track->getReturnCarrierCode()) ?>
+                        <?php if ($block->canDisplayReturnNumber()): ?>
+                            <td class="col-number">
+                                <?= $escaper->escapeHtml($_track->getReturnTrackNumber()) ?>
+                            </td>
+                        <?php endif; ?>
+                        <td class="col-delete last">
+                            <button class="action-delete" type="button" id="del-track-<?= (int) $_track->getId() ?>">
+                                <span><?= $escaper->escapeHtml(__('Delete')) ?></span>
+                            </button>
                         </td>
-                    <?php endif; ?>
-                    <?php if ($block->canDisplayReturnNumber()): ?>
-                        <td class="col-number">
-                            <?= $escaper->escapeHtml($_track->getReturnTrackNumber()) ?>
-                        </td>
-                    <?php endif; ?>
-                    <td class="col-delete last">
-                        <button class="action-delete" type="button" id="del-track-<?= (int) $_track->getId() ?>">
-                            <span><?= $escaper->escapeHtml(__('Delete')) ?></span>
-                        </button>
-                    </td>
-                    <?= /* @noEscape */ $secureRenderer->renderEventListenerAsTag(
-                        'onclick',
-                        "deleteTrackingNumber('{$block->escapeJs($block->getRemoveUrl($_track))}');
+                        <?= /* @noEscape */ $secureRenderer->renderEventListenerAsTag(
+                            'onclick',
+                            "deleteTrackingNumber('{$block->escapeJs($block->getRemoveUrl($_track))}');
                          event.preventDefault();",
-                        '#del-track-' . (int) $_track->getId()
-                    ) ?>
-                </tr>
-            <?php endforeach; ?>
-            </tbody>
-        <?php endif; ?>
+                            '#del-track-' . (int) $_track->getId()
+                        ) ?>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            <?php endif; ?>
         </table>
     </form>
 </div>
@@ -158,7 +169,7 @@ function saveTrackingInfo(node, url) {
         var elemReturn =  $('return_tracking_number');
         if (typeof elemReturn != 'undefined' && elemReturn != null) {
             setTimeout(() => {window.location.reload();}, 500);
-        }       
+        }
     }
 }
 
@@ -186,4 +197,3 @@ window.saveTrackingInfo = saveTrackingInfo;
 script;
 ?>
 <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>
-
