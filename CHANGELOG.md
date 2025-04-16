@@ -2,6 +2,14 @@
 
 
 ### Bug Fixes
+## [1.7.1](https://github.com/lengow/plugin-magento2/compare/v1.7.0...v1.7.1) (2025-04-16)
+
+
+### Bug Fixes
+
+* **Action:** [PCMT-347] add new field for shipping method for send action in front database and send value in action for mktp ([#57](https://github.com/lengow/plugin-magento2/issues/57)) ([53ee71d](https://github.com/lengow/plugin-magento2/commit/53ee71d46efdc64d9b2fe5c2dc8c856d992ee665))
+* **totals:** [PCMT-287] Fixing the issue with VAT allocation on shipping costs ([#55](https://github.com/lengow/plugin-magento2/issues/55)) ([71098fb](https://github.com/lengow/plugin-magento2/commit/71098fb54c33956e8fcde3437442feb9ac0c31dc))
+
 ## [1.7.0](https://github.com/lengow/plugin-magento2/compare/v1.6.10...v1.7.0) (2025-04-01)
 
 
