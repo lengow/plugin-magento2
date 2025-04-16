@@ -575,4 +575,25 @@ class Sync extends AbstractHelper
         }
         return $pluginLinks;
     }
+
+    /**
+     * Get shipping methods for a specific marketplace
+     *
+     * @param string $marketplaceCode The marketplace code (e.g., 'amazon_fr')
+     * @param boolean $force Force cache update
+     * @param boolean $logOutput Display log or not
+     *
+     * @return array|null Returns shipping methods or null if not found
+     * @throws \JsonException
+     */
+    public function getShippingMethod(string $marketplaceCode, bool $force = false, bool $logOutput = false): ?array
+    {
+        $marketplacesData = $this->getMarketplaces($force, $logOutput)->$marketplaceCode->orders->shipping_methods;
+
+        if (isset($marketplacesData) && $marketplacesData) {
+            return json_decode(json_encode($marketplacesData, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
+        }
+
+        return null;
+    }
 }

@@ -113,6 +113,7 @@
     },
     "sales_shipment_track": {
         "column": {
+            "shipping_method_mktp": true,
             "return_track_number": true,
             "return_carrier_code": true
         }
