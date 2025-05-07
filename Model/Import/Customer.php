@@ -695,27 +695,38 @@ class Customer extends MagentoResourceCustomer
      */
     protected function getNames($addressData): array
     {
-
         $names = [
             'firstName' => trim((string) $addressData->first_name),
-            'lastName' => trim((string) $addressData->last_name),
-            'fullName' => $this->cleanFullName((string) $addressData->full_name),
+            'lastName'  => trim((string) $addressData->last_name),
+            'fullName'  => $this->cleanFullName((string) $addressData->full_name),
         ];
+
         if (empty($names['lastName']) && empty($names['firstName'])) {
             $this->nameParserHelper
                 ->setFullName((string) $addressData->full_name)
                 ->parse();
 
-            $names['firstName'] = $this->nameParserHelper->getFirstName();
-            $names['lastName']  = $this->nameParserHelper->getLastName();
+            $firstName  = $this->nameParserHelper->getFirstName();
+            $lastName   = $this->nameParserHelper->getLastName();
+            $middleName = $this->nameParserHelper->getMiddleName();
+
+            if (!empty($middleName)) {
+                $lastName = trim($middleName . ' ' . $lastName);
+            }
+
+            $names['firstName'] = $firstName;
+            $names['lastName']  = $lastName;
+
         } elseif (empty($names['firstName'])) {
             $names = $this->splitNames((string) $names['lastName']);
         } elseif (empty($names['lastName'])) {
             $names = $this->splitNames((string) $names['firstName']);
         }
+
         unset($names['fullName']);
+
         $names['firstName'] = !empty($names['firstName']) ? ucfirst(strtolower((string) $names['firstName'])) : '__';
-        $names['lastName'] = !empty($names['lastName']) ? ucfirst(strtolower((string) $names['lastName'])) : '__';
+        $names['lastName']  = !empty($names['lastName']) ? ucfirst(strtolower((string) $names['lastName'])) : '__';
 
         return $names;
     }
