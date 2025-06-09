@@ -79,7 +79,7 @@ class UpgradeFromLengowCustomerAttribute implements DataPatchInterface
         $entityTypeId = $customerSetup->getEntityTypeId(Customer::ENTITY);
         $fromLengowCustomer = $eavSetup->getAttribute($entityTypeId, 'from_lengow');
         if ($fromLengowCustomer) {
-            $input = $fromLengowCustomer->getFrontendInput();
+            $input = $fromLengowCustomer['frontend_input'] ?? 'select';
             if ($input === 'select') {
                 $eavSetup->updateAttribute(
                     Customer::ENTITY,
