@@ -2,6 +2,14 @@
 
 
 ### Bug Fixes
+## [1.7.2](https://github.com/lengow/plugin-magento2/compare/v1.7.1...v1.7.2) (2025-06-10)
+
+
+### Bug Fixes
+
+* **Import:** [PCMT-436] Add middle name from parser to last name ([#58](https://github.com/lengow/plugin-magento2/issues/58)) ([836a8ca](https://github.com/lengow/plugin-magento2/commit/836a8ca236bc8f532671daa6c42a8c08bd0b1132))
+* **magento:** [PCMT-576] Fix customer registration error due to 'from… ([#62](https://github.com/lengow/plugin-magento2/issues/62)) ([dd268e3](https://github.com/lengow/plugin-magento2/commit/dd268e3fa024d9668c25a6b5d02eb51c0b0b57b9))
+
 ## [1.7.1](https://github.com/lengow/plugin-magento2/compare/v1.7.0...v1.7.1) (2025-04-16)
 
 
