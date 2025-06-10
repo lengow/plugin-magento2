@@ -165,6 +165,10 @@ class Index extends Action
             // translation now works
             $this->translate->loadData('frontend', true);
         }
+        // We need a string token, we do not accept anything else (can be null or array too at this point)
+        if (!is_string($token)) {
+            $token = '';
+        }
         if ($this->securityHelper->checkWebserviceAccess($token, $storeId)) {
             try {
                 // config store
