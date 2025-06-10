@@ -29,6 +29,7 @@ require(['prototype'], function(){
             $('trackingC' + this.index).disabled = false;
             $('trackingT' + this.index).disabled = false;
             $('trackingN' + this.index).disabled = false;
+            $('shipping-method' + this.index).disabled = false;
 
             this.bindCurrierOnchange();
         },
@@ -55,7 +56,9 @@ require(['prototype'], function(){
             if (option.value && option.value != 'custom') {
                 elem.valueInput.value = option.text;
                 if (typeof elemReturn != 'undefined' && elemReturn != null) {
-                    elemReturn.value = option.value.toUpperCase();
+                   if (elemReturn) {
+                        elemReturn.value = option.value.toUpperCase();
+                    }
                 }
             }
             else {
@@ -98,6 +101,13 @@ script;
                    value=""
                    disabled="disabled" />
         </td>
+        <td class="col-shipping-method">
+            <select name="tracking[<%-data.index%>][shipping_method_mktp]" id="shipping-method<%-data.index%>" class="select admin__control-select" disabled="disabled">
+                <?php foreach ($block->getShippingsByMarketplace() as $_code): ?>
+                    <option value="<?= $escaper->escapeHtmlAttr($_code) ?>"><?= $escaper->escapeHtml($_code) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </td>
         <td class="col-number">
             <input class="input-text admin__control-text required-entry"
                    type="text"
@@ -107,30 +117,30 @@ script;
                    disabled="disabled" />
         </td>
         <?php if ($block->canDisplayReturnCarrier()): ?>
-           <td class="col-title">
+            <td class="col-title">
                 <input class="input-text admin__control-text"
-                   type="text"
-                   name="tracking[<%- data.index %>][return_carrier_code]"
-                   id="return_trackingT<%- data.index %>"
-                   value=""
-                    />
+                       type="text"
+                       name="tracking[<%- data.index %>][return_carrier_code]"
+                       id="return_trackingT<%- data.index %>"
+                       value=""
+                />
             </td>
         <?php endif; ?>
-         <?php if ($block->canDisplayReturnNumber()): ?>
+        <?php if ($block->canDisplayReturnNumber()): ?>
             <td class="col-number">
                 <input class="input-text admin__control-text"
                        type="text"
                        name="tracking[<%- data.index %>][return_number]"
                        id="return_trackingN<%- data.index %>"
                        value=""
-                    />
+                />
             </td>
         <?php endif; ?>
         <td class="col-delete">
             <button
-                type="button"
-                class="action-default action-delete"
-                onclick="trackingControl.deleteRow(event);return false">
+                    type="button"
+                    class="action-default action-delete"
+                    onclick="trackingControl.deleteRow(event);return false">
                 <span><?= $escaper->escapeHtml(__('Delete')) ?></span>
             </button>
         </td>
@@ -141,8 +151,10 @@ script;
     <table class="data-table admin__control-table" id="tracking_numbers_table">
         <thead>
         <tr class="headings">
+
             <th class="col-carrier"><?= $escaper->escapeHtml(__('Carrier')) ?></th>
             <th class="col-title"><?= $escaper->escapeHtml(__('Title')) ?></th>
+            <th class="col-shipping"><?= $escaper->escapeHtml(__('Shipping')) ?></th>
             <th class="col-number"><?= $escaper->escapeHtml(__('Number')) ?></th>
             <?php if ($block->canDisplayReturnCarrier()): ?>
                 <th class="col-number"><?= $escaper->escapeHtml(__('Return Carrier')) ?></th>
@@ -161,7 +173,7 @@ script;
             <?php elseif ($block->canDisplayReturnNumber()): ?>
                 <td colspan="5" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
             <?php else: ?>
-                  <td colspan="4" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
+                <td colspan="6" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
             <?php endif; ?>
         </tr>
         </tfoot>

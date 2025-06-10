@@ -46,11 +46,17 @@ class ReturnTrackingNumber
 
         if (count($trackingsPosted)) {
             $lastTraskPosted = end($trackingsPosted);
+            $shippingMethod = $lastTraskPosted['shipping_method_mktp'] ?? '';
             $returnNumber = $lastTraskPosted['return_number'] ?? '';
             $returnCarrierCode = $lastTraskPosted['return_carrier_code'] ?? '';
         } else {
+            $shippingMethod = $this->request->getPost('shipping_method_mktp') ?? '';
             $returnNumber = $this->request->getPost('return_number') ?? '';
             $returnCarrierCode = $this->request->getPost('return_carrier_code') ?? '';
+        }
+
+        if ($shippingMethod) {
+            $track->setShippingMethodMktp($shippingMethod);
         }
 
         if ($returnNumber) {

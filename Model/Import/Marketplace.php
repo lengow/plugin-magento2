@@ -461,7 +461,6 @@ class Marketplace extends AbstractModel
                     break;
                 case LengowAction::ARG_CARRIER:
                 case LengowAction::ARG_CARRIER_NAME:
-                case LengowAction::ARG_SHIPPING_METHOD:
                 case LengowAction::ARG_CUSTOM_CARRIER:
                     if ((string) $lengowOrder->getData(LengowOrder::FIELD_CARRIER) !== '') {
                         $carrierCode = (string) $lengowOrder->getData(LengowOrder::FIELD_CARRIER);
@@ -486,6 +485,17 @@ class Marketplace extends AbstractModel
                         : '';
 
                     $params[$arg] = $returnCarrierCode;
+                    break;
+                case LengowAction::ARG_SHIPPING_METHOD:
+                    $tracks = $shipment ? $shipment->getAllTracks() : null;
+                    if (!empty($tracks)) {
+                        $lastTrack = end($tracks);
+                    }
+                    $shipping_method = isset($lastTrack)
+                        ? $this->matchCarrier(strtolower((string) $lastTrack->getShippingMethod()), '')
+                        : '';
+
+                    $params[$arg] = $shipping_method;
                     break;
                 case LengowAction::ARG_SHIPPING_PRICE:
                     $params[$arg] = $order->getShippingInclTax();

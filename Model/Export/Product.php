@@ -40,6 +40,7 @@ use Lengow\Connector\Model\Export\Price as LengowPrice;
 use Lengow\Connector\Model\Export\Shipping as LengowShipping;
 use Lengow\Connector\Model\Export\Category as LengowCategory;
 use Lengow\Connector\Helper\Security as SecurityHelper;
+use Magento\BundleImportExport\Model\Export\Product\Type\Bundle;
 
 /**
  * Lengow export product
@@ -308,6 +309,7 @@ class Product
      */
     public function load(array $params): void
     {
+
         $this->type = $params['product_type'];
         $this->product = $this->getProduct($params['product_id']);
         $this->parentProduct = $this->getParentProduct();
@@ -320,6 +322,11 @@ class Product
             $groupedPrices = $this->getGroupedPricesAndDiscounts();
             $this->prices = $groupedPrices['prices'];
             $this->discounts = $groupedPrices['discounts'];
+        } elseif($this->type === 'bundle') {
+            $bundlePrices = $this->getBundlePricesAndDiscounts();
+            $this->prices = $bundlePrices['prices'];
+            $this->discounts = $bundlePrices['discounts'];
+
         } else {
             $this->price->load(['product' => $this->product]);
             $this->prices = $this->price->getPrices();
@@ -328,6 +335,7 @@ class Product
         $this->category->load(['product' => $this->getParentData ? $this->parentProduct : $this->product]);
         $this->shipping->load(['product' => $this->product]);
         $this->setCounter();
+
     }
 
     /**
@@ -742,7 +750,69 @@ class Product
             }
             return min($quantities) > 0 ? (int) min($quantities) : 0;
         }
+        if ($this->type === 'bundle') {
+
+            $quantities = [];
+            $bundleOptions = $this->getBundleOptionsProductIds($this->product);
+            foreach ($bundleOptions as $option) {
+
+                foreach ($option as $dataProduct) {
+                    $productId = $dataProduct['product_id'];
+                    $defaultQty = ($dataProduct['default_qty'] > 0) ? $dataProduct['default_qty'] : 1;
+                    $stockQty = $this->stockRegistry->getStockItem($productId, $this->store->getId())->getQty();
+                    $quantities[$productId] = floor($stockQty / $defaultQty);
+                }
+            }
+            return min($quantities) > 0 ? (int) min($quantities) : 0;;
+        }
         return (int) $this->stockRegistry->getStockItem($this->product->getId(), $this->store->getId())->getQty();
+    }
+
+
+    /**
+     * get all the selection products used in bundle product
+     * @param $product
+     * @return mixed
+     */
+    private function getBundleOptionsProductIds($product)
+    {
+
+        $bundleOptions = [];
+        $optionIds = [];
+        $selectionCollection = $product->getTypeInstance()
+            ->getSelectionsCollection(
+                $product->getTypeInstance()->getOptionsIds($product),
+                $product
+            );
+        foreach ($selectionCollection as $selection) {
+            if (in_array($selection->getOptionId(), $optionIds)) {
+                continue;
+            }
+            $optionIds[] = $selection->getOptionId();
+        }
+
+        // default prodcut selection in many options
+        if (count($optionIds) > 1) {
+            foreach ($selectionCollection as $selection) {
+                if (!$selection->getIsDefault()) {
+                    continue;
+                }
+                $bundleOptions[$selection->getOptionId()][] = [
+                    'product_id' => (int)  $selection->getProductId(),
+                    'default_qty' => (int) $selection->getSelectionQty()
+                ];
+            }
+        } else {
+            // all product selection in one option
+            foreach ($selectionCollection as $selection) {
+                $bundleOptions[$selection->getOptionId()][] = [
+                    'product_id' => (int) $selection->getProductId(),
+                    'default_qty' => (int) $selection->getSelectionQty()
+                ];
+            }
+        }
+
+        return $bundleOptions;
     }
 
     /**
@@ -810,6 +880,9 @@ class Product
         }
         if (!empty($attributeParent) && !empty($attributeValueParent)) {
             return is_array($attributeValueParent) ? json_encode($attributeValueParent) : $attributeValueParent;
+        }
+        if ($this->product->getTypeId() === 'bundle' && $field === 'quantity_and_stock_status') {
+            $attributeValue =  str_replace('qty: 0','qty: '.$this->getQuantity(), $attributeValue);
         }
         return is_array($attributeValue) ? json_encode($attributeValue) : $attributeValue;
     }
@@ -882,4 +955,112 @@ class Product
         ];
         return ['prices' => $prices, 'discounts' => $discounts];
     }
+
+    /**
+     * Will return bundle prices and discounts
+     */
+    private function getBundlePricesAndDiscounts()
+    {
+
+        $bundleOptions = $this->getBundleOptionsProductIds($this->product);
+
+        $prices = [
+            'price_excl_tax' => 0,
+            'price_incl_tax' => 0,
+            'price_before_discount_excl_tax' => 0,
+            'price_before_discount_incl_tax' => 0,
+        ];
+        $discounts = [
+            'discount_amount' => 0,
+            'discount_percent' => 0,
+            'discount_start_date' => null,
+            'discount_end_date' => null,
+        ];
+
+        $childrenQty = [];
+        foreach ($bundleOptions as $option) {
+            foreach ($option as $dataProduct) {
+
+                if (in_array($dataProduct['product_id'], $this->childrenIds)) {
+                    continue;
+                }
+                $this->childrenIds[] = $dataProduct['product_id'];
+                $childrenQty[$dataProduct['product_id']] = $dataProduct['default_qty'];
+            }
+        }
+
+        if (!empty($this->childrenIds)) {
+            foreach ($this->childrenIds as $index => $childrenId) {
+
+                $children = $this->getProduct($childrenId, true);
+                $this->price->load(['product' => $children]);
+                $childrenPrices = $this->price->getPrices();
+
+                foreach ($childrenPrices as $key => $value) {
+                    $defaultQty = $childrenQty[$childrenId] ?? 1;
+                    $prices[$key] += $value * $defaultQty;
+                }
+                $this->price->clean();
+                $this->price->load(['product' => $this->product]);
+                $childrenDiscount = $this->price->getDiscounts();
+                $this->price->clean();
+                unset($this->childrenIds[$index]);
+
+            }
+        }
+        $discountPercent = $childrenDiscount['discount_percent'] ?? 0;
+        $discountAmount = 0;
+        $discountAmountHT = 0;
+        if ($discountPercent > 0) {
+            $discountAmount = round(
+                $prices['price_before_discount_incl_tax'] * $childrenDiscount['discount_percent'] / 100,
+                3
+            );
+            $discountAmountHT = round(
+                $prices['price_before_discount_excl_tax'] * $childrenDiscount['discount_percent'] / 100,
+                3
+            );
+
+        } else {
+            $discountAmount = $childrenDiscount['discount_amount'] ?? 0;
+            $discountAmountHT = $childrenDiscount['discount_amount'] ?? 0;
+        }
+
+
+        if (!empty($childrenDiscount['discount_start_date'])) {
+            $discountStart = new \DateTime($childrenDiscount['discount_start_date']);
+            $end = $childrenDiscount['discount_end_date'] ?? 'now';
+            $discountEnd = new \DateTime($end);
+            if (empty($childrenDiscount['discount_end_date'])) {
+                $discountEnd->add(new \DateInterval('P1Y'));
+            }
+            $now = new \DateTime();
+            if ($now < $discountStart) {
+                $discountAmount = 0;
+                $discountPercent = 0;
+                $discountAmountHT = 0;
+            }
+
+            if (!empty($childrenDiscount['discount_end_date']) && $now > $discountEnd) {
+                $discountAmount = 0;
+                $discountPercent = 0;
+                $discountAmountHT = 0;
+            }
+            $discounts = [
+                'discount_start_date' => $this->timezone->date($discountStart->getTimestamp())->format(DataHelper::DATE_FULL),
+                'discount_end_date' => $this->timezone->date($discountEnd->getTimestamp())->format(DataHelper::DATE_FULL),
+            ];
+
+
+        }
+        $discounts['discount_amount'] = $discountAmount;
+        $discounts['discount_percent'] = $discountPercent;
+        $prices['price_incl_tax'] = $prices['price_before_discount_incl_tax'] - $discountAmount;
+        $prices['price_excl_tax'] = $prices['price_before_discount_excl_tax'] - $discountAmountHT;
+
+
+        return ['prices' => $prices, 'discounts' => $discounts];
+
+    }
 }
+

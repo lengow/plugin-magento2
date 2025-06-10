@@ -39,8 +39,7 @@ class QuoteTotalsCollectorPlugin
     protected $backendSession;
 
     /**
-     *
-     * QuoteTotalsCollectorPlugin constructor
+     * Plugin constructor
      */
     public function __construct(
         ConfigHelper $configHelper,
@@ -51,21 +50,14 @@ class QuoteTotalsCollectorPlugin
     }
 
     /**
-     * aroundMethod plugn execution
+     * aroundMethod plugin execution
      */
     public function aroundCollect(TotalsCollector $subject, callable $collect, Quote $quote)
     {
-
-        if (! (bool)$this->backendSession->getIsFromlengow()) {
-            return $collect($quote);
-        }
-
-        if (! (bool) $this->configHelper->get(ConfigHelper::CHECK_ROUNDING_ENABLED, $quote->getStore()->getId())) {
-            return $collect($quote);
-        }
-
-        if (! $this->backendSession->getCurrentOrderLengowData()) {
-            return $collect($quote);
+        $storeId = $quote->getStore()->getId();
+        $result = $collect($quote);
+        if (!$this->mustCkeck($storeId)) {
+            return $result;
         }
         $lengowOrderData = $this->backendSession->getCurrentOrderLengowData();
         $result = $collect($quote);
@@ -80,7 +72,6 @@ class QuoteTotalsCollectorPlugin
         $subtotalLengow = $totalLengow - $taxLengow - $shippingLengow;
 
         foreach ($result->getData() as $type => $amount) {
-
 
             if ($type === 'subtotal'
                     || $type === 'base_subtotal'
@@ -99,5 +90,25 @@ class QuoteTotalsCollectorPlugin
         }
 
         return $result;
+    }
+
+    /**
+     * check if we must check rounding
+     */
+    private function mustCkeck(int $storeId): bool
+    {
+        $isActive = (bool) $this->configHelper->get(ConfigHelper::CHECK_ROUNDING_ENABLED, $storeId);
+        $hasBundle = $this->backendSession->getHasBundleItems();
+        if (!$this->backendSession->getIsFromlengow()) {
+            return false;
+        }
+        if (! $this->backendSession->getCurrentOrderLengowData()) {
+            return false;
+        }
+        if (!$isActive && !$hasBundle) {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -50,20 +50,11 @@ class InvoiceTotalsCollectorPlugin
      */
     public function afterCollectTotals(Invoice $subject, Invoice $result)
     {
-
-
-        if (! (bool)$this->backendSession->getIsFromlengow()) {
-            return $result;
-        }
-
         $storeId = $subject->getOrder()->getStoreId();
-        if (! (bool) $this->configHelper->get(ConfigHelper::CHECK_ROUNDING_ENABLED, $storeId)) {
+        if (! $this->mustCkeck($storeId)) {
             return $result;
         }
 
-        if (! $this->backendSession->getCurrentOrderLengowData()) {
-            return $result;
-        }
         $lengowOrderData = $this->backendSession->getCurrentOrderLengowData();
 
         //not fix rounding if total_order, total_tax or shipping is null
@@ -75,7 +66,6 @@ class InvoiceTotalsCollectorPlugin
         $shippingLengow = (float) $lengowOrderData->shipping;
         $subtotalLengow = $totalLengow - $taxLengow - $shippingLengow;
         $subtotalInclTaxLengow = $totalLengow - $shippingLengow;
-
 
         foreach ($result->getData() as $type => $amount) {
             if ($amount === 0) {
@@ -99,6 +89,27 @@ class InvoiceTotalsCollectorPlugin
                 $result->setData($type, $subtotalInclTaxLengow);
             }
         }
+
         return $result;
+    }
+
+    /**
+     * check if we must check rounding
+     */
+    private function mustCkeck(int $storeId): bool
+    {
+        $isActive = (bool) $this->configHelper->get(ConfigHelper::CHECK_ROUNDING_ENABLED, $storeId);
+        $hasBundle = $this->backendSession->getHasBundleItems();
+        if (!$this->backendSession->getIsFromlengow()) {
+            return false;
+        }
+        if (! $this->backendSession->getCurrentOrderLengowData()) {
+            return false;
+        }
+        if (!$isActive && !$hasBundle) {
+            return false;
+        }
+
+        return true;
     }
 }

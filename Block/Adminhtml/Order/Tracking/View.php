@@ -19,6 +19,7 @@
 
 namespace Lengow\Connector\Block\Adminhtml\Order\Tracking;
 
+use Lengow\Connector\Helper\Sync as SyncHelper;
 use Magento\Shipping\Block\Adminhtml\Order\Tracking\View as OrderTrackingView;
 use Magento\Backend\Block\Template\Context as TemplateContext;
 use Magento\Shipping\Model\Config as ShippingConfig;
@@ -38,6 +39,7 @@ class View extends OrderTrackingView
      * @var LengowOrder $lengowOrder
      */
     protected $lengowOrder;
+    private SyncHelper $syncHelper;
 
     /**
      * View constructor
@@ -48,10 +50,12 @@ class View extends OrderTrackingView
         Registry $registry,
         CarrierFactory $carrierFactory,
         LengowOrderFactory $lengowOrderFactory,
-        array $data = [],
-        ?ShippingHelper $shippingHelper = null
+        SyncHelper $syncHelper,
+        ?ShippingHelper $shippingHelper = null,
+        array $data = []
     ) {
         $this->lengowOrderFactory = $lengowOrderFactory;
+        $this->syncHelper = $syncHelper;
 
         parent::__construct(
             $context,
@@ -112,5 +116,24 @@ class View extends OrderTrackingView
         );
 
         return $this->lengowOrder->load($lengowOrderId);
+    }
+
+    /**
+     * Get shipping methods available for current marketplace
+     *
+     * @return array
+     * @throws \JsonException
+     */
+    public function getShippingsByMarketplace(): array
+    {
+        try {
+            $marketplaceName = $this->getLengowOrder()->getMarketplace()->name;
+            $shippingMethods = $this->syncHelper->getShippingMethod($marketplaceName);
+            $lengowCodes = array_column($shippingMethods, 'lengow_code');
+
+            return array_filter($lengowCodes);
+        } catch (\Exception $e) {
+            return [];
+        }
     }
 }
