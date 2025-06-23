@@ -500,7 +500,7 @@ class Customer extends MagentoResourceCustomer
         // create or load default shipping address if not exist
         $shippingAddress = $this->getOrCreateAddress(
             $customer,
-            $this->hydrateAddress($orderData, $shippingAddress),
+            $this->hydrateAddress($orderData, $shippingAddress, $billingAddress),
             true
         );
         if (!$shippingAddress->getId()) {
@@ -986,19 +986,13 @@ class Customer extends MagentoResourceCustomer
         return $this->dataHelper->replaceAccentedChars(html_entity_decode($string));
     }
 
-    /**
-     * hydrates address data
-     *
-     * @param Object $orderData
-     * @param Object $address
-     */
-    private function hydrateAddress($orderData, $address)
+    private function hydrateAddress($orderData, $address, $billingAddress = null)
     {
-
         $notProvided = __('Not provided by the marketplace');
         $notPhone = '0000000000';
         $status = (string) $orderData->lengow_status;
         $isDeliveredByMp = false;
+
         if ($status !== LengowOrder::STATE_SHIPPED) {
             return $address;
         }
@@ -1007,6 +1001,7 @@ class Customer extends MagentoResourceCustomer
         foreach ($types as $orderType) {
             if ($orderType->type === LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE) {
                 $isDeliveredByMp = true;
+                break;
             }
         }
 
@@ -1014,23 +1009,33 @@ class Customer extends MagentoResourceCustomer
             return $address;
         }
 
-
-        if (is_null($address->first_name)
-                && is_null($address->last_name)
-                && is_null($address->full_name)) {
-            $address->first_name = $notProvided;
-            $address->last_name = $notProvided;
-            $address->full_name = $notProvided;
+        if ($billingAddress !== null) {
+            if (is_null($address->first_name) && !empty($billingAddress->first_name)) {
+                $address->first_name = $billingAddress->first_name;
+            }
+            if (is_null($address->last_name) && !empty($billingAddress->last_name)) {
+                $address->last_name = $billingAddress->last_name;
+            }
         }
 
-        if (is_null($address->first_line)
-                && is_null($address->full_address)) {
+        if (is_null($address->first_name)) {
+            $address->first_name = $notProvided;
+        }
+        if (is_null($address->last_name)) {
+            $address->last_name = $notProvided;
+        }
+
+        if (is_null($address->full_name) || trim($address->full_name) === '') {
+            $fullName = trim(($address->first_name ?: '') . ' ' . ($address->last_name ?: ''));
+            $address->full_name = $fullName !== '' ? $fullName : $notProvided;
+        }
+
+        if (is_null($address->first_line) && is_null($address->full_address)) {
             $address->first_line = $notProvided;
             $address->full_address = $notProvided;
         }
 
-        if (is_null($address->phone_home)
-                && is_null($address->phone_mobile)) {
+        if (is_null($address->phone_home) && is_null($address->phone_mobile)) {
             $address->phone_home = $notPhone;
             $address->phone_mobile = $notPhone;
         }
