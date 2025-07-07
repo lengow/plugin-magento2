@@ -96,5 +96,6 @@
         </arguments>
     </virtualType>
     <preference for="Magento\Shipping\Block\Adminhtml\Order\Tracking" type="Lengow\Connector\Block\Adminhtml\Order\Tracking" />
-    <preference for="Magento\Shipping\Block\Adminhtml\Order\Tracking\View" type="\Lengow\Connector\Block\Adminhtml\Order\Tracking\View" />
+    <preference for="Magento\Shipping\Block\Adminhtml\Order\Tracking\View" type="Lengow\Connector\Block\Adminhtml\Order\Tracking\View" />
+    <preference for="Magento\Sales\Model\Order\Pdf\Invoice" type="Lengow\Connector\Model\Order\Pdf\Invoice" />
 </config>
