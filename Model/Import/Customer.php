@@ -814,10 +814,10 @@ class Customer extends MagentoResourceCustomer
             $complement .= !empty($complement) ? ' - ' . $relayId : $relayId;
         }
         if (!empty($secondLine)) {
-            $street .= "\n" . $secondLine;
+            $street .= (strpos($street, "\n") === false ? "\n" : ', ') . $secondLine;
         }
         if (!empty($complement)) {
-            $street .= "\n" . $complement;
+            $street .= (strpos($street, "\n") === false ? "\n" : ', ') . $complement;
         }
         return strtolower($street);
     }
