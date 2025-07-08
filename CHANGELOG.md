@@ -2,6 +2,22 @@
 
 
 ### Bug Fixes
+## [1.7.2](https://github.com/lengow/plugin-magento2/compare/v1.7.1...v1.7.2) (2025-07-07)
+
+
+### Bug Fixes
+
+* **Import:** [PCMT-436] Add middle name from parser to last name ([#58](https://github.com/lengow/plugin-magento2/issues/58)) ([836a8ca](https://github.com/lengow/plugin-magento2/commit/836a8ca236bc8f532671daa6c42a8c08bd0b1132))
+* **Import:** [PCMT-563] Fix rehydrate data when fullname et and one field for customer name are empty- Add fallback from billingAdress ([#64](https://github.com/lengow/plugin-magento2/issues/64)) ([2b85e31](https://github.com/lengow/plugin-magento2/commit/2b85e318f9d4c88d76db1809f6890f34e76c0d73))
+* **import:** fix case where an address would contain 3 street lines ([#63](https://github.com/lengow/plugin-magento2/issues/63)) ([0916686](https://github.com/lengow/plugin-magento2/commit/091668647151d93555f564d4861ba8f8cb5a1107))
+* **invoice:** [PCMT-640] display shippingInclTax in the pdf invoice ([#65](https://github.com/lengow/plugin-magento2/issues/65)) ([2c495e7](https://github.com/lengow/plugin-magento2/commit/2c495e7d29d2843fa4e25024b26d291bb2d184d9))
+* **magento:** [PCMT-576] Fix customer registration error due to 'from… ([#62](https://github.com/lengow/plugin-magento2/issues/62)) ([dd268e3](https://github.com/lengow/plugin-magento2/commit/dd268e3fa024d9668c25a6b5d02eb51c0b0b57b9))
+
+
+### Miscellaneous
+
+* **documentation:** Update documentation to match minimum composer version of PHP ([#47](https://github.com/lengow/plugin-magento2/issues/47)) ([b9cf31a](https://github.com/lengow/plugin-magento2/commit/b9cf31a46d607caa3c81880f302478f1af6b5a10))
+
 ## [1.7.1](https://github.com/lengow/plugin-magento2/compare/v1.7.0...v1.7.1) (2025-04-16)
 
 
