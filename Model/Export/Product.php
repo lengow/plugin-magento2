@@ -763,7 +763,12 @@ class Product
                     $quantities[$productId] = floor($stockQty / $defaultQty);
                 }
             }
-            return min($quantities) > 0 ? (int) min($quantities) : 0;;
+
+            if (0 === count($quantities)) {
+                return 0;
+            }
+
+            return min($quantities) > 0 ? (int) min($quantities) : 0;
         }
         return (int) $this->stockRegistry->getStockItem($this->product->getId(), $this->store->getId())->getQty();
     }
@@ -776,7 +781,6 @@ class Product
      */
     private function getBundleOptionsProductIds($product)
     {
-
         $bundleOptions = [];
         $optionIds = [];
         $selectionCollection = $product->getTypeInstance()
@@ -791,7 +795,7 @@ class Product
             $optionIds[] = $selection->getOptionId();
         }
 
-        // default prodcut selection in many options
+        // default product selection in many options
         if (count($optionIds) > 1) {
             foreach ($selectionCollection as $selection) {
                 if (!$selection->getIsDefault()) {
@@ -980,10 +984,6 @@ class Product
         $childrenQty = [];
         foreach ($bundleOptions as $option) {
             foreach ($option as $dataProduct) {
-
-                if (in_array($dataProduct['product_id'], $this->childrenIds)) {
-                    continue;
-                }
                 $this->childrenIds[] = $dataProduct['product_id'];
                 $childrenQty[$dataProduct['product_id']] = $dataProduct['default_qty'];
             }
