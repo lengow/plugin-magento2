@@ -21,6 +21,7 @@ namespace Lengow\Connector\Model\Export;
 
 use Exception;
 use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\GroupedProduct\Model\Product\Type\Grouped;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Store\Model\Store\Interceptor as StoreInterceptor;
@@ -725,24 +726,14 @@ class Product
      */
     private function getQuantity(): int
     {
-        if ($this->configHelper->moduleIsEnabled('Magento_Inventory')
-            && version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=')
-        ) {
-            // Check if product is multi-stock
-            $res = $this->getSourceItemDetailBySKU($this->product->getSku());
-            // if multi-stock, return total of all stock quantities
-            if (count($res) >= 1) {
-                $total = 0;
-                foreach ($res as $item) {
-                    $dataSource = $item->getData();
-                    $this->quantities['quantity_multistock_' . $dataSource['source_code']] = $dataSource;
-                    if ($dataSource['status']) {
-                        $total += (int) $dataSource['quantity'];
-                    }
-                }
-                return $total;
+        if ($this->isMsiEnabled()) {
+            $stock = $this->getStockFromMsi($this->product->getSku());
+            if (null !== $stock) {
+                // if multi-stock, return total of all stock quantities
+                return $stock;
             }
         }
+
         if ($this->type === Grouped::TYPE_CODE && !empty($this->childrenIds)) {
             $quantities = [];
             foreach ($this->childrenIds as $childrenId) {
@@ -751,16 +742,40 @@ class Product
             return min($quantities) > 0 ? (int) min($quantities) : 0;
         }
         if ($this->type === 'bundle') {
-
             $quantities = [];
+            $quantityIds = [];
             $bundleOptions = $this->getBundleOptionsProductIds($this->product);
             foreach ($bundleOptions as $option) {
-
                 foreach ($option as $dataProduct) {
                     $productId = $dataProduct['product_id'];
                     $defaultQty = ($dataProduct['default_qty'] > 0) ? $dataProduct['default_qty'] : 1;
-                    $stockQty = $this->stockRegistry->getStockItem($productId, $this->store->getId())->getQty();
-                    $quantities[$productId] = floor($stockQty / $defaultQty);
+                    if ($this->isMsiEnabled()) {
+                        try {
+                            $product = $this->productRepository->getById($productId, false, $this->store->getId(), true);
+                            $stockQty = $this->getStockFromMsi($product->getSku());
+                            if (null === $stockQty) {
+                                // no stock from msi
+                                $stockQty = $this->stockRegistry->getStockItem($productId, $this->store->getId())->getQty();
+                            }
+                        } catch (NoSuchEntityException $e) {
+                            $stockQty = 0;
+                        }
+                    } else {
+                        $stockQty = $this->stockRegistry->getStockItem($productId, $this->store->getId())->getQty();
+                    }
+
+                    // an option can have the same product as another
+                    // let adjust after we have the final quantities
+                    $quantityIds[$productId] = isset($quantityIds[$productId])
+                        ? $quantityIds[$productId] + $defaultQty
+                        : $defaultQty;
+                    $quantities[$productId] = $stockQty;
+                }
+            }
+
+            foreach ($quantityIds as $pid => $quantity) {
+                if ($quantity > 1) {
+                    $quantities[$pid] = floor($quantities[$pid] / $quantity);
                 }
             }
 
@@ -773,6 +788,33 @@ class Product
         return (int) $this->stockRegistry->getStockItem($this->product->getId(), $this->store->getId())->getQty();
     }
 
+    private function isMsiEnabled(): bool
+    {
+        return $this->configHelper->moduleIsEnabled('Magento_Inventory')
+            && version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=');
+    }
+
+    /**
+     * Return total of all stock quantities, or null if no source found
+     */
+    private function getStockFromMsi(string $sku): ?int
+    {
+        $res = $this->getSourceItemDetailBySKU($sku);
+        if (!count($res)) {
+            return null;
+        }
+
+        $total = 0;
+        foreach ($res as $item) {
+            $dataSource = $item->getData();
+            $this->quantities['quantity_multistock_' . $dataSource['source_code']] = $dataSource;
+            if ($dataSource['status']) {
+                $total += (int) $dataSource['quantity'];
+            }
+        }
+
+        return $total;
+    }
 
     /**
      * get all the selection products used in bundle product
