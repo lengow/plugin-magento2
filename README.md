@@ -3,7 +3,7 @@
 - **Requires at least:** 2.4
 - **Tested up to:** 2.4.7
 - **Requires PHP:** 8.1
-- **Stable tag:** 1.7.2 <!-- x-release-please-version -->
+- **Stable tag:** 1.7.3 <!-- x-release-please-version -->
 - **License:** OSL-3.0
 - **License URI:** https://opensource.org/licenses/OSL-3.0
 
