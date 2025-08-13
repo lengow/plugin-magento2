@@ -2,6 +2,13 @@
 
 
 ### Bug Fixes
+## [1.7.3](https://github.com/lengow/plugin-magento2/compare/v1.7.2...v1.7.3) (2025-08-11)
+
+
+### Bug Fixes
+
+* **export:** [PCMT-688] fix for bundles prices & msi stock ([#66](https://github.com/lengow/plugin-magento2/issues/66)) ([c90682b](https://github.com/lengow/plugin-magento2/commit/c90682b2aafe33f32025e108642a202cbad02065))
+
 ## [1.7.2](https://github.com/lengow/plugin-magento2/compare/v1.7.1...v1.7.2) (2025-07-07)
 
 
