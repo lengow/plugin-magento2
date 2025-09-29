@@ -46,22 +46,15 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Release please
-        uses: google-github-actions/release-please-action@v3
+        uses: googleapis/release-please-action@v4
         id: release-please
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          release-type: php
-          package-name: plugin-magento2
-          default-branch: main
-          changelog-types: |
-            [
-              {"type":"feat","section":"Features","hidden":false},
-              {"type":"fix","section":"Bug Fixes","hidden":false},
-              {"type":"refactor","section":"Refactoring","hidden":false},
-              {"type":"misc","section":"Miscellaneous","hidden":false}
-            ]
-          extra-files: |
-            README.md
+          target-branch: main
+          config-file: .github/release-please-config.json
+          manifest-file: .github/.release-please-manifest.json
+
+
       - name: Checkout appropriate branch
         if: ${{ !startsWith(github.head_ref, 'release-please') }}
         uses: actions/checkout@v4
