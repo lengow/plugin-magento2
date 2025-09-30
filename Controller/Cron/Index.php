@@ -154,6 +154,10 @@ class Index extends Action
                         $params[LengowImport::PARAM_DAYS] = (float) $this->getRequest()
                             ->getParam(LengowImport::PARAM_DAYS);
                     }
+                    if ($this->getRequest()->getParam(LengowImport::PARAM_MINUTES) !== null) {
+                        $params[LengowImport::PARAM_MINUTES] = (float) $this->getRequest()
+                            ->getParam(LengowImport::PARAM_MINUTES);
+                    }
                     if ($this->getRequest()->getParam(LengowImport::PARAM_CREATED_FROM) !== null) {
                         $params[LengowImport::PARAM_CREATED_FROM] = $this->getRequest()
                             ->getParam(LengowImport::PARAM_CREATED_FROM);

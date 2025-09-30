@@ -50,6 +50,7 @@ class Import
     public const PARAM_MARKETPLACE_NAME = 'marketplace_name';
     public const PARAM_DELIVERY_ADDRESS_ID = 'delivery_address_id';
     public const PARAM_DAYS = 'days';
+    public const PARAM_MINUTES = 'minutes';
     public const PARAM_CREATED_FROM = 'created_from';
     public const PARAM_CREATED_TO = 'created_to';
     public const PARAM_ORDER_LENGOW_ID = 'order_lengow_id';
@@ -387,11 +388,23 @@ class Import
             }
         } else {
             // set the time interval
-            $this->setIntervalTime(
-                isset($params[self::PARAM_DAYS]) ? (float) $params[self::PARAM_DAYS] : null,
-                $params[self::PARAM_CREATED_FROM] ?? null,
-                $params[self::PARAM_CREATED_TO] ?? null
-            );
+            if (isset($params[self::PARAM_MINUTES])) {
+                $minutes = (float) $params[self::PARAM_MINUTES];
+                $this->setIntervalTime(
+                    $minutes,
+                    null,
+                    $params[self::PARAM_CREATED_FROM] ?? null,
+                    $params[self::PARAM_CREATED_TO] ?? null
+                );
+            } else {
+                $days = $params[self::PARAM_DAYS] ?? null;
+                $this->setIntervalTime(
+                    null,
+                    $days,
+                    $params[self::PARAM_CREATED_FROM] ?? null,
+                    $params[self::PARAM_CREATED_TO] ?? null
+                );
+            }
             $this->limit = isset($params[self::PARAM_LIMIT]) ? (int) $params[self::PARAM_LIMIT] : 0;
         }
         $this->dataHelper->log(
@@ -457,11 +470,12 @@ class Import
     /**
      * Set interval time for order synchronisation
      *
+     * @param float|null $minutes Import period in minutes
      * @param float|null $days Import period
      * @param string|null $createdFrom Import of orders since
      * @param string|null $createdTo Import of orders until
      */
-    private function setIntervalTime(float $days = null, string $createdFrom = null, string $createdTo = null): void
+    private function setIntervalTime($minutes = null, $days = null, $createdFrom = null, $createdTo = null): void
     {
 
         if ($createdFrom && $createdTo) {
@@ -483,7 +497,11 @@ class Import
                 : $createdToTimestamp;
             return;
         }
-        if ($days) {
+        if ($minutes) {
+            $intervalTime = floor($minutes * 60);
+            $intervalTime = $intervalTime > self::MAX_INTERVAL_TIME ? self::MAX_INTERVAL_TIME : $intervalTime;
+        }
+        elseif ($days) {
             $intervalTime = floor($days * self::MIN_INTERVAL_TIME);
             $intervalTime = $intervalTime > self::MAX_INTERVAL_TIME ? self::MAX_INTERVAL_TIME : $intervalTime;
         } else {
