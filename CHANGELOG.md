@@ -2,6 +2,18 @@
 
 
 ### Bug Fixes
+## [1.8.0](https://github.com/lengow/plugin-magento2/compare/v1.7.3...v1.8.0) (2025-10-01)
+
+
+### Features
+
+* **fastImport:** [PCMT-844] add import by minutes parameter ([#70](https://github.com/lengow/plugin-magento2/issues/70)) ([81469da](https://github.com/lengow/plugin-magento2/commit/81469da35f55efd5aa82e9ad148612c3eda96b3b))
+
+
+### Bug Fixes
+
+* **cicd:** Upgrade release-please ([#68](https://github.com/lengow/plugin-magento2/issues/68)) ([b452a31](https://github.com/lengow/plugin-magento2/commit/b452a3116eec8785116153e9735f78a390bb69c1))
+
 ## [1.7.3](https://github.com/lengow/plugin-magento2/compare/v1.7.2...v1.7.3) (2025-08-11)
 
 
