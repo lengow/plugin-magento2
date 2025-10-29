@@ -79,6 +79,7 @@ class Import
     public const TYPE_MANUAL = 'manual';
     public const TYPE_CRON = 'cron';
     public const TYPE_MAGENTO_CRON = 'magento cron';
+    public const TYPE_MAGENTO_CLI = 'magento cli';
     public const TYPE_TOOLBOX = 'toolbox';
 
     /* Import Data */
@@ -465,6 +466,46 @@ class Import
         // complete synchronization and start all necessary processes
         $this->finishSynchronization();
         return $result;
+    }
+
+    /**
+     * Set store id for import
+     */
+    public function setStoreId(int $storeId): self
+    {
+        $this->storeId = $storeId;
+
+        return $this;
+    }
+
+    /**
+     * Set days for order synchronisation
+     */
+    public function setDays(float $days): self
+    {
+        $this->setIntervalTime($days);
+
+        return $this;
+    }
+
+    /**
+     * Set debug mode for import
+     */
+    public function setImportOneOrder(bool $importOneOrder): self
+    {
+        $this->importOneOrder = $importOneOrder;
+
+        return $this;
+    }
+
+    /**
+     * Set limit for import
+     */
+    public function setLimit(int $limit): self
+    {
+        $this->limit = $limit;
+
+        return $this;
     }
 
     /**
