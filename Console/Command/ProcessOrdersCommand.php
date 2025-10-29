@@ -95,11 +95,13 @@ class ProcessOrdersCommand extends Command
 
         if (empty($orderIdsInput) && empty($days)) {
             $output->writeln('<error>Please provide at least one parameter: --days or --marketplace-order-ids.</error>');
+
             return Command::INVALID;
         }
 
         if ($days < 0) {
             $output->writeln('<error>Please provide a valid --days parameter (float > 0).</error>');
+
             return Command::FAILURE;
         }
 
@@ -124,6 +126,7 @@ class ProcessOrdersCommand extends Command
             }
             $this->lengowImport->exec();
             $output->writeln('<info>LengowImport executed</info>');
+
             return Command::SUCCESS;
 
         }
@@ -136,12 +139,14 @@ class ProcessOrdersCommand extends Command
             $output->writeln("<info>Marketplace Order IDs: " . implode(', ', $orderIds) . "</info>");
             if (empty($marketplaceName)) {
                 $output->writeln('<error>Please provide the --marketplace-name parameter when using --marketplace-order-ids.</error>');
+
                 return Command::INVALID;
             }
             $output->writeln("<info>Marketplace Name: " . $marketplaceName . "</info>");
 
             if (empty($storeId)) {
                 $output->writeln('<error>Please provide the --store-id parameter when using --marketplace-order-ids.</error>');
+
                 return Command::INVALID;
             }
             $output->writeln("<info>Store ID: " . $storeId . "</info>");
