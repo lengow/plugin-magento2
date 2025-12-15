@@ -29,6 +29,7 @@ use Lengow\Connector\Helper\Security as SecurityHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Connector as LengowConnector;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
+use Magento\Framework\Escaper;
 
 class Main extends Template
 {
@@ -63,6 +64,11 @@ class Main extends Template
     private $pluginLinks;
 
     /**
+     * @var Escaper $escaper Magento escaper instance
+     */
+    private $escaper;
+
+    /**
      * Constructor
      *
      * @param Context $context Magento block context instance
@@ -71,6 +77,7 @@ class Main extends Template
      * @param SecurityHelper $securityHelper Lengow security helper instance
      * @param SyncHelper $syncHelper Lengow sync helper instance
      * @param LengowOrder $lengowOrder Lengow order instance
+     * @param Escaper $escaper Magento escaper instance
      * @param array $data additional params
      */
     public function __construct(
@@ -80,6 +87,7 @@ class Main extends Template
         SecurityHelper $securityHelper,
         SyncHelper $syncHelper,
         LengowOrder $lengowOrder,
+        Escaper $escaper,
         array $data = []
     ) {
         $this->securityHelper = $securityHelper;
@@ -92,6 +100,7 @@ class Main extends Template
             ? $authSession->getUser()->getInterfaceLocale()
             : DataHelper::DEFAULT_ISO_CODE;
         $this->pluginLinks = $syncHelper->getPluginLinks($interfaceLocale, true);
+        $this->escaper = $escaper;
         parent::__construct($context, $data);
     }
 
@@ -334,5 +343,13 @@ class Main extends Template
     public function getNumberOrderToBeSent(): int
     {
         return $this->lengowOrder->countOrderToBeSent();
+    }
+
+    /**
+     * Get Magento escaper instance
+     */
+    public function getEscaper(): Escaper
+    {
+        return $this->escaper;
     }
 }

@@ -27,6 +27,7 @@ use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
 use Lengow\Connector\Helper\Toolbox as ToolboxHelper;
 use Lengow\Connector\Model\Import as LengowImport;
+use Magento\Framework\Escaper;
 
 class Content extends Template
 {
@@ -70,6 +71,11 @@ class Content extends Template
     private $toolboxHelper;
 
     /**
+     * @var Escaper $escaper Magento escaper instance
+     */
+    private $escaper;
+
+    /**
      * Constructor
      *
      * @param Context $context Magento block context instance
@@ -78,6 +84,7 @@ class Content extends Template
      * @param ConfigHelper $configHelper Lengow config helper instance
      * @param ImportHelper $importHelper Lengow import helper instance
      * @param ToolboxHelper $toolboxHelper Lengow toolbox helper instance
+     * @param Escaper $escaper Magento escaper instance
      * @param array $data additional params
      */
     public function __construct(
@@ -87,6 +94,7 @@ class Content extends Template
         ConfigHelper $configHelper,
         ImportHelper $importHelper,
         ToolboxHelper $toolboxHelper,
+        Escaper $escaper,
         array $data = []
     ) {
         $this->scheduleCollection = $scheduleCollection;
@@ -94,6 +102,7 @@ class Content extends Template
         $this->configHelper = $configHelper;
         $this->importHelper = $importHelper;
         $this->toolboxHelper = $toolboxHelper;
+        $this->escaper = $escaper;
         parent::__construct($context, $data);
     }
 
@@ -431,6 +440,14 @@ class Content extends Template
             $html .= $this->getContent($checklist);
         }
         return $html;
+    }
+
+    /**
+     * Get Magento escaper instance
+     */
+    public function getEscaper(): Escaper
+    {
+        return $this->escaper;
     }
 
     /**

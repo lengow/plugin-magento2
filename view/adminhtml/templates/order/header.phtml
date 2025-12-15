@@ -6,15 +6,16 @@
 
 // @codingStandardsIgnoreFile
 /** @var Lengow\Connector\Block\Adminhtml\Order\Header $block */
+$escaper = $block->getEscaper();
 ?>
 
 <div class="lgw-box row">
     <?php if ($block->debugModeIsEnabled()): ?>
         <p class="blue_frame" style="line-height: 20px;">
-            <?= $block->escapeHtml(__('You are in Debug Mode. You can import orders, but no interaction with Lengow is possible.')) ?>
+            <?= $escaper->escapeHtml(__('You are in Debug Mode. You can import orders, but no interaction with Lengow is possible.')) ?>
             <a href="<?= $block->getUrl('adminhtml/system_config/edit/section/lengow_import_options') ?>"
-               title="<?= $block->escapeHtml(__('Change this')) ?>">
-                <?= $block->escapeHtml(__('Change this')) ?>
+               title="<?= $escaper->escapeHtml(__('Change this')) ?>">
+                <?= $escaper->escapeHtml(__('Change this')) ?>
             </a>
         </p>
     <?php endif; ?>
@@ -36,13 +37,13 @@
             id="lengow_import_orders"
             class="primary lengow_import_orders-js"
             data-href="<?= $block->getUrl('lengow/order/index/action/import_all/') ?>?isAjax=true">
-            <?= $block->escapeHtml(__('Synchronize Orders')) ?>
+            <?= $escaper->escapeHtml(__('Synchronize Orders')) ?>
         </button>
     </div>
 </div>
 <div class="row">
     <div id="lengow_wrapper_messages" class="blue_frame" style="display:none;"></div>
     <div id="lengow_wrapper_timeout" class="red_frame" style="display:none;">
-        <?= $block->escapeHtml(__('The synchronisation of the orders was blocked by a timeout. Please reload the page.')) ?>
+        <?= $escaper->escapeHtml(__('The synchronisation of the orders was blocked by a timeout. Please reload the page.')) ?>
     </div>
 </div>

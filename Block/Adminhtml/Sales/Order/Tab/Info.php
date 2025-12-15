@@ -30,6 +30,7 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Model\Import\Action as LengowAction;
 use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
+use Magento\Framework\Escaper;
 
 class Info extends Template implements TabInterface
 {
@@ -79,6 +80,11 @@ class Info extends Template implements TabInterface
     private TimezoneInterface $timezone;
 
     /**
+     * @var Escaper $escaper Magento escaper instance
+     */
+    private Escaper $escaper;
+
+    /**
      * Construct
      *
      * @param Context $context Magento Context instance
@@ -98,6 +104,7 @@ class Info extends Template implements TabInterface
         LengowOrderFactory $lengowOrderFactory,
         LengowAction $lengowAction,
         TimezoneInterface $timezone,
+        Escaper $escaper,
         array $data = []
     ) {
         $this->coreRegistry = $coreRegistry;
@@ -108,6 +115,7 @@ class Info extends Template implements TabInterface
         $this->order = $this->getOrder();
         $this->lengowOrder = $this->getLengowOrder();
         $this->timezone = $timezone;
+        $this->escaper = $escaper;
         parent::__construct($context, $data);
     }
 
@@ -268,6 +276,14 @@ class Info extends Template implements TabInterface
             }
         }
         return false;
+    }
+
+    /**
+     * Get Magento escaper instance
+     */
+    public function getEscaper(): Escaper
+    {
+        return $this->escaper;
     }
 
     /**

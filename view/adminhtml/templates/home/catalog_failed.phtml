@@ -6,10 +6,11 @@
 
 // @codingStandardsIgnoreFile
 /** @var Lengow\Connector\Block\Adminhtml\Main $block */
+$escaper = $block->getEscaper();
 ?>
 
 <div class="lgw-content-section">
-    <h2><?= $block->escapeHtml(__('Ooops! Unable to link your catalogues in Lengow')) ?></h2>
+    <h2><?= $escaper->escapeHtml(__('Ooops! Unable to link your catalogues in Lengow')) ?></h2>
 </div>
 <div class="lgw-module-illu mod-disconnected">
     <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/connected-magento.png') ?>"
@@ -23,26 +24,26 @@
          alt="unplugged">
 </div>
 <div class="lgw-content-section">
-    <p><?= $block->escapeHtml(__('We were unable to link your catalogues to Lengow.')) ?></p>
-    <p><?= $block->escapeHtml(__('You can try again or fill in the catalogues IDs directly in the plugin settings.')) ?></p>
+    <p><?= $escaper->escapeHtml(__('We were unable to link your catalogues to Lengow.')) ?></p>
+    <p><?= $escaper->escapeHtml(__('You can try again or fill in the catalogues IDs directly in the plugin settings.')) ?></p>
     <p>
-        <?= $block->escapeHtml(__('If the problem persists, you can take a look at')) ?>
-        <a href="<?= $block->escapeHtml($block->getHelpCenterLink()) ?>" target="_blank">
-            "<?= $block->escapeHtml(__('Magento guide')) ?>"
+        <?= $escaper->escapeHtml(__('If the problem persists, you can take a look at')) ?>
+        <a href="<?= $escaper->escapeHtml($block->getHelpCenterLink()) ?>" target="_blank">
+            "<?= $escaper->escapeHtml(__('Magento guide')) ?>"
         </a>
-        <?= $block->escapeHtml(__('or contact our')) ?>
-        <a href="<?= $block->escapeHtml($block->getSupportLink()) ?>" target="_blank">
-            "<?= $block->escapeHtml(__('Customer Success Team')) ?>"
+        <?= $escaper->escapeHtml(__('or contact our')) ?>
+        <a href="<?= $escaper->escapeHtml($block->getSupportLink()) ?>" target="_blank">
+            "<?= $escaper->escapeHtml(__('Customer Success Team')) ?>"
         </a>
     </p>
 </div>
 <div>
     <button class="lgw-btn lgw-btn-green js-go-to-catalog" data-retry="true"
             data-href="<?= /** @noEscape */ $block->getUrl('lengow/home/catalog')?>">
-        <?= $block->escapeHtml(__('Retry')) ?>
+        <?= $escaper->escapeHtml(__('Retry')) ?>
     </button>
     <a href="<?= $block->getUrl('lengow/dashboard/index') ?>"
        class="lgw-btn lgw-btn-green">
-        <?= $block->escapeHtml(__('Go to dashboard')) ?>
+        <?= $escaper->escapeHtml(__('Go to dashboard')) ?>
     </a>
 </div>

@@ -6,32 +6,33 @@
 
 // @codingStandardsIgnoreFile
 /** @var Lengow\Connector\Block\Adminhtml\Main $block */
+$escaper = $block->getEscaper();
 ?>
 
 <div id="lgw-connection-cms" style="text-align: center">
     <div class="lgw-content-section">
-        <h2><?= $block->escapeHtml(__('Please enter your API Lengow credentials')) ?></h2>
+        <h2><?= $escaper->escapeHtml(__('Please enter your API Lengow credentials')) ?></h2>
     </div>
     <div class="lgw-content-input">
         <div>
         <input type="text"
                name="lgwAccessToken"
                class="js-credentials-input"
-               placeholder="<?= $block->escapeHtml(__('Enter your access token')) ?>">
+               placeholder="<?= $escaper->escapeHtml(__('Enter your access token')) ?>">
         </div>
         <div>
         <input type="text"
                name="lgwSecret"
                class="js-credentials-input"
-               placeholder="<?= $block->escapeHtml(__('Enter your secret')) ?>">
+               placeholder="<?= $escaper->escapeHtml(__('Enter your secret')) ?>">
         </div>
     </div>
     <div class="lgw-content-section">
-        <p><?= $block->escapeHtml(__('Find these credentials in your account settings, section A.P.I')) ?></p>
+        <p><?= $escaper->escapeHtml(__('Find these credentials in your account settings, section A.P.I')) ?></p>
         <p>
-            <?= $block->escapeHtml(__('Need help?')) ?>
-            <a href="<?= $block->escapeHtml($block->getHelpCenterLink()) ?>" target="_blank">
-                <?= $block->escapeHtml(__('Check out our Help Center')) ?>
+            <?= $escaper->escapeHtml(__('Need help?')) ?>
+            <a href="<?= $escaper->escapeHtml($block->getHelpCenterLink()) ?>" target="_blank">
+                <?= $escaper->escapeHtml(__('Check out our Help Center')) ?>
             </a>
         </p>
     </div>
@@ -40,10 +41,10 @@
                 data-href="<?= /** @noEscape */ $block->getUrl('lengow/home/cmsResult')?>">
             <div class="btn-inner">
                 <div class="btn-step default js-connect">
-                    <?= $block->escapeHtml(__('Connect to Lengow')) ?>
+                    <?= $escaper->escapeHtml(__('Connect to Lengow')) ?>
                 </div>
                 <div class="btn-step loading">
-                    <?= $block->escapeHtml(__('Connecting...')) ?>
+                    <?= $escaper->escapeHtml(__('Connecting...')) ?>
                 </div>
             </div>
         </button>

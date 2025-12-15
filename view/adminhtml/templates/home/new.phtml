@@ -6,6 +6,7 @@
 
 // @codingStandardsIgnoreFile
 /** @var Lengow\Connector\Block\Adminhtml\Main $block */
+$escaper = $block->getEscaper();
 ?>
 
 <div id="lengow_home_wrapper" class="cms-global">
@@ -18,9 +19,9 @@
         <div id="lgw-connection-content">
             <div id="lgw-connection-home">
                 <div class="lgw-content-section">
-                    <p><?= $block->escapeHtml(__('Lengow helps you optimize your business worldwide!')) ?></p>
-                    <p><?= $block->escapeHtml(__('Through the platform, you can automatically publish your product catalogue on marketplaces, comparison websites, affiliate network, and retargeting campaigns.')) ?></p>
-                    <p><?= $block->escapeHtml(__('Explore your opportunities for international growth with 1,600 sales channels in 42 different countries.')) ?></p>
+                    <p><?= $escaper->escapeHtml(__('Lengow helps you optimize your business worldwide!')) ?></p>
+                    <p><?= $escaper->escapeHtml(__('Through the platform, you can automatically publish your product catalogue on marketplaces, comparison websites, affiliate network, and retargeting campaigns.')) ?></p>
+                    <p><?= $escaper->escapeHtml(__('Explore your opportunities for international growth with 1,600 sales channels in 42 different countries.')) ?></p>
                 </div>
                 <div class="lgw-module-illu">
                     <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/connected-lengow.png') ?>"
@@ -33,16 +34,16 @@
                          class="lgw-module-illu-module"
                          alt="magento">
                 </div>
-                <p><?= $block->escapeHtml(__('Just one more step to go to install your Lengow plugin for Magento')) ?></p>
+                <p><?= $escaper->escapeHtml(__('Just one more step to go to install your Lengow plugin for Magento')) ?></p>
                 <div>
                     <button class="lgw-btn lgw-btn-green js-go-to-credentials" data-href="<?= /** @noEscape */ $block->getUrl('lengow/home/cms')?>">
-                        <?= $block->escapeHtml(__('Connect my Magento with Lengow')) ?>
+                        <?= $escaper->escapeHtml(__('Connect my Magento with Lengow')) ?>
                     </button>
                     <br/>
                     <p>
-                        <?= $block->escapeHtml(__("You don't have a Lengow account?")) ?>
+                        <?= $escaper->escapeHtml(__("You don't have a Lengow account?")) ?>
                         <a href="<?= $block->getLengowSolutionUrl() ?>" target="_blank">
-                            <?= $block->escapeHtml(__('Sign up for free')) ?>
+                            <?= $escaper->escapeHtml(__('Sign up for free')) ?>
                         </a>
                     </p>
                 </div>
