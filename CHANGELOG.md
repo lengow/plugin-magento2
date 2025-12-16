@@ -2,6 +2,13 @@
 
 
 ### Bug Fixes
+## [1.8.1](https://github.com/lengow/plugin-magento2/compare/v1.8.0...v1.8.1) (2025-12-16)
+
+
+### Bug Fixes
+
+* **Security:** [PCMT-1193] sanitize output to prevent XSS vulnerabilities ([#72](https://github.com/lengow/plugin-magento2/issues/72)) ([88a1f9f](https://github.com/lengow/plugin-magento2/commit/88a1f9fb19b16ab52108788097ed9cf067b93c4f))
+
 ## [1.8.0](https://github.com/lengow/plugin-magento2/compare/v1.7.3...v1.8.0) (2025-10-01)
 
 
