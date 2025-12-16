@@ -6,19 +6,20 @@
 
 // @codingStandardsIgnoreFile
 /** @var Lengow\Connector\Block\Adminhtml\Main $block */
+$escaper = $block->getEscaper();
 ?>
 <?php if($block->debugModeIsActive()): ?>
     <span id="lgw-debug">
-        <?= $block->escapeHtml(__('Debug Mode')) ?>
+        <?= $escaper->escapeHtml(__('Debug Mode')) ?>
     </span>
 <?php endif; ?>
 <div class="lgw-row lgw-header">
     <p class="text-left lgw-col-6">
         <?php if($block->newPluginVersionIsAvailable()): ?>
             <span id="lgw-plugin-available">
-                <?= $block->escapeHtml(__('A new version %1 is available!', [$block->getNewPluginVersion()])) ?>
+                <?= $escaper->escapeHtml(__('A new version %1 is available!', [$block->getNewPluginVersion()])) ?>
                 <button class="lgw-btn-link mod-inline js-upgrade-plugin-modal-open">
-                    <?= $block->escapeHtml(__('Download')) ?>
+                    <?= $escaper->escapeHtml(__('Download')) ?>
                 </button>
             </span>
         <?php endif; ?>
@@ -26,9 +27,9 @@
     <p class="text-right lgw-col-6">
         <?php if($block->freeTrialIsEnabled()): ?>
             <span id="lgw-counter">
-                <?= $block->escapeHtml(__('Trial period: %1 day(s) left.', [$block->getFreeTrialDays()])) ?>
-                <a href="<?= $block->getLengowSolutionUrl() ?>" target="_blank" title="<?= $block->escapeHtml(__('Subscribe')) ?>">
-                    <?= $block->escapeHtml(__('Subscribe')) ?>
+                <?= $escaper->escapeHtml(__('Trial period: %1 day(s) left.', [$block->getFreeTrialDays()])) ?>
+                <a href="<?= $block->getLengowSolutionUrl() ?>" target="_blank" title="<?= $escaper->escapeHtml(__('Subscribe')) ?>">
+                    <?= $escaper->escapeHtml(__('Subscribe')) ?>
                 </a>
             </span>
         <?php endif; ?>

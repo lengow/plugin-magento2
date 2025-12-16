@@ -6,6 +6,7 @@
 
 // @codingStandardsIgnoreFile
 /** @var Lengow\Connector\Block\Adminhtml\Product\Header $block */
+$escaper = $block->getEscaper();
 ?>
 <div class="lgw-box">
     <div class="lengow-export-switcher">
@@ -14,7 +15,7 @@
     <div class="lengow_export_feed">
         <a href="<?= $block->getExportUrl() ?>" target="_blank">
             <i class="fa fa-download lengow_tooltip">
-                <span ><?= $block->escapeHtml(__('Download')) ?></span>
+                <span ><?= $escaper->escapeHtml(__('Download')) ?></span>
             </i>
         </a>
     </div>
@@ -33,7 +34,7 @@
                     <span id="exported_products" class="lengow_exported stats-big-value">
                         <?= $block->getExport()->getTotalExportProduct() ?>
                     </span>
-                <span><?= $block->escapeHtml(__('products exported')) ?></span>
+                <span><?= $escaper->escapeHtml(__('products exported')) ?></span>
             </div>
         </div>
         <br>
@@ -41,7 +42,7 @@
                 <span id="total_products"  class="lengow_total stats-big-value">
                     <?= $block->getExport()->getTotalProduct() ?>
                 </span>
-            <span><?= $block->escapeHtml(__('products available')) ?></span>
+            <span><?= $escaper->escapeHtml(__('products available')) ?></span>
         </div>
         <br>
         <br>
@@ -59,12 +60,12 @@
                         data-id_store="<?= $block->getStore()->getId() ?>"
                         value="1"
                         <?php if ($block->selectionIsEnabled()): ?>checked="checked"<?php endif; ?>>
-                </div><?= $block->escapeHtml(__('Include specific products')) ?>
+                </div><?= $escaper->escapeHtml(__('Include specific products')) ?>
             </label>
         </div>
         <i class="fa fa-info-circle lengow_tooltip">
             <span class ="lengow_specific_product_support">
-                <?= $block->escapeHtml(__('Use this option to select products one by one')) ?>
+                <?= $escaper->escapeHtml(__('Use this option to select products one by one')) ?>
             </span>
         </i>
     </div>

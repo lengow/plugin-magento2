@@ -6,23 +6,24 @@
 
 // @codingStandardsIgnoreFile
 /** @var Lengow\Connector\Block\Adminhtml\Main $block */
+$escaper = $block->getEscaper();
 ?>
 
 <div class="lgw-container">
     <div class="lgw-box">
         <h3>SAS Lengow</h3>
-        <?= $block->escapeHtml(__('Simplified limited liability company')) ?><br />
-        <?= $block->escapeHtml(__('Social capital:')) ?> 368 778 €<br />
-        <?= $block->escapeHtml(__('CNIL declaration:')) ?> 1748784 v 0<br />
-        <?= $block->escapeHtml(__('Company Registration Number (Nantes):')) ?> 513 381 434<br />
-        <?= $block->escapeHtml(__('VAT identification number:')) ?> FR42513381434<br /><br />
-        <h3><?= $block->escapeHtml(__('Address')) ?></h3>
+        <?= $escaper->escapeHtml(__('Simplified limited liability company')) ?><br />
+        <?= $escaper->escapeHtml(__('Social capital:')) ?> 368 778 €<br />
+        <?= $escaper->escapeHtml(__('CNIL declaration:')) ?> 1748784 v 0<br />
+        <?= $escaper->escapeHtml(__('Company Registration Number (Nantes):')) ?> 513 381 434<br />
+        <?= $escaper->escapeHtml(__('VAT identification number:')) ?> FR42513381434<br /><br />
+        <h3><?= $escaper->escapeHtml(__('Address')) ?></h3>
         6 rue René Viviani<br />
         44200 Nantes<br /><br />
-        <h3><?= $block->escapeHtml(__('Contact')) ?></h3>
+        <h3><?= $escaper->escapeHtml(__('Contact')) ?></h3>
         contact@lengow.com<br />
         +33 (0)2 85 52 64 14<br /><br />
-        <h3><?= $block->escapeHtml(__('Hosting')) ?></h3>
+        <h3><?= $escaper->escapeHtml(__('Hosting')) ?></h3>
         OXALIDE<br />
         RCS Paris : 803 816 529<br />
         25 Boulevard de Strasbourg – 75010 Paris<br />

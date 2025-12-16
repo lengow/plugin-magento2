@@ -23,6 +23,7 @@ use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Import as ImportHelper;
+use Magento\Framework\Escaper;
 
 class Header extends Template
 {
@@ -37,21 +38,29 @@ class Header extends Template
     private $importHelper;
 
     /**
+     * @var Escaper $escaper Magento escaper instance
+     */
+    private $escaper;
+
+    /**
      * Constructor
      *
      * @param Context $context Magento block context instance
      * @param ConfigHelper $configHelper Lengow config helper instance
      * @param ImportHelper $importHelper Lengow import helper instance
+     * @param Escaper $escaper Magento escaper instance
      * @param array $data additional params
      */
     public function __construct(
         Context $context,
         ConfigHelper $configHelper,
         ImportHelper $importHelper,
+        Escaper $escaper,
         array $data = []
     ) {
         $this->configHelper = $configHelper;
         $this->importHelper = $importHelper;
+        $this->escaper = $escaper;
         parent::__construct($context, $data);
     }
 
@@ -73,5 +82,13 @@ class Header extends Template
     public function getImportHelper(): ImportHelper
     {
         return $this->importHelper;
+    }
+
+    /**
+     * Get Magento escaper instance
+     */
+    public function getEscaper(): Escaper
+    {
+        return $this->escaper;
     }
 }

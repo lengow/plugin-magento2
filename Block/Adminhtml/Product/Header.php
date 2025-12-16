@@ -26,6 +26,7 @@ use Lengow\Connector\Helper\Config as ConfigHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Model\Export as LengowExport;
 use phpDocumentor\Reflection\Types\Boolean;
+use Magento\Framework\Escaper;
 
 class Header extends Template
 {
@@ -50,12 +51,18 @@ class Header extends Template
     private $export;
 
     /**
+     * @var Escaper $escaper Magento escaper instance
+     */
+    private Escaper $escaper;
+
+    /**
      * Constructor
      *
      * @param Context $context Magento block context instance
      * @param DataHelper $dataHelper Lengow data helper instance
      * @param ConfigHelper $configHelper Lengow config helper instance
      * @param LengowExport $export Lengow export instance
+     * @param Escaper $escaper Magento escaper instance
      * @param array $data additional params
      */
     public function __construct(
@@ -63,12 +70,14 @@ class Header extends Template
         DataHelper $dataHelper,
         ConfigHelper $configHelper,
         LengowExport $export,
+        Escaper $escaper,
         array $data = []
     ) {
         $this->dataHelper = $dataHelper;
         $this->configHelper = $configHelper;
         $this->export = $export;
         $this->store = $this->dataHelper->getStore();
+        $this->escaper = $escaper;
         parent::__construct($context, $data);
     }
 
@@ -117,5 +126,13 @@ class Header extends Template
                 LengowExport::PARAM_UPDATE_EXPORT_DATE => 0,
             ]
         );
+    }
+
+    /**
+     * Get Magento escaper instance
+     */
+    public function getEscaper(): Escaper
+    {
+        return $this->escaper;
     }
 }

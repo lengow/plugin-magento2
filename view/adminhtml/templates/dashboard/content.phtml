@@ -10,61 +10,62 @@
 
 <?php
 $numberOrderToBeSent = $block->getNumberOrderToBeSent();
+$escaper = $block->getEscaper();
 ?>
 
 <div class="lgw-container">
     <div class="lgw-box lgw-home-header text-center">
-        <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/lengow-white-big.png') ?>" alt="lengow">
-        <h1><?= $block->escapeHtml(__('Hi! Welcome back!')) ?></h1>
-        <a href="<?= $block->getLengowSolutionUrl() ?>" class="lgw-btn" target="_blank" title="<?= $block->escapeHtml(__('Go to Lengow')) ?>">
-            <?= $block->escapeHtml(__('Go to Lengow')) ?>
+        <img src="<?= $escaper->escapeHtmlAttr(($block->getViewFileUrl('Lengow_Connector::images/lengow-white-big.png'))) ?>" alt="lengow">
+        <h1><?= $escaper->escapeHtml(__('Hi! Welcome back!')) ?></h1>
+        <a href="<?= $escaper->escapeHtmlAttr($block->getLengowSolutionUrl()) ?>" class="lgw-btn" target="_blank" title="<?= $escaper->escapeHtml(__('Go to Lengow')) ?>">
+            <?= $escaper->escapeHtml(__('Go to Lengow')) ?>
         </a>
     </div>
     <div class="lgw-row lgw-home-menu text-center">
         <div class="lgw-col-4">
-            <a href="<?= $block->getUrl('lengow/product/index') ?>" class="lgw-box-link" title="<?= $block->escapeHtml(__('Products')) ?>">
+            <a href="<?= $escaper->escapeHtmlAttr($block->getUrl('lengow/product/index')) ?>" class="lgw-box-link" title="<?= $escaper->escapeHtml(__('Products')) ?>">
                 <div class="lgw-box">
-                    <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/home-products.png') ?>" class="img-responsive">
-                    <h2><?= $block->escapeHtml(__('Products')) ?></h2>
-                    <p><?= $block->escapeHtml(__('Take a look at all available products so that you can prepare your catalogue')) ?></p>
+                    <img src="<?= $escaper->escapeHtmlAttr($block->getViewFileUrl('Lengow_Connector::images/home-products.png')) ?>" class="img-responsive">
+                    <h2><?= $escaper->escapeHtml(__('Products')) ?></h2>
+                    <p><?= $escaper->escapeHtml(__('Take a look at all available products so that you can prepare your catalogue')) ?></p>
                 </div>
             </a>
         </div>
         <div class="lgw-col-4">
-            <a href="<?= $block->getUrl('lengow/order/index') ?>" class="lgw-box-link" title="<?= $block->escapeHtml(__('Orders')) ?>">
+            <a href="<?= $escaper->escapeHtmlAttr($block->getUrl('lengow/order/index')) ?>" class="lgw-box-link" title="<?= $escaper->escapeHtml(__('Orders')) ?>">
                 <div class="lgw-box">
-                    <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/home-orders.png') ?>" class="img-responsive">
+                    <img src="<?= $escaper->escapeHtmlAttr($block->getViewFileUrl('Lengow_Connector::images/home-orders.png')) ?>" class="img-responsive">
                     <h2>
-                        <?= $block->escapeHtml(__('Orders')) ?>
+                        <?= $escaper->escapeHtml(__('Orders')) ?>
                         <?php if($numberOrderToBeSent > 0): ?>
                             <span class="lgw-label red"><?= $numberOrderToBeSent ?></span>
                         <?php endif; ?>
                     </h2>
-                    <p><?= $block->escapeHtml(__('Manage your orders directly on your Magento dashboard')) ?></p>
+                    <p><?= $escaper->escapeHtml(__('Manage your orders directly on your Magento dashboard')) ?></p>
                 </div>
             </a>
         </div>
         <div class="lgw-col-4">
-            <a href="<?= $block->getUrl('adminhtml/system_config/edit/section/lengow_global_options') ?>" class="lgw-box-link" title="<?= $block->escapeHtml(__('Settings')) ?>">
+            <a href="<?= $escaper->escapeHtmlAttr($block->getUrl('adminhtml/system_config/edit/section/lengow_global_options')) ?>" class="lgw-box-link" title="<?= $escaper->escapeHtml(__('Settings')) ?>">
                 <div class="lgw-box">
-                    <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/home-settings.png') ?>" class="img-responsive">
-                    <h2><?= $block->escapeHtml(__('Settings')) ?></h2>
-                    <p><?= $block->escapeHtml(__('Configure your Magento plugin main settings')) ?></p>
+                    <img src="<?= $escaper->escapeHtmlAttr($block->getViewFileUrl('Lengow_Connector::images/home-settings.png')) ?>" class="img-responsive">
+                    <h2><?= $escaper->escapeHtml(__('Settings')) ?></h2>
+                    <p><?= $escaper->escapeHtml(__('Configure your Magento plugin main settings')) ?></p>
                 </div>
             </a>
         </div>
     </div>
     <div class="lgw-box">
-        <h2><?= $block->escapeHtml(__('Need some help?')) ?></h2>
+        <h2><?= $escaper->escapeHtml(__('Need some help?')) ?></h2>
         <p>
-            <a href="<?= $block->getUrl('lengow/help/index') ?>" title="<?= $block->escapeHtml(__('Get in touch with Lengow.')) ?>">
-                <?= $block->escapeHtml(__('Get in touch with Lengow.')) ?>
+            <a href="<?= $escaper->escapeHtmlAttr($block->getUrl('lengow/help/index')) ?>" title="<?= $escaper->escapeHtml(__('Get in touch with Lengow.')) ?>">
+                <?= $escaper->escapeHtml(__('Get in touch with Lengow.')) ?>
             </a>
         </p>
         <p>
-            <a href="<?= $block->escapeHtml($block->getHelpCenterLink()) ?>" target="_blank"
-               title="<?= $block->escapeHtml(__('Visit our Help Center')) ?>"><?= $block->escapeHtml(__('Visit our Help Center')) ?></a>
-            <?= $block->escapeHtml(__('for detailed information on how to configure your Magento plugin properly')) ?>
+            <a href="<?= $escaper->escapeHtml($block->getHelpCenterLink()) ?>" target="_blank"
+               title="<?= $escaper->escapeHtml(__('Visit our Help Center')) ?>"><?= $escaper->escapeHtml(__('Visit our Help Center')) ?></a>
+            <?= $escaper->escapeHtml(__('for detailed information on how to configure your Magento plugin properly')) ?>
         </p>
     </div>
 </div>

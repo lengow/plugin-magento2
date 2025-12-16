@@ -6,11 +6,11 @@
 
 // @codingStandardsIgnoreFile
 /** @var Lengow\Connector\Block\Adminhtml\Toolbox\Content $block */
-
+$escaper = $block->getEscaper();
 ?>
 
 <div class="lgw-box">
-    <h2><i class="fa fa-rocket"></i> <?= $block->escapeHtml(__('Lengow Toolbox')) ?></h2>
+    <h2><i class="fa fa-rocket"></i> <?= $escaper->escapeHtml(__('Lengow Toolbox')) ?></h2>
     <br />
     <div id="lengow_see_global" class="lgw-switch checked">
         <label>
@@ -18,20 +18,20 @@
                 <span></span>
                 <input type="checkbox" data-action="see_global_information" class="lengow_switch_option" checked="checked">
             </div>
-            <?= $block->escapeHtml(__('Global information')) ?>
+            <?= $escaper->escapeHtml(__('Global information')) ?>
         </label>
     </div>
     <div id="global-information">
         <div class="lengow-block-full">
-            <h3><i class="fa fa-check"></i> <?= $block->escapeHtml(__('Checklist')) ?></h3>
+            <h3><i class="fa fa-check"></i> <?= $escaper->escapeHtml(__('Checklist')) ?></h3>
             <?= $block->getCheckList() ?>
         </div>
         <div class="lengow-block-full">
-            <h3><i class="fa fa-cog"></i> <?= $block->escapeHtml(__('Plugin information')) ?></h3>
+            <h3><i class="fa fa-cog"></i> <?= $escaper->escapeHtml(__('Plugin information')) ?></h3>
             <?= $block->getPluginInformation() ?>
         </div>
         <div class="lengow-block-full">
-            <h3><i class="fa fa-download"></i> <?= $block->escapeHtml(__('Import information')) ?></h3>
+            <h3><i class="fa fa-download"></i> <?= $escaper->escapeHtml(__('Import information')) ?></h3>
             <?= $block->getImportInformation() ?>
         </div>
         <div class="clear"></div>
@@ -43,16 +43,16 @@
                 <span></span>
                 <input type="checkbox" data-action="see_store_information" class="lengow_switch_option">
             </div>
-            <?= $block->escapeHtml(__('Store information')) ?>
+            <?= $escaper->escapeHtml(__('Store information')) ?>
         </label>
     </div>
     <div id="store-information">
         <div class="lengow-block-full">
-            <h3><i class="fa fa-upload"></i> <?= $block->escapeHtml(__('Export information')) ?></h3>
+            <h3><i class="fa fa-upload"></i> <?= $escaper->escapeHtml(__('Export information')) ?></h3>
             <?= $block->getExportInformation() ?>
         </div>
         <div class="lengow-block-full">
-            <h3><i class="fa fa-list"></i> <?= $block->escapeHtml(__('Content folder media')) ?></h3>
+            <h3><i class="fa fa-list"></i> <?= $escaper->escapeHtml(__('Content folder media')) ?></h3>
             <?= $block->getFileInformation() ?>
         </div>
         <div class="clear"></div>
@@ -64,16 +64,16 @@
                 <span></span>
                 <input type="checkbox" data-action="see_cron_information" class="lengow_switch_option">
             </div>
-            <?= $block->escapeHtml(__('Magento cron schedule')) ?>
+            <?= $escaper->escapeHtml(__('Magento cron schedule')) ?>
         </label>
     </div>
     <div id="cron-information">
         <div class="lengow-block-full">
-            <h3><i class="fa fa-clock-o"></i> <?= $block->escapeHtml(__('Lengow export cron jobs')) ?></h3>
+            <h3><i class="fa fa-clock-o"></i> <?= $escaper->escapeHtml(__('Lengow export cron jobs')) ?></h3>
             <?= $block->getCronInformation('export') ?>
         </div>
         <div class="lengow-block-full">
-            <h3><i class="fa fa-clock-o"></i> <?= $block->escapeHtml(__('Lengow import cron jobs')) ?></h3>
+            <h3><i class="fa fa-clock-o"></i> <?= $escaper->escapeHtml(__('Lengow import cron jobs')) ?></h3>
             <?= $block->getCronInformation('import') ?>
         </div>
         <div class="clear"></div>
@@ -85,7 +85,7 @@
                 <span></span>
                 <input type="checkbox" data-action="see_checksum_information" class="lengow_switch_option">
             </div>
-            <?= $block->escapeHtml(__('File Checksum integrity')) ?>
+            <?= $escaper->escapeHtml(__('File Checksum integrity')) ?>
         </label>
     </div>
     <div id="checksum-information">
@@ -101,7 +101,7 @@
                 <span></span>
                 <input type="checkbox" data-action="see_action_information" class="lengow_switch_option">
             </div>
-            <?= $block->escapeHtml(__('Lengow actions')) ?>
+            <?= $escaper->escapeHtml(__('Lengow actions')) ?>
         </label>
     </div>
 </div>

@@ -8,13 +8,14 @@
 /** @var Lengow\Connector\Block\Adminhtml\Sales\Order\Tab\Info $block */
 
 $fields = $block->getFields();
+$escaper = $block->getEscaper();
 ?>
 
 <div class="lgw-box">
     <div id="lgw-info-title">
         <h2>
             <i class="fa fa-rocket"></i>
-            <?= $block->escapeHtml(__('Lengow informations')) ?>
+            <?= $escaper->escapeHtml(__('Lengow informations')) ?>
         </h2>
     </div>
     <?php if ($block->isOrderImportedByLengow()): ?>
@@ -23,21 +24,21 @@ $fields = $block->getFields();
                 <div id="lgw-info-btn">
                     <button type="button" class="primary">
                         <a href="<?= $block->getUrl('lengow/order/synchronize', ['order_id' => $block->getOrderId(), 'lengow_order_id' => $block->getLengowOrderId()]) ?>"
-                           onclick="return confirm('<?= $block->escapeHtml(__('Do you really want to synchronize the order?')) ?>')">
-                            <?= $block->escapeHtml(__('Synchronize ID')) ?>
+                           onclick="return confirm('<?= $escaper->escapeHtml(__('Do you really want to synchronize the order?')) ?>')">
+                            <?= $escaper->escapeHtml(__('Synchronize ID')) ?>
                         </a>
                     </button>
                     <button type="button" class="primary">
                         <a href="<?= $block->getUrl('lengow/order/reimport', ['order_id' => $block->getOrderId(), 'lengow_order_id' => $block->getLengowOrderId()]) ?>"
-                           onclick="return confirm('<?= $block->escapeHtml(__('Do you really want to re-import the order?')) ?>')">
-                            <?= $block->escapeHtml(__('Re-import order')) ?>
+                           onclick="return confirm('<?= $escaper->escapeHtml(__('Do you really want to re-import the order?')) ?>')">
+                            <?= $escaper->escapeHtml(__('Re-import order')) ?>
                         </a>
                     </button>
                     <?php if ($block->canReSendAction()): ?>
                         <button type="button" class="primary">
                             <a href="<?= $block->getUrl('lengow/order/resend', ['order_id' => $block->getOrderId(), 'status' => $block->getOrderStatus()]) ?>"
-                               onclick="return confirm('<?= $block->escapeHtml(__('Do you really want to %1 the order?', [$block->getOrderStatus()])) ?>')">
-                                <?= $block->escapeHtml(__('Resend Action')) ?>
+                               onclick="return confirm('<?= $escaper->escapeHtml(__('Do you really want to %1 the order?', [$block->getOrderStatus()])) ?>')">
+                                <?= $escaper->escapeHtml(__('Resend Action')) ?>
                             </a>
                         </button>
                     <?php endif; ?>
@@ -60,10 +61,10 @@ $fields = $block->getFields();
             </div>
         <?php else: ?>
             <div class="clear"></div>
-            <p><?= $block->escapeHtml(__('Due to a reimportation, this order is not tracked by Lengow')) ?></p>
+            <p><?= $escaper->escapeHtml(__('Due to a reimportation, this order is not tracked by Lengow')) ?></p>
         <?php endif; ?>
     <?php else: ?>
         <div class="clear"></div>
-        <p><?= $block->escapeHtml(__('This order is not from Lengow')) ?></p>
+        <p><?= $escaper->escapeHtml(__('This order is not from Lengow')) ?></p>
     <?php endif; ?>
 </div>

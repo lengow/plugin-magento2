@@ -6,27 +6,28 @@
 
 // @codingStandardsIgnoreFile
 /** @var Lengow\Connector\Block\Adminhtml\Main $block */
+$escaper = $block->getEscaper();
 ?>
 <div id="lgw-free-trial" class="lgw-container">
     <div class="lgw-box">
         <div class="lgw-row">
             <div class="lgw-col-6 display-inline-block">
-                <h2 class="text-center"><?= $block->escapeHtml(__('All good things come to an end')) ?></h2>
-                <h3 class="text-center"><?= $block->escapeHtml(__("You've reached the end of your trial!")) ?></h3>
-                <p class="text-center"><?= $block->escapeHtml(__('Your free 15-day trial period on Lengow has now expired. We know that it is sad news, but the best is yet to come! We sincerely hope Lengow has helped you improve your business.')) ?></p>
-                <p class="text-center"><?= $block->escapeHtml(__('Your account will be suspended until you purchase a new subscription. All existing distributions and importations will also be suspended.')) ?></p>
-                <p class="text-center"><?= $block->escapeHtml(__("Don't forget that trial accounts are deleted 30 days after the end of the trial period. Make sure to subscribe so you do not lose the work you've done building channels.")) ?></p>
+                <h2 class="text-center"><?= $escaper->escapeHtml(__('All good things come to an end')) ?></h2>
+                <h3 class="text-center"><?= $escaper->escapeHtml(__("You've reached the end of your trial!")) ?></h3>
+                <p class="text-center"><?= $escaper->escapeHtml(__('Your free 15-day trial period on Lengow has now expired. We know that it is sad news, but the best is yet to come! We sincerely hope Lengow has helped you improve your business.')) ?></p>
+                <p class="text-center"><?= $escaper->escapeHtml(__('Your account will be suspended until you purchase a new subscription. All existing distributions and importations will also be suspended.')) ?></p>
+                <p class="text-center"><?= $escaper->escapeHtml(__("Don't forget that trial accounts are deleted 30 days after the end of the trial period. Make sure to subscribe so you do not lose the work you've done building channels.")) ?></p>
                 <div class="text-center">
                     <button type="button" class="lgw-btn">
                         <a href="<?= $block->getLengowSolutionUrl() ?>" target="_blank">
-                            <?= $block->escapeHtml(__("It's ok, I'm ready to subscribe!")) ?>
+                            <?= $escaper->escapeHtml(__("It's ok, I'm ready to subscribe!")) ?>
                         </a>
                     </button>
                 </div>
                 <div class="text-center">
                     <button type="button"  class="lgw-btn">
                         <a href="<?= $block->getUrl('lengow/home/refresh') ?>">
-                            <?= $block->escapeHtml(__('Refresh my account')) ?>
+                            <?= $escaper->escapeHtml(__('Refresh my account')) ?>
                         </a>
                     </button>
                 </div>
