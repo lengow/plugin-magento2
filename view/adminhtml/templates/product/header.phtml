@@ -13,7 +13,7 @@ $escaper = $block->getEscaper();
         <?= $block->getChildHtml('store_switcher') ?>
     </div>
     <div class="lengow_export_feed">
-        <a href="<?= $block->getExportUrl() ?>" target="_blank">
+        <a href="<?= $escaper->escapeHtmlAttr($block->getExportUrl()) ?>" target="_blank">
             <i class="fa fa-download lengow_tooltip">
                 <span ><?= $escaper->escapeHtml(__('Download')) ?></span>
             </i>
@@ -21,10 +21,10 @@ $escaper = $block->getEscaper();
     </div>
     <div class="text-center">
         <h3 id="lengow_product_store_name" class="lengow_product_store_name lengow_tooltip">
-            <?= $block->getStore()->getName() ?>
+            <?= $escaper->escapeHtml($block->getStore()->getName()) ?>
             <span>
-                <?= $block->getStore()->getName() ?> (<?= $block->getStore()->getId() ?>)
-                <?= $block->getStore()->getBaseUrl() ?>
+                <?= $escaper->escapeHtml($block->getStore()->getName()) ?> (<?= $escaper->escapeHtml($block->getStore()->getId()) ?>)
+                <?= $escaper->escapeHtml($block->getStore()->getBaseUrl()) ?>
             </span>
         </h3>
         <br>
@@ -32,7 +32,7 @@ $escaper = $block->getEscaper();
         <div class="products-exported">
             <div id="parent_exported_products">
                     <span id="exported_products" class="lengow_exported stats-big-value">
-                        <?= $block->getExport()->getTotalExportProduct() ?>
+                        <?= $escaper->escapeHtml($block->getExport()->getTotalExportProduct()) ?>
                     </span>
                 <span><?= $escaper->escapeHtml(__('products exported')) ?></span>
             </div>
@@ -40,7 +40,7 @@ $escaper = $block->getEscaper();
         <br>
         <div id="parent_total_products">
                 <span id="total_products"  class="lengow_total stats-big-value">
-                    <?= $block->getExport()->getTotalProduct() ?>
+                    <?= $escaper->escapeHtml($block->getExport()->getTotalProduct()) ?>
                 </span>
             <span><?= $escaper->escapeHtml(__('products available')) ?></span>
         </div>
@@ -55,7 +55,7 @@ $escaper = $block->getEscaper();
                         type="checkbox"
                         name="lengow_export_selection" class="lengow_switch_option"
                         id="change_option_selected"
-                        data-href="<?= $block->getUrl('lengow/product/index') ?>?isAjax=true"
+                        data-href="<?= $escaper->escapeHtmlAttr($block->getUrl('lengow/product/index')) ?>?isAjax=true"
                         data-action="change_option_selected"
                         data-id_store="<?= $block->getStore()->getId() ?>"
                         value="1"
