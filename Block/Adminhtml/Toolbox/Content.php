@@ -109,9 +109,9 @@ class Content extends Template
     /**
      * Get array of requirements for toolbox
      *
-     * @return string
+     * @return array
      */
-    public function getCheckList(): string
+    public function getCheckList(): array
     {
         $checklistData = $this->toolboxHelper->getData(ToolboxHelper::DATA_TYPE_CHECKLIST);
         $checklist = [
@@ -142,15 +142,16 @@ class Content extends Template
                 self::DATA_STATE => $checklistData[ToolboxHelper::CHECKLIST_MD5_SUCCESS],
             ],
         ];
-        return $this->getContent($checklist);
+
+        return $checklist;
     }
 
     /**
      * Get all global information for toolbox
      *
-     * @return string
+     * @return array
      */
-    public function getPluginInformation(): string
+    public function getPluginInformation(): array
     {
         $pluginData = $this->toolboxHelper->getData(ToolboxHelper::DATA_TYPE_PLUGIN);
         $checklist = [
@@ -199,15 +200,17 @@ class Content extends Template
                 self::DATA_MESSAGE => $pluginData[ToolboxHelper::PLUGIN_TOOLBOX_URL],
             ],
         ];
-        return $this->getContent($checklist);
+
+        return $checklist;
+
     }
 
     /**
      * Get all import information for toolbox
      *
-     * @return string
+     * @return array
      */
-    public function getImportInformation(): string
+    public function getImportInformation(): array
     {
         $synchronizationData = $this->toolboxHelper->getData(ToolboxHelper::DATA_TYPE_SYNCHRONIZATION);
         $lastSynchronization = $synchronizationData[ToolboxHelper::SYNCHRONIZATION_LAST_SYNCHRONIZATION];
@@ -267,17 +270,17 @@ class Content extends Template
                 self::DATA_MESSAGE => $lastImportType,
             ],
         ];
-        return $this->getContent($checklist);
+        return $checklist;
     }
 
     /**
      * Get all shop information for toolbox
      *
-     * @return string
+     * @return array
      */
-    public function getExportInformation(): string
+    public function getExportInformation(): array
     {
-        $content = '';
+
         $exportData = $this->toolboxHelper->getData(ToolboxHelper::DATA_TYPE_SHOP);
         foreach ($exportData as $data) {
             $lastExportMessage = $data[ToolboxHelper::SHOP_LAST_EXPORT] !== 0
@@ -318,19 +321,20 @@ class Content extends Template
                     self::DATA_MESSAGE => $lastExportMessage,
                 ],
             ];
-            $content .= $this->getContent($checklist);
+
         }
-        return $content;
+
+        return $checklist;
     }
 
     /**
      * Get all file information for toolbox
      *
-     * @return string
+     * @return array
      */
-    public function getFileInformation(): string
+    public function getFileInformation(): array
     {
-        $content = '';
+
         $stores = $this->configHelper->getAllStore();
         foreach ($stores as $store) {
             $sep = DIRECTORY_SEPARATOR;
@@ -355,9 +359,9 @@ class Content extends Template
             } else {
                 $checklist[] = [self::DATA_SIMPLE => __('No file exported')];
             }
-            $content .= $this->getContent($checklist);
+
         }
-        return $content;
+        return $checklist;
     }
 
     /**
@@ -365,28 +369,31 @@ class Content extends Template
      *
      * @param string $type cron type (export or import)
      *
-     * @return string
+     * @return array
      */
-    public function getCronInformation(string $type): string
+    public function getCronInformation(string $type): array
     {
         $jobCode = $type === 'import' ? self::CRON_JOB_IMPORT : self::CRON_JOB_EXPORT;
         $lengowCronJobs = $this->scheduleCollection->create()
             ->addFieldToFilter('job_code', $jobCode)
             ->getData();
         $lengowCronJobs = array_slice(array_reverse($lengowCronJobs), 0, 20);
-        return $this->getCronContent($lengowCronJobs);
+
+        return $lengowCronJobs;
     }
 
     /**
      * Get files checksum
      *
-     * @return string
+     * @param stting $type type of checksum
+     *
+     * @return array
      */
-    public function checkFileMd5(): string
+    public function checkFileMd5($type = ''): array
     {
+
         $checklist = [];
         $checksumData = $this->toolboxHelper->getData(ToolboxHelper::DATA_TYPE_CHECKSUM);
-        $html = '<h3><i class="fa fa-commenting"></i> ' . __('Summary') . '</h3>';
         if ($checksumData[ToolboxHelper::CHECKSUM_AVAILABLE]) {
             $checklist[] = [
                 self::DATA_TITLE => __(
@@ -409,7 +416,10 @@ class Content extends Template
                 ),
                 self::DATA_STATE => $checksumData[ToolboxHelper::CHECKSUM_NUMBER_FILES_DELETED] === 0,
             ];
-            $html .= $this->getContent($checklist);
+            if ($type === 'available') {
+                return $checklist;
+            }
+
             if (!empty($checksumData[ToolboxHelper::CHECKSUM_FILE_MODIFIED])) {
                 $fileModified = [];
                 foreach ($checksumData[ToolboxHelper::CHECKSUM_FILE_MODIFIED] as $file) {
@@ -418,8 +428,10 @@ class Content extends Template
                         self::DATA_STATE => 0,
                     ];
                 }
-                $html .= '<h3><i class="fa fa-list"></i> ' . __('List of changed files') . '</h3>';
-                $html .= $this->getContent($fileModified);
+
+                if ($type === 'modified') {
+                    return $fileModified;
+                }
             }
             if (!empty($checksumData[ToolboxHelper::CHECKSUM_FILE_DELETED])) {
                 $fileDeleted = [];
@@ -429,17 +441,30 @@ class Content extends Template
                         self::DATA_STATE => 0,
                     ];
                 }
-                $html .= '<h3><i class="fa fa-list"></i> ' . __('List of deleted files') . '</h3>';
-                $html .= $this->getContent($fileDeleted);
+                if ($type === 'deleted') {
+                    return $fileDeleted;
+                }
             }
         } else {
+            $none = [];
             $checklist[] = [
                 self::DATA_TITLE => __('checkmd5.csv file is not available. Checking is impossible!'),
                 self::DATA_STATE => false,
             ];
-            $html .= $this->getContent($checklist);
+            if ($type === '') {
+                return $none;
+            }
         }
-        return $html;
+
+        return $checklist;
+    }
+
+    /**
+     * Get Magento escaper instance
+     */
+    public function getEscaper(): Escaper
+    {
+        return $this->escaper;
     }
 
     /**

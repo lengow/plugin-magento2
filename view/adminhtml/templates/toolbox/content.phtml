@@ -7,6 +7,7 @@
 // @codingStandardsIgnoreFile
 /** @var Lengow\Connector\Block\Adminhtml\Toolbox\Content $block */
 $escaper = $block->getEscaper();
+$helper = $block->getDataHelper();
 ?>
 
 <div class="lgw-box">
@@ -24,15 +25,132 @@ $escaper = $block->getEscaper();
     <div id="global-information">
         <div class="lengow-block-full">
             <h3><i class="fa fa-check"></i> <?= $escaper->escapeHtml(__('Checklist')) ?></h3>
-            <?= $block->getCheckList() ?>
+            <table cellpadding="0" cellspacing="0">
+            <?php foreach ($block->getCheckList() as $check): ?>
+                <tr>
+                    <?php if (isset($check['header'])): ?>
+                        <td colspan="2" align="center" style="border:0">
+                            <h4>
+                                <?= $escaper->escapeHtml($check['header']) ?>
+                            </h4>
+                        </td>
+                    <?php elseif (isset($check['simple'])): ?>
+                        <td colspan="2" align="center">
+                            <h5><?= $escaper->escapeHtml($check['simple']) ?></h5>
+                        </td>
+                    <?php else: ?>
+                        <?php if (isset($check['state'])) : ?>
+                            <?php if ($check['state']): ?>
+                                <td align="right"><i class="fa fa-check lengow-green"></td>
+                            <?php else: ?>
+                                <td align="right"><i class="fa fa-times lengow-red"></td>
+                            <?php endif; ?>
+                            <?php if (!$check['state'] && isset($check['help'])): ?>
+                                <tr>
+                                    <td colspan="2">
+                                    <p>
+                                        <?php if (array_key_exists('help_link', $check) && $check['help_link'] !== ''): ?>
+                                            <a href="<?= $escaper->escapeHtmlAttr($check['help_link']) ?>" target="_blank">
+                                                <?= $escaper->escapeHtml($check['help_label']) ?>
+                                            </a>
+                                        <?php endif; ?>
+                                    </p>
+                                   </td>
+                                </tr>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <td align="right"><?= $escaper->escapeHtml($check['message']) ?></td>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </tr>
+            <?php endforeach; ?>
+            </table>
         </div>
         <div class="lengow-block-full">
             <h3><i class="fa fa-cog"></i> <?= $escaper->escapeHtml(__('Plugin information')) ?></h3>
-            <?= $block->getPluginInformation() ?>
+            <table cellpadding="0" cellspacing="0">
+            <?php foreach ($block->getPluginInformation() as $check): ?>
+                <tr>
+                    <?php if (isset($check['header'])): ?>
+                        <td colspan="2" align="center" style="border:0">
+                            <h4>
+                                <?= $escaper->escapeHtml($check['header']) ?>
+                            </h4>
+                        </td>
+                    <?php elseif (isset($check['simple'])): ?>
+                        <td colspan="2" align="center">
+                            <h5><?= $escaper->escapeHtml($check['simple']) ?></h5>
+                        </td>
+                    <?php else: ?>
+                        <?php if (isset($check['state'])) : ?>
+                            <?php if ($check['state']): ?>
+                                <td align="right"><i class="fa fa-check lengow-green"></td>
+                            <?php else: ?>
+                                <td align="right"><i class="fa fa-times lengow-red"></td>
+                            <?php endif; ?>
+                            <?php if (!$check['state'] && isset($check['help'])): ?>
+                                <tr>
+                                    <td colspan="2">
+                                    <p>
+                                        <?php if (array_key_exists('help_link', $check) && $check['help_link'] !== ''): ?>
+                                            <a href="<?= $escaper->escapeHtmlAttr($check['help_link']) ?>" target="_blank">
+                                                <?= $escaper->escapeHtml($check['help_label']) ?>
+                                            </a>
+                                        <?php endif; ?>
+                                    </p>
+                                   </td>
+                                </tr>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <td align="right"><?= $escaper->escapeHtml($check['message']) ?></td>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </tr>
+            <?php endforeach; ?>
+            </table>
         </div>
         <div class="lengow-block-full">
             <h3><i class="fa fa-download"></i> <?= $escaper->escapeHtml(__('Import information')) ?></h3>
-            <?= $block->getImportInformation() ?>
+            <table cellpadding="0" cellspacing="0">
+            <?php foreach ($block->getImportInformation() as $check): ?>
+                <tr>
+                    <?php if (isset($check['header'])): ?>
+                        <td colspan="2" align="center" style="border:0">
+                            <h4>
+                                <?= $escaper->escapeHtml($check['header']) ?>
+                            </h4>
+                        </td>
+                    <?php elseif (isset($check['simple'])): ?>
+                        <td colspan="2" align="center">
+                            <h5><?= $escaper->escapeHtml($check['simple']) ?></h5>
+                        </td>
+                    <?php else: ?>
+                        <?php if (isset($check['state'])) : ?>
+                            <?php if ($check['state']): ?>
+                                <td align="right"><i class="fa fa-check lengow-green"></td>
+                            <?php else: ?>
+                                <td align="right"><i class="fa fa-times lengow-red"></td>
+                            <?php endif; ?>
+                            <?php if (!$check['state'] && isset($check['help'])): ?>
+                                <tr>
+                                    <td colspan="2">
+                                    <p>
+                                        <?php if (array_key_exists('help_link', $check) && $check['help_link'] !== ''): ?>
+                                            <a href="<?= $escaper->escapeHtmlAttr($check['help_link']) ?>" target="_blank">
+                                                <?= $escaper->escapeHtml($check['help_label']) ?>
+                                            </a>
+                                        <?php endif; ?>
+                                    </p>
+                                   </td>
+                                </tr>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <td align="right"><?= $escaper->escapeHtml($check['message']) ?></td>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </tr>
+            <?php endforeach; ?>
+            </table>
         </div>
         <div class="clear"></div>
     </div>
@@ -49,11 +167,89 @@ $escaper = $block->getEscaper();
     <div id="store-information">
         <div class="lengow-block-full">
             <h3><i class="fa fa-upload"></i> <?= $escaper->escapeHtml(__('Export information')) ?></h3>
-            <?= $block->getExportInformation() ?>
+            <table cellpadding="0" cellspacing="0">
+            <?php foreach ($block->getExportInformation() as $check): ?>
+                <tr>
+                    <?php if (isset($check['header'])): ?>
+                        <td colspan="2" align="center" style="border:0">
+                            <h4>
+                                <?= $escaper->escapeHtml($check['header']) ?>
+                            </h4>
+                        </td>
+                    <?php elseif (isset($check['simple'])): ?>
+                        <td colspan="2" align="center">
+                            <h5><?= $escaper->escapeHtml($check['simple']) ?></h5>
+                        </td>
+                    <?php else: ?>
+                        <?php if (isset($check['state'])) : ?>
+                            <?php if ($check['state']): ?>
+                                <td align="right"><i class="fa fa-check lengow-green"></td>
+                            <?php else: ?>
+                                <td align="right"><i class="fa fa-times lengow-red"></td>
+                            <?php endif; ?>
+                            <?php if (!$check['state'] && isset($check['help'])): ?>
+                                <tr>
+                                    <td colspan="2">
+                                    <p>
+                                        <?php if (array_key_exists('help_link', $check) && $check['help_link'] !== ''): ?>
+                                            <a href="<?= $escaper->escapeHtmlAttr($check['help_link']) ?>" target="_blank">
+                                                <?= $escaper->escapeHtml($check['help_label']) ?>
+                                            </a>
+                                        <?php endif; ?>
+                                    </p>
+                                   </td>
+                                </tr>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <td align="right"><?= $escaper->escapeHtml($check['message']) ?></td>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </tr>
+            <?php endforeach; ?>
+            </table>
         </div>
         <div class="lengow-block-full">
             <h3><i class="fa fa-list"></i> <?= $escaper->escapeHtml(__('Content folder media')) ?></h3>
-            <?= $block->getFileInformation() ?>
+            <table cellpadding="0" cellspacing="0">
+            <?php foreach ($block->getFileInformation() as $check): ?>
+                <tr>
+                    <?php if (isset($check['header'])): ?>
+                        <td colspan="2" align="center" style="border:0">
+                            <h4>
+                                <?= $escaper->escapeHtml($check['header']) ?>
+                            </h4>
+                        </td>
+                    <?php elseif (isset($check['simple'])): ?>
+                        <td colspan="2" align="center">
+                            <h5><?= $escaper->escapeHtml($check['simple']) ?></h5>
+                        </td>
+                    <?php else: ?>
+                        <?php if (isset($check['state'])) : ?>
+                            <?php if ($check['state']): ?>
+                                <td align="right"><i class="fa fa-check lengow-green"></td>
+                            <?php else: ?>
+                                <td align="right"><i class="fa fa-times lengow-red"></td>
+                            <?php endif; ?>
+                            <?php if (!$check['state'] && isset($check['help'])): ?>
+                                <tr>
+                                    <td colspan="2">
+                                    <p>
+                                        <?php if (array_key_exists('help_link', $check) && $check['help_link'] !== ''): ?>
+                                            <a href="<?= $escaper->escapeHtmlAttr($check['help_link']) ?>" target="_blank">
+                                                <?= $escaper->escapeHtml($check['help_label']) ?>
+                                            </a>
+                                        <?php endif; ?>
+                                    </p>
+                                   </td>
+                                </tr>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <td align="right"><?= $escaper->escapeHtml($check['message']) ?></td>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </tr>
+            <?php endforeach; ?>
+            </table>
         </div>
         <div class="clear"></div>
     </div>
@@ -70,11 +266,85 @@ $escaper = $block->getEscaper();
     <div id="cron-information">
         <div class="lengow-block-full">
             <h3><i class="fa fa-clock-o"></i> <?= $escaper->escapeHtml(__('Lengow export cron jobs')) ?></h3>
-            <?= $block->getCronInformation('export') ?>
+            <table cellpadding="0" cellspacing="0" style="text-align: left">
+            <?php $jobs = $block->getCronInformation('export'); ?>
+            <?php if (empty($jobs)): ?>
+                <tr>
+                    <td style="border:0">
+                        <?= $escaper->escapeHtml(__('Any scheduled cron job for now')) ?>
+                    </td>
+                </tr>
+            <?php else: ?>
+                <tr>
+                    <th><?= $escaper->escapeHtml(__('Status')) ?></th>
+                    <th><?= $escaper->escapeHtml(__('Message')) ?></th>
+                    <th><?= $escaper->escapeHtml(__('Scheduled at')) ?></th>
+                    <th><?= $escaper->escapeHtml(__('Executed at')) ?></th>
+                    <th><?= $escaper->escapeHtml(__('Finished at')) ?></th>
+                </tr>
+                <?php foreach ($jobs as $job): ?>
+                    <tr>
+                        <td><?= $escaper->escapeHtml($job['status']) ?></td>
+                        <?php if ($job['messages']): ?>
+                            <td>
+                                <a class="lengow_tooltip" href="#">
+                                    <?= $escaper->escapeHtml(__('see message')) ?>
+                                </a>
+                                <span class="lengow_toolbox_message">
+                                    <?= $escaper->escapeHtml($job['messages']) ?>
+                                </span>
+                            </td>
+                        <?php else: ?>
+                            <td >-</td>
+                        <?php endif; ?>
+                        <td><?= $escaper->escapeHtml($helper->getDateInCorrectFormat(strtotime($job['scheduled_at']))) ?></td>
+                        <td><?= $escaper->escapeHtml($helper->getDateInCorrectFormat(strtotime($job['executed_at']))) ?></td>
+                        <td><?= $escaper->escapeHtml($helper->getDateInCorrectFormat(strtotime($job['finished_at']))) ?></td>
+                </tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            </table>
         </div>
         <div class="lengow-block-full">
             <h3><i class="fa fa-clock-o"></i> <?= $escaper->escapeHtml(__('Lengow import cron jobs')) ?></h3>
-            <?= $block->getCronInformation('import') ?>
+            <table cellpadding="0" cellspacing="0" style="text-align: left">
+            <?php $jobs = $block->getCronInformation('import'); ?>
+            <?php if (empty($jobs)): ?>
+                <tr>
+                    <td style="border:0">
+                        <?= $escaper->escapeHtml(__('Any scheduled cron job for now')) ?>
+                    </td>
+                </tr>
+            <?php else: ?>
+                <tr>
+                    <th><?= $escaper->escapeHtml(__('Status')) ?></th>
+                    <th><?= $escaper->escapeHtml(__('Message')) ?></th>
+                    <th><?= $escaper->escapeHtml(__('Scheduled at')) ?></th>
+                    <th><?= $escaper->escapeHtml(__('Executed at')) ?></th>
+                    <th><?= $escaper->escapeHtml(__('Finished at')) ?></th>
+                </tr>
+                <?php foreach ($jobs as $job): ?>
+                    <tr>
+                        <td><?= $escaper->escapeHtml($job['status']) ?></td>
+                        <?php if ($job['messages']): ?>
+                            <td>
+                                <a class="lengow_tooltip" href="#">
+                                    <?= $escaper->escapeHtml(__('see message')) ?>
+                                </a>
+                                <span class="lengow_toolbox_message">
+                                    <?= $escaper->escapeHtml($job['messages']) ?>
+                                </span>
+                            </td>
+                        <?php else: ?>
+                            <td >-</td>
+                        <?php endif; ?>
+                        <td><?= $escaper->escapeHtml($helper->getDateInCorrectFormat(strtotime($job['scheduled_at']))) ?></td>
+                        <td><?= $escaper->escapeHtml($helper->getDateInCorrectFormat(strtotime($job['executed_at']))) ?></td>
+                        <td><?= $escaper->escapeHtml($helper->getDateInCorrectFormat(strtotime($job['finished_at']))) ?></td>
+                </tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            </table>
         </div>
         <div class="clear"></div>
     </div>
@@ -90,6 +360,170 @@ $escaper = $block->getEscaper();
     </div>
     <div id="checksum-information">
         <div class="lengow-block-full">
+            <h3><i class="fa fa-commenting"></i> <?= $escaper->escapeHtml(__('Summary')) ?></h3>
+            <table cellpadding="0" cellspacing="0">
+            <?php foreach ($block->checkFileMd5('available') as $check): ?>
+                <tr>
+                    <?php if (isset($check['header'])): ?>
+                        <td colspan="2" align="center" style="border:0">
+                            <h4>
+                                <?= $escaper->escapeHtml($check['header']) ?>
+                            </h4>
+                        </td>
+                    <?php elseif (isset($check['simple'])): ?>
+                        <td colspan="2" align="center">
+                            <h5><?= $escaper->escapeHtml($check['simple']) ?></h5>
+                        </td>
+                    <?php else: ?>
+                        <?php if (isset($check['state'])) : ?>
+                            <?php if ($check['state']): ?>
+                                <td align="right"><i class="fa fa-check lengow-green"></td>
+                            <?php else: ?>
+                                <td align="right"><i class="fa fa-times lengow-red"></td>
+                            <?php endif; ?>
+                            <?php if (!$check['state'] && isset($check['help'])): ?>
+                                <tr>
+                                    <td colspan="2">
+                                    <p>
+                                        <?php if (array_key_exists('help_link', $check) && $check['help_link'] !== ''): ?>
+                                            <a href="<?= $escaper->escapeHtmlAttr($check['help_link']) ?>" target="_blank">
+                                                <?= $escaper->escapeHtml($check['help_label']) ?>
+                                            </a>
+                                        <?php endif; ?>
+                                    </p>
+                                   </td>
+                                </tr>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <td align="right"><?= $escaper->escapeHtml($check['message']) ?></td>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </tr>
+            <?php endforeach; ?>
+            </table>
+            <h3><i class="fa fa-commenting"></i> <?= $escaper->escapeHtml(__('List of changed files')) ?></h3>
+            <table cellpadding="0" cellspacing="0">
+            <?php foreach ($block->checkFileMd5('modified') as $check): ?>
+                <tr>
+                    <?php if (isset($check['header'])): ?>
+                        <td colspan="2" align="center" style="border:0">
+                            <h4>
+                                <?= $escaper->escapeHtml($check['header']) ?>
+                            </h4>
+                        </td>
+                    <?php elseif (isset($check['simple'])): ?>
+                        <td colspan="2" align="center">
+                            <h5><?= $escaper->escapeHtml($check['simple']) ?></h5>
+                        </td>
+                    <?php else: ?>
+                        <?php if (isset($check['state'])) : ?>
+                            <?php if ($check['state']): ?>
+                                <td align="right"><i class="fa fa-check lengow-green"></td>
+                            <?php else: ?>
+                                <td align="right"><i class="fa fa-times lengow-red"></td>
+                            <?php endif; ?>
+                            <?php if (!$check['state'] && isset($check['help'])): ?>
+                                <tr>
+                                    <td colspan="2">
+                                    <p>
+                                        <?php if (array_key_exists('help_link', $check) && $check['help_link'] !== ''): ?>
+                                            <a href="<?= $escaper->escapeHtmlAttr($check['help_link']) ?>" target="_blank">
+                                                <?= $escaper->escapeHtml($check['help_label']) ?>
+                                            </a>
+                                        <?php endif; ?>
+                                    </p>
+                                   </td>
+                                </tr>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <td align="right"><?= $escaper->escapeHtml($check['message']) ?></td>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </tr>
+            <?php endforeach; ?>
+            </table>
+            <h3><i class="fa fa-list"></i><?= $escaper->escapeHtml(__('List of deleted files')) ?></h3>
+            <table cellpadding="0" cellspacing="0">
+            <?php foreach ($block->checkFileMd5('deleted') as $check): ?>
+                <tr>
+                    <?php if (isset($check['header'])): ?>
+                        <td colspan="2" align="center" style="border:0">
+                            <h4>
+                                <?= $escaper->escapeHtml($check['header']) ?>
+                            </h4>
+                        </td>
+                    <?php elseif (isset($check['simple'])): ?>
+                        <td colspan="2" align="center">
+                            <h5><?= $escaper->escapeHtml($check['simple']) ?></h5>
+                        </td>
+                    <?php else: ?>
+                        <?php if (isset($check['state'])) : ?>
+                            <?php if ($check['state']): ?>
+                                <td align="right"><i class="fa fa-check lengow-green"></td>
+                            <?php else: ?>
+                                <td align="right"><i class="fa fa-times lengow-red"></td>
+                            <?php endif; ?>
+                            <?php if (!$check['state'] && isset($check['help'])): ?>
+                                <tr>
+                                    <td colspan="2">
+                                    <p>
+                                        <?php if (array_key_exists('help_link', $check) && $check['help_link'] !== ''): ?>
+                                            <a href="<?= $escaper->escapeHtmlAttr($check['help_link']) ?>" target="_blank">
+                                                <?= $escaper->escapeHtml($check['help_label']) ?>
+                                            </a>
+                                        <?php endif; ?>
+                                    </p>
+                                   </td>
+                                </tr>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <td align="right"><?= $escaper->escapeHtml($check['message']) ?></td>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </tr>
+            <?php endforeach; ?>
+            </table>
+            <table cellpadding="0" cellspacing="0">
+            <?php foreach ($block->checkFileMd5('') as $check): ?>
+                <tr>
+                    <?php if (isset($check['header'])): ?>
+                        <td colspan="2" align="center" style="border:0">
+                            <h4>
+                                <?= $escaper->escapeHtml($check['header']) ?>
+                            </h4>
+                        </td>
+                    <?php elseif (isset($check['simple'])): ?>
+                        <td colspan="2" align="center">
+                            <h5><?= $escaper->escapeHtml($check['simple']) ?></h5>
+                        </td>
+                    <?php else: ?>
+                        <?php if (isset($check['state'])) : ?>
+                            <?php if ($check['state']): ?>
+                                <td align="right"><i class="fa fa-check lengow-green"></td>
+                            <?php else: ?>
+                                <td align="right"><i class="fa fa-times lengow-red"></td>
+                            <?php endif; ?>
+                            <?php if (!$check['state'] && isset($check['help'])): ?>
+                                <tr>
+                                    <td colspan="2">
+                                    <p>
+                                        <?php if (array_key_exists('help_link', $check) && $check['help_link'] !== ''): ?>
+                                            <a href="<?= $escaper->escapeHtmlAttr($check['help_link']) ?>" target="_blank">
+                                                <?= $escaper->escapeHtml($check['help_label']) ?>
+                                            </a>
+                                        <?php endif; ?>
+                                    </p>
+                                   </td>
+                                </tr>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <td align="right"><?= $escaper->escapeHtml($check['message']) ?></td>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </tr>
+            <?php endforeach; ?>
+            </table>
+
             <?= $block->checkFileMd5() ?>
         </div>
         <div class="clear"></div>
