@@ -19,25 +19,25 @@ $stores = $block->getStores();
     <h2><?= $escaper->escapeHtml(__('Link your stores with Lengow')) ?></h2>
     <p><?= $escaper->escapeHtml(__('To retrieve all your existing configuration (orders, products...) directly link the following Magento stores with your Lengow catalogue(s).')) ?></p>
     <p>
-        <span><?= count($catalogList) ?></span>
+        <span><?= $escaper->escapeHtml(count($catalogList)) ?></span>
         <?= $escaper->escapeHtml(__('catalogues are available and not linked to a cms in Lengow.')) ?>
     </p>
 </div>
 <div>
     <?php foreach ($stores as $store) { ?>
         <div class="lgw-catalog-select">
-            <label class="control-label" for="select_catalog<?= $store->getId() ?>">
-                <?= $store->getName() ?>
+            <label class="control-label" for="select_catalog<?= $escaper->escapeHtml($store->getId()) ?>">
+                <?= $escaper->escapeHtml($store->getName()) ?>
             </label>
             <select class="form-control lengow_select js-catalog-linked"
                     id="select_catalog"
-                    name="<?= $store->getId() ?>"
+                    name="<?= $escaper->escapeHtml($store->getId()) ?>"
                     multiple="multiple"
                     data-placeholder=" <?= $escaper->escapeHtml(__('Select a catalogue')) ?>"
                     data-allow-clear="true">
                 <?php foreach ( $catalogList as $catalog ) : ?>
-                    <option value="<?= $catalog['value'] ?>">
-                        <?= $catalog['label'] ?>
+                    <option value="<?= $escaper->escapeHtmlAttr($catalog['value']) ?>">
+                        <?= $escaper->escapeHtml($catalog['label']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -45,7 +45,7 @@ $stores = $block->getStores();
     <?php } ?>
 </div>
 <div>
-    <button class="lgw-btn lgw-btn-green lgw-btn-progression js-link-catalog" data-href="<?= /** @noEscape */ $block->getUrl('lengow/home/linkCatalog')?>">
+    <button class="lgw-btn lgw-btn-green lgw-btn-progression js-link-catalog" data-href="<?= $escaper->escapeUrl($block->getUrl('lengow/home/linkCatalog')) ?>">
         <div class="btn-inner">
             <div class="btn-step default">
                 <?= $escaper->escapeHtml(__('Save and go to the dashboard')) ?>

@@ -38,7 +38,7 @@ $escaper = $block->getEscaper();
     </div>
     <div>
         <button class="lgw-btn-disabled lgw-btn lgw-btn-progression js-connect-cms"
-                data-href="<?= /** @noEscape */ $block->getUrl('lengow/home/cmsResult')?>">
+                data-href="<?= $escaper->escapeUrl($block->getUrl('lengow/home/cmsResult')) ?>">
             <div class="btn-inner">
                 <div class="btn-step default js-connect">
                     <?= $escaper->escapeHtml(__('Connect to Lengow')) ?>

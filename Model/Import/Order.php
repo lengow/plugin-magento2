@@ -381,8 +381,8 @@ class Order extends AbstractModel
         LengowAction $lengowAction,
         LengowImportFactory $lengowImportFactory,
         SecurityHelper $securityHelper,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null
     ) {
         $this->orderFactory = $orderFactory;
         $this->invoiceService = $invoiceService;
@@ -788,9 +788,9 @@ class Order extends AbstractModel
      */
     public function toShip(
         $order,
-        string $carrierName = null,
-        string $carrierMethod = null,
-        string $trackingNumber = null
+        ?string $carrierName = null,
+        ?string $carrierMethod = null,
+        ?string $trackingNumber = null
     ): void {
         if ($order->canShip()) {
             $shipment = $this->convertOrder->toShipment($order);
@@ -1030,7 +1030,7 @@ class Order extends AbstractModel
     /**
      * Send Order action
      */
-    public function callAction(string $action, MagentoOrder $order, Shipment $shipment = null): bool
+    public function callAction(string $action, MagentoOrder $order, ?Shipment $shipment = null): bool
     {
         $success = true;
         if (!(bool) $order->getData('from_lengow')) {
@@ -1216,7 +1216,7 @@ class Order extends AbstractModel
      */
     public function synchronizeOrder(
         Order $lengowOrder,
-        LengowConnector $connector = null,
+        ?LengowConnector $connector = null,
         bool $logOutput = false
     ): bool {
         list($accountId, $accessToken, $secretToken) = $this->configHelper->getAccessIds();

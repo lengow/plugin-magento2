@@ -191,7 +191,7 @@ class File
      *
      * @throws Exception
      */
-    private function fileExists(string $filePath = null): bool
+    private function fileExists(?string $filePath = null): bool
     {
         $filePath = $filePath ?? $this->getPath();
         return $this->driverFile->isExists($filePath);

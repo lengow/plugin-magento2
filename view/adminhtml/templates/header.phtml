@@ -28,7 +28,7 @@ $escaper = $block->getEscaper();
         <?php if($block->freeTrialIsEnabled()): ?>
             <span id="lgw-counter">
                 <?= $escaper->escapeHtml(__('Trial period: %1 day(s) left.', [$block->getFreeTrialDays()])) ?>
-                <a href="<?= $block->getLengowSolutionUrl() ?>" target="_blank" title="<?= $escaper->escapeHtml(__('Subscribe')) ?>">
+                <a href="<?= $escaper->escapeUrl($block->getLengowSolutionUrl()) ?>" target="_blank" title="<?= $escaper->escapeHtml(__('Subscribe')) ?>">
                     <?= $escaper->escapeHtml(__('Subscribe')) ?>
                 </a>
             </span>

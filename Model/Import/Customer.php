@@ -738,7 +738,7 @@ class Customer extends MagentoResourceCustomer
      *
      * @return string
      */
-    private function cleanFullName(string $fullName = null): string
+    private function cleanFullName(?string $fullName = null): string
     {
         $split = explode(' ', $fullName ?? '');
         if (!empty($split)) {
@@ -860,7 +860,7 @@ class Customer extends MagentoResourceCustomer
      *
      * @return string
      */
-    private function cleanPhoneNumber(string $phoneNumber = null): string
+    private function cleanPhoneNumber(?string $phoneNumber = null): string
     {
         if (!$phoneNumber) {
             return '';

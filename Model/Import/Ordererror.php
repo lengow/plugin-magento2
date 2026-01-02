@@ -243,7 +243,7 @@ class Ordererror extends AbstractModel
      *
      * @return array|false
      */
-    public function getOrderErrors(int $orderLengowId, int $type = null, bool $finished = null)
+    public function getOrderErrors(int $orderLengowId, ?int $type = null, ?bool $finished = null)
     {
         $collection = $this->lengowOrderErrorCollection->create()->load()
             ->addFieldToFilter(self::FIELD_ORDER_LENGOW_ID, $orderLengowId);

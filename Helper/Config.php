@@ -811,7 +811,7 @@ class Config extends AbstractHelper
      *
      * @return array
      */
-    public function getLengowActiveStores(int $storeId = null): array
+    public function getLengowActiveStores(?int $storeId = null): array
     {
         $lengowActiveStores = [];
         $storeCollection = $this->storeCollectionFactory->create()->load()->addFieldToFilter('is_active', 1);
@@ -1150,7 +1150,7 @@ class Config extends AbstractHelper
      *
      * @return array
      */
-    public function getAllValues(int $storeId = null, bool $toolbox = false): array
+    public function getAllValues(?int $storeId = null, bool $toolbox = false): array
     {
         $rows = [];
         foreach (self::$lengowSettings as $key => $keyParams) {

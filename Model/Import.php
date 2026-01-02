@@ -475,7 +475,7 @@ class Import
      * @param string|null $createdFrom Import of orders since
      * @param string|null $createdTo Import of orders until
      */
-    private function setIntervalTime($minutes = null, $days = null, $createdFrom = null, $createdTo = null): void
+    private function setIntervalTime(?float $minutes = null, ?float $days = null, ?string $createdFrom = null, ?string $createdTo = null): void
     {
 
         if ($createdFrom && $createdTo) {

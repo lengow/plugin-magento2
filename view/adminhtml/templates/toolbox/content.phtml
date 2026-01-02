@@ -24,15 +24,15 @@ $escaper = $block->getEscaper();
     <div id="global-information">
         <div class="lengow-block-full">
             <h3><i class="fa fa-check"></i> <?= $escaper->escapeHtml(__('Checklist')) ?></h3>
-            <?= $block->getCheckList() ?>
+            <?= /* @noEscape */ $block->getCheckList() ?>
         </div>
         <div class="lengow-block-full">
             <h3><i class="fa fa-cog"></i> <?= $escaper->escapeHtml(__('Plugin information')) ?></h3>
-            <?= $block->getPluginInformation() ?>
+            <?= /* @noEscape */ $block->getPluginInformation() ?>
         </div>
         <div class="lengow-block-full">
             <h3><i class="fa fa-download"></i> <?= $escaper->escapeHtml(__('Import information')) ?></h3>
-            <?= $block->getImportInformation() ?>
+            <?= /* @noEscape */ $block->getImportInformation() ?>
         </div>
         <div class="clear"></div>
     </div>
@@ -49,11 +49,11 @@ $escaper = $block->getEscaper();
     <div id="store-information">
         <div class="lengow-block-full">
             <h3><i class="fa fa-upload"></i> <?= $escaper->escapeHtml(__('Export information')) ?></h3>
-            <?= $block->getExportInformation() ?>
+            <?= /* @noEscape */ $block->getExportInformation() ?>
         </div>
         <div class="lengow-block-full">
             <h3><i class="fa fa-list"></i> <?= $escaper->escapeHtml(__('Content folder media')) ?></h3>
-            <?= $block->getFileInformation() ?>
+            <?= /* @noEscape */ $block->getFileInformation() ?>
         </div>
         <div class="clear"></div>
     </div>
@@ -70,11 +70,11 @@ $escaper = $block->getEscaper();
     <div id="cron-information">
         <div class="lengow-block-full">
             <h3><i class="fa fa-clock-o"></i> <?= $escaper->escapeHtml(__('Lengow export cron jobs')) ?></h3>
-            <?= $block->getCronInformation('export') ?>
+            <?= /* @noEscape */ $block->getCronInformation('export') ?>
         </div>
         <div class="lengow-block-full">
             <h3><i class="fa fa-clock-o"></i> <?= $escaper->escapeHtml(__('Lengow import cron jobs')) ?></h3>
-            <?= $block->getCronInformation('import') ?>
+            <?= /* @noEscape */ $block->getCronInformation('import') ?>
         </div>
         <div class="clear"></div>
     </div>
@@ -90,7 +90,7 @@ $escaper = $block->getEscaper();
     </div>
     <div id="checksum-information">
         <div class="lengow-block-full">
-            <?= $block->checkFileMd5() ?>
+            <?= /* @noEscape */ $block->checkFileMd5() ?>
         </div>
         <div class="clear"></div>
     </div>

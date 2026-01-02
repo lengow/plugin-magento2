@@ -13,7 +13,7 @@ $escaper = $block->getEscaper();
     <div id="lgw-connection-container" class="lgw-container lgw-connection text-center">
         <div class="lgw-content-section">
             <div class="lgw-logo">
-                <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/lengow-blue.png') ?>" class="img-responsive">
+                <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Lengow_Connector::images/lengow-blue.png')) ?>" class="img-responsive">
             </div>
         </div>
         <div id="lgw-connection-content">
@@ -24,25 +24,25 @@ $escaper = $block->getEscaper();
                     <p><?= $escaper->escapeHtml(__('Explore your opportunities for international growth with 1,600 sales channels in 42 different countries.')) ?></p>
                 </div>
                 <div class="lgw-module-illu">
-                    <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/connected-lengow.png') ?>"
+                    <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Lengow_Connector::images/connected-lengow.png')) ?>"
                          class="lgw-module-illu-lengow"
                          alt="lengow">
-                    <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/plug-grey.png') ?>"
+                    <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Lengow_Connector::images/plug-grey.png')) ?>"
                          class="lgw-module-illu-plug"
                          alt="plug">
-                    <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/connected-magento.png') ?>"
+                    <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Lengow_Connector::images/connected-magento.png')) ?>"
                          class="lgw-module-illu-module"
                          alt="magento">
                 </div>
                 <p><?= $escaper->escapeHtml(__('Just one more step to go to install your Lengow plugin for Magento')) ?></p>
                 <div>
-                    <button class="lgw-btn lgw-btn-green js-go-to-credentials" data-href="<?= /** @noEscape */ $block->getUrl('lengow/home/cms')?>">
+                    <button class="lgw-btn lgw-btn-green js-go-to-credentials" data-href="<?= $escaper->escapeUrl($block->getUrl('lengow/home/cms')) ?>">
                         <?= $escaper->escapeHtml(__('Connect my Magento with Lengow')) ?>
                     </button>
                     <br/>
                     <p>
                         <?= $escaper->escapeHtml(__("You don't have a Lengow account?")) ?>
-                        <a href="<?= $block->getLengowSolutionUrl() ?>" target="_blank">
+                        <a href="<?= $escaper->escapeUrl($block->getLengowSolutionUrl()) ?>" target="_blank">
                             <?= $escaper->escapeHtml(__('Sign up for free')) ?>
                         </a>
                     </p>

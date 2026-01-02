@@ -349,7 +349,7 @@ class Action extends AbstractModel
      *
      * @return array|false
      */
-    public function getActionsByOrderId(int $orderId, bool $onlyActive = false, string $actionType = null)
+    public function getActionsByOrderId(int $orderId, bool $onlyActive = false, ?string $actionType = null)
     {
         $collection = $this->lengowActionCollection->create()->addFieldToFilter(self::FIELD_ORDER_ID, $orderId);
         if ($onlyActive) {
@@ -519,7 +519,7 @@ class Action extends AbstractModel
      *
      * @return boolean
      */
-    public function finishAllActions(int $orderId, string $actionType = null): bool
+    public function finishAllActions(int $orderId, ?string $actionType = null): bool
     {
         // get all order action
         $collection = $this->lengowActionCollection->create()

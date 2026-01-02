@@ -145,7 +145,7 @@ class Data extends AbstractHelper
         string $category,
         string $message = '',
         bool $display = false,
-        string $marketplaceSku = null
+        ?string $marketplaceSku = null
     ) {
         if ($message === '') {
             return false;
@@ -175,7 +175,7 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function setLogMessage(string $key, array $params = null): string
+    public function setLogMessage(string $key, ?array $params = null): string
     {
         if ($params === null || (is_array($params) && empty($params))) {
             return $key;
@@ -384,7 +384,7 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function cleanData(string $str = null): string
+    public function cleanData(?string $str = null): string
     {
         $str = preg_replace(
             '/[\x00-\x08\x10\x0B\x0C\x0E-\x19\x7F]
@@ -448,7 +448,7 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function cleanHtml(string $str = null): string
+    public function cleanHtml(?string $str = null): string
     {
         $str = str_replace('<br />', ' ', nl2br($str));
         $str = trim(strip_tags(htmlspecialchars_decode($str)));
@@ -473,7 +473,7 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function replaceAccentedChars(string $str = null): string
+    public function replaceAccentedChars(?string $str = null): string
     {
         /* One source among others:
             http://www.tachyonsoft.com/uc0000.htm

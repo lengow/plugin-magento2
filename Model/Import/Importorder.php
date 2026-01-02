@@ -1529,7 +1529,7 @@ class Importorder extends AbstractModel
     private function updateRates(
         Collection $rates,
         float $shippingCost,
-        string $shippingMethod = null,
+        ?string $shippingMethod = null,
         bool $first = true
     ) {
         if (!$shippingMethod) {
