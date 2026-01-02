@@ -15,18 +15,18 @@ $showPluginUpgradeModal = $block->showPluginUpgradeModal();
 
 <div id="footer" class="lgw-footer lgw-container">
     <div class="text-center nav-footer">
-        <a href="<?= $block->getUrl('lengow/toolbox/index') ?>" class="sub-link" title="<?= $escaper->escapeHtml(__('Toolbox')) ?>">
+        <a href="<?= $escaper->escapeUrl($block->getUrl('lengow/toolbox/index')) ?>" class="sub-link" title="<?= $escaper->escapeHtml(__('Toolbox')) ?>">
             <?= $escaper->escapeHtml(__('Toolbox')) ?>
         </a> |
-        <a href="<?= $block->getUrl('lengow/legal/index') ?>" class="sub-link" title="<?= $escaper->escapeHtml(__('Legal notices')) ?>">
+        <a href="<?= $escaper->escapeUrl($block->getUrl('lengow/legal/index')) ?>" class="sub-link" title="<?= $escaper->escapeHtml(__('Legal notices')) ?>">
             <?= $escaper->escapeHtml(__('Legal notices')) ?>
         </a> |
-        <?= $escaper->escapeHtml(__('Lengow Magento Plugin')) ?> - v.<?= $block->getPluginVersion() ?>
+        <?= $escaper->escapeHtml(__('Lengow Magento Plugin')) ?> - v.<?= $escaper->escapeHtml($block->getPluginVersion()) ?>
         <?php if($block->isPreprodPlugin()): ?>
             <span class="lgw-label-preprod">sandbox</span>
         <?php endif; ?>
         |
-        <?= $block->getPluginCopyright() ?>
+        <?= $escaper->escapeHtml($block->getPluginCopyright()) ?>
         <a href="<?= $escaper->escapeHtml(__('http://www.lengow.com/')) ?>" class="sub-link" title="Lengow.com" target="_blank">
             Lengow
         </a>
@@ -40,7 +40,7 @@ $showPluginUpgradeModal = $block->showPluginUpgradeModal();
                 <div class="lgw-modalbox-body">
                     <div class="lgw-row flexbox-vertical-center">
                         <div class="lgw-col-5 text-center">
-                            <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/plugin-update.png') ?>" alt="">
+                            <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Lengow_Connector::images/plugin-update.png')) ?>" alt="">
                         </div>
                         <div class="lgw-col-7">
                             <h1><?= $escaper->escapeHtml(__('New version available!')) ?></h1>
@@ -98,7 +98,7 @@ $showPluginUpgradeModal = $block->showPluginUpgradeModal();
                                 </a>
                                 <?php if($showPluginUpgradeModal): ?>
                                     <button class="lgw-btn-link sub-link no-margin-top text-small js-upgrade-plugin-modal-remind-me"
-                                            data-href="<?= $block->getUrl('lengow/dashboard/index/action/remind_me_later/') ?>isAjax/true">
+                                            data-href="<?= $escaper->escapeUrl($block->getUrl('lengow/dashboard/index/action/remind_me_later/')) ?>isAjax/true">
                                         <?= $escaper->escapeHtml(__('Not now, remind me later')) ?>
                                     </button>
                                 <?php endif; ?>

@@ -13,13 +13,13 @@ $escaper = $block->getEscaper();
     <h2><?= $escaper->escapeHtml(__('Ooops! Unable to link your catalogues in Lengow')) ?></h2>
 </div>
 <div class="lgw-module-illu mod-disconnected">
-    <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/connected-magento.png') ?>"
+    <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Lengow_Connector::images/connected-magento.png')) ?>"
          class="lgw-module-illu-module mod-disconnected"
          alt="magento">
-    <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/connected-lengow.png') ?>"
+    <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Lengow_Connector::images/connected-lengow.png')) ?>"
          class="lgw-module-illu-lengow mod-disconnected"
          alt="lengow">
-    <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/unplugged.png') ?>"
+    <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Lengow_Connector::images/unplugged.png')) ?>"
          class="lgw-module-illu-plug mod-disconnected"
          alt="unplugged">
 </div>
@@ -39,10 +39,10 @@ $escaper = $block->getEscaper();
 </div>
 <div>
     <button class="lgw-btn lgw-btn-green js-go-to-catalog" data-retry="true"
-            data-href="<?= /** @noEscape */ $block->getUrl('lengow/home/catalog')?>">
+            data-href="<?= $escaper->escapeUrl($block->getUrl('lengow/home/catalog')) ?>">
         <?= $escaper->escapeHtml(__('Retry')) ?>
     </button>
-    <a href="<?= $block->getUrl('lengow/dashboard/index') ?>"
+    <a href="<?= $escaper->escapeUrl($block->getUrl('lengow/dashboard/index')) ?>"
        class="lgw-btn lgw-btn-green">
         <?= $escaper->escapeHtml(__('Go to dashboard')) ?>
     </a>

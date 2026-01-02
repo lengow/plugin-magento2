@@ -22,13 +22,13 @@ $credentialsValid = $cmsData['data']['isCredentialsValid'];
             <h2><?= $escaper->escapeHtml(__('Well done! Lengow is now connected with your Magento')) ?></h2>
         </div>
         <div class="lgw-module-illu mod-connected">
-            <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/connected-magento.png') ?>"
+            <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Lengow_Connector::images/connected-magento.png')) ?>"
                  class="lgw-module-illu-module mod-connected"
                  alt="magento">
-            <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/connected-lengow.png') ?>"
+            <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Lengow_Connector::images/connected-lengow.png')) ?>"
                  class="lgw-module-illu-lengow mod-connected"
                  alt="lengow">
-            <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/connection-module.png') ?>"
+            <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Lengow_Connector::images/connection-module.png')) ?>"
                  class="lgw-module-illu-plug mod-connected"
                  alt="plugged">
         </div>
@@ -39,7 +39,7 @@ $credentialsValid = $cmsData['data']['isCredentialsValid'];
             </div>
             <div>
                 <button class="lgw-btn lgw-btn-green js-go-to-catalog" data-retry="false"
-                        data-href="<?= /** @noEscape */ $block->getUrl('lengow/home/catalog')?>">
+                        data-href="<?= $escaper->escapeUrl($block->getUrl('lengow/home/catalog'))?>">
                     <?= $escaper->escapeHtml(__('Link catalogues')) ?>
                 </button>
             </div>
@@ -48,13 +48,13 @@ $credentialsValid = $cmsData['data']['isCredentialsValid'];
                 <p><?= $escaper->escapeHtml(__('You can now use the plugin, configure your products and view your marketplace orders.')) ?></p>
                 <p>
                     <?= $escaper->escapeHtml(__('To import your catalogue and configure your channels,')) ?>
-                    <a href="<?= $block->getLengowSolutionUrl() ?>" target="_blank">
+                    <a href="<?= $escaper->escapeUrl($block->getLengowSolutionUrl()) ?>" target="_blank">
                         <?= $escaper->escapeHtml(__('go to Lengow.')) ?>
                     </a>
                 </p>
             </div>
             <div>
-                <a href="<?= $block->getUrl('lengow/dashboard/index') ?>" class="lgw-btn lgw-btn-green">
+                <a href="<?= $escaper->escapeUrl($block->getUrl('lengow/dashboard/index')) ?>" class="lgw-btn lgw-btn-green">
                     <?= $escaper->escapeHtml(__('Go to dashboard')) ?>
                 </a>
             </div>

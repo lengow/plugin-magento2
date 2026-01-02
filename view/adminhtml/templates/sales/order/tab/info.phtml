@@ -23,20 +23,20 @@ $escaper = $block->getEscaper();
             <?php if (!$block->debugModeIsEnabled()): ?>
                 <div id="lgw-info-btn">
                     <button type="button" class="primary">
-                        <a href="<?= $block->getUrl('lengow/order/synchronize', ['order_id' => $block->getOrderId(), 'lengow_order_id' => $block->getLengowOrderId()]) ?>"
+                        <a href="<?= $escaper->escapeUrl($block->getUrl('lengow/order/synchronize', ['order_id' => $block->getOrderId(), 'lengow_order_id' => $block->getLengowOrderId()])) ?>"
                            onclick="return confirm('<?= $escaper->escapeHtml(__('Do you really want to synchronize the order?')) ?>')">
                             <?= $escaper->escapeHtml(__('Synchronize ID')) ?>
                         </a>
                     </button>
                     <button type="button" class="primary">
-                        <a href="<?= $block->getUrl('lengow/order/reimport', ['order_id' => $block->getOrderId(), 'lengow_order_id' => $block->getLengowOrderId()]) ?>"
+                        <a href="<?= $escaper->escapeUrl($block->getUrl('lengow/order/reimport', ['order_id' => $block->getOrderId(), 'lengow_order_id' => $block->getLengowOrderId()])) ?>"
                            onclick="return confirm('<?= $escaper->escapeHtml(__('Do you really want to re-import the order?')) ?>')">
                             <?= $escaper->escapeHtml(__('Re-import order')) ?>
                         </a>
                     </button>
                     <?php if ($block->canReSendAction()): ?>
                         <button type="button" class="primary">
-                            <a href="<?= $block->getUrl('lengow/order/resend', ['order_id' => $block->getOrderId(), 'status' => $block->getOrderStatus()]) ?>"
+                            <a href="<?= $escaper->escapeUrl($block->getUrl('lengow/order/resend', ['order_id' => $block->getOrderId(), 'status' => $block->getOrderStatus()])) ?>"
                                onclick="return confirm('<?= $escaper->escapeHtml(__('Do you really want to %1 the order?', [$block->getOrderStatus()])) ?>')">
                                 <?= $escaper->escapeHtml(__('Resend Action')) ?>
                             </a>
@@ -50,10 +50,10 @@ $escaper = $block->getEscaper();
                     <?php foreach ($fields as $field): ?>
                         <tr>
                             <td>
-                                <b><?= $field['label'] ?></b>
+                                <b><?= $escaper->escapeHtml($field['label']) ?></b>
                             </td>
                             <td align="right">
-                                <?= $field['value'] ?>
+                                <?= $escaper->escapeHtml($field['value']) ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
