@@ -868,7 +868,7 @@ class Product
      *
      * @return string|null
      */
-    private function getAttributeValue(string $field = null): ?string
+    private function getAttributeValue(?string $field = null): ?string
     {
         $attributeValue = '';
         $attributeValueParent = '';
