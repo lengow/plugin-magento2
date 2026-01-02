@@ -1216,7 +1216,7 @@ class Order extends AbstractModel
      */
     public function synchronizeOrder(
         Order $lengowOrder,
-        LengowConnector $connector = null,
+        ?LengowConnector $connector = null,
         bool $logOutput = false
     ): bool {
         list($accountId, $accessToken, $secretToken) = $this->configHelper->getAccessIds();
