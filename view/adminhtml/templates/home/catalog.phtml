@@ -36,8 +36,8 @@ $stores = $block->getStores();
                     data-placeholder=" <?= $escaper->escapeHtml(__('Select a catalogue')) ?>"
                     data-allow-clear="true">
                 <?php foreach ( $catalogList as $catalog ) : ?>
-                    <option value="<?= $escaper->escapeHtmlAttr($catalog[\'value\']) ?>">
-                        <?= $escaper->escapeHtml($catalog[\'label\']) ?>
+                    <option value="<?= $escaper->escapeHtmlAttr($catalog['value']) ?>">
+                        <?= $escaper->escapeHtml($catalog['label']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
