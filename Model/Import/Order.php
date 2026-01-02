@@ -381,8 +381,8 @@ class Order extends AbstractModel
         LengowAction $lengowAction,
         LengowImportFactory $lengowImportFactory,
         SecurityHelper $securityHelper,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null
     ) {
         $this->orderFactory = $orderFactory;
         $this->invoiceService = $invoiceService;
