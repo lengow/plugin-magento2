@@ -1030,7 +1030,7 @@ class Order extends AbstractModel
     /**
      * Send Order action
      */
-    public function callAction(string $action, MagentoOrder $order, Shipment $shipment = null): bool
+    public function callAction(string $action, MagentoOrder $order, ?Shipment $shipment = null): bool
     {
         $success = true;
         if (!(bool) $order->getData('from_lengow')) {

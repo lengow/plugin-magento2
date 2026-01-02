@@ -808,7 +808,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getOrderDataByType(string $type, array $data, MagentoOrderInterface $order = null): array
+    private function getOrderDataByType(string $type, array $data, ?MagentoOrderInterface $order = null): array
     {
         $orderReferences = [
             self::ID => (int) $data[LengowOrder::FIELD_ID],
@@ -847,7 +847,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getAllOrderData(array $data, MagentoOrderInterface $order = null): array
+    private function getAllOrderData(array $data, ?MagentoOrderInterface $order = null): array
     {
         $importedAt = 0;
         $lastTrack = null;
@@ -1036,7 +1036,7 @@ class Toolbox extends AbstractHelper
      *
      * @return array
      */
-    private function getOrderExtraData(array $data, MagentoOrderInterface $order = null): array
+    private function getOrderExtraData(array $data, ?MagentoOrderInterface $order = null): array
     {
         $orderData = json_decode($data[LengowOrder::FIELD_EXTRA], true);
         $orderData[self::EXTRA_UPDATED_AT] = $order

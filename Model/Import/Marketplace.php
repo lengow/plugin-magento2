@@ -320,7 +320,7 @@ class Marketplace extends AbstractModel
         string $action,
         MagentoOrder $order,
         Order $lengowOrder,
-        Shipment $shipment = null,
+        ?Shipment $shipment = null,
         ?string $orderLineId = null
     ): bool {
         try {
@@ -435,7 +435,7 @@ class Marketplace extends AbstractModel
         string $action,
         MagentoOrder $order,
         Order $lengowOrder,
-        Shipment $shipment = null,
+        ?Shipment $shipment = null,
         array $marketplaceArguments = []
     ): array {
         $params = [];
