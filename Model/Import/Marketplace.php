@@ -321,7 +321,7 @@ class Marketplace extends AbstractModel
         MagentoOrder $order,
         Order $lengowOrder,
         Shipment $shipment = null,
-        string $orderLineId = null
+        ?string $orderLineId = null
     ): bool {
         try {
             // check the action and order data

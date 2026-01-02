@@ -368,7 +368,7 @@ class Toolbox extends AbstractHelper
      *
      * @param string|null $date name of file to download
      */
-    public function downloadLog(string $date = null): void
+    public function downloadLog(?string $date = null): void
     {
         $this->lengowLog->download($date);
     }
@@ -404,8 +404,8 @@ class Toolbox extends AbstractHelper
      * @return array
      */
     public function getOrderData(
-        string $marketplaceSku = null,
-        string $marketplaceName = null,
+        ?string $marketplaceSku = null,
+        ?string $marketplaceName = null,
         string $type = self::DATA_TYPE_ORDER
     ): array {
         $lengowOrders = $marketplaceSku && $marketplaceName

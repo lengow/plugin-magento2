@@ -788,9 +788,9 @@ class Order extends AbstractModel
      */
     public function toShip(
         $order,
-        string $carrierName = null,
-        string $carrierMethod = null,
-        string $trackingNumber = null
+        ?string $carrierName = null,
+        ?string $carrierMethod = null,
+        ?string $trackingNumber = null
     ): void {
         if ($order->canShip()) {
             $shipment = $this->convertOrder->toShipment($order);

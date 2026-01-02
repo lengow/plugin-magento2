@@ -200,7 +200,7 @@ class Log extends AbstractModel
      *
      * @param string|null $date date for a specific log file
      */
-    public function download(string $date = null): void
+    public function download(?string $date = null): void
     {
         $contents = '';
         if ($date && preg_match('/^(\d{4}-\d{2}-\d{2})$/', $date)) {

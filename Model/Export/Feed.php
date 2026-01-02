@@ -180,7 +180,7 @@ class Feed
      *
      * @throws Exception
      */
-    public function write(string $type, array $data = [], bool $isFirst = null, bool $maxCharacter = null): void
+    public function write(string $type, array $data = [], ?bool $isFirst = null, ?bool $maxCharacter = null): void
     {
         switch ($type) {
             case self::HEADER:
