@@ -629,7 +629,7 @@ class Connector
         string $type,
         string $api,
         array $args = [],
-        string $token = null,
+        ?string $token = null,
         string $body = '',
         bool $logOutput = false
     ) {

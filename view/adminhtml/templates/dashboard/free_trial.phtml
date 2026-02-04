@@ -19,14 +19,14 @@ $escaper = $block->getEscaper();
                 <p class="text-center"><?= $escaper->escapeHtml(__("Don't forget that trial accounts are deleted 30 days after the end of the trial period. Make sure to subscribe so you do not lose the work you've done building channels.")) ?></p>
                 <div class="text-center">
                     <button type="button" class="lgw-btn">
-                        <a href="<?= $block->getLengowSolutionUrl() ?>" target="_blank">
+                        <a href="<?= $escaper->escapeUrl($block->getLengowSolutionUrl()) ?>" target="_blank">
                             <?= $escaper->escapeHtml(__("It's ok, I'm ready to subscribe!")) ?>
                         </a>
                     </button>
                 </div>
                 <div class="text-center">
                     <button type="button"  class="lgw-btn">
-                        <a href="<?= $block->getUrl('lengow/home/refresh') ?>">
+                        <a href="<?= $escaper->escapeUrl($block->getUrl('lengow/home/refresh')) ?>">
                             <?= $escaper->escapeHtml(__('Refresh my account')) ?>
                         </a>
                     </button>
@@ -34,7 +34,7 @@ $escaper = $block->getEscaper();
             </div>
             <div class="lgw-col-6">
                 <div class="vertical-center">
-                    <img src="<?= $block->getViewFileUrl('Lengow_Connector::images/lengow-blue.png') ?>" class="center-block" alt="lengow"/>
+                    <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Lengow_Connector::images/lengow-blue.png')) ?>" class="center-block" alt="lengow"/>
                 </div>
             </div>
         </div>

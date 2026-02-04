@@ -38,7 +38,7 @@ $escaper = $block->getEscaper();
                     <h2>
                         <?= $escaper->escapeHtml(__('Orders')) ?>
                         <?php if($numberOrderToBeSent > 0): ?>
-                            <span class="lgw-label red"><?= $numberOrderToBeSent ?></span>
+                            <span class="lgw-label red"><?= $escaper->escapeHtml($numberOrderToBeSent) ?></span>
                         <?php endif; ?>
                     </h2>
                     <p><?= $escaper->escapeHtml(__('Manage your orders directly on your Magento dashboard')) ?></p>
