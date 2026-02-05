@@ -21,6 +21,7 @@ namespace Lengow\Connector\Helper;
 
 use Exception;
 use Magento\Backend\Model\UrlInterface;
+use Magento\Framework\App\Area;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Stdlib\DateTime\DateTime;
@@ -36,6 +37,9 @@ use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 use Lengow\Connector\Model\Import\Ordererror as LengowOrderError;
 use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
 use Lengow\Connector\Model\Exception as LengowException;
+use Magento\Framework\Mail\Template\TransportBuilder;
+use Magento\Framework\Translate\Inline\StateInterface;
+use Magento\Store\Model\Store;
 
 class Import extends AbstractHelper
 {
@@ -90,6 +94,16 @@ class Import extends AbstractHelper
     private $orderErrorFactory;
 
     /**
+     * @var TransportBuilder
+     */
+    private $transportBuilder;
+
+    /**
+     * @var StateInterface
+     */
+    private $inlineTranslation;
+
+    /**
      * @var array valid states lengow to create a Lengow order
      */
     private $lengowStates = [
@@ -111,6 +125,8 @@ class Import extends AbstractHelper
      * @param DateTime $dateTime Magento datetime instance
      * @param LengowMarketplaceFactory $marketplaceFactory Lengow marketplace factory instance
      * @param LengowOrderFactory $lengowOrder Lengow import order factory instance
+     * @param TransportBuilder $transportBuilder Magento transport builder
+     * @param StateInterface $inlineTranslation Magento inline translation
      */
     public function __construct(
         UrlInterface $urlBackend,
@@ -121,7 +137,9 @@ class Import extends AbstractHelper
         LengowOrderErrorFactory $orderErrorFactory,
         DateTime $dateTime,
         LengowMarketplaceFactory $marketplaceFactory,
-        LengowOrderFactory $lengowOrder
+        LengowOrderFactory $lengowOrder,
+        TransportBuilder $transportBuilder,
+        StateInterface $inlineTranslation
     ) {
         $this->urlBackend = $urlBackend;
         $this->configHelper = $configHelper;
@@ -131,6 +149,8 @@ class Import extends AbstractHelper
         $this->orderErrorFactory = $orderErrorFactory;
         $this->marketplaceFactory = $marketplaceFactory;
         $this->orderFactory = $lengowOrder;
+        $this->transportBuilder = $transportBuilder;
+        $this->inlineTranslation = $inlineTranslation;
         parent::__construct($context);
     }
 
@@ -382,57 +402,46 @@ class Import extends AbstractHelper
             foreach ($emails as $email) {
                 if ($email !== '') {
                     try {
-                        if (class_exists('\Zend_Mail')) {
-                            $mail = new \Zend_Mail();
-                            $mail->setSubject($subject);
-                            $mail->setBodyHtml($mailBody);
-                            $mail->setFrom(
-                                $this->scopeConfig->getValue(
-                                    'trans_email/ident_general/email',
-                                    ScopeInterface::SCOPE_STORE
-                                ),
-                                'Lengow'
-                            );
-                            $mail->addTo($email);
-                            $mail->send();
-                            $this->dataHelper->log(
-                                DataHelper::CODE_MAIL_REPORT,
-                                $this->dataHelper->setLogMessage('report email sent to %1', [$email]),
-                                $logOutput
-                            );
-                        } else {
-                            $mail = new \Laminas\Mail\Message();
-                            $mail->setSubject($subject);
-                            $htmlPart = new \Laminas\Mime\Part($mailBody);
-                            $htmlPart->type = "text/html";
-                            $body = new \Laminas\Mime\Message();
-                            $body->setParts([$htmlPart]);
-                            $mail->setBody($body);
-                            $mail->setFrom(
-                                $this->scopeConfig->getValue(
-                                    'trans_email/ident_general/email',
-                                    ScopeInterface::SCOPE_STORE
-                                ),
-                                'Lengow'
-                            );
-                            $mail->addTo($email);
-                            $transport = new \Laminas\Mail\Transport\Sendmail();
-                            $transport->send($mail);
-                            $this->dataHelper->log(
-                                DataHelper::CODE_MAIL_REPORT,
-                                $this->dataHelper->setLogMessage('report email sent to %1', [$email]),
-                                $logOutput
-                            );
-                        }
-
+                        $this->inlineTranslation->suspend();
+                        $sender = [
+                            'name' => 'Lengow',
+                            'email' => $this->scopeConfig->getValue(
+                                'trans_email/ident_general/email',
+                                ScopeInterface::SCOPE_STORE
+                            ),
+                        ];
+                        $transport = $this->transportBuilder
+                            ->setTemplateIdentifier('lengow_import_error')
+                            ->setTemplateOptions(
+                                [
+                                    'area' => Area::AREA_ADMINHTML,
+                                    'store' => Store::DEFAULT_STORE_ID,
+                                ]
+                            )
+                            ->setTemplateVars(
+                                [
+                                    'subject' => $subject,
+                                    'body' => $mailBody,
+                                ]
+                            )
+                            ->setFromByScope($sender)
+                            ->addTo($email)
+                            ->getTransport();
+                        $transport->sendMessage();
+                        $this->inlineTranslation->resume();
+                        $this->dataHelper->log(
+                            DataHelper::CODE_MAIL_REPORT,
+                            $this->dataHelper->setLogMessage('report email sent to %1', [$email]),
+                            $logOutput
+                        );
                     } catch (Exception $e) {
+                        $this->inlineTranslation->resume();
                         $this->dataHelper->log(
                             DataHelper::CODE_MAIL_REPORT,
                             $this->dataHelper->setLogMessage('unable to send report email to %1', [$email]),
                             $logOutput
                         );
                     }
-                    unset($mail, $email);
                 }
             }
         }
