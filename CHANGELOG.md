@@ -2,6 +2,14 @@
 
 
 ### Bug Fixes
+## [1.8.2](https://github.com/lengow/plugin-magento2/compare/v1.8.1...v1.8.2) (2026-02-13)
+
+
+### Bug Fixes
+
+* **deprecated:** [PCMT-1193] fix deprecated and xss security ([#75](https://github.com/lengow/plugin-magento2/issues/75)) ([773664a](https://github.com/lengow/plugin-magento2/commit/773664a5d4896b174e60b727ccbc737e10b3ed6a))
+* **php:** fix deprecated global variable ([#78](https://github.com/lengow/plugin-magento2/issues/78)) ([eea2b3c](https://github.com/lengow/plugin-magento2/commit/eea2b3c03c9603a5d27aee0ab4e144e889632abf))
+
 ## [1.8.1](https://github.com/lengow/plugin-magento2/compare/v1.8.0...v1.8.1) (2025-12-16)
 
 
