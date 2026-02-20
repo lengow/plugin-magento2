@@ -2,6 +2,13 @@
 
 
 ### Bug Fixes
+## [1.8.3](https://github.com/lengow/plugin-magento2/compare/v1.8.2...v1.8.3) (2026-02-20)
+
+
+### Bug Fixes
+
+* **admin:** [PCMT-1274] fix order tab Lengow not displaying properly ([#79](https://github.com/lengow/plugin-magento2/issues/79)) ([0b0eb14](https://github.com/lengow/plugin-magento2/commit/0b0eb1450d3adc8f027a32b732a885b0cd24edea))
+
 ## [1.8.2](https://github.com/lengow/plugin-magento2/compare/v1.8.1...v1.8.2) (2026-02-17)
 
 
