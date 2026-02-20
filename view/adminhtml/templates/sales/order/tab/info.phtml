@@ -53,7 +53,13 @@ $escaper = $block->getEscaper();
                                 <b><?= $escaper->escapeHtml($field['label']) ?></b>
                             </td>
                             <td align="right">
-                                <?= $escaper->escapeHtml($field['value']) ?>
+                                <?php if ('JSON format' === (string)$field['label']): ?>
+                                    <textarea disabled="disabled">
+                                        <?= $escaper->escapeHtml($field['value']) ?>
+                                    </textarea>
+                                <?php else: ?>
+                                    <?= $escaper->escapeHtml($field['value']) ?>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>

@@ -411,8 +411,7 @@ class Info extends Template implements TabInterface
             ];
             $fields[] = [
                 'label' => __('JSON format'),
-                'value' => '<textarea disabled="disabled">'
-                    . $this->lengowOrder->getData(LengowOrder::FIELD_EXTRA) . '</textarea>',
+                'value' => $this->lengowOrder->getData(LengowOrder::FIELD_EXTRA),
             ];
         }
         return $fields;
