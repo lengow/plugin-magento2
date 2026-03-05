@@ -740,9 +740,6 @@ class Data extends AbstractHelper
 					    E_ALL => "E_ALL",
 					];
 					
-					if (defined('E_STRICT')) {
-					    $labels[E_STRICT] = "E_STRICT";
-					}
                     $this->log(
                         $labels[$error['type']] ?? 'PHP',
                         $error['message'] . PHP_EOL . 'in ' . $error['file'] . ' on line ' . $error['line']
