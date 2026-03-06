@@ -2,13 +2,6 @@
 
 
 ### Bug Fixes
-## [1.8.4](https://github.com/lengow/plugin-magento2/compare/v1.8.3...v1.8.4) (2026-03-05)
-
-
-### Bug Fixes
-
-* **helper:** [PCMT-1312] Bug display: Remove global variable for PHP 8.X ([#82](https://github.com/lengow/plugin-magento2/issues/82)) ([4b566d3](https://github.com/lengow/plugin-magento2/commit/4b566d3f6e91dc5a4306347def4f24558a14b017))
-
 ## [1.8.3](https://github.com/lengow/plugin-magento2/compare/v1.8.2...v1.8.3) (2026-02-20)
 
 
