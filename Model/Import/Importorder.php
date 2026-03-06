@@ -1445,13 +1445,9 @@ class Importorder extends AbstractModel
             ->setSameAsBilling(0);
         $quote->assignCustomerWithAddressChange($customerRepo, $billingAddress, $shippingAddress);
         // check if store include tax (Product and shipping cost)
-        $priceIncludeTax = ($this->taxConfig->priceIncludesTax($quote->getStore())
-                && $this->taxConfig->displayCartPricesInclTax($quote->getStore())
-                && $this->taxConfig->displaySalesPricesInclTax($quote->getStore()));
+        $priceIncludeTax = $this->taxConfig->priceIncludesTax($quote->getStore());
+        $shippingIncludeTax = $this->taxConfig->shippingPriceIncludesTax($quote->getStore());
 
-        $shippingIncludeTax = ($this->taxConfig->shippingPriceIncludesTax($quote->getStore())
-            && $this->taxConfig->displayCartShippingInclTax($quote->getStore())
-            && $this->taxConfig->displaySalesShippingInclTax($quote->getStore()));
         // if this order is b2b
         if ((int) $this->backendSession->getIsLengowB2b() === 1) {
             $priceIncludeTax = true;
