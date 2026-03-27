@@ -49,10 +49,12 @@ class ReturnTrackingNumber
             $shippingMethod = $lastTraskPosted['shipping_method_mktp'] ?? '';
             $returnNumber = $lastTraskPosted['return_number'] ?? '';
             $returnCarrierCode = $lastTraskPosted['return_carrier_code'] ?? '';
+            $trackingUrl = $lastTraskPosted['tracking_url'] ?? '';
         } else {
             $shippingMethod = $this->request->getPost('shipping_method_mktp') ?? '';
             $returnNumber = $this->request->getPost('return_number') ?? '';
             $returnCarrierCode = $this->request->getPost('return_carrier_code') ?? '';
+            $trackingUrl = $this->request->getPost('tracking_url') ?? '';
         }
 
         if ($shippingMethod) {
@@ -65,6 +67,10 @@ class ReturnTrackingNumber
 
         if ($returnCarrierCode) {
             $track->setReturnCarrierCode($returnCarrierCode);
+        }
+
+        if ($trackingUrl) {
+            $track->setTrackingUrl($trackingUrl);
         }
 
         return [$track];

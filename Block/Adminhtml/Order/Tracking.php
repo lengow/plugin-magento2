@@ -59,6 +59,22 @@ class Tracking extends OrderTracking
     /**
      * check if we can display the field
      */
+    public function canDisplayTrackingUrl(): bool
+    {
+        try {
+            return $this->getLengowOrder()
+                ->getMarketPlace()
+                ->hasTrackingUrl();
+
+        } catch (\Exception $e) {
+
+            return false;
+        }
+    }
+
+    /**
+     * check if we can display the field
+     */
     public function canDisplayReturnNumber(): bool
     {
         try {

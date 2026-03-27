@@ -907,7 +907,7 @@ class Toolbox extends AbstractHelper
                     : null,
                 self::TRACKING_MERCHANT_CARRIER => $lastTrack ? $lastTrack->getTitle() : null,
                 self::TRACKING_MERCHANT_TRACKING_NUMBER => $lastTrack ? $lastTrack->getNumber() : null,
-                self::TRACKING_MERCHANT_TRACKING_URL => null,
+                self::TRACKING_MERCHANT_TRACKING_URL => $lastTrack ? $lastTrack->getTrackingUrl() : null,
             ],
             self::ORDER_IS_REIMPORTED => (bool) $data[LengowOrder::FIELD_IS_REIMPORTED],
             self::ORDER_IS_IN_ERROR => (bool) $data[LengowOrder::FIELD_IS_IN_ERROR],

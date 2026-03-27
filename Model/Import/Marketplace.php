@@ -251,6 +251,20 @@ class Marketplace extends AbstractModel
     /**
      * Check if has the field
      */
+    public function hasTrackingUrl() : bool
+    {
+        $action = $this->getAction(LengowAction::TYPE_SHIP);
+        if (empty($action)) {
+            return false;
+        }
+        $arguments = $this->getMarketplaceArguments(LengowAction::TYPE_SHIP);
+
+        return in_array(LengowAction::ARG_TRACKING_URL, $arguments);
+    }
+
+    /**
+     * Check if has the field
+     */
     public function hasReturnTrackingNumber() : bool
     {
         $action = $this->getAction(LengowAction::TYPE_SHIP);
@@ -450,6 +464,13 @@ class Marketplace extends AbstractModel
                         $lastTrack = end($tracks);
                     }
                     $params[$arg] = isset($lastTrack) ? $lastTrack->getNumber() : '';
+                    break;
+                case LengowAction::ARG_TRACKING_URL:
+                    $tracks = $shipment ? $shipment->getAllTracks() : null;
+                    if (!empty($tracks)) {
+                        $lastTrack = end($tracks);
+                    }
+                    $params[$arg] = isset($lastTrack) ? (string) $lastTrack->getTrackingUrl() : '';
                     break;
                 case LengowAction::ARG_RETURN_TRACKING_NUMBER:
                     $tracks = $shipment ? $shipment->getAllTracks() : null;
