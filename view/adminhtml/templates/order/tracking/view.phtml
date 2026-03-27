@@ -23,9 +23,6 @@ $shippingHelper = $block->getData('shippingHelper');
                 <th class="col-title"><?= $escaper->escapeHtml(__('Title')) ?></th>
                 <th class="col-shipping"><?= $escaper->escapeHtml(__('Shipping')) ?></th>
                 <th class="col-number"><?= $escaper->escapeHtml(__('Number')) ?></th>
-                <?php if ($block->canDisplayTrackingUrl()): ?>
-                    <th class="col-url"><?= $escaper->escapeHtml(__('Tracking URL')) ?></th>
-                <?php endif; ?>
                 <?php if ($block->canDisplayReturnCarrier()): ?>
                     <th class="col-number"><?= $escaper->escapeHtml(__('Return Carrier')) ?></th>
                 <?php endif; ?>
@@ -73,15 +70,6 @@ $shippingHelper = $block->getData('shippingHelper');
                            name="number"
                            value="" />
                 </td>
-                <?php if ($block->canDisplayTrackingUrl()): ?>
-                    <td class="col-url">
-                        <input class="input-text admin__control-text"
-                               type="text"
-                               id="tracking_url"
-                               name="tracking_url"
-                               value="" />
-                    </td>
-                <?php endif; ?>
                 <?php if ($block->canDisplayReturnCarrier()): ?>
                     <td class="col-title">
                         <input class="input-text admin__control-text"
@@ -131,11 +119,6 @@ $shippingHelper = $block->getData('shippingHelper');
                                 <div id="shipment_tracking_info_response_<?= (int) $_track->getId() ?>"></div>
                             <?php endif; ?>
                         </td>
-                        <?php if ($block->canDisplayTrackingUrl()): ?>
-                            <td class="col-url">
-                                <?= $escaper->escapeHtml($_track->getTrackingUrl()) ?>
-                            </td>
-                        <?php endif; ?>
                         <?php if ($block->canDisplayReturnCarrier()): ?>
                             <td class="col-number">
                                 <?= $escaper->escapeHtml($_track->getReturnCarrierCode()) ?>

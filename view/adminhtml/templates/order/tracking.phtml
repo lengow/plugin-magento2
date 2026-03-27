@@ -30,9 +30,6 @@ require(['prototype'], function(){
             $('trackingT' + this.index).disabled = false;
             $('trackingN' + this.index).disabled = false;
             $('shipping-method' + this.index).disabled = false;
-            <?php if ($block->canDisplayTrackingUrl()): ?>
-            $('trackingU' + this.index).disabled = false;
-            <?php endif; ?>
 
             this.bindCurrierOnchange();
         },
@@ -119,16 +116,6 @@ script;
                    value=""
                    disabled="disabled" />
         </td>
-        <?php if ($block->canDisplayTrackingUrl()): ?>
-            <td class="col-url">
-                <input class="input-text admin__control-text"
-                       type="text"
-                       name="tracking[<%- data.index %>][tracking_url]"
-                       id="trackingU<%- data.index %>"
-                       value=""
-                       disabled="disabled" />
-            </td>
-        <?php endif; ?>
         <?php if ($block->canDisplayReturnCarrier()): ?>
             <td class="col-title">
                 <input class="input-text admin__control-text"
@@ -169,9 +156,6 @@ script;
             <th class="col-title"><?= $escaper->escapeHtml(__('Title')) ?></th>
             <th class="col-shipping"><?= $escaper->escapeHtml(__('Shipping')) ?></th>
             <th class="col-number"><?= $escaper->escapeHtml(__('Number')) ?></th>
-            <?php if ($block->canDisplayTrackingUrl()): ?>
-                <th class="col-url"><?= $escaper->escapeHtml(__('Tracking URL')) ?></th>
-            <?php endif; ?>
             <?php if ($block->canDisplayReturnCarrier()): ?>
                 <th class="col-number"><?= $escaper->escapeHtml(__('Return Carrier')) ?></th>
             <?php endif ; ?>
@@ -184,13 +168,13 @@ script;
         </thead>
         <tfoot>
         <tr>
-            <?php
-                $colspan = 5; // carrier + title + shipping + number + action
-                if ($block->canDisplayTrackingUrl()) $colspan++;
-                if ($block->canDisplayReturnCarrier()) $colspan++;
-                if ($block->canDisplayReturnNumber()) $colspan++;
-            ?>
-            <td colspan="<?= (int) $colspan ?>" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
+            <?php if ($block->canDisplayReturnNumber() && $block->canDisplayReturnCarrier()): ?>
+                <td colspan="6" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
+            <?php elseif ($block->canDisplayReturnNumber()): ?>
+                <td colspan="5" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
+            <?php else: ?>
+                <td colspan="6" class="col-actions-add"><?= $block->getChildHtml('add_button') ?></td>
+            <?php endif; ?>
         </tr>
         </tfoot>
         <tbody id="track_row_container">

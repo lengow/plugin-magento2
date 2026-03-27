@@ -115,8 +115,7 @@
         "column": {
             "shipping_method_mktp": true,
             "return_track_number": true,
-            "return_carrier_code": true,
-            "tracking_url": true
+            "return_carrier_code": true
         }
     }
 }
