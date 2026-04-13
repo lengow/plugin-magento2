@@ -72,6 +72,9 @@ class SaveConfig
             $storeId = (int) $subject->getScopeId() !== 0 ? (int) $subject->getScopeId() : false;
             foreach ($groups as $groupId => $group) {
                 foreach ($group['fields'] as $fieldId => $value) {
+                    if (!array_key_exists($fieldId, ConfigHelper::$lengowSettings)) {
+                        continue;
+                    }
                     $keyParams = ConfigHelper::$lengowSettings[$fieldId];
                     if (!isset($value['value'])
                         || (isset($keyParams[ConfigHelper::PARAM_LOG]) && !$keyParams[ConfigHelper::PARAM_LOG])
