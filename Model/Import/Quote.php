@@ -244,11 +244,15 @@ class Quote extends MagentoQuote
                 $priceProduct = $product['price_unit'] ?? 0.0;
                 $tax   = $product['tax_unit'] ?? 0.0;
                 if (!$priceIncludeTax) {
-                    $taxRate = $this->taxCalculation->getCalculatedRate(
-                        $magentoProduct->getTaxClassId(),
-                        $this->getCustomer()->getId(),
+                    $taxRequest = $this->calculation->getRateRequest(
+                        $this->getShippingAddress(),
+                        $this->getBillingAddress(),
+                        $this->getCustomerTaxClassId(),
                         $this->getStore()
                     );
+                    $taxRequest->setProductClassId($magentoProduct->getTaxClassId());
+                    $taxRate = $this->calculation->getRate($taxRequest);
+
                     $tax = $this->calculation->calcTaxAmount($priceProduct, $taxRate, true);
                 }
 

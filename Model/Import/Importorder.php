@@ -1444,37 +1444,35 @@ class Importorder extends AbstractModel
             ->setSaveInAddressBook(0)
             ->setSameAsBilling(0);
         $quote->assignCustomerWithAddressChange($customerRepo, $billingAddress, $shippingAddress);
-        // check if store include tax (Product and shipping cost)
-        $priceIncludeTax = ($this->taxConfig->priceIncludesTax($quote->getStore())
-                && $this->taxConfig->displayCartPricesInclTax($quote->getStore())
-                && $this->taxConfig->displaySalesPricesInclTax($quote->getStore()));
+        // check if store include tax (Product prices)
+        $priceIncludeTax = $this->taxConfig->priceIncludesTax($quote->getStore());
 
-        $shippingIncludeTax = ($this->taxConfig->shippingPriceIncludesTax($quote->getStore())
-            && $this->taxConfig->displayCartShippingInclTax($quote->getStore())
-            && $this->taxConfig->displaySalesShippingInclTax($quote->getStore()));
         // if this order is b2b
         if ((int) $this->backendSession->getIsLengowB2b() === 1) {
             $priceIncludeTax = true;
-            $shippingIncludeTax = true;
         }
         // add product in quote
         $quote->addLengowProducts($products, $priceIncludeTax);
         // get shipping cost with tax
         $shippingCost = $this->processingFee + $this->shippingCost;
         $taxShippingCost = 0.0;
-        // if shipping cost not include tax -> get shipping cost without tax
-        if (!$shippingIncludeTax) {
+        // marketplace shipping is always TTC (tax-inclusive)
+        // Magento shipping rates are always treated as excl-tax internally,
+        // so we must always extract tax to get the correct base amount
+        if ($shippingCost > 0) {
             $shippingTaxClass = $this->scopeConfig->getValue(
                 TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
                 \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE,
                 $quote->getStore()->getWebsiteId()
             );
-
-            $taxRate = $this->taxCalculation->getCalculatedRate(
-                $shippingTaxClass,
-                $customer->getId(),
-                $currentStore->getId()
+            $taxRequest = $this->calculation->getRateRequest(
+                $quote->getShippingAddress(),
+                $quote->getBillingAddress(),
+                $quote->getCustomerTaxClassId(),
+                $quote->getStore()
             );
+            $taxRequest->setProductClassId($shippingTaxClass);
+            $taxRate = $this->calculation->getRate($taxRequest);
             $taxShippingCost = $this->calculation->calcTaxAmount($shippingCost, $taxRate, true);
         }
         $shippingCost -= $taxShippingCost;
