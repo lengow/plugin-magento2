@@ -564,6 +564,10 @@ class Importorder extends AbstractModel
         if (!$this->orderStatusIsValid()) {
             return $this->returnResult(self::RESULT_IGNORED);
         }
+        // checks if all cart lines across all packages are accepted (not waiting acceptance)
+        if (!$this->allCartLinesAccepted()) {
+            return $this->returnResult(self::RESULT_IGNORED);
+        }
         // load data and create a new record in lengow order table if not exist
         if (!$this->createLengowOrder()) {
             return $this->returnResult(self::RESULT_IGNORED);
@@ -835,6 +839,48 @@ class Importorder extends AbstractModel
         $this->errors[] = $this->dataHelper->decodeLogMessage($message, false);
         $this->dataHelper->log(DataHelper::CODE_IMPORT, $message, $this->logOutput, $this->marketplaceSku);
         return false;
+    }
+
+    /**
+     * Checks if all cart lines across all packages are in an accepted state (not waiting acceptance)
+     *
+     * When a marketplace like Rakuten has lines still in "waiting acceptance" state,
+     * the order-level financial data (shipping, commission) may not be finalized yet.
+     * Importing at this point would lock in incorrect amounts (e.g. shipping = 0).
+     * The order will be retried on the next synchronization cycle.
+     *
+     * @return boolean
+     */
+    private function allCartLinesAccepted(): bool
+    {
+        foreach ($this->orderData->packages as $packageData) {
+            foreach ($packageData->cart as $product) {
+                if ($product->marketplace_status !== null) {
+                    $stateProduct = $this->marketplace->getStateLengow(
+                        (string) $product->marketplace_status
+                    );
+                    if ($stateProduct === LengowOrder::STATE_WAITING_ACCEPTANCE) {
+                        $message = $this->dataHelper->setLogMessage(
+                            'order import skipped - order line %1 is still in waiting acceptance state'
+                            . ' on marketplace %2',
+                            [
+                                (string) $product->marketplace_order_line_id,
+                                $this->marketplace->name,
+                            ]
+                        );
+                        $this->errors[] = $this->dataHelper->decodeLogMessage($message, false);
+                        $this->dataHelper->log(
+                            DataHelper::CODE_IMPORT,
+                            $message,
+                            $this->logOutput,
+                            $this->marketplaceSku
+                        );
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**

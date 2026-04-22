@@ -66,6 +66,7 @@ en:
       old_order: "order is older than 3 months and has not been imported"
       unable_verify_date: "unable to check if the order is too old"
       unable_find_order: "Unable to find the requested order"
+      order_lines_waiting_acceptance: "order import skipped - order line %1 is still in waiting acceptance state on marketplace %2"
     order_action:
       check_completed_action: "check completed actions"
       check_old_action: "check and finish old actions"
