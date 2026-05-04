@@ -2,6 +2,15 @@
 
 
 ### Bug Fixes
+## [1.8.5](https://github.com/lengow/plugin-magento2/compare/v1.8.4...v1.8.5) (2026-05-04)
+
+
+### Bug Fixes
+
+* **config:** ignore unknown fields and avoid php warnings ([#87](https://github.com/lengow/plugin-magento2/issues/87)) ([b1b4d34](https://github.com/lengow/plugin-magento2/commit/b1b4d346106607964cc41b9f90ecd225e0240133))
+* **import:** fix configuration causing tax calculation issue ([#81](https://github.com/lengow/plugin-magento2/issues/81)) ([e99dc31](https://github.com/lengow/plugin-magento2/commit/e99dc318f0b8ae6b4e6a9c0be5338899f79fec90))
+* **import:** ignore orders that still have waiting_acceptance lines ([#89](https://github.com/lengow/plugin-magento2/issues/89)) ([af8fdfc](https://github.com/lengow/plugin-magento2/commit/af8fdfc664b8c7fe9f7857dce4ad338d9282cdd5))
+
 ## [1.8.4](https://github.com/lengow/plugin-magento2/compare/v1.8.3...v1.8.4) (2026-03-05)
 
 
