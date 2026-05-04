@@ -488,6 +488,7 @@
 "order is older than 3 months and has not been imported","order is older than 3 months and has not been imported"
 "unable to check if the order is too old","unable to check if the order is too old"
 "Unable to find the requested order","Unable to find the requested order"
+"order import skipped - order line %1 is still in waiting acceptance state on marketplace %2","order import skipped - order line %1 is still in waiting acceptance state on marketplace %2"
 "check completed actions","check completed actions"
 "check and finish old actions","check and finish old actions"
 "check actions not sent","check actions not sent"
