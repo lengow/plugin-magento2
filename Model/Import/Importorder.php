@@ -1090,6 +1090,31 @@ class Importorder extends AbstractModel
     /**
      * Load order amount, processing fees and shipping costs
      */
+    /**
+     * Derive the effective tax rate from marketplace order line data.
+     * Returns the rate as a percentage (e.g. 19.0 for 19%) or null if it cannot be determined.
+     */
+    private function getMarketplaceTaxRate(): ?float
+    {
+        $totalAmount = 0.0;
+        $totalTax = 0.0;
+        foreach ($this->packageData->cart as $product) {
+            if ($product->marketplace_status !== null) {
+                $stateProduct = $this->marketplace->getStateLengow((string) $product->marketplace_status);
+                if ($stateProduct === LengowOrder::STATE_CANCELED || $stateProduct === LengowOrder::STATE_REFUSED) {
+                    continue;
+                }
+            }
+            $totalAmount += (float) $product->amount;
+            $totalTax += (float) $product->tax;
+        }
+        $netAmount = $totalAmount - $totalTax;
+        if ($netAmount > 0 && $totalTax > 0) {
+            return round(($totalTax / $netAmount) * 100, 4);
+        }
+        return null;
+    }
+
     private function loadOrderAmount(): void
     {
         $this->processingFee = (float) $this->orderData->processing_fee;
@@ -1506,19 +1531,23 @@ class Importorder extends AbstractModel
         // Magento shipping rates are always treated as excl-tax internally,
         // so we must always extract tax to get the correct base amount
         if ($shippingCost > 0) {
-            $shippingTaxClass = $this->scopeConfig->getValue(
-                TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
-                \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE,
-                $quote->getStore()->getWebsiteId()
-            );
-            $taxRequest = $this->calculation->getRateRequest(
-                $quote->getShippingAddress(),
-                $quote->getBillingAddress(),
-                $quote->getCustomerTaxClassId(),
-                $quote->getStore()
-            );
-            $taxRequest->setProductClassId($shippingTaxClass);
-            $taxRate = $this->calculation->getRate($taxRequest);
+            $taxRate = $this->getMarketplaceTaxRate();
+            if ($taxRate === null) {
+                // fallback: use Magento's configured tax rate
+                $shippingTaxClass = $this->scopeConfig->getValue(
+                    TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
+                    \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE,
+                    $quote->getStore()->getWebsiteId()
+                );
+                $taxRequest = $this->calculation->getRateRequest(
+                    $quote->getShippingAddress(),
+                    $quote->getBillingAddress(),
+                    $quote->getCustomerTaxClassId(),
+                    $quote->getStore()
+                );
+                $taxRequest->setProductClassId($shippingTaxClass);
+                $taxRate = $this->calculation->getRate($taxRequest);
+            }
             $taxShippingCost = $this->calculation->calcTaxAmount($shippingCost, $taxRate, true);
         }
         $shippingCost -= $taxShippingCost;

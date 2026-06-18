@@ -80,6 +80,11 @@ class AddressTotals implements ObserverInterface
         $subtotalLengow = $totalLengow - $taxLengow - $shippingLengow;
         $subtotalInclTaxLengow = $totalLengow - $shippingLengow;
 
+        // derive effective tax rate from marketplace order line data
+        // so shipping HT is computed using the marketplace rate, not Magento's
+        $shippingLengowExclTax = $this->computeShippingExclTax($lengowOrderData, $shippingLengow);
+        $shippingTaxLengow = $shippingLengow - $shippingLengowExclTax;
+
         foreach ($total->getData() as $type => $amount) {
             if ($amount === 0) {
                 continue;
@@ -112,21 +117,45 @@ class AddressTotals implements ObserverInterface
                 $total->setData($type, $shippingLengow);
             }
             if ($type === 'shipping_amount'
-                    || $type=== 'base_shipping_amount'
-                    || $type==='shipping_tax_calculation_amount'
-                    || $type==='base_shipping_tax_calculation_amount') {
-                $shippingTaxAmount = $total->getData('shipping_tax_amount');
-                $shippingLengowExclTax = $shippingLengow - $shippingTaxAmount;
+                    || $type === 'base_shipping_amount'
+                    || $type === 'shipping_tax_calculation_amount'
+                    || $type === 'base_shipping_tax_calculation_amount') {
                 if ($shippingLengowExclTax !== $amount) {
                     $total->setData($type, $shippingLengowExclTax);
                 }
-                if ($shippingTaxAmount) {
-                    $total->setData('tax_amount', $taxLengow + $shippingTaxAmount);
+                if ($shippingTaxLengow) {
+                    $total->setData('tax_amount', $taxLengow + $shippingTaxLengow);
                 }
-
             }
         }
         $observer->getEvent()->setTotal($total);
+    }
+
+    /**
+     * Compute shipping excl. tax using the effective marketplace tax rate
+     * derived from order line data (amount and tax per product).
+     * Falls back to shipping TTC when no tax data is available.
+     */
+    private function computeShippingExclTax(object $lengowOrderData, float $shippingInclTax): float
+    {
+        $totalAmount = 0.0;
+        $totalTax = 0.0;
+        if (isset($lengowOrderData->packages)) {
+            foreach ($lengowOrderData->packages as $package) {
+                if (isset($package->cart)) {
+                    foreach ($package->cart as $product) {
+                        $totalAmount += (float) ($product->amount ?? 0);
+                        $totalTax += (float) ($product->tax ?? 0);
+                    }
+                }
+            }
+        }
+        $netAmount = $totalAmount - $totalTax;
+        if ($netAmount > 0 && $totalTax > 0) {
+            $taxRate = $totalTax / $netAmount;
+            return round($shippingInclTax / (1 + $taxRate), 2);
+        }
+        return $shippingInclTax;
     }
 
     private function mustCkeck(int $storeId): bool
