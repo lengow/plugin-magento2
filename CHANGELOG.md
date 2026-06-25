@@ -2,6 +2,14 @@
 
 
 ### Bug Fixes
+## [1.8.6](https://github.com/lengow/plugin-magento2/compare/v1.8.5...v1.8.6) (2026-06-25)
+
+
+### Bug Fixes
+
+* **export:** prevent catalogue rule query from crashing the export ([#90](https://github.com/lengow/plugin-magento2/issues/90)) ([dc606f2](https://github.com/lengow/plugin-magento2/commit/dc606f2e03c053b56b5abb67d0d68c533f07aac2))
+* **import:** use marketplace tax rate for shipping HT extraction instead of Magento origin rate ([#91](https://github.com/lengow/plugin-magento2/issues/91)) ([76b41fa](https://github.com/lengow/plugin-magento2/commit/76b41fab6f450a6f62b26dd52bf72d966a818713))
+
 ## [1.8.5](https://github.com/lengow/plugin-magento2/compare/v1.8.4...v1.8.5) (2026-05-04)
 
 
