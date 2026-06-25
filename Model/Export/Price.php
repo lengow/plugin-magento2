@@ -284,21 +284,27 @@ class Price
         $discountStartDate = $this->product->getSpecialFromDate();
         $discountEndDate = $this->product->getSpecialToDate();
         // get discount date from a catalogue rule if exist
-        $catalogueRules = $this->catalogueRule->getResource()->getRulesFromProduct(
-            (int) $this->dateTime->gmtTimestamp(),
-            $this->store->getWebsiteId(),
-            1,
-            $this->product->getId()
-        );
-        if (!empty($catalogueRules)) {
-            $startTimestamp = (int) $catalogueRules[0]['from_time'];
-            $endTimestamp = (int) $catalogueRules[0]['to_time'];
-            $discountStartDate = $startTimestamp !== 0
-                ? $this->getFormatedDate($startTimestamp)
-                : '';
-            $discountEndDate = $endTimestamp !== 0
-                ? $this->getFormatedDate($endTimestamp)
-                : '';
+        try {
+            $catalogueRules = $this->catalogueRule->getResource()->getRulesFromProduct(
+                (int) $this->dateTime->gmtTimestamp(),
+                $this->store->getWebsiteId(),
+                1,
+                $this->product->getId()
+            );
+            if (!empty($catalogueRules)) {
+                $startTimestamp = (int) $catalogueRules[0]['from_time'];
+                $endTimestamp = (int) $catalogueRules[0]['to_time'];
+                $discountStartDate = $startTimestamp !== 0
+                    ? $this->getFormatedDate($startTimestamp)
+                    : '';
+                $discountEndDate = $endTimestamp !== 0
+                    ? $this->getFormatedDate($endTimestamp)
+                    : '';
+            }
+        } catch (\Exception $e) {
+            // catalogue rule query may fail on some Magento configurations
+            // (e.g. missing store_id column in catalogrule_product table)
+            // fall back to special price dates already retrieved above
         }
         return [
             'discount_start_date' => $discountStartDate,

@@ -922,7 +922,11 @@ class Export
             $productCollection->addAttributeToFilter('lengow_product', 1, 'left');
         }
         // export out of stock products
-        if (!$this->outOfStock) {
+        // when MSI is enabled, skip the legacy cataloginventory_stock_item join as it is unreliable
+        // stock filtering will be handled at the product level via MSI source items
+        $isMsiEnabled = $this->configHelper->moduleIsEnabled('Magento_Inventory')
+            && version_compare($this->securityHelper->getMagentoVersion(), '2.3.0', '>=');
+        if (!$this->outOfStock && !$isMsiEnabled) {
             try {
                 $config = (int) $this->scopeConfig->isSetFlag(CatalogInventoryConfiguration::XML_PATH_MANAGE_STOCK);
                 $condition = '({{table}}.`is_in_stock` = 1) '
