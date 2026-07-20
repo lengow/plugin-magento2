@@ -211,19 +211,21 @@ class LaunchResend
         }
 
         if ($action === LengowAction::TYPE_SHIP) {
-            /** @var Shipment|void $shipment */
-            $shipment = $order->getShipmentsCollection()->getFirstItem();
-            if (is_null($shipment)) {
-                return false;
+            $shipments = $order->getShipmentsCollection();
+            $hasValidShipment = false;
+            foreach ($shipments as $shipment) {
+                $tracks = $shipment->getAllTracks();
+                if (!empty($tracks)) {
+                    /** @var \Magento\Shipping\Model\Order\Track $lastTrack */
+                    $lastTrack = end($tracks);
+                    $trackingNumber = $lastTrack->getNumber() ?? '';
+                    if (!empty($trackingNumber)) {
+                        $hasValidShipment = true;
+                        break;
+                    }
+                }
             }
-            $tracks = $shipment ? $shipment->getAllTracks() : [];
-            if (empty($tracks)) {
-                return false;
-            }
-            /** @var \Magento\Shipping\Model\Order\Track $lastTrack */
-            $lastTrack =  end($tracks);
-            $trackingNumber = $lastTrack->getNumber() ?? '';
-            if (empty($trackingNumber)) {
+            if (!$hasValidShipment) {
                 return false;
             }
         }

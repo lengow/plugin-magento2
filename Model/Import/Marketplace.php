@@ -291,6 +291,22 @@ class Marketplace extends AbstractModel
     }
 
     /**
+     * Resolve shipment mode based on marketplace capabilities
+     *
+     * @return string 'by_quantity', 'by_line', or 'global'
+     */
+    public function resolveShipmentMode(): string
+    {
+        if (!$this->containOrderLine(LengowAction::TYPE_SHIP)) {
+            return 'global';
+        }
+        $args = $this->getMarketplaceArguments(LengowAction::TYPE_SHIP);
+        $supportsQuantity = in_array(LengowAction::ARG_QUANTITY, $args, true)
+                         || in_array(LengowAction::ARG_SHIPPED_QUANTITY, $args, true);
+        return $supportsQuantity ? 'by_quantity' : 'by_line';
+    }
+
+    /**
      * Is marketplace contain order Line
      */
     public function containOrderLine(string $action): bool
@@ -321,7 +337,9 @@ class Marketplace extends AbstractModel
         MagentoOrder $order,
         Order $lengowOrder,
         ?Shipment $shipment = null,
-        ?string $orderLineId = null
+        ?string $orderLineId = null,
+        array $extraParams = [],
+        bool $skipQueuedCheck = false
     ): bool {
         try {
             // check the action and order data
@@ -337,11 +355,15 @@ class Marketplace extends AbstractModel
             if ($orderLineId !== null) {
                 $params[LengowAction::ARG_LINE] = $orderLineId;
             }
+            // merge extra params (quantity, shipped_quantity)
+            foreach ($extraParams as $key => $value) {
+                $params[$key] = $value;
+            }
             $params[LengowImport::ARG_MARKETPLACE_ORDER_ID] = $lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_SKU);
             $params[LengowImport::ARG_MARKETPLACE] = $lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_NAME);
             $params[LengowAction::ARG_ACTION_TYPE] = $action;
             // checks whether the action is already created to not return an action
-            $canSendAction = $this->orderAction->canSendAction($params, $order);
+            $canSendAction = $this->orderAction->canSendAction($params, $order, $skipQueuedCheck);
             if ($canSendAction) {
                 // send a new action on the order via the Lengow API
                 $this->orderAction->sendAction($params, $order, $lengowOrder);
@@ -413,7 +435,7 @@ class Marketplace extends AbstractModel
     /**
      * Get all marketplace arguments for a specific action
      */
-    private function getMarketplaceArguments(string $action): array
+    public function getMarketplaceArguments(string $action): array
     {
         $actions = $this->getAction($action);
         if (isset($actions['args'], $actions['optional_args'])) {

@@ -64,6 +64,10 @@
         <column xsi:type="int" name="order_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Order Id"/>
         <column xsi:type="int" name="product_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Product Id"/>
         <column xsi:type="varchar" name="order_line_id" nullable="false" length="100" comment="Order Line Id"/>
+        <column xsi:type="int" name="order_item_id" padding="10" unsigned="true" nullable="true"
+                comment="Magento Order Item Id"/>
+        <column xsi:type="int" name="quantity" padding="10" unsigned="true" nullable="true" default="1"
+                comment="Original ordered quantity for this line"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="id"/>
         </constraint>

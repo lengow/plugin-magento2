@@ -85,6 +85,8 @@ class Action extends AbstractModel
     public const ARG_SHIPPING_PRICE = 'shipping_price';
     public const ARG_SHIPPING_DATE = 'shipping_date';
     public const ARG_DELIVERY_DATE = 'delivery_date';
+    public const ARG_QUANTITY = 'quantity';
+    public const ARG_SHIPPED_QUANTITY = 'shipped_quantity';
 
     /**
      * @var integer max interval time for action synchronisation (3 days)
@@ -411,8 +413,11 @@ class Action extends AbstractModel
      *
      * @return boolean
      */
-    public function canSendAction(array $params, MagentoOrder $order): bool
+    public function canSendAction(array $params, MagentoOrder $order, bool $skipQueuedCheck = false): bool
     {
+        if ($skipQueuedCheck) {
+            return true;
+        }
         $sendAction = true;
         // check if action is already created
         $getParams = array_merge($params, ['queued' => 'True']);
@@ -639,10 +644,13 @@ class Action extends AbstractModel
                         if ($apiAction->processed == true
                             && empty($apiAction->errors)
                         ) {
-                            $lengowOrder->updateOrder(
-                                [LengowOrder::FIELD_ORDER_PROCESS_STATE => $processStateFinish]
-                            );
-                            $this->finishAllActions($action[self::FIELD_ORDER_ID]);
+                            // check if all lines have been fully shipped before closing the order
+                            if ($this->isOrderFullyShipped($lengowOrder)) {
+                                $lengowOrder->updateOrder(
+                                    [LengowOrder::FIELD_ORDER_PROCESS_STATE => $processStateFinish]
+                                );
+                                $this->finishAllActions($action[self::FIELD_ORDER_ID]);
+                            }
                         } else {
                             // if action is denied -> create order error
                             $orderError = $this->lengowOrderErrorFactory->create();
@@ -780,9 +788,38 @@ class Action extends AbstractModel
                 if (!$this->getActionsByOrderId((int) $unsentOrder['order_id'], true)) {
                     $action = $unsentOrder['state'] === self::TYPE_CANCEL ? self::TYPE_CANCEL : self::TYPE_SHIP;
                     $order = $this->orderFactory->create()->load((int) $unsentOrder['order_id']);
-                    $shipment = $action === self::TYPE_SHIP ? $order->getShipmentsCollection()->getFirstItem() : null;
-                    $lengowOrder->callAction($action, $order, $shipment);
+                    if ($action === self::TYPE_SHIP) {
+                        $shipments = $order->getShipmentsCollection();
+                        foreach ($shipments as $shipment) {
+                            $lengowOrder->callAction($action, $order, $shipment);
+                        }
+                    } else {
+                        $lengowOrder->callAction($action, $order, null);
+                    }
                 }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Check if all marketplace order lines have been fully shipped
+     *
+     * @param LengowOrder $lengowOrder Lengow order instance
+     *
+     * @return bool
+     */
+    private function isOrderFullyShipped(LengowOrder $lengowOrder): bool
+    {
+        $extra = json_decode($lengowOrder->getData(LengowOrder::FIELD_EXTRA) ?: '', true) ?: [];
+        $progress = $extra['shipment_progress'] ?? [];
+        // if no shipment_progress exists (legacy order), consider fully shipped for backward compatibility
+        if (empty($progress)) {
+            return true;
+        }
+        foreach ($progress as $lineProgress) {
+            if (($lineProgress['qty_shipped'] ?? 0) < ($lineProgress['qty_original'] ?? 0)) {
+                return false;
             }
         }
         return true;

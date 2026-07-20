@@ -93,6 +93,67 @@ class OrderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * @covers \Lengow\Connector\Model\Import\Order::isOrderShipmentComplete()
+     */
+    public function testIsOrderShipmentComplete()
+    {
+        $fixture = new Fixture();
+
+        // test with empty order lines
+        $this->assertFalse(
+            $fixture->invokeMethod($this->_order, 'isOrderShipmentComplete', [[], []]),
+            '[Test Is Order Shipment Complete] Check returns false with empty order lines'
+        );
+
+        // test with incomplete progress
+        $orderLines = [
+            ['order_line_id' => 'line-1', 'quantity' => 3],
+            ['order_line_id' => 'line-2', 'quantity' => 2],
+        ];
+        $progress = [
+            'line-1' => ['qty_original' => 3, 'qty_shipped' => 2],
+            'line-2' => ['qty_original' => 2, 'qty_shipped' => 2],
+        ];
+        $this->assertFalse(
+            $fixture->invokeMethod($this->_order, 'isOrderShipmentComplete', [$progress, $orderLines]),
+            '[Test Is Order Shipment Complete] Check returns false when not all lines are complete'
+        );
+
+        // test with complete progress
+        $progress['line-1']['qty_shipped'] = 3;
+        $this->assertTrue(
+            $fixture->invokeMethod($this->_order, 'isOrderShipmentComplete', [$progress, $orderLines]),
+            '[Test Is Order Shipment Complete] Check returns true when all lines are complete'
+        );
+
+        // test with over-shipped (qty_shipped > qty_original)
+        $progress['line-1']['qty_shipped'] = 5;
+        $this->assertTrue(
+            $fixture->invokeMethod($this->_order, 'isOrderShipmentComplete', [$progress, $orderLines]),
+            '[Test Is Order Shipment Complete] Check returns true when lines are over-shipped'
+        );
+
+        // test with missing progress for a line
+        $progressIncomplete = [
+            'line-1' => ['qty_original' => 3, 'qty_shipped' => 3],
+        ];
+        $this->assertFalse(
+            $fixture->invokeMethod($this->_order, 'isOrderShipmentComplete', [$progressIncomplete, $orderLines]),
+            '[Test Is Order Shipment Complete] Check returns false when a line has no progress'
+        );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Model\Import\Order::getOrderProcessState()
+     */
+    public function testGetOrderProcessStateConstants()
+    {
+        $this->assertEquals(0, Order::PROCESS_STATE_NEW);
+        $this->assertEquals(1, Order::PROCESS_STATE_IMPORT);
+        $this->assertEquals(2, Order::PROCESS_STATE_FINISH);
+    }
+
+    /**
      * @covers \Lengow\Connector\Model\Import\Order::getOrderLineByApi()
      */
     public function testGetOrderLineByApi()

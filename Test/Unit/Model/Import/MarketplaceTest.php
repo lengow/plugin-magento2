@@ -168,6 +168,86 @@ class MarketplaceTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * @covers \Lengow\Connector\Model\Import\Marketplace::resolveShipmentMode()
+     */
+    public function testResolveShipmentModeByQuantity()
+    {
+        $fixture = new Fixture();
+        $actions = [
+            'ship' => [
+                'args' => ['carrier' => 'carrier', 'line' => 'line', 'quantity' => 'quantity'],
+                'optional_args' => [],
+            ],
+        ];
+        $fixture->setPrivatePropertyValue($this->_marketplace, ['actions'], [$actions]);
+        $this->assertEquals(
+            'by_quantity',
+            $this->_marketplace->resolveShipmentMode(),
+            '[Test Resolve Shipment Mode] Check by_quantity when args contain line + quantity'
+        );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Model\Import\Marketplace::resolveShipmentMode()
+     */
+    public function testResolveShipmentModeByQuantityWithShippedQuantity()
+    {
+        $fixture = new Fixture();
+        $actions = [
+            'ship' => [
+                'args' => ['carrier' => 'carrier', 'line' => 'line'],
+                'optional_args' => ['shipped_quantity' => 'shipped_quantity'],
+            ],
+        ];
+        $fixture->setPrivatePropertyValue($this->_marketplace, ['actions'], [$actions]);
+        $this->assertEquals(
+            'by_quantity',
+            $this->_marketplace->resolveShipmentMode(),
+            '[Test Resolve Shipment Mode] Check by_quantity when optional_args contain shipped_quantity'
+        );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Model\Import\Marketplace::resolveShipmentMode()
+     */
+    public function testResolveShipmentModeByLine()
+    {
+        $fixture = new Fixture();
+        $actions = [
+            'ship' => [
+                'args' => ['carrier' => 'carrier', 'line' => 'line'],
+                'optional_args' => [],
+            ],
+        ];
+        $fixture->setPrivatePropertyValue($this->_marketplace, ['actions'], [$actions]);
+        $this->assertEquals(
+            'by_line',
+            $this->_marketplace->resolveShipmentMode(),
+            '[Test Resolve Shipment Mode] Check by_line when args contain line but not quantity'
+        );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Model\Import\Marketplace::resolveShipmentMode()
+     */
+    public function testResolveShipmentModeGlobal()
+    {
+        $fixture = new Fixture();
+        $actions = [
+            'ship' => [
+                'args' => ['carrier' => 'carrier', 'tracking_number' => 'tracking_number'],
+                'optional_args' => [],
+            ],
+        ];
+        $fixture->setPrivatePropertyValue($this->_marketplace, ['actions'], [$actions]);
+        $this->assertEquals(
+            'global',
+            $this->_marketplace->resolveShipmentMode(),
+            '[Test Resolve Shipment Mode] Check global when args do not contain line'
+        );
+    }
+
+    /**
      * @covers \Lengow\Connector\Model\Import\Marketplace::matchCarrier()
      */
     public function testMatchCarrier()
