@@ -926,8 +926,11 @@ class Order extends AbstractModel
                         : LengowAction::TYPE_SHIP;
                 }
                 if ($action === LengowAction::TYPE_SHIP) {
-                    $success = true;
                     $shipments = $order->getShipmentsCollection();
+                    if (!$shipments->getSize()) {
+                        return false;
+                    }
+                    $success = true;
                     foreach ($shipments as $shipment) {
                         if (!$this->callAction($action, $order, $shipment)) {
                             $success = false;
@@ -1209,7 +1212,9 @@ class Order extends AbstractModel
             // for global mode without lines, use legacy behavior
             if (empty($apiLines)) {
                 $success = $marketplace->callAction(LengowAction::TYPE_SHIP, $order, $lengowOrder, $shipment);
-                $this->markShipmentProcessed($lengowOrder, $extra, $shipmentId);
+                if ($success) {
+                    $this->markShipmentProcessed($lengowOrder, $extra, $shipmentId);
+                }
                 return $success;
             }
             $orderLines = $apiLines;
@@ -1312,11 +1317,16 @@ class Order extends AbstractModel
                         );
                     }
                 }
-                $this->markShipmentProcessed($lengowOrder, $extra, $shipmentId);
-                return !in_array(false, $results, true);
+                $success = !in_array(false, $results, true);
+                if ($success) {
+                    $this->markShipmentProcessed($lengowOrder, $extra, $shipmentId);
+                }
+                return $success;
             }
             $success = $marketplace->callAction(LengowAction::TYPE_SHIP, $order, $lengowOrder, $shipment);
-            $this->markShipmentProcessed($lengowOrder, $extra, $shipmentId);
+            if ($success) {
+                $this->markShipmentProcessed($lengowOrder, $extra, $shipmentId);
+            }
             return $success;
         }
 
@@ -1325,7 +1335,7 @@ class Order extends AbstractModel
             if ($this->isOrderShipmentComplete($progress, $orderLines)) {
                 // send global action without line
                 $success = $marketplace->callAction(LengowAction::TYPE_SHIP, $order, $lengowOrder, $shipment);
-                $this->persistShipmentProgress($lengowOrder, $extra, $progress, $shipmentId);
+                $this->persistShipmentProgress($lengowOrder, $extra, $progress, $shipmentId, $success);
                 return $success;
             }
             // not complete yet, persist progress and return
@@ -1378,7 +1388,7 @@ class Order extends AbstractModel
             }
         }
 
-        $this->persistShipmentProgress($lengowOrder, $extra, $progress, $shipmentId);
+        $this->persistShipmentProgress($lengowOrder, $extra, $progress, $shipmentId, $success);
         return $success;
     }
 
@@ -1441,7 +1451,7 @@ class Order extends AbstractModel
                 continue;
             }
             $lineProgress = $progress[$orderLineId] ?? null;
-            if (!$lineProgress || $lineProgress['qty_shipped'] < $lineProgress['qty_original']) {
+            if (!$lineProgress || ($lineProgress['qty_shipped'] ?? 0) < ($lineProgress['qty_original'] ?? PHP_INT_MAX)) {
                 return false;
             }
         }
@@ -1449,25 +1459,29 @@ class Order extends AbstractModel
     }
 
     /**
-     * Persist shipment progress and mark shipment as processed
+     * Persist shipment progress and optionally mark shipment as processed
      *
      * @param Order $lengowOrder Lengow order instance
      * @param array $extra existing extra data
      * @param array $progress updated shipment progress
      * @param int $shipmentId processed shipment id
+     * @param bool $markProcessed whether to add shipmentId to processed_shipment_ids
      */
     private function persistShipmentProgress(
         Order $lengowOrder,
         array $extra,
         array $progress,
-        int $shipmentId
+        int $shipmentId,
+        bool $markProcessed = true
     ): void {
         $extra['shipment_progress'] = $progress;
-        $processedIds = $extra['processed_shipment_ids'] ?? [];
-        if (!in_array($shipmentId, $processedIds, true)) {
-            $processedIds[] = $shipmentId;
+        if ($markProcessed) {
+            $processedIds = $extra['processed_shipment_ids'] ?? [];
+            if (!in_array($shipmentId, $processedIds, true)) {
+                $processedIds[] = $shipmentId;
+            }
+            $extra['processed_shipment_ids'] = $processedIds;
         }
-        $extra['processed_shipment_ids'] = $processedIds;
         $lengowOrder->updateOrder([self::FIELD_EXTRA => json_encode($extra)]);
     }
 

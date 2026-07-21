@@ -50,7 +50,9 @@
             "id": true,
             "order_id": true,
             "product_id": true,
-            "order_line_id": true
+            "order_line_id": true,
+            "order_item_id": true,
+            "quantity": true
         },
         "constraint": {
             "PRIMARY": true

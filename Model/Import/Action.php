@@ -837,7 +837,7 @@ class Action extends AbstractModel
                     continue;
                 }
                 $lineProgress = $progress[$orderLineId] ?? null;
-                if (!$lineProgress || $lineProgress['qty_shipped'] < $lineProgress['qty_original']) {
+                if (!$lineProgress || ($lineProgress['qty_shipped'] ?? 0) < ($lineProgress['qty_original'] ?? PHP_INT_MAX)) {
                     return false;
                 }
             }
