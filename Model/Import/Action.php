@@ -39,6 +39,8 @@ use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 use Lengow\Connector\Model\Import\Ordererror as LengowOrderError;
 use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
+use Lengow\Connector\Model\Import\Orderline as LengowOrderLine;
+use Lengow\Connector\Model\Import\OrderlineFactory as LengowOrderLineFactory;
 use Lengow\Connector\Model\ResourceModel\Action as LengowActionResource;
 use Lengow\Connector\Model\ResourceModel\Action\CollectionFactory as LengowActionCollectionFactory;
 
@@ -162,6 +164,11 @@ class Action extends AbstractModel
     private $lengowActionCollection;
 
     /**
+     * @var LengowOrderLineFactory Lengow order line factory instance
+     */
+    private $lengowOrderLineFactory;
+
+    /**
      * @var array field list for the table lengow_order_line
      * required => Required fields when creating registration
      * update   => Fields allowed when updating registration
@@ -213,6 +220,7 @@ class Action extends AbstractModel
      * @param LengowOrderErrorFactory $lengowOrderErrorFactory Lengow order error factory instance
      * @param LengowActionCollectionFactory $lengowActionCollection Lengow action collection factory
      * @param LengowActionFactory $lengowActionFactory Lengow action factory instance
+     * @param LengowOrderLineFactory $lengowOrderLineFactory Lengow order line factory instance
      */
     public function __construct(
         Context $context,
@@ -227,7 +235,8 @@ class Action extends AbstractModel
         LengowOrderFactory $lengowOrderFactory,
         LengowOrderErrorFactory $lengowOrderErrorFactory,
         LengowActionCollectionFactory $lengowActionCollection,
-        LengowActionFactory $lengowActionFactory
+        LengowActionFactory $lengowActionFactory,
+        LengowOrderLineFactory $lengowOrderLineFactory
     ) {
         $this->dateTime = $dateTime;
         $this->timezone = $timezone;
@@ -240,6 +249,7 @@ class Action extends AbstractModel
         $this->lengowOrderErrorFactory = $lengowOrderErrorFactory;
         $this->lengowActionCollection = $lengowActionCollection;
         $this->lengowActionFactory = $lengowActionFactory;
+        $this->lengowOrderLineFactory = $lengowOrderLineFactory;
         parent::__construct($context, $registry);
     }
 
@@ -817,6 +827,23 @@ class Action extends AbstractModel
         if (empty($progress)) {
             return true;
         }
+        // cross-reference with order lines to ensure all lines have progress entries
+        $orderId = (int) $lengowOrder->getData(LengowOrder::FIELD_ORDER_ID);
+        $orderLines = $this->lengowOrderLineFactory->create()->getFullOrderLinesByOrderId($orderId);
+        if (!empty($orderLines)) {
+            foreach ($orderLines as $line) {
+                $orderLineId = $line[LengowOrderLine::FIELD_ORDER_LINE_ID] ?? null;
+                if ($orderLineId === null) {
+                    continue;
+                }
+                $lineProgress = $progress[$orderLineId] ?? null;
+                if (!$lineProgress || $lineProgress['qty_shipped'] < $lineProgress['qty_original']) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        // fallback: if no order lines in DB, check existing progress entries
         foreach ($progress as $lineProgress) {
             if (($lineProgress['qty_shipped'] ?? 0) < ($lineProgress['qty_original'] ?? 0)) {
                 return false;

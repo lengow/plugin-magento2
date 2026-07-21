@@ -64,7 +64,8 @@ class PopulateOrderItemId implements DataPatchInterface
                 ->from($orderItemTable, ['item_id', 'qty_ordered'])
                 ->where('order_id = ?', $row['order_id'])
                 ->where('product_id = ?', $row['product_id'])
-                ->where('parent_item_id IS NULL');
+                ->where('parent_item_id IS NULL')
+                ->limit(2);
 
             $items = $connection->fetchAll($itemSelect);
 
