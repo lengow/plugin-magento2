@@ -54,6 +54,10 @@
             "order_item_id": true,
             "quantity": true
         },
+        "index": {
+            "LENGOW_ORDER_LINE_ORDER_ID_ORDER_ITEM_ID": true,
+            "LENGOW_ORDER_LINE_ORDER_ID_PRODUCT_ID": true
+        },
         "constraint": {
             "PRIMARY": true
         }
