@@ -367,16 +367,15 @@ class Marketplace extends AbstractModel
             $marketplaceArguments = $this->getMarketplaceArguments($action);
             // get all available values from an order
             $params = $this->getAllParams($action, $order, $lengowOrder, $shipment, $marketplaceArguments);
-            // check required arguments and clean value for empty optionals arguments
-            $params = $this->checkAndCleanParams($action, $params);
-            // complete the values with the specific values of the account
+            // add order line id and extra params before validation
             if ($orderLineId !== null) {
                 $params[LengowAction::ARG_LINE] = $orderLineId;
             }
-            // merge extra params (quantity, shipped_quantity)
             foreach ($extraParams as $key => $value) {
                 $params[$key] = $value;
             }
+            // check required arguments and clean value for empty optionals arguments
+            $params = $this->checkAndCleanParams($action, $params);
             $params[LengowImport::ARG_MARKETPLACE_ORDER_ID] = $lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_SKU);
             $params[LengowImport::ARG_MARKETPLACE] = $lengowOrder->getData(LengowOrder::FIELD_MARKETPLACE_NAME);
             $params[LengowAction::ARG_ACTION_TYPE] = $action;
