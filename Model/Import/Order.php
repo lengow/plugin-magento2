@@ -1180,6 +1180,9 @@ class Order extends AbstractModel
         $shipmentId = (int) $shipment->getEntityId();
         $extra = json_decode($lengowOrder->getData(self::FIELD_EXTRA) ?: '', true) ?: [];
         $processedIds = $extra['processed_shipment_ids'] ?? [];
+        if (!is_array($processedIds)) {
+            $processedIds = [];
+        }
 
         // deduplication: skip already processed shipments
         if (in_array($shipmentId, $processedIds, true)) {
@@ -1194,6 +1197,9 @@ class Order extends AbstractModel
 
         $mode = $marketplace->resolveShipmentMode();
         $progress = $extra['shipment_progress'] ?? [];
+        if (!is_array($progress)) {
+            $progress = [];
+        }
         $orderId = (int) $order->getId();
 
         // load order lines from lengow_order_line
@@ -1234,8 +1240,17 @@ class Order extends AbstractModel
             // for child items (configurable/bundle), use the parent order item for matching
             $orderItem = $shipmentItem->getOrderItem();
             if ($orderItem && $orderItem->getParentItemId()) {
-                $orderItemId = (int) $orderItem->getParentItemId();
-                $orderItem = $orderItem->getParentItem();
+                $parentItem = $orderItem->getParentItem();
+                if ($parentItem) {
+                    // adjust qty to parent-equivalent (e.g. bundle child qty 2 / parent qty 1 = ratio 2)
+                    $childQtyOrdered = (int) $orderItem->getQtyOrdered();
+                    $parentQtyOrdered = (int) $parentItem->getQtyOrdered();
+                    if ($childQtyOrdered > 0 && $parentQtyOrdered > 0 && $childQtyOrdered !== $parentQtyOrdered) {
+                        $shipmentQty = (int) ($shipmentQty * $parentQtyOrdered / $childQtyOrdered);
+                    }
+                    $orderItemId = (int) $parentItem->getItemId();
+                    $orderItem = $parentItem;
+                }
             }
 
             // try to find the marketplace order line for this shipment item
@@ -1576,6 +1591,9 @@ class Order extends AbstractModel
         $extra['shipment_progress'] = $progress;
         if ($markProcessed) {
             $processedIds = $extra['processed_shipment_ids'] ?? [];
+            if (!is_array($processedIds)) {
+                $processedIds = [];
+            }
             if (!in_array($shipmentId, $processedIds, true)) {
                 $processedIds[] = $shipmentId;
             }
@@ -1594,6 +1612,9 @@ class Order extends AbstractModel
     private function markShipmentProcessed(Order $lengowOrder, array $extra, int $shipmentId): void
     {
         $processedIds = $extra['processed_shipment_ids'] ?? [];
+        if (!is_array($processedIds)) {
+            $processedIds = [];
+        }
         if (!in_array($shipmentId, $processedIds, true)) {
             $processedIds[] = $shipmentId;
         }
