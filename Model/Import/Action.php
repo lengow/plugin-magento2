@@ -427,45 +427,48 @@ class Action extends AbstractModel
      */
     public function canSendAction(array $params, MagentoOrder $order, bool $skipQueuedCheck = false): bool
     {
-        if ($skipQueuedCheck) {
-            return true;
-        }
         $sendAction = true;
-        // check if action is already created
-        $getParams = array_merge($params, ['queued' => 'True']);
-        // array key deletion for GET verification
-        foreach (self::$getParamsToDelete as $param) {
-            if (isset($getParams[$param])) {
-                unset($getParams[$param]);
+        if (!$skipQueuedCheck) {
+            // check if action is already created
+            $getParams = array_merge($params, ['queued' => 'True']);
+            // array key deletion for GET verification
+            foreach (self::$getParamsToDelete as $param) {
+                if (isset($getParams[$param])) {
+                    unset($getParams[$param]);
+                }
             }
-        }
-        $result = $this->lengowConnector->queryApi(LengowConnector::GET, LengowConnector::API_ORDER_ACTION, $getParams);
-        if (isset($result->error, $result->error->message)) {
-            throw new LengowException($result->error->message);
-        }
-        if (isset($result->count) && $result->count > 0) {
-            foreach ($result->results as $row) {
-                $actionId = $this->getActionByActionId($row->id);
-                if ($actionId) {
-                    $action = $this->lengowActionFactory->create()->load($actionId);
-                    if ((int) $action->getData(self::FIELD_STATE) === 0) {
-                        $retry = (int) $action->getData(self::FIELD_RETRY) + 1;
-                        $action->updateAction([self::FIELD_RETRY => $retry]);
+            $result = $this->lengowConnector->queryApi(
+                LengowConnector::GET,
+                LengowConnector::API_ORDER_ACTION,
+                $getParams
+            );
+            if (isset($result->error, $result->error->message)) {
+                throw new LengowException($result->error->message);
+            }
+            if (isset($result->count) && $result->count > 0) {
+                foreach ($result->results as $row) {
+                    $actionId = $this->getActionByActionId($row->id);
+                    if ($actionId) {
+                        $action = $this->lengowActionFactory->create()->load($actionId);
+                        if ((int) $action->getData(self::FIELD_STATE) === 0) {
+                            $retry = (int) $action->getData(self::FIELD_RETRY) + 1;
+                            $action->updateAction([self::FIELD_RETRY => $retry]);
+                            $sendAction = false;
+                        }
+                    } else {
+                        // if update doesn't work, create new action
+                        $action = $this->lengowActionFactory->create();
+                        $action->createAction(
+                            [
+                                self::FIELD_ORDER_ID => $order->getId(),
+                                self::FIELD_ACTION_TYPE => $params[self::ARG_ACTION_TYPE],
+                                self::FIELD_ACTION_ID => $row->id,
+                                self::FIELD_ORDER_LINE_SKU => $params[self::ARG_LINE] ?? null,
+                                self::FIELD_PARAMETERS => $this->jsonHelper->jsonEncode($params),
+                            ]
+                        );
                         $sendAction = false;
                     }
-                } else {
-                    // if update doesn't work, create new action
-                    $action = $this->lengowActionFactory->create();
-                    $action->createAction(
-                        [
-                            self::FIELD_ORDER_ID => $order->getId(),
-                            self::FIELD_ACTION_TYPE => $params[self::ARG_ACTION_TYPE],
-                            self::FIELD_ACTION_ID => $row->id,
-                            self::FIELD_ORDER_LINE_SKU => $params[self::ARG_LINE] ?? null,
-                            self::FIELD_PARAMETERS => $this->jsonHelper->jsonEncode($params),
-                        ]
-                    );
-                    $sendAction = false;
                 }
             }
         }
@@ -802,8 +805,10 @@ class Action extends AbstractModel
                     $order = $this->orderFactory->create()->load((int) $unsentOrder['order_id']);
                     if ($action === self::TYPE_SHIP) {
                         $shipments = $order->getShipmentsCollection();
-                        foreach ($shipments as $shipment) {
-                            $lengowOrder->callAction($action, $order, $shipment);
+                        if ($shipments->getSize()) {
+                            foreach ($shipments as $shipment) {
+                                $lengowOrder->callAction($action, $order, $shipment);
+                            }
                         }
                     } else {
                         $lengowOrder->callAction($action, $order, null);
@@ -849,7 +854,7 @@ class Action extends AbstractModel
         }
         // fallback: if no order lines in DB, check existing progress entries
         foreach ($progress as $lineProgress) {
-            if (($lineProgress['qty_shipped'] ?? 0) < ($lineProgress['qty_original'] ?? 0)) {
+            if (($lineProgress['qty_shipped'] ?? 0) < ($lineProgress['qty_original'] ?? PHP_INT_MAX)) {
                 return false;
             }
         }

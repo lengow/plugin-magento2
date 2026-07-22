@@ -70,8 +70,11 @@ class Resend extends Action
             : LengowAction::TYPE_SHIP;
         $order = $this->orderFactory->create()->load((int) $orderId);
         if ($action === LengowAction::TYPE_SHIP) {
-            foreach ($order->getShipmentsCollection() as $shipment) {
-                $this->lengowOrder->callAction($action, $order, $shipment);
+            $shipments = $order->getShipmentsCollection();
+            if ($shipments->getSize()) {
+                foreach ($shipments as $shipment) {
+                    $this->lengowOrder->callAction($action, $order, $shipment);
+                }
             }
         } else {
             $this->lengowOrder->callAction($action, $order, null);
