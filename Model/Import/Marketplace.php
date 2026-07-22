@@ -27,6 +27,7 @@ use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Sales\Model\Order\Shipment;
 use Magento\Sales\Model\Order\Shipment\Track;
+use Magento\Shipping\Helper\Data as ShippingHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Exception as LengowException;
@@ -65,6 +66,11 @@ class Marketplace extends AbstractModel
      * @var LengowOrderErrorFactory Lengow order error factory instance
      */
     private $orderErrorFactory;
+
+    /**
+     * @var ShippingHelper Magento shipping helper instance
+     */
+    private $shippingHelper;
 
     /**
      * @var array all valid actions
@@ -139,13 +145,15 @@ class Marketplace extends AbstractModel
         DataHelper $dataHelper,
         SyncHelper $syncHelper,
         LengowAction $orderAction,
-        LengowOrderErrorFactory $orderErrorFactory
+        LengowOrderErrorFactory $orderErrorFactory,
+        ShippingHelper $shippingHelper
     ) {
         $this->timezone = $timezone;
         $this->dataHelper = $dataHelper;
         $this->syncHelper = $syncHelper;
         $this->orderAction = $orderAction;
         $this->orderErrorFactory = $orderErrorFactory;
+        $this->shippingHelper = $shippingHelper;
         parent::__construct($context, $registry);
     }
 
@@ -522,6 +530,15 @@ class Marketplace extends AbstractModel
                 case LengowAction::ARG_SHIPPING_PRICE:
                     $params[$arg] = $order->getShippingInclTax();
                     break;
+                case LengowAction::ARG_TRACKING_URL:
+                    $tracks = $shipment ? $shipment->getAllTracks() : null;
+                    if (!empty($tracks)) {
+                        $lastTrack = end($tracks);
+                    }
+                    $params[$arg] = isset($lastTrack)
+                        ? $this->shippingHelper->getTrackingPopupUrlBySalesModel($lastTrack)
+                        : '';
+                    break;
                 case LengowAction::ARG_SHIPPING_DATE:
                 case LengowAction::ARG_DELIVERY_DATE:
                     $params[$arg] = $this->timezone->date()->format(DataHelper::DATE_ISO_8601);
@@ -677,4 +694,5 @@ class Marketplace extends AbstractModel
         }
         return $found;
     }
+
 }
