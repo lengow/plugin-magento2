@@ -419,6 +419,7 @@ class Action extends AbstractModel
      *
      * @param array $params all available values
      * @param MagentoOrder $order Magento order instance
+     * @param bool $skipQueuedCheck whether to skip the queued action check
      *
      * @throws LengowException
      *
@@ -838,7 +839,9 @@ class Action extends AbstractModel
                     continue;
                 }
                 $lineProgress = $progress[$orderLineId] ?? null;
-                if (!$lineProgress || ($lineProgress['qty_shipped'] ?? 0) < ($lineProgress['qty_original'] ?? PHP_INT_MAX)) {
+                if (!$lineProgress
+                    || ($lineProgress['qty_shipped'] ?? 0) < ($lineProgress['qty_original'] ?? PHP_INT_MAX)
+                ) {
                     return false;
                 }
             }

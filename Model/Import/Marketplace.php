@@ -339,6 +339,16 @@ class Marketplace extends AbstractModel
 
     /**
      * Call Action with marketplace
+     *
+     * @param string $action action type (ship, cancel)
+     * @param MagentoOrder $order Magento order instance
+     * @param Order $lengowOrder Lengow order instance
+     * @param Shipment|null $shipment Magento shipment instance
+     * @param string|null $orderLineId marketplace order line id
+     * @param array $extraParams additional params (quantity, shipped_quantity)
+     * @param bool $skipQueuedCheck whether to skip the queued action check
+     *
+     * @return bool
      */
     public function callAction(
         string $action,
@@ -531,11 +541,12 @@ class Marketplace extends AbstractModel
                     $params[$arg] = $order->getShippingInclTax();
                     break;
                 case LengowAction::ARG_TRACKING_URL:
+                    $lastTrack = null;
                     $tracks = $shipment ? $shipment->getAllTracks() : null;
                     if (!empty($tracks)) {
                         $lastTrack = end($tracks);
                     }
-                    $params[$arg] = isset($lastTrack)
+                    $params[$arg] = $lastTrack !== null
                         ? $this->shippingHelper->getTrackingPopupUrlBySalesModel($lastTrack)
                         : '';
                     break;

@@ -1721,7 +1721,7 @@ class Importorder extends AbstractModel
      */
     private function saveLengowOrderLine(MagentoOrder $order, array $products): void
     {
-        $orderLineSaved = false;
+        $orderLineSaved = '';
         // build a map of product_id => order_item_ids from Magento order items
         $orderItemsByProductId = [];
         foreach ($order->getAllVisibleItems() as $orderItem) {

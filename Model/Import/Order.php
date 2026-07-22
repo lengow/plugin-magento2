@@ -33,6 +33,7 @@ use Magento\Sales\Model\Convert\Order as ConvertOrder;
 use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Sales\Model\OrderFactory as MagentoOrderFactory;
 use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Item as OrderItem;
 use Magento\Sales\Model\Order\Shipment;
 use Magento\Sales\Model\Order\Shipment\Track;
 use Magento\Sales\Model\Order\Shipment\TrackFactory;
@@ -1305,16 +1306,27 @@ class Order extends AbstractModel
         if ($useLegacyFallback) {
             if ($marketplace->containOrderLine(LengowAction::TYPE_SHIP)) {
                 // legacy behavior: send action for each order line individually
+                $marketplaceArgs = $marketplace->getMarketplaceArguments(LengowAction::TYPE_SHIP);
                 $results = [];
                 foreach ($orderLines as $orderLine) {
                     $lineId = $orderLine[LengowOrderLine::FIELD_ORDER_LINE_ID] ?? null;
                     if ($lineId !== null) {
+                        $lineParams = [];
+                        $lineQty = $orderLine[LengowOrderLine::FIELD_QUANTITY] ?? null;
+                        if ($lineQty !== null) {
+                            if (in_array(LengowAction::ARG_SHIPPED_QUANTITY, $marketplaceArgs, true)) {
+                                $lineParams[LengowAction::ARG_SHIPPED_QUANTITY] = (int) $lineQty;
+                            } elseif (in_array(LengowAction::ARG_QUANTITY, $marketplaceArgs, true)) {
+                                $lineParams[LengowAction::ARG_QUANTITY] = (int) $lineQty;
+                            }
+                        }
                         $results[] = $marketplace->callAction(
                             LengowAction::TYPE_SHIP,
                             $order,
                             $lengowOrder,
                             $shipment,
-                            $lineId
+                            $lineId,
+                            $lineParams
                         );
                     }
                 }
@@ -1409,7 +1421,7 @@ class Order extends AbstractModel
      * Match a shipment item to a marketplace order line
      *
      * @param int $orderItemId Magento order item id
-     * @param mixed $orderItem Magento order item
+     * @param OrderItem|null $orderItem Magento order item
      * @param int $orderId Magento order id
      * @param array $orderLines order lines from lengow_order_line
      *
@@ -1417,7 +1429,7 @@ class Order extends AbstractModel
      */
     private function matchShipmentItemToOrderLine(
         int $orderItemId,
-        $orderItem,
+        ?OrderItem $orderItem,
         int $orderId,
         array $orderLines
     ): ?array {
@@ -1464,7 +1476,9 @@ class Order extends AbstractModel
                 continue;
             }
             $lineProgress = $progress[$orderLineId] ?? null;
-            if (!$lineProgress || ($lineProgress['qty_shipped'] ?? 0) < ($lineProgress['qty_original'] ?? PHP_INT_MAX)) {
+            if (!$lineProgress
+                || ($lineProgress['qty_shipped'] ?? 0) < ($lineProgress['qty_original'] ?? PHP_INT_MAX)
+            ) {
                 return false;
             }
         }
