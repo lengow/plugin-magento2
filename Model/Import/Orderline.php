@@ -189,7 +189,7 @@ class Orderline extends AbstractModel
             ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)
             ->addFieldToFilter(self::FIELD_ORDER_ITEM_ID, $orderItemId)
             ->getData();
-        if (!empty($results)) {
+        if (count($results) === 1) {
             return $results[0];
         }
         return null;
