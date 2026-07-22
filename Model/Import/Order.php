@@ -1225,6 +1225,7 @@ class Order extends AbstractModel
         $toProcess = [];
         $useLegacyFallback = false;
         $progressSnapshot = $progress; // snapshot to rollback on API failure
+        $lineProgressSnapshots = [];
 
         foreach ($shipment->getAllItems() as $shipmentItem) {
             $orderItemId = (int) $shipmentItem->getOrderItemId();
@@ -1279,6 +1280,10 @@ class Order extends AbstractModel
                 continue;
             }
 
+            if (!array_key_exists($orderLineId, $lineProgressSnapshots)) {
+                $lineProgressSnapshots[$orderLineId] = $progressSnapshot[$orderLineId] ?? null;
+            }
+
             $progress[$orderLineId]['qty_shipped'] += $actualQty;
 
             switch ($mode) {
@@ -1286,12 +1291,14 @@ class Order extends AbstractModel
                     $toProcess[] = [
                         'order_line_id' => $orderLineId,
                         'quantity' => (int) $actualQty,
+                        'progress_snapshot' => $lineProgressSnapshots[$orderLineId],
                     ];
                     break;
                 case 'by_line':
                     if ($progress[$orderLineId]['qty_shipped'] >= $progress[$orderLineId]['qty_original']) {
                         $toProcess[] = [
                             'order_line_id' => $orderLineId,
+                            'progress_snapshot' => $lineProgressSnapshots[$orderLineId],
                         ];
                     }
                     break;
@@ -1306,19 +1313,24 @@ class Order extends AbstractModel
         if ($useLegacyFallback) {
             if ($marketplace->containOrderLine(LengowAction::TYPE_SHIP)) {
                 // legacy behavior: send action for each order line individually
+                $marketplaceAction = $marketplace->getAction(LengowAction::TYPE_SHIP);
                 $marketplaceArgs = $marketplace->getMarketplaceArguments(LengowAction::TYPE_SHIP);
                 $results = [];
                 foreach ($orderLines as $orderLine) {
                     $lineId = $orderLine[LengowOrderLine::FIELD_ORDER_LINE_ID] ?? null;
                     if ($lineId !== null) {
-                        $lineParams = [];
-                        $lineQty = $orderLine[LengowOrderLine::FIELD_QUANTITY] ?? null;
-                        if ($lineQty !== null) {
-                            if (in_array(LengowAction::ARG_SHIPPED_QUANTITY, $marketplaceArgs, true)) {
-                                $lineParams[LengowAction::ARG_SHIPPED_QUANTITY] = (int) $lineQty;
-                            } elseif (in_array(LengowAction::ARG_QUANTITY, $marketplaceArgs, true)) {
-                                $lineParams[LengowAction::ARG_QUANTITY] = (int) $lineQty;
-                            }
+                        $lineParams = $this->getLegacyShipLineParams($marketplaceAction, $marketplaceArgs, $orderLine);
+                        if ($lineParams === null) {
+                            $this->dataHelper->log(
+                                DataHelper::CODE_ACTION,
+                                $this->dataHelper->setLogMessage(
+                                    'cannot use legacy ship behavior for order line %1 because quantity is unavailable',
+                                    [$lineId]
+                                ),
+                                false,
+                                $lengowOrder->getData(self::FIELD_MARKETPLACE_SKU)
+                            );
+                            return false;
                         }
                         $results[] = $marketplace->callAction(
                             LengowAction::TYPE_SHIP,
@@ -1404,13 +1416,18 @@ class Order extends AbstractModel
             );
             if (!$result) {
                 $success = false;
+                $this->restoreLineProgress(
+                    $progress,
+                    $lineToShip['order_line_id'],
+                    $lineToShip['progress_snapshot'] ?? null
+                );
             }
         }
 
         $this->persistShipmentProgress(
             $lengowOrder,
             $extra,
-            $success ? $progress : $progressSnapshot,
+            $progress,
             $shipmentId,
             $success
         );
@@ -1483,6 +1500,60 @@ class Order extends AbstractModel
             }
         }
         return true;
+    }
+
+    /**
+     * Build legacy ship params for a line-level fallback call.
+     *
+     * @param array $marketplaceAction marketplace ship action definition
+     * @param array $marketplaceArgs marketplace ship arguments
+     * @param array $orderLine Lengow order line data
+     *
+     * @return array|null null when a required quantity argument cannot be populated
+     */
+    private function getLegacyShipLineParams(array $marketplaceAction, array $marketplaceArgs, array $orderLine): ?array
+    {
+        $lineQty = $orderLine[LengowOrderLine::FIELD_QUANTITY] ?? null;
+        $requiredArgs = $marketplaceAction['args'] ?? [];
+
+        if (in_array(LengowAction::ARG_SHIPPED_QUANTITY, $requiredArgs, true)) {
+            return $lineQty === null ? null : [LengowAction::ARG_SHIPPED_QUANTITY => (int) $lineQty];
+        }
+
+        if (in_array(LengowAction::ARG_QUANTITY, $requiredArgs, true)) {
+            return $lineQty === null ? null : [LengowAction::ARG_QUANTITY => (int) $lineQty];
+        }
+
+        if ($lineQty === null) {
+            return [];
+        }
+
+        if (in_array(LengowAction::ARG_SHIPPED_QUANTITY, $marketplaceArgs, true)) {
+            return [LengowAction::ARG_SHIPPED_QUANTITY => (int) $lineQty];
+        }
+
+        if (in_array(LengowAction::ARG_QUANTITY, $marketplaceArgs, true)) {
+            return [LengowAction::ARG_QUANTITY => (int) $lineQty];
+        }
+
+        return [];
+    }
+
+    /**
+     * Restore shipment progress for a failed line without dropping successful lines.
+     *
+     * @param array $progress shipment progress by reference
+     * @param string $orderLineId marketplace order line id
+     * @param array|null $lineProgressSnapshot progress state before processing the line
+     */
+    private function restoreLineProgress(array &$progress, string $orderLineId, ?array $lineProgressSnapshot): void
+    {
+        if ($lineProgressSnapshot === null) {
+            unset($progress[$orderLineId]);
+            return;
+        }
+
+        $progress[$orderLineId] = $lineProgressSnapshot;
     }
 
     /**

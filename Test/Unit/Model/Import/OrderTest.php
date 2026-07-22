@@ -241,4 +241,93 @@ class OrderTest extends \PHPUnit\Framework\TestCase
             '[Test Get Order Line By Api] Check if return is valid for order with two packages'
         );
     }
+
+    /**
+     * @covers \Lengow\Connector\Model\Import\Order::getLegacyShipLineParams()
+     */
+    public function testGetLegacyShipLineParams()
+    {
+        $fixture = new Fixture();
+        $marketplaceArgs = ['line', 'quantity', 'tracking_number'];
+
+        $this->assertNull(
+            $fixture->invokeMethod(
+                $this->_order,
+                'getLegacyShipLineParams',
+                [
+                    ['args' => ['line', 'quantity']],
+                    $marketplaceArgs,
+                    ['order_line_id' => 'line-1'],
+                ]
+            ),
+            '[Test Get Legacy Ship Line Params] Check returns null when required quantity is unavailable'
+        );
+
+        $this->assertEquals(
+            ['quantity' => 2],
+            $fixture->invokeMethod(
+                $this->_order,
+                'getLegacyShipLineParams',
+                [
+                    ['args' => ['line']],
+                    $marketplaceArgs,
+                    ['order_line_id' => 'line-1', 'quantity' => 2],
+                ]
+            ),
+            '[Test Get Legacy Ship Line Params] Check returns optional quantity when available'
+        );
+
+        $this->assertEquals(
+            [],
+            $fixture->invokeMethod(
+                $this->_order,
+                'getLegacyShipLineParams',
+                [
+                    ['args' => ['line']],
+                    ['line', 'tracking_number'],
+                    ['order_line_id' => 'line-1'],
+                ]
+            ),
+            '[Test Get Legacy Ship Line Params] Check returns empty params when no quantity argument exists'
+        );
+    }
+
+    /**
+     * @covers \Lengow\Connector\Model\Import\Order::restoreLineProgress()
+     */
+    public function testRestoreLineProgress()
+    {
+        $fixture = new Fixture();
+        $progress = [
+            'line-1' => ['qty_original' => 2, 'qty_shipped' => 2],
+            'line-2' => ['qty_original' => 1, 'qty_shipped' => 1],
+        ];
+
+        $fixture->invokeMethod(
+            $this->_order,
+            'restoreLineProgress',
+            [&$progress, 'line-1', ['qty_original' => 2, 'qty_shipped' => 1]]
+        );
+        $this->assertEquals(
+            ['qty_original' => 2, 'qty_shipped' => 1],
+            $progress['line-1'],
+            '[Test Restore Line Progress] Check successful lines keep only the failed line rollback'
+        );
+        $this->assertEquals(
+            ['qty_original' => 1, 'qty_shipped' => 1],
+            $progress['line-2'],
+            '[Test Restore Line Progress] Check unrelated line progress is preserved'
+        );
+
+        $fixture->invokeMethod(
+            $this->_order,
+            'restoreLineProgress',
+            [&$progress, 'line-3', null]
+        );
+        $this->assertArrayNotHasKey(
+            'line-3',
+            $progress,
+            '[Test Restore Line Progress] Check line is removed when it had no prior progress'
+        );
+    }
 }
