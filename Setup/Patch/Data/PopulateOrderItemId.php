@@ -58,7 +58,22 @@ class PopulateOrderItemId implements DataPatchInterface
 
         $rows = $connection->fetchAll($select);
 
+        // group by (order_id, product_id) to detect 1:N lengow lines for same product
+        $groups = [];
         foreach ($rows as $row) {
+            $key = $row['order_id'] . '_' . $row['product_id'];
+            $groups[$key][] = $row;
+        }
+
+        foreach ($groups as $group) {
+            // skip if multiple lengow_order_line rows exist for the same product
+            // (ambiguous 1:N mapping — cannot determine which line maps to which item)
+            if (count($group) > 1) {
+                continue;
+            }
+
+            $row = $group[0];
+
             // find matching sales_order_item by order_id and product_id
             $itemSelect = $connection->select()
                 ->from($orderItemTable, ['item_id', 'qty_ordered'])
@@ -69,7 +84,7 @@ class PopulateOrderItemId implements DataPatchInterface
 
             $items = $connection->fetchAll($itemSelect);
 
-            // only populate if there is exactly one match (no ambiguity)
+            // only populate if there is exactly one match on both sides (no ambiguity)
             if (count($items) === 1) {
                 $connection->update(
                     $orderLineTable,

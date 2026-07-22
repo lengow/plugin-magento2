@@ -1223,6 +1223,7 @@ class Order extends AbstractModel
         // match shipment items to marketplace order lines and update progress
         $toProcess = [];
         $useLegacyFallback = false;
+        $progressSnapshot = $progress; // snapshot to rollback on API failure
 
         foreach ($shipment->getAllItems() as $shipmentItem) {
             $orderItemId = (int) $shipmentItem->getOrderItemId();
@@ -1335,7 +1336,13 @@ class Order extends AbstractModel
             if ($this->isOrderShipmentComplete($progress, $orderLines)) {
                 // send global action without line
                 $success = $marketplace->callAction(LengowAction::TYPE_SHIP, $order, $lengowOrder, $shipment);
-                $this->persistShipmentProgress($lengowOrder, $extra, $progress, $shipmentId, $success);
+                $this->persistShipmentProgress(
+                    $lengowOrder,
+                    $extra,
+                    $success ? $progress : $progressSnapshot,
+                    $shipmentId,
+                    $success
+                );
                 return $success;
             }
             // not complete yet, persist progress and return
@@ -1388,7 +1395,13 @@ class Order extends AbstractModel
             }
         }
 
-        $this->persistShipmentProgress($lengowOrder, $extra, $progress, $shipmentId, $success);
+        $this->persistShipmentProgress(
+            $lengowOrder,
+            $extra,
+            $success ? $progress : $progressSnapshot,
+            $shipmentId,
+            $success
+        );
         return $success;
     }
 

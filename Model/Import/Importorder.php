@@ -1733,14 +1733,12 @@ class Importorder extends AbstractModel
             foreach ($product['order_line_ids'] as $idOrderLine) {
                 $orderItemId = null;
                 $lineQuantity = null;
-                // match order_item_id by position when multiple items for same product
-                if (isset($productOrderItems[$orderLineIndex])) {
+                // match order_item_id by position only when counts match (true 1:1 mapping)
+                if (count($product['order_line_ids']) === count($productOrderItems)
+                    && isset($productOrderItems[$orderLineIndex])
+                ) {
                     $orderItemId = (int) $productOrderItems[$orderLineIndex]->getItemId();
                     $lineQuantity = (int) $productOrderItems[$orderLineIndex]->getQtyOrdered();
-                } elseif (count($productOrderItems) === 1) {
-                    // single order item for this product, all lines map to it
-                    $orderItemId = (int) $productOrderItems[0]->getItemId();
-                    $lineQuantity = (int) $product['quantity'];
                 }
                 $orderLineData = [
                     LengowOrderLine::FIELD_ORDER_ID => (int) $order->getId(),
