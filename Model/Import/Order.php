@@ -1231,10 +1231,11 @@ class Order extends AbstractModel
             $orderItemId = (int) $shipmentItem->getOrderItemId();
             $shipmentQty = (int) $shipmentItem->getQty();
 
-            // skip child items (bundle components) — we only process parent items
+            // for child items (configurable/bundle), use the parent order item for matching
             $orderItem = $shipmentItem->getOrderItem();
             if ($orderItem && $orderItem->getParentItemId()) {
-                continue;
+                $orderItemId = (int) $orderItem->getParentItemId();
+                $orderItem = $orderItem->getParentItem();
             }
 
             // try to find the marketplace order line for this shipment item
@@ -1260,10 +1261,10 @@ class Order extends AbstractModel
             // determine original quantity: prefer stored value, then existing progress, then order item qty
             $storedQty = $matchedLine[LengowOrderLine::FIELD_QUANTITY] ?? null;
             $orderItemQty = $orderItem ? (int) $orderItem->getQtyOrdered() : null;
-            $qtyOriginal = (int) ($storedQty
-                ?? $progress[$orderLineId]['qty_original']
-                ?? $orderItemQty
-                ?? $shipmentQty);
+            $progressQtyOriginal = isset($progress[$orderLineId])
+                ? ($progress[$orderLineId]['qty_original'] ?? null)
+                : null;
+            $qtyOriginal = (int) ($storedQty ?? $progressQtyOriginal ?? $orderItemQty ?? $shipmentQty);
 
             // initialize progress if needed
             if (!isset($progress[$orderLineId])) {
