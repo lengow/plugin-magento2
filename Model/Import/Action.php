@@ -838,11 +838,13 @@ class Action extends AbstractModel
         $orderId = (int) $lengowOrder->getData(LengowOrder::FIELD_ORDER_ID);
         $orderLines = $this->lengowOrderLineFactory->create()->getFullOrderLinesByOrderId($orderId);
         if (!empty($orderLines)) {
+            $checkedLines = 0;
             foreach ($orderLines as $line) {
                 $orderLineId = $line[LengowOrderLine::FIELD_ORDER_LINE_ID] ?? null;
                 if ($orderLineId === null) {
                     continue;
                 }
+                $checkedLines++;
                 $lineProgress = $progress[$orderLineId] ?? null;
                 if (!$lineProgress
                     || ($lineProgress['qty_shipped'] ?? 0) < ($lineProgress['qty_original'] ?? PHP_INT_MAX)
@@ -850,7 +852,7 @@ class Action extends AbstractModel
                     return false;
                 }
             }
-            return true;
+            return $checkedLines > 0;
         }
         // fallback: if no order lines in DB, check existing progress entries
         foreach ($progress as $lineProgress) {

@@ -1229,7 +1229,7 @@ class Order extends AbstractModel
 
         foreach ($shipment->getAllItems() as $shipmentItem) {
             $orderItemId = (int) $shipmentItem->getOrderItemId();
-            $shipmentQty = (float) $shipmentItem->getQty();
+            $shipmentQty = (int) $shipmentItem->getQty();
 
             // skip child items (bundle components) — we only process parent items
             $orderItem = $shipmentItem->getOrderItem();
@@ -1238,7 +1238,7 @@ class Order extends AbstractModel
             }
 
             // try to find the marketplace order line for this shipment item
-            $matchedLine = $this->matchShipmentItemToOrderLine($orderItemId, $orderItem, $orderId, $orderLines);
+            $matchedLine = $this->matchShipmentItemToOrderLine($orderItemId, $orderItem, $orderId);
 
             if ($matchedLine === null) {
                 // same product on multiple marketplace lines without order_item_id (pre-migration order)
@@ -1342,7 +1342,7 @@ class Order extends AbstractModel
                         );
                     }
                 }
-                $success = !in_array(false, $results, true);
+                $success = !empty($results) && !in_array(false, $results, true);
                 if ($success) {
                     $this->markShipmentProcessed($lengowOrder, $extra, $shipmentId);
                 }
@@ -1440,15 +1440,13 @@ class Order extends AbstractModel
      * @param int $orderItemId Magento order item id
      * @param OrderItem|null $orderItem Magento order item
      * @param int $orderId Magento order id
-     * @param array $orderLines order lines from lengow_order_line
      *
      * @return array|null matched line or null if multiple lines match (legacy orders)
      */
     private function matchShipmentItemToOrderLine(
         int $orderItemId,
         ?OrderItem $orderItem,
-        int $orderId,
-        array $orderLines
+        int $orderId
     ): ?array {
         // first try by order_item_id (post-migration orders)
         $orderLine = $this->lengowOrderLineFactory->create()
@@ -1487,11 +1485,13 @@ class Order extends AbstractModel
         if (empty($orderLines)) {
             return false;
         }
+        $checkedLines = 0;
         foreach ($orderLines as $line) {
             $orderLineId = $line[LengowOrderLine::FIELD_ORDER_LINE_ID] ?? null;
             if ($orderLineId === null) {
                 continue;
             }
+            $checkedLines++;
             $lineProgress = $progress[$orderLineId] ?? null;
             if (!$lineProgress
                 || ($lineProgress['qty_shipped'] ?? 0) < ($lineProgress['qty_original'] ?? PHP_INT_MAX)
@@ -1499,7 +1499,7 @@ class Order extends AbstractModel
                 return false;
             }
         }
-        return true;
+        return $checkedLines > 0;
     }
 
     /**
