@@ -1721,18 +1721,40 @@ class Importorder extends AbstractModel
      */
     private function saveLengowOrderLine(MagentoOrder $order, array $products): void
     {
-        $orderLineSaved = false;
+        $orderLineSaved = '';
+        // build a map of product_id => order_item_ids from Magento order items
+        $orderItemsByProductId = [];
+        foreach ($order->getAllVisibleItems() as $orderItem) {
+            $orderItemsByProductId[(int) $orderItem->getProductId()][] = $orderItem;
+        }
         foreach ($products as $productId => $product) {
+            $productOrderItems = $orderItemsByProductId[(int) $productId] ?? [];
+            $orderLineIndex = 0;
             foreach ($product['order_line_ids'] as $idOrderLine) {
+                $orderItemId = null;
+                $lineQuantity = null;
+                // match order_item_id by position only when counts match (true 1:1 mapping)
+                if (count($product['order_line_ids']) === count($productOrderItems)
+                    && isset($productOrderItems[$orderLineIndex])
+                ) {
+                    $orderItemId = (int) $productOrderItems[$orderLineIndex]->getItemId();
+                    $lineQuantity = (int) $productOrderItems[$orderLineIndex]->getQtyOrdered();
+                }
+                $orderLineData = [
+                    LengowOrderLine::FIELD_ORDER_ID => (int) $order->getId(),
+                    LengowOrderLine::FIELD_PRODUCT_ID => $productId,
+                    LengowOrderLine::FIELD_ORDER_LINE_ID => $idOrderLine,
+                ];
+                if ($orderItemId !== null) {
+                    $orderLineData[LengowOrderLine::FIELD_ORDER_ITEM_ID] = $orderItemId;
+                }
+                if ($lineQuantity !== null) {
+                    $orderLineData[LengowOrderLine::FIELD_QUANTITY] = $lineQuantity;
+                }
                 $orderLine = $this->lengowOrderLineFactory->create();
-                $orderLine->createOrderLine(
-                    [
-                        LengowOrderLine::FIELD_ORDER_ID => (int) $order->getId(),
-                        LengowOrderLine::FIELD_PRODUCT_ID => $productId,
-                        LengowOrderLine::FIELD_ORDER_LINE_ID => $idOrderLine,
-                    ]
-                );
+                $orderLine->createOrderLine($orderLineData);
                 $orderLineSaved .= !$orderLineSaved ? $idOrderLine : ' / ' . $idOrderLine;
+                $orderLineIndex++;
             }
         }
         if ($orderLineSaved) {

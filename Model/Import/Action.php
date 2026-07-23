@@ -39,6 +39,8 @@ use Lengow\Connector\Model\Import\Order as LengowOrder;
 use Lengow\Connector\Model\Import\OrderFactory as LengowOrderFactory;
 use Lengow\Connector\Model\Import\Ordererror as LengowOrderError;
 use Lengow\Connector\Model\Import\OrdererrorFactory as LengowOrderErrorFactory;
+use Lengow\Connector\Model\Import\Orderline as LengowOrderLine;
+use Lengow\Connector\Model\Import\OrderlineFactory as LengowOrderLineFactory;
 use Lengow\Connector\Model\ResourceModel\Action as LengowActionResource;
 use Lengow\Connector\Model\ResourceModel\Action\CollectionFactory as LengowActionCollectionFactory;
 
@@ -85,6 +87,8 @@ class Action extends AbstractModel
     public const ARG_SHIPPING_PRICE = 'shipping_price';
     public const ARG_SHIPPING_DATE = 'shipping_date';
     public const ARG_DELIVERY_DATE = 'delivery_date';
+    public const ARG_QUANTITY = 'quantity';
+    public const ARG_SHIPPED_QUANTITY = 'shipped_quantity';
 
     /**
      * @var integer max interval time for action synchronisation (3 days)
@@ -160,6 +164,11 @@ class Action extends AbstractModel
     private $lengowActionCollection;
 
     /**
+     * @var LengowOrderLineFactory Lengow order line factory instance
+     */
+    private $lengowOrderLineFactory;
+
+    /**
      * @var array field list for the table lengow_order_line
      * required => Required fields when creating registration
      * update   => Fields allowed when updating registration
@@ -211,6 +220,7 @@ class Action extends AbstractModel
      * @param LengowOrderErrorFactory $lengowOrderErrorFactory Lengow order error factory instance
      * @param LengowActionCollectionFactory $lengowActionCollection Lengow action collection factory
      * @param LengowActionFactory $lengowActionFactory Lengow action factory instance
+     * @param LengowOrderLineFactory $lengowOrderLineFactory Lengow order line factory instance
      */
     public function __construct(
         Context $context,
@@ -225,7 +235,8 @@ class Action extends AbstractModel
         LengowOrderFactory $lengowOrderFactory,
         LengowOrderErrorFactory $lengowOrderErrorFactory,
         LengowActionCollectionFactory $lengowActionCollection,
-        LengowActionFactory $lengowActionFactory
+        LengowActionFactory $lengowActionFactory,
+        LengowOrderLineFactory $lengowOrderLineFactory
     ) {
         $this->dateTime = $dateTime;
         $this->timezone = $timezone;
@@ -238,6 +249,7 @@ class Action extends AbstractModel
         $this->lengowOrderErrorFactory = $lengowOrderErrorFactory;
         $this->lengowActionCollection = $lengowActionCollection;
         $this->lengowActionFactory = $lengowActionFactory;
+        $this->lengowOrderLineFactory = $lengowOrderLineFactory;
         parent::__construct($context, $registry);
     }
 
@@ -406,49 +418,56 @@ class Action extends AbstractModel
      *
      * @param array $params all available values
      * @param MagentoOrder $order Magento order instance
+     * @param bool $skipQueuedCheck whether to skip the queued action check
      *
      * @throws LengowException
      *
      * @return boolean
      */
-    public function canSendAction(array $params, MagentoOrder $order): bool
+    public function canSendAction(array $params, MagentoOrder $order, bool $skipQueuedCheck = false): bool
     {
         $sendAction = true;
-        // check if action is already created
-        $getParams = array_merge($params, ['queued' => 'True']);
-        // array key deletion for GET verification
-        foreach (self::$getParamsToDelete as $param) {
-            if (isset($getParams[$param])) {
-                unset($getParams[$param]);
+        if (!$skipQueuedCheck) {
+            // check if action is already created
+            $getParams = array_merge($params, ['queued' => 'True']);
+            // array key deletion for GET verification
+            foreach (self::$getParamsToDelete as $param) {
+                if (isset($getParams[$param])) {
+                    unset($getParams[$param]);
+                }
             }
-        }
-        $result = $this->lengowConnector->queryApi(LengowConnector::GET, LengowConnector::API_ORDER_ACTION, $getParams);
-        if (isset($result->error, $result->error->message)) {
-            throw new LengowException($result->error->message);
-        }
-        if (isset($result->count) && $result->count > 0) {
-            foreach ($result->results as $row) {
-                $actionId = $this->getActionByActionId($row->id);
-                if ($actionId) {
-                    $action = $this->lengowActionFactory->create()->load($actionId);
-                    if ((int) $action->getData(self::FIELD_STATE) === 0) {
-                        $retry = (int) $action->getData(self::FIELD_RETRY) + 1;
-                        $action->updateAction([self::FIELD_RETRY => $retry]);
+            $result = $this->lengowConnector->queryApi(
+                LengowConnector::GET,
+                LengowConnector::API_ORDER_ACTION,
+                $getParams
+            );
+            if (isset($result->error, $result->error->message)) {
+                throw new LengowException($result->error->message);
+            }
+            if (isset($result->count) && $result->count > 0) {
+                foreach ($result->results as $row) {
+                    $actionId = $this->getActionByActionId($row->id);
+                    if ($actionId) {
+                        $action = $this->lengowActionFactory->create()->load($actionId);
+                        if ((int) $action->getData(self::FIELD_STATE) === 0) {
+                            $retry = (int) $action->getData(self::FIELD_RETRY) + 1;
+                            $action->updateAction([self::FIELD_RETRY => $retry]);
+                            $sendAction = false;
+                        }
+                    } else {
+                        // if update doesn't work, create new action
+                        $action = $this->lengowActionFactory->create();
+                        $action->createAction(
+                            [
+                                self::FIELD_ORDER_ID => $order->getId(),
+                                self::FIELD_ACTION_TYPE => $params[self::ARG_ACTION_TYPE],
+                                self::FIELD_ACTION_ID => $row->id,
+                                self::FIELD_ORDER_LINE_SKU => $params[self::ARG_LINE] ?? null,
+                                self::FIELD_PARAMETERS => $this->jsonHelper->jsonEncode($params),
+                            ]
+                        );
                         $sendAction = false;
                     }
-                } else {
-                    // if update doesn't work, create new action
-                    $action = $this->lengowActionFactory->create();
-                    $action->createAction(
-                        [
-                            self::FIELD_ORDER_ID => $order->getId(),
-                            self::FIELD_ACTION_TYPE => $params[self::ARG_ACTION_TYPE],
-                            self::FIELD_ACTION_ID => $row->id,
-                            self::FIELD_ORDER_LINE_SKU => $params[self::ARG_LINE] ?? null,
-                            self::FIELD_PARAMETERS => $this->jsonHelper->jsonEncode($params),
-                        ]
-                    );
-                    $sendAction = false;
                 }
             }
         }
@@ -639,10 +658,13 @@ class Action extends AbstractModel
                         if ($apiAction->processed == true
                             && empty($apiAction->errors)
                         ) {
-                            $lengowOrder->updateOrder(
-                                [LengowOrder::FIELD_ORDER_PROCESS_STATE => $processStateFinish]
-                            );
-                            $this->finishAllActions($action[self::FIELD_ORDER_ID]);
+                            // check if all lines have been fully shipped before closing the order
+                            if ($this->isOrderFullyShipped($lengowOrder)) {
+                                $lengowOrder->updateOrder(
+                                    [LengowOrder::FIELD_ORDER_PROCESS_STATE => $processStateFinish]
+                                );
+                                $this->finishAllActions($action[self::FIELD_ORDER_ID]);
+                            }
                         } else {
                             // if action is denied -> create order error
                             $orderError = $this->lengowOrderErrorFactory->create();
@@ -780,9 +802,61 @@ class Action extends AbstractModel
                 if (!$this->getActionsByOrderId((int) $unsentOrder['order_id'], true)) {
                     $action = $unsentOrder['state'] === self::TYPE_CANCEL ? self::TYPE_CANCEL : self::TYPE_SHIP;
                     $order = $this->orderFactory->create()->load((int) $unsentOrder['order_id']);
-                    $shipment = $action === self::TYPE_SHIP ? $order->getShipmentsCollection()->getFirstItem() : null;
-                    $lengowOrder->callAction($action, $order, $shipment);
+                    if ($action === self::TYPE_SHIP) {
+                        $shipments = $order->getShipmentsCollection();
+                        if ($shipments->getSize()) {
+                            foreach ($shipments as $shipment) {
+                                $lengowOrder->callAction($action, $order, $shipment);
+                            }
+                        }
+                    } else {
+                        $lengowOrder->callAction($action, $order, null);
+                    }
                 }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Check if all marketplace order lines have been fully shipped
+     *
+     * @param LengowOrder $lengowOrder Lengow order instance
+     *
+     * @return bool
+     */
+    private function isOrderFullyShipped(LengowOrder $lengowOrder): bool
+    {
+        $extra = json_decode($lengowOrder->getData(LengowOrder::FIELD_EXTRA) ?: '', true) ?: [];
+        $progress = $extra['shipment_progress'] ?? [];
+        // if no shipment_progress exists (legacy order), consider fully shipped for backward compatibility
+        if (empty($progress)) {
+            return true;
+        }
+        // cross-reference with order lines to ensure all lines have progress entries
+        $orderId = (int) $lengowOrder->getData(LengowOrder::FIELD_ORDER_ID);
+        $orderLines = $this->lengowOrderLineFactory->create()->getFullOrderLinesByOrderId($orderId);
+        if (!empty($orderLines)) {
+            $checkedLines = 0;
+            foreach ($orderLines as $line) {
+                $orderLineId = $line[LengowOrderLine::FIELD_ORDER_LINE_ID] ?? null;
+                if ($orderLineId === null) {
+                    continue;
+                }
+                $checkedLines++;
+                $lineProgress = $progress[$orderLineId] ?? null;
+                if (!$lineProgress
+                    || ($lineProgress['qty_shipped'] ?? 0) < ($lineProgress['qty_original'] ?? PHP_INT_MAX)
+                ) {
+                    return false;
+                }
+            }
+            return $checkedLines > 0;
+        }
+        // fallback: if no order lines in DB, check existing progress entries
+        foreach ($progress as $lineProgress) {
+            if (($lineProgress['qty_shipped'] ?? 0) < ($lineProgress['qty_original'] ?? PHP_INT_MAX)) {
+                return false;
             }
         }
         return true;

@@ -33,6 +33,7 @@ use Magento\Sales\Model\Convert\Order as ConvertOrder;
 use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Sales\Model\OrderFactory as MagentoOrderFactory;
 use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Item as OrderItem;
 use Magento\Sales\Model\Order\Shipment;
 use Magento\Sales\Model\Order\Shipment\Track;
 use Magento\Sales\Model\Order\Shipment\TrackFactory;
@@ -925,9 +926,20 @@ class Order extends AbstractModel
                         ? LengowAction::TYPE_CANCEL
                         : LengowAction::TYPE_SHIP;
                 }
-                /** @var Shipment|void $shipment */
-                $shipment = $order->getShipmentsCollection()->getFirstItem();
-                return $this->callAction($action, $order, $shipment);
+                if ($action === LengowAction::TYPE_SHIP) {
+                    $shipments = $order->getShipmentsCollection();
+                    if (!$shipments->getSize()) {
+                        return false;
+                    }
+                    $success = true;
+                    foreach ($shipments as $shipment) {
+                        if (!$this->callAction($action, $order, $shipment)) {
+                            $success = false;
+                        }
+                    }
+                    return $success;
+                }
+                return $this->callAction($action, $order, null);
             }
         }
         return false;
@@ -1062,7 +1074,15 @@ class Order extends AbstractModel
             $marketplace = $this->importHelper->getMarketplaceSingleton(
                 $lengowOrder->getData(self::FIELD_MARKETPLACE_NAME)
             );
-            if ($marketplace->containOrderLine($action)) {
+            // use partial shipment logic for ship actions with a specific shipment
+            if ($action === LengowAction::TYPE_SHIP && $shipment !== null) {
+                $success = $this->callPartialShipmentAction(
+                    $order,
+                    $shipment,
+                    $lengowOrder,
+                    $marketplace
+                );
+            } elseif ($marketplace->containOrderLine($action)) {
                 $orderLineCollection = $this->lengowOrderLineFactory->create()->getOrderLineByOrderID($order->getId());
                 // get order line ids by API for security
                 if (!$orderLineCollection) {
@@ -1137,6 +1157,469 @@ class Order extends AbstractModel
             $lengowOrder->getData(self::FIELD_MARKETPLACE_SKU)
         );
         return $success;
+    }
+
+    /**
+     * Handle partial shipment action based on marketplace capabilities
+     *
+     * @param MagentoOrder $order Magento order instance
+     * @param Shipment $shipment Magento shipment instance
+     * @param Order $lengowOrder Lengow order instance
+     * @param LengowMarketplace $marketplace Marketplace instance
+     *
+     * @return bool
+     *
+     * @throws LengowException
+     */
+    private function callPartialShipmentAction(
+        MagentoOrder $order,
+        Shipment $shipment,
+        Order $lengowOrder,
+        LengowMarketplace $marketplace
+    ): bool {
+        $shipmentId = (int) $shipment->getEntityId();
+        $extra = json_decode($lengowOrder->getData(self::FIELD_EXTRA) ?: '', true) ?: [];
+        $processedIds = $extra['processed_shipment_ids'] ?? [];
+        if (!is_array($processedIds)) {
+            $processedIds = [];
+        }
+
+        // deduplication: skip already processed shipments
+        if (in_array($shipmentId, $processedIds, true)) {
+            $this->dataHelper->log(
+                DataHelper::CODE_ACTION,
+                $this->dataHelper->setLogMessage('shipment %1 already processed, skipping', [$shipmentId]),
+                false,
+                $lengowOrder->getData(self::FIELD_MARKETPLACE_SKU)
+            );
+            return true;
+        }
+
+        $mode = $marketplace->resolveShipmentMode();
+        $progress = $extra['shipment_progress'] ?? [];
+        if (!is_array($progress)) {
+            $progress = [];
+        }
+        $orderId = (int) $order->getId();
+
+        // load order lines from lengow_order_line
+        $orderLines = $this->lengowOrderLineFactory->create()->getFullOrderLinesByOrderId($orderId);
+        if (empty($orderLines)) {
+            // fallback: try API
+            $apiLines = $this->getOrderLineByApi(
+                $lengowOrder->getData(self::FIELD_MARKETPLACE_SKU),
+                $lengowOrder->getData(self::FIELD_MARKETPLACE_NAME),
+                (int) $lengowOrder->getData(self::FIELD_DELIVERY_ADDRESS_ID)
+            );
+            if (empty($apiLines) && $mode !== 'global') {
+                throw new LengowException(
+                    $this->dataHelper->setLogMessage('order line is required but not found in the order')
+                );
+            }
+            // for global mode without lines, use legacy behavior
+            if (empty($apiLines)) {
+                $success = $marketplace->callAction(LengowAction::TYPE_SHIP, $order, $lengowOrder, $shipment);
+                if ($success) {
+                    $this->markShipmentProcessed($lengowOrder, $extra, $shipmentId);
+                }
+                return $success;
+            }
+            $orderLines = $apiLines;
+        }
+
+        // match shipment items to marketplace order lines and update progress
+        $toProcess = [];
+        $useLegacyFallback = false;
+        $progressSnapshot = $progress; // snapshot to rollback on API failure
+        $lineProgressSnapshots = [];
+
+        foreach ($shipment->getAllItems() as $shipmentItem) {
+            $orderItemId = (int) $shipmentItem->getOrderItemId();
+            $shipmentQty = (int) $shipmentItem->getQty();
+
+            // for child items (configurable/bundle), use the parent order item for matching
+            $orderItem = $shipmentItem->getOrderItem();
+            if ($orderItem && $orderItem->getParentItemId()) {
+                $parentItem = $orderItem->getParentItem();
+                if ($parentItem) {
+                    // adjust qty to parent-equivalent (e.g. bundle child qty 2 / parent qty 1 = ratio 2)
+                    $childQtyOrdered = (int) $orderItem->getQtyOrdered();
+                    $parentQtyOrdered = (int) $parentItem->getQtyOrdered();
+                    if ($childQtyOrdered > 0 && $parentQtyOrdered > 0 && $childQtyOrdered !== $parentQtyOrdered) {
+                        $shipmentQty = (int) ($shipmentQty * $parentQtyOrdered / $childQtyOrdered);
+                    }
+                    $orderItemId = (int) $parentItem->getItemId();
+                    $orderItem = $parentItem;
+                }
+            }
+
+            // try to find the marketplace order line for this shipment item
+            $matchedLine = $this->matchShipmentItemToOrderLine($orderItemId, $orderItem, $orderId);
+
+            if ($matchedLine === null) {
+                // same product on multiple marketplace lines without order_item_id (pre-migration order)
+                // cannot determine line-level mapping, use legacy behavior instead
+                $useLegacyFallback = true;
+                $this->dataHelper->log(
+                    DataHelper::CODE_ACTION,
+                    $this->dataHelper->setLogMessage(
+                        'multiple marketplace lines for same product (order item %1), using legacy ship behavior',
+                        [$orderItemId]
+                    ),
+                    false,
+                    $lengowOrder->getData(self::FIELD_MARKETPLACE_SKU)
+                );
+                break;
+            }
+
+            $orderLineId = $matchedLine[LengowOrderLine::FIELD_ORDER_LINE_ID];
+            // determine original quantity: prefer stored value, then existing progress, then order item qty
+            $storedQty = $matchedLine[LengowOrderLine::FIELD_QUANTITY] ?? null;
+            $orderItemQty = $orderItem ? (int) $orderItem->getQtyOrdered() : null;
+            $progressQtyOriginal = isset($progress[$orderLineId])
+                ? ($progress[$orderLineId]['qty_original'] ?? null)
+                : null;
+            $qtyOriginal = (int) ($storedQty ?? $progressQtyOriginal ?? $orderItemQty ?? $shipmentQty);
+
+            // initialize progress if needed
+            if (!isset($progress[$orderLineId])) {
+                $progress[$orderLineId] = [
+                    'qty_original' => $qtyOriginal,
+                    'qty_shipped' => 0,
+                ];
+            }
+
+            // cap over-fulfillment
+            $qtyAlreadyShipped = $progress[$orderLineId]['qty_shipped'];
+            $actualQty = min($shipmentQty, $qtyOriginal - $qtyAlreadyShipped);
+            if ($actualQty <= 0) {
+                continue;
+            }
+
+            if (!array_key_exists($orderLineId, $lineProgressSnapshots)) {
+                $lineProgressSnapshots[$orderLineId] = $progressSnapshot[$orderLineId] ?? null;
+            }
+
+            $progress[$orderLineId]['qty_shipped'] += $actualQty;
+
+            switch ($mode) {
+                case 'by_quantity':
+                    $toProcess[] = [
+                        'order_line_id' => $orderLineId,
+                        'quantity' => (int) $actualQty,
+                        'progress_snapshot' => $lineProgressSnapshots[$orderLineId],
+                    ];
+                    break;
+                case 'by_line':
+                    if ($progress[$orderLineId]['qty_shipped'] >= $progress[$orderLineId]['qty_original']) {
+                        $toProcess[] = [
+                            'order_line_id' => $orderLineId,
+                            'progress_snapshot' => $lineProgressSnapshots[$orderLineId],
+                        ];
+                    }
+                    break;
+                case 'global':
+                    // will check completion after the loop
+                    break;
+            }
+        }
+
+        // for pre-migration orders where line-level mapping is not possible,
+        // use the same behavior as before: send action for all lines at once
+        if ($useLegacyFallback) {
+            if ($marketplace->containOrderLine(LengowAction::TYPE_SHIP)) {
+                // legacy behavior: send action for each order line individually
+                $marketplaceAction = $marketplace->getAction(LengowAction::TYPE_SHIP);
+                $marketplaceArgs = $marketplace->getMarketplaceArguments(LengowAction::TYPE_SHIP);
+                $results = [];
+                foreach ($orderLines as $orderLine) {
+                    $lineId = $orderLine[LengowOrderLine::FIELD_ORDER_LINE_ID] ?? null;
+                    if ($lineId !== null) {
+                        $lineParams = $this->getLegacyShipLineParams($marketplaceAction, $marketplaceArgs, $orderLine);
+                        if ($lineParams === null) {
+                            $this->dataHelper->log(
+                                DataHelper::CODE_ACTION,
+                                $this->dataHelper->setLogMessage(
+                                    'cannot use legacy ship behavior for order line %1 because quantity is unavailable',
+                                    [$lineId]
+                                ),
+                                false,
+                                $lengowOrder->getData(self::FIELD_MARKETPLACE_SKU)
+                            );
+                            return false;
+                        }
+                        $results[] = $marketplace->callAction(
+                            LengowAction::TYPE_SHIP,
+                            $order,
+                            $lengowOrder,
+                            $shipment,
+                            $lineId,
+                            $lineParams
+                        );
+                    }
+                }
+                $success = !empty($results) && !in_array(false, $results, true);
+                if ($success) {
+                    $this->markShipmentProcessed($lengowOrder, $extra, $shipmentId);
+                }
+                return $success;
+            }
+            $success = $marketplace->callAction(LengowAction::TYPE_SHIP, $order, $lengowOrder, $shipment);
+            if ($success) {
+                $this->markShipmentProcessed($lengowOrder, $extra, $shipmentId);
+            }
+            return $success;
+        }
+
+        // for global mode, check if all lines are complete
+        if ($mode === 'global') {
+            if ($this->isOrderShipmentComplete($progress, $orderLines)) {
+                // send global action without line
+                $success = $marketplace->callAction(LengowAction::TYPE_SHIP, $order, $lengowOrder, $shipment);
+                $this->persistShipmentProgress(
+                    $lengowOrder,
+                    $extra,
+                    $success ? $progress : $progressSnapshot,
+                    $shipmentId,
+                    $success
+                );
+                return $success;
+            }
+            // not complete yet, persist progress and return
+            $this->persistShipmentProgress($lengowOrder, $extra, $progress, $shipmentId);
+            $this->dataHelper->log(
+                DataHelper::CODE_ACTION,
+                $this->dataHelper->setLogMessage('order not fully shipped yet, waiting for remaining shipments'),
+                false,
+                $lengowOrder->getData(self::FIELD_MARKETPLACE_SKU)
+            );
+            return true;
+        }
+
+        // send actions for lines ready to ship (by_quantity or by_line)
+        if (empty($toProcess)) {
+            // no lines ready to send yet (by_line mode accumulating)
+            $this->persistShipmentProgress($lengowOrder, $extra, $progress, $shipmentId);
+            $this->dataHelper->log(
+                DataHelper::CODE_ACTION,
+                $this->dataHelper->setLogMessage('partial shipment recorded, lines not yet complete'),
+                false,
+                $lengowOrder->getData(self::FIELD_MARKETPLACE_SKU)
+            );
+            return true;
+        }
+
+        $success = true;
+        foreach ($toProcess as $lineToShip) {
+            $params = [];
+            if (isset($lineToShip['quantity'])) {
+                // determine the right argument name (quantity or shipped_quantity)
+                $marketplaceArgs = $marketplace->getMarketplaceArguments(LengowAction::TYPE_SHIP);
+                if (in_array(LengowAction::ARG_SHIPPED_QUANTITY, $marketplaceArgs, true)) {
+                    $params[LengowAction::ARG_SHIPPED_QUANTITY] = $lineToShip['quantity'];
+                } else {
+                    $params[LengowAction::ARG_QUANTITY] = $lineToShip['quantity'];
+                }
+            }
+            $result = $marketplace->callAction(
+                LengowAction::TYPE_SHIP,
+                $order,
+                $lengowOrder,
+                $shipment,
+                $lineToShip['order_line_id'],
+                $params,
+                true
+            );
+            if (!$result) {
+                $success = false;
+                $this->restoreLineProgress(
+                    $progress,
+                    $lineToShip['order_line_id'],
+                    $lineToShip['progress_snapshot'] ?? null
+                );
+            }
+        }
+
+        $this->persistShipmentProgress(
+            $lengowOrder,
+            $extra,
+            $progress,
+            $shipmentId,
+            $success
+        );
+        return $success;
+    }
+
+    /**
+     * Match a shipment item to a marketplace order line
+     *
+     * @param int $orderItemId Magento order item id
+     * @param OrderItem|null $orderItem Magento order item
+     * @param int $orderId Magento order id
+     *
+     * @return array|null matched line or null if multiple lines match (legacy orders)
+     */
+    private function matchShipmentItemToOrderLine(
+        int $orderItemId,
+        ?OrderItem $orderItem,
+        int $orderId
+    ): ?array {
+        // first try by order_item_id (post-migration orders)
+        $orderLine = $this->lengowOrderLineFactory->create()
+            ->getOrderLineByOrderItemId($orderId, $orderItemId);
+        if ($orderLine !== null) {
+            return $orderLine;
+        }
+
+        // fallback by product_id
+        $productId = $orderItem ? (int) $orderItem->getProductId() : 0;
+        if ($productId === 0) {
+            return null;
+        }
+
+        $matchingLines = $this->lengowOrderLineFactory->create()
+            ->getOrderLinesByProductId($orderId, $productId);
+
+        if (count($matchingLines) === 1) {
+            return $matchingLines[0];
+        }
+
+        // multiple lines for same product_id without order_item_id — cannot determine mapping
+        return null;
+    }
+
+    /**
+     * Check if all order lines have been fully shipped
+     *
+     * @param array $progress shipment progress per line
+     * @param array $orderLines order lines from lengow_order_line
+     *
+     * @return bool
+     */
+    private function isOrderShipmentComplete(array $progress, array $orderLines): bool
+    {
+        if (empty($orderLines)) {
+            return false;
+        }
+        $checkedLines = 0;
+        foreach ($orderLines as $line) {
+            $orderLineId = $line[LengowOrderLine::FIELD_ORDER_LINE_ID] ?? null;
+            if ($orderLineId === null) {
+                continue;
+            }
+            $checkedLines++;
+            $lineProgress = $progress[$orderLineId] ?? null;
+            if (!$lineProgress
+                || ($lineProgress['qty_shipped'] ?? 0) < ($lineProgress['qty_original'] ?? PHP_INT_MAX)
+            ) {
+                return false;
+            }
+        }
+        return $checkedLines > 0;
+    }
+
+    /**
+     * Build legacy ship params for a line-level fallback call.
+     *
+     * @param array $marketplaceAction marketplace ship action definition
+     * @param array $marketplaceArgs marketplace ship arguments
+     * @param array $orderLine Lengow order line data
+     *
+     * @return array|null null when a required quantity argument cannot be populated
+     */
+    private function getLegacyShipLineParams(array $marketplaceAction, array $marketplaceArgs, array $orderLine): ?array
+    {
+        $lineQty = $orderLine[LengowOrderLine::FIELD_QUANTITY] ?? null;
+        $requiredArgs = $marketplaceAction['args'] ?? [];
+
+        if (in_array(LengowAction::ARG_SHIPPED_QUANTITY, $requiredArgs, true)) {
+            return $lineQty === null ? null : [LengowAction::ARG_SHIPPED_QUANTITY => (int) $lineQty];
+        }
+
+        if (in_array(LengowAction::ARG_QUANTITY, $requiredArgs, true)) {
+            return $lineQty === null ? null : [LengowAction::ARG_QUANTITY => (int) $lineQty];
+        }
+
+        if ($lineQty === null) {
+            return [];
+        }
+
+        if (in_array(LengowAction::ARG_SHIPPED_QUANTITY, $marketplaceArgs, true)) {
+            return [LengowAction::ARG_SHIPPED_QUANTITY => (int) $lineQty];
+        }
+
+        if (in_array(LengowAction::ARG_QUANTITY, $marketplaceArgs, true)) {
+            return [LengowAction::ARG_QUANTITY => (int) $lineQty];
+        }
+
+        return [];
+    }
+
+    /**
+     * Restore shipment progress for a failed line without dropping successful lines.
+     *
+     * @param array $progress shipment progress by reference
+     * @param string $orderLineId marketplace order line id
+     * @param array|null $lineProgressSnapshot progress state before processing the line
+     */
+    private function restoreLineProgress(array &$progress, string $orderLineId, ?array $lineProgressSnapshot): void
+    {
+        if ($lineProgressSnapshot === null) {
+            unset($progress[$orderLineId]);
+            return;
+        }
+
+        $progress[$orderLineId] = $lineProgressSnapshot;
+    }
+
+    /**
+     * Persist shipment progress and optionally mark shipment as processed
+     *
+     * @param Order $lengowOrder Lengow order instance
+     * @param array $extra existing extra data
+     * @param array $progress updated shipment progress
+     * @param int $shipmentId processed shipment id
+     * @param bool $markProcessed whether to add shipmentId to processed_shipment_ids
+     */
+    private function persistShipmentProgress(
+        Order $lengowOrder,
+        array $extra,
+        array $progress,
+        int $shipmentId,
+        bool $markProcessed = true
+    ): void {
+        $extra['shipment_progress'] = $progress;
+        if ($markProcessed) {
+            $processedIds = $extra['processed_shipment_ids'] ?? [];
+            if (!is_array($processedIds)) {
+                $processedIds = [];
+            }
+            if (!in_array($shipmentId, $processedIds, true)) {
+                $processedIds[] = $shipmentId;
+            }
+            $extra['processed_shipment_ids'] = $processedIds;
+        }
+        $lengowOrder->updateOrder([self::FIELD_EXTRA => json_encode($extra)]);
+    }
+
+    /**
+     * Mark a shipment as processed without updating progress
+     *
+     * @param Order $lengowOrder Lengow order instance
+     * @param array $extra existing extra data
+     * @param int $shipmentId processed shipment id
+     */
+    private function markShipmentProcessed(Order $lengowOrder, array $extra, int $shipmentId): void
+    {
+        $processedIds = $extra['processed_shipment_ids'] ?? [];
+        if (!is_array($processedIds)) {
+            $processedIds = [];
+        }
+        if (!in_array($shipmentId, $processedIds, true)) {
+            $processedIds[] = $shipmentId;
+        }
+        $extra['processed_shipment_ids'] = $processedIds;
+        $lengowOrder->updateOrder([self::FIELD_EXTRA => json_encode($extra)]);
     }
 
     /**

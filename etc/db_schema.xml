@@ -64,9 +64,21 @@
         <column xsi:type="int" name="order_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Order Id"/>
         <column xsi:type="int" name="product_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Product Id"/>
         <column xsi:type="varchar" name="order_line_id" nullable="false" length="100" comment="Order Line Id"/>
+        <column xsi:type="int" name="order_item_id" padding="10" unsigned="true" nullable="true"
+                comment="Magento Order Item Id"/>
+        <column xsi:type="int" name="quantity" padding="10" unsigned="true" nullable="true"
+                comment="Original ordered quantity for this line"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="id"/>
         </constraint>
+        <index referenceId="LENGOW_ORDER_LINE_ORDER_ID_ORDER_ITEM_ID" indexType="btree">
+            <column name="order_id"/>
+            <column name="order_item_id"/>
+        </index>
+        <index referenceId="LENGOW_ORDER_LINE_ORDER_ID_PRODUCT_ID" indexType="btree">
+            <column name="order_id"/>
+            <column name="product_id"/>
+        </index>
     </table>
     <table name="lengow_order_error" resource="default" engine="innodb" comment="lengow_order_error">
         <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id"/>

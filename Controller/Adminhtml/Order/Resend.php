@@ -69,9 +69,16 @@ class Resend extends Action
             ? LengowAction::TYPE_CANCEL
             : LengowAction::TYPE_SHIP;
         $order = $this->orderFactory->create()->load((int) $orderId);
-        /** @var Shipment|void $shipment */
-        $shipment = $action === LengowAction::TYPE_SHIP ? $order->getShipmentsCollection()->getFirstItem() : null;
-        $this->lengowOrder->callAction($action, $order, $shipment);
+        if ($action === LengowAction::TYPE_SHIP) {
+            $shipments = $order->getShipmentsCollection();
+            if ($shipments->getSize()) {
+                foreach ($shipments as $shipment) {
+                    $this->lengowOrder->callAction($action, $order, $shipment);
+                }
+            }
+        } else {
+            $this->lengowOrder->callAction($action, $order, null);
+        }
         /** @var Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         return $resultRedirect->setPath('sales/order/view', ['order_id' => $orderId]);

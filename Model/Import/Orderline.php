@@ -42,6 +42,8 @@ class Orderline extends AbstractModel
     public const FIELD_ORDER_ID = 'order_id';
     public const FIELD_PRODUCT_ID = 'product_id';
     public const FIELD_ORDER_LINE_ID = 'order_line_id';
+    public const FIELD_ORDER_ITEM_ID = 'order_item_id';
+    public const FIELD_QUANTITY = 'quantity';
 
     /**
      * @var DataHelper Lengow data helper instance
@@ -69,6 +71,14 @@ class Orderline extends AbstractModel
         ],
         self::FIELD_ORDER_LINE_ID => [
             DataHelper::FIELD_REQUIRED => true,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_ORDER_ITEM_ID => [
+            DataHelper::FIELD_REQUIRED => false,
+            DataHelper::FIELD_CAN_BE_UPDATED => false,
+        ],
+        self::FIELD_QUANTITY => [
+            DataHelper::FIELD_REQUIRED => false,
             DataHelper::FIELD_CAN_BE_UPDATED => false,
         ],
     ];
@@ -148,5 +158,57 @@ class Orderline extends AbstractModel
             return $results;
         }
         return false;
+    }
+
+    /**
+     * Get all order lines with full data by order id
+     *
+     * @param integer $orderId Magento order id
+     *
+     * @return array
+     */
+    public function getFullOrderLinesByOrderId(int $orderId): array
+    {
+        $results = $this->lengowOrderLineCollectionFactory->create()
+            ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)
+            ->getData();
+        return !empty($results) ? $results : [];
+    }
+
+    /**
+     * Get order line by Magento order item id
+     *
+     * @param integer $orderId Magento order id
+     * @param integer $orderItemId Magento order item id
+     *
+     * @return array|null
+     */
+    public function getOrderLineByOrderItemId(int $orderId, int $orderItemId): ?array
+    {
+        $results = $this->lengowOrderLineCollectionFactory->create()
+            ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)
+            ->addFieldToFilter(self::FIELD_ORDER_ITEM_ID, $orderItemId)
+            ->getData();
+        if (count($results) === 1) {
+            return $results[0];
+        }
+        return null;
+    }
+
+    /**
+     * Get order lines by product id
+     *
+     * @param integer $orderId Magento order id
+     * @param integer $productId Magento product id
+     *
+     * @return array
+     */
+    public function getOrderLinesByProductId(int $orderId, int $productId): array
+    {
+        $results = $this->lengowOrderLineCollectionFactory->create()
+            ->addFieldToFilter(self::FIELD_ORDER_ID, $orderId)
+            ->addFieldToFilter(self::FIELD_PRODUCT_ID, $productId)
+            ->getData();
+        return !empty($results) ? $results : [];
     }
 }
