@@ -619,7 +619,11 @@ class Customer extends MagentoResourceCustomer
         $names = $this->getNames($addressData);
         $street = $this->getAddressStreet($addressData, $isShippingAddress);
         $postcode = (string) $addressData->zipcode;
-        $city = ucfirst(strtolower(preg_replace('/[!<>?=+@{}_$%]/sim', '', $addressData->city)));
+        $city = ucfirst(strtolower(preg_replace(
+            '/[!<>?=+@{}_$%]/sim',
+            '',
+            $this->dataHelper->cleanData((string) $addressData->city)
+        )));
         $defaultAddress = $isShippingAddress
             ? $customer->getDefaultShippingAddress()
             : $customer->getDefaultBillingAddress();
