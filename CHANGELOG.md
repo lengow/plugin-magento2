@@ -2,6 +2,13 @@
 
 
 ### Bug Fixes
+## [1.9.0](https://github.com/lengow/plugin-magento2/compare/v1.8.6...v1.9.0) (2026-07-23)
+
+
+### Features
+
+* **ship:** implement multi-shipment support with 3 modes ([#93](https://github.com/lengow/plugin-magento2/issues/93)) ([1cfd9cd](https://github.com/lengow/plugin-magento2/commit/1cfd9cd190df186478b123206867addfd0bf70ad))
+
 ## [1.8.6](https://github.com/lengow/plugin-magento2/compare/v1.8.5...v1.8.6) (2026-06-25)
 
 
