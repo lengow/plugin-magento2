@@ -27,7 +27,6 @@ use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Sales\Model\Order\Shipment;
 use Magento\Sales\Model\Order\Shipment\Track;
-use Magento\Shipping\Helper\Data as ShippingHelper;
 use Lengow\Connector\Helper\Data as DataHelper;
 use Lengow\Connector\Helper\Sync as SyncHelper;
 use Lengow\Connector\Model\Exception as LengowException;
@@ -66,11 +65,6 @@ class Marketplace extends AbstractModel
      * @var LengowOrderErrorFactory Lengow order error factory instance
      */
     private $orderErrorFactory;
-
-    /**
-     * @var ShippingHelper Magento shipping helper instance
-     */
-    private $shippingHelper;
 
     /**
      * @var array all valid actions
@@ -145,15 +139,13 @@ class Marketplace extends AbstractModel
         DataHelper $dataHelper,
         SyncHelper $syncHelper,
         LengowAction $orderAction,
-        LengowOrderErrorFactory $orderErrorFactory,
-        ShippingHelper $shippingHelper
+        LengowOrderErrorFactory $orderErrorFactory
     ) {
         $this->timezone = $timezone;
         $this->dataHelper = $dataHelper;
         $this->syncHelper = $syncHelper;
         $this->orderAction = $orderAction;
         $this->orderErrorFactory = $orderErrorFactory;
-        $this->shippingHelper = $shippingHelper;
         parent::__construct($context, $registry);
     }
 
@@ -538,16 +530,6 @@ class Marketplace extends AbstractModel
                     break;
                 case LengowAction::ARG_SHIPPING_PRICE:
                     $params[$arg] = $order->getShippingInclTax();
-                    break;
-                case LengowAction::ARG_TRACKING_URL:
-                    $lastTrack = null;
-                    $tracks = $shipment ? $shipment->getAllTracks() : null;
-                    if (!empty($tracks)) {
-                        $lastTrack = end($tracks);
-                    }
-                    $params[$arg] = $lastTrack !== null
-                        ? $this->shippingHelper->getTrackingPopupUrlBySalesModel($lastTrack)
-                        : '';
                     break;
                 case LengowAction::ARG_SHIPPING_DATE:
                 case LengowAction::ARG_DELIVERY_DATE:
