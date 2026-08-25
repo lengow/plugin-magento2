@@ -12,6 +12,8 @@ files:
     - repository-owners
   '.github/**':
     - devops
+  'build/**':
+    - devops
 
 options:
   number_of_reviewers: 2
