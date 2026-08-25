@@ -2,6 +2,13 @@
 
 
 ### Bug Fixes
+## [1.10.0](https://github.com/lengow/plugin-magento2/compare/v1.9.0...v1.10.0) (2026-08-25)
+
+
+### Features
+
+* align reviewer assignment ([#96](https://github.com/lengow/plugin-magento2/issues/96)) ([d0f58fd](https://github.com/lengow/plugin-magento2/commit/d0f58fd00673c491cc6ed6d5c633652b6fe27e5d))
+
 ## [1.9.0](https://github.com/lengow/plugin-magento2/compare/v1.8.6...v1.9.0) (2026-07-23)
 
 
