@@ -1,17 +1,44 @@
-name: Auto Request Review
+name: Review Policy
 
 on:
   pull_request:
     types:
       - opened
       - reopened
+      - synchronize
       - ready_for_review
+      - labeled
+      - unlabeled
+  pull_request_review:
+    types:
+      - submitted
+      - dismissed
+
+concurrency:
+  group: review-policy-${{ github.event.pull_request.number }}
 
 jobs:
-  auto-request-review:
-    name: Assign Reviewers
+  policy:
+    name: Select review policy
     runs-on: ubuntu-latest
-    if: ${{ !github.event.pull_request.draft }}
+    outputs:
+      required-approvals: ${{ steps.policy.outputs.required-approvals }}
+      assign-reviewers: ${{ steps.policy.outputs.assign-reviewers }}
+    steps:
+      - name: Resolve policy from labels
+        id: policy
+        uses: lengow/cicd_actions/review-policy/resolve@main
+        with:
+          token: ${{ github.token }}
+
+  assign-reviewers:
+    name: Assign Reviewers
+    needs: policy
+    runs-on: ubuntu-latest
+    if: >-
+      needs.policy.outputs.assign-reviewers == 'true'
+      && !github.event.pull_request.draft
+      && contains(fromJSON('["opened", "reopened", "ready_for_review", "labeled"]'), github.event.action)
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -20,3 +47,14 @@ jobs:
         with:
           token: ${{ secrets.AUTO_ASSIGN_REVIEWERS }}
           config: .github/reviewers.yaml
+
+  required-approvals:
+    name: Check required approvals
+    needs: policy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report approvals as a commit status
+        uses: lengow/cicd_actions/review-policy/report@main
+        with:
+          token: ${{ github.token }}
+          required-approvals: ${{ needs.policy.outputs.required-approvals }}
