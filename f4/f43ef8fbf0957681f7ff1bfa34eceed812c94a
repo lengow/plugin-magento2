@@ -1,0 +1,19 @@
+.github/workflows/auto-assign-reviewer.yaml
+  s_3ae6f653ae655c::t_ae58a19b3eb334 1,8,10-18,21-34,36,38-41,50-60
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "f4f43ef8fbf0957681f7ff1bfa34eceed812c94a",
+  "prompts": {},
+  "sessions": {
+    "s_3ae6f653ae655c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "05d3d319-9262-4881-b90d-7e67283187b8",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Adrien Le Moine <adrien.lemoine@lengow.com>"
+    }
+  }
+}
