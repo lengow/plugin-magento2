@@ -1,0 +1,26 @@
+.github/reviewers.yaml
+  h_f1bc121a0b2c55 15-16
+.github/workflows/auto-assign-reviewer.yaml
+  s_d2e454986651cf::t_44f8166ed17ee3 4-8,14,17,19,22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "d7eb23b10153cf8b6eebb49286c1cd6e456d5bdf",
+  "prompts": {},
+  "humans": {
+    "h_f1bc121a0b2c55": {
+      "author": "Clement Idelon <clement.idelon@lengow.com>"
+    }
+  },
+  "sessions": {
+    "s_d2e454986651cf": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01629-81d6-78c1-8697-14d8108acef3",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
