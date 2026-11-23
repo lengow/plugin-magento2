@@ -1,0 +1,19 @@
+Model/Connector.php
+  s_876cd19cc3ad5f::t_71eda6ebf8c5c2 108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a16ca51aea73fe20f2661562e72855ce66eb58da",
+  "prompts": {},
+  "sessions": {
+    "s_876cd19cc3ad5f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a34d0b2d-3ce9-4ad9-baa6-c272dda9d63c",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Arnaud Hours <arnaud.hours@lengow.com>"
+    }
+  }
+}
